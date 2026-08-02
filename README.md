@@ -35,6 +35,8 @@ pnpm --filter @fulishe/api start
 
 M0-006之后，`workspace:graph`必须显示API、数据库、五端应用壳、共享UI和小程序请求边界共9个包。健康接口为`GET /health/live`和`GET /health/ready`；完整启动、停止、超时/重试和验证说明见`docs/architecture/FOUNDATION_INFRASTRUCTURE.md`。完整的 `pnpm verify` 仍由M0-011建立。
 
+M0-007新增`@fulishe/config`，工作区现在共10个包。启动前可用`pnpm config:check`校验开发样例，用`pnpm secrets:scan`只扫描Git已跟踪文件；生产与预发布凭据必须在运行时注入，不能写入`.env.example`或仓库。完整边界见`docs/architecture/CONFIGURATION_AND_SECRETS.md`。
+
 ## 五端应用壳
 
 ```powershell

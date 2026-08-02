@@ -9,11 +9,12 @@
     "start": "node --env-file-if-exists=../../.env ./dist/main.js",
     "test": "node --test ./test/unit/*.test.mjs",
     "test:api": "node --test ./test/contract/*.test.mjs",
-    "test:infra": "node --env-file-if-exists=../../.env --test ./test/integration/foundation-runtime.test.mjs",
-    "test:infra:degraded": "node --env-file-if-exists=../../.env --test ./test/integration/foundation-degraded.test.mjs",
+    "test:infra": "node --env-file=../../.env.example --env-file-if-exists=../../.env --test ./test/integration/foundation-runtime.test.mjs",
+    "test:infra:degraded": "node --env-file=../../.env.example --env-file-if-exists=../../.env --test ./test/integration/foundation-degraded.test.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@fulishe/config": "workspace:*",
     "@fulishe/db": "workspace:*",
     "@nestjs/common": "11.1.28",
     "@nestjs/core": "11.1.28",

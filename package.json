@@ -11,6 +11,7 @@
   },
   "scripts": {
     "build": "turbo run build",
+    "config:check": "pnpm --filter @fulishe/config build && node --env-file=.env.example ./scripts/check-config.mjs",
     "infra:config": "docker compose -f compose.yaml config --quiet",
     "infra:down": "docker compose -f compose.yaml down --remove-orphans",
     "infra:status": "docker compose -f compose.yaml ps",
@@ -18,8 +19,10 @@
     "lint": "turbo run lint",
     "prisma:generate": "pnpm --filter @fulishe/db prisma:generate",
     "prisma:validate": "pnpm --filter @fulishe/db prisma:validate",
+    "secrets:scan": "pnpm --filter @fulishe/config build && node ./scripts/scan-secrets.mjs --tracked",
     "test": "pnpm test:shells && pnpm test:miniapp-transport && turbo run test",
     "test:api": "pnpm build && pnpm --filter @fulishe/api test:api",
+    "test:config": "pnpm --filter @fulishe/config build && pnpm --filter @fulishe/api build && node --test ./tests/configuration/*.test.mjs",
     "test:infra": "pnpm build && pnpm --filter @fulishe/api test:infra",
     "test:infra:degraded": "pnpm build && pnpm --filter @fulishe/api test:infra:degraded",
     "test:miniapp-transport": "node --test ./tests/application-shells/miniapp-transport-boundary.test.mjs",
