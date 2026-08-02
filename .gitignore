@@ -1,0 +1,16 @@
+# Package manager and task cache
+node_modules/
+.pnpm-store/
+.turbo/
+
+# Build and test output
+dist/
+.next/
+coverage/
+*.tsbuildinfo
+*.log
+
+# Local configuration; only the documented example may be committed
+.env
+.env.*
+!.env.example

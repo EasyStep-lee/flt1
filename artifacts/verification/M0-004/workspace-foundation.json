@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "M0-004",
+  "status": "PASS",
+  "root": "C:\\Users\\lichuanjun\\Documents\\flt1",
+  "versions": {
+    "node": "22.23.1",
+    "activeNode": "22.23.1",
+    "pnpm": "10.12.1",
+    "packageManager": "pnpm@10.12.1",
+    "turbo": "2.10.8"
+  },
+  "workspaceScopes": [
+    "apps/*",
+    "packages/*"
+  ],
+  "turboTasks": [
+    "build",
+    "dev",
+    "lint",
+    "test",
+    "typecheck"
+  ],
+  "guards": {
+    "engineStrict": true,
+    "frozenLockfilePresent": true,
+    "verifyDeferredToM0011": true
+  },
+  "errors": []
+}
