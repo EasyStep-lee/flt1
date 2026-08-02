@@ -7,7 +7,7 @@
 - 本地仓库：`C:\Users\lichuanjun\Documents\flt1`
 - 开发分支：`codex/m0-github`
 - 审计基准HEAD：`ed14571d3b32828aeebbda7143c39c93295b5530`
-- 实现提交：`BOUNDARY_COMMIT`
+- 实现提交：`00346170e48733ebd1a46807a738deca0704848e`
 - P0映射：无；本任务为M0工程治理任务
 
 ## 2. 结论
@@ -64,6 +64,8 @@ M0-003的本地协作边界已经确认，结论为 `LOCAL_ONLY_BOUNDARY_CONFIRM
 | 实际审计 | `./scripts/audit-github-collaboration-boundary.ps1` | PASS：生成M0-003机器证据 |
 | 敏感信息检查 | JSON令牌模式与token字段检查 | PASS：未记录凭据材料 |
 | 产品基线 | `./scripts/verify-product-baseline.ps1` | PASS；执行状态变化仅产生允许的快照告警 |
+| 执行包自检 | 项目内与桌面 `verify-execution-pack.ps1` | PASS：149任务、119 P0、658字段、80页面、22权限 |
+| 总控工作簿 | 重新生成并检查12个工作表 | PASS：公式错误0；SHA-256 `3D00D44B12D12036E7185390A92CA93E63BAADEB344225D9E06E25E0F823B357` |
 
 - 机器证据：`artifacts/verification/M0-003/github-collaboration-boundary.json`。
 - `pnpm verify`：`NOT_EXECUTED`，工程命令尚未由M0-004/M0-011建立。
