@@ -6,7 +6,7 @@
 - 日期/时区：2026-08-02，UTC-04:00
 - 本地仓库：`C:\Users\lichuanjun\Documents\flt1`
 - 开发分支：`codex/m0-pnpm-workspace-turborepo`
-- 实现提交：`WORKSPACE_COMMIT`
+- 实现提交：`9067c36c87949693bc53432a57b149314b592cc2`
 - P0映射：无；本任务为M0工程基础任务
 - 远程/PR/CI：`BLOCKED_EXTERNAL / NOT_EXECUTED`，本地没有origin
 
@@ -59,6 +59,9 @@ M0-004建立了TypeScript工程后续可承载的pnpm workspace与Turborepo基�
 | 工作区契约 | `pnpm workspace:check` | PASS：Node 22.23.1、pnpm 10.12.1、Turbo 2.10.8 |
 | Turbo任务图 | `pnpm workspace:graph` | PASS：`monorepo=true`，`packages=[]`、`tasks=[]` |
 | 机器证据 | `artifacts/verification/M0-004/workspace-foundation.json` | PASS，无错误项，明确verify延后至M0-011 |
+| 工作簿渲染 | `outputs/019fb64c-v11-workbook/after`、`after-formula-errors.json` | PASS：12个工作表完成渲染，公式错误扫描0项 |
+| 本地执行包 | `福礼社Codex5.6开发执行包V1.1/scripts/verify-execution-pack.ps1` | PASS：任务149、P0 119、字段658、页面80、权限22 |
+| 桌面执行包 | 桌面副本独立执行同一校验器 | PASS：综合方案与工作簿哈希一致；工作簿SHA-256为 `FF7CE84FF891A84135C1C5C36688A031F663A38869B9FD469C0CDA01F5268259` |
 
 干净安装测试只复制清单、锁文件、目录README和校验器到系统临时目录，不复制 `node_modules`；执行 `pnpm install --frozen-lockfile --ignore-scripts --prefer-offline` 后验证Turbo版本和任务图，随后只清理已校验位于系统临时目录的测试副本。
 

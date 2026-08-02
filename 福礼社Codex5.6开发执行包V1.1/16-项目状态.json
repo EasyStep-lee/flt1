@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-02T05:37:32-04:00",
+  "updatedAt": "2026-08-02T05:53:45-04:00",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -14,11 +14,11 @@
   "execution": {
     "status": "READY_FOR_M0_LOCAL",
     "currentStage": "M0",
-    "currentTask": "M0-004",
-    "nextAllowedTask": "M0-004",
+    "currentTask": "M0-005",
+    "nextAllowedTask": "M0-005",
     "activeTaskCount": 0,
-    "lastCompletedTask": "M0-003",
-    "lastCompletedCommit": "00346170e48733ebd1a46807a738deca0704848e",
+    "lastCompletedTask": "M0-004",
+    "lastCompletedCommit": "9067c36c87949693bc53432a57b149314b592cc2",
     "lastPassedGate": null,
     "prohibitedUntilGate": [
       "M1及以后业务开发",
