@@ -1,0 +1,10 @@
+{
+  "pages": ["pages/shell/index"],
+  "sitemapLocation": "sitemap.json",
+  "window": {
+    "backgroundColor": "#EFF9F7",
+    "navigationBarBackgroundColor": "#0F766E",
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "福礼社配送"
+  }
+}

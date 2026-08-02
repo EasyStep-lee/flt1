@@ -14,16 +14,17 @@ export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    files: ['apps/api/src/**/*.ts', 'packages/db/src/**/*.ts'],
+    files: ['apps/*/src/**/*.{ts,tsx}', 'packages/*/src/**/*.{ts,tsx}'],
     rules: {
       '@typescript-eslint/consistent-type-imports': 'error',
       '@typescript-eslint/no-explicit-any': 'error',
     },
   },
   {
-    files: ['apps/api/test/**/*.mjs'],
+    files: ['apps/*/test/**/*.mjs', 'packages/*/test/**/*.mjs'],
     languageOptions: {
       globals: {
+        clearTimeout: 'readonly',
         fetch: 'readonly',
         process: 'readonly',
         setTimeout: 'readonly',

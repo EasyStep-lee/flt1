@@ -12,6 +12,11 @@
 - MySQL `8.4.11`
 - Redis `7.4.10`
 - BullMQ `6.0.5`
+- React / React DOM `19.2.8`
+- Vite `8.2.0`
+- Next.js `16.2.12`
+- Ant Design `6.5.3`
+- TanStack Query `5.101.4`
 
 版本同时记录在 `package.json`、`.node-version`、`.nvmrc` 和 `pnpm-lock.yaml`。版本不匹配时先切换工具链，不得绕过 `engine-strict`。
 
@@ -28,7 +33,22 @@ pnpm build
 pnpm --filter @fulishe/api start
 ```
 
-M0-005之后，`workspace:graph`必须显示`@fulishe/db`和依赖它的`@fulishe/api`两个构建任务。健康接口为`GET /health/live`和`GET /health/ready`；完整启动、停止、超时/重试和验证说明见`docs/architecture/FOUNDATION_INFRASTRUCTURE.md`。完整的 `pnpm verify` 仍由M0-011建立。
+M0-006之后，`workspace:graph`必须显示API、数据库、五端应用壳、共享UI和小程序请求边界共9个包。健康接口为`GET /health/live`和`GET /health/ready`；完整启动、停止、超时/重试和验证说明见`docs/architecture/FOUNDATION_INFRASTRUCTURE.md`。完整的 `pnpm verify` 仍由M0-011建立。
+
+## 五端应用壳
+
+```powershell
+pnpm --filter @fulishe/company-admin dev   # 127.0.0.1:5173
+pnpm --filter @fulishe/supplier-portal dev # 127.0.0.1:5174
+pnpm --filter @fulishe/portal-web dev       # 127.0.0.1:3000
+pnpm --filter @fulishe/user-miniapp build
+pnpm --filter @fulishe/runner-miniapp build
+pnpm test:shells
+pnpm test:miniapp-transport
+pnpm test:seo-cache
+```
+
+两个原生小程序构建后，分别用微信开发者工具打开`apps/user-miniapp`和`apps/runner-miniapp`；`project.config.json`固定使用非生产`touristappid`并指向`dist/`。当前只有一个内部壳页，不代表80个正式页面已实现。详细边界见`docs/architecture/APPLICATION_SHELLS.md`。
 
 ## 目录
 

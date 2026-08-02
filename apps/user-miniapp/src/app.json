@@ -1,0 +1,10 @@
+{
+  "pages": ["pages/shell/index"],
+  "sitemapLocation": "sitemap.json",
+  "window": {
+    "backgroundColor": "#FFF8E8",
+    "navigationBarBackgroundColor": "#FFCC33",
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "福礼社"
+  }
+}

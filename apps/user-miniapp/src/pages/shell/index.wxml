@@ -1,0 +1,6 @@
+<view class="shell" data-shell-id="{{shellId}}">
+  <view class="eyebrow">福礼社 · M0-006</view>
+  <view class="title">{{title}}</view>
+  <view class="boundary">{{boundary}}</view>
+  <view class="notice">当前不包含商品、购物车、福利卡、支付、订单或配送业务页面。</view>
+</view>

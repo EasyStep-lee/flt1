@@ -1,0 +1,29 @@
+{
+  "name": "@fulishe/portal-web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "pnpm --filter @fulishe/ui build && next build",
+    "dev": "next dev --hostname 127.0.0.1 --port 3000",
+    "lint": "eslint src test next.config.mjs --max-warnings=0",
+    "start": "next start --hostname 127.0.0.1 --port 3000",
+    "test": "node --test ./test/*.test.mjs",
+    "test:boundaries": "node --test ./test/seo-cache-boundary.test.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@fulishe/ui": "workspace:*",
+    "@tanstack/react-query": "5.101.4",
+    "antd": "6.5.3",
+    "next": "16.2.12",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.1",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4",
+    "typescript": "5.9.3"
+  }
+}

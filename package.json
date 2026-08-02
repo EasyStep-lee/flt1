@@ -18,10 +18,13 @@
     "lint": "turbo run lint",
     "prisma:generate": "pnpm --filter @fulishe/db prisma:generate",
     "prisma:validate": "pnpm --filter @fulishe/db prisma:validate",
-    "test": "turbo run test",
+    "test": "pnpm test:shells && pnpm test:miniapp-transport && turbo run test",
     "test:api": "pnpm build && pnpm --filter @fulishe/api test:api",
     "test:infra": "pnpm build && pnpm --filter @fulishe/api test:infra",
     "test:infra:degraded": "pnpm build && pnpm --filter @fulishe/api test:infra:degraded",
+    "test:miniapp-transport": "node --test ./tests/application-shells/miniapp-transport-boundary.test.mjs",
+    "test:seo-cache": "pnpm --filter @fulishe/portal-web build && pnpm --filter @fulishe/portal-web test:boundaries",
+    "test:shells": "node --test ./tests/application-shells/app-shells.contract.test.mjs",
     "typecheck": "turbo run typecheck",
     "workspace:check": "node ./scripts/verify-workspace-foundation.mjs --root .",
     "workspace:graph": "turbo run build --dry=json"
@@ -34,7 +37,9 @@
   },
   "pnpm": {
     "overrides": {
-      "effect": "3.20.0"
+      "effect": "3.20.0",
+      "postcss": "8.5.25",
+      "sharp": "0.35.3"
     }
   }
 }

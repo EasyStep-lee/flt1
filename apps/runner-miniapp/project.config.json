@@ -1,0 +1,13 @@
+{
+  "appid": "touristappid",
+  "compileType": "miniprogram",
+  "description": "福礼社跑腿小程序M0-006应用壳；不含业务页面或生产配置。",
+  "miniprogramRoot": "dist/",
+  "projectname": "fulishe-runner-miniapp-shell",
+  "setting": {
+    "coverView": true,
+    "es6": true,
+    "enhance": true,
+    "postcss": true
+  }
+}

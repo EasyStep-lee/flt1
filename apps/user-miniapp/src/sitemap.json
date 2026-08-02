@@ -1,0 +1,4 @@
+{
+  "desc": "M0-006应用壳仅包含内部壳页。",
+  "rules": [{ "action": "disallow", "page": "*" }]
+}

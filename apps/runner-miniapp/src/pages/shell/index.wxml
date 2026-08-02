@@ -1,0 +1,6 @@
+<view class="shell" data-shell-id="{{shellId}}">
+  <view class="eyebrow">福礼社配送 · M0-006</view>
+  <view class="title">{{title}}</view>
+  <view class="boundary">{{boundary}}</view>
+  <view class="notice">当前不包含注册、抢单、取货点、目的地、导航或物流节点业务页面。</view>
+</view>

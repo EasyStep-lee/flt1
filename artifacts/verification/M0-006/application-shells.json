@@ -1,0 +1,141 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "M0-006",
+  "status": "PASS",
+  "verifiedAt": "2026-08-02T07:53:17.4631801-04:00",
+  "branch": "codex/m0-m0-006",
+  "implementationCommit": "SHELL_COMMIT",
+  "baseline": {
+    "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+    "p0Mapping": null
+  },
+  "versions": {
+    "node": "22.23.1",
+    "pnpm": "10.12.1",
+    "turbo": "2.10.8",
+    "typescript": "5.9.3",
+    "react": "19.2.8",
+    "vite": "8.2.0",
+    "viteReactPlugin": "6.0.5",
+    "next": "16.2.12",
+    "antd": "6.5.3",
+    "tanstackReactQuery": "5.101.4",
+    "esbuild": "0.28.1",
+    "postcssSecurityOverride": "8.5.25",
+    "sharpSecurityOverride": "0.35.3"
+  },
+  "applications": {
+    "companyAdmin": {
+      "package": "@fulishe/company-admin",
+      "framework": "React/Vite",
+      "basePath": "/company-admin/",
+      "sessionNamespace": "fulishe:company-admin",
+      "build": "PASS"
+    },
+    "supplierAdmin": {
+      "package": "@fulishe/supplier-portal",
+      "framework": "React/Vite",
+      "basePath": "/supplier/",
+      "sessionNamespace": "fulishe:supplier-portal",
+      "build": "PASS"
+    },
+    "enterprisePortal": {
+      "package": "@fulishe/portal-web",
+      "framework": "Next.js App Router",
+      "publicRoute": "/",
+      "authRoute": "/enterprise/login",
+      "privateRoute": "/enterprise/workspace",
+      "sessionNamespace": "fulishe:enterprise-portal",
+      "build": "PASS"
+    },
+    "userMiniapp": {
+      "package": "@fulishe/user-miniapp",
+      "framework": "native WeChat mini-program",
+      "sessionNamespace": "fulishe:user-miniapp",
+      "developerToolRoot": "apps/user-miniapp/dist",
+      "build": "PASS"
+    },
+    "runnerMiniapp": {
+      "package": "@fulishe/runner-miniapp",
+      "framework": "native WeChat mini-program",
+      "sessionNamespace": "fulishe:runner-miniapp",
+      "developerToolRoot": "apps/runner-miniapp/dist",
+      "build": "PASS"
+    }
+  },
+  "boundaries": {
+    "applicationSourceCrossImports": 0,
+    "sharedUiContainsAuthorization": false,
+    "portalPublic": "STATIC_ISR_REVALIDATE_300",
+    "portalAuth": "DYNAMIC_NO_STORE_NOINDEX",
+    "portalPrivate": "DYNAMIC_NO_STORE_NOINDEX",
+    "portalEnterpriseHeadersRuntime": "PASS",
+    "portalRobotsAndSitemapRuntime": "PASS",
+    "miniappTransportPackage": "@fulishe/miniapp-kit",
+    "miniappDirectWxRequestCalls": 0,
+    "miniappDirectFetchCalls": 0,
+    "generatedContractsWired": false
+  },
+  "artifacts": {
+    "rootPackageSha256": "324F8B670401BB2423E19BDF545649AF42F934DE97F4B380FD969E05AEAD86D6",
+    "lockfileSha256": "01AFAC67FC3644657E215F4DE9000BCE4FA1F000FFBA1584A81732CEBAC874BF",
+    "companyAdminPackageSha256": "96AA4F19D8244B4BAF377063A4871E58325A6AFF29B2CA16DCEC823630A3B6B8",
+    "supplierAdminPackageSha256": "157436F37BADBC6E7D997AC6FC543D2A35188EE9F8669E2DFE696351F6C34BA6",
+    "portalPackageSha256": "0C7E4A54EE10B94457590A4F0FD9B036A4A74AE9CD30A810D0340BD5E895E890",
+    "userMiniappPackageSha256": "AB2DB8B594E43AF90AC7FCA638003040E1E2B117242BED19F1571FD0BD9B1432",
+    "runnerMiniappPackageSha256": "EC59D3629814004B301C97EB50B1E6E4BC0A5DC39D360B852AEA2409889C8E48",
+    "sharedUiPackageSha256": "09057852936C58074B3B08F2A517A6ECD321ADC66AFAB6BF3CC0E9E4100D2FFA",
+    "miniappKitPackageSha256": "18AD2CF631E60ECABB77770D3FAE1933E844B36649F60412DD1B2483EAD5A2E3",
+    "shellContractTestSha256": "39290BCEB43A2F483738979397333B46BAE260DEA9D8F013D4316399756B0690",
+    "miniappBoundaryTestSha256": "F490E4CF7FB3F87ACE862949FA2774CF4E63E63263B74DE6B01E64D29E70666C",
+    "cleanInstallTestSha256": "9BFD9E8B4477BBF025FA8B1A923BCD3A681A8D6EC1C7E13C6D3018FBBBF2428D",
+    "architectureDocumentSha256": "B4223AF1D02D6D53F36D065D7BC9550C28CC825882CAFF280DCA5EBDC81EA09F"
+  },
+  "tests": {
+    "expectedRed": {
+      "passed": 0,
+      "failed": 10,
+      "reason": "five application packages and transport boundaries did not exist"
+    },
+    "shellContracts": { "passed": 6, "failed": 0 },
+    "miniappTransportContracts": { "passed": 4, "failed": 0 },
+    "packageTasks": { "passed": 17, "failed": 0 },
+    "workspaceLintPackages": { "passed": 9, "failed": 0 },
+    "workspaceTypecheckPackages": { "passed": 9, "failed": 0 },
+    "workspaceBuildPackages": { "passed": 9, "failed": 0 },
+    "portalRuntimeBoundary": { "passed": 1, "failed": 0 },
+    "cleanFrozenInstall": "PASS",
+    "workspaceFoundation": "PASS",
+    "apiContractRegression": { "passed": 3, "failed": 0 },
+    "prismaValidate": "PASS",
+    "productionAuditKnownVulnerabilities": 0,
+    "productBaseline": "PASS_WITH_EXPECTED_EXECUTION_PACK_SNAPSHOT_WARNING",
+    "executionPack": "PASS"
+  },
+  "scopeGuard": {
+    "businessPagesCreated": 0,
+    "businessApisCreated": 0,
+    "openApiGenerated": false,
+    "businessDtosCreated": 0,
+    "errorCodesCreated": 0,
+    "prismaModelsAdded": 0,
+    "sqlMigrationsAdded": 0,
+    "authenticationImplemented": false,
+    "authorizationImplemented": false
+  },
+  "deferred": {
+    "sharedConfigurationSchemaAndSecretScan": "M0-007",
+    "generatedOpenApiContractsAndMiniappBinding": "M0-008",
+    "vitestSupertestPlaywright": "M0-009",
+    "migrationDryRunBackupRestore": "M0-010",
+    "pnpmVerifyAndGithubCi": "M0-011"
+  },
+  "external": {
+    "github": "BLOCKED_EXTERNAL",
+    "ci": "NOT_EXECUTED",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_EXECUTED",
+    "production": "NOT_EXECUTED"
+  },
+  "nextAllowedTask": "M0-007"
+}

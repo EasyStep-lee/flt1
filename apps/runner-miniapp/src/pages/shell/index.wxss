@@ -1,0 +1,39 @@
+.shell {
+  margin: 80rpx 32rpx;
+  padding: 48rpx 36rpx;
+  background: #ffffff;
+  border: 2rpx solid #cfe8e3;
+  border-radius: 28rpx;
+  box-shadow: 0 20rpx 48rpx rgba(15, 118, 110, 0.12);
+}
+
+.eyebrow {
+  color: #0f766e;
+  font-size: 24rpx;
+  font-weight: 700;
+}
+
+.title {
+  margin-top: 20rpx;
+  color: #16363d;
+  font-size: 42rpx;
+  font-weight: 700;
+}
+
+.boundary {
+  margin-top: 28rpx;
+  color: #49656b;
+  font-size: 28rpx;
+  line-height: 1.7;
+}
+
+.notice {
+  margin-top: 36rpx;
+  padding: 24rpx;
+  color: #7c352c;
+  background: #fff0eb;
+  border-left: 8rpx solid #e95b48;
+  border-radius: 12rpx;
+  font-size: 26rpx;
+  line-height: 1.6;
+}
