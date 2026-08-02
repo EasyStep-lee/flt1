@@ -1,0 +1,32 @@
+{
+  "name": "福礼社Codex5.6开发执行包V1.1",
+  "version": "1.1.0",
+  "generatedAt": "2026-08-02",
+  "baseline": {
+    "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+    "p0Range": "P0-001..P0-119",
+    "uiPageBaseline": "12+12+24+22+10=80"
+  },
+  "counts": {
+    "tasks": 149,
+    "p0": 119,
+    "fields": 658,
+    "stateTransitions": 104,
+    "permissions": 22,
+    "pages": 80,
+    "externalDependencies": 28,
+    "migrations": 22,
+    "apiContracts": 80,
+    "githubIssues": 149
+  },
+  "workbook": {
+    "status": "VERIFIED",
+    "sha256": "92599EE5817F13FE990342CD2140AFBDECFCEE4324A5F4D97D1FCE7B6976208E"
+  },
+  "sourceOfTruth": [
+    "综合方案HTML",
+    "提示词包AGENTS.md",
+    "本执行包机器台账"
+  ],
+  "integrityRule": "方案哈希变化时拒绝继续；所有119项P0精确映射一个主任务；任何阶段只有上一门禁通过才解锁。"
+}

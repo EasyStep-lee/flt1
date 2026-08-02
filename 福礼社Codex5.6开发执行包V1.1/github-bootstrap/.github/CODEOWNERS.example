@@ -1,0 +1,7 @@
+# 复制为CODEOWNERS并由仓库管理员替换占位账号
+* @OWNER
+/prisma/ @DB_OWNER @FINANCE_OWNER
+/apps/api/src/modules/payments/ @FINANCE_OWNER @SECURITY_OWNER
+/apps/api/src/modules/welfare-card/ @FINANCE_OWNER @SECURITY_OWNER
+/apps/api/src/modules/delivery/ @LOGISTICS_OWNER
+/.github/ @REPO_ADMIN

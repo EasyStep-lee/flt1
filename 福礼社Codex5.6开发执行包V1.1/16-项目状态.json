@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "1.1.0",
+  "project": "福礼社单商户供应链平台",
+  "updatedAt": "2026-08-02T04:49:40-04:00",
+  "baseline": {
+    "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
+    "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+    "promptPackPath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社Codex5.6开发提示词包V1.1",
+    "executionPackPath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社Codex5.6开发执行包V1.1",
+    "uiAssetPath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社UI设计资产",
+    "p0Count": 119,
+    "pageCount": 80
+  },
+  "execution": {
+    "status": "READY_FOR_M0_LOCAL",
+    "currentStage": "M0",
+    "currentTask": "M0-002",
+    "nextAllowedTask": "M0-002",
+    "activeTaskCount": 0,
+    "lastCompletedTask": "M0-001",
+    "lastCompletedCommit": "958ce3952ea2395216fbadc3af244c5de6dbd8a1",
+    "lastPassedGate": null,
+    "prohibitedUntilGate": [
+      "M1及以后业务开发",
+      "真实支付/退款",
+      "生产部署/迁移",
+      "直接修改或推送main"
+    ]
+  },
+  "github": {
+    "repository": null,
+    "defaultBranch": null,
+    "remoteConfirmed": false,
+    "authenticationConfirmed": true,
+    "writeAllowed": false,
+    "note": "gh已认证EasyStep-lee，但本地无origin且用户未提供owner/repo；只做本地工作。"
+  },
+  "evidence": {
+    "local": "LOCAL_PASS",
+    "ci": "NOT_EXECUTED",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_EXECUTED",
+    "production": "NOT_EXECUTED"
+  },
+  "counts": {
+    "tasks": 149,
+    "p0": 119,
+    "fields": 658,
+    "stateTransitions": 104,
+    "permissions": 22,
+    "pages": 80,
+    "externalDependencies": 28,
+    "migrations": 22,
+    "apiContracts": 80
+  },
+  "resumeProtocol": [
+    "读取AGENTS.md、综合方案、00/01/02、project-status和当前任务行",
+    "核对综合方案SHA-256和git/PR/CI真实状态",
+    "只恢复nextAllowedTask；先写失败测试，再实现，再验证",
+    "更新台账和交接；未执行项保持NOT_EXECUTED或BLOCKED_EXTERNAL"
+  ]
+}

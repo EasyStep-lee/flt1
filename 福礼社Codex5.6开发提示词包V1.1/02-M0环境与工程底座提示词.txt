@@ -1,0 +1,141 @@
+/goal
+
+以《福礼社单商户供应链平台V1.1综合方案（整编基线）》为唯一产品基线，完成M0“开发前环境与工程底座”。
+
+工作目录：C:\Users\lichuanjun\Documents\flt1
+方案文件：C:\Users\lichuanjun\Documents\flt1\福礼社单商户供应链平台V1.1综合方案.html
+提示词生成时方案SHA-256：1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92
+主模型：GPT-5.6 Sol
+
+【M0目标】
+
+建立一个可重复安装、可本地启动、可测试、可迁移、可生成契约、可持续集成和可回滚的工程底座。M0不开发商品、支付、订单、配送等业务闭环。
+
+【开始前】
+
+1. 完整读取方案第零、二、十五、十六、十七、二十章和AGENTS.md。
+2. 计算方案哈希；不一致时先处理基线，不得静默继续。
+3. 只读盘点Node、pnpm、Git、Docker、MySQL、Redis、微信开发工具、端口、磁盘和现有文件。
+4. 检查工作树是否有用户未提交修改，必须保留并避让。
+5. 检查`git remote -v`、当前分支、最近提交和`gh auth status`；仓库目标不明确或未授权时继续本地M0，但把远程操作标记`BLOCKED_EXTERNAL`。
+6. 输出M0范围、非范围、风险和计划，然后持续执行；只有出现真实外部阻塞或需改变方案时才暂停。
+
+【必须完成】
+
+一、仓库与版本
+- 初始化或接管Git仓库，不破坏现有方案和UI资产。
+- 建立TypeScript + pnpm workspace + Turborepo。
+- 在package.json固定packageManager和Node engines。
+- 创建README、CONTRIBUTING、.editorconfig、.gitattributes、.gitignore。
+- 将方案作为受版本控制的产品基线，记录路径、哈希和变更纪律。
+
+二、GitHub协作底座
+- 确认或建立本地Git仓库，远程仓库只能使用用户明确给出的`owner/repo`、URL或已验证`origin`。
+- 创建`codex/m0-foundation`开发分支；保留用户未提交改动，不直接修改或推送`main`。
+- 创建`.github/workflows/ci.yml`，在Pull Request和`main` push上执行冻结安装、lint、typecheck、测试、Prisma校验、迁移dry-run、确定性OpenAPI生成/差异/类型/破坏性变更检查和build。
+- 创建`.github/pull_request_template.md`、功能/缺陷Issue模板、CODEOWNERS示例、Dependabot或依赖更新策略说明以及分支保护配置清单。
+- PR模板必须要求范围/非范围、方案章节、P0、迁移/OpenAPI、测试、截图、风险、回滚和人工缺口。
+- 仓库成员权限、Secrets、实际分支保护、GitHub Environment、Release和生产部署由人工确认；不得把真实秘密写入Actions文件。
+- 本地门禁通过后，可提交本任务文件、推送`codex/m0-foundation`并创建Draft PR；不得自行合并。
+
+三、建议目录
+
+apps/
+  api/
+  company-admin/
+  supplier-portal/
+  portal-web/
+  user-miniapp/
+  runner-miniapp/
+packages/
+  db/
+  contracts/
+  ui/
+  miniapp-kit/
+  adapters/
+  config/
+  test-kit/
+docs/
+  product/
+  field-dictionary/
+  architecture/
+  acceptance/
+  handoffs/
+
+四、后端与基础服务
+- NestJS API骨架、健康检查、统一配置、日志、错误响应和requestId。
+- Prisma + MySQL 8连接、迁移框架、seed框架和迁移回滚说明。
+- Redis + BullMQ连接和健康检查。
+- Docker Compose本地环境，明确持久卷、端口、健康检查和非生产默认密码。
+- `.env.example`与配置schema；真实秘密不得提交。
+
+五、前端骨架
+- React + Vite公司后台与供应商后台。
+- Next.js App Router企业门户；只建立公开静态/ISR区与私有动态交易区的路由组、metadata/sitemap/robots骨架和缓存/noindex边界，不实现业务页面。
+- 两个相互独立的原生微信小程序TypeScript骨架。
+- Web公共请求、错误、鉴权占位、加载/空态/失败态组件框架；小程序在`packages/miniapp-kit`建立唯一`wx.request`兼容适配层，不直接假设原生环境存在浏览器fetch。
+- 只做可启动骨架，不提前实现业务页面。
+
+六、契约与质量
+- NestJS Controller/DTO使用`@nestjs/swagger`；建立无外部副作用、稳定键序列化的`scripts/generate-openapi.ts`和`pnpm openapi:generate`，生成`packages/contracts/openapi.json`，禁止手写YAML。
+- 使用`openapi-typescript`生成`packages/contracts/types.ts`；Web端以`openapi-fetch`创建类型化Client，原生小程序复用相同类型并通过`miniapp-kit`适配`wx.request`，业务模块不得另建临时请求层。
+- 锁定`oasdiff`版本，以目标分支已提交spec为基线检测breaking变更；建立spec差异、类型差异、`tsc --noEmit`和供应价响应白名单检查。
+- 建立统一错误码规范、DTO白名单规范、字段字典模板和P0验收记录模板。
+- 配置ESLint、Prettier、TypeScript strict、Vitest、Supertest、Playwright。
+- 建立本地与GitHub Actions一致的CI：冻结安装、lint、typecheck、test、Prisma validate、migration dry-run、OpenAPI generate/diff/type/oasdiff breaking check、build。
+- 创建`pnpm verify`聚合命令。
+
+七、基础安全
+- 设置依赖锁文件、秘密扫描、日志脱敏、上传和CORS/CSRF基本策略说明。
+- 默认workspace-write和最小网络权限；不要求全盘系统权限。
+- 提供开发、测试、预发布、生产配置分层，不创建真实生产密钥。
+
+【必须先写的失败测试】
+
+- API健康检查未配置数据库或Redis时返回可诊断状态。
+- 环境变量缺失时启动失败且错误不泄露秘密。
+- OpenAPI生成后存在未提交差异时检查失败。
+- OpenAPI生成脚本触发真实支付、短信或对象存储副作用时测试失败；同一代码两次生成的spec必须字节稳定。
+- Web与两个原生小程序均能使用同一契约类型完成mock请求；小程序直接调用散落的`wx.request`或依赖不存在的浏览器fetch时静态检查失败。
+- `oasdiff`检测到未提供版本化兼容方案的breaking变更时CI失败。
+- Prisma schema无效或迁移不可演练时检查失败。
+- 两个小程序、两个后台和门户能被独立构建，不能共享错误会话入口。
+- PR工作流缺少必需检查、使用未锁定依赖安装、向日志打印秘密或允许跳过门禁时测试/静态检查失败。
+
+【明确不做】
+
+- 不实现供应商审核业务、商品、价格、库存、订单、福利卡、微信支付、配送、对账和CMS业务。
+- 不生成大量写死页面冒充开发完成。
+- 不接入真实生产外部服务。
+- 不部署生产，不修改DNS，不提交真实密钥。
+
+【M0验收】
+
+必须新鲜运行：
+pnpm lint
+pnpm typecheck
+pnpm test
+pnpm test:api
+pnpm prisma:validate
+pnpm prisma:migrate:dry-run
+pnpm openapi:generate
+pnpm openapi:check
+pnpm build
+pnpm verify
+
+如某命令因当前阶段没有业务E2E而不适用，脚本仍需存在并给出明确空套件策略，不能假装执行。
+
+【完成输出】
+
+1. M0实现摘要。
+2. 新增/修改文件清单。
+3. 版本、端口和本地启动命令。
+4. 数据库/Redis/Docker证据。
+5. 全部质量命令及结果。
+6. 尚未执行的微信真机、预发布和生产项。
+7. BLOCKED_EXTERNAL清单。
+8. 回滚方式。
+9. 是否满足进入M1的二元结论：PASS或BLOCKED。
+10. GitHub仓库、开发分支、提交SHA、Draft PR地址、最新Actions运行及对应提交、未解决评论和是否等待人工合并。
+
+没有全部证据时不得宣布M0完成。只有M0 PR经人工合并且`main`最新提交CI重新通过，才能进入M1；Codex不得自行合并。
