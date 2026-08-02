@@ -10,10 +10,31 @@
     "pnpm": "10.12.1"
   },
   "scripts": {
+    "build": "turbo run build",
+    "infra:config": "docker compose -f compose.yaml config --quiet",
+    "infra:down": "docker compose -f compose.yaml down --remove-orphans",
+    "infra:status": "docker compose -f compose.yaml ps",
+    "infra:up": "docker compose -f compose.yaml up -d --wait",
+    "lint": "turbo run lint",
+    "prisma:generate": "pnpm --filter @fulishe/db prisma:generate",
+    "prisma:validate": "pnpm --filter @fulishe/db prisma:validate",
+    "test": "turbo run test",
+    "test:api": "pnpm build && pnpm --filter @fulishe/api test:api",
+    "test:infra": "pnpm build && pnpm --filter @fulishe/api test:infra",
+    "test:infra:degraded": "pnpm build && pnpm --filter @fulishe/api test:infra:degraded",
+    "typecheck": "turbo run typecheck",
     "workspace:check": "node ./scripts/verify-workspace-foundation.mjs --root .",
     "workspace:graph": "turbo run build --dry=json"
   },
   "devDependencies": {
+    "@eslint/js": "9.39.5",
+    "eslint": "9.39.5",
+    "typescript-eslint": "8.65.0",
     "turbo": "2.10.8"
+  },
+  "pnpm": {
+    "overrides": {
+      "effect": "3.20.0"
+    }
   }
 }

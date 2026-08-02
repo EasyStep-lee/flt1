@@ -1,0 +1,31 @@
+{
+  "name": "@fulishe/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "lint": "eslint src test --max-warnings=0",
+    "start": "node --env-file-if-exists=../../.env ./dist/main.js",
+    "test": "node --test ./test/unit/*.test.mjs",
+    "test:api": "node --test ./test/contract/*.test.mjs",
+    "test:infra": "node --env-file-if-exists=../../.env --test ./test/integration/foundation-runtime.test.mjs",
+    "test:infra:degraded": "node --env-file-if-exists=../../.env --test ./test/integration/foundation-degraded.test.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@fulishe/db": "workspace:*",
+    "@nestjs/common": "11.1.28",
+    "@nestjs/core": "11.1.28",
+    "@nestjs/platform-express": "11.1.28",
+    "bullmq": "6.0.5",
+    "ioredis": "5.11.1",
+    "reflect-metadata": "0.2.2",
+    "rxjs": "7.8.2"
+  },
+  "devDependencies": {
+    "@types/express": "5.0.6",
+    "@types/node": "22.20.1",
+    "typescript": "5.9.3"
+  }
+}

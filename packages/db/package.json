@@ -1,0 +1,30 @@
+{
+  "name": "@fulishe/db",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "pnpm prisma:generate && tsc -p tsconfig.build.json",
+    "lint": "eslint src --max-warnings=0",
+    "prisma:generate": "node ./scripts/prisma-command.mjs generate",
+    "prisma:validate": "node ./scripts/prisma-command.mjs validate",
+    "seed": "pnpm build && node --env-file-if-exists=../../.env ./scripts/seed.mjs",
+    "typecheck": "pnpm prisma:generate && tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@prisma/client": "6.19.2"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.1",
+    "prisma": "6.19.2",
+    "typescript": "5.9.3"
+  }
+}

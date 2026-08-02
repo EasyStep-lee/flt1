@@ -7,6 +7,11 @@
 - Node.js `22.23.1`
 - pnpm `10.12.1`
 - Turborepo `2.10.8`
+- NestJS `11.1.28`
+- Prisma `6.19.2`
+- MySQL `8.4.11`
+- Redis `7.4.10`
+- BullMQ `6.0.5`
 
 版本同时记录在 `package.json`、`.node-version`、`.nvmrc` 和 `pnpm-lock.yaml`。版本不匹配时先切换工具链，不得绕过 `engine-strict`。
 
@@ -16,9 +21,14 @@
 pnpm install --frozen-lockfile
 pnpm workspace:check
 pnpm workspace:graph
+Copy-Item -LiteralPath .env.example -Destination .env
+pnpm infra:up
+pnpm prisma:validate
+pnpm build
+pnpm --filter @fulishe/api start
 ```
 
-`workspace:graph`在应用尚未创建时预期返回零个构建任务；这只证明Turborepo可以读取工作区，不代表业务构建通过。完整的 `pnpm verify` 由M0-011建立。
+M0-005之后，`workspace:graph`必须显示`@fulishe/db`和依赖它的`@fulishe/api`两个构建任务。健康接口为`GET /health/live`和`GET /health/ready`；完整启动、停止、超时/重试和验证说明见`docs/architecture/FOUNDATION_INFRASTRUCTURE.md`。完整的 `pnpm verify` 仍由M0-011建立。
 
 ## 目录
 
