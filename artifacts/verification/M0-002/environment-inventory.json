@@ -1,0 +1,230 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "M0-002",
+  "mode": "READ_ONLY",
+  "generatedAt": "2026-08-02T05:12:27.3060284-04:00",
+  "rootPath": "C:\\Users\\lichuanjun\\Documents\\flt1",
+  "system": {
+    "os": "Microsoft Windows 11 专业版 10.0.26200 build 26200 64 位",
+    "powershell": "7.6.3",
+    "processArchitecture": "X64",
+    "timeZone": "Eastern Standard Time",
+    "disk": {
+      "root": "C:\\",
+      "freeBytes": 293192724480,
+      "usedBytes": 217773113344,
+      "freeGiB": 273.06
+    }
+  },
+  "repository": {
+    "branch": "codex/m0-m0-002",
+    "head": "1400599215e9e70b4294ad6c4cd810ae2518cae7",
+    "remotes": [],
+    "statusEntryCount": 14,
+    "trackedChangeCount": 0,
+    "untrackedCount": 14,
+    "statusEntries": [
+      "?? .codex-miniapp-section-check.png",
+      "?? .edge-codex-profile-miniapp/",
+      "?? artifacts/",
+      "?? miniapp-section-check.png",
+      "?? outputs/",
+      "?? scripts/inventory-development-environment.ps1",
+      "?? tests/environment/",
+      "?? ui-visual-options/",
+      "?? \"\\347\\246\\217\\347\\244\\274\\347\\244\\276Codex5.6\\345\\274\\200\\345\\217\\221\\346\\211\\247\\350\\241\\214\\345\\214\\205/\"",
+      "?? \"\\347\\246\\217\\347\\244\\274\\347\\244\\276Codex5.6\\345\\274\\200\\345\\217\\221\\346\\217\\220\\347\\244\\272\\350\\257\\215\\345\\214\\205/\"",
+      "?? \"\\347\\246\\217\\347\\244\\274\\347\\244\\276UI\\350\\256\\276\\350\\256\\241\\350\\265\\204\\344\\272\\247/\"",
+      "?? \"\\347\\246\\217\\347\\244\\274\\347\\244\\276\\345\\215\\225\\345\\225\\206\\346\\210\\267\\344\\276\\233\\345\\272\\224\\351\\223\\276\\345\\271\\263\\345\\217\\260V1.0\\347\\273\\274\\345\\220\\210\\346\\226\\271\\346\\241\\210.html\"",
+      "?? \"\\347\\273\\274\\345\\220\\210\\346\\226\\271\\346\\241\\210-s19\\350\\247\\206\\350\\247\\211\\347\\253\\240\\350\\212\\202\\351\\242\\204\\350\\247\\210.png\"",
+      "?? \"\\347\\276\\216\\345\\233\\242\\345\\274\\21722\\351\\241\\265\\347\\224\\273\\346\\235\\277\\351\\242\\204\\350\\247\\210.png\""
+    ],
+    "ghAuthenticated": true,
+    "ghAccount": "EasyStep-lee"
+  },
+  "tools": {
+    "node": {
+      "status": "AVAILABLE",
+      "version": "v22.23.1",
+      "path": "C:\\Users\\lichuanjun\\AppData\\Local\\Microsoft\\WinGet\\Packages\\OpenJS.NodeJS.22_Microsoft.Winget.Source_8wekyb3d8bbwe\\node-v22.23.1-win-x64\\node.exe",
+      "exitCode": 0
+    },
+    "npm": {
+      "status": "AVAILABLE",
+      "version": "10.9.8",
+      "path": "C:\\Users\\lichuanjun\\AppData\\Local\\Microsoft\\WinGet\\Packages\\OpenJS.NodeJS.22_Microsoft.Winget.Source_8wekyb3d8bbwe\\node-v22.23.1-win-x64\\npm.ps1",
+      "exitCode": 0
+    },
+    "pnpm": {
+      "status": "AVAILABLE",
+      "version": "10.12.1",
+      "path": "C:\\Users\\lichuanjun\\AppData\\Local\\Microsoft\\WinGet\\Packages\\OpenJS.NodeJS.22_Microsoft.Winget.Source_8wekyb3d8bbwe\\node-v22.23.1-win-x64\\pnpm.ps1",
+      "exitCode": 0
+    },
+    "corepack": {
+      "status": "AVAILABLE",
+      "version": "0.34.6",
+      "path": "C:\\Users\\lichuanjun\\AppData\\Local\\Microsoft\\WinGet\\Packages\\OpenJS.NodeJS.22_Microsoft.Winget.Source_8wekyb3d8bbwe\\node-v22.23.1-win-x64\\corepack.cmd",
+      "exitCode": 0
+    },
+    "git": {
+      "status": "AVAILABLE",
+      "version": "git version 2.53.0.windows.2",
+      "path": "C:\\Program Files\\Git\\cmd\\git.exe",
+      "exitCode": 0
+    },
+    "gh": {
+      "status": "AVAILABLE",
+      "version": "gh version 2.92.0 (2026-04-28) https://github.com/cli/cli/releases/tag/v2.92.0",
+      "path": "C:\\Program Files\\GitHub CLI\\gh.exe",
+      "exitCode": 0
+    },
+    "docker": {
+      "status": "AVAILABLE",
+      "version": "Docker version 29.6.2, build dfc4efb",
+      "path": "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe",
+      "daemon": {
+        "status": "UNAVAILABLE",
+        "serverVersion": null
+      }
+    },
+    "dockerCompose": {
+      "status": "AVAILABLE",
+      "version": "Docker Compose version v5.3.1",
+      "path": "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe",
+      "exitCode": 0
+    },
+    "mysql": {
+      "status": "MISSING",
+      "version": null,
+      "path": null,
+      "exitCode": null
+    },
+    "redis": {
+      "status": "MISSING",
+      "version": null,
+      "path": null,
+      "exitCode": null
+    },
+    "wechatDevTools": {
+      "status": "AVAILABLE",
+      "cliPaths": [
+        "C:\\Program Files (x86)\\Tencent\\微信web开发者工具\\cli.bat"
+      ],
+      "registrations": [
+        {
+          "name": "微信开发者工具 2.01.2510260",
+          "version": "2.01.2510260",
+          "location": null
+        }
+      ]
+    }
+  },
+  "services": [
+    {
+      "name": "com.docker.service",
+      "displayName": "Docker Desktop Service",
+      "status": "Stopped",
+      "startType": "Manual"
+    },
+    {
+      "name": "GameInputRedistService",
+      "displayName": "GameInput Redist Service",
+      "status": "Running",
+      "startType": "Automatic"
+    }
+  ],
+  "plannedPortListeners": [],
+  "environmentVariables": [
+    {
+      "name": "NODE_ENV",
+      "present": false
+    },
+    {
+      "name": "DATABASE_URL",
+      "present": false
+    },
+    {
+      "name": "REDIS_URL",
+      "present": false
+    },
+    {
+      "name": "WECHAT_APP_ID",
+      "present": false
+    },
+    {
+      "name": "WECHAT_APP_SECRET",
+      "present": false
+    },
+    {
+      "name": "WECHAT_MCH_ID",
+      "present": false
+    },
+    {
+      "name": "WECHAT_API_V3_KEY",
+      "present": false
+    }
+  ],
+  "confirmedFacts": [
+    {
+      "code": "BASELINE_GUARD",
+      "description": "V1.1产品基线守卫已在本任务开始前通过。",
+      "affects": "ALL"
+    },
+    {
+      "code": "GIT_BRANCH",
+      "description": "当前分支为codex/m0-m0-002，HEAD为1400599215e9e70b4294ad6c4cd810ae2518cae7。",
+      "affects": "M0"
+    },
+    {
+      "code": "GH_AUTH",
+      "description": "GitHub CLI已认证EasyStep-lee；报告未保存令牌。",
+      "affects": "M0-003"
+    },
+    {
+      "code": "USER_FILES_PRESENT",
+      "description": "工作树有14项未跟踪条目，本任务未删除或覆盖；提交必须按精确路径暂存。",
+      "affects": "ALL"
+    },
+    {
+      "code": "NODE_22",
+      "description": "Node版本满足目标：v22.23.1。",
+      "affects": "M0-004"
+    },
+    {
+      "code": "PNPM_10",
+      "description": "pnpm主版本满足目标：10.12.1。",
+      "affects": "M0-004"
+    }
+  ],
+  "gaps": [
+    {
+      "code": "DOCKER_DAEMON",
+      "description": "Docker CLI存在但daemon当前不可用；本任务未启动服务。",
+      "affects": "M0-005"
+    },
+    {
+      "code": "MYSQL_CLIENT",
+      "description": "未发现本机MySQL命令；M0-005可使用Docker服务。",
+      "affects": "M0-005"
+    },
+    {
+      "code": "REDIS_CLIENT",
+      "description": "未发现本机Redis命令；M0-005可使用Docker服务。",
+      "affects": "M0-005"
+    }
+  ],
+  "externalBlockers": [
+    {
+      "code": "GITHUB_REPOSITORY_UNCONFIRMED",
+      "description": "本地仓库没有origin，用户尚未提供owner/repo；禁止猜测或推送。",
+      "affects": "M0-003"
+    }
+  ],
+  "conclusion": {
+    "status": "M0_002_PASS_WITH_GAPS",
+    "nextAllowedTask": "M0-003",
+    "remoteWriteAllowed": false,
+    "note": "盘点任务完成不代表环境已安装或M0门禁通过；缺口由对应后续任务处理。"
+  }
+}
