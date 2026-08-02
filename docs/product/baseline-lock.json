@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "1.0.0",
+  "baselineId": "FULISHE-V1.1-2026-08-02",
+  "status": "FROZEN",
+  "frozenAt": "2026-08-02T00:00:00-04:00",
+  "canonical": {
+    "scheme": {
+      "relativePath": "福礼社单商户供应链平台V1.1综合方案.html",
+      "sha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+      "bytes": 318343
+    },
+    "promptPack": {
+      "relativePath": "福礼社Codex5.6开发提示词包V1.1",
+      "fileCount": 19,
+      "treeSha256": "7C89AF5E83935112403FD9E0288B4CB3E7DDB8A8569E2859C43C8AE94D19EC63"
+    },
+    "uiAssets": {
+      "relativePath": "福礼社UI设计资产",
+      "selection": "方案HTML中86个唯一img src引用",
+      "fileCount": 86,
+      "treeSha256": "7FF1F3C321CAEB50BE628CC6D7DA7CDD7016F658F455CFF322575DA4011F5E9C"
+    },
+    "executionPackRelease": {
+      "relativePath": "福礼社Codex5.6开发执行包V1.1",
+      "version": "1.1.0",
+      "fileCountAtFreeze": 28,
+      "treeSha256AtFreeze": "8530E6F14C9FF7C0CE372E441F2280AD53C08FC57BDB8ACDCB01120D6D5598E6",
+      "manifestSha256AtFreeze": "EDA6F37A21E508C336EB42A76DB9F3217F9A163212000551AF0A2377E1019C70",
+      "verifierSha256AtFreeze": "74F5F0AC9F5CCE7378B87C0281B700E587543D6FC2BCC66E30199CA3D2943F4A",
+      "continuousRule": "执行状态和证据会正常变化；目录快照变化只告警，manifest版本、方案哈希、计数和执行包自检必须继续通过。"
+    }
+  },
+  "expectedCounts": {
+    "p0": 119,
+    "fields": 658,
+    "pages": 80,
+    "tasks": 149,
+    "permissions": 22
+  },
+  "historyOnly": [
+    "福礼社单商户供应链平台V1.0综合方案.html",
+    "福礼社Codex5.6开发提示词包",
+    "福礼社Codex5.6开发执行包",
+    "方案V29综合版.html及更早版本"
+  ],
+  "changeControl": {
+    "approvalRequired": true,
+    "requiredSync": [
+      "综合方案相关章节与SHA-256",
+      "根目录及提示词包AGENTS.md",
+      "字段字典、状态机、权限、OpenAPI/DTO/错误码和迁移",
+      "P0验收矩阵、页面映射、测试证据和执行台账",
+      "本锁文件、变更记录、影响分析和回滚方案"
+    ],
+    "normalExecutionStateIsNotProductChange": [
+      "任务状态、分支、提交、PR和CI证据",
+      "测试执行时间、证据链接和人工阻塞状态"
+    ]
+  }
+}
