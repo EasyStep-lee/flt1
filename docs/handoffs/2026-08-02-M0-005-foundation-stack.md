@@ -6,7 +6,7 @@
 - 日期/时区：2026-08-02，UTC-04:00
 - 本地仓库：`C:\Users\lichuanjun\Documents\flt1`
 - 开发分支：`codex/m0-nestjs-prisma-mysql-redis-bullmq`
-- 实现提交：`FOUNDATION_COMMIT`
+- 实现提交：`5c8764c16ec2064ea146e51898b0716e0b43bd36`
 - P0映射：无；本任务为M0工程基础任务
 - 远程/PR/CI：`BLOCKED_EXTERNAL / NOT_EXECUTED`，本地没有origin
 
