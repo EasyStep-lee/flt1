@@ -6,88 +6,21 @@ $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 $statusBefore = @(& git -C $repoRoot status --porcelain=v1)
 $tempBase = [IO.Path]::GetFullPath([IO.Path]::GetTempPath())
 $tempRoot = Join-Path $tempBase ("fulishe-m0-011-{0}" -f [guid]::NewGuid().ToString('N'))
-
-$rootFiles = @(
-    '.editorconfig',
-    '.env.example',
-    '.gitattributes',
-    '.gitignore',
-    '.node-version',
-    '.npmrc',
-    '.nvmrc',
-    'AGENTS.md',
-    'compose.yaml',
-    'CONTRIBUTING.md',
-    'eslint.config.mjs',
-    'package.json',
-    'playwright.config.ts',
-    'pnpm-lock.yaml',
-    'pnpm-workspace.yaml',
-    'README.md',
-    'tsconfig.base.json',
-    'tsconfig.openapi.json',
-    'tsconfig.tests.json',
-    'turbo.json',
-    'vitest.config.ts',
-    'vitest.report.config.ts'
-)
-
-function Copy-CiGateFile {
-    param([Parameter(Mandatory)] [string] $RelativePath)
-
-    $source = Join-Path $repoRoot $RelativePath
-    if (-not (Test-Path -LiteralPath $source -PathType Leaf)) {
-        throw "干净安装缺少受控源文件：$RelativePath"
-    }
-    $destination = Join-Path $tempRoot $RelativePath
-    $destinationDirectory = Split-Path $destination -Parent
-    if (-not (Test-Path -LiteralPath $destinationDirectory)) {
-        New-Item -ItemType Directory -Path $destinationDirectory -Force | Out-Null
-    }
-    Copy-Item -LiteralPath $source -Destination $destination
+$sourceSha = (& git -C $repoRoot rev-parse HEAD).Trim()
+if ($LASTEXITCODE -ne 0 -or $sourceSha -notmatch '^[0-9a-f]{40}$') {
+    throw "源仓库提交无效：$sourceSha"
 }
 
 try {
-    New-Item -ItemType Directory -Path $tempRoot | Out-Null
-    foreach ($relativePath in $rootFiles) {
-        Copy-CiGateFile $relativePath
-    }
-
-    foreach ($sourceDirectory in @('.github', 'apps', 'packages', 'scripts', 'tests', 'docs\architecture', 'docs\testing')) {
-        $fullSourceDirectory = Join-Path $repoRoot $sourceDirectory
-        Get-ChildItem -LiteralPath $fullSourceDirectory -Recurse -File |
-            Where-Object {
-                $_.FullName -notmatch '[\/\\](dist|node_modules|coverage|\.next|\.turbo|\.cache|artifacts)[\/\\]'
-            } |
-            ForEach-Object {
-                $expectedPrefix = $repoRoot + [IO.Path]::DirectorySeparatorChar
-                if (-not $_.FullName.StartsWith($expectedPrefix, [StringComparison]::OrdinalIgnoreCase)) {
-                    throw "拒绝复制仓库外文件：$($_.FullName)"
-                }
-                Copy-CiGateFile $_.FullName.Substring($repoRoot.Length + 1)
-            }
-    }
-
-    foreach ($executionFile in @(
-        '福礼社Codex5.6开发执行包V1.1\16-项目状态.json',
-        '福礼社Codex5.6开发执行包V1.1\data\阶段门禁.csv'
-    )) {
-        Copy-CiGateFile $executionFile
-    }
+    & git clone --quiet --no-hardlinks --no-checkout -- $repoRoot $tempRoot
+    if ($LASTEXITCODE -ne 0) { throw "完整历史临时克隆失败：$LASTEXITCODE" }
+    & git -C $tempRoot checkout --quiet --detach $sourceSha
+    if ($LASTEXITCODE -ne 0) { throw "临时克隆检出源提交失败：$LASTEXITCODE" }
 
     Push-Location $tempRoot
     try {
-        & git init --quiet
-        if ($LASTEXITCODE -ne 0) { throw "临时Git仓库初始化失败：$LASTEXITCODE" }
-        & git config user.email 'm0-011@example.invalid'
-        & git config user.name 'M0-011 Clean Install'
-        & git add -- .
-        if ($LASTEXITCODE -ne 0) { throw "临时Git仓库暂存失败：$LASTEXITCODE" }
-        & git commit --quiet -m 'M0-011 clean-install baseline'
-        if ($LASTEXITCODE -ne 0) { throw "临时Git仓库提交失败：$LASTEXITCODE" }
-
         $baseSha = (& git rev-parse HEAD).Trim()
-        if ($LASTEXITCODE -ne 0 -or $baseSha -notmatch '^[0-9a-f]{40}$') {
+        if ($LASTEXITCODE -ne 0 -or $baseSha -notmatch '^[0-9a-f]{40}$' -or $baseSha -ne $sourceSha) {
             throw "临时Git基线提交无效：$baseSha"
         }
 

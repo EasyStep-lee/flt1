@@ -37,9 +37,17 @@ test('root scripts expose the complete verification gate without a silent bypass
   assert.doesNotMatch(packageJson.scripts.verify, /--if-present|\|\|\s*true|--no-verify/u);
 });
 
-test('clean-install rehearsal uses a frozen install and the full gate against an immutable commit', async () => {
+test('clean-install rehearsal uses a full-history checkout, frozen install, and the full gate', async () => {
   const script = await readRepositoryFile(
     'tests/ci/ci-gate-clean-install.ps1',
+  );
+  assert.match(
+    script,
+    /git clone --quiet --no-hardlinks --no-checkout -- \$repoRoot \$tempRoot/u,
+  );
+  assert.match(
+    script,
+    /git -C \$tempRoot checkout --quiet --detach \$sourceSha/u,
   );
   assert.match(
     script,
@@ -48,7 +56,10 @@ test('clean-install rehearsal uses a frozen install and the full gate against an
   assert.match(script, /pnpm verify -- --base-ref \$baseSha/u);
   assert.match(script, /fulishe-m0-011-/u);
   assert.match(script, /干净安装测试改变了原仓库工作树/u);
-  assert.doesNotMatch(script, /git add -A|git reset --hard|--no-verify/u);
+  assert.doesNotMatch(
+    script,
+    /Copy-CiGateFile|git init --quiet|git add -- \.|git commit --quiet|--depth|git add -A|git reset --hard|--no-verify/u,
+  );
 });
 
 test('verification plan is complete, ordered, immutable-base aware, and rejects skip controls', async () => {
