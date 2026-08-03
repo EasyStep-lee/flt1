@@ -1,0 +1,151 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "M0-GATE",
+  "stage": "M0",
+  "generatedAt": "2026-08-03T11:18:42.0538730Z",
+  "status": "PREFLIGHT_BLOCKED",
+  "gateConclusion": "NOT_EXECUTED",
+  "baseline": {
+    "id": "FULISHE-V1.1-2026-08-02",
+    "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+    "verification": "PASS"
+  },
+  "candidate": {
+    "repository": "EasyStep-lee/flt1",
+    "visibility": "private",
+    "defaultBranch": "main",
+    "baseSha": "d6710d56c6375367f11f802bb77c187b06359a8a",
+    "headBranch": "codex/m0-m0-handoff",
+    "headSha": "567607b8d46ad66dfc880f2b8be62bfc9688e342",
+    "pullRequest": 2,
+    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/2",
+    "draft": true,
+    "mergeable": true,
+    "merged": false,
+    "reviewCount": 0,
+    "commentCount": 0
+  },
+  "p0": {
+    "mappedCount": 0,
+    "status": "NOT_APPLICABLE",
+    "businessE2eClaimedPassed": false
+  },
+  "evidence": {
+    "executionPack": {
+      "status": "PASS",
+      "tasks": 149,
+      "p0": 119,
+      "fields": 658,
+      "pages": 80,
+      "permissions": 22
+    },
+    "m0HandoffContract": {
+      "status": "PASS",
+      "passed": 4,
+      "failed": 0
+    },
+    "m0HandoffEvidence": {
+      "status": "PASS",
+      "sourceSha": "a98c6edcbb356cd8b3209cf2695b44f36655bc93"
+    },
+    "localVerify": {
+      "status": "PASS",
+      "recordedCommit": "567607b8d46ad66dfc880f2b8be62bfc9688e342",
+      "baseSha": "d6710d56c6375367f11f802bb77c187b06359a8a",
+      "stepsPassed": 17,
+      "startedAt": "2026-08-03T11:21:32.848Z",
+      "endedAt": "2026-08-03T11:25:40.348Z",
+      "freshForCandidateCommit": true,
+      "note": "The full local gate ran on the candidate commit with the preflight evidence files staged; PR CI separately binds the committed governance candidate."
+    },
+    "ci": {
+      "status": "CI_PASS",
+      "workflow": "ci",
+      "job": "verify",
+      "runId": 30808200806,
+      "jobId": 91668391723,
+      "url": "https://github.com/EasyStep-lee/flt1/actions/runs/30808200806",
+      "headSha": "567607b8d46ad66dfc880f2b8be62bfc9688e342",
+      "conclusion": "success"
+    },
+    "codeowners": {
+      "path": ".github/CODEOWNERS",
+      "owner": "@EasyStep-lee",
+      "errors": 0,
+      "presentOnMain": false
+    },
+    "environments": {
+      "staging": {
+        "configured": true,
+        "deploymentBranches": [
+          "main"
+        ],
+        "secretCount": 0
+      },
+      "production": {
+        "configured": true,
+        "deploymentBranches": [
+          "main"
+        ],
+        "secretCount": 0,
+        "requiredReviewers": "BLOCKED_BY_GITHUB_PLAN"
+      }
+    },
+    "githubGovernance": {
+      "branchProtection": "UNAVAILABLE_HTTP_403_PLAN",
+      "rulesets": "UNAVAILABLE_HTTP_403_PLAN",
+      "actionsEnabled": true,
+      "allowedActions": "all",
+      "shaPinningRequiredByRepository": false,
+      "defaultWorkflowPermissions": "read",
+      "actionsCanApprovePullRequests": false
+    }
+  },
+  "blockers": [
+    {
+      "id": "GH_PLAN_BRANCH_PROTECTION_UNAVAILABLE",
+      "status": "BLOCKED_EXTERNAL",
+      "reason": "GitHub returned HTTP 403 and requires GitHub Pro or a public repository for private-repository branch protection and rulesets."
+    },
+    {
+      "id": "GH_PLAN_ENVIRONMENT_REVIEWERS_UNAVAILABLE",
+      "status": "BLOCKED_EXTERNAL",
+      "reason": "GitHub returned HTTP 422 because the current plan does not support required reviewers for the production Environment."
+    },
+    {
+      "id": "ACTIONS_REPOSITORY_POLICY_NOT_HARDENED",
+      "status": "HUMAN_REQUIRED",
+      "reason": "Repository Actions currently allows all actions and does not enforce SHA pinning at repository level; the committed workflow itself pins every action to a full SHA."
+    },
+    {
+      "id": "PR_STILL_DRAFT",
+      "status": "NOT_EXECUTED",
+      "reason": "Pull request 2 remains Draft."
+    },
+    {
+      "id": "HUMAN_REVIEW_NOT_EXECUTED",
+      "status": "NOT_EXECUTED",
+      "reason": "The pull request has no human review and the only direct collaborator is also the pull request author."
+    },
+    {
+      "id": "PR_NOT_MERGED",
+      "status": "NOT_EXECUTED",
+      "reason": "Authorized human merge has not occurred."
+    },
+    {
+      "id": "MAIN_POST_MERGE_CI_NOT_EXECUTED",
+      "status": "NOT_EXECUTED",
+      "reason": "The latest main commit cannot be reverified until the pull request is reviewed and merged by an authorized human."
+    }
+  ],
+  "resume": {
+    "nextAllowedTask": "M0-GATE",
+    "m1Unlocked": false,
+    "requiredActions": [
+      "Use a GitHub plan or organization repository that supports private-repository branch protection and production Environment reviewers.",
+      "Configure protected main, required verify check, one independent human approval, unresolved-thread blocking, no force-push and no branch deletion.",
+      "Invite or identify an independent authorized reviewer, then review and merge pull request 2 manually.",
+      "Run and verify main CI on the post-merge commit, then repeat M0-GATE."
+    ]
+  }
+}
