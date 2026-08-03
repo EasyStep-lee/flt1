@@ -200,11 +200,11 @@ test('M0 P0 E2E gate reports an explicit not-applicable policy instead of passWi
   assert.doesNotMatch(result.stdout, /passWithNoTests|skipped successfully/iu);
 });
 
-test('GitHub collaboration templates require scope, evidence, safety, and human gaps', async () => {
+test('GitHub collaboration templates and formal ownership require real accountable identities', async () => {
   const [pullRequestTemplate, codeowners, dependabot, featureIssue, bugIssue] =
     await Promise.all([
       readRepositoryFile('.github/pull_request_template.md'),
-      readRepositoryFile('.github/CODEOWNERS.example'),
+      readRepositoryFile('.github/CODEOWNERS'),
       readRepositoryFile('.github/dependabot.yml'),
       readRepositoryFile('.github/ISSUE_TEMPLATE/feature.yml'),
       readRepositoryFile('.github/ISSUE_TEMPLATE/bug.yml'),
@@ -222,7 +222,28 @@ test('GitHub collaboration templates require scope, evidence, safety, and human 
   ]) {
     assert.match(pullRequestTemplate, new RegExp(required, 'u'));
   }
-  assert.match(codeowners, /\/\.github\/\s+@REPO_ADMIN/u);
+  for (const protectedPath of [
+    '*',
+    '/packages/db/prisma/migrations/',
+    '/apps/api/src/modules/payments/',
+    '/apps/api/src/modules/welfare-card/',
+    '/apps/api/src/modules/permissions/',
+    '/apps/api/src/modules/delivery/',
+    '/.github/',
+  ]) {
+    assert.match(
+      codeowners,
+      new RegExp(`^${protectedPath.replaceAll('/', '\\/').replace('*', '\\*')}\\s+@EasyStep-lee$`, 'mu'),
+    );
+  }
+  assert.doesNotMatch(
+    codeowners,
+    /@(OWNER|DB_OWNER|FINANCE_OWNER|SECURITY_OWNER|LOGISTICS_OWNER|REPO_ADMIN)\b/u,
+  );
+  await assert.rejects(
+    readRepositoryFile('.github/CODEOWNERS.example'),
+    (error) => error?.code === 'ENOENT',
+  );
   assert.match(dependabot, /package-ecosystem:\s*["']npm["']/u);
   assert.match(dependabot, /package-ecosystem:\s*["']github-actions["']/u);
   assert.doesNotMatch(dependabot, /target-branch:/u);
