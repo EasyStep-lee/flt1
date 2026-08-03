@@ -1,0 +1,790 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "M0-012",
+  "stage": "M0",
+  "generatedAt": "2026-08-03T06:39:59.823Z",
+  "status": "LOCAL_EVIDENCE_PACKAGE_GENERATED",
+  "stageConclusion": "NOT_COMPLETE_AWAITING_M0_GATE",
+  "baseline": {
+    "baselineId": "FULISHE-V1.1-2026-08-02",
+    "schemePath": "福礼社单商户供应链平台V1.1综合方案.html",
+    "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+    "promptPackVersion": "V1.1",
+    "executionPackVersion": "1.1.0",
+    "p0Range": "P0-001..P0-119",
+    "workbookSha256": "978EB140521E534F1D59F900939AF209A608841E1B3021CE910D8311C0B903C8"
+  },
+  "repository": {
+    "root": "C:\\Users\\lichuanjun\\Documents\\flt1\\",
+    "branch": "codex/m0-m0-handoff",
+    "sourceCommit": "a98c6edcbb356cd8b3209cf2695b44f36655bc93",
+    "commit": "a98c6edcbb356cd8b3209cf2695b44f36655bc93",
+    "subject": "feat(m0): establish M0 handoff evidence package",
+    "committedAt": "2026-08-03T02:35:48-04:00",
+    "remotesConfigured": false,
+    "remoteCount": 0
+  },
+  "runtime": {
+    "node": "v22.23.1",
+    "pnpm": "10.12.1",
+    "turbo": "2.10.8",
+    "typescript": "5.9.3"
+  },
+  "summary": {
+    "totalM0ExecutionTasks": 12,
+    "indexedCompletedPredecessorTasks": 11,
+    "completedTasksIncludingHandoff": 12,
+    "p0Count": 0,
+    "handoffCount": 11,
+    "lowLevelEvidenceFileCount": 12
+  },
+  "tasks": [
+    {
+      "taskId": "M0-001",
+      "title": "冻结产品基线与变更规则",
+      "status": "DONE",
+      "evidenceStatus": "LOCAL_PASS",
+      "branch": "codex/m0-m0-001",
+      "commit": "958ce3952ea2395216fbadc3af244c5de6dbd8a1",
+      "subject": "chore(m0): freeze v1.1 product baseline",
+      "committedAt": "2026-08-02T04:49:48-04:00",
+      "commitIsAncestor": true,
+      "ci": "BLOCKED_EXTERNAL",
+      "changedFiles": [
+        "AGENTS.md",
+        "docs/product/BASELINE_CHANGE_POLICY.md",
+        "docs/product/baseline-lock.json",
+        "scripts/verify-product-baseline.ps1",
+        "tests/baseline/product-baseline.guard.ps1",
+        "福礼社单商户供应链平台V1.1综合方案.html"
+      ],
+      "changedFilesSha256": "99B47130AABC5C11927215450DB663BDBA92C8C1C719EB7EF99FEE2E7E94E0D3",
+      "handoff": {
+        "path": "docs/handoffs/2026-08-02-M0-001-958ce39.md",
+        "bytes": 3483,
+        "sha256": "8586C090738F70A0AA095477AC46426B838CF81AF946439A79B542AD4028AD92"
+      },
+      "evidence": [
+        {
+          "path": "docs/product/baseline-lock.json",
+          "bytes": 2328,
+          "sha256": "0178BD246E8991380D7F4D4A772682FCAF7D98BF0CDA521A6B3E67038BE227DE"
+        }
+      ],
+      "rollback": {
+        "command": "git revert 958ce3952ea2395216fbadc3af244c5de6dbd8a1"
+      }
+    },
+    {
+      "taskId": "M0-002",
+      "title": "只读盘点本机与仓库环境",
+      "status": "DONE",
+      "evidenceStatus": "LOCAL_PASS",
+      "branch": "codex/m0-m0-002",
+      "commit": "96346b15c23debfff03cf8c328da51e26bc3669c",
+      "subject": "chore(m0): inventory local development environment",
+      "committedAt": "2026-08-02T05:13:52-04:00",
+      "commitIsAncestor": true,
+      "ci": "BLOCKED_EXTERNAL",
+      "changedFiles": [
+        "artifacts/verification/M0-002/environment-inventory.json",
+        "docs/handoffs/2026-08-02-M0-002-environment.md",
+        "scripts/inventory-development-environment.ps1",
+        "tests/environment/development-environment.inventory.ps1"
+      ],
+      "changedFilesSha256": "97D8B284050B099607225CF381B28AEC360BEA2DE200224F0B2B5BD482EF7461",
+      "handoff": {
+        "path": "docs/handoffs/2026-08-02-M0-002-environment.md",
+        "bytes": 5444,
+        "sha256": "F9CC7DBE88E24E1EE42ACB6CEAAAFFC4FC331C513E194F0552D80E73423A9F9E"
+      },
+      "evidence": [
+        {
+          "path": "artifacts/verification/M0-002/environment-inventory.json",
+          "bytes": 7640,
+          "sha256": "55610619783F85A0EA2A76DC726FD9D66D8EA324FA6BAE784BC68EE62E64B27B"
+        }
+      ],
+      "rollback": {
+        "command": "git revert 96346b15c23debfff03cf8c328da51e26bc3669c"
+      }
+    },
+    {
+      "taskId": "M0-003",
+      "title": "确认GitHub目标与协作边界",
+      "status": "DONE",
+      "evidenceStatus": "LOCAL_PASS",
+      "branch": "codex/m0-github",
+      "commit": "00346170e48733ebd1a46807a738deca0704848e",
+      "subject": "chore(m0): define local-only github boundary",
+      "committedAt": "2026-08-02T05:37:04-04:00",
+      "commitIsAncestor": true,
+      "ci": "BLOCKED_EXTERNAL",
+      "changedFiles": [
+        "artifacts/verification/M0-003/github-collaboration-boundary.json",
+        "docs/handoffs/2026-08-02-M0-003-github-boundary.md",
+        "scripts/audit-github-collaboration-boundary.ps1",
+        "tests/github/github-collaboration-boundary.ps1"
+      ],
+      "changedFilesSha256": "8B23E061F7A0CF256C4DC2F60B9C28E92E5AB24BC035BCFC60C9D0CEB6548D31",
+      "handoff": {
+        "path": "docs/handoffs/2026-08-02-M0-003-github-boundary.md",
+        "bytes": 5115,
+        "sha256": "6A85ED9C825E764126507FC503D3EA561E92278269A35A2D5155BD87E28BE4F0"
+      },
+      "evidence": [
+        {
+          "path": "artifacts/verification/M0-003/github-collaboration-boundary.json",
+          "bytes": 3291,
+          "sha256": "A9EAFD310F871E7E0FB9878A1A3A58AFC03F78C3BFE0D9ACB2B8C13378F001CC"
+        }
+      ],
+      "rollback": {
+        "command": "git revert 00346170e48733ebd1a46807a738deca0704848e"
+      }
+    },
+    {
+      "taskId": "M0-004",
+      "title": "初始化pnpm workspace与Turborepo",
+      "status": "DONE",
+      "evidenceStatus": "LOCAL_PASS",
+      "branch": "codex/m0-pnpm-workspace-turborepo",
+      "commit": "9067c36c87949693bc53432a57b149314b592cc2",
+      "subject": "chore(m0): initialize pnpm turbo workspace",
+      "committedAt": "2026-08-02T05:53:30-04:00",
+      "commitIsAncestor": true,
+      "ci": "BLOCKED_EXTERNAL",
+      "changedFiles": [
+        ".editorconfig",
+        ".gitattributes",
+        ".gitignore",
+        ".node-version",
+        ".npmrc",
+        ".nvmrc",
+        "CONTRIBUTING.md",
+        "README.md",
+        "apps/README.md",
+        "artifacts/verification/M0-004/workspace-foundation.json",
+        "docs/architecture/WORKSPACE_LAYOUT.md",
+        "docs/handoffs/2026-08-02-M0-004-workspace-foundation.md",
+        "package.json",
+        "packages/README.md",
+        "pnpm-lock.yaml",
+        "pnpm-workspace.yaml",
+        "scripts/verify-workspace-foundation.mjs",
+        "tests/workspace/workspace-foundation.test.ps1",
+        "turbo.json"
+      ],
+      "changedFilesSha256": "C047A423F15552412B32737AF653F880BA16E842207267E2CA84F128B7C86A47",
+      "handoff": {
+        "path": "docs/handoffs/2026-08-02-M0-004-workspace-foundation.md",
+        "bytes": 6120,
+        "sha256": "58751701179BCF16BCD3AC0E2BB9A5C31D0F122FAA03054BE2A5225521877BF5"
+      },
+      "evidence": [
+        {
+          "path": "artifacts/verification/M0-004/workspace-foundation.json",
+          "bytes": 557,
+          "sha256": "324540775063D33AAEA3F77CB7003195F3A435D4029DF483D8419766C083062C"
+        }
+      ],
+      "rollback": {
+        "command": "git revert 9067c36c87949693bc53432a57b149314b592cc2"
+      }
+    },
+    {
+      "taskId": "M0-005",
+      "title": "初始化NestJS/Prisma/MySQL/Redis/BullMQ底座",
+      "status": "DONE",
+      "evidenceStatus": "LOCAL_PASS",
+      "branch": "codex/m0-nestjs-prisma-mysql-redis-bullmq",
+      "commit": "5c8764c16ec2064ea146e51898b0716e0b43bd36",
+      "subject": "feat(m0): initialize api infrastructure foundation",
+      "committedAt": "2026-08-02T06:47:36-04:00",
+      "commitIsAncestor": true,
+      "ci": "BLOCKED_EXTERNAL",
+      "changedFiles": [
+        ".env.example",
+        "README.md",
+        "apps/api/package.json",
+        "apps/api/src/app.module.ts",
+        "apps/api/src/bootstrap.ts",
+        "apps/api/src/config/runtime-config.ts",
+        "apps/api/src/health/health.controller.ts",
+        "apps/api/src/health/health.service.ts",
+        "apps/api/src/http/foundation-exception.filter.ts",
+        "apps/api/src/http/request-id.middleware.ts",
+        "apps/api/src/infrastructure/foundation-policy.ts",
+        "apps/api/src/infrastructure/prisma.service.ts",
+        "apps/api/src/infrastructure/probe.ts",
+        "apps/api/src/infrastructure/queue.service.ts",
+        "apps/api/src/infrastructure/redis.service.ts",
+        "apps/api/src/logging/safe-json.logger.ts",
+        "apps/api/src/main.ts",
+        "apps/api/test/contract/health-api.test.mjs",
+        "apps/api/test/integration/foundation-degraded.test.mjs",
+        "apps/api/test/integration/foundation-runtime.test.mjs",
+        "apps/api/test/unit/foundation.test.mjs",
+        "apps/api/tsconfig.build.json",
+        "apps/api/tsconfig.json",
+        "artifacts/verification/M0-005/foundation-stack.json",
+        "compose.yaml",
+        "docs/architecture/FOUNDATION_INFRASTRUCTURE.md",
+        "docs/handoffs/2026-08-02-M0-005-foundation-stack.md",
+        "eslint.config.mjs",
+        "package.json",
+        "packages/db/package.json",
+        "packages/db/prisma/migrations/README.md",
+        "packages/db/prisma/schema.prisma",
+        "packages/db/scripts/prisma-command.mjs",
+        "packages/db/scripts/seed.mjs",
+        "packages/db/src/index.ts",
+        "packages/db/src/seed.ts",
+        "packages/db/tsconfig.build.json",
+        "packages/db/tsconfig.json",
+        "pnpm-lock.yaml",
+        "tests/infrastructure/foundation-clean-install.ps1",
+        "tests/infrastructure/foundation-stack.contract.ps1",
+        "tsconfig.base.json",
+        "turbo.json"
+      ],
+      "changedFilesSha256": "B6E4AC086F1D959248AD351400AF6B3740DC882C2621B486144B8A88C7B302AF",
+      "handoff": {
+        "path": "docs/handoffs/2026-08-02-M0-005-foundation-stack.md",
+        "bytes": 6634,
+        "sha256": "3D2F80D5CBDC39100E53C1FE970EE4234CD4316750B2523455842C424C90C5E8"
+      },
+      "evidence": [
+        {
+          "path": "artifacts/verification/M0-005/foundation-stack.json",
+          "bytes": 3566,
+          "sha256": "B21638DE2D2D5E18F605AB80CA6F743BB2B1D5C3A1CB0BAE07D7D0802DC12A42"
+        }
+      ],
+      "rollback": {
+        "command": "git revert 5c8764c16ec2064ea146e51898b0716e0b43bd36"
+      }
+    },
+    {
+      "taskId": "M0-006",
+      "title": "初始化五端应用壳",
+      "status": "DONE",
+      "evidenceStatus": "LOCAL_PASS",
+      "branch": "codex/m0-m0-006",
+      "commit": "a542c56b8e375c6331cc093d8f102d2bf837f5ea",
+      "subject": "feat(m0): initialize five application shells",
+      "committedAt": "2026-08-02T07:56:34-04:00",
+      "commitIsAncestor": true,
+      "ci": "BLOCKED_EXTERNAL",
+      "changedFiles": [
+        "README.md",
+        "apps/company-admin/index.html",
+        "apps/company-admin/package.json",
+        "apps/company-admin/src/app.tsx",
+        "apps/company-admin/src/main.tsx",
+        "apps/company-admin/src/session-boundary.ts",
+        "apps/company-admin/src/styles.css",
+        "apps/company-admin/test/shell-build.test.mjs",
+        "apps/company-admin/tsconfig.json",
+        "apps/company-admin/vite.config.ts",
+        "apps/portal-web/next-env.d.ts",
+        "apps/portal-web/next.config.mjs",
+        "apps/portal-web/package.json",
+        "apps/portal-web/src/app/(auth)/enterprise/login/page.tsx",
+        "apps/portal-web/src/app/(auth)/layout.tsx",
+        "apps/portal-web/src/app/(private)/enterprise/workspace/page.tsx",
+        "apps/portal-web/src/app/(private)/layout.tsx",
+        "apps/portal-web/src/app/(public)/layout.tsx",
+        "apps/portal-web/src/app/(public)/page.tsx",
+        "apps/portal-web/src/app/globals.css",
+        "apps/portal-web/src/app/layout.tsx",
+        "apps/portal-web/src/app/providers.tsx",
+        "apps/portal-web/src/app/robots.ts",
+        "apps/portal-web/src/app/sitemap.ts",
+        "apps/portal-web/src/session-boundary.ts",
+        "apps/portal-web/test/seo-cache-boundary.test.mjs",
+        "apps/portal-web/tsconfig.json",
+        "apps/runner-miniapp/package.json",
+        "apps/runner-miniapp/project.config.json",
+        "apps/runner-miniapp/scripts/build.mjs",
+        "apps/runner-miniapp/src/app.json",
+        "apps/runner-miniapp/src/app.ts",
+        "apps/runner-miniapp/src/app.wxss",
+        "apps/runner-miniapp/src/pages/shell/index.json",
+        "apps/runner-miniapp/src/pages/shell/index.ts",
+        "apps/runner-miniapp/src/pages/shell/index.wxml",
+        "apps/runner-miniapp/src/pages/shell/index.wxss",
+        "apps/runner-miniapp/src/request-adapter.ts",
+        "apps/runner-miniapp/src/sitemap.json",
+        "apps/runner-miniapp/src/types/wechat.d.ts",
+        "apps/runner-miniapp/test/shell-build.test.mjs",
+        "apps/runner-miniapp/tsconfig.json",
+        "apps/supplier-portal/index.html",
+        "apps/supplier-portal/package.json",
+        "apps/supplier-portal/src/app.tsx",
+        "apps/supplier-portal/src/main.tsx",
+        "apps/supplier-portal/src/session-boundary.ts",
+        "apps/supplier-portal/src/styles.css",
+        "apps/supplier-portal/test/shell-build.test.mjs",
+        "apps/supplier-portal/tsconfig.json",
+        "apps/supplier-portal/vite.config.ts",
+        "apps/user-miniapp/package.json",
+        "apps/user-miniapp/project.config.json",
+        "apps/user-miniapp/scripts/build.mjs",
+        "apps/user-miniapp/src/app.json",
+        "apps/user-miniapp/src/app.ts",
+        "apps/user-miniapp/src/app.wxss",
+        "apps/user-miniapp/src/pages/shell/index.json",
+        "apps/user-miniapp/src/pages/shell/index.ts",
+        "apps/user-miniapp/src/pages/shell/index.wxml",
+        "apps/user-miniapp/src/pages/shell/index.wxss",
+        "apps/user-miniapp/src/request-adapter.ts",
+        "apps/user-miniapp/src/sitemap.json",
+        "apps/user-miniapp/src/types/wechat.d.ts",
+        "apps/user-miniapp/test/shell-build.test.mjs",
+        "apps/user-miniapp/tsconfig.json",
+        "artifacts/verification/M0-006/application-shells.json",
+        "docs/architecture/APPLICATION_SHELLS.md",
+        "docs/handoffs/2026-08-02-M0-006-application-shells.md",
+        "eslint.config.mjs",
+        "package.json",
+        "packages/README.md",
+        "packages/miniapp-kit/package.json",
+        "packages/miniapp-kit/src/index.ts",
+        "packages/miniapp-kit/test/adapter.test.mjs",
+        "packages/miniapp-kit/tsconfig.build.json",
+        "packages/miniapp-kit/tsconfig.json",
+        "packages/ui/package.json",
+        "packages/ui/src/index.ts",
+        "packages/ui/src/shell-frame.tsx",
+        "packages/ui/src/theme.ts",
+        "packages/ui/test/package.test.mjs",
+        "packages/ui/tsconfig.build.json",
+        "packages/ui/tsconfig.json",
+        "pnpm-lock.yaml",
+        "tests/application-shells/app-shells.contract.test.mjs",
+        "tests/application-shells/application-shells-clean-install.ps1",
+        "tests/application-shells/miniapp-transport-boundary.test.mjs"
+      ],
+      "changedFilesSha256": "C16339EF9C80024B42E1B30877171AEA9E73D9D0CBC94056C84AB3A20E046C6E",
+      "handoff": {
+        "path": "docs/handoffs/2026-08-02-M0-006-application-shells.md",
+        "bytes": 7028,
+        "sha256": "DB03ABF87870E8136749BE0FD098E6D77774F2F6DA198CF68809518C944F8750"
+      },
+      "evidence": [
+        {
+          "path": "artifacts/verification/M0-006/application-shells.json",
+          "bytes": 5459,
+          "sha256": "074F02B8C6499C83F7E2771750AE310C111B4D7FDADA19F16A6628A2DBA710A5"
+        }
+      ],
+      "rollback": {
+        "command": "git revert a542c56b8e375c6331cc093d8f102d2bf837f5ea"
+      }
+    },
+    {
+      "taskId": "M0-007",
+      "title": "建立配置Schema与秘密扫描",
+      "status": "DONE",
+      "evidenceStatus": "LOCAL_PASS",
+      "branch": "codex/m0-schema",
+      "commit": "4d46293f668dcbd0dc5465ed65803e4fda9a3618",
+      "subject": "feat(m0): establish configuration and secret safety",
+      "committedAt": "2026-08-02T08:44:44-04:00",
+      "commitIsAncestor": true,
+      "ci": "BLOCKED_EXTERNAL",
+      "changedFiles": [
+        ".env.example",
+        "README.md",
+        "apps/api/package.json",
+        "apps/api/src/config/runtime-config.ts",
+        "apps/api/src/logging/safe-json.logger.ts",
+        "docs/architecture/CONFIGURATION_AND_SECRETS.md",
+        "package.json",
+        "packages/README.md",
+        "packages/config/package.json",
+        "packages/config/src/configuration.ts",
+        "packages/config/src/index.ts",
+        "packages/config/src/redaction.ts",
+        "packages/config/src/secret-scanner.ts",
+        "packages/config/tsconfig.build.json",
+        "packages/config/tsconfig.json",
+        "pnpm-lock.yaml",
+        "scripts/check-config.mjs",
+        "scripts/scan-secrets.mjs",
+        "tests/configuration/api-logging-integration.test.mjs",
+        "tests/configuration/configuration-clean-install.ps1",
+        "tests/configuration/configuration-contract.test.mjs",
+        "tests/configuration/configuration-schema.test.mjs",
+        "tests/configuration/secret-scanner.test.mjs"
+      ],
+      "changedFilesSha256": "EA41158432E99D2D74F75B3A6B0B7BAD86EBE643448FB2DBABE62E6D1BAA6169",
+      "handoff": {
+        "path": "docs/handoffs/2026-08-02-M0-007-configuration-and-secrets.md",
+        "bytes": 6364,
+        "sha256": "37CAE299468006FB5B4BEDA34A1587D8F12CE9499C8F999AF23344A5E2764027"
+      },
+      "evidence": [
+        {
+          "path": "artifacts/verification/M0-007/configuration-and-secrets.json",
+          "bytes": 4658,
+          "sha256": "8EDB64F3CEE683DB7B66DF73CDE96AF81426480F2BD69B656A6F57B8450714ED"
+        }
+      ],
+      "rollback": {
+        "command": "git revert 4d46293f668dcbd0dc5465ed65803e4fda9a3618"
+      }
+    },
+    {
+      "taskId": "M0-008",
+      "title": "建立确定性OpenAPI、统一类型与传输适配",
+      "status": "DONE",
+      "evidenceStatus": "LOCAL_PASS",
+      "branch": "codex/m0-openapi-dto",
+      "commit": "743142676f96530289259ec426c8689a30c0d315",
+      "subject": "feat(m0): establish deterministic OpenAPI contracts",
+      "committedAt": "2026-08-02T21:53:32-04:00",
+      "commitIsAncestor": true,
+      "ci": "BLOCKED_EXTERNAL",
+      "changedFiles": [
+        ".gitattributes",
+        ".gitignore",
+        "README.md",
+        "apps/README.md",
+        "apps/api/package.json",
+        "apps/api/src/app.module.ts",
+        "apps/api/src/health/health.controller.ts",
+        "apps/api/src/health/health.dto.ts",
+        "apps/api/src/http/api-error.dto.ts",
+        "apps/api/src/http/api-error.ts",
+        "apps/api/src/http/foundation-exception.filter.ts",
+        "apps/api/src/openapi/openapi-controller.registry.ts",
+        "apps/api/src/openapi/openapi-document.ts",
+        "apps/company-admin/package.json",
+        "apps/company-admin/src/api-client.ts",
+        "apps/portal-web/package.json",
+        "apps/portal-web/src/api-client.ts",
+        "apps/runner-miniapp/package.json",
+        "apps/runner-miniapp/src/request-adapter.ts",
+        "apps/supplier-portal/package.json",
+        "apps/supplier-portal/src/api-client.ts",
+        "apps/user-miniapp/package.json",
+        "apps/user-miniapp/src/request-adapter.ts",
+        "docs/architecture/APPLICATION_SHELLS.md",
+        "docs/architecture/OPENAPI_CONTRACTS.md",
+        "eslint.config.mjs",
+        "package.json",
+        "packages/README.md",
+        "packages/contracts/openapi.json",
+        "packages/contracts/package.json",
+        "packages/contracts/src/index.ts",
+        "packages/contracts/src/miniapp-contracts.ts",
+        "packages/contracts/test/package.test.mjs",
+        "packages/contracts/tsconfig.build.json",
+        "packages/contracts/tsconfig.json",
+        "packages/contracts/types.ts",
+        "packages/miniapp-kit/src/index.ts",
+        "packages/web-api-client/package.json",
+        "packages/web-api-client/src/index.ts",
+        "packages/web-api-client/test/package.test.mjs",
+        "packages/web-api-client/tsconfig.build.json",
+        "packages/web-api-client/tsconfig.json",
+        "pnpm-lock.yaml",
+        "scripts/check-openapi-breaking.mjs",
+        "scripts/check-openapi-generated.mjs",
+        "scripts/generate-openapi.ts",
+        "tests/application-shells/miniapp-transport-boundary.test.mjs",
+        "tests/openapi/oasdiff-gate.test.mjs",
+        "tests/openapi/openapi-clean-install.ps1",
+        "tests/openapi/openapi-generation.test.mjs",
+        "tests/openapi/transport-boundaries.test.mjs",
+        "tsconfig.openapi.json"
+      ],
+      "changedFilesSha256": "F881146876E5C1DF8A97FC3A2B5116F83913596779E65E9F11ABC87F80036C08",
+      "handoff": {
+        "path": "docs/handoffs/2026-08-02-M0-008-openapi-contracts.md",
+        "bytes": 6706,
+        "sha256": "21D487E5286356ADC20FC759ADD3C47E1D205AD84EAC7695BB63AFEC5A8297DA"
+      },
+      "evidence": [
+        {
+          "path": "artifacts/verification/M0-008/openapi-contracts.json",
+          "bytes": 5891,
+          "sha256": "6D24382F04EF9C098BA8548689A51906B2966692BCA582BB16B1FBC2CF53CC11"
+        }
+      ],
+      "rollback": {
+        "command": "git revert 743142676f96530289259ec426c8689a30c0d315"
+      }
+    },
+    {
+      "taskId": "M0-009",
+      "title": "建立测试金字塔与失败测试模板",
+      "status": "DONE",
+      "evidenceStatus": "LOCAL_PASS",
+      "branch": "codex/m0-m0-009",
+      "commit": "4b93d52423b19eaabe65f01b56ec21b944d28d39",
+      "subject": "feat(m0): establish test pyramid foundation",
+      "committedAt": "2026-08-02T22:49:54-04:00",
+      "commitIsAncestor": true,
+      "ci": "BLOCKED_EXTERNAL",
+      "changedFiles": [
+        ".gitignore",
+        "README.md",
+        "apps/api/package.json",
+        "apps/api/test/supertest/health-api.test.mjs",
+        "docs/architecture/FOUNDATION_INFRASTRUCTURE.md",
+        "docs/architecture/TEST_PYRAMID.md",
+        "docs/testing/FAILURE_TEST_TEMPLATE.md",
+        "eslint.config.mjs",
+        "package.json",
+        "packages/README.md",
+        "packages/test-kit/package.json",
+        "packages/test-kit/src/index.ts",
+        "packages/test-kit/test/concurrency-idempotency.test.ts",
+        "packages/test-kit/tsconfig.build.json",
+        "packages/test-kit/tsconfig.json",
+        "playwright.config.ts",
+        "pnpm-lock.yaml",
+        "scripts/write-test-report-manifest.mjs",
+        "tests/e2e/portal-foundation.spec.ts",
+        "tests/test-foundation/test-foundation-clean-install.ps1",
+        "tests/test-foundation/test-foundation-contract.test.mjs",
+        "tsconfig.tests.json",
+        "vitest.config.ts",
+        "vitest.report.config.ts"
+      ],
+      "changedFilesSha256": "79D808E2499206486BBBAFE1083E73C9EC202B50B0E26BD191FA45AF14D78583",
+      "handoff": {
+        "path": "docs/handoffs/2026-08-02-M0-009-test-pyramid-foundation.md",
+        "bytes": 6160,
+        "sha256": "0E12355421BB2180AB58E4A120A470AC4C641439E524B84DEB22FF522E592B1D"
+      },
+      "evidence": [
+        {
+          "path": "artifacts/verification/M0-009/test-pyramid-foundation.json",
+          "bytes": 5994,
+          "sha256": "F6B951A7BE3A1D89B6017F871A1C22388F03AC971871CC25D582035ED6028ACB"
+        }
+      ],
+      "rollback": {
+        "command": "git revert 4b93d52423b19eaabe65f01b56ec21b944d28d39"
+      }
+    },
+    {
+      "taskId": "M0-010",
+      "title": "建立Prisma迁移与回滚演练",
+      "status": "DONE",
+      "evidenceStatus": "LOCAL_PASS",
+      "branch": "codex/m0-prisma",
+      "commit": "62ead13dfb9c6680a4c173fa09377ce6cf8e23b9",
+      "subject": "feat(m0): establish prisma migration rehearsals",
+      "committedAt": "2026-08-02T23:44:41-04:00",
+      "commitIsAncestor": true,
+      "ci": "BLOCKED_EXTERNAL",
+      "changedFiles": [
+        "README.md",
+        "docs/architecture/PRISMA_MIGRATION_REHEARSAL.md",
+        "package.json",
+        "packages/db/prisma/migrations/README.md",
+        "scripts/check-prisma-migrations.mjs",
+        "scripts/prisma-migration-rehearsal.mjs",
+        "tests/migrations/prisma-migration-clean-install.ps1",
+        "tests/migrations/prisma-migration-foundation.contract.test.mjs"
+      ],
+      "changedFilesSha256": "335BF9A8F2D313278C6C88910EE44A21B58EC98BB380B53154FE0D408FD32867",
+      "handoff": {
+        "path": "docs/handoffs/2026-08-02-M0-010-prisma-migration-rehearsal.md",
+        "bytes": 5673,
+        "sha256": "4F1B618DE79F3641259C0895BA31E953B35BC9F80F56790C6725398383B7002E"
+      },
+      "evidence": [
+        {
+          "path": "artifacts/verification/M0-010/prisma-migration-foundation.json",
+          "bytes": 5372,
+          "sha256": "2DFCD13A2C6D2611D117F240A8F7B0F927EBB4CF3ECE1601BD82DCED093A2169"
+        },
+        {
+          "path": "artifacts/verification/M0-010/prisma-migration-rehearsal.json",
+          "bytes": 3540,
+          "sha256": "A1791AC4D8CAD24FBEA700095BA5D530A89D1E2D341D5970E8612736A19C6706"
+        }
+      ],
+      "rollback": {
+        "command": "git revert 62ead13dfb9c6680a4c173fa09377ce6cf8e23b9"
+      }
+    },
+    {
+      "taskId": "M0-011",
+      "title": "建立pnpm verify与GitHub CI门禁",
+      "status": "DONE",
+      "evidenceStatus": "LOCAL_PASS",
+      "branch": "codex/m0-pnpm-verify-github-ci",
+      "commit": "6033fa14d52ab8ef847bfcb275747ec94d0c904a",
+      "subject": "feat(m0): establish pnpm verify and CI gate",
+      "committedAt": "2026-08-03T00:42:52-04:00",
+      "commitIsAncestor": true,
+      "ci": "BLOCKED_EXTERNAL",
+      "changedFiles": [
+        ".github/CODEOWNERS.example",
+        ".github/ISSUE_TEMPLATE/bug.yml",
+        ".github/ISSUE_TEMPLATE/feature.yml",
+        ".github/dependabot.yml",
+        ".github/pull_request_template.md",
+        ".github/workflows/ci.yml",
+        "CONTRIBUTING.md",
+        "README.md",
+        "docs/architecture/GITHUB_CI_GATE.md",
+        "docs/architecture/WORKSPACE_LAYOUT.md",
+        "package.json",
+        "scripts/resolve-ci-base.mjs",
+        "scripts/run-p0-e2e-gate.mjs",
+        "scripts/run-verification.mjs",
+        "scripts/verification-plan.mjs",
+        "scripts/verify-workspace-foundation.mjs",
+        "tests/ci/ci-gate-clean-install.ps1",
+        "tests/ci/verification-ci.contract.test.mjs",
+        "tests/workspace/workspace-foundation.test.ps1"
+      ],
+      "changedFilesSha256": "72BFF720993B5183322392270FCDDD12152852375DA1D1D4051054E7D6B91CBE",
+      "handoff": {
+        "path": "docs/handoffs/2026-08-03-M0-011-pnpm-verify-github-ci.md",
+        "bytes": 6294,
+        "sha256": "3A7E4066D055E60DA3058AF528AE652E783FE0E59F28C808B3D1A882D00AFB06"
+      },
+      "evidence": [
+        {
+          "path": "artifacts/verification/M0-011/pnpm-verify-ci-gate.json",
+          "bytes": 4930,
+          "sha256": "DBCA71EF71E3F37279BB5BE3F32CBCBDCCCDC31C8180AFC4A3607C5B18D42A8E"
+        }
+      ],
+      "rollback": {
+        "command": "git revert 6033fa14d52ab8ef847bfcb275747ec94d0c904a"
+      }
+    }
+  ],
+  "verification": {
+    "status": "PASS",
+    "command": "pnpm verify -- --base-ref ad40cf8a01ca0d801139de7cfa266041e19b2e43",
+    "commit": "a98c6edcbb356cd8b3209cf2695b44f36655bc93",
+    "baseRef": "ad40cf8a01ca0d801139de7cfa266041e19b2e43",
+    "baseRefSource": "ARGUMENT",
+    "startedAt": "2026-08-03T06:35:58.266Z",
+    "endedAt": "2026-08-03T06:39:39.801Z",
+    "stepCount": 17,
+    "passedSteps": 17,
+    "report": {
+      "path": "artifacts/test-results/verification/pnpm-verify.json",
+      "bytes": 5020,
+      "sha256": "9F1AC4DDEF5FB9C667CBB6665DFF0F3969BEA9CD599805B5A883B3724C7B5524"
+    }
+  },
+  "github": {
+    "repository": null,
+    "defaultBranch": null,
+    "remoteConfirmed": false,
+    "authenticationConfirmed": true,
+    "writeAllowed": false,
+    "pullRequest": "NOT_EXECUTED",
+    "actions": "NOT_EXECUTED",
+    "ci": "BLOCKED_EXTERNAL",
+    "unresolvedComments": "NOT_EXECUTED",
+    "mainMerge": "NOT_EXECUTED",
+    "mainReverify": "NOT_EXECUTED",
+    "note": "M0-003已验证本地开发边界：gh认证EasyStep-lee，但owner/repo、默认分支和写权限未确认；远程操作BLOCKED_EXTERNAL。"
+  },
+  "humanGates": [
+    {
+      "id": "EXT-001",
+      "category": "GitHub",
+      "requiredInputOrDecision": "确认目标owner/repo或仓库URL、默认分支",
+      "owner": "UNASSIGNED_HUMAN",
+      "status": "NOT_PROVIDED",
+      "evidenceRequired": "HUMAN_REQUIRED",
+      "safetyBoundary": "不得猜测远程；不得把Token粘贴聊天",
+      "blockingTask": "M0-003",
+      "blocksFormalAcceptance": "NO"
+    },
+    {
+      "id": "EXT-002",
+      "category": "GitHub",
+      "requiredInputOrDecision": "确认Codex/开发人员的最小仓库权限",
+      "owner": "UNASSIGNED_HUMAN",
+      "status": "NOT_PROVIDED",
+      "evidenceRequired": "HUMAN_REQUIRED",
+      "safetyBoundary": "只授权分支、Draft PR和只读CI；合并仍人工",
+      "blockingTask": "M0-003",
+      "blocksFormalAcceptance": "NO"
+    },
+    {
+      "id": "EXT-003",
+      "category": "GitHub",
+      "requiredInputOrDecision": "配置Actions Secrets与Environment审批",
+      "owner": "UNASSIGNED_HUMAN",
+      "status": "NOT_PROVIDED",
+      "evidenceRequired": "HUMAN_REQUIRED",
+      "safetyBoundary": "仅在GitHub UI/密钥管理器输入，不写仓库",
+      "blockingTask": "M0-011",
+      "blocksFormalAcceptance": "YES"
+    },
+    {
+      "id": "EXT-004",
+      "category": "基础设施",
+      "requiredInputOrDecision": "确认开发/预发布/生产域名、服务器、数据库和对象存储责任人",
+      "owner": "UNASSIGNED_HUMAN",
+      "status": "NOT_PROVIDED",
+      "evidenceRequired": "HUMAN_REQUIRED",
+      "safetyBoundary": "M0只使用本地替代；生产资料不进聊天",
+      "blockingTask": "M0-005",
+      "blocksFormalAcceptance": "NO"
+    }
+  ],
+  "scopeBoundary": {
+    "sourceChangedFiles": [
+      "package.json",
+      "scripts/generate-m0-handoff-evidence.mjs",
+      "scripts/verify-m0-handoff-evidence.mjs",
+      "tests/handoffs/m0-handoff.contract.test.mjs"
+    ],
+    "businessCodeChanged": false,
+    "prismaSchemaChanged": false,
+    "productMigrationSqlChanged": false,
+    "openApiContractChanged": false,
+    "businessPagesChanged": false,
+    "realExternalStateChanged": false,
+    "sensitiveMaterialIncluded": false
+  },
+  "evidenceBoundary": {
+    "local": "LOCAL_PASS",
+    "ci": "NOT_EXECUTED",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_EXECUTED",
+    "production": "NOT_EXECUTED",
+    "formalM0Gate": "NOT_EXECUTED"
+  },
+  "resume": {
+    "projectStatePath": "福礼社Codex5.6开发执行包V1.1/16-项目状态.json",
+    "nextAllowedTask": "M0-GATE",
+    "m1Unlocked": false,
+    "firstCommands": [
+      "pwsh -NoProfile -File ./scripts/verify-product-baseline.ps1",
+      "git status --short",
+      "git branch --show-current",
+      "git remote -v",
+      "pnpm test:m0-handoff",
+      "pnpm verify -- --base-ref <40位不可变基线提交>"
+    ],
+    "prohibitedUntilGate": [
+      "M1及以后业务开发",
+      "真实支付/退款",
+      "生产部署/迁移",
+      "直接修改或推送main"
+    ]
+  },
+  "output": {
+    "evidencePath": "artifacts/verification/M0-012/m0-stage-handoff-evidence.json",
+    "handoffPath": "docs/handoffs/2026-08-03-M0-stage-handoff-not-complete.md"
+  }
+}
