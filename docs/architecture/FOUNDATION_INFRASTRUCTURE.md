@@ -95,6 +95,6 @@ pnpm infra:down
 pnpm test:infra:degraded
 ```
 
-`pnpm test`和`pnpm test:api`使用Node内置测试器完成本切片的先红后绿证据；固定的Vitest、Supertest和Playwright测试金字塔仍由M0-009建立，不能把本切片写成M0测试底座已经完成。
+`pnpm test`和`pnpm test:api`中的Node内置测试仍保留M0-005先红后绿证据；M0-009已另行建立固定的Vitest、Supertest和Playwright测试金字塔，详见`TEST_PYRAMID.md`。不能用后建底座改写M0-005当时的验证边界。
 
 pnpm 10可能提示部分依赖生命周期脚本未获自动批准。本底座不依赖隐式postinstall：Prisma Client由`prisma:generate`显式、可复核地生成；构建脚本在忽略依赖生命周期脚本的干净安装中也必须通过。正式CI的依赖脚本允许清单归M0-011冻结。

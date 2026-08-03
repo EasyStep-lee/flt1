@@ -21,6 +21,9 @@
 - `openapi-typescript` `7.13.0`
 - `openapi-fetch` `0.17.0`
 - oasdiff `1.17.0`（下载包SHA-256校验）
+- Vitest `4.1.10`
+- Supertest `7.2.2`
+- Playwright `1.62.1`
 
 版本同时记录在 `package.json`、`.node-version`、`.nvmrc` 和 `pnpm-lock.yaml`。版本不匹配时先切换工具链，不得绕过 `engine-strict`。
 
@@ -49,6 +52,8 @@ pnpm openapi:check
 pnpm test:openapi
 pnpm openapi:breaking -- --base packages/contracts/openapi.json --revision packages/contracts/openapi.json
 ```
+
+M0-009新增`@fulishe/test-kit`，工作区现在共13个包。Vitest单元、Supertest API契约和Playwright浏览器E2E保持独立项目；`pnpm test:reports`把JSON、JUnit、HTML及SHA-256清单写入忽略的`artifacts/test-results/`。完整边界见`docs/architecture/TEST_PYRAMID.md`。
 
 ## 五端应用壳
 

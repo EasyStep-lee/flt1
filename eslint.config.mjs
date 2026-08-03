@@ -9,6 +9,7 @@ export default tseslint.config(
       '**/node_modules/**',
       '**/outputs/**',
       '**/.turbo/**',
+      '**/artifacts/test-results/**',
     ],
   },
   eslint.configs.recommended,
@@ -21,7 +22,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['apps/*/test/**/*.mjs', 'packages/*/test/**/*.mjs'],
+    files: ['apps/*/test/**/*.{mjs,ts}', 'packages/*/test/**/*.{mjs,ts}'],
     languageOptions: {
       globals: {
         clearTimeout: 'readonly',
@@ -32,11 +33,12 @@ export default tseslint.config(
     },
   },
   {
-    files: ['scripts/**/*.{mjs,ts}', 'tests/**/*.mjs'],
+    files: ['scripts/**/*.{mjs,ts}', 'tests/**/*.{mjs,ts}', '*.config.ts'],
     languageOptions: {
       globals: {
         Buffer: 'readonly',
         URL: 'readonly',
+        console: 'readonly',
         fetch: 'readonly',
         process: 'readonly',
       },

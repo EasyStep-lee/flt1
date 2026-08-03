@@ -10,6 +10,7 @@ dist/
 coverage/
 *.tsbuildinfo
 *.log
+artifacts/test-results/
 
 # Local configuration; only the documented example may be committed
 .env
