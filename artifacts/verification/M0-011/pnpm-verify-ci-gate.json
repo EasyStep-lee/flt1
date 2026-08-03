@@ -1,0 +1,174 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "M0-011",
+  "generatedAt": "2026-08-03T04:54:43.071Z",
+  "status": "LOCAL_PASS",
+  "baseline": {
+    "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92"
+  },
+  "git": {
+    "branch": "codex/m0-pnpm-verify-github-ci",
+    "implementationCommit": "6033fa14d52ab8ef847bfcb275747ec94d0c904a",
+    "verificationBaseCommit": "d6710d56c6375367f11f802bb77c187b06359a8a",
+    "remoteConfirmed": false
+  },
+  "tdd": {
+    "initialContract": {
+      "command": "node --test ./tests/ci/verification-ci.contract.test.mjs",
+      "red": {
+        "passed": 0,
+        "failed": 6
+      },
+      "green": {
+        "passed": 6,
+        "failed": 0
+      }
+    },
+    "cleanInstallEntrypoint": {
+      "red": {
+        "passed": 5,
+        "failed": 2
+      },
+      "green": {
+        "passed": 7,
+        "failed": 0
+      }
+    },
+    "stagedOpenApiDrift": {
+      "red": {
+        "passed": 6,
+        "failed": 1,
+        "reason": "plain git diff did not cover staged-only generated drift"
+      },
+      "green": {
+        "passed": 7,
+        "failed": 0,
+        "implementation": "git diff --exit-code HEAD"
+      }
+    },
+    "negativeConfiguration": {
+      "environment": "CI=true without VERIFY_BASE_REF",
+      "status": "EXPECTED_FAIL",
+      "marker": "VERIFY_BASE_REF_REQUIRED_IN_CI",
+      "silentSkipAllowed": false
+    }
+  },
+  "rootVerification": {
+    "command": "pnpm verify -- --base-ref d6710d56c6375367f11f802bb77c187b06359a8a",
+    "status": "PASS",
+    "commit": "6033fa14d52ab8ef847bfcb275747ec94d0c904a",
+    "baseRef": "d6710d56c6375367f11f802bb77c187b06359a8a",
+    "baseRefSource": "ARGUMENT",
+    "startedAt": "2026-08-03T04:43:12.937Z",
+    "endedAt": "2026-08-03T04:46:43.130Z",
+    "durationMs": 210193,
+    "stepCount": 17,
+    "passedSteps": 17,
+    "runtimeReport": {
+      "path": "artifacts/test-results/verification/pnpm-verify.json",
+      "sha256": "5E9F78A357A72DA764CE1AFF3CAD99C98D4B63252ABB256DB86D60354FD7CDB5",
+      "tracked": false
+    },
+    "orderedSteps": [
+      "workspace",
+      "lint",
+      "openapi-generate",
+      "openapi-diff",
+      "openapi-check",
+      "openapi-breaking",
+      "typecheck",
+      "unit",
+      "regression",
+      "api",
+      "e2e-foundation",
+      "e2e-p0",
+      "prisma-validate",
+      "migration-integrity",
+      "migration-rehearsal",
+      "build",
+      "secrets"
+    ]
+  },
+  "cleanInstall": {
+    "command": "pnpm test:ci:clean-install",
+    "status": "PASS",
+    "durationSeconds": 411.3,
+    "frozenLockfile": true,
+    "ignoreLifecycleScripts": true,
+    "rootVerificationStepsPassed": 17,
+    "temporaryResidueCount": 0,
+    "originalWorktreeUnchanged": true
+  },
+  "p0E2ePolicy": {
+    "stage": "M0",
+    "mappedP0Count": 0,
+    "status": "NOT_APPLICABLE",
+    "marker": "P0_E2E_NOT_APPLICABLE:stage=M0:p0Count=0:reason=M0_HAS_NO_MAPPED_P0",
+    "businessE2eClaimedPassed": false,
+    "foundationPlaywright": "PASS"
+  },
+  "githubCiTemplate": {
+    "workflowPath": ".github/workflows/ci.yml",
+    "fetchDepth": 0,
+    "persistCredentials": false,
+    "immutableBaseRequired": true,
+    "continueOnErrorAllowed": false,
+    "actions": {
+      "actions/checkout": "11d5960a326750d5838078e36cf38b85af677262",
+      "actions/setup-node": "49933ea5288caeca8642d1e84afbd3f7d6820020",
+      "pnpm/action-setup": "b906affcce14559ad1aafd4ab0e942779e9f58b1",
+      "actions/upload-artifact": "ea165f8d65b6e75b540449e92b4886f43607fa02"
+    }
+  },
+  "security": {
+    "productionDependencyAudit": {
+      "status": "PASS",
+      "dependencies": 309,
+      "vulnerabilities": {
+        "info": 0,
+        "low": 0,
+        "moderate": 0,
+        "high": 0,
+        "critical": 0
+      }
+    },
+    "trackedSecretScanAtImplementationVerification": {
+      "status": "PASS",
+      "trackedFiles": 291,
+      "matches": 0
+    },
+    "trackedSecretScanAfterControlFilesStaged": {
+      "status": "PASS",
+      "trackedFiles": 293,
+      "matches": 0
+    }
+  },
+  "workspaceSafety": {
+    "temporaryResidueCount": 0,
+    "composeEntriesAfterVerification": 0,
+    "openApiGeneratedDiff": 0,
+    "userUntrackedFilesPreserved": true
+  },
+  "workbook": {
+    "path": "福礼社Codex5.6开发执行包V1.1/17-福礼社Codex5.6执行总控工作簿.xlsx",
+    "sha256": "978EB140521E534F1D59F900939AF209A608841E1B3021CE910D8311C0B903C8",
+    "sheets": 12,
+    "formulaErrors": 0,
+    "visualReview": "PASS"
+  },
+  "scopeBoundary": {
+    "businessCodeChanged": false,
+    "prismaSchemaChanged": false,
+    "productMigrationSqlChanged": false,
+    "openApiContractChanged": false,
+    "dtoChanged": false,
+    "businessPagesChanged": false
+  },
+  "externalEvidence": {
+    "pullRequest": "NOT_EXECUTED",
+    "githubActions": "NOT_EXECUTED",
+    "ci": "BLOCKED_EXTERNAL",
+    "reason": "no verified origin, owner/repo, default branch or write permission"
+  },
+  "nextAllowedTask": "M0-012"
+}
