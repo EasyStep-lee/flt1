@@ -7,7 +7,8 @@
 | 目录 | 职责 | 最早任务 |
 |---|---|---|
 | `db/` | Prisma schema、迁移和数据库访问基础 | M0-005 |
-| `contracts/` | 确定性OpenAPI、生成类型和错误码 | M0-008 |
+| `contracts/` | 后端确定生成的OpenAPI、统一生成类型和小程序operation映射 | M0-008 |
+| `web-api-client/` | Web三端共享的类型化`openapi-fetch` Client工厂 | M0-008 |
 | `ui/` | Web通用表现组件，不承载权限判断 | M0-006 |
 | `miniapp-kit/` | M0-006冻结唯一请求边界；M0-008接入生成契约类型并完成适配门禁 | M0-006（边界）/M0-008（契约） |
 | `adapters/` | 外部服务可替换接口与测试桩 | M0-005及以后 |

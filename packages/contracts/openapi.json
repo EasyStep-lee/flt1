@@ -1,0 +1,215 @@
+{
+  "components": {
+    "schemas": {
+      "ApiErrorResponseDto": {
+        "properties": {
+          "code": {
+            "enum": [
+              "ACCESS_DENIED",
+              "AUTHENTICATION_REQUIRED",
+              "INTERNAL_ERROR",
+              "REQUEST_INVALID",
+              "RESOURCE_NOT_FOUND",
+              "SERVICE_UNAVAILABLE"
+            ],
+            "example": "RESOURCE_NOT_FOUND",
+            "type": "string"
+          },
+          "message": {
+            "example": "Resource was not found",
+            "type": "string"
+          },
+          "path": {
+            "example": "/missing",
+            "type": "string"
+          },
+          "requestId": {
+            "example": "contract-request-0001",
+            "type": "string"
+          },
+          "statusCode": {
+            "example": 404,
+            "type": "number"
+          },
+          "timestamp": {
+            "example": "2026-08-02T00:00:00.000Z",
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "statusCode",
+          "code",
+          "message",
+          "requestId",
+          "path",
+          "timestamp"
+        ],
+        "type": "object"
+      },
+      "FoundationDependencyCheckDto": {
+        "properties": {
+          "code": {
+            "example": "OK",
+            "type": "string"
+          },
+          "latencyMs": {
+            "example": 1,
+            "minimum": 0,
+            "type": "number"
+          },
+          "status": {
+            "enum": [
+              "UP",
+              "DOWN"
+            ],
+            "example": "UP",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "code",
+          "latencyMs"
+        ],
+        "type": "object"
+      },
+      "HealthLivenessDto": {
+        "properties": {
+          "service": {
+            "enum": [
+              "fulishe-api"
+            ],
+            "example": "fulishe-api",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "UP"
+            ],
+            "example": "UP",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "service"
+        ],
+        "type": "object"
+      },
+      "HealthReadinessChecksDto": {
+        "properties": {
+          "database": {
+            "$ref": "#/components/schemas/FoundationDependencyCheckDto"
+          },
+          "queue": {
+            "$ref": "#/components/schemas/FoundationDependencyCheckDto"
+          },
+          "redis": {
+            "$ref": "#/components/schemas/FoundationDependencyCheckDto"
+          }
+        },
+        "type": "object"
+      },
+      "HealthReadinessDto": {
+        "properties": {
+          "checkedAt": {
+            "example": "2026-08-02T00:00:00.000Z",
+            "format": "date-time",
+            "type": "string"
+          },
+          "checks": {
+            "$ref": "#/components/schemas/HealthReadinessChecksDto"
+          },
+          "service": {
+            "enum": [
+              "fulishe-api"
+            ],
+            "example": "fulishe-api",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "UP",
+              "DOWN"
+            ],
+            "example": "UP",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "service",
+          "checkedAt",
+          "checks"
+        ],
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "contact": {},
+    "description": "江苏福礼团供应链科技有限公司单商户平台 API 契约",
+    "title": "福礼社统一 API",
+    "version": "1.0.0"
+  },
+  "openapi": "3.0.0",
+  "paths": {
+    "/health/live": {
+      "get": {
+        "operationId": "health.getLiveness",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthLivenessDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Liveness probe",
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/health/ready": {
+      "get": {
+        "operationId": "health.getReadiness",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthReadinessDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthReadinessDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Readiness probe",
+        "tags": [
+          "health"
+        ]
+      }
+    }
+  },
+  "servers": [],
+  "tags": []
+}

@@ -1,9 +1,7 @@
 import {
   createMiniappRequestAdapter,
-  type MiniappContractMap,
 } from '@fulishe/miniapp-kit';
+import type { FoundationMiniappContracts } from '@fulishe/contracts';
 
-// M0-008 will replace this boundary alias with deterministic generated contract types.
-type GeneratedContractsFromM0008 = MiniappContractMap;
-
-export const requestAdapter = createMiniappRequestAdapter<GeneratedContractsFromM0008>(wx);
+export const requestAdapter =
+  createMiniappRequestAdapter<FoundationMiniappContracts>(wx);

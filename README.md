@@ -17,6 +17,10 @@
 - Next.js `16.2.12`
 - Ant Design `6.5.3`
 - TanStack Query `5.101.4`
+- `@nestjs/swagger` `11.4.6`
+- `openapi-typescript` `7.13.0`
+- `openapi-fetch` `0.17.0`
+- oasdiff `1.17.0`（下载包SHA-256校验）
 
 版本同时记录在 `package.json`、`.node-version`、`.nvmrc` 和 `pnpm-lock.yaml`。版本不匹配时先切换工具链，不得绕过 `engine-strict`。
 
@@ -36,6 +40,15 @@ pnpm --filter @fulishe/api start
 M0-006之后，`workspace:graph`必须显示API、数据库、五端应用壳、共享UI和小程序请求边界共9个包。健康接口为`GET /health/live`和`GET /health/ready`；完整启动、停止、超时/重试和验证说明见`docs/architecture/FOUNDATION_INFRASTRUCTURE.md`。完整的 `pnpm verify` 仍由M0-011建立。
 
 M0-007新增`@fulishe/config`，工作区现在共10个包。启动前可用`pnpm config:check`校验开发样例，用`pnpm secrets:scan`只扫描Git已跟踪文件；生产与预发布凭据必须在运行时注入，不能写入`.env.example`或仓库。完整边界见`docs/architecture/CONFIGURATION_AND_SECRETS.md`。
+
+M0-008新增`@fulishe/contracts`和`@fulishe/web-api-client`，工作区现在共12个包。OpenAPI由NestJS后端确定生成，Web三端使用共享`openapi-fetch`客户端，两个原生小程序只复用生成类型并继续经过唯一`wx.request`适配器。完整边界见`docs/architecture/OPENAPI_CONTRACTS.md`。
+
+```powershell
+pnpm openapi:generate
+pnpm openapi:check
+pnpm test:openapi
+pnpm openapi:breaking -- --base packages/contracts/openapi.json --revision packages/contracts/openapi.json
+```
 
 ## 五端应用壳
 

@@ -5,3 +5,5 @@
 *.jpeg binary
 *.xlsx binary
 *.pdf binary
+packages/contracts/openapi.json text eol=lf
+packages/contracts/types.ts text eol=lf

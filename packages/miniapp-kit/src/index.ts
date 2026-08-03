@@ -7,6 +7,10 @@ export interface MiniappContractOperation<RequestBody = unknown, ResponseBody = 
 
 export type MiniappContractMap = Record<string, MiniappContractOperation>;
 
+type MiniappContractShape<TContracts> = {
+  readonly [TKey in keyof TContracts]: MiniappContractOperation;
+};
+
 export interface MiniappRuntimeResponse<TData> {
   readonly data: TData;
   readonly statusCode: number;
@@ -45,7 +49,9 @@ export class MiniappTransportError extends Error {
   }
 }
 
-export function createMiniappRequestAdapter<TContracts extends MiniappContractMap>(
+export function createMiniappRequestAdapter<
+  TContracts extends MiniappContractShape<TContracts> = MiniappContractMap,
+>(
   runtime: MiniappRequestRuntime,
 ) {
   return {

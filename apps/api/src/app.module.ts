@@ -1,7 +1,6 @@
 import { Module, type DynamicModule, type Provider } from '@nestjs/common';
 
 import { RUNTIME_CONFIG, type RuntimeConfig } from './config/runtime-config.js';
-import { HealthController } from './health/health.controller.js';
 import { HealthService } from './health/health.service.js';
 import {
   FOUNDATION_PROBES,
@@ -11,6 +10,7 @@ import {
 import { PrismaService } from './infrastructure/prisma.service.js';
 import { QueueService } from './infrastructure/queue.service.js';
 import { RedisService } from './infrastructure/redis.service.js';
+import { OPENAPI_CONTROLLERS } from './openapi/openapi-controller.registry.js';
 
 export interface AppModuleOptions {
   readonly config: RuntimeConfig;
@@ -50,7 +50,7 @@ export class AppModule {
 
     return {
       module: AppModule,
-      controllers: [HealthController],
+      controllers: [...OPENAPI_CONTROLLERS],
       providers,
     };
   }

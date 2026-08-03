@@ -10,6 +10,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@fulishe/contracts": "workspace:*",
     "@fulishe/miniapp-kit": "workspace:*"
   },
   "devDependencies": {

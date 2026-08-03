@@ -30,7 +30,9 @@ test('both mini-programs depend on the single miniapp-kit transport package', ()
       'utf8',
     );
     assert.match(adapterSource, /from '@fulishe\/miniapp-kit'/u);
-    assert.match(adapterSource, /M0-008/u, 'generated contract wiring ownership must stay explicit');
+    assert.match(adapterSource, /from '@fulishe\/contracts'/u);
+    assert.match(adapterSource, /FoundationMiniappContracts/u);
+    assert.doesNotMatch(adapterSource, /M0-008 will replace/u);
   }
 });
 

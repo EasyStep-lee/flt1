@@ -44,10 +44,10 @@
 ## 5. 原生小程序传输边界
 
 - 两个小程序都依赖`@fulishe/miniapp-kit`，应用源码禁止直接调用`wx.request`或浏览器`fetch`。
-- `miniapp-kit`当前只有一个注入式`runtime.request`调用，负责基础成功/失败归一化，不包含业务API。
+- `miniapp-kit`只有一个注入式`runtime.request`调用，负责基础成功/失败归一化，不包含业务API。
 - 两个小程序使用不同session namespace，且各自只有`pages/shell/index`一个内部壳页。
 - `project.config.json`使用公开非生产`touristappid`，微信开发者工具指向各自`dist/`。
-- M0-008负责由后端确定生成OpenAPI、创建`@fulishe/contracts`类型，并把当前`GeneratedContractsFromM0008`边界替换为真实生成类型；本任务不得把占位类型写成契约生成已完成。
+- M0-008已由后端确定生成OpenAPI、创建`@fulishe/contracts`类型，并把两个小程序的占位映射替换为`FoundationMiniappContracts`；业务请求仍须在所属后续切片中按生成operation增加。
 
 ## 6. 验证与回滚
 
