@@ -55,6 +55,15 @@ pnpm openapi:breaking -- --base packages/contracts/openapi.json --revision packa
 
 M0-009新增`@fulishe/test-kit`，工作区现在共13个包。Vitest单元、Supertest API契约和Playwright浏览器E2E保持独立项目；`pnpm test:reports`把JSON、JUnit、HTML及SHA-256清单写入忽略的`artifacts/test-results/`。完整边界见`docs/architecture/TEST_PYRAMID.md`。
 
+M0-010建立产品迁移历史只读检查，以及本地MySQL空库、升级、逻辑备份恢复和向前修复演练。演练只创建并清理固定前缀的临时数据库/用户，不创建产品业务模型或SQL迁移；生产迁移仍必须由授权人工执行。完整规则见`docs/architecture/PRISMA_MIGRATION_REHEARSAL.md`。
+
+```powershell
+pnpm prisma:migrations:check
+pnpm test:migrations
+pnpm prisma:migrate:dry-run
+pnpm test:migrations:clean-install
+```
+
 ## 五端应用壳
 
 ```powershell
