@@ -38,7 +38,9 @@ if ($packageJson.engines.pnpm -ne '10.12.1') { throw 'pnpm engines必须精确�
 if ($packageJson.devDependencies.turbo -ne '2.10.8') { throw 'Turborepo必须精确锁定2.10.8。' }
 if (-not $packageJson.scripts.'workspace:check') { throw '缺少workspace:check脚本。' }
 if (-not $packageJson.scripts.'workspace:graph') { throw '缺少workspace:graph脚本。' }
-if ($packageJson.scripts.verify) { throw 'M0-004不得用空壳pnpm verify冒充M0-011。' }
+if ($packageJson.scripts.verify -ne 'node ./scripts/run-verification.mjs') {
+    throw 'M0-011完成后根级verify必须精确指向run-verification.mjs。'
+}
 
 $workspaceText = Get-Content -LiteralPath (Join-Path $repoRoot 'pnpm-workspace.yaml') -Raw -Encoding UTF8
 foreach ($glob in @("'apps/*'", "'packages/*'")) {

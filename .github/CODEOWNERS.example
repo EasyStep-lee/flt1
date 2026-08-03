@@ -1,0 +1,7 @@
+# 复制为CODEOWNERS前，仓库管理员必须将所有占位账号替换为真实团队或账号。
+* @OWNER
+/packages/db/prisma/migrations/ @DB_OWNER @FINANCE_OWNER
+/apps/api/src/modules/payments/ @FINANCE_OWNER @SECURITY_OWNER
+/apps/api/src/modules/welfare-card/ @FINANCE_OWNER @SECURITY_OWNER
+/apps/api/src/modules/delivery/ @LOGISTICS_OWNER
+/.github/ @REPO_ADMIN

@@ -1,0 +1,46 @@
+name: 功能切片
+description: 按执行包创建一个可独立验收的纵向切片
+title: "[Mx-TASK] "
+labels: ["codex-execution"]
+body:
+  - type: input
+    id: task
+    attributes:
+      label: 执行包任务ID
+      placeholder: M2-P019
+    validations:
+      required: true
+  - type: input
+    id: p0
+    attributes:
+      label: P0编号
+      placeholder: P0-019
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: 范围与非范围
+      description: 写明方案章节、交付物和明确不做的后续阶段功能。
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: 依赖与前置证据
+    validations:
+      required: true
+  - type: textarea
+    id: tests
+    attributes:
+      label: 失败测试与完成定义
+      description: 正常、越权、重复、并发、非法状态、失败恢复、历史快照和泄露按适用性列出。
+    validations:
+      required: true
+  - type: textarea
+    id: human
+    attributes:
+      label: 外部或人工门槛
+      placeholder: 无，或列出BLOCKED_EXTERNAL输入
+    validations:
+      required: true

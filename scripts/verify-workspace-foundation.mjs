@@ -51,7 +51,11 @@ requireEqual(packageJson.packageManager, "pnpm@10.12.1", "PACKAGE_MANAGER_VERSIO
 requireEqual(packageJson.engines?.node, "22.23.1", "NODE_ENGINE_VERSION");
 requireEqual(packageJson.engines?.pnpm, "10.12.1", "PNPM_ENGINE_VERSION");
 requireEqual(packageJson.devDependencies?.turbo, "2.10.8", "TURBO_VERSION");
-requireEqual(packageJson.scripts?.verify, undefined, "VERIFY_RESERVED_FOR_M0_011");
+requireEqual(
+  packageJson.scripts?.verify,
+  "node ./scripts/run-verification.mjs",
+  "VERIFY_M0_011_ENTRYPOINT",
+);
 requireEqual(process.versions.node, "22.23.1", "ACTIVE_NODE_VERSION");
 
 requireIncludes(workspaceYaml, "'apps/*'", "WORKSPACE_APPS_SCOPE");
@@ -101,7 +105,9 @@ const report = {
   guards: {
     engineStrict: npmrc.includes("engine-strict=true"),
     frozenLockfilePresent: lockfile.includes("lockfileVersion: '9.0'"),
-    verifyDeferredToM0011: packageJson.scripts?.verify === undefined && turboJson.tasks?.verify === undefined,
+    verifyImplementedByM0011:
+      packageJson.scripts?.verify === "node ./scripts/run-verification.mjs" &&
+      turboJson.tasks?.verify === undefined,
   },
   errors,
 };
@@ -120,4 +126,4 @@ if (errors.length > 0) {
 
 console.log("M0-004工作区校验通过。");
 console.log(`Node ${report.versions.node}; pnpm ${report.versions.pnpm}; Turborepo ${report.versions.turbo}`);
-console.log(`范围：${report.workspaceScopes.join(", ")}; verify保留至M0-011。`);
+console.log(`范围：${report.workspaceScopes.join(", ")}; verify由M0-011根级聚合器执行。`);
