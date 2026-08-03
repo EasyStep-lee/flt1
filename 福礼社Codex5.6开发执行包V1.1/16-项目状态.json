@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-03T02:41:34-04:00",
+  "updatedAt": "2026-08-03T07:43:34-04:00",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -12,7 +12,7 @@
     "pageCount": 80
   },
   "execution": {
-    "status": "READY_FOR_M0_GATE",
+    "status": "M0_GATE_BLOCKED_EXTERNAL",
     "currentStage": "M0",
     "currentTask": "M0-GATE",
     "nextAllowedTask": "M0-GATE",
@@ -28,16 +28,28 @@
     ]
   },
   "github": {
-    "repository": null,
-    "defaultBranch": null,
-    "remoteConfirmed": false,
+    "repository": "EasyStep-lee/flt1",
+    "defaultBranch": "main",
+    "remoteConfirmed": true,
     "authenticationConfirmed": true,
-    "writeAllowed": false,
-    "note": "M0-003已验证本地开发边界：gh认证EasyStep-lee，但owner/repo、默认分支和写权限未确认；远程操作BLOCKED_EXTERNAL。"
+    "writeAllowed": true,
+    "connectorAccessConfirmed": true,
+    "pullRequest": 2,
+    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/2",
+    "pullRequestState": "DRAFT",
+    "pullRequestMerged": false,
+    "lastVerifiedPullRequestHead": "d03a7c0adeeb11463af3428eb98a1b83db0f5c81",
+    "latestCi": {
+      "status": "CI_PASS",
+      "runId": 30809567682,
+      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/30809567682",
+      "headSha": "d03a7c0adeeb11463af3428eb98a1b83db0f5c81"
+    },
+    "note": "M0-GATE预检结论为NOT_EXECUTED：候选分支与PR CI已验证通过，但当前GitHub方案不支持私有仓库分支保护和Environment required reviewers；仓库级Actions策略未获人工批准强化，PR仍为Draft且未完成独立人工评审、合并及main合并后CI。"
   },
   "evidence": {
     "local": "LOCAL_PASS",
-    "ci": "NOT_EXECUTED",
+    "ci": "CI_PASS",
     "staging": "NOT_EXECUTED",
     "device": "NOT_EXECUTED",
     "production": "NOT_EXECUTED"

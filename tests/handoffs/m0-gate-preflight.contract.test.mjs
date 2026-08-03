@@ -17,6 +17,11 @@ const handoffPath = path.join(
   'handoffs',
   '2026-08-03-M0-gate-preflight-blocked.md',
 );
+const projectStatusPath = path.join(
+  repositoryRoot,
+  '福礼社Codex5.6开发执行包V1.1',
+  '16-项目状态.json',
+);
 
 test('M0 gate preflight stays blocked until GitHub governance and human merge evidence exist', async () => {
   const evidence = JSON.parse(await readFile(evidencePath, 'utf8'));
@@ -56,4 +61,39 @@ test('M0 gate preflight stays blocked until GitHub governance and human merge ev
     handoff,
     /M0-GATE\s*(?:已通过|GATE_PASSED)|M1\s*(?:已解锁|可开始)/u,
   );
+});
+
+test('project status records the current blocked M0 gate and verified GitHub evidence', async () => {
+  const projectStatus = JSON.parse(await readFile(projectStatusPath, 'utf8'));
+
+  assert.equal(projectStatus.execution.status, 'M0_GATE_BLOCKED_EXTERNAL');
+  assert.equal(projectStatus.execution.currentStage, 'M0');
+  assert.equal(projectStatus.execution.currentTask, 'M0-GATE');
+  assert.equal(projectStatus.execution.nextAllowedTask, 'M0-GATE');
+  assert.equal(projectStatus.execution.activeTaskCount, 0);
+  assert.equal(projectStatus.execution.lastPassedGate, null);
+  assert.equal(projectStatus.execution.prohibitedUntilGate.includes('M1及以后业务开发'), true);
+
+  assert.equal(projectStatus.github.repository, 'EasyStep-lee/flt1');
+  assert.equal(projectStatus.github.defaultBranch, 'main');
+  assert.equal(projectStatus.github.remoteConfirmed, true);
+  assert.equal(projectStatus.github.authenticationConfirmed, true);
+  assert.equal(projectStatus.github.writeAllowed, true);
+  assert.equal(projectStatus.github.connectorAccessConfirmed, true);
+  assert.equal(projectStatus.github.pullRequest, 2);
+  assert.equal(projectStatus.github.pullRequestState, 'DRAFT');
+  assert.equal(projectStatus.github.pullRequestMerged, false);
+  assert.match(projectStatus.github.lastVerifiedPullRequestHead, /^[0-9a-f]{40}$/u);
+  assert.equal(projectStatus.github.latestCi.status, 'CI_PASS');
+  assert.match(projectStatus.github.latestCi.headSha, /^[0-9a-f]{40}$/u);
+  assert.equal(
+    projectStatus.github.latestCi.headSha,
+    projectStatus.github.lastVerifiedPullRequestHead,
+  );
+
+  assert.equal(projectStatus.evidence.local, 'LOCAL_PASS');
+  assert.equal(projectStatus.evidence.ci, 'CI_PASS');
+  assert.equal(projectStatus.evidence.staging, 'NOT_EXECUTED');
+  assert.equal(projectStatus.evidence.device, 'NOT_EXECUTED');
+  assert.equal(projectStatus.evidence.production, 'NOT_EXECUTED');
 });
