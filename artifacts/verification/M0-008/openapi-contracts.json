@@ -1,0 +1,151 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "M0-008",
+  "status": "PASS",
+  "verifiedAt": "2026-08-02T22:05:58-04:00",
+  "branch": "codex/m0-openapi-dto",
+  "implementationCommit": "743142676f96530289259ec426c8689a30c0d315",
+  "baseline": {
+    "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+    "sourceSection": "§15.5 OpenAPI契约双向约束",
+    "p0Mapping": null
+  },
+  "toolchain": {
+    "node": "22.23.1",
+    "pnpm": "10.12.1",
+    "nestjsSwagger": "11.4.6",
+    "openapiTypescript": "7.13.0",
+    "openapiFetch": "0.17.0",
+    "oasdiff": "1.17.0",
+    "oasdiffArchive": "oasdiff_1.17.0_windows_amd64.tar.gz",
+    "oasdiffArchiveSha256": "C45E73B11622BE9572ED5B16A467A9956157315223CBD22E51B00AAE725B64F9"
+  },
+  "contracts": {
+    "generationMode": "CONTRACT_ONLY_NEST_CONTEXT",
+    "listensOnNetworkPort": false,
+    "connectsToDatabaseRedisOrQueue": false,
+    "readsProductionSecrets": false,
+    "openapiVersion": "3.0.0",
+    "paths": ["GET /health/live", "GET /health/ready"],
+    "operationIds": ["health.getLiveness", "health.getReadiness"],
+    "schemas": [
+      "ApiErrorResponseDto",
+      "FoundationDependencyCheckDto",
+      "HealthLivenessDto",
+      "HealthReadinessChecksDto",
+      "HealthReadinessDto"
+    ],
+    "byteStableAcrossTwoRuns": true,
+    "lineEndings": "LF",
+    "specSha256": "BEF335789CCF20A4B4EB7E981FED10818B8B70CC821E2D0BAAC5158E94265B1B",
+    "typesSha256": "27A36876DE3A52E278E0EE029A8F3920A694744392D16F34D5E76928334ACB64"
+  },
+  "security": {
+    "dtoAllowlist": true,
+    "prismaEntitiesSerializedDirectly": false,
+    "forbiddenPublicResponseFields": [
+      "supplyPrice",
+      "approvedSupplyPrice",
+      "supplyPriceSnapshot",
+      "supplierPayable",
+      "supplierPayableAmount",
+      "grossMargin",
+      "grossMarginRate"
+    ],
+    "forbiddenFieldFindings": 0,
+    "errorEnvelope": ["statusCode", "code", "message", "requestId", "path", "timestamp"],
+    "foundationErrorCodes": [
+      "REQUEST_INVALID",
+      "AUTHENTICATION_REQUIRED",
+      "ACCESS_DENIED",
+      "RESOURCE_NOT_FOUND",
+      "SERVICE_UNAVAILABLE",
+      "INTERNAL_ERROR"
+    ],
+    "productionAuditKnownVulnerabilities": 0,
+    "jsYamlSwaggerOverride": "5.2.2"
+  },
+  "transports": {
+    "webApplications": ["company-admin", "supplier-portal", "portal-web"],
+    "webClientPackage": "@fulishe/web-api-client",
+    "webRuntime": "openapi-fetch",
+    "miniapps": ["user-miniapp", "runner-miniapp"],
+    "miniappContractType": "FoundationMiniappContracts",
+    "miniappRuntimeBoundary": "@fulishe/miniapp-kit runtime.request -> wx.request",
+    "directFetchOrWxRequestAddedToApps": false
+  },
+  "artifacts": {
+    "rootPackageSha256": "56BAB2A9DD4E2090B1694655FDFC7CB57B76D25F847C24A75E70CDDAF1ED0C53",
+    "lockfileSha256": "BC1C13FD8172B898C1573350150FA8F8CB24E5B4DFF4BC8DA4E4E4C86FDFC4B4",
+    "generatorSha256": "18CC33A9011FF5A19FA75C1C53400E074ACE5BE89C8F1E14BE5AD23CB8D836C8",
+    "driftCheckSha256": "303B6A7DF1F0AAA847D8D9518F4E4255B8211DD95FE70863C6CD21E64BAC6C41",
+    "breakingCheckSha256": "6C3EB1FA400FD973152643B3553CA6004C429ABC17C35558A82702AFDD354EEF",
+    "generationTestSha256": "7BB2CB42D3C8F38A590D5CEF518EE5D459BF863E61601543A41DC9A4F2FBC8F3",
+    "transportTestSha256": "F380E41358BC977DEC8977586331AB8F29B5112143C1A2BE0DC3A85B355EAAE3",
+    "oasdiffTestSha256": "CEC9885614496E9B35C3473B83AB18128FFBA48140BDD220C3DAE1EDABC71088",
+    "cleanInstallSha256": "A1D803CB92C34084610C90639A55C21F18DC20B431FB2C8A7B2EF84522E41FFC",
+    "architectureDocumentSha256": "536F58D10FE417FC875031135C2F43FCAB43BCABA43E8E6ABC4CA7B942580D34"
+  },
+  "tests": {
+    "expectedRed": {
+      "passed": 0,
+      "failed": 8,
+      "reason": "generation scripts, contract packages, typed clients and oasdiff gate did not exist"
+    },
+    "focusedOpenApiContracts": { "passed": 8, "failed": 0 },
+    "applicationShellContracts": { "passed": 6, "failed": 0 },
+    "miniappTransportContracts": { "passed": 4, "failed": 0 },
+    "workspacePackageTasks": { "passed": 22, "failed": 0 },
+    "apiContractTests": { "passed": 3, "failed": 0 },
+    "configurationAndSecretTests": { "passed": 18, "failed": 0 },
+    "portalSeoCacheTests": { "passed": 1, "failed": 0 },
+    "workspaceLintPackages": { "passed": 12, "failed": 0 },
+    "workspaceTypecheckPackages": { "passed": 12, "failed": 0 },
+    "workspaceBuildPackages": { "passed": 12, "failed": 0 },
+    "openApiGeneratedArtifactsCheck": "PASS",
+    "oasdiffLocalFileMode": "PASS",
+    "oasdiffGitCommitBaselineMode": "PASS",
+    "cleanFrozenInstall": "PASS",
+    "trackedFileSecretScan": "PASS",
+    "workspaceFoundation": "PASS",
+    "configurationExample": "PASS",
+    "prismaValidate": "PASS",
+    "composeConfiguration": "PASS",
+    "productBaseline": "PASS_WITH_EXPECTED_EXECUTION_PACK_SNAPSHOT_WARNING",
+    "executionPack": "PASS",
+    "rootPnpmVerify": "NOT_EXECUTED_M0_011"
+  },
+  "controlState": {
+    "taskLedgerCount": 149,
+    "completedTaskCount": 8,
+    "activeTaskCount": 0,
+    "soleReadyTask": "M0-009",
+    "workbookSha256": "2BA6EF2FE5AD8CEDFC92DD6389EB5C1E7C335FC132D0A22FAD12F7FDCE9563D1",
+    "workbookSheets": 12,
+    "workbookFormulaErrors": 0,
+    "workbookVisualQa": "PASS"
+  },
+  "scopeGuard": {
+    "businessPagesCreated": 0,
+    "businessApisCreated": 0,
+    "businessDtosCreated": 0,
+    "prismaModelsAdded": 0,
+    "sqlMigrationsAdded": 0,
+    "authenticationImplemented": false,
+    "authorizationImplemented": false,
+    "paymentOrRefundIntegrationAdded": false
+  },
+  "deferred": {
+    "vitestSupertestPlaywrightAndFailureTemplates": "M0-009",
+    "migrationDryRunBackupRestore": "M0-010",
+    "pnpmVerifyAndGithubCi": "M0-011"
+  },
+  "external": {
+    "github": "BLOCKED_EXTERNAL",
+    "ci": "NOT_EXECUTED",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_EXECUTED",
+    "production": "NOT_EXECUTED"
+  },
+  "nextAllowedTask": "M0-009"
+}
