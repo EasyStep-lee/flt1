@@ -1,0 +1,151 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "M0-009",
+  "status": "PASS",
+  "verifiedAt": "2026-08-02T22:55:00-04:00",
+  "branch": "codex/m0-m0-009",
+  "implementationCommit": "4b93d52423b19eaabe65f01b56ec21b944d28d39",
+  "baseline": {
+    "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+    "sourceSection": "§15工程化要求、提示词包AGENTS.md",
+    "p0Mapping": null
+  },
+  "toolchain": {
+    "node": "22.23.1",
+    "pnpm": "10.12.1",
+    "vitest": "4.1.10",
+    "supertest": "7.2.2",
+    "supertestTypes": "7.2.1",
+    "playwright": "1.62.1",
+    "playwrightBrowser": "Chromium 151.0.7922.34"
+  },
+  "testPyramid": {
+    "unit": {
+      "runner": "Vitest",
+      "project": "unit",
+      "currentScope": "@fulishe/test-kit concurrency and idempotency probes",
+      "passed": 5,
+      "failed": 0
+    },
+    "apiContract": {
+      "runner": "Vitest + Supertest",
+      "project": "api-contract",
+      "currentScope": "Nest foundation health and safe-error contracts",
+      "opensNetworkPort": false,
+      "passed": 3,
+      "failed": 0
+    },
+    "browserE2e": {
+      "runner": "Playwright",
+      "project": "chromium",
+      "workers": 1,
+      "currentScope": "portal public ISR and private noindex/no-store shells",
+      "passed": 3,
+      "failed": 0,
+      "businessAcceptanceClaimed": false
+    },
+    "legacyRegression": "Node test runner retained for M0-005 through M0-008 evidence"
+  },
+  "testKit": {
+    "package": "@fulishe/test-kit",
+    "runnerNeutral": true,
+    "exports": [
+      "runConcurrently",
+      "requireExactlyOneFulfilled",
+      "verifyIdempotentReplay",
+      "TestInvariantError"
+    ],
+    "productionLockOrIdempotencyImplementation": false
+  },
+  "reports": {
+    "command": "pnpm test:reports",
+    "root": "artifacts/test-results",
+    "formats": ["JSON", "JUnit XML", "Playwright HTML"],
+    "manifestFiles": 6,
+    "manifestSha256": "B3C1BBA62C34E296B6540412B8C1E8719EDBD59A085508460F499195F0FB19D5",
+    "manifestCommit": "4b93d52423b19eaabe65f01b56ec21b944d28d39",
+    "manifestTrackedWorktreeClean": true,
+    "sourceControlPolicy": "IGNORED_RUNTIME_ARTIFACT",
+    "ciUploadAndRetention": "DEFERRED_M0_011"
+  },
+  "artifacts": {
+    "rootPackageSha256": "9A5B9C887F13572494183401AA1899963EBFD6F1F99116B7ECB702A185106BC9",
+    "lockfileSha256": "A65346A7BF2C6B70A790DC6851278FD038E43F2A60A5F6F972A67C8CFC26BE42",
+    "vitestConfigSha256": "2CCE4A6DF001EE75D3B9988194C753A310FB31B5D4139508181E49ADAE30CAA8",
+    "vitestReportConfigSha256": "F04DBAC7CE78EF9046B1E56B8CED94B30473FEE057BBBB149C5FA2D3B4DAA8FD",
+    "playwrightConfigSha256": "72377D4FC94E09DC2C361DD76299712120644C6A62A1D07B22163E50CDF45659",
+    "testKitSourceSha256": "A0A3E79CBC480FF4122BEF7C7756AB107642C3B4F28508E129EDF7E3BFCED087",
+    "testKitTestsSha256": "B58F00D8DCE9ABE673D6495FE6B4281677828D5F7385A5C86EF67F832362CD27",
+    "supertestContractSha256": "C5D0EE8BAECD858CB0E0AEB44D866CD2A5B5E49329C6A59891E67131DA9DF26E",
+    "playwrightSpecSha256": "95064780DA69BFD27CCE13DF46962C636DCAC5F8921156B56CD2F03B67C4631E",
+    "foundationContractSha256": "9459F8A22E6A93C0209D625F6B2D4F28C7357388A09CC11E98692B4346FB2622",
+    "cleanInstallSha256": "9D8178C960D44B7A6DAC12C8BFD03985BBB4EDB6FC93A101BEDB135589B041A6",
+    "reportManifestWriterSha256": "9940EA1BF4755A886BAC126AA388042A77ACE4324A0BDD3D27394C9B7D965B88",
+    "architectureDocumentSha256": "7F752A7F8F70521781E1854A0DE9B97456AD05EC652C2FB951D02858401524A0",
+    "failureTemplateSha256": "D5D8172FB1C36EC34B1C8F5EA50F50DF9A3E68FAF85A8954275F6D60E6492822"
+  },
+  "tests": {
+    "expectedRed": {
+      "passed": 0,
+      "failed": 4,
+      "exitCode": 1,
+      "reason": "test-kit, framework configs, report writer and failure template did not exist"
+    },
+    "greenFoundationContract": { "passed": 4, "failed": 0 },
+    "vitestUnit": { "passed": 5, "failed": 0 },
+    "supertestApi": { "passed": 3, "failed": 0 },
+    "playwrightChromium": { "passed": 3, "failed": 0 },
+    "reportRunVitest": { "passed": 8, "failed": 0 },
+    "reportRunPlaywright": { "passed": 3, "failed": 0 },
+    "rootRegressionTests": { "passed": 45, "failed": 0 },
+    "turboTestTasks": { "passed": 24, "failed": 0 },
+    "apiRegressionAndSupertest": { "passed": 6, "failed": 0 },
+    "workspaceLintPackages": { "passed": 13, "failed": 0 },
+    "workspaceTypecheckPackages": { "passed": 13, "failed": 0 },
+    "workspaceBuildPackages": { "passed": 13, "failed": 0 },
+    "cleanFrozenInstall": "PASS",
+    "cleanInstallPlaywrightDiscovery": { "discovered": 3, "failed": 0 },
+    "trackedFileSecretScan": "PASS_270_FILES",
+    "productionAuditKnownVulnerabilities": 0,
+    "openApiGeneratedArtifactsCheck": "PASS",
+    "workspaceFoundation": "PASS",
+    "productBaseline": "PASS_WITH_EXPECTED_EXECUTION_PACK_SNAPSHOT_WARNING",
+    "executionPack": "PASS",
+    "rootPnpmVerify": "NOT_EXECUTED_M0_011",
+    "migrationDryRunBackupRestore": "NOT_EXECUTED_M0_010"
+  },
+  "controlState": {
+    "taskLedgerCount": 149,
+    "completedTaskCount": 9,
+    "activeTaskCount": 0,
+    "soleReadyTask": "M0-010",
+    "workbookSha256": "1A6D27D4D73A2677961DF5FDD3D9AF2208618D026EFCB989A68A40AD752F2DD0",
+    "workbookSheets": 12,
+    "workbookFormulaErrors": 0,
+    "workbookVisualQa": "PASS_ALL_SHEETS"
+  },
+  "scopeGuard": {
+    "businessPagesCreated": 0,
+    "businessApisCreated": 0,
+    "businessDtosCreated": 0,
+    "prismaModelsAdded": 0,
+    "sqlMigrationsAdded": 0,
+    "authenticationImplemented": false,
+    "authorizationImplemented": false,
+    "paymentOrRefundIntegrationAdded": false,
+    "githubWorkflowAdded": false
+  },
+  "deferred": {
+    "migrationDryRunBackupRestoreAndForwardFix": "M0-010",
+    "pnpmVerifyAndGithubCi": "M0-011",
+    "businessP0Tests": "CORRESPONDING_M1_TO_M6_SLICES"
+  },
+  "external": {
+    "github": "BLOCKED_EXTERNAL",
+    "ci": "NOT_EXECUTED",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_EXECUTED",
+    "production": "NOT_EXECUTED"
+  },
+  "nextAllowedTask": "M0-010"
+}
