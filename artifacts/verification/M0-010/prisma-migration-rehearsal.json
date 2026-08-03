@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "taskId": "M0-010",
+  "generatedAt": "2026-08-03T03:46:11.843Z",
+  "status": "LOCAL_PASS",
+  "git": {
+    "commit": "62ead13dfb9c6680a4c173fa09377ce6cf8e23b9"
+  },
+  "runtime": {
+    "node": "v22.23.1",
+    "dockerServer": "29.6.2",
+    "mysql": "mysql  Ver 8.4.11 for Linux on x86_64 (MySQL Community Server - GPL)",
+    "prisma": "Prisma schema loaded from prisma\\schema.prisma\nprisma                  : 6.19.2\n@prisma/client          : 6.19.2\nComputed binaryTarget   : windows\nOperating System        : win32\nArchitecture            : x64\nNode.js                 : v22.23.1\nTypeScript              : 5.9.3\nQuery Engine (Node-API) : libquery-engine c2990dca591cba766e3b7ef5d9e8a84796e47ab7 (at ..\\..\\node_modules\\.pnpm\\@prisma+engines@6.19.2\\node_modules\\@prisma\\engines\\query_engine-windows.dll.node)\nPSL                     : @prisma/prisma-schema-wasm 7.1.1-3.c2990dca591cba766e3b7ef5d9e8a84796e47ab7\nSchema Engine           : schema-engine-cli c2990dca591cba766e3b7ef5d9e8a84796e47ab7 (at ..\\..\\node_modules\\.pnpm\\@prisma+engines@6.19.2\\node_modules\\@prisma\\engines\\schema-engine-windows.exe)\nDefault Engines Hash    : c2990dca591cba766e3b7ef5d9e8a84796e47ab7\nStudio                  : 0.511.0"
+  },
+  "productBoundary": {
+    "schemaSha256Before": "c7e2d106a1afce02d598f02e8b89e9c17127110070ccf50d56b13c5c4a435ed2",
+    "schemaSha256After": "c7e2d106a1afce02d598f02e8b89e9c17127110070ccf50d56b13c5c4a435ed2",
+    "productMigrationSqlBefore": 0,
+    "productMigrationSqlAfter": 0,
+    "configuredDatabaseTargeted": false,
+    "productSchemaMutated": false
+  },
+  "migrationIntegrity": {
+    "schemaVersion": 1,
+    "baseRef": "HEAD",
+    "publishedMigrationCount": 0,
+    "currentMigrationCount": 0,
+    "migrations": []
+  },
+  "rehearsal": {
+    "fixtureOnly": true,
+    "baselineMigration": "20260802000000_m0_rehearsal_baseline",
+    "forwardFixMigration": "20260802000100_m0_rehearsal_forward_fix",
+    "emptyPath": {
+      "appliedMigrations": 2,
+      "payload": "empty-path",
+      "forwardColumnCount": 1,
+      "forwardMarker": "forward-fixed"
+    },
+    "upgradePath": {
+      "before": {
+        "appliedMigrations": 1,
+        "payload": "baseline-preserved",
+        "forwardColumnCount": 0
+      },
+      "after": {
+        "appliedMigrations": 2,
+        "payload": "baseline-preserved",
+        "forwardColumnCount": 1,
+        "forwardMarker": "forward-fixed"
+      },
+      "payloadPreserved": true
+    },
+    "backupRestore": {
+      "backup": {
+        "bytes": 2947,
+        "sha256": "673599012de75df87aa4bf4c2aed4420ca03f361e0f4ed61248cddd608f8ad7c",
+        "migrationCount": 1
+      },
+      "restoredBeforeForwardFix": {
+        "appliedMigrations": 1,
+        "payload": "baseline-preserved",
+        "forwardColumnCount": 0
+      },
+      "restoredAfterForwardFix": {
+        "appliedMigrations": 2,
+        "payload": "baseline-preserved",
+        "forwardColumnCount": 1,
+        "forwardMarker": "forward-fixed"
+      },
+      "payloadPreserved": true
+    },
+    "finalSchemaDrift": "NONE",
+    "idempotentRedeploy": "PASS"
+  },
+  "evidenceBoundary": {
+    "localDockerMySql": "LOCAL_PASS",
+    "ci": "NOT_EXECUTED",
+    "staging": "NOT_EXECUTED",
+    "productionMigration": "HUMAN_ONLY_NOT_EXECUTED",
+    "productionDisasterRecovery": "NOT_EXECUTED"
+  },
+  "cleanup": {
+    "disposableDatabasesDropped": true,
+    "disposableUserDropped": true,
+    "temporaryFilesRemoved": true,
+    "mysqlPriorRunningStateRestored": true,
+    "errors": []
+  }
+}

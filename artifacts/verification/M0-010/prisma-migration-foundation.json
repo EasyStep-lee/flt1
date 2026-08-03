@@ -1,0 +1,153 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "M0-010",
+  "status": "LOCAL_PASS",
+  "verifiedAt": "2026-08-02T23:57:13-04:00",
+  "branch": "codex/m0-prisma",
+  "implementationCommit": "62ead13dfb9c6680a4c173fa09377ce6cf8e23b9",
+  "baseline": {
+    "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+    "sourceSection": "§15工程化要求、提示词包AGENTS.md",
+    "p0Mapping": null
+  },
+  "toolchain": {
+    "node": "22.23.1",
+    "pnpm": "10.12.1",
+    "prisma": "6.19.2",
+    "mysql": "8.4.11",
+    "dockerServer": "29.6.2",
+    "pwsh": "7.6.3"
+  },
+  "migrationPolicy": {
+    "publishedSqlImmutable": true,
+    "publishedMigrationEditRejected": true,
+    "publishedMigrationDeleteRejected": true,
+    "publishedMigrationRenameRejected": true,
+    "newForwardMigrationAllowed": true,
+    "productionExecution": "AUTHORIZED_HUMAN_ONLY"
+  },
+  "productBoundary": {
+    "schemaSha256Before": "c7e2d106a1afce02d598f02e8b89e9c17127110070ccf50d56b13c5c4a435ed2",
+    "schemaSha256After": "c7e2d106a1afce02d598f02e8b89e9c17127110070ccf50d56b13c5c4a435ed2",
+    "publishedMigrationCount": 0,
+    "productMigrationSqlBefore": 0,
+    "productMigrationSqlAfter": 0,
+    "configuredDatabaseTargeted": false,
+    "productSchemaMutated": false,
+    "businessModelsAdded": 0
+  },
+  "rehearsal": {
+    "target": "LOCAL_DOCKER_MYSQL_LOOPBACK_ONLY",
+    "fixtureOnly": true,
+    "emptyPathAppliedMigrations": 2,
+    "upgradePath": "1_TO_2_PASS",
+    "upgradePayloadPreserved": true,
+    "backup": {
+      "format": "MYSQLDUMP_SINGLE_TRANSACTION",
+      "bytes": 2947,
+      "sha256": "673599012de75df87aa4bf4c2aed4420ca03f361e0f4ed61248cddd608f8ad7c"
+    },
+    "restorePath": "1_TO_2_PASS",
+    "restorePayloadPreserved": true,
+    "finalSchemaDrift": "NONE",
+    "idempotentRedeploy": "PASS",
+    "cleanup": "PASS",
+    "mysqlPriorRunningStateRestored": true
+  },
+  "tests": {
+    "expectedRed": {
+      "passed": 1,
+      "failed": 2,
+      "exitCode": 1,
+      "reason": "migration documentation, entrypoints and integrity checker did not exist"
+    },
+    "cleanInstallEntrypointRed": {
+      "status": "EXPECTED_FAIL",
+      "reason": "clean-install script was not yet defined"
+    },
+    "greenMigrationContract": {
+      "passed": 3,
+      "failed": 0
+    },
+    "rootRegression": "PASS",
+    "turboTestTasks": {
+      "passed": 24,
+      "failed": 0
+    },
+    "apiNodeContracts": {
+      "passed": 3,
+      "failed": 0
+    },
+    "apiSupertest": {
+      "passed": 3,
+      "failed": 0
+    },
+    "workspaceLintPackages": {
+      "passed": 13,
+      "failed": 0
+    },
+    "workspaceTypecheckPackages": {
+      "passed": 13,
+      "failed": 0
+    },
+    "workspaceBuildPackages": {
+      "passed": 13,
+      "failed": 0
+    },
+    "cleanFrozenInstallAndThreeDatabaseRehearsal": "PASS_269_4_SECONDS",
+    "openApiGeneratedArtifactsCheck": "PASS_BYTE_IDENTICAL",
+    "workspaceFoundation": "PASS",
+    "trackedFileSecretScan": "PASS_278_FILES",
+    "productionAuditKnownVulnerabilities": 0,
+    "productBaseline": "PASS_WITH_EXPECTED_EXECUTION_PACK_SNAPSHOT_WARNING",
+    "executionPack": "PASS",
+    "rootPnpmVerify": "NOT_EXECUTED_M0_011",
+    "githubCi": "NOT_EXECUTED_M0_011"
+  },
+  "implementationCorrections": [
+    "Windows spawnSync pnpm.cmd EINVAL was replaced with a controlled shell invocation",
+    "Windows PowerShell 5.1 Path.GetRelativePath incompatibility was replaced with validated prefix subtraction",
+    "clean-install entrypoint was fixed to PowerShell 7 so deep temporary dependency paths are removed reliably"
+  ],
+  "artifacts": {
+    "rootPackageSha256": "84F15BDEA045F76555B2D6786A362AD33621C71A4A5E52B6E006BE2AAF0F8822",
+    "migrationIntegrityScriptSha256": "DFA74B5C0D5B038B5E19E7C1C37087D03656A58AEB336D023D3582DDD3FA129E",
+    "migrationRehearsalScriptSha256": "53DF508A990AD1F976E58BFBCD14DECA552CF1DDE6269E5DB79499B6BCE876B9",
+    "migrationContractSha256": "E016CE70E5BA481E9262C43D8D0CED18013A4E60ABE3A9483A8E2C4E335899B3",
+    "cleanInstallSha256": "B7584D78895F5573B8B04B77EC4B01196EE7EA7CDA888A531784D951965CA101",
+    "architectureDocumentSha256": "A2A85853281B35302BB38676C4674E63B2146A290F3DE983C193B17DAAA7292F",
+    "migrationReadmeSha256": "AA2C3700B1F0C170369B6450F785D74C089C221CBB36A07B9FA333019AA4E0E9",
+    "lowLevelRehearsalReportSha256": "A1791AC4D8CAD24FBEA700095BA5D530A89D1E2D341D5970E8612736A19C6706"
+  },
+  "controlState": {
+    "taskLedgerCount": 149,
+    "completedTaskCount": 10,
+    "activeTaskCount": 0,
+    "soleReadyTask": "M0-011",
+    "migrationLedgerCount": 22,
+    "mig001Status": "PLANNED_NOT_APPLIED",
+    "workbookSha256": "C292FECD555759D9770DFB82811DDF43D51B47FB208142B02F9DA6B8B2242496",
+    "workbookSheets": 12,
+    "workbookFormulaErrors": 0,
+    "workbookVisualQa": "PASS_ALL_SHEETS"
+  },
+  "scopeGuard": {
+    "businessPagesCreated": 0,
+    "businessApisCreated": 0,
+    "businessDtosCreated": 0,
+    "prismaModelsAdded": 0,
+    "productSqlMigrationsAdded": 0,
+    "githubWorkflowAdded": false,
+    "rootPnpmVerifyAdded": false,
+    "paymentOrRefundIntegrationAdded": false
+  },
+  "external": {
+    "github": "BLOCKED_EXTERNAL_NO_ORIGIN",
+    "ci": "NOT_EXECUTED",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_EXECUTED",
+    "productionMigration": "HUMAN_ONLY_NOT_EXECUTED",
+    "productionDisasterRecovery": "NOT_EXECUTED"
+  },
+  "nextAllowedTask": "M0-011"
+}
