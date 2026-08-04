@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-03T21:52:56-04:00",
+  "updatedAt": "2026-08-03T22:16:50-04:00",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -29,6 +29,7 @@
   },
   "github": {
     "repository": "EasyStep-lee/flt1",
+    "visibility": "public",
     "defaultBranch": "main",
     "remoteConfirmed": true,
     "authenticationConfirmed": true,
@@ -45,16 +46,21 @@
       "githubAccountCount": 1,
       "additionalGithubAccountsRequired": false,
       "githubSelfApprovalSupported": false,
-      "reviewEvidence": "NOT_EXECUTED"
+      "reviewEvidence": "SUPERSEDED_BEFORE_MERGE",
+      "reviewedHead": "0ad4dc64abd1523f70fd95f4ebcd39121bb49d08",
+      "reviewDecision": "APPROVED_FOR_MERGE",
+      "reviewCommentId": 5173829395,
+      "currentHeadReviewRequired": true,
+      "supersededReason": "合并前实时审计发现仓库可见性及治理能力证据过时；修正证据会改变PR head。"
     },
-    "lastVerifiedPullRequestHead": "13ce2ffaafe6c2a09ce33726d764ba7be31a38ed",
+    "lastVerifiedPullRequestHead": "0ad4dc64abd1523f70fd95f4ebcd39121bb49d08",
     "latestCi": {
       "status": "CI_PASS",
-      "runId": 30811004420,
-      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/30811004420",
-      "headSha": "13ce2ffaafe6c2a09ce33726d764ba7be31a38ed"
+      "runId": 30870827298,
+      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/30870827298",
+      "headSha": "0ad4dc64abd1523f70fd95f4ebcd39121bb49d08"
     },
-    "note": "用户确认采用单人开发和单一授权审核人，不新增GitHub账号。GitHub套餐限制记录为已知限制并使用人工控制；正式门禁仍为NOT_EXECUTED，等待@EasyStep-lee对精确PR head完成DOCUMENTED_SELF_REVIEW并明确授权合并，随后还需合并后main CI。"
+    "note": "仓库实时状态为public；main未配置保护（HTTP 404），Rulesets为空，production未配置required reviewer。用户曾批准0ad4dc6合并，但该授权因修正旧private/HTTP 403证据会改变head而在合并前失效；等待修正提交CI及@EasyStep-lee重新确认，M0-GATE仍为NOT_EXECUTED。"
   },
   "evidence": {
     "local": "LOCAL_PASS",

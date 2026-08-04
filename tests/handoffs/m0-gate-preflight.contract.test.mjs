@@ -45,6 +45,7 @@ test('M0 gate preflight waits for documented solo review and human merge evidenc
   assert.equal(evidence.stage, 'M0');
   assert.equal(evidence.p0.status, 'NOT_APPLICABLE');
   assert.equal(evidence.p0.mappedCount, 0);
+  assert.equal(evidence.candidate.visibility, 'public');
   assert.match(evidence.candidate.headSha, /^[0-9a-f]{40}$/u);
   assert.equal(evidence.candidate.pullRequest, 2);
   assert.equal(evidence.candidate.draft, true);
@@ -58,6 +59,15 @@ test('M0 gate preflight waits for documented solo review and human merge evidenc
   assert.equal(evidence.governanceDecision.additionalGithubAccountsRequired, false);
   assert.equal(evidence.governanceDecision.pullRequestApprovalMode, 'DOCUMENTED_SELF_REVIEW');
   assert.equal(evidence.governanceDecision.githubSelfApprovalSupported, false);
+  assert.equal(evidence.governanceDecision.reviewEvidence, 'SUPERSEDED_BEFORE_MERGE');
+  assert.equal(
+    evidence.governanceDecision.reviewedHead,
+    '0ad4dc64abd1523f70fd95f4ebcd39121bb49d08',
+  );
+  assert.equal(evidence.governanceDecision.currentHeadReviewRequired, true);
+  assert.equal(evidence.evidence.environments.production.requiredReviewers, 'NOT_CONFIGURED');
+  assert.equal(evidence.evidence.githubGovernance.branchProtection, 'NOT_CONFIGURED_HTTP_404');
+  assert.equal(evidence.evidence.githubGovernance.rulesets, 'NOT_CONFIGURED_EMPTY');
 
   const blockerIds = new Set(evidence.blockers.map(({ id }) => id));
   for (const required of [
@@ -69,8 +79,8 @@ test('M0 gate preflight waits for documented solo review and human merge evidenc
     assert.equal(blockerIds.has(required), true, `missing blocker ${required}`);
   }
   for (const acceptedConstraint of [
-    'GH_PLAN_BRANCH_PROTECTION_UNAVAILABLE',
-    'GH_PLAN_ENVIRONMENT_REVIEWERS_UNAVAILABLE',
+    'MAIN_BRANCH_PROTECTION_NOT_CONFIGURED',
+    'PRODUCTION_ENVIRONMENT_REVIEWER_NOT_CONFIGURED',
     'ACTIONS_REPOSITORY_POLICY_NOT_HARDENED',
   ]) {
     assert.equal(blockerIds.has(acceptedConstraint), false);
@@ -80,6 +90,10 @@ test('M0 gate preflight waits for documented solo review and human merge evidenc
       `missing known constraint ${acceptedConstraint}`,
     );
   }
+  assert.equal(
+    evidence.knownConstraints.some(({ id }) => id.startsWith('GH_PLAN_')),
+    false,
+  );
   assert.equal(
     evidence.resume.requiredActions.some((action) => /independent|invite|new account/iu.test(action)),
     false,
@@ -91,6 +105,8 @@ test('M0 gate preflight waits for documented solo review and human merge evidenc
   assert.match(handoff, /M1继续锁定/u);
   assert.match(handoff, /单人开发/u);
   assert.match(handoff, /不新增GitHub账号/u);
+  assert.match(handoff, /仓库可见性：`public`/u);
+  assert.match(handoff, /main.*HTTP 404/u);
   assert.doesNotMatch(handoff, /独立授权评审|邀请或指定独立|提供独立/u);
   assert.doesNotMatch(
     handoff,
@@ -110,6 +126,7 @@ test('project status records the M0 gate awaiting solo review and verified GitHu
   assert.equal(projectStatus.execution.prohibitedUntilGate.includes('M1及以后业务开发'), true);
 
   assert.equal(projectStatus.github.repository, 'EasyStep-lee/flt1');
+  assert.equal(projectStatus.github.visibility, 'public');
   assert.equal(projectStatus.github.defaultBranch, 'main');
   assert.equal(projectStatus.github.remoteConfirmed, true);
   assert.equal(projectStatus.github.authenticationConfirmed, true);
@@ -121,7 +138,12 @@ test('project status records the M0 gate awaiting solo review and verified GitHu
   assert.equal(projectStatus.github.reviewPolicy.mode, 'DOCUMENTED_SELF_REVIEW');
   assert.equal(projectStatus.github.reviewPolicy.authorizedReviewer, '@EasyStep-lee');
   assert.equal(projectStatus.github.reviewPolicy.additionalGithubAccountsRequired, false);
-  assert.equal(projectStatus.github.reviewPolicy.reviewEvidence, 'NOT_EXECUTED');
+  assert.equal(projectStatus.github.reviewPolicy.reviewEvidence, 'SUPERSEDED_BEFORE_MERGE');
+  assert.equal(
+    projectStatus.github.reviewPolicy.reviewedHead,
+    '0ad4dc64abd1523f70fd95f4ebcd39121bb49d08',
+  );
+  assert.equal(projectStatus.github.reviewPolicy.currentHeadReviewRequired, true);
   assert.match(projectStatus.github.lastVerifiedPullRequestHead, /^[0-9a-f]{40}$/u);
   assert.equal(projectStatus.github.latestCi.status, 'CI_PASS');
   assert.match(projectStatus.github.latestCi.headSha, /^[0-9a-f]{40}$/u);
@@ -152,5 +174,7 @@ test('repository documents one-account review without weakening CI or merge evid
   assert.match(pullRequestTemplate, /GitHub不允许PR作者批准自己的PR/u);
   assert.match(githubGate, /DOCUMENTED_SELF_REVIEW/u);
   assert.match(githubGate, /CI通过不能替代人工自审/u);
+  assert.match(githubGate, /公开仓库/u);
+  assert.match(githubGate, /main.*未配置保护/u);
   assert.doesNotMatch(githubGate, /邀请.*独立.*账号|新增.*评审.*账号/u);
 });

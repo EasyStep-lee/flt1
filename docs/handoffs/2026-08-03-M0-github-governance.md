@@ -2,7 +2,7 @@
 
 ## 1. 范围与身份
 
-- 仓库：`EasyStep-lee/flt1`（private）
+- 仓库：`EasyStep-lee/flt1`（public）
 - 默认分支：`main`
 - 开发分支：`codex/m0-m0-handoff`
 - 执行任务：`M0-GATE`前置治理配置
@@ -23,9 +23,9 @@
 | Environment | 创建状态 | 允许部署分支 | 必需审批人 |
 |---|---|---|---|
 | `staging` | `CONFIGURED` | 仅`main` | 未配置 |
-| `production` | `CONFIGURED` | 仅`main` | 当前方案不支持；单人模式采用人工发布授权 |
+| `production` | `CONFIGURED` | 仅`main` | `NOT_CONFIGURED`；单人模式采用人工发布授权 |
 
-`production`必需审批人曾尝试配置为真实账号`EasyStep-lee`，GitHub返回HTTP 422，明确提示当前计费方案不支持required reviewers保护规则。因此不得记录为审批规则已启用；该限制不要求增加账号。正式生产仍必须由同一授权人工明确批准，且M0不执行生产部署。
+仓库为private时，`production`必需审批人配置曾返回HTTP 422；仓库改为public后，实时GET只显示`branch_policy`，没有required reviewer。当前只能记录为`NOT_CONFIGURED`，不能继续写成套餐必然不支持，也不能写成已启用；未经用户对该设置明确授权不得修改。正式生产仍必须由同一授权人工明确批准，且M0不执行生产部署。
 
 ## 4. 单人审核规则
 
@@ -46,13 +46,20 @@
 
 ## 6. 验证与证据边界
 
+- GitHub API实时确认仓库可见性为`public`；`main`返回`Branch not protected (HTTP 404)`，Rulesets为`[]`。
 - GitHub API复核两个Environment均为`custom_branch_policies=true`，且各自唯一部署分支策略为`main`。
 - `gh secret list --repo EasyStep-lee/flt1`及两个Environment Secret清单均为空。
 - CODEOWNERS契约测试先因正式文件不存在而失败`6/7`，实现后通过`7/7`。
 - 本配置没有Schema、Migration、OpenAPI、DTO、错误码、业务页面或业务P0变化。
 - GitHub设置完成不等于PR已合并或`M0-GATE`已通过；M1继续锁定。
 
-## 7. 回滚
+## 7. 合并前证据漂移处置
+
+- 用户曾对head `0ad4dc64abd1523f70fd95f4ebcd39121bb49d08`明确回复“自审通过，允许合并”，记录在PR评论`5173829395`。
+- 合并前实时复核发现该head仍将仓库写成private并保留HTTP 403套餐结论，与当前public/未配置保护事实冲突。
+- 合并已暂停，旧head授权标记为`SUPERSEDED_BEFORE_MERGE`；证据修正提交和新CI完成后必须重新审核新head。
+
+## 8. 回滚
 
 - CODEOWNERS代码回滚：对本治理提交执行`git revert <commit-sha>`，不得改写公共历史。
 - Environment设置回滚：由仓库管理员在GitHub Settings中删除对应Environment或部署分支策略；删除前确认没有部署记录、Environment Secret或活动部署。

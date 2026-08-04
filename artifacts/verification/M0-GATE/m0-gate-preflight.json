@@ -2,7 +2,7 @@
   "schemaVersion": "1.0.0",
   "taskId": "M0-GATE",
   "stage": "M0",
-  "generatedAt": "2026-08-03T11:18:42.0538730Z",
+  "generatedAt": "2026-08-04T02:16:50.7541047Z",
   "status": "READY_FOR_SOLO_REVIEW",
   "gateConclusion": "NOT_EXECUTED",
   "baseline": {
@@ -19,22 +19,27 @@
     "additionalGithubAccountsRequired": false,
     "pullRequestApprovalMode": "DOCUMENTED_SELF_REVIEW",
     "githubSelfApprovalSupported": false,
-    "reviewEvidence": "NOT_EXECUTED"
+    "reviewEvidence": "SUPERSEDED_BEFORE_MERGE",
+    "reviewedHead": "0ad4dc64abd1523f70fd95f4ebcd39121bb49d08",
+    "reviewDecision": "APPROVED_FOR_MERGE",
+    "reviewCommentId": 5173829395,
+    "currentHeadReviewRequired": true,
+    "supersededReason": "Pre-merge live audit found stale repository visibility and governance capability evidence; correction changes the pull request head."
   },
   "candidate": {
     "repository": "EasyStep-lee/flt1",
-    "visibility": "private",
+    "visibility": "public",
     "defaultBranch": "main",
     "baseSha": "d6710d56c6375367f11f802bb77c187b06359a8a",
     "headBranch": "codex/m0-m0-handoff",
-    "headSha": "567607b8d46ad66dfc880f2b8be62bfc9688e342",
+    "headSha": "0ad4dc64abd1523f70fd95f4ebcd39121bb49d08",
     "pullRequest": 2,
     "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/2",
     "draft": true,
     "mergeable": true,
     "merged": false,
     "reviewCount": 0,
-    "commentCount": 0
+    "commentCount": 1
   },
   "p0": {
     "mappedCount": 0,
@@ -61,22 +66,22 @@
     },
     "localVerify": {
       "status": "PASS",
-      "recordedCommit": "567607b8d46ad66dfc880f2b8be62bfc9688e342",
+      "recordedCommit": "13ce2ffaafe6c2a09ce33726d764ba7be31a38ed",
       "baseSha": "d6710d56c6375367f11f802bb77c187b06359a8a",
       "stepsPassed": 17,
-      "startedAt": "2026-08-03T11:21:32.848Z",
-      "endedAt": "2026-08-03T11:25:40.348Z",
+      "startedAt": "2026-08-04T02:03:14.005Z",
+      "endedAt": "2026-08-04T02:06:27.914Z",
       "freshForCandidateCommit": true,
-      "note": "The full local gate ran on the candidate commit with the preflight evidence files staged; PR CI separately binds the committed governance candidate."
+      "note": "The full local gate recorded parent head 13ce2ff with the solo-governance diff staged; that exact staged diff became candidate commit 0ad4dc6, which PR CI binds independently."
     },
     "ci": {
       "status": "CI_PASS",
       "workflow": "ci",
       "job": "verify",
-      "runId": 30808200806,
-      "jobId": 91668391723,
-      "url": "https://github.com/EasyStep-lee/flt1/actions/runs/30808200806",
-      "headSha": "567607b8d46ad66dfc880f2b8be62bfc9688e342",
+      "runId": 30870827298,
+      "jobId": 91872300758,
+      "url": "https://github.com/EasyStep-lee/flt1/actions/runs/30870827298",
+      "headSha": "0ad4dc64abd1523f70fd95f4ebcd39121bb49d08",
       "conclusion": "success"
     },
     "codeowners": {
@@ -99,12 +104,13 @@
           "main"
         ],
         "secretCount": 0,
-        "requiredReviewers": "BLOCKED_BY_GITHUB_PLAN"
+        "requiredReviewers": "NOT_CONFIGURED"
       }
     },
     "githubGovernance": {
-      "branchProtection": "UNAVAILABLE_HTTP_403_PLAN",
-      "rulesets": "UNAVAILABLE_HTTP_403_PLAN",
+      "repositoryVisibility": "public",
+      "branchProtection": "NOT_CONFIGURED_HTTP_404",
+      "rulesets": "NOT_CONFIGURED_EMPTY",
       "actionsEnabled": true,
       "allowedActions": "all",
       "shaPinningRequiredByRepository": false,
@@ -114,15 +120,15 @@
   },
   "knownConstraints": [
     {
-      "id": "GH_PLAN_BRANCH_PROTECTION_UNAVAILABLE",
+      "id": "MAIN_BRANCH_PROTECTION_NOT_CONFIGURED",
       "status": "KNOWN_LIMITATION",
-      "reason": "GitHub returned HTTP 403 for private-repository branch protection and rulesets.",
+      "reason": "The repository is public, but main currently returns Branch not protected (HTTP 404) and repository rulesets are empty.",
       "manualControl": "Draft PR, no direct main changes, no force-push or branch deletion, exact-head CI and explicit merge authorization."
     },
     {
-      "id": "GH_PLAN_ENVIRONMENT_REVIEWERS_UNAVAILABLE",
+      "id": "PRODUCTION_ENVIRONMENT_REVIEWER_NOT_CONFIGURED",
       "status": "KNOWN_LIMITATION",
-      "reason": "GitHub returned HTTP 422 because the current plan does not support required reviewers for the production Environment.",
+      "reason": "The production Environment currently has only the main branch policy and no required reviewer.",
       "manualControl": "Production remains a separately authorized human action and is not executed in M0."
     },
     {
@@ -141,7 +147,7 @@
     {
       "id": "SINGLE_HUMAN_SELF_REVIEW_NOT_EXECUTED",
       "status": "NOT_EXECUTED",
-      "reason": "The authorized reviewer @EasyStep-lee has not yet documented review of the exact pull request head or explicitly authorized merge; no additional GitHub account is required."
+      "reason": "The authorized reviewer approved head 0ad4dc6, but that approval was superseded before merge because correcting stale public-repository governance evidence changes the pull request head."
     },
     {
       "id": "PR_NOT_MERGED",
@@ -158,8 +164,8 @@
     "nextAllowedTask": "M0-GATE",
     "m1Unlocked": false,
     "requiredActions": [
-      "Keep pull request 2 on an exact CI-passed head and retain the documented manual controls for unavailable GitHub plan features.",
-      "The sole authorized reviewer @EasyStep-lee completes DOCUMENTED_SELF_REVIEW and explicitly authorizes merge; additional GitHub accounts are not required.",
+      "Correct stale private-repository and HTTP 403 evidence to the live public, unprotected-main and empty-rulesets state, then obtain exact-head CI.",
+      "The sole authorized reviewer @EasyStep-lee completes DOCUMENTED_SELF_REVIEW on the corrected head and explicitly authorizes merge; additional GitHub accounts are not required.",
       "After explicit authorization, mark the pull request ready and complete the authorized merge without rewriting history.",
       "Run and verify main CI on the post-merge commit, then repeat M0-GATE."
     ]

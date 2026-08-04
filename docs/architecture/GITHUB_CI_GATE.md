@@ -2,7 +2,7 @@
 
 ## 1. 证据边界
 
-M0-011建立可在本地复现的质量聚合器和GitHub Actions模板。当前目标仓库已确认为私有仓库`EasyStep-lee/flt1`，默认分支为`main`，开发分支通过Draft PR交付；本地结果与GitHub Actions结果仍必须分别记录，只有精确绑定提交的真实Actions成功才能记为`CI_PASS`。
+M0-011建立可在本地复现的质量聚合器和GitHub Actions模板。当前目标仓库已确认为公开仓库`EasyStep-lee/flt1`，默认分支为`main`，开发分支通过Draft PR交付；本地结果与GitHub Actions结果仍必须分别记录，只有精确绑定提交的真实Actions成功才能记为`CI_PASS`。
 
 ## 2. 本地统一入口
 
@@ -64,6 +64,6 @@ Dependabot可以提出依赖更新PR，但不能绕过固定SHA、测试和人�
 
 GitHub不允许PR作者批准自己的PR，因此不把无法产生的同账号`APPROVED`状态作为退出条件，改用可追溯的`DOCUMENTED_SELF_REVIEW`：授权人必须核对精确head SHA、对应CI、实际diff、P0/P1、迁移、敏感信息和回滚，并明确记录“自审通过、允许合并”。CI通过不能替代人工自审，自审也不能替代最新提交CI。
 
-当前GitHub方案不支持私有仓库branch protection/rulesets及Environment required reviewers；这些能力记录为已知限制，由Draft PR、禁止直接修改`main`、禁止强推/删除、固定SHA工作流、明确合并授权和合并后`main` CI复核进行人工控制，不要求增加第二个账号。若以后升级套餐，可以启用必需`verify`、禁止强推/删除和未解决thread阻断，但单账号模式下不得配置无法由PR作者满足的必需批准数。
+当前仓库是公开仓库，但实时检查显示`main`未配置保护（HTTP 404）、Rulesets为空，`production` Environment只有`main`部署分支策略而没有required reviewer。这些是“尚未配置”，不是套餐不可用的结论；未经用户对具体设置明确授权不得自动修改。当前以Draft PR、禁止直接修改`main`、禁止强推/删除、固定SHA工作流、明确合并授权和合并后`main` CI复核进行人工控制，不要求增加第二个账号。若以后配置保护，可启用必需`verify`、禁止强推/删除和未解决thread阻断，但单账号模式下不得配置无法由PR作者满足的必需批准数。
 
 Secrets、Environment、仓库权限、分支保护和最终合并只由授权人工配置。工作流不包含真实外部服务密钥，也不执行生产部署或生产迁移。
