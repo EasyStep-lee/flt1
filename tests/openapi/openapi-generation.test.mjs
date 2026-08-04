@@ -79,15 +79,23 @@ test('OpenAPI generation is byte-stable and ignores runtime infrastructure confi
   assert.equal(firstTypes.includes(Buffer.from('\r\n')), false, 'types must use LF');
 });
 
-test('generated contract exposes only health DTOs and a safe error envelope', () => {
+test('generated contract exposes health and the allow-listed merchant profile', () => {
   const generated = run(pnpm, ['openapi:generate']);
   assertSuccess(generated, 'openapi:generate');
 
   const spec = JSON.parse(readFileSync(specPath, 'utf8'));
   assert.equal(spec.openapi, '3.0.0');
-  assert.deepEqual(Object.keys(spec.paths), ['/health/live', '/health/ready']);
+  assert.deepEqual(Object.keys(spec.paths), [
+    '/health/live',
+    '/health/ready',
+    '/v1/public/merchant-profile',
+  ]);
   assert.equal(spec.paths['/health/live'].get.operationId, 'health.getLiveness');
   assert.equal(spec.paths['/health/ready'].get.operationId, 'health.getReadiness');
+  assert.equal(
+    spec.paths['/v1/public/merchant-profile'].get.operationId,
+    'publicMerchant.getProfile',
+  );
   assert.deepEqual(
     Object.keys(spec.components.schemas),
     [
@@ -96,13 +104,27 @@ test('generated contract exposes only health DTOs and a safe error envelope', ()
       'HealthLivenessDto',
       'HealthReadinessChecksDto',
       'HealthReadinessDto',
+      'PublicMerchantProfileQuery',
+      'PublicMerchantProfileResponse',
+      'PublicMerchantSubjectsDto',
     ],
+  );
+  assert.deepEqual(
+    Object.keys(
+      spec.components.schemas.PublicMerchantProfileResponse.properties,
+    ),
+    ['legalName', 'platformName', 'subjects'],
+  );
+  assert.deepEqual(
+    Object.keys(spec.components.schemas.PublicMerchantSubjectsDto.properties),
+    ['paymentPayee', 'refundOperator', 'seller'],
   );
   assert.deepEqual(findForbiddenKeys(spec), []);
 
   const generatedTypes = readFileSync(typesPath, 'utf8');
   assert.match(generatedTypes, /export interface paths/u);
   assert.match(generatedTypes, /"health\.getLiveness"/u);
+  assert.match(generatedTypes, /"publicMerchant\.getProfile"/u);
   assert.match(generatedTypes, /ApiErrorResponseDto/u);
   assert.doesNotMatch(
     generatedTypes,
