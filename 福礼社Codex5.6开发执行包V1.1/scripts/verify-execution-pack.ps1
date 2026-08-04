@@ -130,14 +130,29 @@ Assert-Condition ($publicApiLeak.Count -eq 0) '对客/企业/跑腿API存在供�
 $projectStatus = Get-Content -LiteralPath (Join-Path $PackagePath '16-项目状态.json') -Raw -Encoding UTF8 | ConvertFrom-Json
 Assert-Condition ($projectStatus.baseline.schemeSha256 -eq '1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92') '项目状态方案哈希不正确'
 Assert-Condition ($projectStatus.schemaVersion -eq '1.1.0') '项目状态schemaVersion应为1.1.0'
-Assert-Condition ($projectStatus.execution.currentStage -eq 'M0') '初始阶段应为M0'
 $statusTask = @($tasks | Where-Object TaskID -eq $projectStatus.execution.currentTask)
 Assert-Condition ($statusTask.Count -eq 1) '项目状态currentTask在任务台账中不存在或重复'
+if ($statusTask.Count -eq 1) {
+    Assert-Condition ($projectStatus.execution.currentStage -eq $statusTask[0].Stage) 'currentStage与currentTask阶段不一致'
+}
 Assert-Condition ($projectStatus.execution.nextAllowedTask -eq $projectStatus.execution.currentTask) 'nextAllowedTask必须等于当前唯一可执行任务'
 Assert-Condition ([int]$projectStatus.execution.activeTaskCount -eq @($tasks | Where-Object Status -eq 'IN_PROGRESS').Count) 'activeTaskCount与任务台账不一致'
 if ($projectStatus.execution.lastCompletedTask) {
     $lastCompleted = @($tasks | Where-Object TaskID -eq $projectStatus.execution.lastCompletedTask)
     Assert-Condition ($lastCompleted.Count -eq 1 -and $lastCompleted[0].Status -eq 'DONE') 'lastCompletedTask未在任务台账中标记DONE'
+}
+$stageGates = Import-Csv -LiteralPath (Join-Path $PackagePath 'data/阶段门禁.csv')
+if ($projectStatus.execution.lastPassedGate -eq 'M0-GATE') {
+    $m0GateTask = @($tasks | Where-Object TaskID -eq 'M0-GATE')
+    $m1StartTask = @($tasks | Where-Object TaskID -eq 'M1-000')
+    $m0StageGate = @($stageGates | Where-Object Stage -eq 'M0')
+    $m1StageGate = @($stageGates | Where-Object Stage -eq 'M1')
+    Assert-Condition ($projectStatus.execution.status -eq 'M0_GATE_PASSED') 'M0-GATE通过后项目状态必须为M0_GATE_PASSED'
+    Assert-Condition ($projectStatus.execution.currentStage -eq 'M1' -and $projectStatus.execution.currentTask -eq 'M1-000') 'M0-GATE通过后只能解锁M1-000'
+    Assert-Condition ($m0GateTask.Count -eq 1 -and $m0GateTask[0].Status -eq 'DONE' -and $m0GateTask[0].EvidenceStatus -eq 'CI_PASS') 'M0-GATE任务未以CI_PASS完成'
+    Assert-Condition ($m1StartTask.Count -eq 1 -and $m1StartTask[0].Status -eq 'READY' -and $m1StartTask[0].EvidenceStatus -eq 'NOT_EXECUTED') 'M1-000未按唯一下一任务解锁'
+    Assert-Condition ($m0StageGate.Count -eq 1 -and $m0StageGate[0].Status -eq 'GATE_PASSED' -and $m0StageGate[0].EvidenceStatus -eq 'CI_PASS') 'M0阶段门禁台账未通过'
+    Assert-Condition ($m1StageGate.Count -eq 1 -and $m1StageGate[0].Status -eq 'READY' -and $m1StageGate[0].EvidenceStatus -eq 'NOT_EXECUTED') 'M1阶段未按READY/NOT_EXECUTED解锁'
 }
 
 $manifest = Get-Content -LiteralPath (Join-Path $PackagePath 'manifest.json') -Raw -Encoding UTF8 | ConvertFrom-Json

@@ -114,16 +114,16 @@ test('M0 gate preflight waits for documented solo review and human merge evidenc
   );
 });
 
-test('project status records the M0 gate awaiting solo review and verified GitHub evidence', async () => {
+test('project status supersedes the historical preflight after exact-head gate closure', async () => {
   const projectStatus = JSON.parse(await readFile(projectStatusPath, 'utf8'));
 
-  assert.equal(projectStatus.execution.status, 'M0_GATE_AWAITING_SOLO_REVIEW');
-  assert.equal(projectStatus.execution.currentStage, 'M0');
-  assert.equal(projectStatus.execution.currentTask, 'M0-GATE');
-  assert.equal(projectStatus.execution.nextAllowedTask, 'M0-GATE');
+  assert.equal(projectStatus.execution.status, 'M0_GATE_PASSED');
+  assert.equal(projectStatus.execution.currentStage, 'M1');
+  assert.equal(projectStatus.execution.currentTask, 'M1-000');
+  assert.equal(projectStatus.execution.nextAllowedTask, 'M1-000');
   assert.equal(projectStatus.execution.activeTaskCount, 0);
-  assert.equal(projectStatus.execution.lastPassedGate, null);
-  assert.equal(projectStatus.execution.prohibitedUntilGate.includes('M1及以后业务开发'), true);
+  assert.equal(projectStatus.execution.lastPassedGate, 'M0-GATE');
+  assert.deepEqual(projectStatus.execution.prohibitedUntilGate, []);
 
   assert.equal(projectStatus.github.repository, 'EasyStep-lee/flt1');
   assert.equal(projectStatus.github.visibility, 'public');
@@ -133,23 +133,26 @@ test('project status records the M0 gate awaiting solo review and verified GitHu
   assert.equal(projectStatus.github.writeAllowed, true);
   assert.equal(projectStatus.github.connectorAccessConfirmed, true);
   assert.equal(projectStatus.github.pullRequest, 2);
-  assert.equal(projectStatus.github.pullRequestState, 'DRAFT');
-  assert.equal(projectStatus.github.pullRequestMerged, false);
+  assert.equal(projectStatus.github.pullRequestState, 'MERGED');
+  assert.equal(projectStatus.github.pullRequestMerged, true);
   assert.equal(projectStatus.github.reviewPolicy.mode, 'DOCUMENTED_SELF_REVIEW');
   assert.equal(projectStatus.github.reviewPolicy.authorizedReviewer, '@EasyStep-lee');
   assert.equal(projectStatus.github.reviewPolicy.additionalGithubAccountsRequired, false);
-  assert.equal(projectStatus.github.reviewPolicy.reviewEvidence, 'SUPERSEDED_BEFORE_MERGE');
+  assert.equal(
+    projectStatus.github.reviewPolicy.reviewEvidence,
+    'DOCUMENTED_SELF_REVIEW_COMPLETE',
+  );
   assert.equal(
     projectStatus.github.reviewPolicy.reviewedHead,
-    '0ad4dc64abd1523f70fd95f4ebcd39121bb49d08',
+    'cb3203c50a99e0a6b5fb27d92b3b9c3dadb90de6',
   );
-  assert.equal(projectStatus.github.reviewPolicy.currentHeadReviewRequired, true);
+  assert.equal(projectStatus.github.reviewPolicy.currentHeadReviewRequired, false);
   assert.match(projectStatus.github.lastVerifiedPullRequestHead, /^[0-9a-f]{40}$/u);
   assert.equal(projectStatus.github.latestCi.status, 'CI_PASS');
   assert.match(projectStatus.github.latestCi.headSha, /^[0-9a-f]{40}$/u);
   assert.equal(
     projectStatus.github.latestCi.headSha,
-    projectStatus.github.lastVerifiedPullRequestHead,
+    '88b7a051300af763941c3e0ad0428111869f0182',
   );
 
   assert.equal(projectStatus.evidence.local, 'LOCAL_PASS');

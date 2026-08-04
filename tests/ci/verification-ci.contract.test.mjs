@@ -185,7 +185,7 @@ test('CI base selection uses immutable event SHAs and rejects an uncomparable in
   );
 });
 
-test('M0 P0 E2E gate reports an explicit not-applicable policy instead of passWithNoTests', () => {
+test('P0 E2E gate keeps the M1 contract-freeze task explicit without unlocking business P0', () => {
   const result = spawnSync(
     process.execPath,
     [path.join(repositoryRoot, 'scripts', 'run-p0-e2e-gate.mjs')],
@@ -195,7 +195,7 @@ test('M0 P0 E2E gate reports an explicit not-applicable policy instead of passWi
   assert.equal(result.status, 0, result.stderr);
   assert.match(
     result.stdout,
-    /P0_E2E_NOT_APPLICABLE:stage=M0:p0Count=0:reason=M0_HAS_NO_MAPPED_P0/u,
+    /P0_E2E_NOT_APPLICABLE:stage=M1:task=M1-000:p0Count=14:reason=CONTRACT_SLICE_HAS_NO_MAPPED_P0/u,
   );
   assert.doesNotMatch(result.stdout, /passWithNoTests|skipped successfully/iu);
 });
