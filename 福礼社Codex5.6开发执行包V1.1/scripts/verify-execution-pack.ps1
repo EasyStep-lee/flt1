@@ -88,9 +88,9 @@ Assert-Condition (@($fields | Where-Object Sensitivity -eq 'STRICT_INTERNAL_SUPP
 $approvalApplicant = @($fields | Where-Object { $_.Entity -eq 'ApprovalTask' -and $_.Field -eq 'applicantId' })
 $approvalReviewer = @($fields | Where-Object { $_.Entity -eq 'ApprovalTask' -and $_.Field -eq 'reviewedBy' })
 $approvalAccountType = @($fields | Where-Object { $_.Entity -eq 'ApprovalTask' -and $_.Field -eq 'assignedAccountTypeCode' })
-Assert-Condition ($approvalApplicant.Count -eq 1 -and $approvalApplicant[0].UnitOrFormat -match '自然人身份主键' -and $approvalApplicant[0].Validation -match 'identityId') 'ApprovalTask.applicantId未按自然人身份冻结'
-Assert-Condition ($approvalReviewer.Count -eq 1 -and $approvalReviewer[0].Validation -match '不得等于applicantId') 'ApprovalTask.reviewedBy未阻止同一自然人复核'
-Assert-Condition ($approvalAccountType.Count -eq 1 -and $approvalAccountType[0].SuggestedType -eq 'Enum/String') 'ApprovalTask.assignedAccountTypeCode类型不正确'
+Assert-Condition ($approvalApplicant.Count -eq 1 -and $approvalApplicant[0].UnitOrFormat -match 'identityType\+identityId|自然人身份主键' -and $approvalApplicant[0].Validation -match 'authenticated natural identity|identityId') 'ApprovalTask.applicantId未按自然人身份冻结'
+Assert-Condition ($approvalReviewer.Count -eq 1 -and $approvalReviewer[0].UnitOrFormat -match 'identityType\+identityId|自然人身份主键' -and $approvalReviewer[0].Validation -match 'differ from applicantId|不得等于applicantId') 'ApprovalTask.reviewedBy未阻止同一自然人复核'
+Assert-Condition ($approvalAccountType.Count -eq 1 -and $approvalAccountType[0].SuggestedType -match '^Enum(?:/String|<)' -and $approvalAccountType[0].UnitOrFormat -match 'COMPANY_SUPPLIER_OPS') 'ApprovalTask.assignedAccountTypeCode类型不正确'
 
 $permissions = Import-Csv -LiteralPath (Join-Path $PackagePath '07-权限与数据可见矩阵.csv')
 Assert-Condition (@($permissions | Where-Object OwnerType -eq 'COMPANY').Count -eq 10) '公司职能账号应为10个'
