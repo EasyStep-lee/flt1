@@ -185,7 +185,7 @@ test('CI base selection uses immutable event SHAs and rejects an uncomparable in
   );
 });
 
-test('P0 E2E gate keeps the M1 contract-freeze task explicit without unlocking business P0', () => {
+test('P0 E2E gate runs the available business P0 after contract freeze', () => {
   const result = spawnSync(
     process.execPath,
     [path.join(repositoryRoot, 'scripts', 'run-p0-e2e-gate.mjs')],
@@ -195,9 +195,14 @@ test('P0 E2E gate keeps the M1 contract-freeze task explicit without unlocking b
   assert.equal(result.status, 0, result.stderr);
   assert.match(
     result.stdout,
-    /P0_E2E_NOT_APPLICABLE:stage=M1:task=M1-000:p0Count=14:reason=CONTRACT_SLICE_HAS_NO_MAPPED_P0/u,
+    /p0-001-single-merchant\.spec\.ts/u,
   );
-  assert.doesNotMatch(result.stdout, /passWithNoTests|skipped successfully/iu);
+  assert.match(result.stdout, /P0-001 portal identifies the company/u);
+  assert.match(result.stdout, /\d+ passed/u);
+  assert.doesNotMatch(
+    result.stdout,
+    /P0_E2E_NOT_APPLICABLE|passWithNoTests|skipped successfully/iu,
+  );
 });
 
 test('GitHub collaboration templates and formal ownership require real accountable identities', async () => {
