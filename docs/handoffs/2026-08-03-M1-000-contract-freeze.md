@@ -52,3 +52,10 @@
 - 合并后 main CI：run `30884603598`、job `91912944100`，精确合并提交 `12da44ab2d025bcee4e7791570a2a5c5d046653d` 成功。
 - 未解决 review thread：`0`。
 - GitHub Actions 的 Node.js 20 弃用提示继续作为 `WARN`，不影响本次 `ci/verify` 通过结论，也不得写成已修复。
+
+## M1-P001 本地关闭补记
+
+- `M1-P001` 实现链最终验证 head：`9d7d763e41dc8ffba0166d2b9162c162542ccc7d`。
+- 使用不可变 base `12da44ab2d025bcee4e7791570a2a5c5d046653d` 的根 `pnpm verify` 已通过 `17/17`，P0-001 为 `LOCAL_PASS`。
+- `M1-P002` 仅解锁为 `READY`；在 M1-P001 Draft PR 精确 head CI、单人自审授权、合并和合并后 main CI 完成前不得进入 `IN_PROGRESS`。
+- `EXT-005`、预发布、生产迁移、正式验收继续保持未提供或未执行，不因本地通过而上调证据等级。

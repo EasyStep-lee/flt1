@@ -2,11 +2,11 @@
   "schemaVersion": 1,
   "taskId": "M1-P001",
   "p0Id": "P0-001",
-  "generatedAt": "2026-08-04T03:38:36-04:00",
+  "generatedAt": "2026-08-04T04:14:09-04:00",
   "result": "LOCAL_PASS",
   "sourceState": {
     "baseCommit": "12da44ab2d025bcee4e7791570a2a5c5d046653d",
-    "implementationCommit": "WORKTREE_BEFORE_COMMIT"
+    "implementationCommit": "9d7d763e41dc8ffba0166d2b9162c162542ccc7d"
   },
   "scope": {
     "implemented": [
@@ -55,7 +55,15 @@
     "openapiDeterministic": "PASS",
     "openapiBreakingAgainstOriginMain": "PASS_NO_BREAKING_CHANGES",
     "p0Chromium": "PASS_1_OF_1",
-    "pnpmVerify": "NOT_EXECUTED"
+    "pnpmVerify": "PASS_17_OF_17"
+  },
+  "fullVerification": {
+    "baseRef": "12da44ab2d025bcee4e7791570a2a5c5d046653d",
+    "commit": "9d7d763e41dc8ffba0166d2b9162c162542ccc7d",
+    "startedAt": "2026-08-04T08:08:36.339Z",
+    "endedAt": "2026-08-04T08:13:40.784Z",
+    "stepsPassed": 17,
+    "reportPath": "artifacts/test-results/verification/pnpm-verify.json"
   },
   "publicDtoForbiddenFields": [
     "wechatPayConfigRef",

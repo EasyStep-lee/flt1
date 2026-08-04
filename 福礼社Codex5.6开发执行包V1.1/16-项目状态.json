@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-04T03:38:36-04:00",
+  "updatedAt": "2026-08-04T04:14:09-04:00",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -14,15 +14,17 @@
   "execution": {
     "status": "M1_IN_PROGRESS",
     "currentStage": "M1",
-    "currentTask": "M1-P001",
-    "nextAllowedTask": "M1-P001",
-    "activeTaskCount": 1,
-    "lastCompletedTask": "M1-000",
-    "lastCompletedCommit": "12da44ab2d025bcee4e7791570a2a5c5d046653d",
+    "currentTask": "M1-P002",
+    "nextAllowedTask": "M1-P002",
+    "activeTaskCount": 0,
+    "lastCompletedTask": "M1-P001",
+    "lastCompletedCommit": "9d7d763e41dc8ffba0166d2b9162c162542ccc7d",
     "lastPassedGate": "M0-GATE",
-    "prohibitedUntilGate": [],
+    "prohibitedUntilGate": [
+      "M1-P001的Draft PR精确head CI、自审授权、合并及合并后main CI未完成"
+    ],
     "persistentRestrictions": [
-      "M1-P001完成前不得开始M1-P002或其他M1切片",
+      "M1-P001外部闭环完成前M1-P002仅保持READY，不得进入IN_PROGRESS",
       "真实支付/退款",
       "生产部署/迁移",
       "直接修改或推送main"
@@ -80,11 +82,22 @@
       "DEPENDABOT_NPM_NODE_ENGINE_MISMATCH",
       "DEPENDABOT_DOCKER_MANIFEST_NOT_FOUND"
     ],
-    "note": "M1-000精确head 1ff9087经单人自审授权，由PR #7合并为12da44ab；合并后main CI run 30884603598成功，M1-P001前置门禁已满足。M1-P001现为唯一IN_PROGRESS。main治理限制、production人工门槛及Dependabot WARN继续显式保留，不冒充已修复。"
+    "currentTaskDelivery": {
+      "taskId": "M1-P001",
+      "branch": "codex/m1-m1-p001",
+      "verifiedImplementationHead": "9d7d763e41dc8ffba0166d2b9162c162542ccc7d",
+      "localVerify": "PASS_17_OF_17",
+      "pullRequest": "NOT_CREATED",
+      "exactHeadCi": "NOT_EXECUTED",
+      "review": "NOT_EXECUTED",
+      "merge": "NOT_EXECUTED",
+      "mainPostMergeCi": "NOT_EXECUTED"
+    },
+    "note": "M1-P001实现head 9d7d763已完成本地门禁17/17，P0-001为LOCAL_PASS；Draft PR、精确head CI、自审、合并和合并后main CI仍未执行。M1-P002仅READY且受外部闭环限制。main治理限制、production人工门槛、EXT-005及Dependabot WARN继续显式保留。"
   },
   "evidence": {
     "local": "LOCAL_PASS",
-    "ci": "CI_PASS",
+    "ci": "NOT_EXECUTED",
     "staging": "NOT_EXECUTED",
     "device": "NOT_EXECUTED",
     "production": "NOT_EXECUTED"

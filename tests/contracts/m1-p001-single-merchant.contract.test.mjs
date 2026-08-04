@@ -39,16 +39,32 @@ const readCsv = async (relativePath) => {
   });
 };
 
-test('M1-P001 is the sole active task after exact M1-000 merge evidence', async () => {
+test('M1-P001 closes locally and leaves only M1-P002 ready', async () => {
   const [tasks, state] = await Promise.all([
     readCsv('03-任务台账.csv'),
     readFile(path.join(packRoot, '16-项目状态.json'), 'utf8').then(JSON.parse),
   ]);
   const active = tasks.filter(({ Status }) => Status === 'IN_PROGRESS');
+  const m1p001 = tasks.find(({ TaskID }) => TaskID === 'M1-P001');
+  const m1p002 = tasks.find(({ TaskID }) => TaskID === 'M1-P002');
 
-  assert.deepEqual(active.map(({ TaskID }) => TaskID), ['M1-P001']);
-  assert.equal(state.execution.currentTask, 'M1-P001');
-  assert.equal(state.execution.activeTaskCount, 1);
+  assert.deepEqual(active, []);
+  assert.equal(m1p001?.Status, 'DONE');
+  assert.equal(m1p001?.EvidenceStatus, 'LOCAL_PASS');
+  assert.equal(
+    m1p001?.CommitSHA,
+    '9d7d763e41dc8ffba0166d2b9162c162542ccc7d',
+  );
+  assert.equal(m1p002?.Status, 'READY');
+  assert.equal(m1p002?.EvidenceStatus, 'NOT_EXECUTED');
+  assert.equal(state.execution.currentTask, 'M1-P002');
+  assert.equal(state.execution.nextAllowedTask, 'M1-P002');
+  assert.equal(state.execution.activeTaskCount, 0);
+  assert.equal(state.execution.lastCompletedTask, 'M1-P001');
+  assert.equal(
+    state.execution.lastCompletedCommit,
+    '9d7d763e41dc8ffba0166d2b9162c162542ccc7d',
+  );
   assert.equal(state.github.pullRequest, 7);
   assert.equal(
     state.github.latestCi.headSha,
