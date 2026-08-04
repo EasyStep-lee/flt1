@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-03T23:08:07-04:00",
+  "updatedAt": "2026-08-03T23:55:30-04:00",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -12,17 +12,18 @@
     "pageCount": 80
   },
   "execution": {
-    "status": "M0_GATE_PASSED",
+    "status": "M1_IN_PROGRESS",
     "currentStage": "M1",
-    "currentTask": "M1-000",
-    "nextAllowedTask": "M1-000",
+    "currentTask": "M1-P001",
+    "nextAllowedTask": "M1-P001",
     "activeTaskCount": 0,
-    "lastCompletedTask": "M0-GATE",
-    "lastCompletedCommit": "88b7a051300af763941c3e0ad0428111869f0182",
+    "lastCompletedTask": "M1-000",
+    "lastCompletedCommit": "d7881624dc2c001581d46ec2e1089a09a1f93829",
     "lastPassedGate": "M0-GATE",
     "prohibitedUntilGate": [],
     "persistentRestrictions": [
-      "M1-000完成前不得开始M1业务纵向切片",
+      "M1-000分支合并main且精确主线CI通过前不得开始M1-P001",
+      "M1-P001完成前不得开始M1-P002或其他M1切片",
       "真实支付/退款",
       "生产部署/迁移",
       "直接修改或推送main"
@@ -80,11 +81,11 @@
       "DEPENDABOT_NPM_NODE_ENGINE_MISMATCH",
       "DEPENDABOT_DOCKER_MANIFEST_NOT_FOUND"
     ],
-    "note": "PR #2的精确head已由@EasyStep-lee完成DOCUMENTED_SELF_REVIEW并授权合并；merge commit 88b7a051对应main CI run 30872133076成功。M0-GATE通过，下一唯一任务为M1-000。main未配置保护、Rulesets为空、production无required reviewer及两项Dependabot失败继续作为已知限制/WARN，不冒充已修复。"
+    "note": "M0-GATE的PR #2及main CI证据保持有效。M1-000已在实现提交d788162完成本地契约冻结，PR、精确head CI、合并及合并后main CI仍为NOT_EXECUTED；仅这些外部证据完成后才允许开始M1-P001。main未配置保护、Rulesets为空、production无required reviewer及两项Dependabot失败继续作为已知限制/WARN，不冒充已修复。"
   },
   "evidence": {
     "local": "LOCAL_PASS",
-    "ci": "CI_PASS",
+    "ci": "NOT_EXECUTED",
     "staging": "NOT_EXECUTED",
     "device": "NOT_EXECUTED",
     "production": "NOT_EXECUTED"

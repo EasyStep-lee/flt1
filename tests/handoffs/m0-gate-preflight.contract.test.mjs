@@ -114,13 +114,13 @@ test('M0 gate preflight waits for documented solo review and human merge evidenc
   );
 });
 
-test('project status supersedes the historical preflight after exact-head gate closure', async () => {
+test('project status preserves the passed M0 gate while M1 advances', async () => {
   const projectStatus = JSON.parse(await readFile(projectStatusPath, 'utf8'));
 
-  assert.equal(projectStatus.execution.status, 'M0_GATE_PASSED');
+  assert.equal(projectStatus.execution.status, 'M1_IN_PROGRESS');
   assert.equal(projectStatus.execution.currentStage, 'M1');
-  assert.equal(projectStatus.execution.currentTask, 'M1-000');
-  assert.equal(projectStatus.execution.nextAllowedTask, 'M1-000');
+  assert.equal(projectStatus.execution.currentTask, 'M1-P001');
+  assert.equal(projectStatus.execution.nextAllowedTask, 'M1-P001');
   assert.equal(projectStatus.execution.activeTaskCount, 0);
   assert.equal(projectStatus.execution.lastPassedGate, 'M0-GATE');
   assert.deepEqual(projectStatus.execution.prohibitedUntilGate, []);
@@ -156,7 +156,7 @@ test('project status supersedes the historical preflight after exact-head gate c
   );
 
   assert.equal(projectStatus.evidence.local, 'LOCAL_PASS');
-  assert.equal(projectStatus.evidence.ci, 'CI_PASS');
+  assert.equal(projectStatus.evidence.ci, 'NOT_EXECUTED');
   assert.equal(projectStatus.evidence.staging, 'NOT_EXECUTED');
   assert.equal(projectStatus.evidence.device, 'NOT_EXECUTED');
   assert.equal(projectStatus.evidence.production, 'NOT_EXECUTED');

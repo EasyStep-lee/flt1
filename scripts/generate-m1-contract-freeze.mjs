@@ -558,7 +558,7 @@ const main = async () => {
     stage: 'M1',
     status: 'CONTRACT_FROZEN',
     implementationStatus: 'NOT_IMPLEMENTED',
-    frozenAt: '2026-08-04T04:00:00Z',
+    frozenAt: '2026-08-04T03:55:30Z',
     baseline: {
       schemePath: '福礼社单商户供应链平台V1.1综合方案.html',
       schemeSha256: '1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92',

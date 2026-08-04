@@ -4,7 +4,7 @@
   "stage": "M1",
   "status": "CONTRACT_FROZEN",
   "implementationStatus": "NOT_IMPLEMENTED",
-  "frozenAt": "2026-08-04T04:00:00Z",
+  "frozenAt": "2026-08-04T03:55:30Z",
   "baseline": {
     "schemePath": "福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -55,7 +55,7 @@
   "sourceLedgers": {
     "tasks": {
       "path": "福礼社Codex5.6开发执行包V1.1/03-任务台账.csv",
-      "sha256": "A564EE04BA5094BFB8628813C144599C1C8B00832D19DCBD13080CB862410F5F",
+      "sha256": "16B73065906C96F0687A575773F284B4556D90A0F2FACC4EC345772D4000322F",
       "rowCount": 149
     },
     "p0": {

@@ -38,6 +38,15 @@ const apiLedgerPath = path.join(
   executionPackRoot,
   '12-OpenAPI-DTO-错误码台账.csv',
 );
+const taskLedgerPath = path.join(executionPackRoot, '03-任务台账.csv');
+const stageLedgerPath = path.join(executionPackRoot, 'data', '阶段门禁.csv');
+const projectStatusPath = path.join(executionPackRoot, '16-项目状态.json');
+const handoffPath = path.join(
+  repositoryRoot,
+  'docs',
+  'handoffs',
+  '2026-08-03-M1-000-contract-freeze.md',
+);
 
 const expectedP0Ids = [
   'P0-001',
@@ -308,4 +317,56 @@ test('supply price, single-merchant, and human-decision boundaries stay explicit
   assert.match(plan, /EXT-005/u);
   assert.match(plan, /EXT-006/u);
   assert.match(plan, /M1-P001/u);
+});
+
+test('machine control advances exactly one step to M1-P001 after the freeze', async () => {
+  const [freeze, tasks, stages, projectStatus, handoff] = await Promise.all([
+    readFile(freezePath, 'utf8').then(JSON.parse),
+    readCsv(taskLedgerPath),
+    readCsv(stageLedgerPath),
+    readFile(projectStatusPath, 'utf8').then(JSON.parse),
+    readFile(handoffPath, 'utf8'),
+  ]);
+
+  const m1000 = tasks.find(({ TaskID }) => TaskID === 'M1-000');
+  const m1p001 = tasks.find(({ TaskID }) => TaskID === 'M1-P001');
+  const laterM1Tasks = tasks.filter(
+    ({ Stage, TaskID }) =>
+      Stage === 'M1' && !['M1-000', 'M1-P001'].includes(TaskID),
+  );
+  assert.equal(m1000.Status, 'DONE');
+  assert.equal(m1000.EvidenceStatus, 'LOCAL_PASS');
+  assert.equal(m1000.Branch, 'codex/m1-m1');
+  assert.equal(m1000.CommitSHA, 'd7881624dc2c001581d46ec2e1089a09a1f93829');
+  assert.equal(m1000.CI, 'NOT_EXECUTED');
+  assert.equal(m1p001.Status, 'READY');
+  assert.equal(m1p001.EvidenceStatus, 'NOT_EXECUTED');
+  assert.equal(laterM1Tasks.every(({ Status }) => Status === 'NOT_STARTED'), true);
+
+  const m1Stage = stages.find(({ Stage }) => Stage === 'M1');
+  assert.equal(m1Stage.Status, 'IN_PROGRESS');
+  assert.equal(m1Stage.EvidenceStatus, 'NOT_EXECUTED');
+
+  assert.equal(projectStatus.execution.status, 'M1_IN_PROGRESS');
+  assert.equal(projectStatus.execution.currentStage, 'M1');
+  assert.equal(projectStatus.execution.currentTask, 'M1-P001');
+  assert.equal(projectStatus.execution.nextAllowedTask, 'M1-P001');
+  assert.equal(projectStatus.execution.activeTaskCount, 0);
+  assert.equal(projectStatus.execution.lastCompletedTask, 'M1-000');
+  assert.equal(
+    projectStatus.execution.lastCompletedCommit,
+    'd7881624dc2c001581d46ec2e1089a09a1f93829',
+  );
+  assert.equal(projectStatus.execution.lastPassedGate, 'M0-GATE');
+  assert.equal(projectStatus.evidence.local, 'LOCAL_PASS');
+  assert.equal(projectStatus.evidence.ci, 'NOT_EXECUTED');
+
+  assert.equal(freeze.scope.nextAllowedAfterMergeAndGreenCi, 'M1-P001');
+  assert.equal(freeze.slices.every(({ implementationStatus }) => implementationStatus === 'NOT_STARTED'), true);
+  assert.match(handoff, /^# M1-000 契约冻结交接/u);
+  assert.match(handoff, /d7881624dc2c001581d46ec2e1089a09a1f93829/u);
+  assert.match(handoff, /下一唯一任务：`M1-P001`/u);
+  assert.match(handoff, /合并并通过主线 CI 前不得开始/u);
+  assert.match(handoff, /业务 API.*`NOT_IMPLEMENTED`/u);
+  assert.match(handoff, /真机.*`NOT_EXECUTED`/u);
 });
