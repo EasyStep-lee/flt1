@@ -57,6 +57,27 @@ const readStageGate = async (stage) => {
   throw new Error(`P0_E2E_STAGE_GATE_MISSING:${stage}`);
 };
 
+const readTask = async (taskId) => {
+  const source = await readFile(
+    path.join(
+      repositoryRoot,
+      '福礼社Codex5.6开发执行包V1.1',
+      '03-任务台账.csv',
+    ),
+    'utf8',
+  );
+  const lines = source.split(/\r?\n/u).filter(Boolean);
+  const header = parseCsvLine(lines[0]);
+  for (const line of lines.slice(1)) {
+    const values = parseCsvLine(line);
+    const record = Object.fromEntries(
+      header.map((column, index) => [column, values[index] ?? '']),
+    );
+    if (record.TaskID === taskId) return record;
+  }
+  throw new Error(`P0_E2E_CURRENT_TASK_MISSING:${taskId}`);
+};
+
 const findP0Specs = async (directory) => {
   let entries;
   try {
@@ -90,7 +111,15 @@ const run = async () => {
   );
   const stage = state.execution?.currentStage;
   if (!stage) throw new Error('P0_E2E_CURRENT_STAGE_MISSING');
+  const currentTask = state.execution?.currentTask;
+  if (!currentTask) throw new Error('P0_E2E_CURRENT_TASK_MISSING');
   const gate = await readStageGate(stage);
+  const task = await readTask(currentTask);
+  if (task.Stage !== stage) {
+    throw new Error(
+      `P0_E2E_CURRENT_TASK_STAGE_MISMATCH:${currentTask}:${task.Stage}:${stage}`,
+    );
+  }
   const p0Count = Number.parseInt(gate.P0Count, 10);
   if (!Number.isSafeInteger(p0Count) || p0Count < 0) {
     throw new Error(`P0_E2E_STAGE_COUNT_INVALID:${gate.P0Count}`);
@@ -101,6 +130,20 @@ const run = async () => {
     if (stage === 'M0' && p0Count === 0) {
       process.stdout.write(
         'P0_E2E_NOT_APPLICABLE:stage=M0:p0Count=0:reason=M0_HAS_NO_MAPPED_P0\n',
+      );
+      return;
+    }
+    const isPreBusinessContractSlice =
+      currentTask === `${stage}-000` &&
+      task.Type === 'CONTRACT_SLICE_PLAN' &&
+      task.P0ID === '' &&
+      ['READY', 'IN_PROGRESS'].includes(task.Status) &&
+      task.EvidenceStatus === 'NOT_EXECUTED' &&
+      gate.Status === 'READY' &&
+      gate.EvidenceStatus === 'NOT_EXECUTED';
+    if (isPreBusinessContractSlice) {
+      process.stdout.write(
+        `P0_E2E_NOT_APPLICABLE:stage=${stage}:task=${currentTask}:p0Count=${p0Count}:reason=CONTRACT_SLICE_HAS_NO_MAPPED_P0\n`,
       );
       return;
     }

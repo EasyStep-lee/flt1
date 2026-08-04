@@ -1,0 +1,183 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "M0-GATE",
+  "stage": "M0",
+  "generatedAt": "2026-08-04T02:49:38Z",
+  "status": "GATE_PASSED",
+  "gateConclusion": "PASS",
+  "baseline": {
+    "id": "FULISHE-V1.1-2026-08-02",
+    "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+    "verification": "PASS"
+  },
+  "p0": {
+    "mappedCount": 0,
+    "status": "NOT_APPLICABLE",
+    "businessE2eClaimedPassed": false
+  },
+  "governanceDecision": {
+    "mode": "DOCUMENTED_SELF_REVIEW",
+    "developmentMode": "SOLO_DEVELOPMENT",
+    "authorizedReviewer": "@EasyStep-lee",
+    "githubAccountCount": 1,
+    "additionalGithubAccountsRequired": false,
+    "githubSelfApprovalSupported": false,
+    "reviewedHead": "cb3203c50a99e0a6b5fb27d92b3b9c3dadb90de6",
+    "reviewCommentId": 5173933866,
+    "reviewedAt": "2026-08-04T02:32:09Z",
+    "reviewDecision": "APPROVED_FOR_MERGE",
+    "userAuthorization": "确认新提交 cb3203c50a99e0a6b5fb27d92b3b9c3dadb90de6 自审通过，允许合并"
+  },
+  "pullRequest": {
+    "repository": "EasyStep-lee/flt1",
+    "number": 2,
+    "url": "https://github.com/EasyStep-lee/flt1/pull/2",
+    "state": "MERGED",
+    "draft": false,
+    "headSha": "cb3203c50a99e0a6b5fb27d92b3b9c3dadb90de6",
+    "baseSha": "d6710d56c6375367f11f802bb77c187b06359a8a",
+    "mergeCommitSha": "88b7a051300af763941c3e0ad0428111869f0182",
+    "mergedAt": "2026-08-04T02:33:12Z",
+    "issueClosed": 1,
+    "issueClosedAt": "2026-08-04T02:33:13Z"
+  },
+  "evidence": {
+    "pullRequestCi": {
+      "status": "CI_PASS",
+      "workflow": "ci",
+      "job": "verify",
+      "runId": 30871743642,
+      "jobId": 91874978928,
+      "url": "https://github.com/EasyStep-lee/flt1/actions/runs/30871743642",
+      "event": "pull_request",
+      "headSha": "cb3203c50a99e0a6b5fb27d92b3b9c3dadb90de6",
+      "conclusion": "success",
+      "completedAt": "2026-08-04T02:28:36Z"
+    },
+    "mainPostMergeCi": {
+      "status": "CI_PASS",
+      "workflow": "ci",
+      "job": "verify",
+      "runId": 30872133076,
+      "jobId": 91876116003,
+      "url": "https://github.com/EasyStep-lee/flt1/actions/runs/30872133076",
+      "event": "push",
+      "headSha": "88b7a051300af763941c3e0ad0428111869f0182",
+      "conclusion": "success",
+      "completedAt": "2026-08-04T02:36:19Z"
+    },
+    "localClosureVerify": {
+      "status": "PASS",
+      "baseSha": "88b7a051300af763941c3e0ad0428111869f0182",
+      "stepsPassed": 17,
+      "startedAt": "2026-08-03T23:04:15.3035715-04:00",
+      "endedAt": "2026-08-03T23:08:07.7829512-04:00",
+      "finalTreeVerified": true,
+      "note": "The measured 17-step run exited 0; after these evidence fields were finalized, a second complete local verification validated the final tree without further tracked edits."
+    },
+    "executionPack": {
+      "status": "PASS",
+      "tasks": 149,
+      "p0": 119,
+      "fields": 658,
+      "pages": 80,
+      "permissions": 22
+    },
+    "codeowners": {
+      "path": ".github/CODEOWNERS",
+      "owner": "@EasyStep-lee",
+      "errors": 0,
+      "presentOnMain": true
+    },
+    "secrets": {
+      "repository": 0,
+      "staging": 0,
+      "production": 0,
+      "status": "INTENTIONALLY_EMPTY_M0_CI_DOES_NOT_USE_SECRETS"
+    },
+    "environments": {
+      "staging": {
+        "configured": true,
+        "deploymentBranch": "main",
+        "requiredReviewers": "NOT_CONFIGURED"
+      },
+      "production": {
+        "configured": true,
+        "deploymentBranch": "main",
+        "requiredReviewers": "NOT_CONFIGURED"
+      }
+    },
+    "githubGovernance": {
+      "repositoryVisibility": "public",
+      "branchProtection": "NOT_CONFIGURED_HTTP_404",
+      "rulesets": "NOT_CONFIGURED_EMPTY",
+      "actionsEnabled": true,
+      "allowedActions": "all",
+      "shaPinningRequiredByRepository": false,
+      "defaultWorkflowPermissions": "read",
+      "actionsCanApprovePullRequests": false
+    }
+  },
+  "knownConstraints": [
+    {
+      "id": "MAIN_BRANCH_PROTECTION_NOT_CONFIGURED",
+      "status": "KNOWN_LIMITATION",
+      "reason": "The public repository main branch remains unprotected and rulesets are empty.",
+      "manualControl": "Use codex branches, exact-head CI, explicit self-review authorization, no force-push/delete, and post-merge main CI."
+    },
+    {
+      "id": "PRODUCTION_ENVIRONMENT_REVIEWER_NOT_CONFIGURED",
+      "status": "KNOWN_LIMITATION",
+      "reason": "The production Environment has the main branch policy but no required reviewer.",
+      "manualControl": "Production remains a separately authorized human action and is NOT_EXECUTED."
+    },
+    {
+      "id": "ACTIONS_REPOSITORY_POLICY_NOT_HARDENED",
+      "status": "KNOWN_LIMITATION",
+      "reason": "Repository Actions allows all actions and does not enforce SHA pinning at repository level.",
+      "manualControl": "Committed workflows pin each action to a full SHA; policy changes still require explicit authorization."
+    }
+  ],
+  "warnings": [
+    {
+      "id": "ACTIONS_NODE20_RUNTIME_DEPRECATED",
+      "status": "WARN",
+      "reason": "GitHub forced pinned third-party actions that still declare Node.js 20 to run on Node.js 24.",
+      "impact": "PR and main verify jobs both succeeded; update action commits in an independent dependency-governance slice."
+    },
+    {
+      "id": "DEPENDABOT_NPM_NODE_ENGINE_MISMATCH",
+      "status": "WARN",
+      "runId": 30872136302,
+      "reason": "Dependabot used Node 24.18.1 while package.json pins engines.node to 22.23.1; pnpm rejected the update.",
+      "impact": "Dependency automation is incomplete but the required ci/verify gate is unaffected; fix separately without relaxing the runtime contract implicitly."
+    },
+    {
+      "id": "DEPENDABOT_DOCKER_MANIFEST_NOT_FOUND",
+      "status": "WARN",
+      "runId": 30872136309,
+      "reason": "The configured docker updater found no Dockerfile or Kubernetes YAML at /; the repository currently contains compose.yaml.",
+      "impact": "Docker dependency automation is incomplete but the required ci/verify gate is unaffected; correct the ecosystem/path in an independent slice."
+    }
+  ],
+  "blockers": [],
+  "decision": {
+    "approved": true,
+    "approvedBy": "@EasyStep-lee",
+    "effectiveAt": "2026-08-04T02:36:19Z",
+    "lastPassedGate": "M0-GATE",
+    "nextAllowedTask": "M1-000",
+    "m1Unlocked": true,
+    "recordMustReachMainBeforeM1Work": true
+  },
+  "resume": {
+    "nextAllowedTask": "M1-000",
+    "m1Unlocked": true,
+    "requiredActions": [
+      "Merge this M0-GATE closure record through an authorized pull request and verify its main CI before starting M1 work.",
+      "Start only M1-000 to freeze the M1 field, state, permission, OpenAPI, DTO, error-code and P0 contract slices.",
+      "Keep staging, device, production, real payment, legal and production migration evidence at NOT_EXECUTED until authorized and actually performed.",
+      "Handle Dependabot npm/docker warnings in a separate dependency-governance slice."
+    ]
+  }
+}
