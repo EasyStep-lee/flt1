@@ -1,0 +1,5088 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "M1-000",
+  "stage": "M1",
+  "status": "CONTRACT_FROZEN",
+  "implementationStatus": "NOT_IMPLEMENTED",
+  "frozenAt": "2026-08-04T03:55:30Z",
+  "baseline": {
+    "schemePath": "福礼社单商户供应链平台V1.1综合方案.html",
+    "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+    "precedence": "V1.1_SCHEME_THEN_RED_LINES_THEN_STATE_AND_DATA_THEN_P0_THEN_UI"
+  },
+  "scope": {
+    "p0Ids": [
+      "P0-001",
+      "P0-002",
+      "P0-003",
+      "P0-004",
+      "P0-005",
+      "P0-045",
+      "P0-046",
+      "P0-047",
+      "P0-066",
+      "P0-067",
+      "P0-068",
+      "P0-069",
+      "P0-070",
+      "P0-072"
+    ],
+    "businessTaskIds": [
+      "M1-P001",
+      "M1-P002",
+      "M1-P003",
+      "M1-P004",
+      "M1-P005",
+      "M1-P045",
+      "M1-P046",
+      "M1-P047",
+      "M1-P066",
+      "M1-P067",
+      "M1-P068",
+      "M1-P069",
+      "M1-P070",
+      "M1-P072"
+    ],
+    "businessSliceStarted": false,
+    "nonGoals": [
+      "PRODUCT_TRADING",
+      "PAYMENT",
+      "DELIVERY",
+      "SETTLEMENT"
+    ],
+    "nextAllowedAfterMergeAndGreenCi": "M1-P001"
+  },
+  "sourceLedgerHashPolicy": {
+    "encoding": "UTF-8",
+    "lineEndings": "LF"
+  },
+  "sourceLedgers": {
+    "tasks": {
+      "path": "福礼社Codex5.6开发执行包V1.1/03-任务台账.csv",
+      "sha256": "39552C0F99678BD91C7CEEF158A291BC757CA4D2E55F8A1462798EDF4200C204",
+      "rowCount": 149
+    },
+    "p0": {
+      "path": "福礼社Codex5.6开发执行包V1.1/04-P0-1至P0-119验收矩阵.csv",
+      "sha256": "DAFF27C7EA7B60E87858E9DCA53D500688C52A74BD5F09ED732ABDE986DE1A5F",
+      "rowCount": 119
+    },
+    "fields": {
+      "path": "福礼社Codex5.6开发执行包V1.1/05-字段字典初始版.csv",
+      "sha256": "94F6B08705600E5529D3FA733B81DF503EEC0045B82074287140499EB5DACAA2",
+      "rowCount": 658
+    },
+    "states": {
+      "path": "福礼社Codex5.6开发执行包V1.1/06-状态机总表.csv",
+      "sha256": "D99A7A553DB623827891B60DBFC846C105688B36FB9E1BE71E2540A871C87A3B",
+      "rowCount": 104
+    },
+    "permissions": {
+      "path": "福礼社Codex5.6开发执行包V1.1/07-权限与数据可见矩阵.csv",
+      "sha256": "7AF2C2FAF106CA37A5D1AA78E64220754594B6FCE39E67166165469980C5CBD9",
+      "rowCount": 22
+    },
+    "pages": {
+      "path": "福礼社Codex5.6开发执行包V1.1/08-页面路由接口P0映射.csv",
+      "sha256": "F62F98D9B90255AFE6AF9140C622DC29994428836220522050D08F1007BE8AEE",
+      "rowCount": 80
+    },
+    "dependencies": {
+      "path": "福礼社Codex5.6开发执行包V1.1/09-外部依赖与人工事项.csv",
+      "sha256": "7251DEE3BBDEC724A604C73B6F95CEC543F75C2F4BA8A7F2EAAD85F716D313A9",
+      "rowCount": 28
+    },
+    "migrations": {
+      "path": "福礼社Codex5.6开发执行包V1.1/11-数据库迁移台账.csv",
+      "sha256": "47C63D222F52D6F236415EE2A5FBF48D9CBF8F27CDA8EEA78445DB8409C52309",
+      "rowCount": 22
+    },
+    "apis": {
+      "path": "福礼社Codex5.6开发执行包V1.1/12-OpenAPI-DTO-错误码台账.csv",
+      "sha256": "E81C82FD787D7D34705CA6BECB7302FAE3D7CC54DD30D079BB8D9DD42D96D540",
+      "rowCount": 80
+    }
+  },
+  "invariants": {
+    "singleMerchant": {
+      "customerCounterparty": "COMPANY_ONLY",
+      "companyLegalName": "江苏福礼团供应链科技有限公司",
+      "platformName": "福礼社",
+      "supplierIsStore": false,
+      "forbiddenCapabilities": [
+        "FRANCHISEE_REGISTRATION",
+        "REGIONAL_REVENUE_SHARE",
+        "SUPPLIER_STOREFRONT",
+        "SUPPLIER_DIRECT_PAYMENT"
+      ]
+    },
+    "ownership": {
+      "companyIdSource": "SERVER_BOUND_UNIQUE_COMPANY",
+      "supplierIdSource": "SERVER_BOUND_AUTHENTICATED_OWNER",
+      "clientOwnershipFieldsTrusted": false,
+      "objectScopeCheckedBeforeLookupResult": true
+    },
+    "session": {
+      "activeFunctionalAccountLimit": 1,
+      "workspaceRouteSource": "FUNCTIONAL_ACCOUNT_TYPE_ALLOWLIST",
+      "switchRequiresNewSession": true,
+      "suspendedOrRevokedAccountInvalidatesSessions": true
+    },
+    "supplyPrice": {
+      "defaultPolicy": "NEVER_RETURN",
+      "customerVisibility": [],
+      "authorizedCompanyRoles": [
+        "COMPANY_PRICE_REVIEW",
+        "COMPANY_FINANCE"
+      ],
+      "authorizedSupplierRoles": [
+        "SUPPLIER_PRICING",
+        "SUPPLIER_FINANCE"
+      ],
+      "correspondingSupplierOnly": true
+    },
+    "makerChecker": {
+      "identityKey": "identityType+identityId",
+      "functionalAccountDifferenceIsInsufficient": true,
+      "superAdminBypass": false,
+      "concurrentDecisionMode": "OPTIMISTIC_VERSION_EXACTLY_ONE_WINNER"
+    }
+  },
+  "fieldContract": {
+    "rowCount": 109,
+    "entities": [
+      {
+        "entity": "Company",
+        "p0Ids": [
+          "P0-001",
+          "P0-002"
+        ],
+        "fields": [
+          {
+            "name": "id",
+            "type": "UUID",
+            "required": true,
+            "format": "UUID v4 canonical lowercase text",
+            "sensitivity": "INTERNAL",
+            "validation": "exactly one Company row may exist; id is server-generated",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-001",
+              "P0-002"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "legalName",
+            "type": "String",
+            "required": true,
+            "format": "fixed value: 江苏福礼团供应链科技有限公司",
+            "sensitivity": "PUBLIC",
+            "validation": "must equal the frozen legal entity name",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-001",
+              "P0-002"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "platformName",
+            "type": "String",
+            "required": true,
+            "format": "fixed value: 福礼社",
+            "sensitivity": "PUBLIC",
+            "validation": "must equal 福礼社",
+            "visibility": "按角色、对象归属及配送阶段脱敏/解密",
+            "forbiddenExposure": "禁止跨供应商、越阶段或批量无审批导出",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-001",
+              "P0-002"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "wechatPayConfigRef",
+            "type": "String",
+            "required": true,
+            "format": "secret-manager reference id; 1..255 chars; never a credential value",
+            "sensitivity": "SECRET_OR_CREDENTIAL",
+            "validation": "reference existence is checked server-side; secret value never persists here",
+            "visibility": "仅后端最小权限读取，响应永不返回",
+            "forbiddenExposure": "禁止提交、日志、快照和前端下发",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-001",
+              "P0-002"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "status",
+            "type": "Enum<ACTIVE|SUSPENDED>",
+            "required": true,
+            "format": "ACTIVE|SUSPENDED",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-001",
+              "P0-002"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          }
+        ]
+      },
+      {
+        "entity": "CompanyUser",
+        "p0Ids": [
+          "P0-066",
+          "P0-067",
+          "P0-068",
+          "P0-072"
+        ],
+        "fields": [
+          {
+            "name": "id",
+            "type": "UUID",
+            "required": true,
+            "format": "UUID v4 canonical lowercase text",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-066",
+              "P0-067",
+              "P0-068",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "companyId",
+            "type": "UUID",
+            "required": true,
+            "format": "UUID v4 canonical lowercase text",
+            "sensitivity": "INTERNAL",
+            "validation": "server binds the unique Company; request body cannot override it",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-066",
+              "P0-067",
+              "P0-068",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "name",
+            "type": "String",
+            "required": true,
+            "format": "UTF-8; 1..128 chars unless a narrower rule applies",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-066",
+              "P0-067",
+              "P0-068",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "mobile",
+            "type": "String",
+            "required": true,
+            "format": "E.164; 8..15 digits after optional leading +",
+            "sensitivity": "PERSONAL_OR_SENSITIVE",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按角色、对象归属及配送阶段脱敏/解密",
+            "forbiddenExposure": "禁止跨供应商、越阶段或批量无审批导出",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-066",
+              "P0-067",
+              "P0-068",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "email",
+            "type": "String",
+            "required": true,
+            "format": "RFC 5322-compatible address; max 254 chars",
+            "sensitivity": "PERSONAL_OR_SENSITIVE",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按角色、对象归属及配送阶段脱敏/解密",
+            "forbiddenExposure": "禁止跨供应商、越阶段或批量无审批导出",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-066",
+              "P0-067",
+              "P0-068",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "status",
+            "type": "Enum<INVITED|ACTIVE|LOCKED|SUSPENDED|REVOKED>",
+            "required": true,
+            "format": "INVITED|ACTIVE|LOCKED|SUSPENDED|REVOKED",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-066",
+              "P0-067",
+              "P0-068",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "lastLoginAt",
+            "type": "DateTime",
+            "required": true,
+            "format": "ISO-8601 UTC timestamp",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-066",
+              "P0-067",
+              "P0-068",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "version",
+            "type": "Int",
+            "required": true,
+            "format": "integer >= 0; optimistic-lock token",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-066",
+              "P0-067",
+              "P0-068",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          }
+        ]
+      },
+      {
+        "entity": "FunctionalAccountType",
+        "p0Ids": [
+          "P0-005",
+          "P0-067",
+          "P0-070"
+        ],
+        "fields": [
+          {
+            "name": "id",
+            "type": "UUID",
+            "required": true,
+            "format": "UUID v4 canonical lowercase text",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-005",
+              "P0-067",
+              "P0-070"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "ownerType",
+            "type": "Enum<COMPANY|SUPPLIER>",
+            "required": true,
+            "format": "COMPANY|SUPPLIER",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-005",
+              "P0-067",
+              "P0-070"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "code",
+            "type": "String",
+            "required": true,
+            "format": "uppercase stable code; ^[A-Z][A-Z0-9_]{1,63}$",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-005",
+              "P0-067",
+              "P0-070"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "name",
+            "type": "String",
+            "required": true,
+            "format": "UTF-8; 1..128 chars unless a narrower rule applies",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-005",
+              "P0-067",
+              "P0-070"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "workspaceRoute",
+            "type": "String",
+            "required": true,
+            "format": "absolute route from server allowlist",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-005",
+              "P0-067",
+              "P0-070"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "internalMenuSchema",
+            "type": "Json",
+            "required": true,
+            "format": "FunctionalAccountTypeInternalMenuSchemaSchemaV1",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-005",
+              "P0-067",
+              "P0-070"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "status",
+            "type": "Enum<ACTIVE|DISABLED>",
+            "required": true,
+            "format": "ACTIVE|DISABLED",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-005",
+              "P0-067",
+              "P0-070"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          }
+        ]
+      },
+      {
+        "entity": "FunctionalAccount",
+        "p0Ids": [
+          "P0-005",
+          "P0-066",
+          "P0-067",
+          "P0-069",
+          "P0-070",
+          "P0-072"
+        ],
+        "fields": [
+          {
+            "name": "id",
+            "type": "UUID",
+            "required": true,
+            "format": "UUID v4 canonical lowercase text",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-005",
+              "P0-067",
+              "P0-070",
+              "P0-066",
+              "P0-069",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "identityType",
+            "type": "Enum<COMPANY_USER|SUPPLIER_USER>",
+            "required": true,
+            "format": "COMPANY_USER|SUPPLIER_USER",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-005",
+              "P0-067",
+              "P0-070",
+              "P0-066",
+              "P0-069",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "identityId",
+            "type": "UUID",
+            "required": true,
+            "format": "natural identity UUID; separation key is identityType+identityId",
+            "sensitivity": "INTERNAL",
+            "validation": "server resolves natural identity; client cannot choose an arbitrary identity",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-005",
+              "P0-067",
+              "P0-070",
+              "P0-066",
+              "P0-069",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "ownerType",
+            "type": "Enum<COMPANY|SUPPLIER>",
+            "required": true,
+            "format": "COMPANY|SUPPLIER",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-005",
+              "P0-067",
+              "P0-070",
+              "P0-066",
+              "P0-069",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "companyId",
+            "type": "UUID",
+            "required": false,
+            "format": "UUID v4 canonical lowercase text",
+            "sensitivity": "INTERNAL",
+            "validation": "required iff ownerType=COMPANY and mutually exclusive with supplierId",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-005",
+              "P0-067",
+              "P0-070",
+              "P0-066",
+              "P0-069",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "supplierId",
+            "type": "UUID",
+            "required": false,
+            "format": "UUID v4 canonical lowercase text",
+            "sensitivity": "INTERNAL",
+            "validation": "required iff ownerType=SUPPLIER and mutually exclusive with companyId",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-005",
+              "P0-067",
+              "P0-070",
+              "P0-066",
+              "P0-069",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "accountTypeId",
+            "type": "UUID",
+            "required": true,
+            "format": "UUID v4 canonical lowercase text",
+            "sensitivity": "INTERNAL",
+            "validation": "account type ownerType must match the functional account ownerType",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-005",
+              "P0-067",
+              "P0-070",
+              "P0-066",
+              "P0-069",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "displayName",
+            "type": "String",
+            "required": true,
+            "format": "UTF-8; 1..128 chars unless a narrower rule applies",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-005",
+              "P0-067",
+              "P0-070",
+              "P0-066",
+              "P0-069",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "status",
+            "type": "Enum<PENDING_ACTIVATION|ACTIVE|SUSPENDED|REVOKED>",
+            "required": true,
+            "format": "PENDING_ACTIVATION|ACTIVE|SUSPENDED|REVOKED",
+            "sensitivity": "INTERNAL",
+            "validation": "only the frozen FunctionalAccount state machine may change it",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-005",
+              "P0-067",
+              "P0-070",
+              "P0-066",
+              "P0-069",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "expiresAt",
+            "type": "DateTime",
+            "required": false,
+            "format": "ISO-8601 UTC timestamp",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-005",
+              "P0-067",
+              "P0-070",
+              "P0-066",
+              "P0-069",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          }
+        ]
+      },
+      {
+        "entity": "Permission",
+        "p0Ids": [
+          "P0-004",
+          "P0-005",
+          "P0-046",
+          "P0-047",
+          "P0-067",
+          "P0-070",
+          "P0-072"
+        ],
+        "fields": [
+          {
+            "name": "id",
+            "type": "UUID",
+            "required": true,
+            "format": "UUID v4 canonical lowercase text",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-004",
+              "P0-005",
+              "P0-046",
+              "P0-047",
+              "P0-067",
+              "P0-070",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "code",
+            "type": "String",
+            "required": true,
+            "format": "uppercase stable code; ^[A-Z][A-Z0-9_]{1,63}$",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-004",
+              "P0-005",
+              "P0-046",
+              "P0-047",
+              "P0-067",
+              "P0-070",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "resource",
+            "type": "String",
+            "required": true,
+            "format": "stable lowercase code; ^[a-z][a-z0-9_.:-]{1,127}$",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-004",
+              "P0-005",
+              "P0-046",
+              "P0-047",
+              "P0-067",
+              "P0-070",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "action",
+            "type": "Enum<READ|CREATE|UPDATE|SUBMIT|APPROVE|REJECT|EXPORT|REVEAL|MANAGE|REVOKE>",
+            "required": true,
+            "format": "READ|CREATE|UPDATE|SUBMIT|APPROVE|REJECT|EXPORT|REVEAL|MANAGE|REVOKE",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-004",
+              "P0-005",
+              "P0-046",
+              "P0-047",
+              "P0-067",
+              "P0-070",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "fieldGroup",
+            "type": "String",
+            "required": false,
+            "format": "stable lowercase code; ^[a-z][a-z0-9_.:-]{1,127}$",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-004",
+              "P0-005",
+              "P0-046",
+              "P0-047",
+              "P0-067",
+              "P0-070",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "riskLevel",
+            "type": "Int",
+            "required": true,
+            "format": "integer 0..3",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-004",
+              "P0-005",
+              "P0-046",
+              "P0-047",
+              "P0-067",
+              "P0-070",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          }
+        ]
+      },
+      {
+        "entity": "FunctionalAccountPermission",
+        "p0Ids": [
+          "P0-004",
+          "P0-005",
+          "P0-046",
+          "P0-047",
+          "P0-067",
+          "P0-070",
+          "P0-072"
+        ],
+        "fields": [
+          {
+            "name": "id",
+            "type": "UUID",
+            "required": true,
+            "format": "UUID v4 canonical lowercase text",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-004",
+              "P0-005",
+              "P0-046",
+              "P0-047",
+              "P0-067",
+              "P0-070",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "functionalAccountId",
+            "type": "UUID",
+            "required": true,
+            "format": "UUID v4 canonical lowercase text",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-004",
+              "P0-005",
+              "P0-046",
+              "P0-047",
+              "P0-067",
+              "P0-070",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "permissionId",
+            "type": "UUID",
+            "required": true,
+            "format": "UUID v4 canonical lowercase text",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-004",
+              "P0-005",
+              "P0-046",
+              "P0-047",
+              "P0-067",
+              "P0-070",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "effect",
+            "type": "Enum<ALLOW|DENY>",
+            "required": true,
+            "format": "ALLOW|DENY",
+            "sensitivity": "INTERNAL",
+            "validation": "DENY overrides ALLOW; duplicate account-permission rows are forbidden",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-004",
+              "P0-005",
+              "P0-046",
+              "P0-047",
+              "P0-067",
+              "P0-070",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          }
+        ]
+      },
+      {
+        "entity": "DataScopePolicy",
+        "p0Ids": [
+          "P0-004",
+          "P0-046",
+          "P0-067",
+          "P0-070"
+        ],
+        "fields": [
+          {
+            "name": "id",
+            "type": "UUID",
+            "required": true,
+            "format": "UUID v4 canonical lowercase text",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-004",
+              "P0-046",
+              "P0-067",
+              "P0-070"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "functionalAccountId",
+            "type": "UUID",
+            "required": true,
+            "format": "UUID v4 canonical lowercase text",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-004",
+              "P0-046",
+              "P0-067",
+              "P0-070"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "scopeType",
+            "type": "Enum<COMPANY|SUPPLIER|SELF|RESOURCE_SET>",
+            "required": true,
+            "format": "COMPANY|SUPPLIER|SELF|RESOURCE_SET",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-004",
+              "P0-046",
+              "P0-067",
+              "P0-070"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "scopeRules",
+            "type": "Json",
+            "required": true,
+            "format": "DataScopePolicyScopeRulesSchemaV1",
+            "sensitivity": "INTERNAL",
+            "validation": "JSON is validated by scopeType; supplier scope cannot contain another supplierId",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-004",
+              "P0-046",
+              "P0-067",
+              "P0-070"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          }
+        ]
+      },
+      {
+        "entity": "FieldAccessPolicy",
+        "p0Ids": [
+          "P0-046",
+          "P0-047",
+          "P0-067",
+          "P0-070",
+          "P0-072"
+        ],
+        "fields": [
+          {
+            "name": "id",
+            "type": "UUID",
+            "required": true,
+            "format": "UUID v4 canonical lowercase text",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-046",
+              "P0-047",
+              "P0-067",
+              "P0-070",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "functionalAccountId",
+            "type": "UUID",
+            "required": true,
+            "format": "UUID v4 canonical lowercase text",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-046",
+              "P0-047",
+              "P0-067",
+              "P0-070",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "resource",
+            "type": "String",
+            "required": true,
+            "format": "stable lowercase code; ^[a-z][a-z0-9_.:-]{1,127}$",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-046",
+              "P0-047",
+              "P0-067",
+              "P0-070",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "fieldGroup",
+            "type": "String",
+            "required": true,
+            "format": "stable lowercase code; ^[a-z][a-z0-9_.:-]{1,127}$",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-046",
+              "P0-047",
+              "P0-067",
+              "P0-070",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "accessMode",
+            "type": "Enum<HIDDEN|MASKED|VISIBLE|VISIBLE_WITH_AUDIT|APPROVED_EXPORT_ONLY>",
+            "required": true,
+            "format": "HIDDEN|MASKED|VISIBLE|VISIBLE_WITH_AUDIT|APPROVED_EXPORT_ONLY",
+            "sensitivity": "INTERNAL",
+            "validation": "default is HIDDEN; visible sensitive reads require an explicit allow rule",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-046",
+              "P0-047",
+              "P0-067",
+              "P0-070",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          }
+        ]
+      },
+      {
+        "entity": "AuthSession",
+        "p0Ids": [
+          "P0-004",
+          "P0-046",
+          "P0-066",
+          "P0-067",
+          "P0-069",
+          "P0-070",
+          "P0-072"
+        ],
+        "fields": [
+          {
+            "name": "id",
+            "type": "UUID",
+            "required": true,
+            "format": "UUID v4 canonical lowercase text",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-004",
+              "P0-046",
+              "P0-066",
+              "P0-067",
+              "P0-069",
+              "P0-070",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "userType",
+            "type": "Enum<COMPANY_USER|SUPPLIER_USER>",
+            "required": true,
+            "format": "COMPANY_USER|SUPPLIER_USER",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-004",
+              "P0-046",
+              "P0-066",
+              "P0-067",
+              "P0-069",
+              "P0-070",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "userId",
+            "type": "UUID",
+            "required": true,
+            "format": "UUID v4 canonical lowercase text",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-004",
+              "P0-046",
+              "P0-066",
+              "P0-067",
+              "P0-069",
+              "P0-070",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "functionalAccountId",
+            "type": "UUID",
+            "required": true,
+            "format": "UUID v4 canonical lowercase text",
+            "sensitivity": "INTERNAL",
+            "validation": "exactly one active functional account per session",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-004",
+              "P0-046",
+              "P0-066",
+              "P0-067",
+              "P0-069",
+              "P0-070",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "workspaceRoute",
+            "type": "String",
+            "required": true,
+            "format": "absolute route from server allowlist",
+            "sensitivity": "INTERNAL",
+            "validation": "must equal the selected FunctionalAccountType.workspaceRoute",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-004",
+              "P0-046",
+              "P0-066",
+              "P0-067",
+              "P0-069",
+              "P0-070",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "sessionHash",
+            "type": "String",
+            "required": true,
+            "format": "lowercase SHA-256 hex; 64 chars",
+            "sensitivity": "SECRET_OR_CREDENTIAL",
+            "validation": "only the hash is stored; raw session token is never logged or returned",
+            "visibility": "仅后端最小权限读取，响应永不返回",
+            "forbiddenExposure": "禁止提交、日志、快照和前端下发",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-004",
+              "P0-046",
+              "P0-066",
+              "P0-067",
+              "P0-069",
+              "P0-070",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "deviceInfo",
+            "type": "Json",
+            "required": true,
+            "format": "AuthSessionDeviceInfoSchemaV1",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-004",
+              "P0-046",
+              "P0-066",
+              "P0-067",
+              "P0-069",
+              "P0-070",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "ip",
+            "type": "String",
+            "required": true,
+            "format": "IPv4 or IPv6 text; max 45 chars",
+            "sensitivity": "PERSONAL_OR_SENSITIVE",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按角色、对象归属及配送阶段脱敏/解密",
+            "forbiddenExposure": "禁止跨供应商、越阶段或批量无审批导出",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-004",
+              "P0-046",
+              "P0-066",
+              "P0-067",
+              "P0-069",
+              "P0-070",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "expiresAt",
+            "type": "DateTime",
+            "required": true,
+            "format": "ISO-8601 UTC timestamp",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-004",
+              "P0-046",
+              "P0-066",
+              "P0-067",
+              "P0-069",
+              "P0-070",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "revokedAt",
+            "type": "DateTime",
+            "required": false,
+            "format": "ISO-8601 UTC timestamp",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-004",
+              "P0-046",
+              "P0-066",
+              "P0-067",
+              "P0-069",
+              "P0-070",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          }
+        ]
+      },
+      {
+        "entity": "LoginAudit",
+        "p0Ids": [
+          "P0-045",
+          "P0-066",
+          "P0-069",
+          "P0-072"
+        ],
+        "fields": [
+          {
+            "name": "id",
+            "type": "UUID",
+            "required": true,
+            "format": "UUID v4 canonical lowercase text",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-045",
+              "P0-066",
+              "P0-069",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "userType",
+            "type": "Enum<COMPANY_USER|SUPPLIER_USER|UNKNOWN>",
+            "required": true,
+            "format": "COMPANY_USER|SUPPLIER_USER|UNKNOWN",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-045",
+              "P0-066",
+              "P0-069",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "userId",
+            "type": "UUID",
+            "required": false,
+            "format": "UUID v4 canonical lowercase text",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-045",
+              "P0-066",
+              "P0-069",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "functionalAccountId",
+            "type": "UUID",
+            "required": false,
+            "format": "UUID v4 canonical lowercase text",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-045",
+              "P0-066",
+              "P0-069",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "loginAccountHash",
+            "type": "String(64)",
+            "required": true,
+            "format": "lowercase SHA-256 hex; 64 chars",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-045",
+              "P0-066",
+              "P0-069",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "result",
+            "type": "Enum<SUCCESS|AUTH_INVALID|ACCOUNT_SUSPENDED|RATE_LIMITED|SECOND_VERIFICATION_REQUIRED>",
+            "required": true,
+            "format": "SUCCESS|AUTH_INVALID|ACCOUNT_SUSPENDED|RATE_LIMITED|SECOND_VERIFICATION_REQUIRED",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-045",
+              "P0-066",
+              "P0-069",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "riskReason",
+            "type": "String",
+            "required": true,
+            "format": "UTF-8; 1..128 chars unless a narrower rule applies",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-045",
+              "P0-066",
+              "P0-069",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "deviceInfo",
+            "type": "Json",
+            "required": true,
+            "format": "LoginAuditDeviceInfoSchemaV1",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-045",
+              "P0-066",
+              "P0-069",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "ip",
+            "type": "String",
+            "required": true,
+            "format": "IPv4 or IPv6 text; max 45 chars",
+            "sensitivity": "PERSONAL_OR_SENSITIVE",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按角色、对象归属及配送阶段脱敏/解密",
+            "forbiddenExposure": "禁止跨供应商、越阶段或批量无审批导出",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-045",
+              "P0-066",
+              "P0-069",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "occurredAt",
+            "type": "DateTime",
+            "required": true,
+            "format": "ISO-8601 UTC timestamp",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-045",
+              "P0-066",
+              "P0-069",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          }
+        ]
+      },
+      {
+        "entity": "Supplier",
+        "p0Ids": [
+          "P0-003",
+          "P0-004"
+        ],
+        "fields": [
+          {
+            "name": "id",
+            "type": "UUID",
+            "required": true,
+            "format": "UUID v4 canonical lowercase text",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-003",
+              "P0-004"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "companyId",
+            "type": "UUID",
+            "required": true,
+            "format": "UUID v4 canonical lowercase text",
+            "sensitivity": "INTERNAL",
+            "validation": "server always binds the unique Company",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-003",
+              "P0-004"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "legalName",
+            "type": "String",
+            "required": true,
+            "format": "UTF-8; 1..128 chars unless a narrower rule applies",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-003",
+              "P0-004"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "creditCode",
+            "type": "String",
+            "required": true,
+            "format": "18 uppercase unified-social-credit-code chars",
+            "sensitivity": "INTERNAL",
+            "validation": "normalized credit code is unique across Supplier rows",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-003",
+              "P0-004"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "status",
+            "type": "Enum<DRAFT|PENDING_REVIEW|CORRECTION_REQUIRED|ACTIVE|SUSPENDED|EXITING|EXITED>",
+            "required": true,
+            "format": "DRAFT|PENDING_REVIEW|CORRECTION_REQUIRED|ACTIVE|SUSPENDED|EXITING|EXITED",
+            "sensitivity": "INTERNAL",
+            "validation": "only the frozen Supplier state machine may change it",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-003",
+              "P0-004"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "pickupAddress",
+            "type": "String",
+            "required": true,
+            "format": "1..500 UTF-8 chars",
+            "sensitivity": "PERSONAL_OR_SENSITIVE",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按角色、对象归属及配送阶段脱敏/解密",
+            "forbiddenExposure": "禁止跨供应商、越阶段或批量无审批导出",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-003",
+              "P0-004"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "pickupLat",
+            "type": "Decimal(10,7)",
+            "required": true,
+            "format": "-90.0000000..90.0000000; scale 7",
+            "sensitivity": "PERSONAL_OR_SENSITIVE",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按角色、对象归属及配送阶段脱敏/解密",
+            "forbiddenExposure": "禁止跨供应商、越阶段或批量无审批导出",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-003",
+              "P0-004"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "pickupLng",
+            "type": "Decimal(10,7)",
+            "required": true,
+            "format": "-180.0000000..180.0000000; scale 7",
+            "sensitivity": "PERSONAL_OR_SENSITIVE",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按角色、对象归属及配送阶段脱敏/解密",
+            "forbiddenExposure": "禁止跨供应商、越阶段或批量无审批导出",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-003",
+              "P0-004"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "settlementAccountMasked",
+            "type": "String(128)",
+            "required": true,
+            "format": "masked account label only; 4..128 chars; full account forbidden",
+            "sensitivity": "FINANCIAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "公司财务与必要业务职能；供应商仅本供应商结算视图",
+            "forbiddenExposure": "消费者响应仅返回自身交易白名单字段",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-003",
+              "P0-004"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "qualificationSnapshot",
+            "type": "Json",
+            "required": true,
+            "format": "SupplierQualificationSnapshotSchemaV1",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-003",
+              "P0-004"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          }
+        ]
+      },
+      {
+        "entity": "SupplierUser",
+        "p0Ids": [
+          "P0-004",
+          "P0-005",
+          "P0-069",
+          "P0-070",
+          "P0-072"
+        ],
+        "fields": [
+          {
+            "name": "id",
+            "type": "UUID",
+            "required": true,
+            "format": "UUID v4 canonical lowercase text",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-005",
+              "P0-069",
+              "P0-070",
+              "P0-004",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "supplierId",
+            "type": "UUID",
+            "required": true,
+            "format": "UUID v4 canonical lowercase text",
+            "sensitivity": "INTERNAL",
+            "validation": "written only by approved invitation or onboarding activation; login input cannot override it",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-005",
+              "P0-069",
+              "P0-070",
+              "P0-004",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "name",
+            "type": "String",
+            "required": true,
+            "format": "UTF-8; 1..128 chars unless a narrower rule applies",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-005",
+              "P0-069",
+              "P0-070",
+              "P0-004",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "mobile",
+            "type": "String",
+            "required": true,
+            "format": "E.164; 8..15 digits after optional leading +",
+            "sensitivity": "PERSONAL_OR_SENSITIVE",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按角色、对象归属及配送阶段脱敏/解密",
+            "forbiddenExposure": "禁止跨供应商、越阶段或批量无审批导出",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-005",
+              "P0-069",
+              "P0-070",
+              "P0-004",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "email",
+            "type": "String",
+            "required": true,
+            "format": "RFC 5322-compatible address; max 254 chars",
+            "sensitivity": "PERSONAL_OR_SENSITIVE",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按角色、对象归属及配送阶段脱敏/解密",
+            "forbiddenExposure": "禁止跨供应商、越阶段或批量无审批导出",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-005",
+              "P0-069",
+              "P0-070",
+              "P0-004",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "status",
+            "type": "Enum<INVITED|ACTIVE|LOCKED|SUSPENDED|REVOKED>",
+            "required": true,
+            "format": "INVITED|ACTIVE|LOCKED|SUSPENDED|REVOKED",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-005",
+              "P0-069",
+              "P0-070",
+              "P0-004",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "lastLoginAt",
+            "type": "DateTime",
+            "required": true,
+            "format": "ISO-8601 UTC timestamp",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-005",
+              "P0-069",
+              "P0-070",
+              "P0-004",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "version",
+            "type": "Int",
+            "required": true,
+            "format": "integer >= 0; optimistic-lock token",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-005",
+              "P0-069",
+              "P0-070",
+              "P0-004",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          }
+        ]
+      },
+      {
+        "entity": "ApprovalTask",
+        "p0Ids": [
+          "P0-003",
+          "P0-045",
+          "P0-072"
+        ],
+        "fields": [
+          {
+            "name": "id",
+            "type": "UUID",
+            "required": true,
+            "format": "UUID v4 canonical lowercase text",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-072",
+              "P0-003",
+              "P0-045"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "approvalType",
+            "type": "Enum<SUPPLIER_ONBOARDING|FUNCTIONAL_ACCOUNT_CHANGE|SENSITIVE_EXPORT|SUPPLIER_SENSITIVE_CHANGE>",
+            "required": true,
+            "format": "SUPPLIER_ONBOARDING|FUNCTIONAL_ACCOUNT_CHANGE|SENSITIVE_EXPORT|SUPPLIER_SENSITIVE_CHANGE",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-072",
+              "P0-003",
+              "P0-045"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "objectType",
+            "type": "Enum<SUPPLIER|FUNCTIONAL_ACCOUNT|EXPORT_JOB>",
+            "required": true,
+            "format": "SUPPLIER|FUNCTIONAL_ACCOUNT|EXPORT_JOB",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-072",
+              "P0-003",
+              "P0-045"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "objectId",
+            "type": "UUID",
+            "required": true,
+            "format": "UUID v4 canonical lowercase text",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-072",
+              "P0-003",
+              "P0-045"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "applicantType",
+            "type": "Enum<COMPANY_USER|SUPPLIER_USER>",
+            "required": true,
+            "format": "COMPANY_USER|SUPPLIER_USER",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-072",
+              "P0-003",
+              "P0-045"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "applicantId",
+            "type": "UUID",
+            "required": true,
+            "format": "natural identity UUID; separation key is identityType+identityId",
+            "sensitivity": "INTERNAL",
+            "validation": "copied from the authenticated natural identity and cannot be supplied by the client",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-072",
+              "P0-003",
+              "P0-045"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "status",
+            "type": "Enum<PENDING|IN_REVIEW|APPROVED|REJECTED|CANCELLED>",
+            "required": true,
+            "format": "PENDING|IN_REVIEW|APPROVED|REJECTED|CANCELLED",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-072",
+              "P0-003",
+              "P0-045"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "assignedAccountTypeCode",
+            "type": "Enum<COMPANY_SUPPLIER_OPS|COMPANY_SUPER_ADMIN|COMPANY_AUDIT|SUPPLIER_ACCOUNT_ADMIN>",
+            "required": true,
+            "format": "COMPANY_SUPPLIER_OPS|COMPANY_SUPER_ADMIN|COMPANY_AUDIT|SUPPLIER_ACCOUNT_ADMIN",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-072",
+              "P0-003",
+              "P0-045"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "reviewedBy",
+            "type": "UUID",
+            "required": false,
+            "format": "natural identity UUID; separation key is identityType+identityId",
+            "sensitivity": "INTERNAL",
+            "validation": "copied from reviewer natural identity and must differ from applicantId when dual review applies",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-072",
+              "P0-003",
+              "P0-045"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "reviewOpinion",
+            "type": "String",
+            "required": false,
+            "format": "1..1000 UTF-8 chars when required by decision",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-072",
+              "P0-003",
+              "P0-045"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "version",
+            "type": "Int",
+            "required": true,
+            "format": "integer >= 0; optimistic-lock token",
+            "sensitivity": "INTERNAL",
+            "validation": "review update must affect exactly one matching version",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-072",
+              "P0-003",
+              "P0-045"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          }
+        ]
+      },
+      {
+        "entity": "AuditLog",
+        "p0Ids": [
+          "P0-045",
+          "P0-072"
+        ],
+        "fields": [
+          {
+            "name": "id",
+            "type": "UUID",
+            "required": true,
+            "format": "UUID v4 canonical lowercase text",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-045",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "actorType",
+            "type": "Enum<COMPANY_USER|SUPPLIER_USER|SYSTEM>",
+            "required": true,
+            "format": "COMPANY_USER|SUPPLIER_USER|SYSTEM",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-045",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "actorId",
+            "type": "UUID",
+            "required": true,
+            "format": "UUID v4 canonical lowercase text",
+            "sensitivity": "INTERNAL",
+            "validation": "copied from authenticated natural identity or the fixed SYSTEM identity",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-045",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "action",
+            "type": "Enum<StringCode>",
+            "required": true,
+            "format": "stable lowercase code; ^[a-z][a-z0-9_.:-]{1,127}$",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-045",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "objectType",
+            "type": "Enum<StringCode>",
+            "required": true,
+            "format": "schema-constrained scalar",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-045",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "objectId",
+            "type": "UUID",
+            "required": true,
+            "format": "UUID v4 canonical lowercase text",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-045",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "beforeSnapshot",
+            "type": "Json",
+            "required": true,
+            "format": "AuditLogBeforeSnapshotSchemaV1",
+            "sensitivity": "INTERNAL",
+            "validation": "sensitive values are masked or omitted before append-only persistence",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-045",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "afterSnapshot",
+            "type": "Json",
+            "required": true,
+            "format": "AuditLogAfterSnapshotSchemaV1",
+            "sensitivity": "INTERNAL",
+            "validation": "sensitive values are masked or omitted before append-only persistence",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-045",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "requestId",
+            "type": "UUID",
+            "required": true,
+            "format": "UUID v4 canonical lowercase text",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-045",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "ip",
+            "type": "String",
+            "required": true,
+            "format": "IPv4 or IPv6 text; max 45 chars",
+            "sensitivity": "PERSONAL_OR_SENSITIVE",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按角色、对象归属及配送阶段脱敏/解密",
+            "forbiddenExposure": "禁止跨供应商、越阶段或批量无审批导出",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-045",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          },
+          {
+            "name": "occurredAt",
+            "type": "DateTime",
+            "required": true,
+            "format": "ISO-8601 UTC timestamp",
+            "sensitivity": "INTERNAL",
+            "validation": "server validates type, ownership, state and length; client-derived ownership and authorization are never trusted",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-045",
+              "P0-072"
+            ],
+            "sourceStatus": "FROZEN_M1_000",
+            "freezeStatus": "FROZEN_M1_000"
+          }
+        ]
+      }
+    ],
+    "persistenceStatus": "CONTRACT_ONLY_NO_PRISMA_MODEL_OR_MIGRATION_APPLIED"
+  },
+  "stateContract": {
+    "transitionCount": 15,
+    "transitions": [
+      {
+        "key": "Supplier:DRAFT:SUBMIT:PENDING_REVIEW",
+        "stateMachine": "Supplier",
+        "currentState": "DRAFT",
+        "event": "SUBMIT",
+        "nextState": "PENDING_REVIEW",
+        "allowedActor": "SUPPLIER_ACCOUNT_ADMIN",
+        "guard": "资料完整且主体唯一",
+        "sideEffect": "生成审批任务",
+        "idempotency": "supplierId+version",
+        "illegalTransition": "返回409 STATE_TRANSITION_INVALID；不改变状态；写安全审计（按风险级别）",
+        "concurrencyControl": "version乐观锁/唯一键/事务；受影响行数必须=1",
+        "history": "追加状态日志或不可变快照，禁止覆盖历史",
+        "p0Ids": [
+          "P0-003"
+        ],
+        "freezeStatus": "FROZEN_M1_000"
+      },
+      {
+        "key": "Supplier:PENDING_REVIEW:REQUEST_CORRECTION:CORRECTION_REQUIRED",
+        "stateMachine": "Supplier",
+        "currentState": "PENDING_REVIEW",
+        "event": "REQUEST_CORRECTION",
+        "nextState": "CORRECTION_REQUIRED",
+        "allowedActor": "COMPANY_SUPPLIER_OPS",
+        "guard": "审核意见非空",
+        "sideEffect": "通知供应商",
+        "idempotency": "approvalTaskId+version",
+        "illegalTransition": "返回409 STATE_TRANSITION_INVALID；不改变状态；写安全审计（按风险级别）",
+        "concurrencyControl": "version乐观锁/唯一键/事务；受影响行数必须=1",
+        "history": "追加状态日志或不可变快照，禁止覆盖历史",
+        "p0Ids": [
+          "P0-003"
+        ],
+        "freezeStatus": "FROZEN_M1_000"
+      },
+      {
+        "key": "Supplier:CORRECTION_REQUIRED:RESUBMIT:PENDING_REVIEW",
+        "stateMachine": "Supplier",
+        "currentState": "CORRECTION_REQUIRED",
+        "event": "RESUBMIT",
+        "nextState": "PENDING_REVIEW",
+        "allowedActor": "SUPPLIER_ACCOUNT_ADMIN",
+        "guard": "已修正且版本匹配",
+        "sideEffect": "生成新审核版本",
+        "idempotency": "supplierId+version",
+        "illegalTransition": "返回409 STATE_TRANSITION_INVALID；不改变状态；写安全审计（按风险级别）",
+        "concurrencyControl": "version乐观锁/唯一键/事务；受影响行数必须=1",
+        "history": "追加状态日志或不可变快照，禁止覆盖历史",
+        "p0Ids": [
+          "P0-003"
+        ],
+        "freezeStatus": "FROZEN_M1_000"
+      },
+      {
+        "key": "Supplier:PENDING_REVIEW:APPROVE:ACTIVE",
+        "stateMachine": "Supplier",
+        "currentState": "PENDING_REVIEW",
+        "event": "APPROVE",
+        "nextState": "ACTIVE",
+        "allowedActor": "COMPANY_SUPPLIER_OPS",
+        "guard": "资质及合规检查通过",
+        "sideEffect": "启用本主体职能账号",
+        "idempotency": "approvalTaskId+decision",
+        "illegalTransition": "返回409 STATE_TRANSITION_INVALID；不改变状态；写安全审计（按风险级别）",
+        "concurrencyControl": "version乐观锁/唯一键/事务；受影响行数必须=1",
+        "history": "追加状态日志或不可变快照，禁止覆盖历史",
+        "p0Ids": [
+          "P0-003"
+        ],
+        "freezeStatus": "FROZEN_M1_000"
+      },
+      {
+        "key": "Supplier:ACTIVE:SUSPEND:SUSPENDED",
+        "stateMachine": "Supplier",
+        "currentState": "ACTIVE",
+        "event": "SUSPEND",
+        "nextState": "SUSPENDED",
+        "allowedActor": "COMPANY_SUPPLIER_OPS",
+        "guard": "理由与影响评估存在",
+        "sideEffect": "阻止新提交/新履约授权",
+        "idempotency": "supplierId+version",
+        "illegalTransition": "返回409 STATE_TRANSITION_INVALID；不改变状态；写安全审计（按风险级别）",
+        "concurrencyControl": "version乐观锁/唯一键/事务；受影响行数必须=1",
+        "history": "追加状态日志或不可变快照，禁止覆盖历史",
+        "p0Ids": [
+          "P0-003"
+        ],
+        "freezeStatus": "FROZEN_M1_000"
+      },
+      {
+        "key": "Supplier:ACTIVE:START_EXIT:EXITING",
+        "stateMachine": "Supplier",
+        "currentState": "ACTIVE",
+        "event": "START_EXIT",
+        "nextState": "EXITING",
+        "allowedActor": "COMPANY_SUPPLIER_OPS",
+        "guard": "未结事项生成清单",
+        "sideEffect": "冻结新品与新订单分配",
+        "idempotency": "supplierId+exitRequestId",
+        "illegalTransition": "返回409 STATE_TRANSITION_INVALID；不改变状态；写安全审计（按风险级别）",
+        "concurrencyControl": "version乐观锁/唯一键/事务；受影响行数必须=1",
+        "history": "追加状态日志或不可变快照，禁止覆盖历史",
+        "p0Ids": [
+          "P0-003"
+        ],
+        "freezeStatus": "FROZEN_M1_000"
+      },
+      {
+        "key": "Supplier:EXITING:COMPLETE_EXIT:EXITED",
+        "stateMachine": "Supplier",
+        "currentState": "EXITING",
+        "event": "COMPLETE_EXIT",
+        "nextState": "EXITED",
+        "allowedActor": "COMPANY_SUPPLIER_OPS",
+        "guard": "订单/售后/对账/资料保留均完成",
+        "sideEffect": "撤销账号并保留审计",
+        "idempotency": "supplierId+exitChecklistVersion",
+        "illegalTransition": "返回409 STATE_TRANSITION_INVALID；不改变状态；写安全审计（按风险级别）",
+        "concurrencyControl": "version乐观锁/唯一键/事务；受影响行数必须=1",
+        "history": "追加状态日志或不可变快照，禁止覆盖历史",
+        "p0Ids": [
+          "P0-003"
+        ],
+        "freezeStatus": "FROZEN_M1_000"
+      },
+      {
+        "key": "FunctionalAccount:PENDING_ACTIVATION:ACTIVATE:ACTIVE",
+        "stateMachine": "FunctionalAccount",
+        "currentState": "PENDING_ACTIVATION",
+        "event": "ACTIVATE",
+        "nextState": "ACTIVE",
+        "allowedActor": "OWNER_ACCOUNT_ADMIN",
+        "guard": "二次验证通过且账号类型有效",
+        "sideEffect": "撤销旧激活令牌并审计",
+        "idempotency": "accountId+tokenHash",
+        "illegalTransition": "返回409 STATE_TRANSITION_INVALID；不改变状态；写安全审计（按风险级别）",
+        "concurrencyControl": "version乐观锁/唯一键/事务；受影响行数必须=1",
+        "history": "追加状态日志或不可变快照，禁止覆盖历史",
+        "p0Ids": [
+          "P0-005",
+          "P0-067",
+          "P0-070",
+          "P0-072"
+        ],
+        "freezeStatus": "FROZEN_M1_000"
+      },
+      {
+        "key": "FunctionalAccount:ACTIVE:SUSPEND:SUSPENDED",
+        "stateMachine": "FunctionalAccount",
+        "currentState": "ACTIVE",
+        "event": "SUSPEND",
+        "nextState": "SUSPENDED",
+        "allowedActor": "OWNER_ACCOUNT_ADMIN",
+        "guard": "操作者不能停用最后一个主体管理员",
+        "sideEffect": "撤销全部会话",
+        "idempotency": "accountId+version",
+        "illegalTransition": "返回409 STATE_TRANSITION_INVALID；不改变状态；写安全审计（按风险级别）",
+        "concurrencyControl": "version乐观锁/唯一键/事务；受影响行数必须=1",
+        "history": "追加状态日志或不可变快照，禁止覆盖历史",
+        "p0Ids": [
+          "P0-005",
+          "P0-067",
+          "P0-070",
+          "P0-072"
+        ],
+        "freezeStatus": "FROZEN_M1_000"
+      },
+      {
+        "key": "FunctionalAccount:SUSPENDED:RESTORE:ACTIVE",
+        "stateMachine": "FunctionalAccount",
+        "currentState": "SUSPENDED",
+        "event": "RESTORE",
+        "nextState": "ACTIVE",
+        "allowedActor": "OWNER_ACCOUNT_ADMIN",
+        "guard": "风险解除且二次验证通过",
+        "sideEffect": "重新允许登录",
+        "idempotency": "accountId+version",
+        "illegalTransition": "返回409 STATE_TRANSITION_INVALID；不改变状态；写安全审计（按风险级别）",
+        "concurrencyControl": "version乐观锁/唯一键/事务；受影响行数必须=1",
+        "history": "追加状态日志或不可变快照，禁止覆盖历史",
+        "p0Ids": [
+          "P0-005",
+          "P0-067",
+          "P0-070",
+          "P0-072"
+        ],
+        "freezeStatus": "FROZEN_M1_000"
+      },
+      {
+        "key": "FunctionalAccount:ACTIVE:REVOKE:REVOKED",
+        "stateMachine": "FunctionalAccount",
+        "currentState": "ACTIVE",
+        "event": "REVOKE",
+        "nextState": "REVOKED",
+        "allowedActor": "OWNER_ACCOUNT_ADMIN",
+        "guard": "高风险确认",
+        "sideEffect": "不可恢复地撤销会话和授权",
+        "idempotency": "accountId+version",
+        "illegalTransition": "返回409 STATE_TRANSITION_INVALID；不改变状态；写安全审计（按风险级别）",
+        "concurrencyControl": "version乐观锁/唯一键/事务；受影响行数必须=1",
+        "history": "追加状态日志或不可变快照，禁止覆盖历史",
+        "p0Ids": [
+          "P0-005",
+          "P0-067",
+          "P0-070",
+          "P0-072"
+        ],
+        "freezeStatus": "FROZEN_M1_000"
+      },
+      {
+        "key": "ApprovalTask:PENDING:CLAIM:IN_REVIEW",
+        "stateMachine": "ApprovalTask",
+        "currentState": "PENDING",
+        "event": "CLAIM",
+        "nextState": "IN_REVIEW",
+        "allowedActor": "ASSIGNED_FUNCTIONAL_ACCOUNT",
+        "guard": "账号类型、数据域、会话路由匹配",
+        "sideEffect": "记录审核人",
+        "idempotency": "approvalTaskId+reviewerId",
+        "illegalTransition": "返回409 STATE_TRANSITION_INVALID；不改变状态；写安全审计（按风险级别）",
+        "concurrencyControl": "version乐观锁/唯一键/事务；受影响行数必须=1",
+        "history": "追加状态日志或不可变快照，禁止覆盖历史",
+        "p0Ids": [
+          "P0-045",
+          "P0-072"
+        ],
+        "freezeStatus": "FROZEN_M1_000"
+      },
+      {
+        "key": "ApprovalTask:IN_REVIEW:APPROVE:APPROVED",
+        "stateMachine": "ApprovalTask",
+        "currentState": "IN_REVIEW",
+        "event": "APPROVE",
+        "nextState": "APPROVED",
+        "allowedActor": "CLAIMED_REVIEWER",
+        "guard": "版本匹配且必要意见/二次验证完成",
+        "sideEffect": "调用对应领域决策命令",
+        "idempotency": "approvalTaskId+decision",
+        "illegalTransition": "返回409 STATE_TRANSITION_INVALID；不改变状态；写安全审计（按风险级别）",
+        "concurrencyControl": "version乐观锁/唯一键/事务；受影响行数必须=1",
+        "history": "追加状态日志或不可变快照，禁止覆盖历史",
+        "p0Ids": [
+          "P0-045",
+          "P0-072"
+        ],
+        "freezeStatus": "FROZEN_M1_000"
+      },
+      {
+        "key": "ApprovalTask:IN_REVIEW:REJECT:REJECTED",
+        "stateMachine": "ApprovalTask",
+        "currentState": "IN_REVIEW",
+        "event": "REJECT",
+        "nextState": "REJECTED",
+        "allowedActor": "CLAIMED_REVIEWER",
+        "guard": "拒绝理由非空",
+        "sideEffect": "调用领域拒绝命令",
+        "idempotency": "approvalTaskId+decision",
+        "illegalTransition": "返回409 STATE_TRANSITION_INVALID；不改变状态；写安全审计（按风险级别）",
+        "concurrencyControl": "version乐观锁/唯一键/事务；受影响行数必须=1",
+        "history": "追加状态日志或不可变快照，禁止覆盖历史",
+        "p0Ids": [
+          "P0-045",
+          "P0-072"
+        ],
+        "freezeStatus": "FROZEN_M1_000"
+      },
+      {
+        "key": "ApprovalTask:PENDING:CANCEL_OBJECT:CANCELLED",
+        "stateMachine": "ApprovalTask",
+        "currentState": "PENDING",
+        "event": "CANCEL_OBJECT",
+        "nextState": "CANCELLED",
+        "allowedActor": "SYSTEM",
+        "guard": "业务对象已合法撤销",
+        "sideEffect": "关闭待办",
+        "idempotency": "approvalTaskId+objectVersion",
+        "illegalTransition": "返回409 STATE_TRANSITION_INVALID；不改变状态；写安全审计（按风险级别）",
+        "concurrencyControl": "version乐观锁/唯一键/事务；受影响行数必须=1",
+        "history": "追加状态日志或不可变快照，禁止覆盖历史",
+        "p0Ids": [
+          "P0-045",
+          "P0-072"
+        ],
+        "freezeStatus": "FROZEN_M1_000"
+      }
+    ],
+    "illegalTransition": {
+      "httpStatus": 409,
+      "errorCode": "STATE_TRANSITION_INVALID",
+      "stateChangeAllowed": false,
+      "auditRequired": true
+    },
+    "concurrency": {
+      "mode": "OPTIMISTIC_VERSION_AND_UNIQUE_KEY",
+      "affectedRowCount": 1,
+      "historyMutationAllowed": false
+    }
+  },
+  "permissionContract": {
+    "roleCodes": [
+      "COMPANY_SUPER_ADMIN",
+      "COMPANY_SUPPLIER_OPS",
+      "COMPANY_PRODUCT_OPS",
+      "COMPANY_PRICE_REVIEW",
+      "COMPANY_ORDER_SERVICE",
+      "COMPANY_WELFARE_CARD",
+      "COMPANY_FINANCE",
+      "COMPANY_AUDIT",
+      "SUPPLIER_ACCOUNT_ADMIN",
+      "SUPPLIER_PRODUCT",
+      "SUPPLIER_PRICING",
+      "SUPPLIER_INVENTORY",
+      "SUPPLIER_FULFILLMENT",
+      "SUPPLIER_AFTERSALES",
+      "SUPPLIER_FINANCE",
+      "SUPPLIER_AUDIT"
+    ],
+    "roles": [
+      {
+        "roleCode": "COMPANY_SUPER_ADMIN",
+        "ownerType": "COMPANY",
+        "entryRoute": "/company-admin/workspaces/system",
+        "readScope": "公司全局配置、账号、审计摘要",
+        "writeScope": "职能账号、权限策略和平台参数",
+        "approvalAuthority": "账号启停与高风险配置，不代替业务审核或第二自然人复核",
+        "supplyPriceVisibility": "VISIBLE_WITH_AUDIT",
+        "dataScope": "companyId=唯一公司",
+        "forbiddenActions": "不得绕过业务职能审批；不得查看明文秘密",
+        "secondVerification": "账号/权限/导出/密钥引用；双人复核按自然人identityId，不得同人跨账号完成",
+        "businessContentStage": "M1"
+      },
+      {
+        "roleCode": "COMPANY_SUPPLIER_OPS",
+        "ownerType": "COMPANY",
+        "entryRoute": "/company-admin/workspaces/supplier-ops",
+        "readScope": "供应商主体、资质、状态",
+        "writeScope": "审核、补正、启停、退出流程",
+        "approvalAuthority": "供应商主体审核",
+        "supplyPriceVisibility": "HIDDEN",
+        "dataScope": "唯一公司下全部供应商",
+        "forbiddenActions": "不得改商品价格、付款或其他职能账号",
+        "secondVerification": "启停/退出/敏感资质查看",
+        "businessContentStage": "M1"
+      },
+      {
+        "roleCode": "COMPANY_PRODUCT_OPS",
+        "ownerType": "COMPANY",
+        "entryRoute": "/company-admin/workspaces/product-ops",
+        "readScope": "分类模板、商品资料、公开售价",
+        "writeScope": "分类模板、商品资料审核、上下架",
+        "approvalAuthority": "商品资料审核",
+        "supplyPriceVisibility": "HIDDEN",
+        "dataScope": "唯一公司全商品",
+        "forbiddenActions": "不得读取供应价或批准供应价",
+        "secondVerification": "强监管开关/批量上下架",
+        "businessContentStage": "M2"
+      },
+      {
+        "roleCode": "COMPANY_PRICE_REVIEW",
+        "ownerType": "COMPANY",
+        "entryRoute": "/company-admin/workspaces/price-review",
+        "readScope": "三类价格与价格历史",
+        "writeScope": "供应价审核意见；风险标记",
+        "approvalAuthority": "初始三价与上架后供应价变更",
+        "supplyPriceVisibility": "VISIBLE_WITH_AUDIT",
+        "dataScope": "唯一公司全SKU",
+        "forbiddenActions": "不得静默代供应商改价；不得改商品资料",
+        "secondVerification": "批准/拒绝/批量导出；双人复核按自然人identityId，不得同人跨账号完成",
+        "businessContentStage": "M2"
+      },
+      {
+        "roleCode": "COMPANY_ORDER_SERVICE",
+        "ownerType": "COMPANY",
+        "entryRoute": "/company-admin/workspaces/order-service",
+        "readScope": "个人/企业订单、售后必要字段",
+        "writeScope": "售后受理、备注、责任协同",
+        "approvalAuthority": "售后流程权限内节点",
+        "supplyPriceVisibility": "HIDDEN",
+        "dataScope": "唯一公司全订单；敏感字段按工单",
+        "forbiddenActions": "不得登记付款、改供应价或越权解密",
+        "secondVerification": "退款申请/地址敏感信息",
+        "businessContentStage": "M3"
+      },
+      {
+        "roleCode": "COMPANY_WELFARE_CARD",
+        "ownerType": "COMPANY",
+        "entryRoute": "/company-admin/workspaces/welfare-card",
+        "readScope": "计划、批次、账户脱敏、账本",
+        "writeScope": "计划/批次/冻结/解冻和企业购卡协同",
+        "approvalAuthority": "福利卡高风险操作",
+        "supplyPriceVisibility": "HIDDEN",
+        "dataScope": "唯一公司福利卡域",
+        "forbiddenActions": "不得改写账本或直接改余额",
+        "secondVerification": "批量发卡/冻结/导出；双人复核按自然人identityId，不得同人跨账号完成",
+        "businessContentStage": "M3"
+      },
+      {
+        "roleCode": "COMPANY_FINANCE",
+        "ownerType": "COMPANY",
+        "entryRoute": "/company-admin/workspaces/finance",
+        "readScope": "支付退款、供应价快照、账单、凭证",
+        "writeScope": "对账调整、线下付款登记、冲正",
+        "approvalAuthority": "结算与财务复核",
+        "supplyPriceVisibility": "VISIBLE_WITH_AUDIT",
+        "dataScope": "唯一公司全财务数据",
+        "forbiddenActions": "不得覆盖已确认账单或自动向供应商打款",
+        "secondVerification": "退款/付款/冲正/导出；双人复核按自然人identityId，不得同人跨账号完成",
+        "businessContentStage": "M5"
+      },
+      {
+        "roleCode": "COMPANY_AUDIT",
+        "ownerType": "COMPANY",
+        "entryRoute": "/company-admin/workspaces/audit",
+        "readScope": "授权范围只读审计、导出任务",
+        "writeScope": "仅创建受控审计导出申请",
+        "approvalAuthority": "NONE；不得关闭涉及本人其他职能操作的风险事项",
+        "supplyPriceVisibility": "MASKED_OR_APPROVED_EXPORT",
+        "dataScope": "公司只读；字段最小化",
+        "forbiddenActions": "不得写业务状态、批准自身导出或解密秘密",
+        "secondVerification": "高敏审计导出；双人复核按自然人identityId，不得同人跨账号完成",
+        "businessContentStage": "M1"
+      },
+      {
+        "roleCode": "SUPPLIER_ACCOUNT_ADMIN",
+        "ownerType": "SUPPLIER",
+        "entryRoute": "/supplier/workspaces/account-admin",
+        "readScope": "本供应商主体、资质、职能账号",
+        "writeScope": "补资料、账号邀请/停用、取货点",
+        "approvalAuthority": "本主体账号管理",
+        "supplyPriceVisibility": "HIDDEN",
+        "dataScope": "supplierId=当前供应商",
+        "forbiddenActions": "不得访问其他供应商或交易价格",
+        "secondVerification": "账号/结算账户/取货点变更；双人复核按自然人identityId，不得同人跨账号完成",
+        "businessContentStage": "M1"
+      },
+      {
+        "roleCode": "SUPPLIER_PRODUCT",
+        "ownerType": "SUPPLIER",
+        "entryRoute": "/supplier/workspaces/products",
+        "readScope": "本供应商商品资料；不加载任何价格字段",
+        "writeScope": "商品草稿、模板资料、资质、集采标识、提交审核",
+        "approvalAuthority": "NONE",
+        "supplyPriceVisibility": "STRICTLY_HIDDEN",
+        "dataScope": "supplierId=当前供应商",
+        "forbiddenActions": "不得读取/写入任何价格；不得自行上架",
+        "secondVerification": "批量提交/删除草稿",
+        "businessContentStage": "M2"
+      },
+      {
+        "roleCode": "SUPPLIER_PRICING",
+        "ownerType": "SUPPLIER",
+        "entryRoute": "/supplier/workspaces/pricing",
+        "readScope": "本供应商三类价格与历史",
+        "writeScope": "自主定价；供应价申请审核；零售/集采价免审留痕",
+        "approvalAuthority": "提交初始三价和供应价变更",
+        "supplyPriceVisibility": "VISIBLE_OWN_ONLY",
+        "dataScope": "supplierId=当前供应商",
+        "forbiddenActions": "不得读取其他供应商或静默修改已生效供应价",
+        "secondVerification": "提交供应价/批量调价/导出；双人复核按自然人identityId，不得同人跨账号完成",
+        "businessContentStage": "M2"
+      },
+      {
+        "roleCode": "SUPPLIER_INVENTORY",
+        "ownerType": "SUPPLIER",
+        "entryRoute": "/supplier/workspaces/inventory",
+        "readScope": "本供应商SKU库存、变更记录",
+        "writeScope": "入库、盘点、调整申请、备货",
+        "approvalAuthority": "库存调整规则内",
+        "supplyPriceVisibility": "HIDDEN",
+        "dataScope": "supplierId=当前供应商",
+        "forbiddenActions": "不得直接覆盖库存或访问售价审批",
+        "secondVerification": "盘点/批量调整",
+        "businessContentStage": "M2"
+      },
+      {
+        "roleCode": "SUPPLIER_FULFILLMENT",
+        "ownerType": "SUPPLIER",
+        "entryRoute": "/supplier/workspaces/fulfillment",
+        "readScope": "本供应商履约子单及必要取货信息",
+        "writeScope": "接单、备货、交接",
+        "approvalAuthority": "NONE",
+        "supplyPriceVisibility": "HIDDEN",
+        "dataScope": "supplierId=当前供应商子单",
+        "forbiddenActions": "不得查看其他供应商商品或主订单财务",
+        "secondVerification": "异常交接/批量出库",
+        "businessContentStage": "M3"
+      },
+      {
+        "roleCode": "SUPPLIER_AFTERSALES",
+        "ownerType": "SUPPLIER",
+        "entryRoute": "/supplier/workspaces/aftersales",
+        "readScope": "本供应商责任相关售后",
+        "writeScope": "举证、处理意见、收货确认",
+        "approvalAuthority": "NONE",
+        "supplyPriceVisibility": "HIDDEN",
+        "dataScope": "supplierId=当前供应商售后项",
+        "forbiddenActions": "不得向用户直接退款或改公司责任结论",
+        "secondVerification": "举证上传/责任确认",
+        "businessContentStage": "M5"
+      },
+      {
+        "roleCode": "SUPPLIER_FINANCE",
+        "ownerType": "SUPPLIER",
+        "entryRoute": "/supplier/workspaces/finance",
+        "readScope": "本供应商供应价快照、账单、付款凭证",
+        "writeScope": "差异申诉、确认账单、确认收款",
+        "approvalAuthority": "NONE",
+        "supplyPriceVisibility": "VISIBLE_OWN_ONLY",
+        "dataScope": "supplierId=当前供应商",
+        "forbiddenActions": "不得查看平台毛利、其他供应商或触发自动打款",
+        "secondVerification": "账单确认/收款确认/导出；双人复核按自然人identityId，不得同人跨账号完成",
+        "businessContentStage": "M5"
+      },
+      {
+        "roleCode": "SUPPLIER_AUDIT",
+        "ownerType": "SUPPLIER",
+        "entryRoute": "/supplier/workspaces/audit",
+        "readScope": "本供应商审计与账号活动脱敏视图",
+        "writeScope": "仅申请受控导出",
+        "approvalAuthority": "NONE",
+        "supplyPriceVisibility": "MASKED_OWN_ONLY",
+        "dataScope": "supplierId=当前供应商",
+        "forbiddenActions": "不得写业务、跨供应商或批准自身导出",
+        "secondVerification": "审计导出；双人复核按自然人identityId，不得同人跨账号完成",
+        "businessContentStage": "M1"
+      }
+    ],
+    "defaultDecision": "DENY",
+    "routeAndApiEnforcement": "SERVER_SIDE_REQUIRED",
+    "session": {
+      "activeFunctionalAccountLimit": 1,
+      "routeFixedByAccountType": true,
+      "switchingRevokesOldContext": true
+    },
+    "shellStage": "M1",
+    "businessContentStageSource": "permission ledger Stage column"
+  },
+  "pageContract": {
+    "pageIds": [
+      "PAGE-001",
+      "PAGE-002",
+      "PAGE-003",
+      "PAGE-004",
+      "PAGE-005",
+      "PAGE-006",
+      "PAGE-007",
+      "PAGE-008",
+      "PAGE-009",
+      "PAGE-010",
+      "PAGE-011",
+      "PAGE-013",
+      "PAGE-014",
+      "PAGE-015",
+      "PAGE-016",
+      "PAGE-017",
+      "PAGE-018",
+      "PAGE-019",
+      "PAGE-020",
+      "PAGE-021",
+      "PAGE-022",
+      "PAGE-023",
+      "PAGE-024"
+    ],
+    "pages": [
+      {
+        "pageId": "PAGE-001",
+        "platform": "COMPANY_ADMIN",
+        "name": "公司后台登录",
+        "route": "/company-admin/login",
+        "p0Ids": [
+          "P0-066"
+        ],
+        "authPolicy": "PUBLIC_NOINDEX_NO_STORE",
+        "supplyPricePolicy": "NEVER_RETURN",
+        "requiredUiStates": "loading,empty,error,permission-denied,offline-or-timeout,success；交易页增加duplicate/unknown-result",
+        "businessContentStage": "M1",
+        "implementationStatus": "REFERENCE_ASSET_ONLY",
+        "acceptanceStatus": "NOT_EXECUTED"
+      },
+      {
+        "pageId": "PAGE-002",
+        "platform": "COMPANY_ADMIN",
+        "name": "职能账号选择",
+        "route": "/company-admin/account-select",
+        "p0Ids": [
+          "P0-066"
+        ],
+        "authPolicy": "AUTHENTICATED_IDENTITY_PENDING_FUNCTIONAL_SESSION",
+        "supplyPricePolicy": "NEVER_RETURN",
+        "requiredUiStates": "loading,empty,error,permission-denied,offline-or-timeout,success；交易页增加duplicate/unknown-result",
+        "businessContentStage": "M1",
+        "implementationStatus": "REFERENCE_ASSET_ONLY",
+        "acceptanceStatus": "NOT_EXECUTED"
+      },
+      {
+        "pageId": "PAGE-003",
+        "platform": "COMPANY_ADMIN",
+        "name": "超级管理员",
+        "route": "/company-admin/workspaces/system",
+        "p0Ids": [
+          "P0-067",
+          "P0-068"
+        ],
+        "authPolicy": "REQUIRED_FIXED_FUNCTIONAL_SESSION",
+        "supplyPricePolicy": "NEVER_RETURN",
+        "requiredUiStates": "loading,empty,error,permission-denied,offline-or-timeout,success；交易页增加duplicate/unknown-result",
+        "businessContentStage": "M1",
+        "implementationStatus": "REFERENCE_ASSET_ONLY",
+        "acceptanceStatus": "NOT_EXECUTED"
+      },
+      {
+        "pageId": "PAGE-004",
+        "platform": "COMPANY_ADMIN",
+        "name": "供应商运营",
+        "route": "/company-admin/workspaces/supplier-ops",
+        "p0Ids": [
+          "P0-003",
+          "P0-067",
+          "P0-068"
+        ],
+        "authPolicy": "REQUIRED_FIXED_FUNCTIONAL_SESSION",
+        "supplyPricePolicy": "NEVER_RETURN",
+        "requiredUiStates": "loading,empty,error,permission-denied,offline-or-timeout,success；交易页增加duplicate/unknown-result",
+        "businessContentStage": "M1",
+        "implementationStatus": "REFERENCE_ASSET_ONLY",
+        "acceptanceStatus": "NOT_EXECUTED"
+      },
+      {
+        "pageId": "PAGE-005",
+        "platform": "COMPANY_ADMIN",
+        "name": "商品与分类运营",
+        "route": "/company-admin/workspaces/product-ops",
+        "p0Ids": [
+          "P0-007",
+          "P0-067",
+          "P0-068"
+        ],
+        "authPolicy": "REQUIRED_FIXED_FUNCTIONAL_SESSION",
+        "supplyPricePolicy": "NEVER_RETURN",
+        "requiredUiStates": "loading,empty,error,permission-denied,offline-or-timeout,success；交易页增加duplicate/unknown-result",
+        "businessContentStage": "M2",
+        "implementationStatus": "REFERENCE_ASSET_ONLY",
+        "acceptanceStatus": "NOT_EXECUTED"
+      },
+      {
+        "pageId": "PAGE-006",
+        "platform": "COMPANY_ADMIN",
+        "name": "价格审核",
+        "route": "/company-admin/workspaces/price-review",
+        "p0Ids": [
+          "P0-007",
+          "P0-019",
+          "P0-067",
+          "P0-068",
+          "P0-071"
+        ],
+        "authPolicy": "REQUIRED_FIXED_FUNCTIONAL_SESSION",
+        "supplyPricePolicy": "AUTHORIZED_COMPANY_ONLY",
+        "requiredUiStates": "loading,empty,error,permission-denied,offline-or-timeout,success；交易页增加duplicate/unknown-result",
+        "businessContentStage": "M2",
+        "implementationStatus": "REFERENCE_ASSET_ONLY",
+        "acceptanceStatus": "NOT_EXECUTED"
+      },
+      {
+        "pageId": "PAGE-007",
+        "platform": "COMPANY_ADMIN",
+        "name": "订单客服",
+        "route": "/company-admin/workspaces/order-service",
+        "p0Ids": [
+          "P0-038",
+          "P0-067",
+          "P0-068"
+        ],
+        "authPolicy": "REQUIRED_FIXED_FUNCTIONAL_SESSION",
+        "supplyPricePolicy": "NEVER_RETURN",
+        "requiredUiStates": "loading,empty,error,permission-denied,offline-or-timeout,success；交易页增加duplicate/unknown-result",
+        "businessContentStage": "M3",
+        "implementationStatus": "REFERENCE_ASSET_ONLY",
+        "acceptanceStatus": "NOT_EXECUTED"
+      },
+      {
+        "pageId": "PAGE-008",
+        "platform": "COMPANY_ADMIN",
+        "name": "福利卡运营",
+        "route": "/company-admin/workspaces/welfare-card",
+        "p0Ids": [
+          "P0-051",
+          "P0-059",
+          "P0-067",
+          "P0-068"
+        ],
+        "authPolicy": "REQUIRED_FIXED_FUNCTIONAL_SESSION",
+        "supplyPricePolicy": "NEVER_RETURN",
+        "requiredUiStates": "loading,empty,error,permission-denied,offline-or-timeout,success；交易页增加duplicate/unknown-result",
+        "businessContentStage": "M3",
+        "implementationStatus": "REFERENCE_ASSET_ONLY",
+        "acceptanceStatus": "NOT_EXECUTED"
+      },
+      {
+        "pageId": "PAGE-009",
+        "platform": "COMPANY_ADMIN",
+        "name": "财务结算",
+        "route": "/company-admin/workspaces/finance",
+        "p0Ids": [
+          "P0-040",
+          "P0-042",
+          "P0-060",
+          "P0-065",
+          "P0-067",
+          "P0-068"
+        ],
+        "authPolicy": "REQUIRED_FIXED_FUNCTIONAL_SESSION",
+        "supplyPricePolicy": "AUTHORIZED_COMPANY_ONLY",
+        "requiredUiStates": "loading,empty,error,permission-denied,offline-or-timeout,success；交易页增加duplicate/unknown-result",
+        "businessContentStage": "M5",
+        "implementationStatus": "REFERENCE_ASSET_ONLY",
+        "acceptanceStatus": "NOT_EXECUTED"
+      },
+      {
+        "pageId": "PAGE-010",
+        "platform": "COMPANY_ADMIN",
+        "name": "物流中心",
+        "route": "/company-admin/workspaces/logistics",
+        "p0Ids": [
+          "P0-067",
+          "P0-068",
+          "P0-116",
+          "P0-118"
+        ],
+        "authPolicy": "REQUIRED_FIXED_FUNCTIONAL_SESSION",
+        "supplyPricePolicy": "NEVER_RETURN",
+        "requiredUiStates": "loading,empty,error,permission-denied,offline-or-timeout,success；交易页增加duplicate/unknown-result",
+        "businessContentStage": "M4",
+        "implementationStatus": "REFERENCE_ASSET_ONLY",
+        "acceptanceStatus": "NOT_EXECUTED"
+      },
+      {
+        "pageId": "PAGE-011",
+        "platform": "COMPANY_ADMIN",
+        "name": "门户内容",
+        "route": "/company-admin/workspaces/content",
+        "p0Ids": [
+          "P0-067",
+          "P0-068",
+          "P0-073",
+          "P0-082"
+        ],
+        "authPolicy": "REQUIRED_FIXED_FUNCTIONAL_SESSION",
+        "supplyPricePolicy": "NEVER_RETURN",
+        "requiredUiStates": "loading,empty,error,permission-denied,offline-or-timeout,success；交易页增加duplicate/unknown-result",
+        "businessContentStage": "M5",
+        "implementationStatus": "REFERENCE_ASSET_ONLY",
+        "acceptanceStatus": "NOT_EXECUTED"
+      },
+      {
+        "pageId": "PAGE-013",
+        "platform": "SUPPLIER_ADMIN",
+        "name": "供应商注册",
+        "route": "/supplier/register",
+        "p0Ids": [
+          "P0-003",
+          "P0-069"
+        ],
+        "authPolicy": "PUBLIC_NOINDEX_NO_STORE",
+        "supplyPricePolicy": "NEVER_RETURN",
+        "requiredUiStates": "loading,empty,error,permission-denied,offline-or-timeout,success；交易页增加duplicate/unknown-result",
+        "businessContentStage": "M1",
+        "implementationStatus": "REFERENCE_ASSET_ONLY",
+        "acceptanceStatus": "NOT_EXECUTED"
+      },
+      {
+        "pageId": "PAGE-014",
+        "platform": "SUPPLIER_ADMIN",
+        "name": "供应商登录",
+        "route": "/supplier/login",
+        "p0Ids": [
+          "P0-069"
+        ],
+        "authPolicy": "PUBLIC_NOINDEX_NO_STORE",
+        "supplyPricePolicy": "NEVER_RETURN",
+        "requiredUiStates": "loading,empty,error,permission-denied,offline-or-timeout,success；交易页增加duplicate/unknown-result",
+        "businessContentStage": "M1",
+        "implementationStatus": "REFERENCE_ASSET_ONLY",
+        "acceptanceStatus": "NOT_EXECUTED"
+      },
+      {
+        "pageId": "PAGE-015",
+        "platform": "SUPPLIER_ADMIN",
+        "name": "职能账号选择",
+        "route": "/supplier/account-select",
+        "p0Ids": [
+          "P0-069"
+        ],
+        "authPolicy": "AUTHENTICATED_IDENTITY_PENDING_FUNCTIONAL_SESSION",
+        "supplyPricePolicy": "NEVER_RETURN",
+        "requiredUiStates": "loading,empty,error,permission-denied,offline-or-timeout,success；交易页增加duplicate/unknown-result",
+        "businessContentStage": "M1",
+        "implementationStatus": "REFERENCE_ASSET_ONLY",
+        "acceptanceStatus": "NOT_EXECUTED"
+      },
+      {
+        "pageId": "PAGE-016",
+        "platform": "SUPPLIER_ADMIN",
+        "name": "主体管理",
+        "route": "/supplier/workspaces/account-admin",
+        "p0Ids": [
+          "P0-005",
+          "P0-070"
+        ],
+        "authPolicy": "REQUIRED_FIXED_FUNCTIONAL_SESSION",
+        "supplyPricePolicy": "NEVER_RETURN",
+        "requiredUiStates": "loading,empty,error,permission-denied,offline-or-timeout,success；交易页增加duplicate/unknown-result",
+        "businessContentStage": "M1",
+        "implementationStatus": "REFERENCE_ASSET_ONLY",
+        "acceptanceStatus": "NOT_EXECUTED"
+      },
+      {
+        "pageId": "PAGE-017",
+        "platform": "SUPPLIER_ADMIN",
+        "name": "商品管理",
+        "route": "/supplier/workspaces/products",
+        "p0Ids": [
+          "P0-006",
+          "P0-008",
+          "P0-061",
+          "P0-070"
+        ],
+        "authPolicy": "REQUIRED_FIXED_FUNCTIONAL_SESSION",
+        "supplyPricePolicy": "NEVER_RETURN",
+        "requiredUiStates": "loading,empty,error,permission-denied,offline-or-timeout,success；交易页增加duplicate/unknown-result",
+        "businessContentStage": "M2",
+        "implementationStatus": "REFERENCE_ASSET_ONLY",
+        "acceptanceStatus": "NOT_EXECUTED"
+      },
+      {
+        "pageId": "PAGE-018",
+        "platform": "SUPPLIER_ADMIN",
+        "name": "价格管理",
+        "route": "/supplier/workspaces/pricing",
+        "p0Ids": [
+          "P0-008",
+          "P0-019",
+          "P0-070",
+          "P0-071"
+        ],
+        "authPolicy": "REQUIRED_FIXED_FUNCTIONAL_SESSION",
+        "supplyPricePolicy": "OWN_SUPPLIER_ONLY",
+        "requiredUiStates": "loading,empty,error,permission-denied,offline-or-timeout,success；交易页增加duplicate/unknown-result",
+        "businessContentStage": "M2",
+        "implementationStatus": "REFERENCE_ASSET_ONLY",
+        "acceptanceStatus": "NOT_EXECUTED"
+      },
+      {
+        "pageId": "PAGE-019",
+        "platform": "SUPPLIER_ADMIN",
+        "name": "库存管理",
+        "route": "/supplier/workspaces/inventory",
+        "p0Ids": [
+          "P0-023",
+          "P0-070"
+        ],
+        "authPolicy": "REQUIRED_FIXED_FUNCTIONAL_SESSION",
+        "supplyPricePolicy": "NEVER_RETURN",
+        "requiredUiStates": "loading,empty,error,permission-denied,offline-or-timeout,success；交易页增加duplicate/unknown-result",
+        "businessContentStage": "M2",
+        "implementationStatus": "REFERENCE_ASSET_ONLY",
+        "acceptanceStatus": "NOT_EXECUTED"
+      },
+      {
+        "pageId": "PAGE-020",
+        "platform": "SUPPLIER_ADMIN",
+        "name": "履约管理",
+        "route": "/supplier/workspaces/fulfillment",
+        "p0Ids": [
+          "P0-031",
+          "P0-070"
+        ],
+        "authPolicy": "REQUIRED_FIXED_FUNCTIONAL_SESSION",
+        "supplyPricePolicy": "NEVER_RETURN",
+        "requiredUiStates": "loading,empty,error,permission-denied,offline-or-timeout,success；交易页增加duplicate/unknown-result",
+        "businessContentStage": "M3",
+        "implementationStatus": "REFERENCE_ASSET_ONLY",
+        "acceptanceStatus": "NOT_EXECUTED"
+      },
+      {
+        "pageId": "PAGE-021",
+        "platform": "SUPPLIER_ADMIN",
+        "name": "售后协同",
+        "route": "/supplier/workspaces/aftersales",
+        "p0Ids": [
+          "P0-038",
+          "P0-039",
+          "P0-070"
+        ],
+        "authPolicy": "REQUIRED_FIXED_FUNCTIONAL_SESSION",
+        "supplyPricePolicy": "NEVER_RETURN",
+        "requiredUiStates": "loading,empty,error,permission-denied,offline-or-timeout,success；交易页增加duplicate/unknown-result",
+        "businessContentStage": "M5",
+        "implementationStatus": "REFERENCE_ASSET_ONLY",
+        "acceptanceStatus": "NOT_EXECUTED"
+      },
+      {
+        "pageId": "PAGE-022",
+        "platform": "SUPPLIER_ADMIN",
+        "name": "财务对账",
+        "route": "/supplier/workspaces/finance",
+        "p0Ids": [
+          "P0-040",
+          "P0-041",
+          "P0-042",
+          "P0-060",
+          "P0-065",
+          "P0-070"
+        ],
+        "authPolicy": "REQUIRED_FIXED_FUNCTIONAL_SESSION",
+        "supplyPricePolicy": "OWN_SUPPLIER_ONLY",
+        "requiredUiStates": "loading,empty,error,permission-denied,offline-or-timeout,success；交易页增加duplicate/unknown-result",
+        "businessContentStage": "M5",
+        "implementationStatus": "REFERENCE_ASSET_ONLY",
+        "acceptanceStatus": "NOT_EXECUTED"
+      },
+      {
+        "pageId": "PAGE-023",
+        "platform": "SUPPLIER_ADMIN",
+        "name": "审计记录",
+        "route": "/supplier/workspaces/audit",
+        "p0Ids": [
+          "P0-070",
+          "P0-072"
+        ],
+        "authPolicy": "REQUIRED_FIXED_FUNCTIONAL_SESSION",
+        "supplyPricePolicy": "NEVER_RETURN",
+        "requiredUiStates": "loading,empty,error,permission-denied,offline-or-timeout,success；交易页增加duplicate/unknown-result",
+        "businessContentStage": "M1",
+        "implementationStatus": "REFERENCE_ASSET_ONLY",
+        "acceptanceStatus": "NOT_EXECUTED"
+      },
+      {
+        "pageId": "PAGE-024",
+        "platform": "SUPPLIER_ADMIN",
+        "name": "职能账号管理",
+        "route": "/supplier/workspaces/account-admin/accounts",
+        "p0Ids": [
+          "P0-005",
+          "P0-070"
+        ],
+        "authPolicy": "REQUIRED_FIXED_FUNCTIONAL_SESSION",
+        "supplyPricePolicy": "NEVER_RETURN",
+        "requiredUiStates": "loading,empty,error,permission-denied,offline-or-timeout,success；交易页增加duplicate/unknown-result",
+        "businessContentStage": "M1",
+        "implementationStatus": "REFERENCE_ASSET_ONLY",
+        "acceptanceStatus": "NOT_EXECUTED"
+      }
+    ],
+    "authRoutes": {
+      "companyLogin": "/company-admin/login",
+      "companyAccountSelection": "/company-admin/account-select",
+      "supplierRegistration": "/supplier/register",
+      "supplierLogin": "/supplier/login",
+      "supplierAccountSelection": "/supplier/account-select"
+    },
+    "loginCachePolicy": "PRIVATE_NO_STORE_NOINDEX",
+    "selectionCachePolicy": "PRIVATE_NO_STORE_NOINDEX",
+    "workspaceUiStates": [
+      "loading",
+      "empty",
+      "error",
+      "permission-denied",
+      "offline-or-timeout",
+      "success"
+    ],
+    "shellStage": "M1",
+    "businessContentDeferredByLedgerStage": true
+  },
+  "apiContract": {
+    "contractIds": [
+      "API-003",
+      "API-004",
+      "API-005",
+      "API-006",
+      "API-007",
+      "API-008",
+      "API-009",
+      "API-010",
+      "API-011",
+      "API-012",
+      "API-013",
+      "API-014",
+      "API-015"
+    ],
+    "contracts": [
+      {
+        "contractId": "API-003",
+        "method": "POST",
+        "path": "/v1/company-auth/login",
+        "actor": "COMPANY_USER",
+        "requestDto": "CompanyLoginRequest",
+        "responseDto": "WorkspaceChoiceResponse",
+        "errorCodes": [
+          "AUTH_INVALID",
+          "ACCOUNT_SUSPENDED",
+          "RATE_LIMITED"
+        ],
+        "idempotency": "requestId",
+        "sensitiveFieldPolicy": "NEVER_RETURN; DTO白名单；对象归属校验先于查询结果返回",
+        "p0Ids": [
+          "P0-066"
+        ],
+        "implementationStatus": "PLANNED_NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-004",
+        "method": "POST",
+        "path": "/v1/company-auth/workspaces/{accountId}/select",
+        "actor": "COMPANY_USER",
+        "requestDto": "SelectWorkspaceRequest",
+        "responseDto": "SessionResponse",
+        "errorCodes": [
+          "WORKSPACE_FORBIDDEN",
+          "SECOND_VERIFICATION_REQUIRED"
+        ],
+        "idempotency": "selectionNonce",
+        "sensitiveFieldPolicy": "NEVER_RETURN; DTO白名单；对象归属校验先于查询结果返回",
+        "p0Ids": [
+          "P0-066",
+          "P0-067"
+        ],
+        "implementationStatus": "PLANNED_NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-005",
+        "method": "POST",
+        "path": "/v1/suppliers/registrations",
+        "actor": "PUBLIC",
+        "requestDto": "SupplierRegistrationRequest",
+        "responseDto": "SupplierRegistrationResponse",
+        "errorCodes": [
+          "SUPPLIER_DUPLICATE",
+          "VALIDATION_FAILED"
+        ],
+        "idempotency": "Idempotency-Key",
+        "sensitiveFieldPolicy": "NEVER_RETURN; DTO白名单；对象归属校验先于查询结果返回",
+        "p0Ids": [
+          "P0-003",
+          "P0-069"
+        ],
+        "implementationStatus": "PLANNED_NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-006",
+        "method": "POST",
+        "path": "/v1/supplier-auth/login",
+        "actor": "SUPPLIER_USER",
+        "requestDto": "SupplierLoginRequest",
+        "responseDto": "WorkspaceChoiceResponse",
+        "errorCodes": [
+          "AUTH_INVALID",
+          "SUPPLIER_NOT_ACTIVE"
+        ],
+        "idempotency": "requestId",
+        "sensitiveFieldPolicy": "NEVER_RETURN; DTO白名单；对象归属校验先于查询结果返回",
+        "p0Ids": [
+          "P0-069"
+        ],
+        "implementationStatus": "PLANNED_NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-007",
+        "method": "POST",
+        "path": "/v1/supplier-auth/workspaces/{accountId}/select",
+        "actor": "SUPPLIER_USER",
+        "requestDto": "SelectWorkspaceRequest",
+        "responseDto": "SessionResponse",
+        "errorCodes": [
+          "WORKSPACE_FORBIDDEN"
+        ],
+        "idempotency": "selectionNonce",
+        "sensitiveFieldPolicy": "NEVER_RETURN; DTO白名单；对象归属校验先于查询结果返回",
+        "p0Ids": [
+          "P0-069",
+          "P0-070"
+        ],
+        "implementationStatus": "PLANNED_NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-008",
+        "method": "GET",
+        "path": "/v1/supplier/me",
+        "actor": "SUPPLIER_ACCOUNT_ADMIN",
+        "requestDto": "None",
+        "responseDto": "SupplierProfileResponse",
+        "errorCodes": [
+          "SUPPLIER_SCOPE_FORBIDDEN"
+        ],
+        "idempotency": "NONE",
+        "sensitiveFieldPolicy": "NEVER_RETURN; DTO白名单；对象归属校验先于查询结果返回",
+        "p0Ids": [
+          "P0-004",
+          "P0-005"
+        ],
+        "implementationStatus": "PLANNED_NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-009",
+        "method": "PATCH",
+        "path": "/v1/supplier/me",
+        "actor": "SUPPLIER_ACCOUNT_ADMIN",
+        "requestDto": "SupplierProfilePatchRequest",
+        "responseDto": "SupplierProfileResponse",
+        "errorCodes": [
+          "VERSION_CONFLICT",
+          "SECOND_VERIFICATION_REQUIRED"
+        ],
+        "idempotency": "Idempotency-Key",
+        "sensitiveFieldPolicy": "NEVER_RETURN; DTO白名单；对象归属校验先于查询结果返回",
+        "p0Ids": [
+          "P0-003",
+          "P0-005"
+        ],
+        "implementationStatus": "PLANNED_NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-010",
+        "method": "POST",
+        "path": "/v1/supplier/me/submit-review",
+        "actor": "SUPPLIER_ACCOUNT_ADMIN",
+        "requestDto": "SubmitReviewRequest",
+        "responseDto": "ApprovalTaskResponse",
+        "errorCodes": [
+          "STATE_TRANSITION_INVALID"
+        ],
+        "idempotency": "Idempotency-Key",
+        "sensitiveFieldPolicy": "NEVER_RETURN; DTO白名单；对象归属校验先于查询结果返回",
+        "p0Ids": [
+          "P0-003"
+        ],
+        "implementationStatus": "PLANNED_NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-011",
+        "method": "GET",
+        "path": "/v1/company/suppliers",
+        "actor": "COMPANY_SUPPLIER_OPS",
+        "requestDto": "SupplierQuery",
+        "responseDto": "SupplierPageResponse",
+        "errorCodes": [
+          "FIELD_FORBIDDEN"
+        ],
+        "idempotency": "NONE",
+        "sensitiveFieldPolicy": "NEVER_RETURN; DTO白名单；对象归属校验先于查询结果返回",
+        "p0Ids": [
+          "P0-003",
+          "P0-004"
+        ],
+        "implementationStatus": "PLANNED_NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-012",
+        "method": "POST",
+        "path": "/v1/company/suppliers/{supplierId}/review",
+        "actor": "COMPANY_SUPPLIER_OPS",
+        "requestDto": "SupplierReviewRequest",
+        "responseDto": "SupplierResponse",
+        "errorCodes": [
+          "APPROVAL_VERSION_CONFLICT"
+        ],
+        "idempotency": "Idempotency-Key",
+        "sensitiveFieldPolicy": "NEVER_RETURN; DTO白名单；对象归属校验先于查询结果返回",
+        "p0Ids": [
+          "P0-003"
+        ],
+        "implementationStatus": "PLANNED_NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-013",
+        "method": "GET",
+        "path": "/v1/{ownerType}/functional-accounts",
+        "actor": "OWNER_ACCOUNT_ADMIN",
+        "requestDto": "AccountQuery",
+        "responseDto": "FunctionalAccountPageResponse",
+        "errorCodes": [
+          "DATA_SCOPE_FORBIDDEN"
+        ],
+        "idempotency": "NONE",
+        "sensitiveFieldPolicy": "NEVER_RETURN; DTO白名单；对象归属校验先于查询结果返回",
+        "p0Ids": [
+          "P0-005",
+          "P0-067",
+          "P0-070"
+        ],
+        "implementationStatus": "PLANNED_NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-014",
+        "method": "POST",
+        "path": "/v1/{ownerType}/functional-accounts",
+        "actor": "OWNER_ACCOUNT_ADMIN",
+        "requestDto": "CreateFunctionalAccountRequest",
+        "responseDto": "FunctionalAccountResponse",
+        "errorCodes": [
+          "ACCOUNT_TYPE_INVALID",
+          "SECOND_VERIFICATION_REQUIRED"
+        ],
+        "idempotency": "Idempotency-Key",
+        "sensitiveFieldPolicy": "NEVER_RETURN; DTO白名单；对象归属校验先于查询结果返回",
+        "p0Ids": [
+          "P0-005",
+          "P0-067",
+          "P0-070"
+        ],
+        "implementationStatus": "PLANNED_NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-015",
+        "method": "GET",
+        "path": "/v1/audit/events",
+        "actor": "AUTHORIZED_AUDITOR",
+        "requestDto": "AuditQuery",
+        "responseDto": "AuditEventPageResponse",
+        "errorCodes": [
+          "FIELD_FORBIDDEN",
+          "EXPORT_APPROVAL_REQUIRED"
+        ],
+        "idempotency": "NONE",
+        "sensitiveFieldPolicy": "NEVER_RETURN; DTO白名单；对象归属校验先于查询结果返回",
+        "p0Ids": [
+          "P0-045",
+          "P0-072"
+        ],
+        "implementationStatus": "PLANNED_NOT_IMPLEMENTED"
+      }
+    ],
+    "dtoSchemas": {
+      "CompanyLoginRequest": {
+        "fields": [
+          "loginAccount:string",
+          "password:string(writeOnly)",
+          "verificationCode?:string(writeOnly)",
+          "requestId:uuid"
+        ],
+        "ownershipInputsForbidden": [
+          "companyId",
+          "functionalAccountId",
+          "workspaceRoute"
+        ]
+      },
+      "SupplierLoginRequest": {
+        "fields": [
+          "loginAccount:string",
+          "password:string(writeOnly)",
+          "verificationCode?:string(writeOnly)",
+          "requestId:uuid"
+        ],
+        "ownershipInputsForbidden": [
+          "supplierId",
+          "functionalAccountId",
+          "workspaceRoute"
+        ]
+      },
+      "WorkspaceChoiceResponse": {
+        "fields": [
+          "selectionRequired:boolean",
+          "selectionNonce:string",
+          "accounts:WorkspaceChoice[]"
+        ],
+        "accountFields": [
+          "accountId",
+          "ownerType",
+          "ownerDisplayName",
+          "accountTypeCode",
+          "accountTypeName",
+          "workspaceRoute",
+          "status",
+          "lastUsedAt?"
+        ]
+      },
+      "SelectWorkspaceRequest": {
+        "fields": [
+          "selectionNonce:string",
+          "secondVerificationCode?:string(writeOnly)"
+        ],
+        "pathBoundField": "accountId"
+      },
+      "SessionResponse": {
+        "fields": [
+          "functionalAccountId",
+          "ownerType",
+          "companyId?",
+          "supplierId?",
+          "accountTypeCode",
+          "workspaceRoute",
+          "expiresAt"
+        ],
+        "tokenDelivery": "Secure HttpOnly SameSite cookie; no raw token in JSON"
+      },
+      "SupplierRegistrationRequest": {
+        "fields": [
+          "legalName",
+          "creditCode",
+          "contactName",
+          "mobile",
+          "email?",
+          "verificationCode(writeOnly)",
+          "qualificationFiles[]",
+          "pickupAddress",
+          "pickupLat",
+          "pickupLng",
+          "agreementVersion"
+        ],
+        "ownershipInputsForbidden": [
+          "companyId",
+          "supplierId",
+          "status"
+        ]
+      },
+      "SupplierRegistrationResponse": {
+        "fields": [
+          "registrationId",
+          "status",
+          "nextAction",
+          "submittedAt?"
+        ]
+      },
+      "SupplierProfilePatchRequest": {
+        "fields": [
+          "version",
+          "pickupAddress?",
+          "pickupLat?",
+          "pickupLng?",
+          "qualificationSnapshot?",
+          "settlementAccountChangeRequest?"
+        ],
+        "serverControlledFields": [
+          "id",
+          "companyId",
+          "creditCode",
+          "status",
+          "settlementAccountMasked"
+        ]
+      },
+      "SupplierProfileResponse": {
+        "fields": [
+          "id",
+          "legalName",
+          "creditCodeMasked",
+          "status",
+          "pickupAddress",
+          "pickupLat",
+          "pickupLng",
+          "settlementAccountMasked",
+          "qualificationSummary",
+          "version"
+        ]
+      },
+      "SubmitReviewRequest": {
+        "fields": [
+          "version",
+          "requestId"
+        ]
+      },
+      "SupplierReviewRequest": {
+        "fields": [
+          "decision:REQUEST_CORRECTION|APPROVE",
+          "version",
+          "opinion",
+          "secondVerificationCode?"
+        ]
+      },
+      "ApprovalTaskResponse": {
+        "fields": [
+          "id",
+          "approvalType",
+          "objectType",
+          "objectId",
+          "status",
+          "assignedAccountTypeCode",
+          "reviewOpinion?",
+          "version"
+        ],
+        "identityFieldsReturned": false
+      },
+      "SupplierQuery": {
+        "fields": [
+          "status?",
+          "keyword?",
+          "page:integer>=1",
+          "pageSize:integer 1..100"
+        ]
+      },
+      "SupplierPageResponse": {
+        "fields": [
+          "items:SupplierSummary[]",
+          "page",
+          "pageSize",
+          "total"
+        ]
+      },
+      "SupplierResponse": {
+        "fields": [
+          "id",
+          "legalName",
+          "creditCodeMasked",
+          "status",
+          "qualificationSummary",
+          "version"
+        ]
+      },
+      "AccountQuery": {
+        "fields": [
+          "accountTypeCode?",
+          "status?",
+          "keyword?",
+          "page",
+          "pageSize"
+        ]
+      },
+      "CreateFunctionalAccountRequest": {
+        "fields": [
+          "accountTypeCode",
+          "inviteeName",
+          "inviteeMobile",
+          "inviteeEmail?",
+          "expiresAt?",
+          "secondVerificationCode?"
+        ],
+        "ownershipInputsForbidden": [
+          "identityId",
+          "companyId",
+          "supplierId",
+          "ownerType",
+          "workspaceRoute"
+        ]
+      },
+      "FunctionalAccountResponse": {
+        "fields": [
+          "id",
+          "displayName",
+          "accountTypeCode",
+          "accountTypeName",
+          "workspaceRoute",
+          "status",
+          "expiresAt?",
+          "lastLoginAt?"
+        ]
+      },
+      "FunctionalAccountPageResponse": {
+        "fields": [
+          "items:FunctionalAccountResponse[]",
+          "page",
+          "pageSize",
+          "total"
+        ]
+      },
+      "AuditQuery": {
+        "fields": [
+          "actorType?",
+          "action?",
+          "objectType?",
+          "objectId?",
+          "occurredFrom?",
+          "occurredTo?",
+          "page",
+          "pageSize"
+        ]
+      },
+      "AuditEventPageResponse": {
+        "fields": [
+          "items:MaskedAuditEvent[]",
+          "page",
+          "pageSize",
+          "total"
+        ],
+        "rawSensitiveSnapshotsReturned": false
+      }
+    },
+    "commonResponse": "ApiResponse<T>",
+    "commonResponseShape": {
+      "success": "{ success: true, data: T, requestId: string }",
+      "failure": "{ success: false, error: { code, message, details? }, requestId: string }"
+    },
+    "errorCatalog": [
+      {
+        "code": "AUTH_INVALID",
+        "httpStatus": 401
+      },
+      {
+        "code": "ACCOUNT_SUSPENDED",
+        "httpStatus": 403
+      },
+      {
+        "code": "RATE_LIMITED",
+        "httpStatus": 429
+      },
+      {
+        "code": "WORKSPACE_FORBIDDEN",
+        "httpStatus": 403
+      },
+      {
+        "code": "SECOND_VERIFICATION_REQUIRED",
+        "httpStatus": 428
+      },
+      {
+        "code": "SUPPLIER_DUPLICATE",
+        "httpStatus": 409
+      },
+      {
+        "code": "VALIDATION_FAILED",
+        "httpStatus": 422
+      },
+      {
+        "code": "SUPPLIER_NOT_ACTIVE",
+        "httpStatus": 403
+      },
+      {
+        "code": "SUPPLIER_SCOPE_FORBIDDEN",
+        "httpStatus": 403
+      },
+      {
+        "code": "VERSION_CONFLICT",
+        "httpStatus": 409
+      },
+      {
+        "code": "STATE_TRANSITION_INVALID",
+        "httpStatus": 409
+      },
+      {
+        "code": "FIELD_FORBIDDEN",
+        "httpStatus": 403
+      },
+      {
+        "code": "APPROVAL_VERSION_CONFLICT",
+        "httpStatus": 409
+      },
+      {
+        "code": "DATA_SCOPE_FORBIDDEN",
+        "httpStatus": 403
+      },
+      {
+        "code": "ACCOUNT_TYPE_INVALID",
+        "httpStatus": 422
+      },
+      {
+        "code": "EXPORT_APPROVAL_REQUIRED",
+        "httpStatus": 428
+      }
+    ],
+    "objectScopeCheckedBeforeLookupResult": true,
+    "databaseEntityReturnedDirectly": false,
+    "forbiddenPublicFields": [
+      "supplyPrice",
+      "approvedSupplyPrice",
+      "supplyPriceSnapshot",
+      "supplierPayable",
+      "grossMargin"
+    ],
+    "generatedOpenApiStatus": "NOT_IMPLEMENTED_FOR_M1_BUSINESS_APIS"
+  },
+  "migrationContract": {
+    "migrationIds": [
+      "MIG-002",
+      "MIG-003",
+      "MIG-004"
+    ],
+    "migrations": [
+      {
+        "migrationId": "MIG-002",
+        "plannedName": "0101_company_auth_accounts",
+        "dependsOn": "MIG-001",
+        "objects": [
+          "Company",
+          "CompanyUser",
+          "FunctionalAccountType",
+          "FunctionalAccount",
+          "AuthSession"
+        ],
+        "verification": "账号状态与workspaceRoute约束；prisma validate；空库/升级路径dry-run；关键不变量SQL",
+        "status": "PLANNED"
+      },
+      {
+        "migrationId": "MIG-003",
+        "plannedName": "0102_permissions_data_scope",
+        "dependsOn": "MIG-002",
+        "objects": [
+          "Permission",
+          "FunctionalAccountPermission",
+          "DataScopePolicy",
+          "FieldAccessPolicy"
+        ],
+        "verification": "默认拒绝与supplierId域；prisma validate；空库/升级路径dry-run；关键不变量SQL",
+        "status": "PLANNED"
+      },
+      {
+        "migrationId": "MIG-004",
+        "plannedName": "0103_supplier_onboarding",
+        "dependsOn": "MIG-003",
+        "objects": [
+          "Supplier",
+          "SupplierUser",
+          "ApprovalTask",
+          "LoginAudit",
+          "AuditLog"
+        ],
+        "verification": "主体唯一、审计索引；ApprovalTask申请/复核保存自然人identityId且不得同人；prisma validate；空库/升级dry-run；关键不变量SQL",
+        "status": "PLANNED"
+      }
+    ],
+    "applied": false,
+    "implementationRule": "M1 business slices create forward-only Prisma migrations; M1-000 creates none"
+  },
+  "slices": [
+    {
+      "taskId": "M1-P001",
+      "p0Id": "P0-001",
+      "contractRefs": {
+        "fields": [
+          "Company.*"
+        ],
+        "states": [],
+        "roles": [
+          "COMPANY_SUPER_ADMIN"
+        ],
+        "pages": [],
+        "apis": [],
+        "policies": [
+          "SINGLE_MERCHANT"
+        ]
+      },
+      "negativeTestIds": [
+        "NEG-M1-001-01",
+        "NEG-M1-001-02",
+        "NEG-M1-001-03"
+      ],
+      "implementationStatus": "NOT_STARTED"
+    },
+    {
+      "taskId": "M1-P002",
+      "p0Id": "P0-002",
+      "contractRefs": {
+        "fields": [
+          "Company.*"
+        ],
+        "states": [],
+        "roles": [],
+        "pages": [],
+        "apis": [],
+        "policies": [
+          "NO_FRANCHISEE_CAPABILITIES"
+        ]
+      },
+      "negativeTestIds": [
+        "NEG-M1-002-01",
+        "NEG-M1-002-02",
+        "NEG-M1-002-03"
+      ],
+      "implementationStatus": "NOT_STARTED"
+    },
+    {
+      "taskId": "M1-P003",
+      "p0Id": "P0-003",
+      "contractRefs": {
+        "fields": [
+          "Supplier.*",
+          "ApprovalTask.*"
+        ],
+        "states": [
+          "Supplier"
+        ],
+        "roles": [
+          "COMPANY_SUPPLIER_OPS",
+          "SUPPLIER_ACCOUNT_ADMIN"
+        ],
+        "pages": [
+          "PAGE-004",
+          "PAGE-013"
+        ],
+        "apis": [
+          "API-005",
+          "API-009",
+          "API-010",
+          "API-011",
+          "API-012"
+        ],
+        "policies": [
+          "SUPPLIER_ONBOARDING"
+        ]
+      },
+      "negativeTestIds": [
+        "NEG-M1-003-01",
+        "NEG-M1-003-02",
+        "NEG-M1-003-03",
+        "NEG-M1-003-04"
+      ],
+      "implementationStatus": "NOT_STARTED"
+    },
+    {
+      "taskId": "M1-P004",
+      "p0Id": "P0-004",
+      "contractRefs": {
+        "fields": [
+          "Supplier.*",
+          "SupplierUser.*",
+          "DataScopePolicy.*"
+        ],
+        "states": [],
+        "roles": [
+          "SUPPLIER_ACCOUNT_ADMIN",
+          "SUPPLIER_AUDIT"
+        ],
+        "pages": [],
+        "apis": [
+          "API-008",
+          "API-011"
+        ],
+        "policies": [
+          "SERVER_BOUND_SUPPLIER_SCOPE"
+        ]
+      },
+      "negativeTestIds": [
+        "NEG-M1-004-01",
+        "NEG-M1-004-02",
+        "NEG-M1-004-03",
+        "NEG-M1-004-04"
+      ],
+      "implementationStatus": "NOT_STARTED"
+    },
+    {
+      "taskId": "M1-P005",
+      "p0Id": "P0-005",
+      "contractRefs": {
+        "fields": [
+          "FunctionalAccountType.*",
+          "FunctionalAccount.*",
+          "SupplierUser.*"
+        ],
+        "states": [
+          "FunctionalAccount"
+        ],
+        "roles": [
+          "SUPPLIER_ACCOUNT_ADMIN"
+        ],
+        "pages": [
+          "PAGE-016",
+          "PAGE-024"
+        ],
+        "apis": [
+          "API-008",
+          "API-009",
+          "API-013",
+          "API-014"
+        ],
+        "policies": [
+          "FIXED_FUNCTIONAL_ACCOUNT"
+        ]
+      },
+      "negativeTestIds": [
+        "NEG-M1-005-01",
+        "NEG-M1-005-02",
+        "NEG-M1-005-03",
+        "NEG-M1-005-04"
+      ],
+      "implementationStatus": "NOT_STARTED"
+    },
+    {
+      "taskId": "M1-P045",
+      "p0Id": "P0-045",
+      "contractRefs": {
+        "fields": [
+          "AuditLog.*",
+          "ApprovalTask.*"
+        ],
+        "states": [
+          "ApprovalTask"
+        ],
+        "roles": [
+          "COMPANY_AUDIT"
+        ],
+        "pages": [
+          "PAGE-012"
+        ],
+        "apis": [
+          "API-015"
+        ],
+        "policies": [
+          "APPEND_ONLY_AUDIT"
+        ]
+      },
+      "negativeTestIds": [
+        "NEG-M1-045-01",
+        "NEG-M1-045-02",
+        "NEG-M1-045-03",
+        "NEG-M1-045-04"
+      ],
+      "implementationStatus": "NOT_STARTED"
+    },
+    {
+      "taskId": "M1-P046",
+      "p0Id": "P0-046",
+      "contractRefs": {
+        "fields": [
+          "DataScopePolicy.*",
+          "FieldAccessPolicy.*"
+        ],
+        "states": [],
+        "roles": [
+          "COMPANY_AUDIT"
+        ],
+        "pages": [],
+        "apis": [],
+        "policies": [
+          "FIELD_MINIMIZATION",
+          "SUPPLY_PRICE_CONFIDENTIALITY"
+        ]
+      },
+      "negativeTestIds": [
+        "NEG-M1-046-01",
+        "NEG-M1-046-02",
+        "NEG-M1-046-03",
+        "NEG-M1-046-04"
+      ],
+      "implementationStatus": "NOT_STARTED"
+    },
+    {
+      "taskId": "M1-P047",
+      "p0Id": "P0-047",
+      "contractRefs": {
+        "fields": [
+          "FieldAccessPolicy.*"
+        ],
+        "states": [],
+        "roles": [],
+        "pages": [],
+        "apis": [
+          "API-003..API-015"
+        ],
+        "policies": [
+          "DTO_ALLOWLIST",
+          "DETERMINISTIC_OPENAPI",
+          "MINIAPP_KIT_ONLY"
+        ]
+      },
+      "negativeTestIds": [
+        "NEG-M1-047-01",
+        "NEG-M1-047-02",
+        "NEG-M1-047-03",
+        "NEG-M1-047-04"
+      ],
+      "implementationStatus": "NOT_STARTED"
+    },
+    {
+      "taskId": "M1-P066",
+      "p0Id": "P0-066",
+      "contractRefs": {
+        "fields": [
+          "CompanyUser.*",
+          "AuthSession.*",
+          "FunctionalAccount.*"
+        ],
+        "states": [],
+        "roles": [
+          "COMPANY_SUPER_ADMIN"
+        ],
+        "pages": [
+          "PAGE-001",
+          "PAGE-002"
+        ],
+        "apis": [
+          "API-003",
+          "API-004"
+        ],
+        "policies": [
+          "NO_PUBLIC_COMPANY_REGISTRATION",
+          "SINGLE_ACTIVE_WORKSPACE"
+        ]
+      },
+      "negativeTestIds": [
+        "NEG-M1-066-01",
+        "NEG-M1-066-02",
+        "NEG-M1-066-03",
+        "NEG-M1-066-04"
+      ],
+      "implementationStatus": "NOT_STARTED"
+    },
+    {
+      "taskId": "M1-P067",
+      "p0Id": "P0-067",
+      "contractRefs": {
+        "fields": [
+          "FunctionalAccountType.*",
+          "FunctionalAccount.*",
+          "AuthSession.*"
+        ],
+        "states": [
+          "FunctionalAccount"
+        ],
+        "roles": [
+          "COMPANY_*"
+        ],
+        "pages": [
+          "PAGE-003..PAGE-012"
+        ],
+        "apis": [
+          "API-004",
+          "API-013",
+          "API-014"
+        ],
+        "policies": [
+          "COMPANY_FIXED_WORKSPACES"
+        ]
+      },
+      "negativeTestIds": [
+        "NEG-M1-067-01",
+        "NEG-M1-067-02",
+        "NEG-M1-067-03",
+        "NEG-M1-067-04"
+      ],
+      "implementationStatus": "NOT_STARTED"
+    },
+    {
+      "taskId": "M1-P068",
+      "p0Id": "P0-068",
+      "contractRefs": {
+        "fields": [
+          "FunctionalAccountType.internalMenuSchema"
+        ],
+        "states": [],
+        "roles": [
+          "COMPANY_*"
+        ],
+        "pages": [
+          "PAGE-003..PAGE-012"
+        ],
+        "apis": [],
+        "policies": [
+          "WORKSPACE_UI_STATE_COMPLETENESS"
+        ]
+      },
+      "negativeTestIds": [
+        "NEG-M1-068-01",
+        "NEG-M1-068-02",
+        "NEG-M1-068-03"
+      ],
+      "implementationStatus": "NOT_STARTED"
+    },
+    {
+      "taskId": "M1-P069",
+      "p0Id": "P0-069",
+      "contractRefs": {
+        "fields": [
+          "Supplier.*",
+          "SupplierUser.*",
+          "AuthSession.*"
+        ],
+        "states": [
+          "Supplier"
+        ],
+        "roles": [
+          "SUPPLIER_ACCOUNT_ADMIN"
+        ],
+        "pages": [
+          "PAGE-013",
+          "PAGE-014",
+          "PAGE-015"
+        ],
+        "apis": [
+          "API-005",
+          "API-006",
+          "API-007"
+        ],
+        "policies": [
+          "SERVER_BOUND_SUPPLIER_SCOPE",
+          "SINGLE_ACTIVE_WORKSPACE"
+        ]
+      },
+      "negativeTestIds": [
+        "NEG-M1-069-01",
+        "NEG-M1-069-02",
+        "NEG-M1-069-03",
+        "NEG-M1-069-04"
+      ],
+      "implementationStatus": "NOT_STARTED"
+    },
+    {
+      "taskId": "M1-P070",
+      "p0Id": "P0-070",
+      "contractRefs": {
+        "fields": [
+          "FunctionalAccountType.*",
+          "FunctionalAccount.*",
+          "SupplierUser.*"
+        ],
+        "states": [
+          "FunctionalAccount"
+        ],
+        "roles": [
+          "SUPPLIER_*"
+        ],
+        "pages": [
+          "PAGE-016..PAGE-024"
+        ],
+        "apis": [
+          "API-007",
+          "API-013",
+          "API-014"
+        ],
+        "policies": [
+          "SUPPLIER_FIXED_WORKSPACES"
+        ]
+      },
+      "negativeTestIds": [
+        "NEG-M1-070-01",
+        "NEG-M1-070-02",
+        "NEG-M1-070-03",
+        "NEG-M1-070-04"
+      ],
+      "implementationStatus": "NOT_STARTED"
+    },
+    {
+      "taskId": "M1-P072",
+      "p0Id": "P0-072",
+      "contractRefs": {
+        "fields": [
+          "ApprovalTask.*",
+          "AuditLog.*",
+          "FunctionalAccount.*"
+        ],
+        "states": [
+          "ApprovalTask",
+          "FunctionalAccount"
+        ],
+        "roles": [
+          "COMPANY_SUPER_ADMIN",
+          "COMPANY_AUDIT",
+          "SUPPLIER_AUDIT"
+        ],
+        "pages": [
+          "PAGE-012",
+          "PAGE-023"
+        ],
+        "apis": [
+          "API-015"
+        ],
+        "policies": [
+          "NATURAL_IDENTITY_MAKER_CHECKER",
+          "NO_SUPER_ADMIN_BYPASS"
+        ]
+      },
+      "negativeTestIds": [
+        "NEG-M1-072-01",
+        "NEG-M1-072-02",
+        "NEG-M1-072-03",
+        "NEG-M1-072-04"
+      ],
+      "implementationStatus": "NOT_STARTED"
+    }
+  ],
+  "negativeTests": [
+    {
+      "id": "NEG-M1-001-01",
+      "taskId": "M1-P001",
+      "p0Id": "P0-001",
+      "category": "SELLER_TAMPER",
+      "scenario": "Request or seed data names a supplier as customer seller",
+      "expected": "Reject or ignore the value; customer counterparty remains Company",
+      "errorCode": "SELLER_IDENTITY_FORBIDDEN",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-001-02",
+      "taskId": "M1-P001",
+      "p0Id": "P0-001",
+      "category": "SUPPLIER_DIRECT_PAYMENT",
+      "scenario": "A supplier payment account is attached to customer checkout",
+      "expected": "Reject without creating a payment path",
+      "errorCode": "PAYEE_FORBIDDEN",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-001-03",
+      "taskId": "M1-P001",
+      "p0Id": "P0-001",
+      "category": "MULTI_MERCHANT_CONFIG",
+      "scenario": "A second customer-facing merchant Company is created",
+      "expected": "Unique invariant rejects the write",
+      "errorCode": "SINGLE_MERCHANT_VIOLATION",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-002-01",
+      "taskId": "M1-P002",
+      "p0Id": "P0-002",
+      "category": "FRANCHISEE_ROUTE",
+      "scenario": "A franchisee registration or admin route is introduced",
+      "expected": "Contract scan fails",
+      "errorCode": "FORBIDDEN_CAPABILITY",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-002-02",
+      "taskId": "M1-P002",
+      "p0Id": "P0-002",
+      "category": "REGIONAL_REVENUE_SHARE",
+      "scenario": "A regional split-settlement capability is introduced",
+      "expected": "Contract scan fails",
+      "errorCode": "FORBIDDEN_CAPABILITY",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-002-03",
+      "taskId": "M1-P002",
+      "p0Id": "P0-002",
+      "category": "FRANCHISEE_ENTITY",
+      "scenario": "A Franchisee or RegionalMerchant entity is introduced",
+      "expected": "Schema guard fails",
+      "errorCode": "FORBIDDEN_ENTITY",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-003-01",
+      "taskId": "M1-P003",
+      "p0Id": "P0-003",
+      "category": "DUPLICATE_SUBJECT",
+      "scenario": "The same normalized credit code is submitted twice",
+      "expected": "Return conflict and preserve the first application",
+      "errorCode": "SUPPLIER_DUPLICATE",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-003-02",
+      "taskId": "M1-P003",
+      "p0Id": "P0-003",
+      "category": "INVALID_TRANSITION",
+      "scenario": "A DRAFT supplier is approved without submission",
+      "expected": "Return 409 and keep DRAFT",
+      "errorCode": "STATE_TRANSITION_INVALID",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-003-03",
+      "taskId": "M1-P003",
+      "p0Id": "P0-003",
+      "category": "IDEMPOTENCY",
+      "scenario": "The same registration idempotency key is replayed with the same body",
+      "expected": "Return the original result without a second supplier",
+      "errorCode": "IDEMPOTENCY_REPLAY",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-003-04",
+      "taskId": "M1-P003",
+      "p0Id": "P0-003",
+      "category": "QUALIFICATION_INCOMPLETE",
+      "scenario": "Required qualification or pickup data is missing at submit",
+      "expected": "Return validation details and keep the draft editable",
+      "errorCode": "VALIDATION_FAILED",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-004-01",
+      "taskId": "M1-P004",
+      "p0Id": "P0-004",
+      "category": "OBJECT_SCOPE",
+      "scenario": "Supplier A requests Supplier B object by id",
+      "expected": "Return scope-forbidden without object data",
+      "errorCode": "SUPPLIER_SCOPE_FORBIDDEN",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-004-02",
+      "taskId": "M1-P004",
+      "p0Id": "P0-004",
+      "category": "SERVER_BOUND_SUPPLIER",
+      "scenario": "Client supplies or alters supplierId during login or mutation",
+      "expected": "Ignore or reject the client value and use session-bound supplierId",
+      "errorCode": "SUPPLIER_SCOPE_FORBIDDEN",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-004-03",
+      "taskId": "M1-P004",
+      "p0Id": "P0-004",
+      "category": "CROSS_SUPPLIER_EXPORT",
+      "scenario": "Supplier A requests an export containing Supplier B rows",
+      "expected": "Reject before export creation",
+      "errorCode": "DATA_SCOPE_FORBIDDEN",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-004-04",
+      "taskId": "M1-P004",
+      "p0Id": "P0-004",
+      "category": "NOT_FOUND_ORACLE",
+      "scenario": "Cross-supplier id is probed to distinguish existing and missing objects",
+      "expected": "Return a non-enumerating scope-safe response",
+      "errorCode": "SUPPLIER_SCOPE_FORBIDDEN",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-005-01",
+      "taskId": "M1-P005",
+      "p0Id": "P0-005",
+      "category": "CROSS_WORKSPACE",
+      "scenario": "Account-admin session calls a pricing or inventory operation",
+      "expected": "Return 403 with no state change",
+      "errorCode": "WORKSPACE_FORBIDDEN",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-005-02",
+      "taskId": "M1-P005",
+      "p0Id": "P0-005",
+      "category": "SELF_PRIVILEGE_ESCALATION",
+      "scenario": "A functional account grants itself a higher account type",
+      "expected": "Reject and append a security audit event",
+      "errorCode": "ACCOUNT_TYPE_INVALID",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-005-03",
+      "taskId": "M1-P005",
+      "p0Id": "P0-005",
+      "category": "LAST_ADMIN_SUSPEND",
+      "scenario": "The final active owner account admin is suspended",
+      "expected": "Reject and keep the account active",
+      "errorCode": "STATE_TRANSITION_INVALID",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-005-04",
+      "taskId": "M1-P005",
+      "p0Id": "P0-005",
+      "category": "SECOND_VERIFICATION",
+      "scenario": "Sensitive account change lacks second verification",
+      "expected": "Return precondition-required without mutation",
+      "errorCode": "SECOND_VERIFICATION_REQUIRED",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-045-01",
+      "taskId": "M1-P045",
+      "p0Id": "P0-045",
+      "category": "AUDIT_OMISSION",
+      "scenario": "A sensitive operation succeeds without an AuditLog append",
+      "expected": "Transaction fails or the contract test fails",
+      "errorCode": "AUDIT_REQUIRED",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-045-02",
+      "taskId": "M1-P045",
+      "p0Id": "P0-045",
+      "category": "SNAPSHOT_OVERWRITE",
+      "scenario": "Existing audit before/after snapshots are updated",
+      "expected": "Reject the write; audit history remains append-only",
+      "errorCode": "AUDIT_IMMUTABLE",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-045-03",
+      "taskId": "M1-P045",
+      "p0Id": "P0-045",
+      "category": "ACTOR_SPOOF",
+      "scenario": "Client supplies actorId or applicantId",
+      "expected": "Ignore or reject it and bind the authenticated identity",
+      "errorCode": "ACTOR_SPOOFED",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-045-04",
+      "taskId": "M1-P045",
+      "p0Id": "P0-045",
+      "category": "REQUEST_CORRELATION",
+      "scenario": "Sensitive operation has no requestId correlation",
+      "expected": "Reject or fail the audit completeness assertion",
+      "errorCode": "REQUEST_ID_REQUIRED",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-046-01",
+      "taskId": "M1-P046",
+      "p0Id": "P0-046",
+      "category": "FIELD_SCOPE",
+      "scenario": "Unauthorized role requests a sensitive field group",
+      "expected": "Return FIELD_FORBIDDEN and omit the field",
+      "errorCode": "FIELD_FORBIDDEN",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-046-02",
+      "taskId": "M1-P046",
+      "p0Id": "P0-046",
+      "category": "CROSS_ROLE",
+      "scenario": "A valid account reuses a different workspace API",
+      "expected": "Return WORKSPACE_FORBIDDEN before resource lookup",
+      "errorCode": "WORKSPACE_FORBIDDEN",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-046-03",
+      "taskId": "M1-P046",
+      "p0Id": "P0-046",
+      "category": "PUBLIC_DTO",
+      "scenario": "A public or customer DTO includes supply-price or payable data",
+      "expected": "Response-whitelist test fails",
+      "errorCode": "FIELD_FORBIDDEN",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-046-04",
+      "taskId": "M1-P046",
+      "p0Id": "P0-046",
+      "category": "EXPORT_APPROVAL",
+      "scenario": "High-sensitivity export is downloaded without approval",
+      "expected": "Return approval-required and no file",
+      "errorCode": "EXPORT_APPROVAL_REQUIRED",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-047-01",
+      "taskId": "M1-P047",
+      "p0Id": "P0-047",
+      "category": "RESPONSE_WHITELIST",
+      "scenario": "Generated or runtime public response includes a forbidden internal field",
+      "expected": "Contract generation or Supertest whitelist fails",
+      "errorCode": "FIELD_FORBIDDEN",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-047-02",
+      "taskId": "M1-P047",
+      "p0Id": "P0-047",
+      "category": "DETERMINISTIC_OPENAPI",
+      "scenario": "Two OpenAPI generations differ byte-for-byte",
+      "expected": "Generation check fails",
+      "errorCode": "OPENAPI_NON_DETERMINISTIC",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-047-03",
+      "taskId": "M1-P047",
+      "p0Id": "P0-047",
+      "category": "OASDIFF_BREAKING",
+      "scenario": "A breaking contract change is introduced without baseline process",
+      "expected": "Locked oasdiff gate fails",
+      "errorCode": "OPENAPI_BREAKING_CHANGE",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-047-04",
+      "taskId": "M1-P047",
+      "p0Id": "P0-047",
+      "category": "MINIAPP_TRANSPORT",
+      "scenario": "A mini-program bypasses miniapp-kit and calls wx.request directly",
+      "expected": "Transport-boundary test fails",
+      "errorCode": "MINIAPP_TRANSPORT_BYPASS",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-066-01",
+      "taskId": "M1-P066",
+      "p0Id": "P0-066",
+      "category": "PUBLIC_COMPANY_REGISTRATION",
+      "scenario": "Company admin exposes public self-registration",
+      "expected": "Route and API contract scan fails",
+      "errorCode": "FORBIDDEN_CAPABILITY",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-066-02",
+      "taskId": "M1-P066",
+      "p0Id": "P0-066",
+      "category": "MULTI_ACCOUNT_AUTO_ENTRY",
+      "scenario": "A multi-account identity is sent directly to a workspace",
+      "expected": "Require account selection before session issuance",
+      "errorCode": "WORKSPACE_SELECTION_REQUIRED",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-066-03",
+      "taskId": "M1-P066",
+      "p0Id": "P0-066",
+      "category": "MULTI_SESSION",
+      "scenario": "One session activates two functionalAccountIds",
+      "expected": "Reject the second activation or revoke the old context",
+      "errorCode": "WORKSPACE_SESSION_CONFLICT",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-066-04",
+      "taskId": "M1-P066",
+      "p0Id": "P0-066",
+      "category": "ACCOUNT_DISABLED",
+      "scenario": "Disabled account is selected",
+      "expected": "Return WORKSPACE_FORBIDDEN without a business session",
+      "errorCode": "WORKSPACE_FORBIDDEN",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-067-01",
+      "taskId": "M1-P067",
+      "p0Id": "P0-067",
+      "category": "ROUTE_DEEP_LINK",
+      "scenario": "Company account manually opens another role route",
+      "expected": "Return permission-denied and load no foreign data",
+      "errorCode": "WORKSPACE_FORBIDDEN",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-067-02",
+      "taskId": "M1-P067",
+      "p0Id": "P0-067",
+      "category": "MENU_LEAKAGE",
+      "scenario": "A workspace menu includes another role module",
+      "expected": "Page contract test fails",
+      "errorCode": "WORKSPACE_MENU_VIOLATION",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-067-03",
+      "taskId": "M1-P067",
+      "p0Id": "P0-067",
+      "category": "API_ROLE_MISMATCH",
+      "scenario": "A role calls an endpoint outside its permission set",
+      "expected": "Return 403 before object lookup",
+      "errorCode": "WORKSPACE_FORBIDDEN",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-067-04",
+      "taskId": "M1-P067",
+      "p0Id": "P0-067",
+      "category": "SESSION_REUSE",
+      "scenario": "A session cookie is reused after role switching",
+      "expected": "Old session is revoked and the call is unauthenticated",
+      "errorCode": "AUTH_SESSION_REVOKED",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-068-01",
+      "taskId": "M1-P068",
+      "p0Id": "P0-068",
+      "category": "MISSING_UI_STATE",
+      "scenario": "A company workspace omits loading, empty, error or denied state",
+      "expected": "Page acceptance contract fails",
+      "errorCode": "PAGE_STATE_INCOMPLETE",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-068-02",
+      "taskId": "M1-P068",
+      "p0Id": "P0-068",
+      "category": "SHARED_CONTEXT",
+      "scenario": "Two role pages share active menu or query context",
+      "expected": "Isolation test fails",
+      "errorCode": "WORKSPACE_CONTEXT_LEAK",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-068-03",
+      "taskId": "M1-P068",
+      "p0Id": "P0-068",
+      "category": "ERROR_SECRET_LEAK",
+      "scenario": "Error state renders token, supplier price or internal stack data",
+      "expected": "Redaction test fails",
+      "errorCode": "SENSITIVE_FIELD_LEAK",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-069-01",
+      "taskId": "M1-P069",
+      "p0Id": "P0-069",
+      "category": "SUPPLIER_ID_TAMPER",
+      "scenario": "Login or account-selection request carries another supplierId",
+      "expected": "Ignore or reject the value; bind server-side ownership",
+      "errorCode": "SUPPLIER_SCOPE_FORBIDDEN",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-069-02",
+      "taskId": "M1-P069",
+      "p0Id": "P0-069",
+      "category": "REGISTRATION_LOGIN_CONFLATION",
+      "scenario": "Unapproved application receives a normal supplier business session",
+      "expected": "Return progress-only state without workspace access",
+      "errorCode": "SUPPLIER_NOT_ACTIVE",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-069-03",
+      "taskId": "M1-P069",
+      "p0Id": "P0-069",
+      "category": "MULTI_ACCOUNT_AUTO_ENTRY",
+      "scenario": "Multi-role supplier identity bypasses account selection",
+      "expected": "Require account selection",
+      "errorCode": "WORKSPACE_SELECTION_REQUIRED",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-069-04",
+      "taskId": "M1-P069",
+      "p0Id": "P0-069",
+      "category": "INACTIVE_SUPPLIER_LOGIN",
+      "scenario": "Suspended or exited supplier attempts business login",
+      "expected": "Deny session issuance",
+      "errorCode": "SUPPLIER_NOT_ACTIVE",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-070-01",
+      "taskId": "M1-P070",
+      "p0Id": "P0-070",
+      "category": "CROSS_WORKSPACE",
+      "scenario": "Supplier role opens another role route or API",
+      "expected": "Return 403 and load no foreign module data",
+      "errorCode": "WORKSPACE_FORBIDDEN",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-070-02",
+      "taskId": "M1-P070",
+      "p0Id": "P0-070",
+      "category": "CROSS_SUPPLIER",
+      "scenario": "Supplier role requests another supplier object",
+      "expected": "Return scope-forbidden before lookup result",
+      "errorCode": "SUPPLIER_SCOPE_FORBIDDEN",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-070-03",
+      "taskId": "M1-P070",
+      "p0Id": "P0-070",
+      "category": "COMBINED_ROLE_PAGE",
+      "scenario": "Multiple supplier role menus are merged into one workspace",
+      "expected": "Page contract test fails",
+      "errorCode": "WORKSPACE_MENU_VIOLATION",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-070-04",
+      "taskId": "M1-P070",
+      "p0Id": "P0-070",
+      "category": "SESSION_REUSE",
+      "scenario": "Old supplier role session is reused after switching roles",
+      "expected": "Old session is revoked",
+      "errorCode": "AUTH_SESSION_REVOKED",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-072-01",
+      "taskId": "M1-P072",
+      "p0Id": "P0-072",
+      "category": "NATURAL_IDENTITY_SEPARATION",
+      "scenario": "Same identityType+identityId applies and reviews through two accounts",
+      "expected": "Reject review with no state change",
+      "errorCode": "SAME_NATURAL_PERSON_REVIEW",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-072-02",
+      "taskId": "M1-P072",
+      "p0Id": "P0-072",
+      "category": "SUPER_ADMIN_BYPASS",
+      "scenario": "Super admin attempts to bypass required second-person review",
+      "expected": "Reject exactly as for other roles",
+      "errorCode": "SECOND_REVIEW_REQUIRED",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-072-03",
+      "taskId": "M1-P072",
+      "p0Id": "P0-072",
+      "category": "CONCURRENT_REVIEW",
+      "scenario": "Two reviewers approve the same version concurrently",
+      "expected": "Exactly one update succeeds; the other gets conflict",
+      "errorCode": "APPROVAL_VERSION_CONFLICT",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M1-072-04",
+      "taskId": "M1-P072",
+      "p0Id": "P0-072",
+      "category": "AUDIT_COMPLETENESS",
+      "scenario": "Login, account selection, sensitive reveal, export or session revocation lacks audit",
+      "expected": "Contract test fails or transaction is rejected",
+      "errorCode": "AUDIT_REQUIRED",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    }
+  ],
+  "humanDependencies": [
+    {
+      "dependencyId": "EXT-005",
+      "category": "公司资料",
+      "requiredInputOrDecision": "江苏福礼团供应链科技有限公司营业执照、对客名称、客服和开票资料由授权人员确认",
+      "owner": "UNASSIGNED_HUMAN",
+      "status": "NOT_PROVIDED",
+      "blockingTask": "M1-P001",
+      "blocksFormalAcceptance": true,
+      "safetyBoundary": "敏感资料进入受控存储；执行包仅登记状态",
+      "guessedByCode": false
+    },
+    {
+      "dependencyId": "EXT-006",
+      "category": "供应商规则",
+      "requiredInputOrDecision": "供应商准入资质清单、补正/停用/退出审批责任人",
+      "owner": "UNASSIGNED_HUMAN",
+      "status": "NOT_PROVIDED",
+      "blockingTask": "M1-P003",
+      "blocksFormalAcceptance": false,
+      "safetyBoundary": "未确认前用可配置规则，不伪造合规结论",
+      "guessedByCode": false
+    }
+  ],
+  "evidenceBoundary": {
+    "contractReview": "LOCAL_PASS_AFTER_TEST",
+    "negativeTests": "PLANNED_NOT_EXECUTED",
+    "businessApis": "NOT_IMPLEMENTED",
+    "prismaMigrations": "NOT_APPLIED",
+    "pages": "NOT_IMPLEMENTED",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_EXECUTED",
+    "production": "NOT_EXECUTED"
+  }
+}

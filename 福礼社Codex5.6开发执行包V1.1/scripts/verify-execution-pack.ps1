@@ -88,9 +88,9 @@ Assert-Condition (@($fields | Where-Object Sensitivity -eq 'STRICT_INTERNAL_SUPP
 $approvalApplicant = @($fields | Where-Object { $_.Entity -eq 'ApprovalTask' -and $_.Field -eq 'applicantId' })
 $approvalReviewer = @($fields | Where-Object { $_.Entity -eq 'ApprovalTask' -and $_.Field -eq 'reviewedBy' })
 $approvalAccountType = @($fields | Where-Object { $_.Entity -eq 'ApprovalTask' -and $_.Field -eq 'assignedAccountTypeCode' })
-Assert-Condition ($approvalApplicant.Count -eq 1 -and $approvalApplicant[0].UnitOrFormat -match '自然人身份主键' -and $approvalApplicant[0].Validation -match 'identityId') 'ApprovalTask.applicantId未按自然人身份冻结'
-Assert-Condition ($approvalReviewer.Count -eq 1 -and $approvalReviewer[0].Validation -match '不得等于applicantId') 'ApprovalTask.reviewedBy未阻止同一自然人复核'
-Assert-Condition ($approvalAccountType.Count -eq 1 -and $approvalAccountType[0].SuggestedType -eq 'Enum/String') 'ApprovalTask.assignedAccountTypeCode类型不正确'
+Assert-Condition ($approvalApplicant.Count -eq 1 -and $approvalApplicant[0].UnitOrFormat -match 'identityType\+identityId|自然人身份主键' -and $approvalApplicant[0].Validation -match 'authenticated natural identity|identityId') 'ApprovalTask.applicantId未按自然人身份冻结'
+Assert-Condition ($approvalReviewer.Count -eq 1 -and $approvalReviewer[0].UnitOrFormat -match 'identityType\+identityId|自然人身份主键' -and $approvalReviewer[0].Validation -match 'differ from applicantId|不得等于applicantId') 'ApprovalTask.reviewedBy未阻止同一自然人复核'
+Assert-Condition ($approvalAccountType.Count -eq 1 -and $approvalAccountType[0].SuggestedType -match '^Enum(?:/String|<)' -and $approvalAccountType[0].UnitOrFormat -match 'COMPANY_SUPPLIER_OPS') 'ApprovalTask.assignedAccountTypeCode类型不正确'
 
 $permissions = Import-Csv -LiteralPath (Join-Path $PackagePath '07-权限与数据可见矩阵.csv')
 Assert-Condition (@($permissions | Where-Object OwnerType -eq 'COMPANY').Count -eq 10) '公司职能账号应为10个'
@@ -145,14 +145,27 @@ $stageGates = Import-Csv -LiteralPath (Join-Path $PackagePath 'data/阶段门禁
 if ($projectStatus.execution.lastPassedGate -eq 'M0-GATE') {
     $m0GateTask = @($tasks | Where-Object TaskID -eq 'M0-GATE')
     $m1StartTask = @($tasks | Where-Object TaskID -eq 'M1-000')
+    $m1FirstTask = @($tasks | Where-Object TaskID -eq 'M1-P001')
+    $laterM1Tasks = @($tasks | Where-Object { $_.Stage -eq 'M1' -and $_.TaskID -notin @('M1-000', 'M1-P001') })
     $m0StageGate = @($stageGates | Where-Object Stage -eq 'M0')
     $m1StageGate = @($stageGates | Where-Object Stage -eq 'M1')
-    Assert-Condition ($projectStatus.execution.status -eq 'M0_GATE_PASSED') 'M0-GATE通过后项目状态必须为M0_GATE_PASSED'
-    Assert-Condition ($projectStatus.execution.currentStage -eq 'M1' -and $projectStatus.execution.currentTask -eq 'M1-000') 'M0-GATE通过后只能解锁M1-000'
     Assert-Condition ($m0GateTask.Count -eq 1 -and $m0GateTask[0].Status -eq 'DONE' -and $m0GateTask[0].EvidenceStatus -eq 'CI_PASS') 'M0-GATE任务未以CI_PASS完成'
-    Assert-Condition ($m1StartTask.Count -eq 1 -and $m1StartTask[0].Status -eq 'READY' -and $m1StartTask[0].EvidenceStatus -eq 'NOT_EXECUTED') 'M1-000未按唯一下一任务解锁'
     Assert-Condition ($m0StageGate.Count -eq 1 -and $m0StageGate[0].Status -eq 'GATE_PASSED' -and $m0StageGate[0].EvidenceStatus -eq 'CI_PASS') 'M0阶段门禁台账未通过'
-    Assert-Condition ($m1StageGate.Count -eq 1 -and $m1StageGate[0].Status -eq 'READY' -and $m1StageGate[0].EvidenceStatus -eq 'NOT_EXECUTED') 'M1阶段未按READY/NOT_EXECUTED解锁'
+    if ($m1StartTask.Count -eq 1 -and $m1StartTask[0].Status -eq 'READY') {
+        Assert-Condition ($projectStatus.execution.status -eq 'M0_GATE_PASSED') 'M1-000开始前项目状态必须为M0_GATE_PASSED'
+        Assert-Condition ($projectStatus.execution.currentStage -eq 'M1' -and $projectStatus.execution.currentTask -eq 'M1-000') 'M0-GATE通过后只能先解锁M1-000'
+        Assert-Condition ($m1StartTask[0].EvidenceStatus -eq 'NOT_EXECUTED') 'M1-000在开始前必须保持NOT_EXECUTED'
+        Assert-Condition ($m1StageGate.Count -eq 1 -and $m1StageGate[0].Status -eq 'READY' -and $m1StageGate[0].EvidenceStatus -eq 'NOT_EXECUTED') 'M1阶段未按READY/NOT_EXECUTED解锁'
+    } elseif ($m1StartTask.Count -eq 1 -and $m1StartTask[0].Status -eq 'DONE') {
+        Assert-Condition ($projectStatus.execution.status -eq 'M1_IN_PROGRESS') 'M1-000完成后项目状态必须为M1_IN_PROGRESS'
+        Assert-Condition ($projectStatus.execution.currentStage -eq 'M1' -and $projectStatus.execution.currentTask -eq 'M1-P001') 'M1-000完成后只能解锁M1-P001'
+        Assert-Condition ($m1StartTask[0].EvidenceStatus -in @('LOCAL_PASS', 'CI_PASS')) 'M1-000完成后缺少本地或CI证据'
+        Assert-Condition ($m1FirstTask.Count -eq 1 -and $m1FirstTask[0].Status -eq 'READY' -and $m1FirstTask[0].EvidenceStatus -eq 'NOT_EXECUTED') 'M1-P001未按唯一下一任务解锁'
+        Assert-Condition (@($laterM1Tasks | Where-Object Status -ne 'NOT_STARTED').Count -eq 0) 'M1-P001之后的任务被提前解锁'
+        Assert-Condition ($m1StageGate.Count -eq 1 -and $m1StageGate[0].Status -eq 'IN_PROGRESS' -and $m1StageGate[0].EvidenceStatus -eq 'NOT_EXECUTED') 'M1阶段未按IN_PROGRESS/NOT_EXECUTED推进'
+    } else {
+        Assert-Condition $false 'M1-000状态必须为READY或DONE'
+    }
 }
 
 $manifest = Get-Content -LiteralPath (Join-Path $PackagePath 'manifest.json') -Raw -Encoding UTF8 | ConvertFrom-Json

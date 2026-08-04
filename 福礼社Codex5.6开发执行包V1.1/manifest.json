@@ -1,7 +1,7 @@
 {
   "name": "福礼社Codex5.6开发执行包V1.1",
   "version": "1.1.0",
-  "generatedAt": "2026-08-02",
+  "generatedAt": "2026-08-03",
   "baseline": {
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
     "p0Range": "P0-001..P0-119",
@@ -21,7 +21,7 @@
   },
   "workbook": {
     "status": "VERIFIED",
-    "sha256": "7BB62546AA52E9A2554E3FD0D850BD1A1B3CAF243E18E39094CF3B61DE955552"
+    "sha256": "3A65DEFD7FD08452940B43136A475E7A3FDC4C5DFA5EE9E731623AF02D041078"
   },
   "sourceOfTruth": [
     "综合方案HTML",

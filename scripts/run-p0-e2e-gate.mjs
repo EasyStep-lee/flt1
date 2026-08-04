@@ -141,9 +141,37 @@ const run = async () => {
       task.EvidenceStatus === 'NOT_EXECUTED' &&
       gate.Status === 'READY' &&
       gate.EvidenceStatus === 'NOT_EXECUTED';
-    if (isPreBusinessContractSlice) {
+    const completedContractTaskId = state.execution?.lastCompletedTask;
+    const completedContractTask =
+      completedContractTaskId === `${stage}-000`
+        ? await readTask(completedContractTaskId)
+        : null;
+    const isCompletedContractSliceAwaitingExternalGate =
+      completedContractTask !== null &&
+      completedContractTask.Type === 'CONTRACT_SLICE_PLAN' &&
+      completedContractTask.P0ID === '' &&
+      completedContractTask.Status === 'DONE' &&
+      completedContractTask.EvidenceStatus === 'LOCAL_PASS' &&
+      completedContractTask.CI === 'NOT_EXECUTED' &&
+      task.Type === 'BUSINESS_VERTICAL_SLICE' &&
+      task.Status === 'READY' &&
+      task.EvidenceStatus === 'NOT_EXECUTED' &&
+      task.Owner === 'UNASSIGNED' &&
+      task.Branch === '' &&
+      task.CommitSHA === '' &&
+      state.execution?.activeTaskCount === 0 &&
+      state.evidence?.ci === 'NOT_EXECUTED' &&
+      gate.Status === 'IN_PROGRESS' &&
+      gate.EvidenceStatus === 'NOT_EXECUTED';
+    if (
+      isPreBusinessContractSlice ||
+      isCompletedContractSliceAwaitingExternalGate
+    ) {
+      const contractTaskId = isPreBusinessContractSlice
+        ? currentTask
+        : completedContractTaskId;
       process.stdout.write(
-        `P0_E2E_NOT_APPLICABLE:stage=${stage}:task=${currentTask}:p0Count=${p0Count}:reason=CONTRACT_SLICE_HAS_NO_MAPPED_P0\n`,
+        `P0_E2E_NOT_APPLICABLE:stage=${stage}:task=${contractTaskId}:p0Count=${p0Count}:reason=CONTRACT_SLICE_HAS_NO_MAPPED_P0\n`,
       );
       return;
     }

@@ -148,20 +148,23 @@ test('M0 gate closure binds the human review, merge, and post-merge main CI', as
   assert.equal(warningIds.has('DEPENDABOT_DOCKER_MANIFEST_NOT_FOUND'), true);
 });
 
-test('project status and machine ledgers advance only to M1-000', async () => {
+test('project status preserves the M0 gate while M1-000 advances one task', async () => {
   const [projectStatus, taskRows, stageRows] = await Promise.all([
     readFile(projectStatusPath, 'utf8').then(JSON.parse),
     readCsv(taskLedgerPath),
     readCsv(stageGatePath),
   ]);
 
-  assert.equal(projectStatus.execution.status, 'M0_GATE_PASSED');
+  assert.equal(projectStatus.execution.status, 'M1_IN_PROGRESS');
   assert.equal(projectStatus.execution.currentStage, 'M1');
-  assert.equal(projectStatus.execution.currentTask, 'M1-000');
-  assert.equal(projectStatus.execution.nextAllowedTask, 'M1-000');
+  assert.equal(projectStatus.execution.currentTask, 'M1-P001');
+  assert.equal(projectStatus.execution.nextAllowedTask, 'M1-P001');
   assert.equal(projectStatus.execution.activeTaskCount, 0);
-  assert.equal(projectStatus.execution.lastCompletedTask, 'M0-GATE');
-  assert.equal(projectStatus.execution.lastCompletedCommit, mergedMain);
+  assert.equal(projectStatus.execution.lastCompletedTask, 'M1-000');
+  assert.equal(
+    projectStatus.execution.lastCompletedCommit,
+    'd7881624dc2c001581d46ec2e1089a09a1f93829',
+  );
   assert.equal(projectStatus.execution.lastPassedGate, 'M0-GATE');
   assert.deepEqual(projectStatus.execution.prohibitedUntilGate, []);
   assert.equal(projectStatus.github.pullRequest, 2);
@@ -182,6 +185,7 @@ test('project status and machine ledgers advance only to M1-000', async () => {
 
   const m0Gate = taskRows.find(({ TaskID }) => TaskID === 'M0-GATE');
   const m1000 = taskRows.find(({ TaskID }) => TaskID === 'M1-000');
+  const m1p001 = taskRows.find(({ TaskID }) => TaskID === 'M1-P001');
   assert.equal(m0Gate.Status, 'DONE');
   assert.equal(m0Gate.EvidenceStatus, 'CI_PASS');
   assert.equal(m0Gate.Owner, 'EasyStep-lee');
@@ -191,8 +195,14 @@ test('project status and machine ledgers advance only to M1-000', async () => {
   assert.equal(m0Gate.PullRequest, '2');
   assert.equal(m0Gate.CI, 'CI_PASS');
   assert.match(m0Gate.Notes, /30872133076/u);
-  assert.equal(m1000.Status, 'READY');
-  assert.equal(m1000.EvidenceStatus, 'NOT_EXECUTED');
+  assert.equal(m1000.Status, 'DONE');
+  assert.equal(m1000.EvidenceStatus, 'LOCAL_PASS');
+  assert.equal(
+    m1000.CommitSHA,
+    'd7881624dc2c001581d46ec2e1089a09a1f93829',
+  );
+  assert.equal(m1p001.Status, 'READY');
+  assert.equal(m1p001.EvidenceStatus, 'NOT_EXECUTED');
 
   const m0Stage = stageRows.find(({ Stage }) => Stage === 'M0');
   const m1Stage = stageRows.find(({ Stage }) => Stage === 'M1');
@@ -201,7 +211,7 @@ test('project status and machine ledgers advance only to M1-000', async () => {
   assert.equal(m0Stage.ApprovedBy, '@EasyStep-lee');
   assert.equal(m0Stage.ApprovedAt, '2026-08-03T22:36:19-04:00');
   assert.match(m0Stage.Notes, /88b7a051/u);
-  assert.equal(m1Stage.Status, 'READY');
+  assert.equal(m1Stage.Status, 'IN_PROGRESS');
   assert.equal(m1Stage.EvidenceStatus, 'NOT_EXECUTED');
 });
 
