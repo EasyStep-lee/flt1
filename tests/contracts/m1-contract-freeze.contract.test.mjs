@@ -111,6 +111,14 @@ const readCsv = async (filePath) => {
 
 const sort = (values) => [...values].sort((left, right) => left.localeCompare(right));
 
+const canonicalizeRepositoryText = (value) => value.replace(/\r\n?/gu, '\n');
+
+const canonicalTextSha256 = (value) =>
+  createHash('sha256')
+    .update(canonicalizeRepositoryText(value), 'utf8')
+    .digest('hex')
+    .toUpperCase();
+
 test('M1-000 freezes the exact M1 scope without implementing a business slice', async () => {
   const freeze = JSON.parse(await readFile(freezePath, 'utf8'));
 
@@ -218,14 +226,30 @@ test('all M1 ledger rows are covered by codeable frozen contracts', async () => 
   assert.equal(freeze.apiContract.databaseEntityReturnedDirectly, false);
 });
 
-test('the committed freeze is byte-bound to every source ledger', async () => {
+test('the committed freeze is repository-text-bound across LF and CRLF checkouts', async () => {
   const freeze = JSON.parse(await readFile(freezePath, 'utf8'));
 
   for (const [ledgerName, source] of Object.entries(freeze.sourceLedgers)) {
-    const bytes = await readFile(path.join(repositoryRoot, source.path));
-    const actualSha = createHash('sha256').update(bytes).digest('hex').toUpperCase();
-    assert.equal(actualSha, source.sha256, `${ledgerName} changed without regenerating M1 freeze`);
+    const text = await readFile(path.join(repositoryRoot, source.path), 'utf8');
+    const canonicalSha = canonicalTextSha256(text);
+    const simulatedCrLfSha = canonicalTextSha256(
+      canonicalizeRepositoryText(text).replace(/\n/gu, '\r\n'),
+    );
+    assert.equal(
+      simulatedCrLfSha,
+      canonicalSha,
+      `${ledgerName} hash changes between LF and CRLF checkouts`,
+    );
+    assert.equal(
+      canonicalSha,
+      source.sha256,
+      `${ledgerName} changed without regenerating M1 freeze`,
+    );
   }
+  assert.deepEqual(freeze.sourceLedgerHashPolicy, {
+    encoding: 'UTF-8',
+    lineEndings: 'LF',
+  });
 });
 
 test('every M1 P0 slice has explicit traceability and negative tests', async () => {

@@ -75,8 +75,12 @@ const parseCsvLine = (line) => {
   return values;
 };
 
+const canonicalizeRepositoryText = (value) => value.replace(/\r\n?/gu, '\n');
+
 const readCsv = async (relativePath) => {
-  const content = await readFile(path.join(executionPackRoot, relativePath), 'utf8');
+  const content = canonicalizeRepositoryText(
+    await readFile(path.join(executionPackRoot, relativePath), 'utf8'),
+  );
   const lines = content.split(/\r?\n/u).filter(Boolean);
   const header = parseCsvLine(lines[0]);
   return {
@@ -571,10 +575,17 @@ const main = async () => {
       nonGoals: ['PRODUCT_TRADING', 'PAYMENT', 'DELIVERY', 'SETTLEMENT'],
       nextAllowedAfterMergeAndGreenCi: 'M1-P001',
     },
+    sourceLedgerHashPolicy: {
+      encoding: 'UTF-8',
+      lineEndings: 'LF',
+    },
     sourceLedgers: Object.fromEntries(
       Object.entries(ledgerPaths).map(([key, relativePath]) => [key, {
         path: `福礼社Codex5.6开发执行包V1.1/${relativePath}`,
-        sha256: createHash('sha256').update(ledgers[key].content).digest('hex').toUpperCase(),
+        sha256: createHash('sha256')
+          .update(ledgers[key].content, 'utf8')
+          .digest('hex')
+          .toUpperCase(),
         rowCount: ledgers[key].rows.length,
       }]),
     ),
