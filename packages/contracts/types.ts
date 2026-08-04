@@ -33,6 +33,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/public/merchant-profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the fixed customer-facing merchant identity */
+        get: operations["publicMerchant.getProfile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -42,7 +59,7 @@ export interface components {
              * @example RESOURCE_NOT_FOUND
              * @enum {string}
              */
-            code: "ACCESS_DENIED" | "AUTHENTICATION_REQUIRED" | "INTERNAL_ERROR" | "REQUEST_INVALID" | "RESOURCE_NOT_FOUND" | "SERVICE_UNAVAILABLE";
+            code: "ACCESS_DENIED" | "AUTHENTICATION_REQUIRED" | "INTERNAL_ERROR" | "REQUEST_INVALID" | "RESOURCE_NOT_FOUND" | "SERVICE_UNAVAILABLE" | "PAYEE_FORBIDDEN" | "SELLER_IDENTITY_FORBIDDEN" | "SINGLE_MERCHANT_VIOLATION";
             /** @example Resource was not found */
             message: string;
             /** @example /missing */
@@ -103,6 +120,28 @@ export interface components {
              */
             status: "UP" | "DOWN";
         };
+        PublicMerchantProfileQuery: {
+            /**
+             * @example ALL
+             * @enum {string}
+             */
+            context?: "ALL" | "PAYMENT" | "REFUND" | "SALE";
+        };
+        PublicMerchantProfileResponse: {
+            /** @example 江苏福礼团供应链科技有限公司 */
+            legalName: string;
+            /** @example 福礼社 */
+            platformName: string;
+            subjects: components["schemas"]["PublicMerchantSubjectsDto"];
+        };
+        PublicMerchantSubjectsDto: {
+            /** @example 江苏福礼团供应链科技有限公司 */
+            paymentPayee: string;
+            /** @example 江苏福礼团供应链科技有限公司 */
+            refundOperator: string;
+            /** @example 江苏福礼团供应链科技有限公司 */
+            seller: string;
+        };
     };
     responses: never;
     parameters: never;
@@ -154,6 +193,43 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HealthReadinessDto"];
+                };
+            };
+        };
+    };
+    "publicMerchant.getProfile": {
+        parameters: {
+            query?: {
+                context?: "ALL" | "PAYMENT" | "REFUND" | "SALE";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicMerchantProfileResponse"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
                 };
             };
         };

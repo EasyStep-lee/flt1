@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -33,6 +34,7 @@ const workbookPath = path.join(
 
 const reviewedHead = 'cb3203c50a99e0a6b5fb27d92b3b9c3dadb90de6';
 const mergedMain = '88b7a051300af763941c3e0ad0428111869f0182';
+const m1000ClosureCommit = '1ff90871222055002466abd99771fd4fa8161969';
 
 const parseCsvLine = (line) => {
   const values = [];
@@ -63,8 +65,8 @@ const parseCsvLine = (line) => {
   return values;
 };
 
-const readCsv = async (filePath) => {
-  const lines = (await readFile(filePath, 'utf8')).split(/\r?\n/u).filter(Boolean);
+const parseCsvText = (source) => {
+  const lines = source.split(/\r?\n/u).filter(Boolean);
   const header = parseCsvLine(lines[0]);
   return lines.slice(1).map((line) => {
     const values = parseCsvLine(line);
@@ -73,6 +75,21 @@ const readCsv = async (filePath) => {
     );
   });
 };
+
+const readHistoricalText = (filePath) => {
+  const relativePath = path
+    .relative(repositoryRoot, filePath)
+    .split(path.sep)
+    .join('/');
+  return execFileSync(
+    'git',
+    ['show', `${m1000ClosureCommit}:${relativePath}`],
+    { cwd: repositoryRoot, encoding: 'utf8' },
+  );
+};
+
+const readHistoricalCsv = (filePath) =>
+  parseCsvText(readHistoricalText(filePath));
 
 test('M0 gate closure binds the human review, merge, and post-merge main CI', async () => {
   const evidence = JSON.parse(await readFile(closureEvidencePath, 'utf8'));
@@ -150,9 +167,9 @@ test('M0 gate closure binds the human review, merge, and post-merge main CI', as
 
 test('project status preserves the M0 gate while M1-000 advances one task', async () => {
   const [projectStatus, taskRows, stageRows] = await Promise.all([
-    readFile(projectStatusPath, 'utf8').then(JSON.parse),
-    readCsv(taskLedgerPath),
-    readCsv(stageGatePath),
+    Promise.resolve(JSON.parse(readHistoricalText(projectStatusPath))),
+    Promise.resolve(readHistoricalCsv(taskLedgerPath)),
+    Promise.resolve(readHistoricalCsv(stageGatePath)),
   ]);
 
   assert.equal(projectStatus.execution.status, 'M1_IN_PROGRESS');

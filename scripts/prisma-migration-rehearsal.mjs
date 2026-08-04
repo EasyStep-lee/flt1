@@ -124,8 +124,8 @@ const listComposeServices = (additionalArguments = []) => {
 
 const runRootMysql = (sql, database, additionalSecrets = []) => {
   const shellScript = database
-    ? 'export MYSQL_PWD="$MYSQL_ROOT_PASSWORD"; exec mysql --protocol=socket --user=root --batch --skip-column-names --raw "$1"'
-    : 'export MYSQL_PWD="$MYSQL_ROOT_PASSWORD"; exec mysql --protocol=socket --user=root --batch --skip-column-names --raw';
+    ? 'export MYSQL_PWD="$MYSQL_ROOT_PASSWORD"; exec mysql --protocol=socket --user=root --default-character-set=utf8mb4 --batch --skip-column-names --raw "$1"'
+    : 'export MYSQL_PWD="$MYSQL_ROOT_PASSWORD"; exec mysql --protocol=socket --user=root --default-character-set=utf8mb4 --batch --skip-column-names --raw';
   const arguments_ = [
     'exec',
     '-T',
@@ -237,6 +237,46 @@ const assertState = (condition, code) => {
   if (!condition) throw new Error(code);
 };
 
+const expectRootMysqlFailure = (
+  sql,
+  database,
+  failureCode,
+  additionalSecrets = [],
+) => {
+  let rejected = false;
+  try {
+    runRootMysql(sql, database, additionalSecrets);
+  } catch {
+    rejected = true;
+  }
+  assertState(rejected, failureCode);
+};
+
+const readProductCompanyState = (database) => {
+  const output = runRootMysql(
+    `SELECT COUNT(*) FROM \`_prisma_migrations\` WHERE \`finished_at\` IS NOT NULL AND \`rolled_back_at\` IS NULL;
+SELECT COUNT(*) FROM \`company\`;
+SELECT COALESCE(MAX(CONCAT(\`legal_name\`, '|', \`platform_name\`)), '<absent>') FROM \`company\`;
+SELECT COUNT(*) FROM \`information_schema\`.\`table_constraints\` WHERE \`constraint_schema\` = DATABASE() AND \`table_name\` = 'company' AND \`constraint_type\` = 'CHECK';
+SELECT COUNT(*) FROM \`information_schema\`.\`statistics\` WHERE \`table_schema\` = DATABASE() AND \`table_name\` = 'company' AND \`index_name\` IN ('company_legal_name_key', 'company_platform_name_key') AND \`non_unique\` = 0;
+`,
+    database,
+  );
+  const values = output.split(/\r?\n/u);
+  if (values.length !== 5) {
+    throw new Error(`PRODUCT_COMPANY_PROBE_OUTPUT_INVALID:${output}`);
+  }
+  const [legalName, platformName] = values[2].split('|');
+  return {
+    appliedMigrations: Number(values[0]),
+    companyRowCount: Number(values[1]),
+    legalName,
+    platformName,
+    checkConstraintCount: Number(values[3]),
+    uniqueIdentityIndexCount: Number(values[4]),
+  };
+};
+
 const writeMigration = async (migrationRoot, name, sql) => {
   const directory = path.join(migrationRoot, name);
   await mkdir(directory, { recursive: true });
@@ -285,17 +325,27 @@ const parseArguments = (arguments_) => {
   if (options.report !== undefined) {
     if (!options.report) throw new Error('MIGRATION_REHEARSAL_REPORT_PATH_MISSING');
     const reportPath = path.resolve(repositoryRoot, options.report);
-    const allowedRoot = path.join(
-      repositoryRoot,
-      'artifacts',
-      'verification',
-      'M0-010',
-    );
-    const relative = path.relative(allowedRoot, reportPath);
-    if (relative.startsWith('..') || path.isAbsolute(relative)) {
-      throw new Error('MIGRATION_REHEARSAL_REPORT_PATH_OUTSIDE_M0_010');
+    const allowedScopes = new Map([
+      [
+        path.join(repositoryRoot, 'artifacts', 'verification', 'M0-010'),
+        'M0-010',
+      ],
+      [
+        path.join(repositoryRoot, 'artifacts', 'verification', 'M1-P001'),
+        'M1-P001',
+      ],
+    ]);
+    const reportScope = [...allowedScopes.entries()].find(([allowedRoot]) => {
+      const relative = path.relative(allowedRoot, reportPath);
+      return !relative.startsWith('..') && !path.isAbsolute(relative);
+    });
+    if (!reportScope) {
+      throw new Error(
+        'MIGRATION_REHEARSAL_REPORT_PATH_OUTSIDE_VERIFICATION_SCOPE',
+      );
     }
     options.reportPath = reportPath;
+    options.reportTaskId = reportScope[1];
   }
   return options;
 };
@@ -306,6 +356,7 @@ const databaseNames = {
   empty: `fulishe_m0_010_${runToken}_empty`,
   upgrade: `fulishe_m0_010_${runToken}_upgrade`,
   restore: `fulishe_m0_010_${runToken}_restore`,
+  product: `fulishe_m0_010_${runToken}_product`,
 };
 const rehearsalUser = `flt_m0_${randomBytes(6).toString('hex')}`;
 const rehearsalPassword = randomBytes(24).toString('hex');
@@ -358,7 +409,7 @@ try {
 
   const collisions = Number(
     runRootMysql(
-      `SELECT (SELECT COUNT(*) FROM \`mysql\`.\`user\` WHERE \`User\` = '${rehearsalUser}') + (SELECT COUNT(*) FROM \`information_schema\`.\`schemata\` WHERE \`schema_name\` IN ('${databaseNames.empty}', '${databaseNames.upgrade}', '${databaseNames.restore}'));\n`,
+      `SELECT (SELECT COUNT(*) FROM \`mysql\`.\`user\` WHERE \`User\` = '${rehearsalUser}') + (SELECT COUNT(*) FROM \`information_schema\`.\`schemata\` WHERE \`schema_name\` IN ('${databaseNames.empty}', '${databaseNames.upgrade}', '${databaseNames.restore}', '${databaseNames.product}'));\n`,
     ),
   );
   assertState(collisions === 0, 'MIGRATION_REHEARSAL_RESOURCE_COLLISION');
@@ -420,6 +471,52 @@ try {
     urls.upgrade,
     'rehearsal prisma validate',
     secrets,
+  );
+
+  runPrisma(
+    ['migrate', 'deploy', '--schema', productSchemaPath],
+    urls.product,
+    'product database full-chain deploy',
+    secrets,
+  );
+  const productEmptyState = readProductCompanyState(databaseNames.product);
+  assertState(
+    productEmptyState.appliedMigrations === productMigrationCountBefore &&
+      productEmptyState.companyRowCount === 0 &&
+      productEmptyState.checkConstraintCount === 2 &&
+      productEmptyState.uniqueIdentityIndexCount === 2,
+    'PRODUCT_COMPANY_SCHEMA_STATE_INVALID',
+  );
+
+  const canonicalCompanyId = '00000000-0000-4000-8000-000000000001';
+  const secondCompanyId = '00000000-0000-4000-8000-000000000002';
+  const invalidCompanyId = '00000000-0000-4000-8000-000000000003';
+  const temporaryWechatPayConfigRef =
+    'test-ref://m1-p001/company-wechat-pay';
+  runRootMysql(
+    `INSERT INTO \`company\` (\`id\`, \`legal_name\`, \`platform_name\`, \`wechat_pay_config_ref\`, \`status\`, \`updated_at\`) VALUES ('${canonicalCompanyId}', '江苏福礼团供应链科技有限公司', '福礼社', '${temporaryWechatPayConfigRef}', 'ACTIVE', CURRENT_TIMESTAMP(3));\n`,
+    databaseNames.product,
+    [temporaryWechatPayConfigRef],
+  );
+  expectRootMysqlFailure(
+    `INSERT INTO \`company\` (\`id\`, \`legal_name\`, \`platform_name\`, \`wechat_pay_config_ref\`, \`status\`, \`updated_at\`) VALUES ('${secondCompanyId}', '江苏福礼团供应链科技有限公司', '福礼社', '${temporaryWechatPayConfigRef}', 'ACTIVE', CURRENT_TIMESTAMP(3));\n`,
+    databaseNames.product,
+    'SINGLE_MERCHANT_SECOND_ROW_ACCEPTED',
+    [temporaryWechatPayConfigRef],
+  );
+  expectRootMysqlFailure(
+    `INSERT INTO \`company\` (\`id\`, \`legal_name\`, \`platform_name\`, \`wechat_pay_config_ref\`, \`status\`, \`updated_at\`) VALUES ('${invalidCompanyId}', '错误交易主体', '福礼社', '${temporaryWechatPayConfigRef}', 'ACTIVE', CURRENT_TIMESTAMP(3));\n`,
+    databaseNames.product,
+    'SINGLE_MERCHANT_FIXED_NAME_NOT_ENFORCED',
+    [temporaryWechatPayConfigRef],
+  );
+  const productPopulatedState = readProductCompanyState(databaseNames.product);
+  assertState(
+    productPopulatedState.appliedMigrations === productMigrationCountBefore &&
+      productPopulatedState.companyRowCount === 1 &&
+      productPopulatedState.legalName === '江苏福礼团供应链科技有限公司' &&
+      productPopulatedState.platformName === '福礼社',
+    'PRODUCT_SINGLE_MERCHANT_STATE_INVALID',
   );
 
   runPrisma(
@@ -510,7 +607,8 @@ try {
     'BACKUP_RESTORE_FORWARD_STATE_INVALID',
   );
 
-  for (const [name, url] of Object.entries(urls)) {
+  for (const name of ['empty', 'upgrade', 'restore']) {
+    const url = urls[name];
     runPrisma(
       ['migrate', 'status', '--schema', rehearsalSchemaPath],
       url,
@@ -534,6 +632,33 @@ try {
   }
 
   runPrisma(
+    ['migrate', 'status', '--schema', productSchemaPath],
+    urls.product,
+    'product migration status',
+    secrets,
+  );
+  runPrisma(
+    [
+      'migrate',
+      'diff',
+      '--from-schema-datasource',
+      productSchemaPath,
+      '--to-schema-datamodel',
+      productSchemaPath,
+      '--exit-code',
+    ],
+    urls.product,
+    'product schema drift check',
+    secrets,
+  );
+  runPrisma(
+    ['migrate', 'deploy', '--schema', productSchemaPath],
+    urls.product,
+    'product database idempotent redeploy',
+    secrets,
+  );
+
+  runPrisma(
     ['migrate', 'deploy', '--schema', rehearsalSchemaPath],
     urls.restore,
     'restored database idempotent redeploy',
@@ -549,7 +674,7 @@ try {
 
   report = {
     schemaVersion: 1,
-    taskId: 'M0-010',
+    taskId: options.reportTaskId ?? 'M0-010',
     generatedAt: new Date().toISOString(),
     status: 'LOCAL_PASS',
     git: { commit: gitCommit() },
@@ -601,6 +726,24 @@ try {
         restoredAfterForwardFix: restoredForward,
         payloadPreserved: true,
       },
+      finalSchemaDrift: 'NONE',
+      idempotentRedeploy: 'PASS',
+    },
+    productRehearsal: {
+      taskId: 'M1-P001',
+      migrationCount: productPopulatedState.appliedMigrations,
+      companyRowCount: productPopulatedState.companyRowCount,
+      fixedIdentity: {
+        legalName: productPopulatedState.legalName,
+        platformName: productPopulatedState.platformName,
+      },
+      constraints: {
+        checkConstraintCount: productPopulatedState.checkConstraintCount,
+        uniqueIdentityIndexCount:
+          productPopulatedState.uniqueIdentityIndexCount,
+      },
+      secondMerchantRejected: true,
+      invalidLegalNameRejected: true,
       finalSchemaDrift: 'NONE',
       idempotentRedeploy: 'PASS',
     },
@@ -725,6 +868,6 @@ if (options.json) {
   console.log(JSON.stringify(report, null, 2));
 } else {
   console.log(
-    `PRISMA_MIGRATION_REHEARSAL_OK:empty=${report.rehearsal.emptyPath.appliedMigrations}:upgrade=${report.rehearsal.upgradePath.after.appliedMigrations}:restore=${report.rehearsal.backupRestore.restoredAfterForwardFix.appliedMigrations}:cleanup=${report.cleanup.errors.length === 0 ? 'PASS' : 'FAIL'}`,
+    `PRISMA_MIGRATION_REHEARSAL_OK:empty=${report.rehearsal.emptyPath.appliedMigrations}:upgrade=${report.rehearsal.upgradePath.after.appliedMigrations}:restore=${report.rehearsal.backupRestore.restoredAfterForwardFix.appliedMigrations}:product=${report.productRehearsal.migrationCount}:cleanup=${report.cleanup.errors.length === 0 ? 'PASS' : 'FAIL'}`,
   );
 }

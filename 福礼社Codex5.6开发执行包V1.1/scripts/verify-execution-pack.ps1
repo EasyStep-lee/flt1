@@ -112,7 +112,20 @@ Assert-Condition ($mig004.Count -eq 1 -and $mig004[0].Verification -match 'ident
 Assert-Condition ($mig014.Count -eq 1 -and $mig014[0].Verification -match '仅三类' -and $mig014[0].Verification -match '无PERSONAL_RECHARGE') 'MIG-014未排除个人充值资金来源'
 Assert-Condition ($mig021.Count -eq 1 -and $mig021[0].Verification -match 'slug失效') 'MIG-021未覆盖门户缓存失效'
 $apis = Import-Csv -LiteralPath (Join-Path $PackagePath '12-OpenAPI-DTO-错误码台账.csv')
-Assert-Condition ($apis.Count -eq 80) "初始API契约应为80项，实际$($apis.Count)"
+$initialApiIds = @(1..80 | ForEach-Object { 'API-{0:D3}' -f $_ })
+$actualApiIds = @($apis | ForEach-Object ContractID)
+$missingInitialApis = @($initialApiIds | Where-Object { $_ -notin $actualApiIds })
+$additionalApis = @($apis | Where-Object ContractID -notin $initialApiIds)
+Assert-Condition ($apis.Count -ge 80) "API契约不得少于冻结的80项，实际$($apis.Count)"
+Assert-Condition ($missingInitialApis.Count -eq 0) "冻结的初始API契约缺失：$($missingInitialApis -join ',')"
+Assert-Condition (@($additionalApis | Where-Object {
+    $_.ContractID -notmatch '^API-[0-9]{3,}$' -or
+    $_.P0 -notmatch '^P0-' -or
+    $_.OpenAPIStatus -ne 'GENERATED' -or
+    $_.DTOStatus -ne 'IMPLEMENTED' -or
+    $_.ErrorCodeStatus -ne 'IMPLEMENTED' -or
+    $_.Notes -notmatch '任务内契约细化'
+}).Count -eq 0) '新增API契约必须具备P0映射、生成契约、已实现DTO/错误码和任务内细化说明'
 $api043 = @($apis | Where-Object ContractID -eq 'API-043')
 $api073 = @($apis | Where-Object ContractID -eq 'API-073')
 $api075 = @($apis | Where-Object ContractID -eq 'API-075')
@@ -158,10 +171,21 @@ if ($projectStatus.execution.lastPassedGate -eq 'M0-GATE') {
         Assert-Condition ($m1StageGate.Count -eq 1 -and $m1StageGate[0].Status -eq 'READY' -and $m1StageGate[0].EvidenceStatus -eq 'NOT_EXECUTED') 'M1阶段未按READY/NOT_EXECUTED解锁'
     } elseif ($m1StartTask.Count -eq 1 -and $m1StartTask[0].Status -eq 'DONE') {
         Assert-Condition ($projectStatus.execution.status -eq 'M1_IN_PROGRESS') 'M1-000完成后项目状态必须为M1_IN_PROGRESS'
-        Assert-Condition ($projectStatus.execution.currentStage -eq 'M1' -and $projectStatus.execution.currentTask -eq 'M1-P001') 'M1-000完成后只能解锁M1-P001'
         Assert-Condition ($m1StartTask[0].EvidenceStatus -in @('LOCAL_PASS', 'CI_PASS')) 'M1-000完成后缺少本地或CI证据'
-        Assert-Condition ($m1FirstTask.Count -eq 1 -and $m1FirstTask[0].Status -eq 'READY' -and $m1FirstTask[0].EvidenceStatus -eq 'NOT_EXECUTED') 'M1-P001未按唯一下一任务解锁'
-        Assert-Condition (@($laterM1Tasks | Where-Object Status -ne 'NOT_STARTED').Count -eq 0) 'M1-P001之后的任务被提前解锁'
+        $m1BusinessTasks = @($tasks | Where-Object { $_.Stage -eq 'M1' -and $_.TaskID -match '^M1-P[0-9]{3}$' } | Sort-Object { [int]$_.Sequence })
+        $nextM1Task = @($m1BusinessTasks | Where-Object Status -ne 'DONE' | Select-Object -First 1)
+        Assert-Condition ($m1FirstTask.Count -eq 1) 'M1-P001任务缺失或重复'
+        Assert-Condition ($nextM1Task.Count -eq 1) 'M1业务任务已全部完成时应进入M1-GATE专用校验'
+        if ($nextM1Task.Count -eq 1) {
+            $nextSequence = [int]$nextM1Task[0].Sequence
+            $priorM1Tasks = @($m1BusinessTasks | Where-Object { [int]$_.Sequence -lt $nextSequence })
+            $laterM1Tasks = @($m1BusinessTasks | Where-Object { [int]$_.Sequence -gt $nextSequence })
+            Assert-Condition ($projectStatus.execution.currentStage -eq 'M1' -and $projectStatus.execution.currentTask -eq $nextM1Task[0].TaskID) 'M1当前任务不是按顺序首个未完成业务切片'
+            Assert-Condition ($nextM1Task[0].Status -in @('READY', 'IN_PROGRESS')) 'M1当前任务必须为READY或IN_PROGRESS'
+            Assert-Condition ($nextM1Task[0].EvidenceStatus -in @('NOT_EXECUTED', 'LOCAL_PASS')) 'M1当前任务证据状态超出本地执行边界'
+            Assert-Condition (@($priorM1Tasks | Where-Object Status -ne 'DONE').Count -eq 0) 'M1当前任务之前存在未完成切片'
+            Assert-Condition (@($laterM1Tasks | Where-Object Status -ne 'NOT_STARTED').Count -eq 0) 'M1当前任务之后的切片被提前解锁'
+        }
         Assert-Condition ($m1StageGate.Count -eq 1 -and $m1StageGate[0].Status -eq 'IN_PROGRESS' -and $m1StageGate[0].EvidenceStatus -eq 'NOT_EXECUTED') 'M1阶段未按IN_PROGRESS/NOT_EXECUTED推进'
     } else {
         Assert-Condition $false 'M1-000状态必须为READY或DONE'
@@ -171,7 +195,7 @@ if ($projectStatus.execution.lastPassedGate -eq 'M0-GATE') {
 $manifest = Get-Content -LiteralPath (Join-Path $PackagePath 'manifest.json') -Raw -Encoding UTF8 | ConvertFrom-Json
 Assert-Condition ($manifest.counts.p0 -eq 119) 'manifest P0计数不正确'
 Assert-Condition ($manifest.counts.pages -eq 80) 'manifest页面计数不正确'
-Assert-Condition ($manifest.counts.apiContracts -eq 80) 'manifest API契约计数不正确'
+Assert-Condition ($manifest.counts.apiContracts -eq $apis.Count) 'manifest API契约计数与当前台账不一致'
 Assert-Condition ($manifest.version -eq '1.1.0') 'manifest版本应为1.1.0'
 Assert-Condition ($manifest.workbook.status -eq 'VERIFIED') '工作簿尚未标记为VERIFIED'
 if (Test-Path -LiteralPath (Join-Path $PackagePath '17-福礼社Codex5.6执行总控工作簿.xlsx')) {

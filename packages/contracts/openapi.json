@@ -10,7 +10,10 @@
               "INTERNAL_ERROR",
               "REQUEST_INVALID",
               "RESOURCE_NOT_FOUND",
-              "SERVICE_UNAVAILABLE"
+              "SERVICE_UNAVAILABLE",
+              "PAYEE_FORBIDDEN",
+              "SELLER_IDENTITY_FORBIDDEN",
+              "SINGLE_MERCHANT_VIOLATION"
             ],
             "example": "RESOURCE_NOT_FOUND",
             "type": "string"
@@ -144,6 +147,64 @@
           "checks"
         ],
         "type": "object"
+      },
+      "PublicMerchantProfileQuery": {
+        "properties": {
+          "context": {
+            "enum": [
+              "ALL",
+              "PAYMENT",
+              "REFUND",
+              "SALE"
+            ],
+            "example": "ALL",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PublicMerchantProfileResponse": {
+        "properties": {
+          "legalName": {
+            "example": "江苏福礼团供应链科技有限公司",
+            "type": "string"
+          },
+          "platformName": {
+            "example": "福礼社",
+            "type": "string"
+          },
+          "subjects": {
+            "$ref": "#/components/schemas/PublicMerchantSubjectsDto"
+          }
+        },
+        "required": [
+          "platformName",
+          "legalName",
+          "subjects"
+        ],
+        "type": "object"
+      },
+      "PublicMerchantSubjectsDto": {
+        "properties": {
+          "paymentPayee": {
+            "example": "江苏福礼团供应链科技有限公司",
+            "type": "string"
+          },
+          "refundOperator": {
+            "example": "江苏福礼团供应链科技有限公司",
+            "type": "string"
+          },
+          "seller": {
+            "example": "江苏福礼团供应链科技有限公司",
+            "type": "string"
+          }
+        },
+        "required": [
+          "seller",
+          "paymentPayee",
+          "refundOperator"
+        ],
+        "type": "object"
       }
     }
   },
@@ -206,6 +267,63 @@
         "summary": "Readiness probe",
         "tags": [
           "health"
+        ]
+      }
+    },
+    "/v1/public/merchant-profile": {
+      "get": {
+        "operationId": "publicMerchant.getProfile",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "context",
+            "required": false,
+            "schema": {
+              "enum": [
+                "ALL",
+                "PAYMENT",
+                "REFUND",
+                "SALE"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicMerchantProfileResponse"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Get the fixed customer-facing merchant identity",
+        "tags": [
+          "public-merchant"
         ]
       }
     }

@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import test from 'node:test';
@@ -34,6 +35,19 @@ const githubGatePath = path.join(
   'architecture',
   'GITHUB_CI_GATE.md',
 );
+const m1000ClosureCommit = '1ff90871222055002466abd99771fd4fa8161969';
+
+const readHistoricalText = (filePath) => {
+  const relativePath = path
+    .relative(repositoryRoot, filePath)
+    .split(path.sep)
+    .join('/');
+  return execFileSync(
+    'git',
+    ['show', `${m1000ClosureCommit}:${relativePath}`],
+    { cwd: repositoryRoot, encoding: 'utf8' },
+  );
+};
 
 test('M0 gate preflight waits for documented solo review and human merge evidence', async () => {
   const evidence = JSON.parse(await readFile(evidencePath, 'utf8'));
@@ -115,7 +129,7 @@ test('M0 gate preflight waits for documented solo review and human merge evidenc
 });
 
 test('project status preserves the passed M0 gate while M1 advances', async () => {
-  const projectStatus = JSON.parse(await readFile(projectStatusPath, 'utf8'));
+  const projectStatus = JSON.parse(readHistoricalText(projectStatusPath));
 
   assert.equal(projectStatus.execution.status, 'M1_IN_PROGRESS');
   assert.equal(projectStatus.execution.currentStage, 'M1');

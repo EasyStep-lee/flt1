@@ -1,17 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { FOUNDATION_ERROR_CODES, type FoundationErrorCode } from './api-error.js';
+import { API_ERROR_CODES, type ApiErrorCode } from './api-error.js';
 
 export class ApiErrorResponseDto {
   @ApiProperty({ example: 404, type: Number })
   readonly statusCode!: number;
 
   @ApiProperty({
-    enum: FOUNDATION_ERROR_CODES,
+    enum: API_ERROR_CODES,
     example: 'RESOURCE_NOT_FOUND',
     type: String,
   })
-  readonly code!: FoundationErrorCode;
+  readonly code!: ApiErrorCode;
 
   @ApiProperty({ example: 'Resource was not found', type: String })
   readonly message!: string;

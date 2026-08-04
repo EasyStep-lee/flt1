@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -47,6 +48,7 @@ const handoffPath = path.join(
   'handoffs',
   '2026-08-03-M1-000-contract-freeze.md',
 );
+const freezeCommit = '1ff90871222055002466abd99771fd4fa8161969';
 
 const expectedP0Ids = [
   'P0-001',
@@ -98,8 +100,8 @@ const parseCsvLine = (line) => {
   return values;
 };
 
-const readCsv = async (filePath) => {
-  const lines = (await readFile(filePath, 'utf8')).split(/\r?\n/u).filter(Boolean);
+const parseCsvText = (source) => {
+  const lines = source.split(/\r?\n/u).filter(Boolean);
   const header = parseCsvLine(lines[0]);
   return lines.slice(1).map((line) => {
     const values = parseCsvLine(line);
@@ -108,6 +110,18 @@ const readCsv = async (filePath) => {
     );
   });
 };
+
+const repositoryPath = (filePath) =>
+  path.relative(repositoryRoot, filePath).split(path.sep).join('/');
+
+const readFrozenText = (filePath) =>
+  execFileSync(
+    'git',
+    ['show', `${freezeCommit}:${repositoryPath(filePath)}`],
+    { cwd: repositoryRoot, encoding: 'utf8' },
+  );
+
+const readFrozenCsv = (filePath) => parseCsvText(readFrozenText(filePath));
 
 const sort = (values) => [...values].sort((left, right) => left.localeCompare(right));
 
@@ -145,11 +159,11 @@ test('M1-000 freezes the exact M1 scope without implementing a business slice', 
 test('all M1 ledger rows are covered by codeable frozen contracts', async () => {
   const [freeze, fields, states, permissions, pages, apis] = await Promise.all([
     readFile(freezePath, 'utf8').then(JSON.parse),
-    readCsv(fieldLedgerPath),
-    readCsv(stateLedgerPath),
-    readCsv(permissionLedgerPath),
-    readCsv(pageLedgerPath),
-    readCsv(apiLedgerPath),
+    readFrozenCsv(fieldLedgerPath),
+    readFrozenCsv(stateLedgerPath),
+    readFrozenCsv(permissionLedgerPath),
+    readFrozenCsv(pageLedgerPath),
+    readFrozenCsv(apiLedgerPath),
   ]);
 
   const m1Fields = fields.filter(({ Stage }) => Stage === 'M1');
@@ -226,11 +240,19 @@ test('all M1 ledger rows are covered by codeable frozen contracts', async () => 
   assert.equal(freeze.apiContract.databaseEntityReturnedDirectly, false);
 });
 
-test('the committed freeze is repository-text-bound across LF and CRLF checkouts', async () => {
-  const freeze = JSON.parse(await readFile(freezePath, 'utf8'));
+test('the committed freeze remains bound to its historical source snapshot', async () => {
+  const currentFreezeText = await readFile(freezePath, 'utf8');
+  const frozenFreezeText = readFrozenText(freezePath);
+  const freeze = JSON.parse(currentFreezeText);
+
+  assert.equal(
+    canonicalTextSha256(currentFreezeText),
+    canonicalTextSha256(frozenFreezeText),
+    'the immutable M1-000 freeze artifact changed after its closure commit',
+  );
 
   for (const [ledgerName, source] of Object.entries(freeze.sourceLedgers)) {
-    const text = await readFile(path.join(repositoryRoot, source.path), 'utf8');
+    const text = readFrozenText(path.join(repositoryRoot, source.path));
     const canonicalSha = canonicalTextSha256(text);
     const simulatedCrLfSha = canonicalTextSha256(
       canonicalizeRepositoryText(text).replace(/\n/gu, '\r\n'),
@@ -243,7 +265,7 @@ test('the committed freeze is repository-text-bound across LF and CRLF checkouts
     assert.equal(
       canonicalSha,
       source.sha256,
-      `${ledgerName} changed without regenerating M1 freeze`,
+      `${ledgerName} did not match the M1-000 closure snapshot`,
     );
   }
   assert.deepEqual(freeze.sourceLedgerHashPolicy, {
@@ -300,7 +322,7 @@ test('every M1 P0 slice has explicit traceability and negative tests', async () 
 test('supply price, single-merchant, and human-decision boundaries stay explicit', async () => {
   const [freeze, dependencies, plan] = await Promise.all([
     readFile(freezePath, 'utf8').then(JSON.parse),
-    readCsv(dependencyLedgerPath),
+    readFrozenCsv(dependencyLedgerPath),
     readFile(planPath, 'utf8'),
   ]);
 
@@ -346,10 +368,10 @@ test('supply price, single-merchant, and human-decision boundaries stay explicit
 test('machine control advances exactly one step to M1-P001 after the freeze', async () => {
   const [freeze, tasks, stages, projectStatus, handoff] = await Promise.all([
     readFile(freezePath, 'utf8').then(JSON.parse),
-    readCsv(taskLedgerPath),
-    readCsv(stageLedgerPath),
-    readFile(projectStatusPath, 'utf8').then(JSON.parse),
-    readFile(handoffPath, 'utf8'),
+    readFrozenCsv(taskLedgerPath),
+    readFrozenCsv(stageLedgerPath),
+    JSON.parse(readFrozenText(projectStatusPath)),
+    readFrozenText(handoffPath),
   ]);
 
   const m1000 = tasks.find(({ TaskID }) => TaskID === 'M1-000');

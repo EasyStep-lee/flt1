@@ -15,6 +15,11 @@ import {
   FOUNDATION_PROBES,
   HEALTH_PROBE_TIMEOUT_MS,
 } from '../infrastructure/probe.js';
+import {
+  SINGLE_MERCHANT_REPOSITORY,
+  type SingleMerchantRepository,
+} from '../merchant/single-merchant.repository.js';
+import { SingleMerchantService } from '../merchant/single-merchant.service.js';
 import { OPENAPI_CONTROLLERS } from './openapi-controller.registry.js';
 
 type JsonValue =
@@ -41,6 +46,13 @@ const forbiddenPublicResponseFields = new Set([
     HealthService,
     { provide: FOUNDATION_PROBES, useValue: [] },
     { provide: HEALTH_PROBE_TIMEOUT_MS, useValue: 50 },
+    SingleMerchantService,
+    {
+      provide: SINGLE_MERCHANT_REPOSITORY,
+      useValue: {
+        findCustomerFacingCompanies: async () => [],
+      } satisfies SingleMerchantRepository,
+    },
   ],
 })
 class OpenApiGenerationModule {}

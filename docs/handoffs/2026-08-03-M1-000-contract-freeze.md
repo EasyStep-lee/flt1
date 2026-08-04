@@ -39,6 +39,16 @@
 ## 恢复与下一步
 
 - 下一唯一任务：`M1-P001`。
-- 当前分支合并并通过主线 CI 前不得开始 `M1-P001`；`M1-P002` 及以后任务保持 `NOT_STARTED`。
+- `M1-000` 精确 head `1ff90871222055002466abd99771fd4fa8161969` 已由 PR #7 合并为 `12da44ab2d025bcee4e7791570a2a5c5d046653d`；合并后 main CI run `30884603598`、job `91912944100` 成功，启动 `M1-P001` 的前置门禁已满足。
+- `M1-P001` 已在 `codex/m1-m1-p001` 分支作为唯一任务进入 `IN_PROGRESS`；`M1-P002` 及以后任务保持 `NOT_STARTED`。
 - 回退冻结实现时可按原子提交反向回退 `d788162`；本任务没有数据库迁移，不涉及生产数据回滚。
 - 恢复时先读取根 `AGENTS.md`、提示词包 `AGENTS.md`、基线锁、项目状态、本交接和 `M1-P001` 任务行，再核验 PR/CI 的实时状态。
+
+## GitHub 外部闭环证据
+
+- PR：`https://github.com/EasyStep-lee/flt1/pull/7`，状态 `MERGED`。
+- 单人自审记录：issue comment `5175464907`，精确授权 head 为 `1ff90871222055002466abd99771fd4fa8161969`。
+- PR CI：run `30883876592`、job `91910750703`，精确 head 成功。
+- 合并后 main CI：run `30884603598`、job `91912944100`，精确合并提交 `12da44ab2d025bcee4e7791570a2a5c5d046653d` 成功。
+- 未解决 review thread：`0`。
+- GitHub Actions 的 Node.js 20 弃用提示继续作为 `WARN`，不影响本次 `ci/verify` 通过结论，也不得写成已修复。
