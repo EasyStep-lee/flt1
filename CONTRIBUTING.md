@@ -11,7 +11,7 @@
 
 1. 写清目标、非目标、依赖、完成定义和回滚。
 2. 先写失败测试，确认失败原因正确。
-3. 实现最小切片，运行focused tests和当期已经真实建立的质量命令。
+3. 实现最小切片，运行focused tests和根级`pnpm verify`；CI必须使用事件真实基线提交。
 4. 精确暂存本任务文件并创建原子提交。
 5. 更新执行台账、项目状态和交接证据。
 
@@ -25,4 +25,5 @@
 
 - `LOCAL_PASS`、`CI_PASS`、`DEVICE_PASS`、`STAGING_PASS`、`PRODUCTION_PASS`不能互相替代。
 - 尚未建立或没有执行的命令必须记录为 `NOT_EXECUTED`；外部依赖缺失记录为 `BLOCKED_EXTERNAL`。
-- 根级 `pnpm verify` 由M0-011建立；在此前不得增加永远成功的占位脚本。
+- 根级`pnpm verify`失败时修复根因；不得使用skip变量、`--if-present`、降低断言或删除检查绕过门禁。
+- 没有真实Actions运行时，本地`pnpm verify`只能记为`LOCAL_PASS`，不能写成`CI_PASS`。

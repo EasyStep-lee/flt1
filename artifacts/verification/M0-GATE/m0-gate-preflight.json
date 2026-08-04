@@ -1,0 +1,173 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "M0-GATE",
+  "stage": "M0",
+  "generatedAt": "2026-08-04T02:16:50.7541047Z",
+  "status": "READY_FOR_SOLO_REVIEW",
+  "gateConclusion": "NOT_EXECUTED",
+  "baseline": {
+    "id": "FULISHE-V1.1-2026-08-02",
+    "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+    "verification": "PASS"
+  },
+  "governanceDecision": {
+    "decidedAt": "2026-08-03T21:52:56-04:00",
+    "decidedBy": "USER",
+    "developmentMode": "SOLO_DEVELOPMENT",
+    "authorizedReviewer": "@EasyStep-lee",
+    "githubAccountCount": 1,
+    "additionalGithubAccountsRequired": false,
+    "pullRequestApprovalMode": "DOCUMENTED_SELF_REVIEW",
+    "githubSelfApprovalSupported": false,
+    "reviewEvidence": "SUPERSEDED_BEFORE_MERGE",
+    "reviewedHead": "0ad4dc64abd1523f70fd95f4ebcd39121bb49d08",
+    "reviewDecision": "APPROVED_FOR_MERGE",
+    "reviewCommentId": 5173829395,
+    "currentHeadReviewRequired": true,
+    "supersededReason": "Pre-merge live audit found stale repository visibility and governance capability evidence; correction changes the pull request head."
+  },
+  "candidate": {
+    "repository": "EasyStep-lee/flt1",
+    "visibility": "public",
+    "defaultBranch": "main",
+    "baseSha": "d6710d56c6375367f11f802bb77c187b06359a8a",
+    "headBranch": "codex/m0-m0-handoff",
+    "headSha": "0ad4dc64abd1523f70fd95f4ebcd39121bb49d08",
+    "pullRequest": 2,
+    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/2",
+    "draft": true,
+    "mergeable": true,
+    "merged": false,
+    "reviewCount": 0,
+    "commentCount": 1
+  },
+  "p0": {
+    "mappedCount": 0,
+    "status": "NOT_APPLICABLE",
+    "businessE2eClaimedPassed": false
+  },
+  "evidence": {
+    "executionPack": {
+      "status": "PASS",
+      "tasks": 149,
+      "p0": 119,
+      "fields": 658,
+      "pages": 80,
+      "permissions": 22
+    },
+    "m0HandoffContract": {
+      "status": "PASS",
+      "passed": 4,
+      "failed": 0
+    },
+    "m0HandoffEvidence": {
+      "status": "PASS",
+      "sourceSha": "a98c6edcbb356cd8b3209cf2695b44f36655bc93"
+    },
+    "localVerify": {
+      "status": "PASS",
+      "recordedCommit": "13ce2ffaafe6c2a09ce33726d764ba7be31a38ed",
+      "baseSha": "d6710d56c6375367f11f802bb77c187b06359a8a",
+      "stepsPassed": 17,
+      "startedAt": "2026-08-04T02:03:14.005Z",
+      "endedAt": "2026-08-04T02:06:27.914Z",
+      "freshForCandidateCommit": true,
+      "note": "The full local gate recorded parent head 13ce2ff with the solo-governance diff staged; that exact staged diff became candidate commit 0ad4dc6, which PR CI binds independently."
+    },
+    "ci": {
+      "status": "CI_PASS",
+      "workflow": "ci",
+      "job": "verify",
+      "runId": 30870827298,
+      "jobId": 91872300758,
+      "url": "https://github.com/EasyStep-lee/flt1/actions/runs/30870827298",
+      "headSha": "0ad4dc64abd1523f70fd95f4ebcd39121bb49d08",
+      "conclusion": "success"
+    },
+    "codeowners": {
+      "path": ".github/CODEOWNERS",
+      "owner": "@EasyStep-lee",
+      "errors": 0,
+      "presentOnMain": false
+    },
+    "environments": {
+      "staging": {
+        "configured": true,
+        "deploymentBranches": [
+          "main"
+        ],
+        "secretCount": 0
+      },
+      "production": {
+        "configured": true,
+        "deploymentBranches": [
+          "main"
+        ],
+        "secretCount": 0,
+        "requiredReviewers": "NOT_CONFIGURED"
+      }
+    },
+    "githubGovernance": {
+      "repositoryVisibility": "public",
+      "branchProtection": "NOT_CONFIGURED_HTTP_404",
+      "rulesets": "NOT_CONFIGURED_EMPTY",
+      "actionsEnabled": true,
+      "allowedActions": "all",
+      "shaPinningRequiredByRepository": false,
+      "defaultWorkflowPermissions": "read",
+      "actionsCanApprovePullRequests": false
+    }
+  },
+  "knownConstraints": [
+    {
+      "id": "MAIN_BRANCH_PROTECTION_NOT_CONFIGURED",
+      "status": "KNOWN_LIMITATION",
+      "reason": "The repository is public, but main currently returns Branch not protected (HTTP 404) and repository rulesets are empty.",
+      "manualControl": "Draft PR, no direct main changes, no force-push or branch deletion, exact-head CI and explicit merge authorization."
+    },
+    {
+      "id": "PRODUCTION_ENVIRONMENT_REVIEWER_NOT_CONFIGURED",
+      "status": "KNOWN_LIMITATION",
+      "reason": "The production Environment currently has only the main branch policy and no required reviewer.",
+      "manualControl": "Production remains a separately authorized human action and is not executed in M0."
+    },
+    {
+      "id": "ACTIONS_REPOSITORY_POLICY_NOT_HARDENED",
+      "status": "KNOWN_LIMITATION",
+      "reason": "Repository Actions allows all actions and does not enforce SHA pinning at repository level.",
+      "manualControl": "The committed workflow pins every action to a full SHA and repository-level policy changes still require explicit human approval."
+    }
+  ],
+  "blockers": [
+    {
+      "id": "PR_STILL_DRAFT",
+      "status": "NOT_EXECUTED",
+      "reason": "Pull request 2 remains Draft until the updated solo-governance commit has exact-head CI evidence."
+    },
+    {
+      "id": "SINGLE_HUMAN_SELF_REVIEW_NOT_EXECUTED",
+      "status": "NOT_EXECUTED",
+      "reason": "The authorized reviewer approved head 0ad4dc6, but that approval was superseded before merge because correcting stale public-repository governance evidence changes the pull request head."
+    },
+    {
+      "id": "PR_NOT_MERGED",
+      "status": "NOT_EXECUTED",
+      "reason": "Authorized human merge has not occurred."
+    },
+    {
+      "id": "MAIN_POST_MERGE_CI_NOT_EXECUTED",
+      "status": "NOT_EXECUTED",
+      "reason": "The latest main commit cannot be reverified until the pull request is reviewed and merged by an authorized human."
+    }
+  ],
+  "resume": {
+    "nextAllowedTask": "M0-GATE",
+    "m1Unlocked": false,
+    "requiredActions": [
+      "Correct stale private-repository and HTTP 403 evidence to the live public, unprotected-main and empty-rulesets state, then obtain exact-head CI.",
+      "The sole authorized reviewer @EasyStep-lee completes DOCUMENTED_SELF_REVIEW on the corrected head and explicitly authorizes merge; additional GitHub accounts are not required.",
+      "After explicit authorization, mark the pull request ready and complete the authorized merge without rewriting history.",
+      "Run and verify main CI on the post-merge commit, then repeat M0-GATE."
+    ]
+  }
+}

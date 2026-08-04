@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-02T23:52:15-04:00",
+  "updatedAt": "2026-08-03T22:16:50-04:00",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -12,13 +12,13 @@
     "pageCount": 80
   },
   "execution": {
-    "status": "READY_FOR_M0_LOCAL",
+    "status": "M0_GATE_AWAITING_SOLO_REVIEW",
     "currentStage": "M0",
-    "currentTask": "M0-011",
-    "nextAllowedTask": "M0-011",
+    "currentTask": "M0-GATE",
+    "nextAllowedTask": "M0-GATE",
     "activeTaskCount": 0,
-    "lastCompletedTask": "M0-010",
-    "lastCompletedCommit": "62ead13dfb9c6680a4c173fa09377ce6cf8e23b9",
+    "lastCompletedTask": "M0-012",
+    "lastCompletedCommit": "a98c6edcbb356cd8b3209cf2695b44f36655bc93",
     "lastPassedGate": null,
     "prohibitedUntilGate": [
       "M1及以后业务开发",
@@ -28,16 +28,43 @@
     ]
   },
   "github": {
-    "repository": null,
-    "defaultBranch": null,
-    "remoteConfirmed": false,
+    "repository": "EasyStep-lee/flt1",
+    "visibility": "public",
+    "defaultBranch": "main",
+    "remoteConfirmed": true,
     "authenticationConfirmed": true,
-    "writeAllowed": false,
-    "note": "M0-003已验证本地开发边界：gh认证EasyStep-lee，但owner/repo、默认分支和写权限未确认；远程操作BLOCKED_EXTERNAL。"
+    "writeAllowed": true,
+    "connectorAccessConfirmed": true,
+    "pullRequest": 2,
+    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/2",
+    "pullRequestState": "DRAFT",
+    "pullRequestMerged": false,
+    "reviewPolicy": {
+      "mode": "DOCUMENTED_SELF_REVIEW",
+      "developmentMode": "SOLO_DEVELOPMENT",
+      "authorizedReviewer": "@EasyStep-lee",
+      "githubAccountCount": 1,
+      "additionalGithubAccountsRequired": false,
+      "githubSelfApprovalSupported": false,
+      "reviewEvidence": "SUPERSEDED_BEFORE_MERGE",
+      "reviewedHead": "0ad4dc64abd1523f70fd95f4ebcd39121bb49d08",
+      "reviewDecision": "APPROVED_FOR_MERGE",
+      "reviewCommentId": 5173829395,
+      "currentHeadReviewRequired": true,
+      "supersededReason": "合并前实时审计发现仓库可见性及治理能力证据过时；修正证据会改变PR head。"
+    },
+    "lastVerifiedPullRequestHead": "0ad4dc64abd1523f70fd95f4ebcd39121bb49d08",
+    "latestCi": {
+      "status": "CI_PASS",
+      "runId": 30870827298,
+      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/30870827298",
+      "headSha": "0ad4dc64abd1523f70fd95f4ebcd39121bb49d08"
+    },
+    "note": "仓库实时状态为public；main未配置保护（HTTP 404），Rulesets为空，production未配置required reviewer。用户曾批准0ad4dc6合并，但该授权因修正旧private/HTTP 403证据会改变head而在合并前失效；等待修正提交CI及@EasyStep-lee重新确认，M0-GATE仍为NOT_EXECUTED。"
   },
   "evidence": {
     "local": "LOCAL_PASS",
-    "ci": "NOT_EXECUTED",
+    "ci": "CI_PASS",
     "staging": "NOT_EXECUTED",
     "device": "NOT_EXECUTED",
     "production": "NOT_EXECUTED"

@@ -1,0 +1,132 @@
+import { spawnSync } from 'node:child_process';
+import { readFile, readdir } from 'node:fs/promises';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const repositoryRoot = fileURLToPath(new URL('../', import.meta.url));
+const p0SuiteRoot = path.join(repositoryRoot, 'tests', 'e2e', 'p0');
+
+const parseCsvLine = (line) => {
+  const values = [];
+  let current = '';
+  let quoted = false;
+  for (let index = 0; index < line.length; index += 1) {
+    const character = line[index];
+    if (quoted) {
+      if (character === '"' && line[index + 1] === '"') {
+        current += '"';
+        index += 1;
+      } else if (character === '"') {
+        quoted = false;
+      } else {
+        current += character;
+      }
+    } else if (character === '"') {
+      quoted = true;
+    } else if (character === ',') {
+      values.push(current);
+      current = '';
+    } else {
+      current += character;
+    }
+  }
+  if (quoted) throw new Error('P0_E2E_STAGE_CSV_UNTERMINATED_QUOTE');
+  values.push(current);
+  return values;
+};
+
+const readStageGate = async (stage) => {
+  const source = await readFile(
+    path.join(
+      repositoryRoot,
+      '福礼社Codex5.6开发执行包V1.1',
+      'data',
+      '阶段门禁.csv',
+    ),
+    'utf8',
+  );
+  const lines = source.split(/\r?\n/u).filter(Boolean);
+  const header = parseCsvLine(lines[0]);
+  for (const line of lines.slice(1)) {
+    const values = parseCsvLine(line);
+    const record = Object.fromEntries(
+      header.map((column, index) => [column, values[index] ?? '']),
+    );
+    if (record.Stage === stage) return record;
+  }
+  throw new Error(`P0_E2E_STAGE_GATE_MISSING:${stage}`);
+};
+
+const findP0Specs = async (directory) => {
+  let entries;
+  try {
+    entries = await readdir(directory, { withFileTypes: true });
+  } catch (error) {
+    if (error && typeof error === 'object' && error.code === 'ENOENT') return [];
+    throw error;
+  }
+  const files = [];
+  for (const entry of entries) {
+    const entryPath = path.join(directory, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...(await findP0Specs(entryPath)));
+    } else if (/\.(?:spec|test)\.[cm]?[jt]sx?$/u.test(entry.name)) {
+      files.push(entryPath);
+    }
+  }
+  return files.sort();
+};
+
+const run = async () => {
+  const state = JSON.parse(
+    await readFile(
+      path.join(
+        repositoryRoot,
+        '福礼社Codex5.6开发执行包V1.1',
+        '16-项目状态.json',
+      ),
+      'utf8',
+    ),
+  );
+  const stage = state.execution?.currentStage;
+  if (!stage) throw new Error('P0_E2E_CURRENT_STAGE_MISSING');
+  const gate = await readStageGate(stage);
+  const p0Count = Number.parseInt(gate.P0Count, 10);
+  if (!Number.isSafeInteger(p0Count) || p0Count < 0) {
+    throw new Error(`P0_E2E_STAGE_COUNT_INVALID:${gate.P0Count}`);
+  }
+
+  const specifications = await findP0Specs(p0SuiteRoot);
+  if (specifications.length === 0) {
+    if (stage === 'M0' && p0Count === 0) {
+      process.stdout.write(
+        'P0_E2E_NOT_APPLICABLE:stage=M0:p0Count=0:reason=M0_HAS_NO_MAPPED_P0\n',
+      );
+      return;
+    }
+    throw new Error(
+      `P0_E2E_SUITE_REQUIRED:stage=${stage}:p0Count=${p0Count}`,
+    );
+  }
+
+  const pnpmCli = process.env.npm_execpath;
+  if (!pnpmCli || !/\.(?:cjs|mjs|js)$/iu.test(pnpmCli)) {
+    throw new Error('P0_E2E_PNPM_EXEC_PATH_REQUIRED');
+  }
+  const result = spawnSync(
+    process.execPath,
+    [pnpmCli, 'exec', 'playwright', 'test', 'tests/e2e/p0'],
+    { cwd: repositoryRoot, env: process.env, stdio: 'inherit' },
+  );
+  if (result.error) throw result.error;
+  if (result.status !== 0) {
+    throw new Error(`P0_E2E_FAILED:${result.status ?? 1}`);
+  }
+};
+
+run().catch((error) => {
+  process.stderr.write(
+    `${error instanceof Error ? error.message : 'P0_E2E_GATE_FAILED'}\n`,
+  );
+  process.exitCode = 1;
+});

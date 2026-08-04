@@ -40,7 +40,7 @@ pnpm build
 pnpm --filter @fulishe/api start
 ```
 
-M0-006之后，`workspace:graph`必须显示API、数据库、五端应用壳、共享UI和小程序请求边界共9个包。健康接口为`GET /health/live`和`GET /health/ready`；完整启动、停止、超时/重试和验证说明见`docs/architecture/FOUNDATION_INFRASTRUCTURE.md`。完整的 `pnpm verify` 仍由M0-011建立。
+M0-006之后，`workspace:graph`必须显示API、数据库、五端应用壳、共享UI和小程序请求边界共9个包。健康接口为`GET /health/live`和`GET /health/ready`；完整启动、停止、超时/重试和验证说明见`docs/architecture/FOUNDATION_INFRASTRUCTURE.md`。
 
 M0-007新增`@fulishe/config`，工作区现在共10个包。启动前可用`pnpm config:check`校验开发样例，用`pnpm secrets:scan`只扫描Git已跟踪文件；生产与预发布凭据必须在运行时注入，不能写入`.env.example`或仓库。完整边界见`docs/architecture/CONFIGURATION_AND_SECRETS.md`。
 
@@ -62,6 +62,14 @@ pnpm prisma:migrations:check
 pnpm test:migrations
 pnpm prisma:migrate:dry-run
 pnpm test:migrations:clean-install
+```
+
+M0-011建立根级`pnpm verify`和固定Action提交SHA的GitHub CI模板。统一入口串行执行工作区、lint、OpenAPI生成/差异/oasdiff、类型、单元/回归/API/E2E、Prisma迁移完整性与实库演练、build和秘密扫描，并将逐项报告写入忽略的`artifacts/test-results/verification/`。本地无远程时报告明确使用`LOCAL_HEAD_FALLBACK`；CI必须提供事件真实基线的40位提交SHA。完整规则见`docs/architecture/GITHUB_CI_GATE.md`。
+
+```powershell
+pnpm test:ci
+pnpm test:e2e:p0
+pnpm verify
 ```
 
 ## 五端应用壳
@@ -91,4 +99,4 @@ pnpm test:seo-cache
 
 ## 当前外部边界
 
-GitHub目标仓库尚未确认。允许本地 `codex/` 分支和原子提交；不得猜测origin、推送、创建PR或声称CI通过。
+GitHub目标仓库尚未确认。允许本地 `codex/` 分支、原子提交和CI模板验证；不得猜测origin、推送、创建PR或声称GitHub Actions已经通过。

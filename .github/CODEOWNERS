@@ -1,0 +1,9 @@
+# 福礼社仓库按单人开发治理，唯一代码责任人及仓库管理员为 EasyStep-lee。
+# 当前明确不新增GitHub账号；全部路径只映射到现有真实账号。
+* @EasyStep-lee
+/packages/db/prisma/migrations/ @EasyStep-lee
+/apps/api/src/modules/payments/ @EasyStep-lee
+/apps/api/src/modules/welfare-card/ @EasyStep-lee
+/apps/api/src/modules/permissions/ @EasyStep-lee
+/apps/api/src/modules/delivery/ @EasyStep-lee
+/.github/ @EasyStep-lee

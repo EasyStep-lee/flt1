@@ -1,0 +1,43 @@
+name: 缺陷
+description: 报告可复现的功能、权限、资金、物流或数据问题
+title: "[BUG][Mx] "
+labels: ["bug"]
+body:
+  - type: dropdown
+    id: severity
+    attributes:
+      label: 严重级别
+      options: [P0-资金或数据隔离, P1-关键流程阻断, P2-一般功能, P3-视觉或低风险]
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 复现步骤
+      description: 包含环境、版本/提交、账号角色、请求ID和实际操作；不要粘贴秘密或明文个人信息。
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 预期与实际
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 证据
+      description: 日志、截图、测试、CI链接；先脱敏。
+    validations:
+      required: true
+  - type: input
+    id: p0
+    attributes:
+      label: 受影响P0/任务
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: 安全确认
+      options:
+        - label: 已移除Token、密钥、证书、银行卡、手机号、地址等敏感内容
+          required: true
