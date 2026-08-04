@@ -2,7 +2,7 @@
 
 ## 1. 证据边界
 
-M0-011只建立可在本地复现的质量聚合器和GitHub Actions模板。当前仓库没有可验证`origin`，`owner/repo`、默认分支、远程写权限、实际分支保护、PR和Actions运行均未确认。因此本地通过只能记录为`LOCAL_PASS`，不能记录为`CI_PASS`。
+M0-011建立可在本地复现的质量聚合器和GitHub Actions模板。当前目标仓库已确认为私有仓库`EasyStep-lee/flt1`，默认分支为`main`，开发分支通过Draft PR交付；本地结果与GitHub Actions结果仍必须分别记录，只有精确绑定提交的真实Actions成功才能记为`CI_PASS`。
 
 ## 2. 本地统一入口
 
@@ -60,6 +60,10 @@ Dependabot可以提出依赖更新PR，但不能绕过固定SHA、测试和人�
 
 ## 6. 人工配置与启用
 
-仓库管理员确认目标仓库后，必须再确认默认分支和`.github/workflows/ci.yml`的`main`触发是否一致，配置`verify`为必需检查、至少一名人工审批、禁止强推/删除及未解决review thread合并。`CODEOWNERS.example`中的占位账号必须替换后才能改名为正式`CODEOWNERS`。
+本仓库采用单人开发治理，唯一GitHub账号和授权审核责任人为`@EasyStep-lee`，不新增GitHub账号。正式`CODEOWNERS`全部路径均映射到该现有账号。
+
+GitHub不允许PR作者批准自己的PR，因此不把无法产生的同账号`APPROVED`状态作为退出条件，改用可追溯的`DOCUMENTED_SELF_REVIEW`：授权人必须核对精确head SHA、对应CI、实际diff、P0/P1、迁移、敏感信息和回滚，并明确记录“自审通过、允许合并”。CI通过不能替代人工自审，自审也不能替代最新提交CI。
+
+当前GitHub方案不支持私有仓库branch protection/rulesets及Environment required reviewers；这些能力记录为已知限制，由Draft PR、禁止直接修改`main`、禁止强推/删除、固定SHA工作流、明确合并授权和合并后`main` CI复核进行人工控制，不要求增加第二个账号。若以后升级套餐，可以启用必需`verify`、禁止强推/删除和未解决thread阻断，但单账号模式下不得配置无法由PR作者满足的必需批准数。
 
 Secrets、Environment、仓库权限、分支保护和最终合并只由授权人工配置。工作流不包含真实外部服务密钥，也不执行生产部署或生产迁移。

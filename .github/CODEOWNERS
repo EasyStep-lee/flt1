@@ -1,5 +1,5 @@
-# 福礼社仓库正式代码责任人。当前唯一直接协作者及仓库管理员为 EasyStep-lee。
-# 后续增加独立的数据库、财务、安全或物流责任人时，应在对应路径追加真实账号或团队。
+# 福礼社仓库按单人开发治理，唯一代码责任人及仓库管理员为 EasyStep-lee。
+# 当前明确不新增GitHub账号；全部路径只映射到现有真实账号。
 * @EasyStep-lee
 /packages/db/prisma/migrations/ @EasyStep-lee
 /apps/api/src/modules/payments/ @EasyStep-lee

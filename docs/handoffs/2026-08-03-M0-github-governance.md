@@ -7,6 +7,7 @@
 - 开发分支：`codex/m0-m0-handoff`
 - 执行任务：`M0-GATE`前置治理配置
 - 授权人工及当前唯一直接协作者：`EasyStep-lee`
+- 开发/审核模式：单人开发、单一授权审核人、只使用现有GitHub账号
 - 非目标：不合并PR、不进入M1、不配置虚假秘密、不触发预发布或生产部署。
 
 ## 2. 正式CODEOWNERS
@@ -15,18 +16,25 @@
 - 删除占位模板：`.github/CODEOWNERS.example`
 - 当前所有责任路径映射到真实GitHub账号`@EasyStep-lee`。
 - 明确覆盖：全仓、Prisma迁移、支付、福利卡、权限、配送和`.github`治理文件。
-- 后续增加独立数据库、财务、安全或物流责任人时，应在对应路径追加真实账号或团队；不得恢复占位账号。
+- 用户已明确不新增GitHub账号；当前及后续治理均以现有`@EasyStep-lee`为唯一代码责任人，不得恢复占位账号。
 
 ## 3. GitHub Environments
 
 | Environment | 创建状态 | 允许部署分支 | 必需审批人 |
 |---|---|---|---|
 | `staging` | `CONFIGURED` | 仅`main` | 未配置 |
-| `production` | `CONFIGURED` | 仅`main` | `BLOCKED_BY_GITHUB_PLAN` |
+| `production` | `CONFIGURED` | 仅`main` | 当前方案不支持；单人模式采用人工发布授权 |
 
-`production`必需审批人曾尝试配置为真实账号`EasyStep-lee`，GitHub返回HTTP 422，明确提示当前计费方案不支持required reviewers保护规则。因此不得记录为审批规则已启用。若正式生产工作流需要GitHub原生审批，必须升级到支持该规则的方案或迁移到支持审批的组织仓库后重新配置并复核。
+`production`必需审批人曾尝试配置为真实账号`EasyStep-lee`，GitHub返回HTTP 422，明确提示当前计费方案不支持required reviewers保护规则。因此不得记录为审批规则已启用；该限制不要求增加账号。正式生产仍必须由同一授权人工明确批准，且M0不执行生产部署。
 
-## 4. Actions Secrets决定
+## 4. 单人审核规则
+
+- 唯一授权审核责任人：`@EasyStep-lee`；不邀请、不创建第二个GitHub账号。
+- GitHub不允许PR作者批准自己的PR，因此使用`DOCUMENTED_SELF_REVIEW`记录，不伪造`APPROVED`状态。
+- 自审必须核对精确head SHA、最新CI、实际diff、P0/P1、迁移、秘密扫描和回滚，并明确写出“自审通过、允许合并”。
+- 在该明确结论出现前，人工审核保持`NOT_EXECUTED`；Codex不得替授权人写成已审核或自行合并。
+
+## 5. Actions Secrets决定
 
 - 仓库级Actions Secrets：空。
 - `staging` Environment Secrets：空。
@@ -36,7 +44,7 @@
 - 微信AppSecret、微信支付API v3密钥、证书私钥及后续第三方令牌属于后续阶段外部输入，不得在M0提前创建假值。
 - 真实秘密只能由具名人工在GitHub Environment、部署平台或受控密钥系统中输入，不进入聊天、Git、文档、截图或测试产物。
 
-## 5. 验证与证据边界
+## 6. 验证与证据边界
 
 - GitHub API复核两个Environment均为`custom_branch_policies=true`，且各自唯一部署分支策略为`main`。
 - `gh secret list --repo EasyStep-lee/flt1`及两个Environment Secret清单均为空。
@@ -44,7 +52,7 @@
 - 本配置没有Schema、Migration、OpenAPI、DTO、错误码、业务页面或业务P0变化。
 - GitHub设置完成不等于PR已合并或`M0-GATE`已通过；M1继续锁定。
 
-## 6. 回滚
+## 7. 回滚
 
 - CODEOWNERS代码回滚：对本治理提交执行`git revert <commit-sha>`，不得改写公共历史。
 - Environment设置回滚：由仓库管理员在GitHub Settings中删除对应Environment或部署分支策略；删除前确认没有部署记录、Environment Secret或活动部署。

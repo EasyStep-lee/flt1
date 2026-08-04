@@ -22,13 +22,25 @@ const projectStatusPath = path.join(
   '福礼社Codex5.6开发执行包V1.1',
   '16-项目状态.json',
 );
+const codeownersPath = path.join(repositoryRoot, '.github', 'CODEOWNERS');
+const pullRequestTemplatePath = path.join(
+  repositoryRoot,
+  '.github',
+  'pull_request_template.md',
+);
+const githubGatePath = path.join(
+  repositoryRoot,
+  'docs',
+  'architecture',
+  'GITHUB_CI_GATE.md',
+);
 
-test('M0 gate preflight stays blocked until GitHub governance and human merge evidence exist', async () => {
+test('M0 gate preflight waits for documented solo review and human merge evidence', async () => {
   const evidence = JSON.parse(await readFile(evidencePath, 'utf8'));
   const handoff = await readFile(handoffPath, 'utf8');
 
   assert.equal(evidence.taskId, 'M0-GATE');
-  assert.equal(evidence.status, 'PREFLIGHT_BLOCKED');
+  assert.equal(evidence.status, 'READY_FOR_SOLO_REVIEW');
   assert.equal(evidence.gateConclusion, 'NOT_EXECUTED');
   assert.equal(evidence.stage, 'M0');
   assert.equal(evidence.p0.status, 'NOT_APPLICABLE');
@@ -40,33 +52,56 @@ test('M0 gate preflight stays blocked until GitHub governance and human merge ev
   assert.equal(evidence.evidence.ci.status, 'CI_PASS');
   assert.equal(evidence.evidence.ci.headSha, evidence.candidate.headSha);
   assert.equal(evidence.evidence.codeowners.errors, 0);
+  assert.equal(evidence.governanceDecision.developmentMode, 'SOLO_DEVELOPMENT');
+  assert.equal(evidence.governanceDecision.authorizedReviewer, '@EasyStep-lee');
+  assert.equal(evidence.governanceDecision.githubAccountCount, 1);
+  assert.equal(evidence.governanceDecision.additionalGithubAccountsRequired, false);
+  assert.equal(evidence.governanceDecision.pullRequestApprovalMode, 'DOCUMENTED_SELF_REVIEW');
+  assert.equal(evidence.governanceDecision.githubSelfApprovalSupported, false);
 
   const blockerIds = new Set(evidence.blockers.map(({ id }) => id));
   for (const required of [
-    'GH_PLAN_BRANCH_PROTECTION_UNAVAILABLE',
-    'GH_PLAN_ENVIRONMENT_REVIEWERS_UNAVAILABLE',
     'PR_STILL_DRAFT',
-    'HUMAN_REVIEW_NOT_EXECUTED',
+    'SINGLE_HUMAN_SELF_REVIEW_NOT_EXECUTED',
     'PR_NOT_MERGED',
     'MAIN_POST_MERGE_CI_NOT_EXECUTED',
   ]) {
     assert.equal(blockerIds.has(required), true, `missing blocker ${required}`);
   }
+  for (const acceptedConstraint of [
+    'GH_PLAN_BRANCH_PROTECTION_UNAVAILABLE',
+    'GH_PLAN_ENVIRONMENT_REVIEWERS_UNAVAILABLE',
+    'ACTIONS_REPOSITORY_POLICY_NOT_HARDENED',
+  ]) {
+    assert.equal(blockerIds.has(acceptedConstraint), false);
+    assert.equal(
+      evidence.knownConstraints.some(({ id }) => id === acceptedConstraint),
+      true,
+      `missing known constraint ${acceptedConstraint}`,
+    );
+  }
+  assert.equal(
+    evidence.resume.requiredActions.some((action) => /independent|invite|new account/iu.test(action)),
+    false,
+  );
 
   assert.equal(evidence.resume.nextAllowedTask, 'M0-GATE');
   assert.equal(evidence.resume.m1Unlocked, false);
   assert.match(handoff, /门禁结论：`NOT_EXECUTED`/u);
   assert.match(handoff, /M1继续锁定/u);
+  assert.match(handoff, /单人开发/u);
+  assert.match(handoff, /不新增GitHub账号/u);
+  assert.doesNotMatch(handoff, /独立授权评审|邀请或指定独立|提供独立/u);
   assert.doesNotMatch(
     handoff,
     /M0-GATE\s*(?:已通过|GATE_PASSED)|M1\s*(?:已解锁|可开始)/u,
   );
 });
 
-test('project status records the current blocked M0 gate and verified GitHub evidence', async () => {
+test('project status records the M0 gate awaiting solo review and verified GitHub evidence', async () => {
   const projectStatus = JSON.parse(await readFile(projectStatusPath, 'utf8'));
 
-  assert.equal(projectStatus.execution.status, 'M0_GATE_BLOCKED_EXTERNAL');
+  assert.equal(projectStatus.execution.status, 'M0_GATE_AWAITING_SOLO_REVIEW');
   assert.equal(projectStatus.execution.currentStage, 'M0');
   assert.equal(projectStatus.execution.currentTask, 'M0-GATE');
   assert.equal(projectStatus.execution.nextAllowedTask, 'M0-GATE');
@@ -83,6 +118,10 @@ test('project status records the current blocked M0 gate and verified GitHub evi
   assert.equal(projectStatus.github.pullRequest, 2);
   assert.equal(projectStatus.github.pullRequestState, 'DRAFT');
   assert.equal(projectStatus.github.pullRequestMerged, false);
+  assert.equal(projectStatus.github.reviewPolicy.mode, 'DOCUMENTED_SELF_REVIEW');
+  assert.equal(projectStatus.github.reviewPolicy.authorizedReviewer, '@EasyStep-lee');
+  assert.equal(projectStatus.github.reviewPolicy.additionalGithubAccountsRequired, false);
+  assert.equal(projectStatus.github.reviewPolicy.reviewEvidence, 'NOT_EXECUTED');
   assert.match(projectStatus.github.lastVerifiedPullRequestHead, /^[0-9a-f]{40}$/u);
   assert.equal(projectStatus.github.latestCi.status, 'CI_PASS');
   assert.match(projectStatus.github.latestCi.headSha, /^[0-9a-f]{40}$/u);
@@ -96,4 +135,22 @@ test('project status records the current blocked M0 gate and verified GitHub evi
   assert.equal(projectStatus.evidence.staging, 'NOT_EXECUTED');
   assert.equal(projectStatus.evidence.device, 'NOT_EXECUTED');
   assert.equal(projectStatus.evidence.production, 'NOT_EXECUTED');
+});
+
+test('repository documents one-account review without weakening CI or merge evidence', async () => {
+  const [codeowners, pullRequestTemplate, githubGate] = await Promise.all([
+    readFile(codeownersPath, 'utf8'),
+    readFile(pullRequestTemplatePath, 'utf8'),
+    readFile(githubGatePath, 'utf8'),
+  ]);
+
+  const owners = new Set(codeowners.match(/@[A-Za-z0-9-]+/gu) ?? []);
+  assert.deepEqual([...owners], ['@EasyStep-lee']);
+  assert.match(codeowners, /单人开发/u);
+  assert.match(codeowners, /不新增GitHub账号/u);
+  assert.match(pullRequestTemplate, /单人开发自审/u);
+  assert.match(pullRequestTemplate, /GitHub不允许PR作者批准自己的PR/u);
+  assert.match(githubGate, /DOCUMENTED_SELF_REVIEW/u);
+  assert.match(githubGate, /CI通过不能替代人工自审/u);
+  assert.doesNotMatch(githubGate, /邀请.*独立.*账号|新增.*评审.*账号/u);
 });
