@@ -14,15 +14,18 @@
               "PAYEE_FORBIDDEN",
               "SELLER_IDENTITY_FORBIDDEN",
               "SINGLE_MERCHANT_VIOLATION",
+              "ACCOUNT_TYPE_INVALID",
               "APPROVAL_VERSION_CONFLICT",
               "DATA_SCOPE_FORBIDDEN",
               "FIELD_FORBIDDEN",
+              "IDEMPOTENCY_CONFLICT",
               "SECOND_VERIFICATION_REQUIRED",
               "STATE_TRANSITION_INVALID",
               "SUPPLIER_DUPLICATE",
               "SUPPLIER_SCOPE_FORBIDDEN",
               "VALIDATION_FAILED",
-              "VERSION_CONFLICT"
+              "VERSION_CONFLICT",
+              "WORKSPACE_FORBIDDEN"
             ],
             "example": "RESOURCE_NOT_FOUND",
             "type": "string"
@@ -117,6 +120,53 @@
         ],
         "type": "object"
       },
+      "CreateFunctionalAccountRequestDto": {
+        "properties": {
+          "accountTypeCode": {
+            "enum": [
+              "SUPPLIER_ACCOUNT_ADMIN",
+              "SUPPLIER_PRODUCT",
+              "SUPPLIER_PRICING",
+              "SUPPLIER_INVENTORY",
+              "SUPPLIER_FULFILLMENT",
+              "SUPPLIER_AFTERSALES",
+              "SUPPLIER_FINANCE",
+              "SUPPLIER_AUDIT"
+            ],
+            "type": "string"
+          },
+          "expiresAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "inviteeEmail": {
+            "maxLength": 254,
+            "type": "string"
+          },
+          "inviteeMobile": {
+            "example": "13900139000",
+            "maxLength": 16,
+            "type": "string"
+          },
+          "inviteeName": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "secondVerificationCode": {
+            "maxLength": 8,
+            "minLength": 4,
+            "type": "string",
+            "writeOnly": true
+          }
+        },
+        "required": [
+          "accountTypeCode",
+          "inviteeName",
+          "inviteeMobile"
+        ],
+        "type": "object"
+      },
       "FoundationDependencyCheckDto": {
         "properties": {
           "code": {
@@ -141,6 +191,136 @@
           "status",
           "code",
           "latencyMs"
+        ],
+        "type": "object"
+      },
+      "FunctionalAccountPageResponseDto": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/FunctionalAccountResponseDto"
+            },
+            "type": "array"
+          },
+          "page": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "pageSize": {
+            "maximum": 100,
+            "minimum": 1,
+            "type": "number"
+          },
+          "total": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "page",
+          "pageSize",
+          "total"
+        ],
+        "type": "object"
+      },
+      "FunctionalAccountQueryDto": {
+        "properties": {
+          "accountTypeCode": {
+            "enum": [
+              "SUPPLIER_ACCOUNT_ADMIN",
+              "SUPPLIER_PRODUCT",
+              "SUPPLIER_PRICING",
+              "SUPPLIER_INVENTORY",
+              "SUPPLIER_FULFILLMENT",
+              "SUPPLIER_AFTERSALES",
+              "SUPPLIER_FINANCE",
+              "SUPPLIER_AUDIT"
+            ],
+            "type": "string"
+          },
+          "keyword": {
+            "maxLength": 128,
+            "type": "string"
+          },
+          "page": {
+            "default": 1,
+            "minimum": 1,
+            "type": "number"
+          },
+          "pageSize": {
+            "default": 20,
+            "maximum": 100,
+            "minimum": 1,
+            "type": "number"
+          },
+          "status": {
+            "enum": [
+              "PENDING_ACTIVATION",
+              "ACTIVE",
+              "SUSPENDED",
+              "REVOKED"
+            ],
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "FunctionalAccountResponseDto": {
+        "properties": {
+          "accountTypeCode": {
+            "enum": [
+              "SUPPLIER_ACCOUNT_ADMIN",
+              "SUPPLIER_PRODUCT",
+              "SUPPLIER_PRICING",
+              "SUPPLIER_INVENTORY",
+              "SUPPLIER_FULFILLMENT",
+              "SUPPLIER_AFTERSALES",
+              "SUPPLIER_FINANCE",
+              "SUPPLIER_AUDIT"
+            ],
+            "type": "string"
+          },
+          "accountTypeName": {
+            "maxLength": 128,
+            "type": "string"
+          },
+          "displayName": {
+            "maxLength": 128,
+            "type": "string"
+          },
+          "expiresAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "lastLoginAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "PENDING_ACTIVATION",
+              "ACTIVE",
+              "SUSPENDED",
+              "REVOKED"
+            ],
+            "type": "string"
+          },
+          "workspaceRoute": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "displayName",
+          "accountTypeCode",
+          "accountTypeName",
+          "workspaceRoute",
+          "status"
         ],
         "type": "object"
       },
@@ -1282,6 +1462,229 @@
         "summary": "Create an editable supplier onboarding draft",
         "tags": [
           "supplier-registration"
+        ]
+      }
+    },
+    "/v1/{ownerType}/functional-accounts": {
+      "get": {
+        "operationId": "functionalAccounts.list",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "pageSize",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "keyword",
+            "required": false,
+            "schema": {
+              "maxLength": 128,
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "enum": [
+                "PENDING_ACTIVATION",
+                "ACTIVE",
+                "SUSPENDED",
+                "REVOKED"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "accountTypeCode",
+            "required": false,
+            "schema": {
+              "enum": [
+                "SUPPLIER_ACCOUNT_ADMIN",
+                "SUPPLIER_PRODUCT",
+                "SUPPLIER_PRICING",
+                "SUPPLIER_INVENTORY",
+                "SUPPLIER_FULFILLMENT",
+                "SUPPLIER_AFTERSALES",
+                "SUPPLIER_FINANCE",
+                "SUPPLIER_AUDIT"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "ownerType",
+            "required": true,
+            "schema": {
+              "enum": [
+                "supplier",
+                "company"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FunctionalAccountPageResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "List functional accounts in the authenticated owner scope",
+        "tags": [
+          "functional-accounts"
+        ]
+      },
+      "post": {
+        "operationId": "functionalAccounts.create",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "ownerType",
+            "required": true,
+            "schema": {
+              "enum": [
+                "supplier",
+                "company"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFunctionalAccountRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FunctionalAccountResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "428": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Invite a supplier functional account after second verification",
+        "tags": [
+          "functional-accounts"
         ]
       }
     }

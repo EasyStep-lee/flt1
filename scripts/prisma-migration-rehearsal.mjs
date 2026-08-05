@@ -266,11 +266,15 @@ SELECT COUNT(*) FROM \`information_schema\`.\`statistics\` WHERE \`table_schema\
 SELECT COUNT(*) FROM \`information_schema\`.\`referential_constraints\` WHERE \`constraint_schema\` = DATABASE() AND \`constraint_name\` IN ('supplier_company_id_fkey', 'supplier_status_history_supplier_id_fkey');
 SELECT COUNT(*) FROM \`approval_task\`;
 SELECT COUNT(*) FROM \`supplier_status_history\`;
+SELECT COUNT(*) FROM \`functional_account_type\` WHERE \`owner_type\` = 'SUPPLIER' AND \`status\` = 'ACTIVE';
+SELECT COUNT(DISTINCT \`workspace_route\`) FROM \`functional_account_type\` WHERE \`owner_type\` = 'SUPPLIER' AND \`status\` = 'ACTIVE';
+SELECT COUNT(*) FROM \`information_schema\`.\`tables\` WHERE \`table_schema\` = DATABASE() AND \`table_name\` IN ('functional_account_type', 'supplier_user', 'functional_account', 'functional_account_status_history', 'functional_account_command');
+SELECT COUNT(*) FROM \`information_schema\`.\`referential_constraints\` WHERE \`constraint_schema\` = DATABASE() AND \`constraint_name\` IN ('supplier_user_supplier_id_fkey', 'functional_account_supplier_id_fkey', 'functional_account_identity_id_fkey', 'functional_account_account_type_id_fkey', 'functional_account_history_account_id_fkey');
 `,
     database,
   );
   const values = output.split(/\r?\n/u);
-  if (values.length !== 12) {
+  if (values.length !== 16) {
     throw new Error(`PRODUCT_COMPANY_PROBE_OUTPUT_INVALID:${output}`);
   }
   const [legalName, platformName] = values[2].split('|');
@@ -290,6 +294,10 @@ SELECT COUNT(*) FROM \`supplier_status_history\`;
     ownershipForeignKeyCount: Number(values[9]),
     approvalTaskCount: Number(values[10]),
     statusHistoryCount: Number(values[11]),
+    activeSupplierAccountTypeCount: Number(values[12]),
+    uniqueSupplierWorkspaceRouteCount: Number(values[13]),
+    functionalAccountTableCount: Number(values[14]),
+    functionalAccountForeignKeyCount: Number(values[15]),
   };
 };
 
@@ -353,6 +361,10 @@ const parseArguments = (arguments_) => {
       [
         path.join(repositoryRoot, 'artifacts', 'verification', 'M1-P003'),
         'M1-P003',
+      ],
+      [
+        path.join(repositoryRoot, 'artifacts', 'verification', 'M1-P005'),
+        'M1-P005',
       ],
     ]);
     const reportScope = [...allowedScopes.entries()].find(([allowedRoot]) => {
@@ -575,7 +587,11 @@ INSERT INTO \`supplier_status_history\` (\`id\`, \`supplier_id\`, \`from_status\
       productPopulatedState.supplierStatus === 'PENDING_REVIEW' &&
       productPopulatedState.supplierVersion === 1 &&
       productPopulatedState.approvalTaskCount === 1 &&
-      productPopulatedState.statusHistoryCount === 2,
+      productPopulatedState.statusHistoryCount === 2 &&
+      productPopulatedState.activeSupplierAccountTypeCount === 8 &&
+      productPopulatedState.uniqueSupplierWorkspaceRouteCount === 8 &&
+      productPopulatedState.functionalAccountTableCount === 5 &&
+      productPopulatedState.functionalAccountForeignKeyCount === 5,
     'PRODUCT_SINGLE_MERCHANT_STATE_INVALID',
   );
 
@@ -790,7 +806,7 @@ INSERT INTO \`supplier_status_history\` (\`id\`, \`supplier_id\`, \`from_status\
       idempotentRedeploy: 'PASS',
     },
     productRehearsal: {
-      taskId: 'M1-P003',
+      taskId: 'M1-P005',
       migrationCount: productPopulatedState.appliedMigrations,
       companyRowCount: productPopulatedState.companyRowCount,
       fixedIdentity: {
@@ -816,6 +832,15 @@ INSERT INTO \`supplier_status_history\` (\`id\`, \`supplier_id\`, \`from_status\
           productPopulatedState.ownershipForeignKeyCount,
         duplicateCreditCodeRejected: true,
         duplicateHistoryVersionRejected: true,
+      },
+      supplierFunctionalAccounts: {
+        activeAccountTypeCount:
+          productPopulatedState.activeSupplierAccountTypeCount,
+        uniqueWorkspaceRouteCount:
+          productPopulatedState.uniqueSupplierWorkspaceRouteCount,
+        tableCount: productPopulatedState.functionalAccountTableCount,
+        ownershipForeignKeyCount:
+          productPopulatedState.functionalAccountForeignKeyCount,
       },
       finalSchemaDrift: 'NONE',
       idempotentRedeploy: 'PASS',

@@ -1,0 +1,238 @@
+import { Inject, Injectable } from '@nestjs/common';
+import type { Prisma } from '@fulishe/db';
+
+import { PrismaService } from '../infrastructure/prisma.service.js';
+import { resolveSupplierAccountType } from './supplier-functional-account.policy.js';
+import type {
+  CreateSupplierFunctionalAccountCommand,
+  FunctionalAccountCreateResult,
+  FunctionalAccountListQuery,
+  SupplierFunctionalAccountRecord,
+  SupplierFunctionalAccountRepository,
+} from './supplier-functional-account.repository.js';
+
+type TransactionClient = Prisma.TransactionClient;
+
+const asInputJson = (value: unknown): Prisma.InputJsonValue =>
+  value as Prisma.InputJsonValue;
+
+const parseStoredResult = (
+  value: Prisma.JsonValue,
+): SupplierFunctionalAccountRecord =>
+  structuredClone(value) as unknown as SupplierFunctionalAccountRecord;
+
+const toRecord = (account: {
+  readonly accountType: { readonly code: string };
+  readonly displayName: string;
+  readonly expiresAt: Date | null;
+  readonly id: string;
+  readonly identityId: string;
+  readonly status: SupplierFunctionalAccountRecord['status'];
+  readonly supplierId: string | null;
+  readonly supplierUser: {
+    readonly email: string | null;
+    readonly lastLoginAt: Date | null;
+    readonly mobile: string;
+  };
+  readonly version: number;
+}): SupplierFunctionalAccountRecord => {
+  if (!account.supplierId) throw new Error('SUPPLIER_FUNCTIONAL_ACCOUNT_OWNER_INVALID');
+  const accountType = resolveSupplierAccountType(account.accountType.code);
+  return {
+    id: account.id,
+    identityId: account.identityId,
+    supplierId: account.supplierId,
+    accountTypeCode: accountType.code,
+    displayName: account.displayName,
+    mobile: account.supplierUser.mobile,
+    email: account.supplierUser.email,
+    status: account.status,
+    expiresAt: account.expiresAt?.toISOString() ?? null,
+    lastLoginAt: account.supplierUser.lastLoginAt?.toISOString() ?? null,
+    version: account.version,
+  };
+};
+
+const accountInclude = {
+  accountType: { select: { code: true } },
+  supplierUser: { select: { email: true, lastLoginAt: true, mobile: true } },
+} satisfies Prisma.FunctionalAccountInclude;
+
+@Injectable()
+export class PrismaSupplierFunctionalAccountRepository
+  implements SupplierFunctionalAccountRepository
+{
+  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+
+  private async replay(
+    database: TransactionClient,
+    scope: string,
+    command: CreateSupplierFunctionalAccountCommand,
+  ): Promise<FunctionalAccountCreateResult | null> {
+    const stored = await database.functionalAccountCommand.findUnique({
+      where: {
+        scope_idempotencyKey: {
+          scope,
+          idempotencyKey: command.idempotencyKey,
+        },
+      },
+      select: { requestHash: true, responseSnapshot: true },
+    });
+    if (!stored) return null;
+    if (stored.requestHash !== command.requestHash) {
+      return { kind: 'IDEMPOTENCY_CONFLICT' };
+    }
+    return {
+      kind: 'OK',
+      replayed: true,
+      value: parseStoredResult(stored.responseSnapshot),
+    };
+  }
+
+  async createAccount(
+    command: CreateSupplierFunctionalAccountCommand,
+  ): Promise<FunctionalAccountCreateResult> {
+    const scope = `CREATE:SUPPLIER:${command.supplierId}:${command.actorIdentityId}`;
+    return this.prisma.$transaction(async (database) => {
+      const replay = await this.replay(database, scope, command);
+      if (replay) return replay;
+      const accountType = await database.functionalAccountType.findUnique({
+        where: {
+          ownerType_code: {
+            ownerType: 'SUPPLIER',
+            code: command.accountTypeCode,
+          },
+        },
+      });
+      if (!accountType || accountType.status !== 'ACTIVE') {
+        return { kind: 'DUPLICATE' } as const;
+      }
+      const existingUser = await database.supplierUser.findUnique({
+        where: {
+          supplierId_mobile: {
+            supplierId: command.supplierId,
+            mobile: command.mobile,
+          },
+        },
+      });
+      const user =
+        existingUser ??
+        (await database.supplierUser.create({
+          data: {
+            id: command.identityId,
+            supplierId: command.supplierId,
+            name: command.displayName,
+            mobile: command.mobile,
+            email: command.email,
+          },
+        }));
+      const duplicate = await database.functionalAccount.findUnique({
+        where: {
+          supplierId_identityId_accountTypeId: {
+            supplierId: command.supplierId,
+            identityId: user.id,
+            accountTypeId: accountType.id,
+          },
+        },
+      });
+      if (duplicate) {
+        return { kind: 'DUPLICATE' } as const;
+      }
+      const created = await database.functionalAccount.create({
+        data: {
+          identityType: 'SUPPLIER_USER',
+          identityId: user.id,
+          ownerType: 'SUPPLIER',
+          supplierId: command.supplierId,
+          accountTypeId: accountType.id,
+          displayName: command.displayName,
+          expiresAt: command.expiresAt ? new Date(command.expiresAt) : null,
+        },
+        include: accountInclude,
+      });
+      const result = toRecord(created);
+      await database.functionalAccountStatusHistory.create({
+        data: {
+          functionalAccountId: created.id,
+          fromStatus: null,
+          toStatus: 'PENDING_ACTIVATION',
+          event: 'INVITE',
+          actorIdentityId: command.actorIdentityId,
+          version: 0,
+        },
+      });
+      await database.functionalAccountCommand.create({
+        data: {
+          scope,
+          idempotencyKey: command.idempotencyKey,
+          requestHash: command.requestHash,
+          responseSnapshot: asInputJson(result),
+        },
+      });
+      return { kind: 'OK', replayed: false, value: result } as const;
+    });
+  }
+
+  async findAccount(
+    supplierId: string,
+    functionalAccountId: string,
+  ): Promise<SupplierFunctionalAccountRecord | null> {
+    const account = await this.prisma.functionalAccount.findFirst({
+      where: { id: functionalAccountId, ownerType: 'SUPPLIER', supplierId },
+      include: accountInclude,
+    });
+    return account ? toRecord(account) : null;
+  }
+
+  async findAccountByMobile(
+    supplierId: string,
+    mobile: string,
+  ): Promise<SupplierFunctionalAccountRecord | null> {
+    const account = await this.prisma.functionalAccount.findFirst({
+      where: {
+        ownerType: 'SUPPLIER',
+        supplierId,
+        supplierUser: { mobile },
+      },
+      orderBy: { createdAt: 'asc' },
+      include: accountInclude,
+    });
+    return account ? toRecord(account) : null;
+  }
+
+  async isSupplierActive(supplierId: string): Promise<boolean> {
+    const supplier = await this.prisma.supplier.findUnique({
+      where: { id: supplierId },
+      select: { status: true },
+    });
+    return supplier?.status === 'ACTIVE';
+  }
+
+  async listAccounts(query: FunctionalAccountListQuery): Promise<{
+    readonly items: readonly SupplierFunctionalAccountRecord[];
+    readonly total: number;
+  }> {
+    const where = {
+      ownerType: 'SUPPLIER',
+      supplierId: query.supplierId,
+      ...(query.accountTypeCode
+        ? { accountType: { code: query.accountTypeCode, ownerType: 'SUPPLIER' } }
+        : {}),
+      ...(query.status ? { status: query.status } : {}),
+      ...(query.keyword
+        ? { displayName: { contains: query.keyword } }
+        : {}),
+    } satisfies Prisma.FunctionalAccountWhereInput;
+    const [accounts, total] = await this.prisma.$transaction([
+      this.prisma.functionalAccount.findMany({
+        where,
+        orderBy: [{ displayName: 'asc' }, { id: 'asc' }],
+        skip: (query.page - 1) * query.pageSize,
+        take: query.pageSize,
+        include: accountInclude,
+      }),
+      this.prisma.functionalAccount.count({ where }),
+    ]);
+    return { items: accounts.map(toRecord), total };
+  }
+}

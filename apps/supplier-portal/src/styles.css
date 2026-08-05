@@ -219,6 +219,31 @@ body {
   line-height: 1.7;
 }
 
+.functional-account-page {
+  min-height: 100vh;
+  padding: 48px max(24px, calc((100vw - 1180px) / 2));
+  background: linear-gradient(145deg, #edf9f6 0%, #f6f9fc 60%, #fff7f4 100%);
+}
+
+.functional-account-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.functional-account-header h1.ant-typography {
+  margin: 8px 0;
+  color: #143c43;
+}
+
+.functional-account-page .ant-card {
+  border: 1px solid #dcecea;
+  border-radius: 18px;
+  box-shadow: 0 18px 48px rgba(21, 72, 76, 0.08);
+}
+
 @media (max-width: 900px) {
   .registration-hero,
   .registration-layout {
@@ -247,5 +272,10 @@ body {
 
   .status-step::after {
     display: none;
+  }
+
+  .functional-account-header {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }

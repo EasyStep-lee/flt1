@@ -21,6 +21,21 @@ import {
 } from '../merchant/single-merchant.repository.js';
 import { SingleMerchantService } from '../merchant/single-merchant.service.js';
 import {
+  DenyFunctionalAccountActorResolver,
+  FUNCTIONAL_ACCOUNT_ACTOR_RESOLVER,
+} from '../supplier-functional-accounts/supplier-functional-account.actor.js';
+import {
+  FUNCTIONAL_ACCOUNT_REPOSITORY,
+  type SupplierFunctionalAccountRepository,
+} from '../supplier-functional-accounts/supplier-functional-account.repository.js';
+import {
+  FUNCTIONAL_ACCOUNT_AUDIT_SINK,
+  FUNCTIONAL_ACCOUNT_SECOND_VERIFIER,
+  LoggingFunctionalAccountAuditSink,
+  UnavailableFunctionalAccountSecondVerifier,
+} from '../supplier-functional-accounts/supplier-functional-account.security.js';
+import { SupplierFunctionalAccountService } from '../supplier-functional-accounts/supplier-functional-account.service.js';
+import {
   DenySupplierOnboardingActorResolver,
   SUPPLIER_ONBOARDING_ACTOR_RESOLVER,
 } from '../supplier-onboarding/supplier-onboarding.actor.js';
@@ -95,6 +110,34 @@ const forbiddenPublicResponseFields = new Set([
     {
       provide: SUPPLIER_REGISTRATION_VERIFIER,
       useExisting: UnavailableSupplierRegistrationVerifier,
+    },
+    SupplierFunctionalAccountService,
+    DenyFunctionalAccountActorResolver,
+    UnavailableFunctionalAccountSecondVerifier,
+    LoggingFunctionalAccountAuditSink,
+    {
+      provide: FUNCTIONAL_ACCOUNT_REPOSITORY,
+      useValue: {
+        createAccount: async () => {
+          throw new Error('OPENAPI_GENERATION_ONLY');
+        },
+        findAccount: async () => null,
+        findAccountByMobile: async () => null,
+        isSupplierActive: async () => false,
+        listAccounts: async () => ({ items: [], total: 0 }),
+      } satisfies SupplierFunctionalAccountRepository,
+    },
+    {
+      provide: FUNCTIONAL_ACCOUNT_ACTOR_RESOLVER,
+      useExisting: DenyFunctionalAccountActorResolver,
+    },
+    {
+      provide: FUNCTIONAL_ACCOUNT_SECOND_VERIFIER,
+      useExisting: UnavailableFunctionalAccountSecondVerifier,
+    },
+    {
+      provide: FUNCTIONAL_ACCOUNT_AUDIT_SINK,
+      useExisting: LoggingFunctionalAccountAuditSink,
     },
   ],
 })

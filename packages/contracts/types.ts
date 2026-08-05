@@ -136,6 +136,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/{ownerType}/functional-accounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List functional accounts in the authenticated owner scope */
+        get: operations["functionalAccounts.list"];
+        put?: never;
+        /** Invite a supplier functional account after second verification */
+        post: operations["functionalAccounts.create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -145,7 +163,7 @@ export interface components {
              * @example RESOURCE_NOT_FOUND
              * @enum {string}
              */
-            code: "ACCESS_DENIED" | "AUTHENTICATION_REQUIRED" | "INTERNAL_ERROR" | "REQUEST_INVALID" | "RESOURCE_NOT_FOUND" | "SERVICE_UNAVAILABLE" | "PAYEE_FORBIDDEN" | "SELLER_IDENTITY_FORBIDDEN" | "SINGLE_MERCHANT_VIOLATION" | "APPROVAL_VERSION_CONFLICT" | "DATA_SCOPE_FORBIDDEN" | "FIELD_FORBIDDEN" | "SECOND_VERIFICATION_REQUIRED" | "STATE_TRANSITION_INVALID" | "SUPPLIER_DUPLICATE" | "SUPPLIER_SCOPE_FORBIDDEN" | "VALIDATION_FAILED" | "VERSION_CONFLICT";
+            code: "ACCESS_DENIED" | "AUTHENTICATION_REQUIRED" | "INTERNAL_ERROR" | "REQUEST_INVALID" | "RESOURCE_NOT_FOUND" | "SERVICE_UNAVAILABLE" | "PAYEE_FORBIDDEN" | "SELLER_IDENTITY_FORBIDDEN" | "SINGLE_MERCHANT_VIOLATION" | "ACCOUNT_TYPE_INVALID" | "APPROVAL_VERSION_CONFLICT" | "DATA_SCOPE_FORBIDDEN" | "FIELD_FORBIDDEN" | "IDEMPOTENCY_CONFLICT" | "SECOND_VERIFICATION_REQUIRED" | "STATE_TRANSITION_INVALID" | "SUPPLIER_DUPLICATE" | "SUPPLIER_SCOPE_FORBIDDEN" | "VALIDATION_FAILED" | "VERSION_CONFLICT" | "WORKSPACE_FORBIDDEN";
             /** @example Resource was not found */
             message: string;
             /** @example /missing */
@@ -176,6 +194,17 @@ export interface components {
             status: "PENDING" | "IN_REVIEW" | "APPROVED" | "REJECTED" | "CANCELLED";
             version: number;
         };
+        CreateFunctionalAccountRequestDto: {
+            /** @enum {string} */
+            accountTypeCode: "SUPPLIER_ACCOUNT_ADMIN" | "SUPPLIER_PRODUCT" | "SUPPLIER_PRICING" | "SUPPLIER_INVENTORY" | "SUPPLIER_FULFILLMENT" | "SUPPLIER_AFTERSALES" | "SUPPLIER_FINANCE" | "SUPPLIER_AUDIT";
+            /** Format: date-time */
+            expiresAt?: string;
+            inviteeEmail?: string;
+            /** @example 13900139000 */
+            inviteeMobile: string;
+            inviteeName: string;
+            secondVerificationCode?: string;
+        };
         FoundationDependencyCheckDto: {
             /** @example OK */
             code: string;
@@ -186,6 +215,38 @@ export interface components {
              * @enum {string}
              */
             status: "UP" | "DOWN";
+        };
+        FunctionalAccountPageResponseDto: {
+            items: components["schemas"]["FunctionalAccountResponseDto"][];
+            page: number;
+            pageSize: number;
+            total: number;
+        };
+        FunctionalAccountQueryDto: {
+            /** @enum {string} */
+            accountTypeCode?: "SUPPLIER_ACCOUNT_ADMIN" | "SUPPLIER_PRODUCT" | "SUPPLIER_PRICING" | "SUPPLIER_INVENTORY" | "SUPPLIER_FULFILLMENT" | "SUPPLIER_AFTERSALES" | "SUPPLIER_FINANCE" | "SUPPLIER_AUDIT";
+            keyword?: string;
+            /** @default 1 */
+            page: number;
+            /** @default 20 */
+            pageSize: number;
+            /** @enum {string} */
+            status?: "PENDING_ACTIVATION" | "ACTIVE" | "SUSPENDED" | "REVOKED";
+        };
+        FunctionalAccountResponseDto: {
+            /** @enum {string} */
+            accountTypeCode: "SUPPLIER_ACCOUNT_ADMIN" | "SUPPLIER_PRODUCT" | "SUPPLIER_PRICING" | "SUPPLIER_INVENTORY" | "SUPPLIER_FULFILLMENT" | "SUPPLIER_AFTERSALES" | "SUPPLIER_FINANCE" | "SUPPLIER_AUDIT";
+            accountTypeName: string;
+            displayName: string;
+            /** Format: date-time */
+            expiresAt?: string;
+            /** Format: uuid */
+            id: string;
+            /** Format: date-time */
+            lastLoginAt?: string;
+            /** @enum {string} */
+            status: "PENDING_ACTIVATION" | "ACTIVE" | "SUSPENDED" | "REVOKED";
+            workspaceRoute: string;
         };
         HealthLivenessDto: {
             /**
@@ -752,6 +813,124 @@ export interface operations {
                 };
             };
             503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
+    "functionalAccounts.list": {
+        parameters: {
+            query?: {
+                pageSize?: number;
+                page?: number;
+                keyword?: string;
+                status?: "PENDING_ACTIVATION" | "ACTIVE" | "SUSPENDED" | "REVOKED";
+                accountTypeCode?: "SUPPLIER_ACCOUNT_ADMIN" | "SUPPLIER_PRODUCT" | "SUPPLIER_PRICING" | "SUPPLIER_INVENTORY" | "SUPPLIER_FULFILLMENT" | "SUPPLIER_AFTERSALES" | "SUPPLIER_FINANCE" | "SUPPLIER_AUDIT";
+            };
+            header?: never;
+            path: {
+                ownerType: "supplier" | "company";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FunctionalAccountPageResponseDto"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
+    "functionalAccounts.create": {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                ownerType: "supplier" | "company";
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateFunctionalAccountRequestDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FunctionalAccountResponseDto"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            428: {
                 headers: {
                     [name: string]: unknown;
                 };
