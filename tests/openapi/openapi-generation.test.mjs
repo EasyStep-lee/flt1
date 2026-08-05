@@ -102,7 +102,7 @@ test('OpenAPI generation is byte-stable and ignores runtime infrastructure confi
   assert.equal(firstTypes.includes(Buffer.from('\r\n')), false, 'types must use LF');
 });
 
-test('generated contract exposes health and the allow-listed merchant profile', () => {
+test('generated contract exposes health, merchant identity and frozen supplier onboarding APIs', () => {
   const generated = run(pnpm, ['openapi:generate']);
   assertSuccess(generated, 'openapi:generate');
 
@@ -111,7 +111,12 @@ test('generated contract exposes health and the allow-listed merchant profile', 
   assert.deepEqual(Object.keys(spec.paths), [
     '/health/live',
     '/health/ready',
+    '/v1/company/suppliers',
+    '/v1/company/suppliers/{supplierId}/review',
     '/v1/public/merchant-profile',
+    '/v1/supplier/me',
+    '/v1/supplier/me/submit-review',
+    '/v1/suppliers/registrations',
   ]);
   assert.equal(spec.paths['/health/live'].get.operationId, 'health.getLiveness');
   assert.equal(spec.paths['/health/ready'].get.operationId, 'health.getReadiness');
@@ -119,10 +124,31 @@ test('generated contract exposes health and the allow-listed merchant profile', 
     spec.paths['/v1/public/merchant-profile'].get.operationId,
     'publicMerchant.getProfile',
   );
+  assert.equal(
+    spec.paths['/v1/company/suppliers'].get.operationId,
+    'companySupplierOnboarding.list',
+  );
+  assert.equal(
+    spec.paths['/v1/company/suppliers/{supplierId}/review'].post.operationId,
+    'companySupplierOnboarding.review',
+  );
+  assert.equal(
+    spec.paths['/v1/supplier/me'].patch.operationId,
+    'supplierOnboarding.patchOwnProfile',
+  );
+  assert.equal(
+    spec.paths['/v1/supplier/me/submit-review'].post.operationId,
+    'supplierOnboarding.submitOwnProfile',
+  );
+  assert.equal(
+    spec.paths['/v1/suppliers/registrations'].post.operationId,
+    'supplierRegistration.create',
+  );
   assert.deepEqual(
     Object.keys(spec.components.schemas),
     [
       'ApiErrorResponseDto',
+      'ApprovalTaskResponseDto',
       'FoundationDependencyCheckDto',
       'HealthLivenessDto',
       'HealthReadinessChecksDto',
@@ -130,6 +156,17 @@ test('generated contract exposes health and the allow-listed merchant profile', 
       'PublicMerchantProfileQuery',
       'PublicMerchantProfileResponse',
       'PublicMerchantSubjectsDto',
+      'SubmitReviewRequestDto',
+      'SupplierPageResponseDto',
+      'SupplierProfilePatchRequestDto',
+      'SupplierProfileResponseDto',
+      'SupplierQualificationSnapshotDto',
+      'SupplierQualificationSummaryDto',
+      'SupplierQueryDto',
+      'SupplierRegistrationRequestDto',
+      'SupplierRegistrationResponseDto',
+      'SupplierResponseDto',
+      'SupplierReviewRequestDto',
     ],
   );
   assert.deepEqual(
@@ -148,6 +185,9 @@ test('generated contract exposes health and the allow-listed merchant profile', 
   assert.match(generatedTypes, /export interface paths/u);
   assert.match(generatedTypes, /"health\.getLiveness"/u);
   assert.match(generatedTypes, /"publicMerchant\.getProfile"/u);
+  assert.match(generatedTypes, /"supplierRegistration\.create"/u);
+  assert.match(generatedTypes, /"supplierOnboarding\.submitOwnProfile"/u);
+  assert.match(generatedTypes, /"companySupplierOnboarding\.review"/u);
   assert.match(generatedTypes, /ApiErrorResponseDto/u);
   assert.doesNotMatch(
     generatedTypes,
