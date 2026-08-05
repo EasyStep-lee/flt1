@@ -101,12 +101,12 @@ test('M1-P004 evidence and execution ledgers stay at the verified boundary', asy
   assert.equal(evidence.pullRequest.currentHeadCi, 'NOT_EXECUTED_AFTER_MERGE_REVIEW_FIX');
   assert.deepEqual(evidence.contractBoundary.newMigrations, []);
 
-  assert.equal(projectState.execution.currentTask, 'M1-P005');
-  assert.equal(projectState.execution.nextAllowedTask, 'M1-P005');
-  assert.equal(projectState.execution.lastCompletedTask, 'M1-P004');
+  assert.equal(projectState.execution.currentTask, 'M1-P045');
+  assert.equal(projectState.execution.nextAllowedTask, 'M1-P045');
+  assert.equal(projectState.execution.lastCompletedTask, 'M1-P005');
   assert.equal(projectState.execution.activeTaskCount, 0);
   assert.match(taskLedger, /M1-P004[^\r\n]*DONE[^\r\n]*LOCAL_PASS/u);
-  assert.match(taskLedger, /M1-P005[^\r\n]*READY[^\r\n]*NOT_EXECUTED/u);
+  assert.match(taskLedger, /M1-P005[^\r\n]*DONE[^\r\n]*LOCAL_PASS/u);
   assert.match(p0Ledger, /P0-004[^\r\n]*LOCAL_PASS/u);
   assert.match(apiLedger, /API-008[^\r\n]*GET[^\r\n]*\/v1\/supplier\/me[^\r\n]*GENERATED[^\r\n]*IMPLEMENTED/u);
   assert.match(

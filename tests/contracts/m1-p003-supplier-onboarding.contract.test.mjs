@@ -166,26 +166,19 @@ test('M1-P003 retains its local evidence after PR and main CI closure', async ()
   assert.equal(rehearsal.productRehearsal.supplierOnboarding.onboardingTableCount, 4);
   assert.equal(rehearsal.cleanup.errors.length, 0);
 
-  assert.equal(state.execution.currentTask, 'M1-P005');
-  assert.equal(state.execution.nextAllowedTask, 'M1-P005');
+  assert.equal(state.execution.currentTask, 'M1-P045');
+  assert.equal(state.execution.nextAllowedTask, 'M1-P045');
   assert.equal(state.execution.activeTaskCount, 0);
-  assert.equal(state.execution.lastCompletedTask, 'M1-P004');
-  assert.equal(state.github.pullRequest, 10);
+  assert.equal(state.execution.lastCompletedTask, 'M1-P005');
+  assert.equal(state.github.pullRequest, 12);
   assert.equal(state.github.pullRequestState, 'MERGED');
   assert.equal(state.github.pullRequestCi.status, 'CI_PASS');
   assert.equal(state.github.latestCi.scope, 'MAIN_POST_MERGE');
   assert.equal(state.github.latestCi.status, 'CI_PASS');
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M1-P004');
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M1-P005');
   assert.equal(state.github.currentTaskDelivery.status, 'DONE_LOCAL_PASS');
-  assert.equal(
-    state.github.currentTaskDelivery.exactHeadCi,
-    'NOT_EXECUTED_AFTER_MERGE_REVIEW_FIX',
-  );
-  assert.equal(state.github.currentTaskDelivery.previousHeadCi.status, 'CI_PASS');
-  assert.equal(
-    state.github.currentTaskDelivery.previousHeadCi.headSha,
-    'd75f5160e697ff4c4042de37603dde487911c37c',
-  );
+  assert.equal(state.github.currentTaskDelivery.exactHeadCi, 'NOT_EXECUTED');
+  assert.equal(state.github.currentTaskDelivery.pullRequest, 'NOT_EXECUTED');
   assert.equal(state.evidence.local, 'LOCAL_PASS');
-  assert.equal(state.evidence.ci, 'PREVIOUS_HEAD_PASS_CURRENT_HEAD_NOT_EXECUTED');
+  assert.equal(state.evidence.ci, 'NOT_EXECUTED');
 });
