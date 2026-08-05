@@ -39,16 +39,13 @@ const readCsv = async (relativePath) => {
   });
 };
 
-test('M1-P001 closes in CI and leaves only M1-P002 in progress', async () => {
+test('M1-P001 remains bound to merged PR 8 and its main CI', async () => {
   const [tasks, state] = await Promise.all([
     readCsv('03-任务台账.csv'),
     readFile(path.join(packRoot, '16-项目状态.json'), 'utf8').then(JSON.parse),
   ]);
-  const active = tasks.filter(({ Status }) => Status === 'IN_PROGRESS');
   const m1p001 = tasks.find(({ TaskID }) => TaskID === 'M1-P001');
-  const m1p002 = tasks.find(({ TaskID }) => TaskID === 'M1-P002');
 
-  assert.deepEqual(active.map(({ TaskID }) => TaskID), ['M1-P002']);
   assert.equal(m1p001?.Status, 'DONE');
   assert.equal(m1p001?.EvidenceStatus, 'CI_PASS');
   assert.equal(
@@ -57,16 +54,6 @@ test('M1-P001 closes in CI and leaves only M1-P002 in progress', async () => {
   );
   assert.equal(m1p001?.PullRequest, '8');
   assert.equal(m1p001?.CI, 'CI_PASS');
-  assert.equal(m1p002?.Status, 'IN_PROGRESS');
-  assert.equal(m1p002?.EvidenceStatus, 'NOT_EXECUTED');
-  assert.equal(state.execution.currentTask, 'M1-P002');
-  assert.equal(state.execution.nextAllowedTask, 'M1-P002');
-  assert.equal(state.execution.activeTaskCount, 1);
-  assert.equal(state.execution.lastCompletedTask, 'M1-P001');
-  assert.equal(
-    state.execution.lastCompletedCommit,
-    '7eb91066846204a18afa20c4c8b4c7b94676dca0',
-  );
   assert.equal(state.github.pullRequest, 8);
   assert.equal(
     state.github.latestCi.headSha,
