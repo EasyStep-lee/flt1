@@ -17,11 +17,30 @@ import {
 } from './merchant/single-merchant.repository.js';
 import { SingleMerchantService } from './merchant/single-merchant.service.js';
 import { OPENAPI_CONTROLLERS } from './openapi/openapi-controller.registry.js';
+import {
+  DenySupplierOnboardingActorResolver,
+  SUPPLIER_ONBOARDING_ACTOR_RESOLVER,
+  type SupplierOnboardingActorResolver,
+} from './supplier-onboarding/supplier-onboarding.actor.js';
+import { PrismaSupplierOnboardingRepository } from './supplier-onboarding/prisma-supplier-onboarding.repository.js';
+import {
+  SUPPLIER_ONBOARDING_REPOSITORY,
+  type SupplierOnboardingRepository,
+} from './supplier-onboarding/supplier-onboarding.repository.js';
+import { SupplierOnboardingService } from './supplier-onboarding/supplier-onboarding.service.js';
+import {
+  SUPPLIER_REGISTRATION_VERIFIER,
+  UnavailableSupplierRegistrationVerifier,
+  type SupplierRegistrationVerifier,
+} from './supplier-onboarding/supplier-registration.verifier.js';
 
 export interface AppModuleOptions {
   readonly config: RuntimeConfig;
   readonly probes?: readonly InfrastructureProbe[];
   readonly merchantRepository?: SingleMerchantRepository;
+  readonly supplierOnboardingRepository?: SupplierOnboardingRepository;
+  readonly supplierOnboardingActorResolver?: SupplierOnboardingActorResolver;
+  readonly supplierRegistrationVerifier?: SupplierRegistrationVerifier;
 }
 
 @Module({})
@@ -37,6 +56,10 @@ export class AppModule {
       PrismaService,
       PrismaSingleMerchantRepository,
       SingleMerchantService,
+      PrismaSupplierOnboardingRepository,
+      DenySupplierOnboardingActorResolver,
+      UnavailableSupplierRegistrationVerifier,
+      SupplierOnboardingService,
       options.merchantRepository
         ? {
             provide: SINGLE_MERCHANT_REPOSITORY,
@@ -45,6 +68,33 @@ export class AppModule {
         : {
             provide: SINGLE_MERCHANT_REPOSITORY,
             useExisting: PrismaSingleMerchantRepository,
+          },
+      options.supplierOnboardingRepository
+        ? {
+            provide: SUPPLIER_ONBOARDING_REPOSITORY,
+            useValue: options.supplierOnboardingRepository,
+          }
+        : {
+            provide: SUPPLIER_ONBOARDING_REPOSITORY,
+            useExisting: PrismaSupplierOnboardingRepository,
+          },
+      options.supplierOnboardingActorResolver
+        ? {
+            provide: SUPPLIER_ONBOARDING_ACTOR_RESOLVER,
+            useValue: options.supplierOnboardingActorResolver,
+          }
+        : {
+            provide: SUPPLIER_ONBOARDING_ACTOR_RESOLVER,
+            useExisting: DenySupplierOnboardingActorResolver,
+          },
+      options.supplierRegistrationVerifier
+        ? {
+            provide: SUPPLIER_REGISTRATION_VERIFIER,
+            useValue: options.supplierRegistrationVerifier,
+          }
+        : {
+            provide: SUPPLIER_REGISTRATION_VERIFIER,
+            useExisting: UnavailableSupplierRegistrationVerifier,
           },
     ];
 

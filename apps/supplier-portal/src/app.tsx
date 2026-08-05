@@ -1,10 +1,292 @@
-import { Alert, Space, Tag, Typography } from 'antd';
+import { useState } from 'react';
+import {
+  Alert,
+  Button,
+  Card,
+  Col,
+  Divider,
+  Form,
+  Input,
+  InputNumber,
+  Row,
+  Space,
+  Tag,
+  Typography,
+} from 'antd';
 import { ShellFrame } from '@fulishe/ui';
+import type { components } from '@fulishe/contracts';
 
+import { createSupplierPortalApiClient } from './api-client.js';
 import { supplierSessionBoundary } from './session-boundary.js';
+
+type RegistrationResponse = components['schemas']['SupplierRegistrationResponseDto'];
+type SupplierStatus = RegistrationResponse['status'];
+
+interface RegistrationFormValues {
+  readonly legalName: string;
+  readonly creditCode: string;
+  readonly contactName: string;
+  readonly mobile: string;
+  readonly email?: string;
+  readonly verificationCode: string;
+  readonly qualificationReferences?: string;
+  readonly pickupAddress?: string;
+  readonly pickupLat?: number;
+  readonly pickupLng?: number;
+  readonly agreementVersion: string;
+}
+
+const api = createSupplierPortalApiClient(import.meta.env.VITE_API_BASE_URL ?? '');
+
+const statusMeta: Record<SupplierStatus, { label: string; color: string }> = {
+  DRAFT: { label: '草稿', color: 'default' },
+  PENDING_REVIEW: { label: '待审核', color: 'processing' },
+  CORRECTION_REQUIRED: { label: '待补正', color: 'warning' },
+  ACTIVE: { label: '已启用', color: 'success' },
+  SUSPENDED: { label: '已停用', color: 'error' },
+  EXITING: { label: '退出处理中', color: 'orange' },
+  EXITED: { label: '已退出', color: 'default' },
+};
+
+const readErrorMessage = (value: unknown): string => {
+  if (value && typeof value === 'object' && 'message' in value) {
+    const message = (value as { readonly message?: unknown }).message;
+    if (typeof message === 'string') return message;
+  }
+  return '申请暂未保存，请检查资料后重试。';
+};
+
+function SupplierStatusLegend() {
+  return (
+    <div className="status-legend" data-testid="supplier-status-legend">
+      {(['DRAFT', 'PENDING_REVIEW', 'CORRECTION_REQUIRED', 'ACTIVE'] as const).map(
+        (status) => (
+          <div className="status-step" key={status}>
+            <span className="status-dot" />
+            <div>
+              <strong>{statusMeta[status].label}</strong>
+              <small>{status}</small>
+            </div>
+          </div>
+        ),
+      )}
+    </div>
+  );
+}
+
+function SupplierRegistrationPage() {
+  const [form] = Form.useForm<RegistrationFormValues>();
+  const [submitting, setSubmitting] = useState(false);
+  const [result, setResult] = useState<RegistrationResponse>();
+  const [error, setError] = useState<{ kind: 'error' | 'offline' | 'permission'; message: string }>();
+
+  const submit = async (values: RegistrationFormValues) => {
+    setSubmitting(true);
+    setError(undefined);
+    try {
+      const qualificationFiles = (values.qualificationReferences ?? '')
+        .split(/\r?\n/u)
+        .map((value) => value.trim())
+        .filter(Boolean);
+      const response = await api.POST('/v1/suppliers/registrations', {
+        params: { header: { 'Idempotency-Key': crypto.randomUUID() } },
+        body: {
+          legalName: values.legalName,
+          creditCode: values.creditCode,
+          contactName: values.contactName,
+          mobile: values.mobile,
+          ...(values.email ? { email: values.email } : {}),
+          verificationCode: values.verificationCode,
+          qualificationFiles,
+          pickupAddress: values.pickupAddress ?? null,
+          pickupLat: values.pickupLat ?? null,
+          pickupLng: values.pickupLng ?? null,
+          agreementVersion: values.agreementVersion,
+        },
+      });
+      if (!response.data) {
+        const kind =
+          response.response.status === 401 || response.response.status === 403
+            ? 'permission'
+            : 'error';
+        setError({ kind, message: readErrorMessage(response.error) });
+        return;
+      }
+      setResult(response.data);
+    } catch {
+      setError({ kind: 'offline', message: '网络连接超时或已离线，请恢复网络后重试。' });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <main className="onboarding-page" data-page-id="PAGE-013" data-route="/supplier/register">
+      <header className="brand-header">
+        <div className="brand-mark">福</div>
+        <div>
+          <strong>福礼社</strong>
+          <span>供应商合作中心</span>
+        </div>
+        <Tag color="cyan">江苏福礼团供应链科技有限公司</Tag>
+      </header>
+
+      <section className="registration-hero">
+        <div>
+          <Typography.Text className="eyebrow">SUPPLIER ONBOARDING</Typography.Text>
+          <Typography.Title level={1}>供应商入驻申请</Typography.Title>
+          <Typography.Paragraph>
+            一次登记主体、资质与取货点。公司审核通过后，再由主体管理职能账号进入独立后台。
+          </Typography.Paragraph>
+        </div>
+        <SupplierStatusLegend />
+      </section>
+
+      <div className="registration-layout">
+        <Card className="form-card" bordered={false}>
+          <div className="section-heading">
+            <span>01</span>
+            <div>
+              <h2>主体与联系人</h2>
+              <p>带 * 内容用于主体核验，系统不会在申请结果中回显验证码和联系方式。</p>
+            </div>
+          </div>
+          <Form
+            form={form}
+            layout="vertical"
+            initialValues={{ agreementVersion: 'supplier-agreement-v1.1' }}
+            onFinish={submit}
+            requiredMark="optional"
+          >
+            <Row gutter={18}>
+              <Col md={12} xs={24}>
+                <Form.Item label="企业名称" name="legalName" rules={[{ required: true, message: '请输入企业名称' }]}>
+                  <Input maxLength={128} placeholder="营业执照上的企业全称" />
+                </Form.Item>
+              </Col>
+              <Col md={12} xs={24}>
+                <Form.Item label="统一社会信用代码" name="creditCode" rules={[{ required: true, message: '请输入统一社会信用代码' }]}>
+                  <Input maxLength={18} placeholder="18 位代码" />
+                </Form.Item>
+              </Col>
+              <Col md={8} xs={24}>
+                <Form.Item label="联系人" name="contactName" rules={[{ required: true, message: '请输入联系人' }]}>
+                  <Input maxLength={128} />
+                </Form.Item>
+              </Col>
+              <Col md={8} xs={24}>
+                <Form.Item label="手机号" name="mobile" rules={[{ required: true, message: '请输入手机号' }]}>
+                  <Input inputMode="tel" maxLength={16} />
+                </Form.Item>
+              </Col>
+              <Col md={8} xs={24}>
+                <Form.Item label="验证码" name="verificationCode" rules={[{ required: true, message: '请输入验证码' }]}>
+                  <Input inputMode="numeric" maxLength={8} />
+                </Form.Item>
+              </Col>
+              <Col md={12} xs={24}>
+                <Form.Item label="联系邮箱（选填）" name="email">
+                  <Input type="email" />
+                </Form.Item>
+              </Col>
+              <Col md={12} xs={24}>
+                <Form.Item label="协议版本" name="agreementVersion" rules={[{ required: true }]}>
+                  <Input readOnly />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Divider />
+            <div className="section-heading">
+              <span>02</span>
+              <div>
+                <h2>资质与取货点</h2>
+                <p>可以先保存草稿；提交审核前必须补齐至少一项资质引用和完整取货点。</p>
+              </div>
+            </div>
+            <Form.Item
+              extra="每行一个已上传到受控存储的 object://supplier-qualification/… 引用"
+              label="资质文件引用"
+              name="qualificationReferences"
+            >
+              <Input.TextArea autoSize={{ minRows: 2, maxRows: 5 }} />
+            </Form.Item>
+            <Form.Item label="取货地址" name="pickupAddress">
+              <Input maxLength={500} placeholder="详细到可交接货物的位置" />
+            </Form.Item>
+            <Row gutter={18}>
+              <Col md={12} xs={24}>
+                <Form.Item label="取货点纬度" name="pickupLat">
+                  <InputNumber max={90} min={-90} precision={7} style={{ width: '100%' }} />
+                </Form.Item>
+              </Col>
+              <Col md={12} xs={24}>
+                <Form.Item label="取货点经度" name="pickupLng">
+                  <InputNumber max={180} min={-180} precision={7} style={{ width: '100%' }} />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            {error ? (
+              <Alert
+                className="form-alert"
+                description={error.message}
+                message={error.kind === 'offline' ? '网络不可用' : error.kind === 'permission' ? '无权操作' : '保存失败'}
+                showIcon
+                type="error"
+              />
+            ) : null}
+
+            <Button block htmlType="submit" loading={submitting} size="large" type="primary">
+              保存入驻申请
+            </Button>
+          </Form>
+        </Card>
+
+        <aside>
+          {result ? (
+            <Card className="result-card" bordered={false} data-ui-state="success">
+              <Typography.Text className="eyebrow">申请已安全保存</Typography.Text>
+              <Typography.Title level={3}>{statusMeta[result.status].label}</Typography.Title>
+              <Tag color={statusMeta[result.status].color}>{result.status}</Tag>
+              <dl>
+                <dt>申请编号</dt>
+                <dd>{result.registrationId}</dd>
+                <dt>下一步</dt>
+                <dd>继续补齐资料并提交公司审核</dd>
+              </dl>
+              <Alert
+                description="草稿或审核进度不等同于供应商业务登录权限。审核通过后按通知完成账号激活。"
+                message="边界提示"
+                showIcon
+                type="warning"
+              />
+            </Card>
+          ) : (
+            <Card className="help-card" bordered={false} data-ui-state="empty">
+              <Typography.Title level={4}>入驻说明</Typography.Title>
+              <Space direction="vertical" size="middle">
+                <p>1. 主体代码经标准化后全平台唯一。</p>
+                <p>2. 不完整资料可先存为草稿，不会被自动判定合规。</p>
+                <p>3. 公司供应商运营人员审核后，可要求补正或批准启用。</p>
+              </Space>
+              <Divider />
+              <Typography.Text type="secondary">
+                已有账号？请从供应商独立登录入口进入。
+              </Typography.Text>
+            </Card>
+          )}
+        </aside>
+      </div>
+    </main>
+  );
+}
 
 export function SupplierPortalShell() {
   const currentPath = window.location.pathname;
+  if (currentPath === supplierSessionBoundary.registerRoute) {
+    return <SupplierRegistrationPage />;
+  }
 
   return (
     <ShellFrame
@@ -16,18 +298,13 @@ export function SupplierPortalShell() {
       <Space direction="vertical" size="middle" style={{ marginTop: 24, width: '100%' }}>
         <Alert
           message="壳层已就绪"
-          description="注册、登录、商品、价格、库存、履约、财务等业务页面尚未实现。"
+          description="登录、商品、库存、履约、售后、财务等业务页面按后续任务逐项实现。"
           showIcon
           type="info"
         />
         <Typography.Text>
           当前路径：<Typography.Text code>{currentPath}</Typography.Text>
         </Typography.Text>
-        <Space wrap>
-          <Tag color="cyan">{supplierSessionBoundary.registerRoute}</Tag>
-          <Tag color="geekblue">{supplierSessionBoundary.loginRoute}</Tag>
-          <Tag color="volcano">本供应商单职能会话</Tag>
-        </Space>
       </Space>
     </ShellFrame>
   );

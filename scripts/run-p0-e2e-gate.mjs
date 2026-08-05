@@ -184,18 +184,34 @@ const run = async () => {
   if (!pnpmCli || !/\.(?:cjs|mjs|js)$/iu.test(pnpmCli)) {
     throw new Error('P0_E2E_PNPM_EXEC_PATH_REQUIRED');
   }
-  const portalBuild = spawnSync(
-    process.execPath,
-    [pnpmCli, '--filter', '@fulishe/portal-web', 'build'],
-    { cwd: repositoryRoot, env: process.env, stdio: 'inherit' },
-  );
-  if (portalBuild.error) throw portalBuild.error;
-  if (portalBuild.status !== 0) {
-    throw new Error(`P0_E2E_PORTAL_BUILD_FAILED:${portalBuild.status ?? 1}`);
+  const applicationBuilds = [
+    '@fulishe/portal-web',
+    '@fulishe/supplier-portal',
+    '@fulishe/company-admin',
+  ];
+  for (const application of applicationBuilds) {
+    const build = spawnSync(
+      process.execPath,
+      [pnpmCli, '--filter', application, 'build'],
+      { cwd: repositoryRoot, env: process.env, stdio: 'inherit' },
+    );
+    if (build.error) throw build.error;
+    if (build.status !== 0) {
+      throw new Error(
+        `P0_E2E_APPLICATION_BUILD_FAILED:${application}:${build.status ?? 1}`,
+      );
+    }
   }
   const result = spawnSync(
     process.execPath,
-    [pnpmCli, 'exec', 'playwright', 'test', 'tests/e2e/p0'],
+    [
+      pnpmCli,
+      'exec',
+      'playwright',
+      'test',
+      '--config',
+      'playwright.p0.config.ts',
+    ],
     { cwd: repositoryRoot, env: process.env, stdio: 'inherit' },
   );
   if (result.error) throw result.error;

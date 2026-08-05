@@ -6,6 +6,7 @@
   },
   "include": [
     "playwright.config.ts",
+    "playwright.p0.config.ts",
     "vitest.config.ts",
     "vitest.report.config.ts",
     "tests/e2e/**/*.ts"

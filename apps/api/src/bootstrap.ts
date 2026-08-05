@@ -13,6 +13,9 @@ import { requestIdMiddleware } from './http/request-id.middleware.js';
 import type { InfrastructureProbe } from './infrastructure/probe.js';
 import { SafeJsonLogger } from './logging/safe-json.logger.js';
 import type { SingleMerchantRepository } from './merchant/single-merchant.repository.js';
+import type { SupplierOnboardingActorResolver } from './supplier-onboarding/supplier-onboarding.actor.js';
+import type { SupplierOnboardingRepository } from './supplier-onboarding/supplier-onboarding.repository.js';
+import type { SupplierRegistrationVerifier } from './supplier-onboarding/supplier-registration.verifier.js';
 
 type Environment = Readonly<Record<string, string | undefined>>;
 
@@ -21,6 +24,9 @@ export interface CreateApplicationOptions {
   readonly config?: RuntimeConfig;
   readonly probes?: readonly InfrastructureProbe[];
   readonly merchantRepository?: SingleMerchantRepository;
+  readonly supplierOnboardingRepository?: SupplierOnboardingRepository;
+  readonly supplierOnboardingActorResolver?: SupplierOnboardingActorResolver;
+  readonly supplierRegistrationVerifier?: SupplierRegistrationVerifier;
   readonly logger?: LoggerService | false;
 }
 
@@ -33,6 +39,15 @@ export const createApplication = async (
     ...(options.probes ? { probes: options.probes } : {}),
     ...(options.merchantRepository
       ? { merchantRepository: options.merchantRepository }
+      : {}),
+    ...(options.supplierOnboardingRepository
+      ? { supplierOnboardingRepository: options.supplierOnboardingRepository }
+      : {}),
+    ...(options.supplierOnboardingActorResolver
+      ? { supplierOnboardingActorResolver: options.supplierOnboardingActorResolver }
+      : {}),
+    ...(options.supplierRegistrationVerifier
+      ? { supplierRegistrationVerifier: options.supplierRegistrationVerifier }
       : {}),
   };
   const logger = options.logger === false ? false : options.logger ?? new SafeJsonLogger();

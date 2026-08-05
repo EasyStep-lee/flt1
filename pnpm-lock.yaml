@@ -102,6 +102,9 @@ importers:
 
   apps/company-admin:
     dependencies:
+      '@fulishe/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
       '@fulishe/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -198,6 +201,9 @@ importers:
 
   apps/supplier-portal:
     dependencies:
+      '@fulishe/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
       '@fulishe/ui':
         specifier: workspace:*
         version: link:../../packages/ui

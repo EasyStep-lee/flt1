@@ -5,6 +5,7 @@ const portalOrigin = 'http://127.0.0.1:4319';
 
 export default defineConfig({
   testDir: './tests/e2e',
+  testIgnore: '**/p0/**',
   outputDir: `${reportRoot}/raw`,
   fullyParallel: false,
   forbidOnly: Boolean(process.env.CI),

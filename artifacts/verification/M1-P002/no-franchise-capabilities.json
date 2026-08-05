@@ -2,12 +2,14 @@
   "schemaVersion": 1,
   "taskId": "M1-P002",
   "p0Id": "P0-002",
-  "generatedAt": "2026-08-05T03:20:17-04:00",
-  "result": "LOCAL_PASS",
+  "generatedAt": "2026-08-05T07:51:26Z",
+  "result": "CI_PASS",
   "sourceState": {
     "baseCommit": "c2b4bf420d0629b795cdfbdf2c1c4378224d76f7",
     "stateStartCommit": "b4cd6a7f2545b26291b7da64cf6b49a17031652c",
-    "implementationCommit": "c7ea23b6f67cce69224a5f7a8ea76408df1fc44c"
+    "implementationCommit": "c7ea23b6f67cce69224a5f7a8ea76408df1fc44c",
+    "deliveryHead": "fb3c7a5e311d4472778eb63f9ef7351182ddc010",
+    "mergeCommit": "6f0adf8f69ceff30ff5834d6d5377cd2d2d9fd46"
   },
   "scope": {
     "implemented": [
@@ -83,9 +85,37 @@
     "stepsPassed": 17,
     "reportPath": "artifacts/test-results/verification/pnpm-verify.json"
   },
+  "github": {
+    "pullRequest": 9,
+    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/9",
+    "exactHeadCi": {
+      "status": "CI_PASS",
+      "runId": 30985328986,
+      "jobId": 92238654769,
+      "headSha": "fb3c7a5e311d4472778eb63f9ef7351182ddc010"
+    },
+    "documentedSelfReview": {
+      "status": "DOCUMENTED_SELF_REVIEW_COMPLETE",
+      "commentId": 5189059501,
+      "reviewedHead": "fb3c7a5e311d4472778eb63f9ef7351182ddc010"
+    },
+    "merge": {
+      "status": "MERGED",
+      "commit": "6f0adf8f69ceff30ff5834d6d5377cd2d2d9fd46",
+      "mergedAt": "2026-08-05T07:47:39Z"
+    },
+    "mainPostMergeCi": {
+      "status": "CI_PASS",
+      "runId": 30986393602,
+      "jobId": 92242007155,
+      "headSha": "6f0adf8f69ceff30ff5834d6d5377cd2d2d9fd46",
+      "completedAt": "2026-08-05T07:51:26Z",
+      "closureCommentId": 5189103973
+    }
+  },
   "evidenceBoundary": {
     "local": "LOCAL_PASS",
-    "ci": "NOT_EXECUTED",
+    "ci": "CI_PASS",
     "staging": "NOT_EXECUTED",
     "device": "NOT_APPLICABLE",
     "production": "NOT_EXECUTED",
