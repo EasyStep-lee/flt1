@@ -61,6 +61,25 @@ test('root test chain exposes the M0 handoff evidence contract', async () => {
   assert.match(packageJson.scripts.lint, /tests\/handoffs/u);
 });
 
+test('generator derives M0 ancestry from one rev-list reachable set', async () => {
+  const generator = await readFile(generatorPath, 'utf8');
+
+  assert.match(
+    generator,
+    /const reachableCommitsFrom = \(sourceCommit\) =>\s*new Set\(/u,
+  );
+  assert.equal(
+    generator.match(/\['rev-list', sourceCommit\]/gu)?.length,
+    1,
+  );
+  assert.match(
+    generator,
+    /const sourceAncestors = reachableCommitsFrom\(sourceCommit\);/u,
+  );
+  assert.match(generator, /sourceAncestors\.has\(commit\)/u);
+  assert.doesNotMatch(generator, /\['merge-base', '--is-ancestor'/u);
+});
+
 test('generator produces a complete, hash-bound, non-passing M0 handoff package', async () => {
   const directory = await mkdtemp(path.join(os.tmpdir(), 'fulishe-m0-012-contract-'));
   try {
