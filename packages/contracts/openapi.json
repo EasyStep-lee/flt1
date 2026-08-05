@@ -15,10 +15,12 @@
               "SELLER_IDENTITY_FORBIDDEN",
               "SINGLE_MERCHANT_VIOLATION",
               "APPROVAL_VERSION_CONFLICT",
+              "DATA_SCOPE_FORBIDDEN",
               "FIELD_FORBIDDEN",
               "SECOND_VERIFICATION_REQUIRED",
               "STATE_TRANSITION_INVALID",
               "SUPPLIER_DUPLICATE",
+              "SUPPLIER_SCOPE_FORBIDDEN",
               "VALIDATION_FAILED",
               "VERSION_CONFLICT"
             ],
@@ -1011,6 +1013,46 @@
       }
     },
     "/v1/supplier/me": {
+      "get": {
+        "operationId": "supplierOnboarding.getOwnProfile",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupplierProfileResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Get the supplier profile bound to the fixed functional session",
+        "tags": [
+          "supplier-onboarding-self-service"
+        ]
+      },
       "patch": {
         "operationId": "supplierOnboarding.patchOwnProfile",
         "parameters": [

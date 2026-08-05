@@ -33,6 +33,7 @@ import {
   SUPPLIER_REGISTRATION_VERIFIER,
   type SupplierRegistrationVerifier,
 } from './supplier-registration.verifier.js';
+import { assertSupplierResourceScope } from '../supplier-scope/supplier-scope.policy.js';
 
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/u;
@@ -79,6 +80,11 @@ const profileServerControlledKeys = new Set([
   'status',
   'supplierId',
 ]);
+const privateScopeControlKeys = new Set([
+  'companyId',
+  'functionalAccountId',
+  'supplierId',
+]);
 
 const hashRequest = (value: unknown): string =>
   createHash('sha256').update(JSON.stringify(value)).digest('hex');
@@ -101,6 +107,18 @@ const assertAllowedKeys = (
   }
   if (keys.some((key) => !allowed.has(key))) {
     throw new SafeApiError(422, 'VALIDATION_FAILED', 'Request body contains an unknown field');
+  }
+};
+
+const assertNoClientSupplierScope = (
+  input: Readonly<Record<string, unknown>>,
+): void => {
+  if (Object.keys(input).some((key) => privateScopeControlKeys.has(key))) {
+    throw new SafeApiError(
+      403,
+      'SUPPLIER_SCOPE_FORBIDDEN',
+      'Supplier scope is derived from the fixed functional session',
+    );
   }
 };
 
@@ -330,6 +348,15 @@ export class SupplierOnboardingService {
     private readonly registrationVerifier: SupplierRegistrationVerifier,
   ) {}
 
+  async getOwnProfile(
+    actor: SupplierAccountAdminActor,
+  ): Promise<SupplierProfileResponseModel> {
+    const current = await this.repository.findSupplier(actor.supplierId);
+    if (!current) return throwRepositoryFailure('NOT_FOUND');
+    assertSupplierResourceScope(actor.supplierId, current.id, 'SUPPLIER_PROFILE');
+    return toProfileResponse(current);
+  }
+
   async register(
     body: unknown,
     idempotencyHeader: string | undefined,
@@ -421,6 +448,7 @@ export class SupplierOnboardingService {
     idempotencyHeader: string | undefined,
   ): Promise<{ body: SupplierProfileResponseModel; replayed: boolean }> {
     const input = assertObject(body);
+    assertNoClientSupplierScope(input);
     assertAllowedKeys(input, profileAllowedKeys, profileServerControlledKeys);
     if (input.settlementAccountChangeRequest !== undefined) {
       throw new SafeApiError(
@@ -431,6 +459,7 @@ export class SupplierOnboardingService {
     }
     const current = await this.repository.findSupplier(actor.supplierId);
     if (!current) return throwRepositoryFailure('NOT_FOUND');
+    assertSupplierResourceScope(actor.supplierId, current.id, 'SUPPLIER_PROFILE');
     if (!['DRAFT', 'CORRECTION_REQUIRED'].includes(current.status)) {
       throwRepositoryFailure('STATE_INVALID');
     }
@@ -491,6 +520,7 @@ export class SupplierOnboardingService {
     idempotencyHeader: string | undefined,
   ): Promise<{ body: ApprovalTaskResponseModel; replayed: boolean }> {
     const input = assertObject(body);
+    assertNoClientSupplierScope(input);
     assertAllowedKeys(input, new Set(['requestId', 'version']), ownershipKeys);
     const version = assertVersion(input.version);
     const requestId = requiredString(input, 'requestId', 36).toLowerCase();
@@ -500,6 +530,7 @@ export class SupplierOnboardingService {
     const idempotencyKey = assertIdempotencyKey(idempotencyHeader);
     const current = await this.repository.findSupplier(actor.supplierId);
     if (!current) return throwRepositoryFailure('NOT_FOUND');
+    assertSupplierResourceScope(actor.supplierId, current.id, 'SUPPLIER_PROFILE');
     const event = current.status === 'CORRECTION_REQUIRED' ? 'RESUBMIT' : 'SUBMIT';
     resolveSupplierTransition(current.status, event);
     if (collectSupplierSubmissionIssues(current).length > 0) {

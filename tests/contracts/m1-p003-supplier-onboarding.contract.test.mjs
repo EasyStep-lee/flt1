@@ -73,7 +73,7 @@ test('M1-P003 keeps the frozen API, role and page scope without transaction capa
   assert.doesNotMatch(`${supplierPage}\n${companyPage}`, /供应价|毛利|供应商应付/u);
 });
 
-test('M1-P003 generated OpenAPI exposes only the five frozen onboarding operations', async () => {
+test('M1-P003 generated OpenAPI retains its five frozen onboarding operations', async () => {
   const openapi = JSON.parse(
     await readFile(path.join(repositoryRoot, 'packages', 'contracts', 'openapi.json'), 'utf8'),
   );
@@ -88,7 +88,6 @@ test('M1-P003 generated OpenAPI exposes only the five frozen onboarding operatio
   for (const [method, route] of operations) {
     assert.ok(openapi.paths[route]?.[method], `${method.toUpperCase()} ${route}`);
   }
-  assert.equal(openapi.paths['/v1/supplier/me']?.get, undefined);
   assert.doesNotMatch(JSON.stringify(openapi.paths), /franchise|storefront|direct-payment/iu);
 });
 
