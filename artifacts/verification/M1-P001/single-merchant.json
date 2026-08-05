@@ -3,10 +3,12 @@
   "taskId": "M1-P001",
   "p0Id": "P0-001",
   "generatedAt": "2026-08-04T04:14:09-04:00",
-  "result": "LOCAL_PASS",
+  "result": "CI_PASS",
   "sourceState": {
     "baseCommit": "12da44ab2d025bcee4e7791570a2a5c5d046653d",
-    "implementationCommit": "9d7d763e41dc8ffba0166d2b9162c162542ccc7d"
+    "implementationCommit": "9d7d763e41dc8ffba0166d2b9162c162542ccc7d",
+    "reviewedHead": "7eb91066846204a18afa20c4c8b4c7b94676dca0",
+    "mergeCommit": "c2b4bf420d0629b795cdfbdf2c1c4378224d76f7"
   },
   "scope": {
     "implemented": [
@@ -65,6 +67,17 @@
     "stepsPassed": 17,
     "reportPath": "artifacts/test-results/verification/pnpm-verify.json"
   },
+  "githubVerification": {
+    "pullRequest": 8,
+    "pullRequestCiRun": 30972862174,
+    "pullRequestCiJob": 92200744451,
+    "selfReviewComment": 5187321743,
+    "mergeCommit": "c2b4bf420d0629b795cdfbdf2c1c4378224d76f7",
+    "mainCiRun": 30973491201,
+    "mainCiJob": 92202626637,
+    "mainCiCompletedAt": "2026-08-05T03:56:26Z",
+    "result": "CI_PASS"
+  },
   "publicDtoForbiddenFields": [
     "wechatPayConfigRef",
     "companyId",
@@ -80,7 +93,7 @@
   ],
   "evidenceBoundary": {
     "local": "LOCAL_PASS",
-    "ci": "NOT_EXECUTED",
+    "ci": "CI_PASS",
     "staging": "NOT_EXECUTED",
     "device": "NOT_APPLICABLE_TO_THIS_BROWSER_SLICE",
     "production": "NOT_EXECUTED",

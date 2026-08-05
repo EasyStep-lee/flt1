@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 1,
+  "taskId": "M1-P002",
+  "p0Id": "P0-002",
+  "generatedAt": "2026-08-05T03:20:17-04:00",
+  "result": "LOCAL_PASS",
+  "sourceState": {
+    "baseCommit": "c2b4bf420d0629b795cdfbdf2c1c4378224d76f7",
+    "stateStartCommit": "b4cd6a7f2545b26291b7da64cf6b49a17031652c",
+    "implementationCommit": "c7ea23b6f67cce69224a5f7a8ea76408df1fc44c"
+  },
+  "scope": {
+    "implemented": [
+      "NO_FRANCHISEE_CAPABILITIES domain policy",
+      "Prisma schema and published migration entity guard",
+      "deterministic OpenAPI path and schema guard",
+      "application route and entrance guard",
+      "forbidden API 404 and portal no-entrance evidence"
+    ],
+    "notImplemented": [
+      "franchisee registration or administration",
+      "regional revenue sharing or split settlement",
+      "franchise contracts",
+      "franchisee or regional-merchant persistence entities"
+    ]
+  },
+  "contractBoundary": {
+    "schema": "UNCHANGED_NO_FORBIDDEN_ENTITY",
+    "migration": "NOT_REQUIRED_NO_ENTITY_ALLOWED",
+    "openApi": "UNCHANGED_NO_FORBIDDEN_PATH_OR_SCHEMA",
+    "dto": "NOT_APPLICABLE_NO_ENDPOINT",
+    "page": "NOT_APPLICABLE_NO_ENTRANCE",
+    "policyErrorCodes": [
+      "FORBIDDEN_CAPABILITY",
+      "FORBIDDEN_ENTITY"
+    ]
+  },
+  "negativeTests": [
+    {
+      "id": "NEG-M1-002-01",
+      "category": "FRANCHISEE_ROUTE",
+      "expectedCode": "FORBIDDEN_CAPABILITY",
+      "status": "PASS"
+    },
+    {
+      "id": "NEG-M1-002-02",
+      "category": "REGIONAL_REVENUE_SHARE",
+      "expectedCode": "FORBIDDEN_CAPABILITY",
+      "status": "PASS"
+    },
+    {
+      "id": "NEG-M1-002-03",
+      "category": "FRANCHISEE_ENTITY",
+      "expectedCode": "FORBIDDEN_ENTITY",
+      "status": "PASS"
+    }
+  ],
+  "repositoryScan": {
+    "status": "PASS",
+    "schemaFiles": 1,
+    "migrationFiles": 2,
+    "openApiPaths": 3,
+    "applicationRouteFiles": 79,
+    "violations": 0
+  },
+  "verification": {
+    "red": "EXPECTED_FAILURE_MISSING_POLICY_AND_REPOSITORY_GUARD",
+    "domainPolicy": "PASS_4_OF_4",
+    "repositoryGuard": "PASS_4_OF_4",
+    "forbiddenApi": "PASS_4_OF_4",
+    "p0Chromium": "PASS_1_OF_1",
+    "prismaValidate": "PASS",
+    "publishedMigrations": "UNCHANGED_2_OF_2",
+    "productMigrationRehearsal": "PASS_2_MIGRATIONS_CLEANUP_PASS",
+    "openapiDeterministic": "PASS_NO_CHANGE",
+    "pnpmVerify": "PASS_17_OF_17"
+  },
+  "fullVerification": {
+    "baseRef": "c2b4bf420d0629b795cdfbdf2c1c4378224d76f7",
+    "commit": "c7ea23b6f67cce69224a5f7a8ea76408df1fc44c",
+    "startedAt": "2026-08-05T07:14:04.391Z",
+    "endedAt": "2026-08-05T07:19:15.913Z",
+    "stepsPassed": 17,
+    "reportPath": "artifacts/test-results/verification/pnpm-verify.json"
+  },
+  "evidenceBoundary": {
+    "local": "LOCAL_PASS",
+    "ci": "NOT_EXECUTED",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_APPLICABLE",
+    "production": "NOT_EXECUTED",
+    "formalAcceptance": "NOT_EXECUTED"
+  }
+}
