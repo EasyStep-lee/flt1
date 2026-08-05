@@ -210,7 +210,10 @@ test('P0 E2E gate runs the available business P0 after contract freeze', () => {
 });
 
 test('P0 E2E gate builds every mapped application before Playwright starts production servers', async () => {
-  const script = await readRepositoryFile('scripts/run-p0-e2e-gate.mjs');
+  const [script, foundationConfig] = await Promise.all([
+    readRepositoryFile('scripts/run-p0-e2e-gate.mjs'),
+    readRepositoryFile('playwright.config.ts'),
+  ]);
   const applicationBuilds = script.match(/const applicationBuilds = \[[\s\S]*?\];/u);
   const playwright = script.match(
     /'playwright\.p0\.config\.ts'/u,
@@ -226,6 +229,11 @@ test('P0 E2E gate builds every mapped application before Playwright starts produ
     'application builds must complete before Playwright starts servers',
   );
   assert.match(script, /P0_E2E_APPLICATION_BUILD_FAILED/u);
+  assert.match(
+    foundationConfig,
+    /testIgnore:\s*'\*\*\/p0\/\*\*'/u,
+    'single-portal foundation config must not run the multi-application P0 suite',
+  );
 });
 
 test('GitHub collaboration templates and formal ownership require real accountable identities', async () => {
