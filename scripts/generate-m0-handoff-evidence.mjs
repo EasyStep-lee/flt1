@@ -158,10 +158,26 @@ const commitMetadata = (commit) => ({
   committedAt: runGit(['show', '-s', '--format=%cI', commit]).stdout.trim(),
 });
 
-const commitIsAncestor = (commit, sourceCommit) =>
-  runGit(['merge-base', '--is-ancestor', commit, sourceCommit], {
-    allowFailure: true,
-  }).status === 0;
+const commitParents = (commit) => {
+  const headers = runGit(['cat-file', '-p', commit]).stdout.split(
+    /\r?\n\r?\n/u,
+  )[0];
+  return [...headers.matchAll(/^parent ([0-9a-f]{40})$/gmu)].map(
+    ([, parent]) => parent,
+  );
+};
+
+const reachableCommitsFrom = (sourceCommit) => {
+  const reachableCommits = new Set();
+  const pendingCommits = [sourceCommit];
+  while (pendingCommits.length > 0) {
+    const commit = pendingCommits.pop();
+    if (!commit || reachableCommits.has(commit)) continue;
+    reachableCommits.add(commit);
+    pendingCommits.push(...commitParents(commit));
+  }
+  return reachableCommits;
+};
 
 const readVerificationReport = async (sourceCommit) => {
   const reportPath = path.join(
@@ -329,6 +345,7 @@ GitHub CLI认证只证明本机登录，不证明目标仓库、默认分支或�
 const run = async () => {
   const options = parseArguments(process.argv.slice(2));
   const sourceCommit = resolveCommit(options.sourceCommit);
+  const sourceAncestors = reachableCommitsFrom(sourceCommit);
   const baseline = JSON.parse(
     await readFile(
       path.join(repositoryRoot, 'docs', 'product', 'baseline-lock.json'),
@@ -362,7 +379,7 @@ const run = async () => {
       );
     }
     const commit = resolveCommit(row.CommitSHA);
-    if (!commitIsAncestor(commit, sourceCommit)) {
+    if (!sourceAncestors.has(commit)) {
       throw new Error(`M0_HANDOFF_TASK_NOT_ANCESTOR:${taskId}:${commit}`);
     }
     const matchingHandoffs = handoffFiles.filter((filePath) =>

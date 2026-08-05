@@ -10,6 +10,7 @@ const repoRoot = fileURLToPath(new URL('../../', import.meta.url));
 const pnpm = 'pnpm';
 const specPath = path.join(repoRoot, 'packages', 'contracts', 'openapi.json');
 const typesPath = path.join(repoRoot, 'packages', 'contracts', 'types.ts');
+const rootPackagePath = path.join(repoRoot, 'package.json');
 
 const run = (command, args, options = {}) =>
   spawnSync(command, args, {
@@ -54,6 +55,28 @@ const findForbiddenKeys = (value, location = '$') => {
   });
 };
 
+test('openapi:generate builds runtime contracts before loading API sources', () => {
+  const rootPackage = JSON.parse(readFileSync(rootPackagePath, 'utf8'));
+  const script = rootPackage.scripts?.['openapi:generate'];
+  assert.equal(typeof script, 'string');
+
+  const contractsBuild = 'pnpm --filter @fulishe/contracts build';
+  const generator = 'tsx --tsconfig ./apps/api/tsconfig.json ./scripts/generate-openapi.ts';
+  const contractsBuildIndex = script.indexOf(contractsBuild);
+  const generatorIndex = script.indexOf(generator);
+
+  assert.notEqual(
+    contractsBuildIndex,
+    -1,
+    'clean environments must build @fulishe/contracts before OpenAPI generation',
+  );
+  assert.notEqual(generatorIndex, -1, 'the deterministic OpenAPI generator must remain enabled');
+  assert.ok(
+    contractsBuildIndex < generatorIndex,
+    '@fulishe/contracts must be built before API source modules are loaded',
+  );
+});
+
 test('OpenAPI generation is byte-stable and ignores runtime infrastructure configuration', () => {
   const hostileRuntimeEnvironment = {
     ...process.env,
@@ -79,15 +102,23 @@ test('OpenAPI generation is byte-stable and ignores runtime infrastructure confi
   assert.equal(firstTypes.includes(Buffer.from('\r\n')), false, 'types must use LF');
 });
 
-test('generated contract exposes only health DTOs and a safe error envelope', () => {
+test('generated contract exposes health and the allow-listed merchant profile', () => {
   const generated = run(pnpm, ['openapi:generate']);
   assertSuccess(generated, 'openapi:generate');
 
   const spec = JSON.parse(readFileSync(specPath, 'utf8'));
   assert.equal(spec.openapi, '3.0.0');
-  assert.deepEqual(Object.keys(spec.paths), ['/health/live', '/health/ready']);
+  assert.deepEqual(Object.keys(spec.paths), [
+    '/health/live',
+    '/health/ready',
+    '/v1/public/merchant-profile',
+  ]);
   assert.equal(spec.paths['/health/live'].get.operationId, 'health.getLiveness');
   assert.equal(spec.paths['/health/ready'].get.operationId, 'health.getReadiness');
+  assert.equal(
+    spec.paths['/v1/public/merchant-profile'].get.operationId,
+    'publicMerchant.getProfile',
+  );
   assert.deepEqual(
     Object.keys(spec.components.schemas),
     [
@@ -96,13 +127,27 @@ test('generated contract exposes only health DTOs and a safe error envelope', ()
       'HealthLivenessDto',
       'HealthReadinessChecksDto',
       'HealthReadinessDto',
+      'PublicMerchantProfileQuery',
+      'PublicMerchantProfileResponse',
+      'PublicMerchantSubjectsDto',
     ],
+  );
+  assert.deepEqual(
+    Object.keys(
+      spec.components.schemas.PublicMerchantProfileResponse.properties,
+    ),
+    ['legalName', 'platformName', 'subjects'],
+  );
+  assert.deepEqual(
+    Object.keys(spec.components.schemas.PublicMerchantSubjectsDto.properties),
+    ['paymentPayee', 'refundOperator', 'seller'],
   );
   assert.deepEqual(findForbiddenKeys(spec), []);
 
   const generatedTypes = readFileSync(typesPath, 'utf8');
   assert.match(generatedTypes, /export interface paths/u);
   assert.match(generatedTypes, /"health\.getLiveness"/u);
+  assert.match(generatedTypes, /"publicMerchant\.getProfile"/u);
   assert.match(generatedTypes, /ApiErrorResponseDto/u);
   assert.doesNotMatch(
     generatedTypes,

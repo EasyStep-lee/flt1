@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "pnpm --filter @fulishe/ui build && next build",
+    "build": "pnpm --filter @fulishe/contracts build && pnpm --filter @fulishe/ui build && next build",
     "dev": "next dev --hostname 127.0.0.1 --port 3000",
     "lint": "eslint src test next.config.mjs --max-warnings=0",
     "start": "next start --hostname 127.0.0.1 --port 3000",
@@ -13,6 +13,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@fulishe/contracts": "workspace:*",
     "@fulishe/ui": "workspace:*",
     "@fulishe/web-api-client": "workspace:*",
     "@tanstack/react-query": "5.101.4",

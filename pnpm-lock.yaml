@@ -50,6 +50,9 @@ importers:
       '@fulishe/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@fulishe/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
       '@fulishe/db':
         specifier: workspace:*
         version: link:../../packages/db
@@ -139,6 +142,9 @@ importers:
 
   apps/portal-web:
     dependencies:
+      '@fulishe/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
       '@fulishe/ui':
         specifier: workspace:*
         version: link:../../packages/ui

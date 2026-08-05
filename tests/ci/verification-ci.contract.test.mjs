@@ -126,6 +126,10 @@ test('GitHub CI uses frozen installation, full history, immutable action pins, a
   assert.match(workflow, /permissions:\s*\n\s+contents:\s*read/u);
   assert.match(workflow, /fetch-depth:\s*0/u);
   assert.match(workflow, /persist-credentials:\s*false/u);
+  assert.match(
+    workflow,
+    /ref:\s*\$\{\{\s*github\.event\.pull_request\.head\.sha\s*\|\|\s*github\.sha\s*\}\}/u,
+  );
   assert.match(workflow, /pnpm install --frozen-lockfile --ignore-scripts/u);
   assert.match(workflow, /playwright install --with-deps chromium/u);
   assert.match(workflow, /node \.\/scripts\/resolve-ci-base\.mjs/u);
@@ -185,7 +189,7 @@ test('CI base selection uses immutable event SHAs and rejects an uncomparable in
   );
 });
 
-test('P0 E2E gate keeps the M1 contract-freeze task explicit without unlocking business P0', () => {
+test('P0 E2E gate runs the available business P0 after contract freeze', () => {
   const result = spawnSync(
     process.execPath,
     [path.join(repositoryRoot, 'scripts', 'run-p0-e2e-gate.mjs')],
@@ -195,9 +199,32 @@ test('P0 E2E gate keeps the M1 contract-freeze task explicit without unlocking b
   assert.equal(result.status, 0, result.stderr);
   assert.match(
     result.stdout,
-    /P0_E2E_NOT_APPLICABLE:stage=M1:task=M1-000:p0Count=14:reason=CONTRACT_SLICE_HAS_NO_MAPPED_P0/u,
+    /p0-001-single-merchant\.spec\.ts/u,
   );
-  assert.doesNotMatch(result.stdout, /passWithNoTests|skipped successfully/iu);
+  assert.match(result.stdout, /P0-001 portal identifies the company/u);
+  assert.match(result.stdout, /\d+ passed/u);
+  assert.doesNotMatch(
+    result.stdout,
+    /P0_E2E_NOT_APPLICABLE|passWithNoTests|skipped successfully/iu,
+  );
+});
+
+test('P0 E2E gate builds the portal before Playwright starts its production server', async () => {
+  const script = await readRepositoryFile('scripts/run-p0-e2e-gate.mjs');
+  const portalBuild = script.match(
+    /\[\s*pnpmCli,\s*'--filter',\s*'@fulishe\/portal-web',\s*'build',?\s*\]/u,
+  );
+  const playwright = script.match(
+    /\[\s*pnpmCli,\s*'exec',\s*'playwright',\s*'test',\s*'tests\/e2e\/p0',?\s*\]/u,
+  );
+
+  assert.ok(portalBuild, 'P0 gate must build @fulishe/portal-web');
+  assert.ok(playwright, 'P0 gate must execute the Playwright P0 suite');
+  assert.ok(
+    portalBuild.index < playwright.index,
+    'portal build must complete before Playwright starts next start',
+  );
+  assert.match(script, /P0_E2E_PORTAL_BUILD_FAILED/u);
 });
 
 test('GitHub collaboration templates and formal ownership require real accountable identities', async () => {

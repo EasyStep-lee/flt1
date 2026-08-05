@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "taskId": "M1-P001",
+  "p0Id": "P0-001",
+  "generatedAt": "2026-08-04T04:14:09-04:00",
+  "result": "LOCAL_PASS",
+  "sourceState": {
+    "baseCommit": "12da44ab2d025bcee4e7791570a2a5c5d046653d",
+    "implementationCommit": "9d7d763e41dc8ffba0166d2b9162c162542ccc7d"
+  },
+  "scope": {
+    "implemented": [
+      "Company model and forward-only migrations",
+      "fixed single-merchant domain policy",
+      "GET /v1/public/merchant-profile white-list DTO",
+      "P0-001 public portal merchant identity section"
+    ],
+    "notImplemented": [
+      "trade order creation",
+      "WeChat payment or refund execution",
+      "supplier settlement",
+      "production migration"
+    ]
+  },
+  "positiveAssertions": {
+    "seller": "江苏福礼团供应链科技有限公司",
+    "paymentPayee": "江苏福礼团供应链科技有限公司",
+    "refundOperator": "江苏福礼团供应链科技有限公司"
+  },
+  "negativeTests": [
+    {
+      "id": "NEG-M1-001-01",
+      "scenario": "supplier seller override",
+      "expectedCode": "SELLER_IDENTITY_FORBIDDEN",
+      "status": "PASS"
+    },
+    {
+      "id": "NEG-M1-001-02",
+      "scenario": "supplier direct payment account",
+      "expectedCode": "PAYEE_FORBIDDEN",
+      "status": "PASS"
+    },
+    {
+      "id": "NEG-M1-001-03",
+      "scenario": "second customer-facing company",
+      "expectedCode": "SINGLE_MERCHANT_VIOLATION",
+      "status": "PASS"
+    }
+  ],
+  "verification": {
+    "unit": "PASS_4_OF_4",
+    "api": "PASS_4_OF_4",
+    "migrationContract": "PASS_3_OF_3",
+    "productMigrationRehearsal": "PASS_2_MIGRATIONS_CLEANUP_PASS",
+    "openapiDeterministic": "PASS",
+    "openapiBreakingAgainstOriginMain": "PASS_NO_BREAKING_CHANGES",
+    "p0Chromium": "PASS_1_OF_1",
+    "pnpmVerify": "PASS_17_OF_17"
+  },
+  "fullVerification": {
+    "baseRef": "12da44ab2d025bcee4e7791570a2a5c5d046653d",
+    "commit": "9d7d763e41dc8ffba0166d2b9162c162542ccc7d",
+    "startedAt": "2026-08-04T08:08:36.339Z",
+    "endedAt": "2026-08-04T08:13:40.784Z",
+    "stepsPassed": 17,
+    "reportPath": "artifacts/test-results/verification/pnpm-verify.json"
+  },
+  "publicDtoForbiddenFields": [
+    "wechatPayConfigRef",
+    "companyId",
+    "supplierId",
+    "status"
+  ],
+  "externalDependencies": [
+    {
+      "id": "EXT-005",
+      "status": "NOT_PROVIDED",
+      "impact": "formal company and payment-subject acceptance remains blocked"
+    }
+  ],
+  "evidenceBoundary": {
+    "local": "LOCAL_PASS",
+    "ci": "NOT_EXECUTED",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_APPLICABLE_TO_THIS_BROWSER_SLICE",
+    "production": "NOT_EXECUTED",
+    "formalAcceptance": "BLOCKED_EXTERNAL_EXT_005"
+  }
+}

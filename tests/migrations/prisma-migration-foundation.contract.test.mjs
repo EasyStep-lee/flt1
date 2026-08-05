@@ -4,7 +4,6 @@ import {
   mkdir,
   mkdtemp,
   readFile,
-  readdir,
   rename,
   rm,
   writeFile,
@@ -23,6 +22,7 @@ const checkerPath = path.join(
   'scripts',
   'check-prisma-migrations.mjs',
 );
+const m0010Commit = '62ead13dfb9c6680a4c173fa09377ce6cf8e23b9';
 
 const run = (command, arguments_, options = {}) =>
   spawnSync(command, arguments_, {
@@ -38,17 +38,6 @@ const assertSuccess = (result, label) => {
     0,
     `${label} failed\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`,
   );
-};
-
-const listSqlFiles = async (directory) => {
-  const entries = await readdir(directory, { withFileTypes: true });
-  const files = [];
-  for (const entry of entries) {
-    const absolutePath = path.join(directory, entry.name);
-    if (entry.isDirectory()) files.push(...(await listSqlFiles(absolutePath)));
-    if (entry.isFile() && entry.name.endsWith('.sql')) files.push(absolutePath);
-  }
-  return files;
 };
 
 test('M0-010 exposes migration integrity, dry-run and focused-test entrypoints', async () => {
@@ -89,13 +78,22 @@ test('M0-010 exposes migration integrity, dry-run and focused-test entrypoints',
 });
 
 test('M0-010 does not introduce product models or placeholder SQL migrations', async () => {
-  const schema = await readFile(
-    path.join(repositoryRoot, 'packages', 'db', 'prisma', 'schema.prisma'),
-    'utf8',
-  );
-  const sqlFiles = await listSqlFiles(
-    path.join(repositoryRoot, 'packages', 'db', 'prisma', 'migrations'),
-  );
+  const schema = run('git', [
+    'show',
+    `${m0010Commit}:packages/db/prisma/schema.prisma`,
+  ]).stdout;
+  const migrationTree = run('git', [
+    'ls-tree',
+    '-r',
+    '--name-only',
+    m0010Commit,
+    '--',
+    'packages/db/prisma/migrations',
+  ]);
+  assertSuccess(migrationTree, 'read M0-010 migration snapshot');
+  const sqlFiles = migrationTree.stdout
+    .split(/\r?\n/u)
+    .filter((filePath) => filePath.endsWith('.sql'));
 
   assert.doesNotMatch(schema, /^model\s+/mu);
   assert.deepEqual(sqlFiles, []);

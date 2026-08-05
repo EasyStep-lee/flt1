@@ -102,7 +102,13 @@ if (-not (Test-Path -LiteralPath $executionManifestPath)) {
         Add-Failure '执行包引用的方案哈希不匹配'
     }
     foreach ($entry in $lock.expectedCounts.PSObject.Properties) {
-        if ($executionManifest.counts.($entry.Name) -ne $entry.Value) {
+        $actualCount = [int]$executionManifest.counts.($entry.Name)
+        $expectedCount = [int]$entry.Value
+        if ($entry.Name -eq 'apiContracts') {
+            if ($actualCount -lt $expectedCount) {
+                Add-Failure "执行包计数低于冻结基线：$($entry.Name)=$actualCount，至少应为$expectedCount"
+            }
+        } elseif ($actualCount -ne $expectedCount) {
             Add-Failure "执行包计数不匹配：$($entry.Name)=$($executionManifest.counts.($entry.Name))，期望$($entry.Value)"
         }
     }

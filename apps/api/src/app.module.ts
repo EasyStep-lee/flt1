@@ -10,11 +10,18 @@ import {
 import { PrismaService } from './infrastructure/prisma.service.js';
 import { QueueService } from './infrastructure/queue.service.js';
 import { RedisService } from './infrastructure/redis.service.js';
+import { PrismaSingleMerchantRepository } from './merchant/prisma-single-merchant.repository.js';
+import {
+  SINGLE_MERCHANT_REPOSITORY,
+  type SingleMerchantRepository,
+} from './merchant/single-merchant.repository.js';
+import { SingleMerchantService } from './merchant/single-merchant.service.js';
 import { OPENAPI_CONTROLLERS } from './openapi/openapi-controller.registry.js';
 
 export interface AppModuleOptions {
   readonly config: RuntimeConfig;
   readonly probes?: readonly InfrastructureProbe[];
+  readonly merchantRepository?: SingleMerchantRepository;
 }
 
 @Module({})
@@ -27,13 +34,24 @@ export class AppModule {
         useValue: options.config.healthProbeTimeoutMs,
       },
       HealthService,
+      PrismaService,
+      PrismaSingleMerchantRepository,
+      SingleMerchantService,
+      options.merchantRepository
+        ? {
+            provide: SINGLE_MERCHANT_REPOSITORY,
+            useValue: options.merchantRepository,
+          }
+        : {
+            provide: SINGLE_MERCHANT_REPOSITORY,
+            useExisting: PrismaSingleMerchantRepository,
+          },
     ];
 
     if (options.probes) {
       providers.push({ provide: FOUNDATION_PROBES, useValue: options.probes });
     } else {
       providers.push(
-        PrismaService,
         RedisService,
         QueueService,
         {

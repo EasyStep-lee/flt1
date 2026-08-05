@@ -1,0 +1,118 @@
+{
+  "schemaVersion": 1,
+  "taskId": "M1-P001",
+  "generatedAt": "2026-08-04T08:19:37.498Z",
+  "status": "LOCAL_PASS",
+  "git": {
+    "commit": "9d7d763e41dc8ffba0166d2b9162c162542ccc7d"
+  },
+  "runtime": {
+    "node": "v22.23.1",
+    "dockerServer": "29.6.2",
+    "mysql": "mysql  Ver 8.4.11 for Linux on x86_64 (MySQL Community Server - GPL)",
+    "prisma": "Prisma schema loaded from prisma\\schema.prisma\nprisma                  : 6.19.2\n@prisma/client          : 6.19.2\nComputed binaryTarget   : windows\nOperating System        : win32\nArchitecture            : x64\nNode.js                 : v22.23.1\nTypeScript              : 5.9.3\nQuery Engine (Node-API) : libquery-engine c2990dca591cba766e3b7ef5d9e8a84796e47ab7 (at ..\\..\\node_modules\\.pnpm\\@prisma+engines@6.19.2\\node_modules\\@prisma\\engines\\query_engine-windows.dll.node)\nPSL                     : @prisma/prisma-schema-wasm 7.1.1-3.c2990dca591cba766e3b7ef5d9e8a84796e47ab7\nSchema Engine           : schema-engine-cli c2990dca591cba766e3b7ef5d9e8a84796e47ab7 (at ..\\..\\node_modules\\.pnpm\\@prisma+engines@6.19.2\\node_modules\\@prisma\\engines\\schema-engine-windows.exe)\nDefault Engines Hash    : c2990dca591cba766e3b7ef5d9e8a84796e47ab7\nStudio                  : 0.511.0"
+  },
+  "productBoundary": {
+    "schemaSha256Before": "724e08137c18f36e352445656118d1c3d9177d7173f00a8cf05300578e2dcd47",
+    "schemaSha256After": "724e08137c18f36e352445656118d1c3d9177d7173f00a8cf05300578e2dcd47",
+    "productMigrationSqlBefore": 2,
+    "productMigrationSqlAfter": 2,
+    "configuredDatabaseTargeted": false,
+    "productSchemaMutated": false
+  },
+  "migrationIntegrity": {
+    "schemaVersion": 1,
+    "baseRef": "HEAD",
+    "publishedMigrationCount": 2,
+    "currentMigrationCount": 2,
+    "migrations": [
+      {
+        "name": "20260804065500_engineering_baseline",
+        "path": "packages/db/prisma/migrations/20260804065500_engineering_baseline/migration.sql",
+        "sha256": "e376881829172b5e9d5042e199279e3de99570b0404c75ff72ab9acdd393cc1a"
+      },
+      {
+        "name": "20260804065600_company_single_merchant",
+        "path": "packages/db/prisma/migrations/20260804065600_company_single_merchant/migration.sql",
+        "sha256": "1c15b5b513afbb8043c312f75bd47affe19eda673adaab06f5b2b54c9657787d"
+      }
+    ]
+  },
+  "rehearsal": {
+    "fixtureOnly": true,
+    "baselineMigration": "20260802000000_m0_rehearsal_baseline",
+    "forwardFixMigration": "20260802000100_m0_rehearsal_forward_fix",
+    "emptyPath": {
+      "appliedMigrations": 2,
+      "payload": "empty-path",
+      "forwardColumnCount": 1,
+      "forwardMarker": "forward-fixed"
+    },
+    "upgradePath": {
+      "before": {
+        "appliedMigrations": 1,
+        "payload": "baseline-preserved",
+        "forwardColumnCount": 0
+      },
+      "after": {
+        "appliedMigrations": 2,
+        "payload": "baseline-preserved",
+        "forwardColumnCount": 1,
+        "forwardMarker": "forward-fixed"
+      },
+      "payloadPreserved": true
+    },
+    "backupRestore": {
+      "backup": {
+        "bytes": 2947,
+        "sha256": "a4d31a70d6593622988bfda7af664eb9ceecbdb61fd2c353d87ef257d4c66bd8",
+        "migrationCount": 1
+      },
+      "restoredBeforeForwardFix": {
+        "appliedMigrations": 1,
+        "payload": "baseline-preserved",
+        "forwardColumnCount": 0
+      },
+      "restoredAfterForwardFix": {
+        "appliedMigrations": 2,
+        "payload": "baseline-preserved",
+        "forwardColumnCount": 1,
+        "forwardMarker": "forward-fixed"
+      },
+      "payloadPreserved": true
+    },
+    "finalSchemaDrift": "NONE",
+    "idempotentRedeploy": "PASS"
+  },
+  "productRehearsal": {
+    "taskId": "M1-P001",
+    "migrationCount": 2,
+    "companyRowCount": 1,
+    "fixedIdentity": {
+      "legalName": "江苏福礼团供应链科技有限公司",
+      "platformName": "福礼社"
+    },
+    "constraints": {
+      "checkConstraintCount": 2,
+      "uniqueIdentityIndexCount": 2
+    },
+    "secondMerchantRejected": true,
+    "invalidLegalNameRejected": true,
+    "finalSchemaDrift": "NONE",
+    "idempotentRedeploy": "PASS"
+  },
+  "evidenceBoundary": {
+    "localDockerMySql": "LOCAL_PASS",
+    "ci": "NOT_EXECUTED",
+    "staging": "NOT_EXECUTED",
+    "productionMigration": "HUMAN_ONLY_NOT_EXECUTED",
+    "productionDisasterRecovery": "NOT_EXECUTED"
+  },
+  "cleanup": {
+    "disposableDatabasesDropped": true,
+    "disposableUserDropped": true,
+    "temporaryFilesRemoved": true,
+    "mysqlPriorRunningStateRestored": true,
+    "errors": []
+  }
+}

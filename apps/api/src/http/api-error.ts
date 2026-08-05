@@ -9,14 +9,27 @@ export const FOUNDATION_ERROR_CODES = Object.freeze([
 
 export type FoundationErrorCode = (typeof FOUNDATION_ERROR_CODES)[number];
 
+export const SINGLE_MERCHANT_ERROR_CODES = Object.freeze([
+  'PAYEE_FORBIDDEN',
+  'SELLER_IDENTITY_FORBIDDEN',
+  'SINGLE_MERCHANT_VIOLATION',
+] as const);
+
+export const API_ERROR_CODES = Object.freeze([
+  ...FOUNDATION_ERROR_CODES,
+  ...SINGLE_MERCHANT_ERROR_CODES,
+] as const);
+
+export type ApiErrorCode = (typeof API_ERROR_CODES)[number];
+
 interface SafeErrorDefinition {
-  readonly code: FoundationErrorCode;
+  readonly code: ApiErrorCode;
   readonly message: string;
 }
 
 export interface ApiErrorResponse {
   readonly statusCode: number;
-  readonly code: FoundationErrorCode;
+  readonly code: ApiErrorCode;
   readonly message: string;
   readonly requestId: string;
   readonly path: string;
@@ -53,8 +66,9 @@ export const createApiErrorResponse = (
   requestId: string | undefined,
   path: string,
   timestamp = new Date().toISOString(),
+  override?: SafeErrorDefinition,
 ): ApiErrorResponse => {
-  const safe = resolveSafeError(statusCode);
+  const safe = override ?? resolveSafeError(statusCode);
   return {
     statusCode,
     code: safe.code,
@@ -64,3 +78,14 @@ export const createApiErrorResponse = (
     timestamp,
   };
 };
+
+export class SafeApiError extends Error {
+  constructor(
+    readonly statusCode: number,
+    readonly code: ApiErrorCode,
+    message: string,
+  ) {
+    super(message);
+    this.name = 'SafeApiError';
+  }
+}
