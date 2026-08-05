@@ -16,6 +16,11 @@ const verifierPath = path.join(
   'scripts',
   'verify-m0-handoff-evidence.mjs',
 );
+const taskLedgerPath = path.join(
+  repositoryRoot,
+  '福礼社Codex5.6开发执行包V1.1',
+  '03-任务台账.csv',
+);
 const expectedTaskIds = Array.from(
   { length: 11 },
   (_, index) => `M0-${String(index + 1).padStart(3, '0')}`,
@@ -34,6 +39,17 @@ const runGit = (argumentsList, cwd = repositoryRoot) =>
     encoding: 'utf8',
     env: process.env,
   });
+
+const readRecordedTaskCommit = async (taskId) => {
+  const ledger = await readFile(taskLedgerPath, 'utf8');
+  const row = ledger
+    .split(/\r?\n/u)
+    .find((line) => line.startsWith(`${taskId},`));
+  assert.ok(row, `Missing task ledger row for ${taskId}`);
+  const commit = row.match(/(?:^|,)([0-9a-f]{40})(?:,|$)/u)?.[1];
+  assert.match(commit ?? '', /^[0-9a-f]{40}$/u);
+  return commit;
+};
 
 const generateFixture = async (directory) => {
   const evidencePath = path.join(directory, 'm0-handoff-evidence.json');
@@ -99,7 +115,7 @@ test('generator follows raw parents when revision walk is shallow-truncated', as
     const clone = runGit([
       'clone',
       '--quiet',
-      '--no-hardlinks',
+      '--shared',
       '--no-checkout',
       '--',
       repositoryRoot,
@@ -169,11 +185,7 @@ test('generator still rejects a source before recorded M0 tasks', async () => {
     path.join(os.tmpdir(), 'fulishe-m0-non-ancestor-'),
   );
   try {
-    const sourceCommit = runGit([
-      'rev-list',
-      '--max-parents=0',
-      'HEAD',
-    ]).stdout.trim();
+    const sourceCommit = await readRecordedTaskCommit('M0-001');
     const result = runNode(generatorPath, [
       '--output',
       path.join(directory, 'evidence.json'),
