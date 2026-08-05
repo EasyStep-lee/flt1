@@ -143,6 +143,68 @@ describe('P0-003 supplier onboarding API', () => {
     }
   });
 
+  it('NEG-M1-004-02 derives GET /supplier/me ownership only from the fixed session', async () => {
+    const fixture = await createFixture();
+    try {
+      const supplierA = await register(
+        fixture,
+        'registration-scope-a-0001',
+        registrationBody({
+          legalName: '南京甲供应链有限公司',
+          creditCode: '91320100MA1ABC2D3X',
+        }),
+      );
+      const supplierB = await register(
+        fixture,
+        'registration-scope-b-0001',
+        registrationBody({
+          legalName: '南京乙供应链有限公司',
+          creditCode: '91320100MA1ABC2D4Y',
+        }),
+      );
+      fixture.supplierIdRef.current = supplierA.body.registrationId;
+
+      const ownProfile = await request(fixture.app.getHttpServer())
+        .get(`/v1/supplier/me?supplierId=${supplierB.body.registrationId}`)
+        .set('x-supplier-id', supplierB.body.registrationId)
+        .set('x-functional-account-id', 'client-controlled');
+
+      expect(ownProfile.status).toBe(200);
+      expect(ownProfile.headers['cache-control']).toContain('private');
+      expect(ownProfile.body).toMatchObject({
+        id: supplierA.body.registrationId,
+        legalName: '南京甲供应链有限公司',
+      });
+      expect(JSON.stringify(ownProfile.body)).not.toMatch(
+        /companyId|supplierId|functionalAccountId|supplyPrice/iu,
+      );
+
+      const tamperedMutation = await request(fixture.app.getHttpServer())
+        .patch('/v1/supplier/me')
+        .set('Idempotency-Key', 'patch-scope-tamper-0001')
+        .send({ version: 0, supplierId: supplierB.body.registrationId });
+      expect(tamperedMutation.status).toBe(403);
+      expect(tamperedMutation.body).toMatchObject({
+        code: 'SUPPLIER_SCOPE_FORBIDDEN',
+      });
+
+      const tamperedSubmission = await request(fixture.app.getHttpServer())
+        .post('/v1/supplier/me/submit-review')
+        .set('Idempotency-Key', 'submit-scope-tamper-0001')
+        .send({
+          requestId: '44444444-4444-4444-8444-444444444444',
+          supplierId: supplierB.body.registrationId,
+          version: 0,
+        });
+      expect(tamperedSubmission.status).toBe(403);
+      expect(tamperedSubmission.body).toMatchObject({
+        code: 'SUPPLIER_SCOPE_FORBIDDEN',
+      });
+    } finally {
+      await fixture.app.close();
+    }
+  });
+
   it('creates an editable no-store draft using only the response whitelist', async () => {
     const fixture = await createFixture();
     try {

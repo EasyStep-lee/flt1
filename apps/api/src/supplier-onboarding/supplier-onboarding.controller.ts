@@ -129,6 +129,22 @@ export class SupplierSelfServiceController {
     private readonly actorResolver: SupplierOnboardingActorResolver,
   ) {}
 
+  @Get()
+  @Header('Cache-Control', 'private, no-store, max-age=0')
+  @ApiOperation({
+    operationId: 'supplierOnboarding.getOwnProfile',
+    summary: 'Get the supplier profile bound to the fixed functional session',
+  })
+  @ApiOkResponse({ type: SupplierProfileResponseDto })
+  @ApiForbiddenResponse({ type: ApiErrorResponseDto })
+  @ApiUnauthorizedResponse({ type: ApiErrorResponseDto })
+  async getOwnProfile(@Req() request: Request): Promise<SupplierProfileResponseDto> {
+    const actor = requireSupplierActor(
+      await this.actorResolver.resolve(request, 'SUPPLIER_ACCOUNT_ADMIN'),
+    );
+    return this.service.getOwnProfile(actor);
+  }
+
   @Patch()
   @HttpCode(200)
   @Header('Cache-Control', 'private, no-store, max-age=0')
@@ -167,6 +183,7 @@ export class SupplierSelfServiceController {
   @ApiBody({ type: SubmitReviewRequestDto })
   @ApiCreatedResponse({ type: ApprovalTaskResponseDto })
   @ApiConflictResponse({ type: ApiErrorResponseDto })
+  @ApiForbiddenResponse({ type: ApiErrorResponseDto })
   @ApiUnauthorizedResponse({ type: ApiErrorResponseDto })
   @ApiUnprocessableEntityResponse({ type: ApiErrorResponseDto })
   async submitOwnProfile(

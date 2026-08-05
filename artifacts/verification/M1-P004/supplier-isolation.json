@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "taskId": "M1-P004",
+  "p0Id": "P0-004",
+  "generatedAt": "2026-08-05T07:24:10-04:00",
+  "result": "LOCAL_PASS",
+  "sourceState": {
+    "baseCommit": "171e1964edb6d13d39bd529e5e767e8792926272",
+    "verifiedImplementationHead": "a33af8067c1ac17251223682a588a85292038630"
+  },
+  "scope": {
+    "implemented": [
+      "server-bound supplier scope policy for supplier profile, product, order, inventory, statement and account resource families",
+      "GET /v1/supplier/me using the authenticated supplier context with no client supplier selector",
+      "same safe forbidden response for cross-supplier and nonexistent cross-supplier object access",
+      "export preflight rejection when any row belongs to another supplier",
+      "client ownership-field rejection on existing supplier private writes",
+      "deterministic OpenAPI and generated shared contract types"
+    ],
+    "notImplemented": [
+      "product, order, inventory, statement or account business CRUD",
+      "production supplier functional-account session resolver",
+      "supplier resource export endpoints",
+      "browser pages or native mini-program pages",
+      "staging, production or formal acceptance"
+    ]
+  },
+  "negativeTests": [
+    {
+      "id": "NEG-M1-004-01",
+      "scenario": "client submits supplier ownership selectors",
+      "expectedCode": "SUPPLIER_SCOPE_FORBIDDEN",
+      "status": "PASS"
+    },
+    {
+      "id": "NEG-M1-004-02",
+      "scenario": "session supplier accesses another supplier object",
+      "expectedCode": "SUPPLIER_SCOPE_FORBIDDEN",
+      "status": "PASS"
+    },
+    {
+      "id": "NEG-M1-004-03",
+      "scenario": "cross-supplier nonexistent object is probed",
+      "expectedCode": "SUPPLIER_SCOPE_FORBIDDEN_WITH_NO_EXISTENCE_DISCLOSURE",
+      "status": "PASS"
+    },
+    {
+      "id": "NEG-M1-004-04",
+      "scenario": "export rows contain another supplier",
+      "expectedCode": "DATA_SCOPE_FORBIDDEN",
+      "status": "PASS"
+    }
+  ],
+  "contractBoundary": {
+    "openApiOperations": [
+      "GET /v1/supplier/me"
+    ],
+    "clientSupplierSelector": false,
+    "responseDto": "SupplierProfileResponseDto",
+    "newPrismaModels": [],
+    "newMigrations": []
+  },
+  "verification": {
+    "red": "EXPECTED_FAILURE_MISSING_SUPPLIER_SCOPE_POLICY_AND_GET_SUPPLIER_ME",
+    "supplierScopePolicy": "PASS_3_OF_3",
+    "supplierApi": "PASS_9_OF_9",
+    "m1P004Contract": "PASS_2_OF_2",
+    "openApiDeterministic": "PASS_BYTE_IDENTICAL",
+    "prismaValidate": "PASS",
+    "productMigrationRehearsal": "PASS_3_MIGRATIONS_CLEANUP_PASS",
+    "pnpmVerify": "PASS_17_OF_17",
+    "mergeReviewContractRed": "EXPECTED_FAILURE_SUBMIT_REVIEW_403_AND_API_LEDGER_MISSING",
+    "mergeReviewContractGreen": "PASS_3_OF_3",
+    "mergeReviewSupplierApi": "PASS_9_OF_9",
+    "mergeReviewOpenApiDeterministic": "PASS_BYTE_IDENTICAL"
+  },
+  "pullRequest": {
+    "number": 12,
+    "url": "https://github.com/EasyStep-lee/flt1/pull/12",
+    "state": "DRAFT",
+    "previousVerifiedHead": "d75f5160e697ff4c4042de37603dde487911c37c",
+    "previousHeadCiRun": 31000691199,
+    "previousHeadCiStatus": "PASS",
+    "currentHeadCi": "NOT_EXECUTED_AFTER_MERGE_REVIEW_FIX",
+    "review": "NOT_EXECUTED",
+    "merge": "NOT_EXECUTED"
+  },
+  "fullVerification": {
+    "baseRef": "171e1964edb6d13d39bd529e5e767e8792926272",
+    "commit": "a33af8067c1ac17251223682a588a85292038630",
+    "startedAt": "2026-08-05T10:47:27.398Z",
+    "endedAt": "2026-08-05T10:56:57.535Z",
+    "stepsPassed": 17,
+    "reportPath": "artifacts/test-results/verification/pnpm-verify.json"
+  },
+  "migrationRehearsal": {
+    "status": "LOCAL_PASS",
+    "newMigration": false,
+    "emptyMigrations": 2,
+    "upgradeMigrations": 2,
+    "restoreMigrations": 2,
+    "productMigrations": 3,
+    "cleanup": "PASS"
+  },
+  "warnings": [
+    "OpenAPI compatibility scan reported 40 additive shared error-enum warnings and 0 errors",
+    "existing Vite large-chunk, Turbo no-output and NO_COLOR warnings remain",
+    "downstream resource CRUD must call the common policy when those resources are implemented"
+  ],
+  "evidenceBoundary": {
+    "local": "LOCAL_PASS",
+    "ci": "PREVIOUS_HEAD_PASS_CURRENT_HEAD_NOT_EXECUTED",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_APPLICABLE_TO_API_POLICY_SLICE",
+    "production": "NOT_EXECUTED",
+    "productionMigration": "NOT_APPLICABLE_NO_NEW_MIGRATION",
+    "formalAcceptance": "NOT_EXECUTED"
+  }
+}

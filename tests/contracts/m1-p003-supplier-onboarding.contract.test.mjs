@@ -73,7 +73,7 @@ test('M1-P003 keeps the frozen API, role and page scope without transaction capa
   assert.doesNotMatch(`${supplierPage}\n${companyPage}`, /供应价|毛利|供应商应付/u);
 });
 
-test('M1-P003 generated OpenAPI exposes only the five frozen onboarding operations', async () => {
+test('M1-P003 generated OpenAPI retains its five frozen onboarding operations', async () => {
   const openapi = JSON.parse(
     await readFile(path.join(repositoryRoot, 'packages', 'contracts', 'openapi.json'), 'utf8'),
   );
@@ -88,11 +88,10 @@ test('M1-P003 generated OpenAPI exposes only the five frozen onboarding operatio
   for (const [method, route] of operations) {
     assert.ok(openapi.paths[route]?.[method], `${method.toUpperCase()} ${route}`);
   }
-  assert.equal(openapi.paths['/v1/supplier/me']?.get, undefined);
   assert.doesNotMatch(JSON.stringify(openapi.paths), /franchise|storefront|direct-payment/iu);
 });
 
-test('M1-P003 publishes fresh local evidence and only unlocks M1-P004', async () => {
+test('M1-P003 retains its local evidence after PR and main CI closure', async () => {
   const [
     tasks,
     p0Rows,
@@ -139,13 +138,13 @@ test('M1-P003 publishes fresh local evidence and only unlocks M1-P004', async ()
 
   assert.deepEqual(active, []);
   assert.equal(m1p003?.Status, 'DONE');
-  assert.equal(m1p003?.EvidenceStatus, 'LOCAL_PASS');
-  assert.equal(m1p003?.CommitSHA, 'b34c427304131e856148db132b5fbecdf4da2e0f');
-  assert.equal(m1p004?.Status, 'READY');
-  assert.equal(m1p004?.EvidenceStatus, 'NOT_EXECUTED');
-  assert.equal(p0?.CurrentEvidenceStatus, 'LOCAL_PASS');
+  assert.equal(m1p003?.EvidenceStatus, 'CI_PASS');
+  assert.equal(m1p003?.CommitSHA, 'd7067a59f1bc66680121d9e2b38e04cb3083dee2');
+  assert.equal(m1p004?.Status, 'DONE');
+  assert.equal(m1p004?.EvidenceStatus, 'LOCAL_PASS');
+  assert.equal(p0?.CurrentEvidenceStatus, 'CI_PASS');
   assert.equal(p0?.EvidenceLink, 'artifacts/verification/M1-P003/supplier-onboarding.json');
-  assert.equal(evidenceRow?.CurrentStatus, 'LOCAL_PASS');
+  assert.equal(evidenceRow?.CurrentStatus, 'CI_PASS');
   assert.equal(migration?.Status, 'PARTIAL_APPLIED_LOCAL');
   assert.equal(mappedPages.length, 2);
   assert.ok(mappedPages.every(({ ImplementationStatus }) => ImplementationStatus === 'PARTIAL_LOCAL_PASS'));
@@ -167,13 +166,26 @@ test('M1-P003 publishes fresh local evidence and only unlocks M1-P004', async ()
   assert.equal(rehearsal.productRehearsal.supplierOnboarding.onboardingTableCount, 4);
   assert.equal(rehearsal.cleanup.errors.length, 0);
 
-  assert.equal(state.execution.currentTask, 'M1-P004');
-  assert.equal(state.execution.nextAllowedTask, 'M1-P004');
+  assert.equal(state.execution.currentTask, 'M1-P005');
+  assert.equal(state.execution.nextAllowedTask, 'M1-P005');
   assert.equal(state.execution.activeTaskCount, 0);
-  assert.equal(state.execution.lastCompletedTask, 'M1-P003');
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M1-P003');
+  assert.equal(state.execution.lastCompletedTask, 'M1-P004');
+  assert.equal(state.github.pullRequest, 10);
+  assert.equal(state.github.pullRequestState, 'MERGED');
+  assert.equal(state.github.pullRequestCi.status, 'CI_PASS');
+  assert.equal(state.github.latestCi.scope, 'MAIN_POST_MERGE');
+  assert.equal(state.github.latestCi.status, 'CI_PASS');
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M1-P004');
   assert.equal(state.github.currentTaskDelivery.status, 'DONE_LOCAL_PASS');
-  assert.equal(state.github.currentTaskDelivery.exactHeadCi, 'NOT_EXECUTED');
+  assert.equal(
+    state.github.currentTaskDelivery.exactHeadCi,
+    'NOT_EXECUTED_AFTER_MERGE_REVIEW_FIX',
+  );
+  assert.equal(state.github.currentTaskDelivery.previousHeadCi.status, 'CI_PASS');
+  assert.equal(
+    state.github.currentTaskDelivery.previousHeadCi.headSha,
+    'd75f5160e697ff4c4042de37603dde487911c37c',
+  );
   assert.equal(state.evidence.local, 'LOCAL_PASS');
-  assert.equal(state.evidence.ci, 'NOT_EXECUTED');
+  assert.equal(state.evidence.ci, 'PREVIOUS_HEAD_PASS_CURRENT_HEAD_NOT_EXECUTED');
 });
