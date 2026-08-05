@@ -21,9 +21,16 @@ const expectedTaskIds = Array.from(
   (_, index) => `M0-${String(index + 1).padStart(3, '0')}`,
 );
 
-const runNode = (scriptPath, argumentsList) =>
+const runNode = (scriptPath, argumentsList, cwd = repositoryRoot) =>
   spawnSync(process.execPath, [scriptPath, ...argumentsList], {
-    cwd: repositoryRoot,
+    cwd,
+    encoding: 'utf8',
+    env: process.env,
+  });
+
+const runGit = (argumentsList, cwd = repositoryRoot) =>
+  spawnSync('git', argumentsList, {
+    cwd,
     encoding: 'utf8',
     env: process.env,
   });
@@ -61,23 +68,129 @@ test('root test chain exposes the M0 handoff evidence contract', async () => {
   assert.match(packageJson.scripts.lint, /tests\/handoffs/u);
 });
 
-test('generator derives M0 ancestry from one rev-list reachable set', async () => {
+test('generator derives M0 ancestry from the raw commit parent graph', async () => {
   const generator = await readFile(generatorPath, 'utf8');
 
   assert.match(
     generator,
-    /const reachableCommitsFrom = \(sourceCommit\) =>\s*new Set\(/u,
+    /const commitParents = \(commit\) =>/u,
   );
-  assert.equal(
-    generator.match(/\['rev-list', sourceCommit\]/gu)?.length,
-    1,
+  assert.match(generator, /\['cat-file', '-p', commit\]/u);
+  assert.match(
+    generator,
+    /const reachableCommitsFrom = \(sourceCommit\) => \{/u,
   );
   assert.match(
     generator,
     /const sourceAncestors = reachableCommitsFrom\(sourceCommit\);/u,
   );
   assert.match(generator, /sourceAncestors\.has\(commit\)/u);
+  assert.doesNotMatch(generator, /\['rev-list', sourceCommit\]/u);
   assert.doesNotMatch(generator, /\['merge-base', '--is-ancestor'/u);
+});
+
+test('generator follows raw parents when revision walk is shallow-truncated', async () => {
+  const directory = await mkdtemp(
+    path.join(os.tmpdir(), 'fulishe-m0-parent-graph-'),
+  );
+  const cloneRoot = path.join(directory, 'repository');
+  try {
+    const sourceCommit = runGit(['rev-parse', 'HEAD']).stdout.trim();
+    const clone = runGit([
+      'clone',
+      '--quiet',
+      '--no-hardlinks',
+      '--no-checkout',
+      '--',
+      repositoryRoot,
+      cloneRoot,
+    ]);
+    assert.equal(clone.status, 0, clone.stderr);
+
+    const checkout = runGit(
+      ['checkout', '--quiet', '--detach', sourceCommit],
+      cloneRoot,
+    );
+    assert.equal(checkout.status, 0, checkout.stderr);
+
+    const cloneGeneratorPath = path.join(
+      cloneRoot,
+      'scripts',
+      'generate-m0-handoff-evidence.mjs',
+    );
+    await writeFile(
+      cloneGeneratorPath,
+      await readFile(generatorPath, 'utf8'),
+      'utf8',
+    );
+    const gitDirectory = runGit(
+      ['rev-parse', '--absolute-git-dir'],
+      cloneRoot,
+    );
+    assert.equal(gitDirectory.status, 0, gitDirectory.stderr);
+    await writeFile(
+      path.join(gitDirectory.stdout.trim(), 'shallow'),
+      `${sourceCommit}\n`,
+      'utf8',
+    );
+
+    const truncatedWalk = runGit(['rev-list', 'HEAD'], cloneRoot);
+    assert.equal(truncatedWalk.status, 0, truncatedWalk.stderr);
+    assert.equal(truncatedWalk.stdout.trim(), sourceCommit);
+
+    const evidencePath = path.join(directory, 'evidence.json');
+    const handoffPath = path.join(directory, 'handoff.md');
+    const result = runNode(
+      cloneGeneratorPath,
+      [
+        '--output',
+        evidencePath,
+        '--handoff-output',
+        handoffPath,
+        '--source-commit',
+        sourceCommit,
+      ],
+      cloneRoot,
+    );
+    assert.equal(result.status, 0, result.stderr);
+
+    const evidence = JSON.parse(await readFile(evidencePath, 'utf8'));
+    assert.deepEqual(
+      evidence.tasks.map(({ taskId }) => taskId),
+      expectedTaskIds,
+    );
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
+test('generator still rejects a source before recorded M0 tasks', async () => {
+  const directory = await mkdtemp(
+    path.join(os.tmpdir(), 'fulishe-m0-non-ancestor-'),
+  );
+  try {
+    const sourceCommit = runGit([
+      'rev-list',
+      '--max-parents=0',
+      'HEAD',
+    ]).stdout.trim();
+    const result = runNode(generatorPath, [
+      '--output',
+      path.join(directory, 'evidence.json'),
+      '--handoff-output',
+      path.join(directory, 'handoff.md'),
+      '--source-commit',
+      sourceCommit,
+    ]);
+
+    assert.notEqual(result.status, 0);
+    assert.match(
+      result.stderr,
+      /M0_HANDOFF_TASK_NOT_ANCESTOR:M0-002:[0-9a-f]{40}/u,
+    );
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
 });
 
 test('generator produces a complete, hash-bound, non-passing M0 handoff package', async () => {

@@ -158,13 +158,26 @@ const commitMetadata = (commit) => ({
   committedAt: runGit(['show', '-s', '--format=%cI', commit]).stdout.trim(),
 });
 
-const reachableCommitsFrom = (sourceCommit) =>
-  new Set(
-    runGit(['rev-list', sourceCommit])
-      .stdout.split(/\r?\n/u)
-      .map((value) => value.trim())
-      .filter(Boolean),
+const commitParents = (commit) => {
+  const headers = runGit(['cat-file', '-p', commit]).stdout.split(
+    /\r?\n\r?\n/u,
+  )[0];
+  return [...headers.matchAll(/^parent ([0-9a-f]{40})$/gmu)].map(
+    ([, parent]) => parent,
   );
+};
+
+const reachableCommitsFrom = (sourceCommit) => {
+  const reachableCommits = new Set();
+  const pendingCommits = [sourceCommit];
+  while (pendingCommits.length > 0) {
+    const commit = pendingCommits.pop();
+    if (!commit || reachableCommits.has(commit)) continue;
+    reachableCommits.add(commit);
+    pendingCommits.push(...commitParents(commit));
+  }
+  return reachableCommits;
+};
 
 const readVerificationReport = async (sourceCommit) => {
   const reportPath = path.join(
