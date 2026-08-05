@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "taskId": "M1-P004",
   "p0Id": "P0-004",
-  "generatedAt": "2026-08-05T07:00:22-04:00",
+  "generatedAt": "2026-08-05T07:24:10-04:00",
   "result": "LOCAL_PASS",
   "sourceState": {
     "baseCommit": "171e1964edb6d13d39bd529e5e767e8792926272",
@@ -68,7 +68,22 @@
     "openApiDeterministic": "PASS_BYTE_IDENTICAL",
     "prismaValidate": "PASS",
     "productMigrationRehearsal": "PASS_3_MIGRATIONS_CLEANUP_PASS",
-    "pnpmVerify": "PASS_17_OF_17"
+    "pnpmVerify": "PASS_17_OF_17",
+    "mergeReviewContractRed": "EXPECTED_FAILURE_SUBMIT_REVIEW_403_AND_API_LEDGER_MISSING",
+    "mergeReviewContractGreen": "PASS_3_OF_3",
+    "mergeReviewSupplierApi": "PASS_9_OF_9",
+    "mergeReviewOpenApiDeterministic": "PASS_BYTE_IDENTICAL"
+  },
+  "pullRequest": {
+    "number": 12,
+    "url": "https://github.com/EasyStep-lee/flt1/pull/12",
+    "state": "DRAFT",
+    "previousVerifiedHead": "d75f5160e697ff4c4042de37603dde487911c37c",
+    "previousHeadCiRun": 31000691199,
+    "previousHeadCiStatus": "PASS",
+    "currentHeadCi": "NOT_EXECUTED_AFTER_MERGE_REVIEW_FIX",
+    "review": "NOT_EXECUTED",
+    "merge": "NOT_EXECUTED"
   },
   "fullVerification": {
     "baseRef": "171e1964edb6d13d39bd529e5e767e8792926272",
@@ -94,7 +109,7 @@
   ],
   "evidenceBoundary": {
     "local": "LOCAL_PASS",
-    "ci": "NOT_EXECUTED",
+    "ci": "PREVIOUS_HEAD_PASS_CURRENT_HEAD_NOT_EXECUTED",
     "staging": "NOT_EXECUTED",
     "device": "NOT_APPLICABLE_TO_API_POLICY_SLICE",
     "production": "NOT_EXECUTED",

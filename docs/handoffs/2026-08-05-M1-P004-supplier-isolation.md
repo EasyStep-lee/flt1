@@ -24,6 +24,13 @@
 - Prisma：Schema 有效；无新迁移；本地 Docker MySQL 演练 `empty=2 / upgrade=2 / restore=2 / product=3 / cleanup=PASS`。
 - 根门禁：`pnpm verify` `17/17 PASS`，机器报告绑定实现提交 `a33af806...`。
 
+## Draft PR 合并前技术复核补丁
+
+- PR #12 的 `d75f516...` 精确 head CI run `31000691199` 已成功，但合并前技术复核发现 `submit-review` 运行时可返回 `403 SUPPLIER_SCOPE_FORBIDDEN`，生成 OpenAPI 和 API-010 台账却没有声明该响应。
+- 先新增契约断言，确认 P004 契约出现 `1 PASS / 2 FAIL`：分别缺少 OpenAPI `403` 和 API-010 错误码台账。
+- 最小修复为 `submit-review` 增加 `ApiForbiddenResponse`，同步 API-009/API-010 错误码台账，并补充 submit 所有权字段篡改 Supertest。
+- 修复后 P004 契约 `3/3`、供应商 API `9/9`、OpenAPI 生成与字节一致检查通过；补丁提交后的新精确 head 仍须重新通过完整本地门禁和 PR CI，旧 head CI 不得复用。
+
 ## P0 证据边界
 
 - 已验证的是服务端统一范围策略、本人资料读取、所有权字段拒绝、对象存在性不泄露和导出前混入拒绝。
@@ -32,6 +39,7 @@
 
 ## 环境、风险与回退
 
+- 当前仍为 `LOCAL_PASS`；PR #12 旧 head CI 已通过，但合并前复核补丁的新精确 head CI、自审授权、合并和合并后 main CI 均未完成。
 - 证据环境：Windows 本地工作区、Node/pnpm、Docker MySQL；预发布、生产和正式验收均未执行。
 - 生产职能会话解析器仍按 M1-P069/M1-P070 边界默认拒绝；真实资源端点未实现是当前主要剩余风险。
 - 既有 Vite 大 chunk、Turbo no-output、`NO_COLOR` 警告继续保留；本切片未声称修复。

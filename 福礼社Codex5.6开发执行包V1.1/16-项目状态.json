@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-05T07:00:22-04:00",
+  "updatedAt": "2026-08-05T07:24:10-04:00",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -86,17 +86,26 @@
       "verifiedImplementationHead": "a33af8067c1ac17251223682a588a85292038630",
       "localVerify": "PASS_17_OF_17",
       "migrationRehearsal": "LOCAL_PASS_NO_NEW_MIGRATION_PRODUCT_3_CLEANUP_PASS",
-      "pullRequest": "NOT_CREATED",
-      "exactHeadCi": "NOT_EXECUTED",
+      "pullRequest": 12,
+      "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/12",
+      "pullRequestState": "DRAFT",
+      "previousHeadCi": {
+        "status": "CI_PASS",
+        "headSha": "d75f5160e697ff4c4042de37603dde487911c37c",
+        "runId": 31000691199,
+        "jobId": 92288543070,
+        "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31000691199"
+      },
+      "exactHeadCi": "NOT_EXECUTED_AFTER_MERGE_REVIEW_FIX",
       "review": "NOT_EXECUTED",
       "merge": "NOT_EXECUTED",
       "mainPostMergeCi": "NOT_EXECUTED"
     },
-    "note": "M1-P003已通过PR #10及合并后main CI完成外部闭环。M1-P004实现head a33af806已完成本地完整门禁17/17、无新迁移的真实MySQL迁移演练和P0-004策略证据，当前仅为LOCAL_PASS；Draft PR、精确head CI、自审、合并和合并后main CI尚未执行。M1-P005仅READY且受外部闭环限制。"
+    "note": "M1-P003已通过PR #10及合并后main CI完成外部闭环。M1-P004实现head a33af806已完成本地完整门禁17/17、无新迁移的真实MySQL迁移演练和P0-004策略证据。PR #12旧head d75f516精确CI成功后，合并前技术复核发现并补齐submit-review的403 OpenAPI和台账契约；补丁新head CI、自审、合并和合并后main CI仍未完成。M1-P005仅READY且受外部闭环限制。"
   },
   "evidence": {
     "local": "LOCAL_PASS",
-    "ci": "NOT_EXECUTED",
+    "ci": "PREVIOUS_HEAD_PASS_CURRENT_HEAD_NOT_EXECUTED",
     "staging": "NOT_EXECUTED",
     "device": "NOT_APPLICABLE_TO_API_POLICY_SLICE",
     "production": "NOT_EXECUTED"

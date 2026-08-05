@@ -187,6 +187,19 @@ describe('P0-003 supplier onboarding API', () => {
       expect(tamperedMutation.body).toMatchObject({
         code: 'SUPPLIER_SCOPE_FORBIDDEN',
       });
+
+      const tamperedSubmission = await request(fixture.app.getHttpServer())
+        .post('/v1/supplier/me/submit-review')
+        .set('Idempotency-Key', 'submit-scope-tamper-0001')
+        .send({
+          requestId: '44444444-4444-4444-8444-444444444444',
+          supplierId: supplierB.body.registrationId,
+          version: 0,
+        });
+      expect(tamperedSubmission.status).toBe(403);
+      expect(tamperedSubmission.body).toMatchObject({
+        code: 'SUPPLIER_SCOPE_FORBIDDEN',
+      });
     } finally {
       await fixture.app.close();
     }

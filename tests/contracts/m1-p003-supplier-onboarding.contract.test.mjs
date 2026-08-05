@@ -177,7 +177,15 @@ test('M1-P003 retains its local evidence after PR and main CI closure', async ()
   assert.equal(state.github.latestCi.status, 'CI_PASS');
   assert.equal(state.github.currentTaskDelivery.taskId, 'M1-P004');
   assert.equal(state.github.currentTaskDelivery.status, 'DONE_LOCAL_PASS');
-  assert.equal(state.github.currentTaskDelivery.exactHeadCi, 'NOT_EXECUTED');
+  assert.equal(
+    state.github.currentTaskDelivery.exactHeadCi,
+    'NOT_EXECUTED_AFTER_MERGE_REVIEW_FIX',
+  );
+  assert.equal(state.github.currentTaskDelivery.previousHeadCi.status, 'CI_PASS');
+  assert.equal(
+    state.github.currentTaskDelivery.previousHeadCi.headSha,
+    'd75f5160e697ff4c4042de37603dde487911c37c',
+  );
   assert.equal(state.evidence.local, 'LOCAL_PASS');
-  assert.equal(state.evidence.ci, 'NOT_EXECUTED');
+  assert.equal(state.evidence.ci, 'PREVIOUS_HEAD_PASS_CURRENT_HEAD_NOT_EXECUTED');
 });

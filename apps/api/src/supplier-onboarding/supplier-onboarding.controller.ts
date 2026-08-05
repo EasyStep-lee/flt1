@@ -183,6 +183,7 @@ export class SupplierSelfServiceController {
   @ApiBody({ type: SubmitReviewRequestDto })
   @ApiCreatedResponse({ type: ApprovalTaskResponseDto })
   @ApiConflictResponse({ type: ApiErrorResponseDto })
+  @ApiForbiddenResponse({ type: ApiErrorResponseDto })
   @ApiUnauthorizedResponse({ type: ApiErrorResponseDto })
   @ApiUnprocessableEntityResponse({ type: ApiErrorResponseDto })
   async submitOwnProfile(

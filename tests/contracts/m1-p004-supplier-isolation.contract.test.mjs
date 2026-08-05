@@ -47,6 +47,13 @@ test('M1-P004 generated API has no client supplier selector and returns an allow
     profile,
     /companyId|supplierId|functionalAccountId|supplyPrice|approvedSupplyPrice|margin/iu,
   );
+
+  const submitReview = openapi.paths['/v1/supplier/me/submit-review']?.post;
+  assert.ok(submitReview);
+  assert.ok(
+    submitReview.responses['403'],
+    'submit-review must publish its SUPPLIER_SCOPE_FORBIDDEN response',
+  );
 });
 
 test('M1-P004 evidence and execution ledgers stay at the verified boundary', async () => {
@@ -86,7 +93,12 @@ test('M1-P004 evidence and execution ledgers stay at the verified boundary', asy
   assert.equal(evidence.result, 'LOCAL_PASS');
   assert.equal(evidence.sourceState.verifiedImplementationHead, 'a33af8067c1ac17251223682a588a85292038630');
   assert.equal(evidence.fullVerification.stepsPassed, 17);
-  assert.equal(evidence.evidenceBoundary.ci, 'NOT_EXECUTED');
+  assert.equal(
+    evidence.evidenceBoundary.ci,
+    'PREVIOUS_HEAD_PASS_CURRENT_HEAD_NOT_EXECUTED',
+  );
+  assert.equal(evidence.pullRequest.previousHeadCiStatus, 'PASS');
+  assert.equal(evidence.pullRequest.currentHeadCi, 'NOT_EXECUTED_AFTER_MERGE_REVIEW_FIX');
   assert.deepEqual(evidence.contractBoundary.newMigrations, []);
 
   assert.equal(projectState.execution.currentTask, 'M1-P005');
@@ -97,4 +109,12 @@ test('M1-P004 evidence and execution ledgers stay at the verified boundary', asy
   assert.match(taskLedger, /M1-P005[^\r\n]*READY[^\r\n]*NOT_EXECUTED/u);
   assert.match(p0Ledger, /P0-004[^\r\n]*LOCAL_PASS/u);
   assert.match(apiLedger, /API-008[^\r\n]*GET[^\r\n]*\/v1\/supplier\/me[^\r\n]*GENERATED[^\r\n]*IMPLEMENTED/u);
+  assert.match(
+    apiLedger,
+    /API-009[^\r\n]*PATCH[^\r\n]*\/v1\/supplier\/me[^\r\n]*SUPPLIER_SCOPE_FORBIDDEN/u,
+  );
+  assert.match(
+    apiLedger,
+    /API-010[^\r\n]*\/v1\/supplier\/me\/submit-review[^\r\n]*SUPPLIER_SCOPE_FORBIDDEN/u,
+  );
 });
