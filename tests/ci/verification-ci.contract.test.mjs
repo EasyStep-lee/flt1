@@ -126,6 +126,10 @@ test('GitHub CI uses frozen installation, full history, immutable action pins, a
   assert.match(workflow, /permissions:\s*\n\s+contents:\s*read/u);
   assert.match(workflow, /fetch-depth:\s*0/u);
   assert.match(workflow, /persist-credentials:\s*false/u);
+  assert.match(
+    workflow,
+    /ref:\s*\$\{\{\s*github\.event\.pull_request\.head\.sha\s*\|\|\s*github\.sha\s*\}\}/u,
+  );
   assert.match(workflow, /pnpm install --frozen-lockfile --ignore-scripts/u);
   assert.match(workflow, /playwright install --with-deps chromium/u);
   assert.match(workflow, /node \.\/scripts\/resolve-ci-base\.mjs/u);
