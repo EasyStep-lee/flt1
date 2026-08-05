@@ -209,22 +209,23 @@ test('P0 E2E gate runs the available business P0 after contract freeze', () => {
   );
 });
 
-test('P0 E2E gate builds the portal before Playwright starts its production server', async () => {
+test('P0 E2E gate builds every mapped application before Playwright starts production servers', async () => {
   const script = await readRepositoryFile('scripts/run-p0-e2e-gate.mjs');
-  const portalBuild = script.match(
-    /\[\s*pnpmCli,\s*'--filter',\s*'@fulishe\/portal-web',\s*'build',?\s*\]/u,
-  );
+  const applicationBuilds = script.match(/const applicationBuilds = \[[\s\S]*?\];/u);
   const playwright = script.match(
-    /\[\s*pnpmCli,\s*'exec',\s*'playwright',\s*'test',\s*'tests\/e2e\/p0',?\s*\]/u,
+    /'playwright\.p0\.config\.ts'/u,
   );
 
-  assert.ok(portalBuild, 'P0 gate must build @fulishe/portal-web');
+  assert.ok(applicationBuilds, 'P0 gate must declare mapped application builds');
+  assert.match(applicationBuilds[0], /@fulishe\/portal-web/u);
+  assert.match(applicationBuilds[0], /@fulishe\/supplier-portal/u);
+  assert.match(applicationBuilds[0], /@fulishe\/company-admin/u);
   assert.ok(playwright, 'P0 gate must execute the Playwright P0 suite');
   assert.ok(
-    portalBuild.index < playwright.index,
-    'portal build must complete before Playwright starts next start',
+    applicationBuilds.index < playwright.index,
+    'application builds must complete before Playwright starts servers',
   );
-  assert.match(script, /P0_E2E_PORTAL_BUILD_FAILED/u);
+  assert.match(script, /P0_E2E_APPLICATION_BUILD_FAILED/u);
 });
 
 test('GitHub collaboration templates and formal ownership require real accountable identities', async () => {

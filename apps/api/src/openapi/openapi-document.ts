@@ -20,6 +20,19 @@ import {
   type SingleMerchantRepository,
 } from '../merchant/single-merchant.repository.js';
 import { SingleMerchantService } from '../merchant/single-merchant.service.js';
+import {
+  DenySupplierOnboardingActorResolver,
+  SUPPLIER_ONBOARDING_ACTOR_RESOLVER,
+} from '../supplier-onboarding/supplier-onboarding.actor.js';
+import {
+  SUPPLIER_ONBOARDING_REPOSITORY,
+  type SupplierOnboardingRepository,
+} from '../supplier-onboarding/supplier-onboarding.repository.js';
+import { SupplierOnboardingService } from '../supplier-onboarding/supplier-onboarding.service.js';
+import {
+  SUPPLIER_REGISTRATION_VERIFIER,
+  UnavailableSupplierRegistrationVerifier,
+} from '../supplier-onboarding/supplier-registration.verifier.js';
 import { OPENAPI_CONTROLLERS } from './openapi-controller.registry.js';
 
 type JsonValue =
@@ -52,6 +65,36 @@ const forbiddenPublicResponseFields = new Set([
       useValue: {
         findCustomerFacingCompanies: async () => [],
       } satisfies SingleMerchantRepository,
+    },
+    SupplierOnboardingService,
+    DenySupplierOnboardingActorResolver,
+    UnavailableSupplierRegistrationVerifier,
+    {
+      provide: SUPPLIER_ONBOARDING_REPOSITORY,
+      useValue: {
+        register: async () => {
+          throw new Error('OPENAPI_GENERATION_ONLY');
+        },
+        findSupplier: async () => null,
+        patchSupplier: async () => {
+          throw new Error('OPENAPI_GENERATION_ONLY');
+        },
+        submitSupplier: async () => {
+          throw new Error('OPENAPI_GENERATION_ONLY');
+        },
+        listSuppliers: async () => ({ items: [], total: 0 }),
+        reviewSupplier: async () => {
+          throw new Error('OPENAPI_GENERATION_ONLY');
+        },
+      } satisfies SupplierOnboardingRepository,
+    },
+    {
+      provide: SUPPLIER_ONBOARDING_ACTOR_RESOLVER,
+      useExisting: DenySupplierOnboardingActorResolver,
+    },
+    {
+      provide: SUPPLIER_REGISTRATION_VERIFIER,
+      useExisting: UnavailableSupplierRegistrationVerifier,
     },
   ],
 })

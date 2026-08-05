@@ -259,14 +259,22 @@ SELECT COUNT(*) FROM \`company\`;
 SELECT COALESCE(MAX(CONCAT(\`legal_name\`, '|', \`platform_name\`)), '<absent>') FROM \`company\`;
 SELECT COUNT(*) FROM \`information_schema\`.\`table_constraints\` WHERE \`constraint_schema\` = DATABASE() AND \`table_name\` = 'company' AND \`constraint_type\` = 'CHECK';
 SELECT COUNT(*) FROM \`information_schema\`.\`statistics\` WHERE \`table_schema\` = DATABASE() AND \`table_name\` = 'company' AND \`index_name\` IN ('company_legal_name_key', 'company_platform_name_key') AND \`non_unique\` = 0;
+SELECT COUNT(*) FROM \`supplier\`;
+SELECT COALESCE(MAX(CONCAT(\`status\`, '|', \`version\`)), '<absent>|0') FROM \`supplier\`;
+SELECT COUNT(*) FROM \`information_schema\`.\`tables\` WHERE \`table_schema\` = DATABASE() AND \`table_name\` IN ('supplier', 'approval_task', 'supplier_status_history', 'supplier_onboarding_command');
+SELECT COUNT(*) FROM \`information_schema\`.\`statistics\` WHERE \`table_schema\` = DATABASE() AND \`table_name\` = 'supplier' AND \`index_name\` = 'supplier_credit_code_key' AND \`non_unique\` = 0;
+SELECT COUNT(*) FROM \`information_schema\`.\`referential_constraints\` WHERE \`constraint_schema\` = DATABASE() AND \`constraint_name\` IN ('supplier_company_id_fkey', 'supplier_status_history_supplier_id_fkey');
+SELECT COUNT(*) FROM \`approval_task\`;
+SELECT COUNT(*) FROM \`supplier_status_history\`;
 `,
     database,
   );
   const values = output.split(/\r?\n/u);
-  if (values.length !== 5) {
+  if (values.length !== 12) {
     throw new Error(`PRODUCT_COMPANY_PROBE_OUTPUT_INVALID:${output}`);
   }
   const [legalName, platformName] = values[2].split('|');
+  const [supplierStatus, supplierVersion] = values[6].split('|');
   return {
     appliedMigrations: Number(values[0]),
     companyRowCount: Number(values[1]),
@@ -274,6 +282,14 @@ SELECT COUNT(*) FROM \`information_schema\`.\`statistics\` WHERE \`table_schema\
     platformName,
     checkConstraintCount: Number(values[3]),
     uniqueIdentityIndexCount: Number(values[4]),
+    supplierRowCount: Number(values[5]),
+    supplierStatus,
+    supplierVersion: Number(supplierVersion),
+    onboardingTableCount: Number(values[7]),
+    uniqueCreditIndexCount: Number(values[8]),
+    ownershipForeignKeyCount: Number(values[9]),
+    approvalTaskCount: Number(values[10]),
+    statusHistoryCount: Number(values[11]),
   };
 };
 
@@ -333,6 +349,10 @@ const parseArguments = (arguments_) => {
       [
         path.join(repositoryRoot, 'artifacts', 'verification', 'M1-P001'),
         'M1-P001',
+      ],
+      [
+        path.join(repositoryRoot, 'artifacts', 'verification', 'M1-P003'),
+        'M1-P003',
       ],
     ]);
     const reportScope = [...allowedScopes.entries()].find(([allowedRoot]) => {
@@ -484,7 +504,13 @@ try {
     productEmptyState.appliedMigrations === productMigrationCountBefore &&
       productEmptyState.companyRowCount === 0 &&
       productEmptyState.checkConstraintCount === 2 &&
-      productEmptyState.uniqueIdentityIndexCount === 2,
+      productEmptyState.uniqueIdentityIndexCount === 2 &&
+      productEmptyState.supplierRowCount === 0 &&
+      productEmptyState.onboardingTableCount === 4 &&
+      productEmptyState.uniqueCreditIndexCount === 1 &&
+      productEmptyState.ownershipForeignKeyCount === 2 &&
+      productEmptyState.approvalTaskCount === 0 &&
+      productEmptyState.statusHistoryCount === 0,
     'PRODUCT_COMPANY_SCHEMA_STATE_INVALID',
   );
 
@@ -510,12 +536,46 @@ try {
     'SINGLE_MERCHANT_FIXED_NAME_NOT_ENFORCED',
     [temporaryWechatPayConfigRef],
   );
+  const canonicalSupplierId = '10000000-0000-4000-8000-000000000001';
+  const duplicateSupplierId = '10000000-0000-4000-8000-000000000002';
+  const applicantIdentityId = '20000000-0000-4000-8000-000000000001';
+  const approvalTaskId = '30000000-0000-4000-8000-000000000001';
+  const registrationHistoryId = '40000000-0000-4000-8000-000000000001';
+  const submissionHistoryId = '40000000-0000-4000-8000-000000000002';
+  const duplicateHistoryId = '40000000-0000-4000-8000-000000000003';
+  const creditCode = '91320100MA1ABC2D3X';
+  runRootMysql(
+    `INSERT INTO \`supplier\` (\`id\`, \`company_id\`, \`legal_name\`, \`credit_code\`, \`status\`, \`pickup_address\`, \`pickup_lat\`, \`pickup_lng\`, \`qualification_snapshot\`, \`version\`, \`updated_at\`) VALUES ('${canonicalSupplierId}', '${canonicalCompanyId}', '迁移演练供应商', '${creditCode}', 'DRAFT', '迁移演练取货点', 32.0415447, 118.7699941, JSON_OBJECT('schemaVersion', '1.0', 'files', JSON_ARRAY('object://supplier-qualification/rehearsal-license')), 0, CURRENT_TIMESTAMP(3));
+INSERT INTO \`supplier_status_history\` (\`id\`, \`supplier_id\`, \`from_status\`, \`to_status\`, \`event\`, \`actor_identity_id\`, \`version\`) VALUES ('${registrationHistoryId}', '${canonicalSupplierId}', NULL, 'DRAFT', 'REGISTER', NULL, 0);
+UPDATE \`supplier\` SET \`status\` = 'PENDING_REVIEW', \`submitted_at\` = CURRENT_TIMESTAMP(3), \`version\` = 1, \`updated_at\` = CURRENT_TIMESTAMP(3) WHERE \`id\` = '${canonicalSupplierId}' AND \`version\` = 0;
+INSERT INTO \`approval_task\` (\`id\`, \`approval_type\`, \`object_type\`, \`object_id\`, \`applicant_type\`, \`applicant_id\`, \`status\`, \`assigned_account_type_code\`, \`version\`, \`updated_at\`) VALUES ('${approvalTaskId}', 'SUPPLIER_ONBOARDING', 'SUPPLIER', '${canonicalSupplierId}', 'SUPPLIER_USER', '${applicantIdentityId}', 'PENDING', 'COMPANY_SUPPLIER_OPS', 1, CURRENT_TIMESTAMP(3));
+INSERT INTO \`supplier_status_history\` (\`id\`, \`supplier_id\`, \`from_status\`, \`to_status\`, \`event\`, \`actor_identity_id\`, \`version\`) VALUES ('${submissionHistoryId}', '${canonicalSupplierId}', 'DRAFT', 'PENDING_REVIEW', 'SUBMIT', '${applicantIdentityId}', 1);
+`,
+    databaseNames.product,
+  );
+  expectRootMysqlFailure(
+    `INSERT INTO \`supplier\` (\`id\`, \`company_id\`, \`legal_name\`, \`credit_code\`, \`status\`, \`qualification_snapshot\`, \`version\`, \`updated_at\`) VALUES ('${duplicateSupplierId}', '${canonicalCompanyId}', '重复代码供应商', '${creditCode}', 'DRAFT', JSON_OBJECT('schemaVersion', '1.0', 'files', JSON_ARRAY()), 0, CURRENT_TIMESTAMP(3));
+`,
+    databaseNames.product,
+    'SUPPLIER_DUPLICATE_CREDIT_CODE_ACCEPTED',
+  );
+  expectRootMysqlFailure(
+    `INSERT INTO \`supplier_status_history\` (\`id\`, \`supplier_id\`, \`from_status\`, \`to_status\`, \`event\`, \`actor_identity_id\`, \`version\`) VALUES ('${duplicateHistoryId}', '${canonicalSupplierId}', 'DRAFT', 'PENDING_REVIEW', 'SUBMIT', '${applicantIdentityId}', 1);
+`,
+    databaseNames.product,
+    'SUPPLIER_HISTORY_VERSION_DUPLICATE_ACCEPTED',
+  );
   const productPopulatedState = readProductCompanyState(databaseNames.product);
   assertState(
     productPopulatedState.appliedMigrations === productMigrationCountBefore &&
       productPopulatedState.companyRowCount === 1 &&
       productPopulatedState.legalName === '江苏福礼团供应链科技有限公司' &&
-      productPopulatedState.platformName === '福礼社',
+      productPopulatedState.platformName === '福礼社' &&
+      productPopulatedState.supplierRowCount === 1 &&
+      productPopulatedState.supplierStatus === 'PENDING_REVIEW' &&
+      productPopulatedState.supplierVersion === 1 &&
+      productPopulatedState.approvalTaskCount === 1 &&
+      productPopulatedState.statusHistoryCount === 2,
     'PRODUCT_SINGLE_MERCHANT_STATE_INVALID',
   );
 
@@ -730,7 +790,7 @@ try {
       idempotentRedeploy: 'PASS',
     },
     productRehearsal: {
-      taskId: 'M1-P001',
+      taskId: 'M1-P003',
       migrationCount: productPopulatedState.appliedMigrations,
       companyRowCount: productPopulatedState.companyRowCount,
       fixedIdentity: {
@@ -744,6 +804,19 @@ try {
       },
       secondMerchantRejected: true,
       invalidLegalNameRejected: true,
+      supplierOnboarding: {
+        supplierRowCount: productPopulatedState.supplierRowCount,
+        supplierStatus: productPopulatedState.supplierStatus,
+        supplierVersion: productPopulatedState.supplierVersion,
+        approvalTaskCount: productPopulatedState.approvalTaskCount,
+        statusHistoryCount: productPopulatedState.statusHistoryCount,
+        onboardingTableCount: productPopulatedState.onboardingTableCount,
+        uniqueCreditIndexCount: productPopulatedState.uniqueCreditIndexCount,
+        ownershipForeignKeyCount:
+          productPopulatedState.ownershipForeignKeyCount,
+        duplicateCreditCodeRejected: true,
+        duplicateHistoryVersionRejected: true,
+      },
       finalSchemaDrift: 'NONE',
       idempotentRedeploy: 'PASS',
     },

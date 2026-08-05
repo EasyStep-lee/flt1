@@ -40,9 +40,12 @@ const readCsv = async (relativePath) => {
 };
 
 test('M1-P001 remains bound to merged PR 8 and its main CI', async () => {
-  const [tasks, state] = await Promise.all([
+  const [tasks, evidence] = await Promise.all([
     readCsv('03-任务台账.csv'),
-    readFile(path.join(packRoot, '16-项目状态.json'), 'utf8').then(JSON.parse),
+    readFile(
+      path.join(repositoryRoot, 'artifacts', 'verification', 'M1-P001', 'single-merchant.json'),
+      'utf8',
+    ).then(JSON.parse),
   ]);
   const m1p001 = tasks.find(({ TaskID }) => TaskID === 'M1-P001');
 
@@ -54,9 +57,9 @@ test('M1-P001 remains bound to merged PR 8 and its main CI', async () => {
   );
   assert.equal(m1p001?.PullRequest, '8');
   assert.equal(m1p001?.CI, 'CI_PASS');
-  assert.equal(state.github.pullRequest, 8);
+  assert.equal(evidence.githubVerification.pullRequest, 8);
   assert.equal(
-    state.github.latestCi.headSha,
+    evidence.githubVerification.mergeCommit,
     'c2b4bf420d0629b795cdfbdf2c1c4378224d76f7',
   );
 });

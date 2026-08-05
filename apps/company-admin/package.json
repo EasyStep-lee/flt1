@@ -11,6 +11,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@fulishe/contracts": "workspace:*",
     "@fulishe/ui": "workspace:*",
     "@fulishe/web-api-client": "workspace:*",
     "@tanstack/react-query": "5.101.4",

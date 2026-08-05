@@ -13,7 +13,14 @@
               "SERVICE_UNAVAILABLE",
               "PAYEE_FORBIDDEN",
               "SELLER_IDENTITY_FORBIDDEN",
-              "SINGLE_MERCHANT_VIOLATION"
+              "SINGLE_MERCHANT_VIOLATION",
+              "APPROVAL_VERSION_CONFLICT",
+              "FIELD_FORBIDDEN",
+              "SECOND_VERIFICATION_REQUIRED",
+              "STATE_TRANSITION_INVALID",
+              "SUPPLIER_DUPLICATE",
+              "VALIDATION_FAILED",
+              "VERSION_CONFLICT"
             ],
             "example": "RESOURCE_NOT_FOUND",
             "type": "string"
@@ -47,6 +54,64 @@
           "requestId",
           "path",
           "timestamp"
+        ],
+        "type": "object"
+      },
+      "ApprovalTaskResponseDto": {
+        "properties": {
+          "approvalType": {
+            "enum": [
+              "SUPPLIER_ONBOARDING"
+            ],
+            "type": "string"
+          },
+          "assignedAccountTypeCode": {
+            "enum": [
+              "COMPANY_SUPPLIER_OPS"
+            ],
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "objectId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "objectType": {
+            "enum": [
+              "SUPPLIER"
+            ],
+            "type": "string"
+          },
+          "reviewOpinion": {
+            "maxLength": 1000,
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "PENDING",
+              "IN_REVIEW",
+              "APPROVED",
+              "REJECTED",
+              "CANCELLED"
+            ],
+            "type": "string"
+          },
+          "version": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "approvalType",
+          "objectType",
+          "objectId",
+          "status",
+          "assignedAccountTypeCode",
+          "version"
         ],
         "type": "object"
       },
@@ -205,6 +270,429 @@
           "refundOperator"
         ],
         "type": "object"
+      },
+      "SubmitReviewRequestDto": {
+        "properties": {
+          "requestId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "version",
+          "requestId"
+        ],
+        "type": "object"
+      },
+      "SupplierPageResponseDto": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SupplierResponseDto"
+            },
+            "type": "array"
+          },
+          "page": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "pageSize": {
+            "maximum": 100,
+            "minimum": 1,
+            "type": "number"
+          },
+          "total": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "page",
+          "pageSize",
+          "total"
+        ],
+        "type": "object"
+      },
+      "SupplierProfilePatchRequestDto": {
+        "properties": {
+          "pickupAddress": {
+            "maxLength": 500,
+            "nullable": true,
+            "type": "string"
+          },
+          "pickupLat": {
+            "maximum": 90,
+            "minimum": -90,
+            "nullable": true,
+            "type": "number"
+          },
+          "pickupLng": {
+            "maximum": 180,
+            "minimum": -180,
+            "nullable": true,
+            "type": "number"
+          },
+          "qualificationSnapshot": {
+            "$ref": "#/components/schemas/SupplierQualificationSnapshotDto"
+          },
+          "settlementAccountChangeRequest": {
+            "description": "Reserved for a separately verified high-risk workflow",
+            "type": "object",
+            "writeOnly": true
+          },
+          "version": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "version"
+        ],
+        "type": "object"
+      },
+      "SupplierProfileResponseDto": {
+        "properties": {
+          "creditCodeMasked": {
+            "example": "9132**********2D3X",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "legalName": {
+            "maxLength": 128,
+            "type": "string"
+          },
+          "pickupAddress": {
+            "maxLength": 500,
+            "nullable": true,
+            "type": "string"
+          },
+          "pickupLat": {
+            "maximum": 90,
+            "minimum": -90,
+            "nullable": true,
+            "type": "number"
+          },
+          "pickupLng": {
+            "maximum": 180,
+            "minimum": -180,
+            "nullable": true,
+            "type": "number"
+          },
+          "qualificationSummary": {
+            "$ref": "#/components/schemas/SupplierQualificationSummaryDto"
+          },
+          "settlementAccountMasked": {
+            "maxLength": 128,
+            "nullable": true,
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "DRAFT",
+              "PENDING_REVIEW",
+              "CORRECTION_REQUIRED",
+              "ACTIVE",
+              "SUSPENDED",
+              "EXITING",
+              "EXITED"
+            ],
+            "type": "string"
+          },
+          "version": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "legalName",
+          "creditCodeMasked",
+          "status",
+          "qualificationSummary",
+          "version",
+          "pickupAddress",
+          "pickupLat",
+          "pickupLng",
+          "settlementAccountMasked"
+        ],
+        "type": "object"
+      },
+      "SupplierQualificationSnapshotDto": {
+        "properties": {
+          "files": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 50,
+            "type": "array"
+          },
+          "schemaVersion": {
+            "enum": [
+              "1.0"
+            ],
+            "example": "1.0",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schemaVersion",
+          "files"
+        ],
+        "type": "object"
+      },
+      "SupplierQualificationSummaryDto": {
+        "properties": {
+          "complete": {
+            "type": "boolean"
+          },
+          "fileCount": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "fileCount",
+          "complete"
+        ],
+        "type": "object"
+      },
+      "SupplierQueryDto": {
+        "properties": {
+          "keyword": {
+            "maxLength": 128,
+            "type": "string"
+          },
+          "page": {
+            "default": 1,
+            "minimum": 1,
+            "type": "number"
+          },
+          "pageSize": {
+            "default": 20,
+            "maximum": 100,
+            "minimum": 1,
+            "type": "number"
+          },
+          "status": {
+            "enum": [
+              "DRAFT",
+              "PENDING_REVIEW",
+              "CORRECTION_REQUIRED",
+              "ACTIVE",
+              "SUSPENDED",
+              "EXITING",
+              "EXITED"
+            ],
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SupplierRegistrationRequestDto": {
+        "properties": {
+          "agreementVersion": {
+            "example": "supplier-agreement-v1.1",
+            "maxLength": 64,
+            "type": "string"
+          },
+          "contactName": {
+            "example": "张经理",
+            "maxLength": 128,
+            "type": "string"
+          },
+          "creditCode": {
+            "example": "91320100MA1ABC2D3X",
+            "maxLength": 18,
+            "minLength": 18,
+            "type": "string"
+          },
+          "email": {
+            "example": "supplier@example.test",
+            "maxLength": 254,
+            "type": "string"
+          },
+          "legalName": {
+            "example": "南京示例供应链有限公司",
+            "maxLength": 128,
+            "type": "string"
+          },
+          "mobile": {
+            "example": "13800138000",
+            "maxLength": 16,
+            "type": "string"
+          },
+          "pickupAddress": {
+            "example": "南京市建邺区江东中路 100 号",
+            "maxLength": 500,
+            "nullable": true,
+            "type": "string"
+          },
+          "pickupLat": {
+            "example": 32.0415447,
+            "maximum": 90,
+            "minimum": -90,
+            "nullable": true,
+            "type": "number"
+          },
+          "pickupLng": {
+            "example": 118.7699941,
+            "maximum": 180,
+            "minimum": -180,
+            "nullable": true,
+            "type": "number"
+          },
+          "qualificationFiles": {
+            "example": [
+              "object://supplier-qualification/business-license-001"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 50,
+            "type": "array"
+          },
+          "verificationCode": {
+            "example": "123456",
+            "maxLength": 8,
+            "minLength": 4,
+            "type": "string",
+            "writeOnly": true
+          }
+        },
+        "required": [
+          "legalName",
+          "creditCode",
+          "contactName",
+          "mobile",
+          "verificationCode",
+          "qualificationFiles",
+          "pickupAddress",
+          "pickupLat",
+          "pickupLng",
+          "agreementVersion"
+        ],
+        "type": "object"
+      },
+      "SupplierRegistrationResponseDto": {
+        "properties": {
+          "nextAction": {
+            "enum": [
+              "COMPLETE_PROFILE",
+              "CORRECT_AND_RESUBMIT",
+              "LOGIN_AFTER_ACTIVATION",
+              "REVIEW_IN_PROGRESS"
+            ],
+            "type": "string"
+          },
+          "registrationId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "DRAFT",
+              "PENDING_REVIEW",
+              "CORRECTION_REQUIRED",
+              "ACTIVE",
+              "SUSPENDED",
+              "EXITING",
+              "EXITED"
+            ],
+            "type": "string"
+          },
+          "submittedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "registrationId",
+          "status",
+          "nextAction"
+        ],
+        "type": "object"
+      },
+      "SupplierResponseDto": {
+        "properties": {
+          "creditCodeMasked": {
+            "example": "9132**********2D3X",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "legalName": {
+            "maxLength": 128,
+            "type": "string"
+          },
+          "qualificationSummary": {
+            "$ref": "#/components/schemas/SupplierQualificationSummaryDto"
+          },
+          "status": {
+            "enum": [
+              "DRAFT",
+              "PENDING_REVIEW",
+              "CORRECTION_REQUIRED",
+              "ACTIVE",
+              "SUSPENDED",
+              "EXITING",
+              "EXITED"
+            ],
+            "type": "string"
+          },
+          "version": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "legalName",
+          "creditCodeMasked",
+          "status",
+          "qualificationSummary",
+          "version"
+        ],
+        "type": "object"
+      },
+      "SupplierReviewRequestDto": {
+        "properties": {
+          "decision": {
+            "enum": [
+              "REQUEST_CORRECTION",
+              "APPROVE"
+            ],
+            "type": "string"
+          },
+          "opinion": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "type": "string"
+          },
+          "secondVerificationCode": {
+            "type": "string",
+            "writeOnly": true
+          },
+          "version": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "decision",
+          "version",
+          "opinion"
+        ],
+        "type": "object"
       }
     }
   },
@@ -270,6 +758,201 @@
         ]
       }
     },
+    "/v1/company/suppliers": {
+      "get": {
+        "operationId": "companySupplierOnboarding.list",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "pageSize",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "keyword",
+            "required": false,
+            "schema": {
+              "maxLength": 128,
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "enum": [
+                "DRAFT",
+                "PENDING_REVIEW",
+                "CORRECTION_REQUIRED",
+                "ACTIVE",
+                "SUSPENDED",
+                "EXITING",
+                "EXITED"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupplierPageResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "List supplier onboarding records for company supplier ops",
+        "tags": [
+          "company-supplier-onboarding"
+        ]
+      }
+    },
+    "/v1/company/suppliers/{supplierId}/review": {
+      "post": {
+        "operationId": "companySupplierOnboarding.review",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "supplierId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SupplierReviewRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupplierResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Request correction or approve a pending supplier",
+        "tags": [
+          "company-supplier-onboarding"
+        ]
+      }
+    },
     "/v1/public/merchant-profile": {
       "get": {
         "operationId": "publicMerchant.getProfile",
@@ -324,6 +1007,229 @@
         "summary": "Get the fixed customer-facing merchant identity",
         "tags": [
           "public-merchant"
+        ]
+      }
+    },
+    "/v1/supplier/me": {
+      "patch": {
+        "operationId": "supplierOnboarding.patchOwnProfile",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SupplierProfilePatchRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupplierProfileResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Correct the authenticated supplier onboarding draft",
+        "tags": [
+          "supplier-onboarding-self-service"
+        ]
+      }
+    },
+    "/v1/supplier/me/submit-review": {
+      "post": {
+        "operationId": "supplierOnboarding.submitOwnProfile",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitReviewRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApprovalTaskResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Submit or resubmit the authenticated supplier for review",
+        "tags": [
+          "supplier-onboarding-self-service"
+        ]
+      }
+    },
+    "/v1/suppliers/registrations": {
+      "post": {
+        "operationId": "supplierRegistration.create",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SupplierRegistrationRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupplierRegistrationResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Create an editable supplier onboarding draft",
+        "tags": [
+          "supplier-registration"
         ]
       }
     }
