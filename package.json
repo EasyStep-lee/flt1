@@ -20,7 +20,7 @@
     "openapi:breaking": "node ./scripts/check-openapi-breaking.mjs",
     "openapi:check": "node ./scripts/check-openapi-generated.mjs",
     "openapi:diff": "git diff --exit-code HEAD -- packages/contracts/openapi.json packages/contracts/types.ts",
-    "openapi:generate": "tsx --tsconfig ./apps/api/tsconfig.json ./scripts/generate-openapi.ts",
+    "openapi:generate": "pnpm --filter @fulishe/contracts build && tsx --tsconfig ./apps/api/tsconfig.json ./scripts/generate-openapi.ts",
     "prisma:generate": "pnpm --filter @fulishe/db prisma:generate",
     "prisma:migrate:dry-run": "node ./scripts/prisma-migration-rehearsal.mjs",
     "prisma:migrations:check": "node ./scripts/check-prisma-migrations.mjs --base-ref HEAD",

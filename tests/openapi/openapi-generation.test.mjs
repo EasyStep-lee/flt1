@@ -10,6 +10,7 @@ const repoRoot = fileURLToPath(new URL('../../', import.meta.url));
 const pnpm = 'pnpm';
 const specPath = path.join(repoRoot, 'packages', 'contracts', 'openapi.json');
 const typesPath = path.join(repoRoot, 'packages', 'contracts', 'types.ts');
+const rootPackagePath = path.join(repoRoot, 'package.json');
 
 const run = (command, args, options = {}) =>
   spawnSync(command, args, {
@@ -53,6 +54,28 @@ const findForbiddenKeys = (value, location = '$') => {
     return [...match, ...findForbiddenKeys(entry, current)];
   });
 };
+
+test('openapi:generate builds runtime contracts before loading API sources', () => {
+  const rootPackage = JSON.parse(readFileSync(rootPackagePath, 'utf8'));
+  const script = rootPackage.scripts?.['openapi:generate'];
+  assert.equal(typeof script, 'string');
+
+  const contractsBuild = 'pnpm --filter @fulishe/contracts build';
+  const generator = 'tsx --tsconfig ./apps/api/tsconfig.json ./scripts/generate-openapi.ts';
+  const contractsBuildIndex = script.indexOf(contractsBuild);
+  const generatorIndex = script.indexOf(generator);
+
+  assert.notEqual(
+    contractsBuildIndex,
+    -1,
+    'clean environments must build @fulishe/contracts before OpenAPI generation',
+  );
+  assert.notEqual(generatorIndex, -1, 'the deterministic OpenAPI generator must remain enabled');
+  assert.ok(
+    contractsBuildIndex < generatorIndex,
+    '@fulishe/contracts must be built before API source modules are loaded',
+  );
+});
 
 test('OpenAPI generation is byte-stable and ignores runtime infrastructure configuration', () => {
   const hostileRuntimeEnvironment = {
