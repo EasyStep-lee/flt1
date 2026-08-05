@@ -1,0 +1,143 @@
+{
+  "schemaVersion": 1,
+  "taskId": "M1-P003",
+  "p0Id": "P0-003",
+  "generatedAt": "2026-08-05T05:57:19-04:00",
+  "result": "LOCAL_PASS",
+  "sourceState": {
+    "baseCommit": "6f0adf8f69ceff30ff5834d6d5377cd2d2d9fd46",
+    "stateStartCommit": "60a0b0e",
+    "implementationCommit": "f032da3",
+    "openApiFreezeCommit": "70802d1",
+    "verifiedImplementationHead": "b34c427304131e856148db132b5fbecdf4da2e0f"
+  },
+  "scope": {
+    "implemented": [
+      "public supplier registration with safe verification seam and editable DRAFT",
+      "server-bound supplier profile correction and submit-review workflow",
+      "company supplier-ops listing, correction request and approval workflow",
+      "DRAFT to PENDING_REVIEW to CORRECTION_REQUIRED to PENDING_REVIEW to ACTIVE lifecycle",
+      "Supplier, ApprovalTask, SupplierStatusHistory and SupplierOnboardingCommand persistence",
+      "five deterministic OpenAPI operations with generated shared types",
+      "supplier registration and company supplier-ops reference pages"
+    ],
+    "notImplemented": [
+      "real SMS or mobile verification provider",
+      "production supplier or company functional-account session resolver",
+      "supplier login, account selection or functional-account invitation",
+      "formal supplier qualification decision rules from EXT-006",
+      "product, pricing, inventory, trade, payment, delivery or settlement capabilities"
+    ]
+  },
+  "ownershipAndSecurity": {
+    "publicOwnershipFieldsRejected": true,
+    "privateSupplierIdSource": "SERVER_AUTHENTICATION_CONTEXT_ONLY",
+    "companyRole": "COMPANY_SUPPLIER_OPS",
+    "productionRegistrationVerifierDefault": "SERVICE_UNAVAILABLE_503",
+    "productionPrivateActorResolverDefault": "AUTHENTICATION_REQUIRED_401",
+    "supplyPriceReturned": false,
+    "publicCachePolicy": "NO_STORE",
+    "privateCachePolicy": "PRIVATE_NO_STORE"
+  },
+  "negativeTests": [
+    {
+      "id": "NEG-M1-003-01",
+      "scenario": "duplicate normalized credit code",
+      "expectedCode": "SUPPLIER_DUPLICATE",
+      "status": "PASS"
+    },
+    {
+      "id": "NEG-M1-003-02",
+      "scenario": "approve a DRAFT supplier directly",
+      "expectedCode": "STATE_TRANSITION_INVALID",
+      "status": "PASS"
+    },
+    {
+      "id": "NEG-M1-003-03",
+      "scenario": "same idempotency key and request replay",
+      "expectedResult": "ORIGINAL_RESULT_WITH_ONE_SUPPLIER",
+      "status": "PASS"
+    },
+    {
+      "id": "NEG-M1-003-04",
+      "scenario": "submit incomplete qualification and pickup data",
+      "expectedCode": "VALIDATION_FAILED",
+      "status": "PASS"
+    }
+  ],
+  "contractBoundary": {
+    "prismaModels": [
+      "Supplier",
+      "ApprovalTask",
+      "SupplierStatusHistory",
+      "SupplierOnboardingCommand"
+    ],
+    "publishedMigration": "20260805090000_supplier_onboarding",
+    "openApiOperations": [
+      "POST /v1/suppliers/registrations",
+      "PATCH /v1/supplier/me",
+      "POST /v1/supplier/me/submit-review",
+      "GET /v1/company/suppliers",
+      "POST /v1/company/suppliers/{supplierId}/review"
+    ],
+    "pages": [
+      "/supplier/register",
+      "/company-admin/workspaces/supplier-ops"
+    ]
+  },
+  "verification": {
+    "red": "EXPECTED_FAILURE_MISSING_SUPPLIER_ONBOARDING_MODULE_AND_EVIDENCE",
+    "domainPolicy": "PASS_3_OF_3",
+    "supplierApi": "PASS_8_OF_8",
+    "m1Contracts": "PASS_15_OF_15",
+    "migrationContracts": "PASS_9_OF_9",
+    "openApiContracts": "PASS_9_OF_9",
+    "p0Chromium": "PASS_2_OF_2",
+    "foundationChromium": "PASS_3_OF_3",
+    "verificationCiContracts": "PASS_8_OF_8",
+    "prismaValidate": "PASS",
+    "publishedMigrations": "PASS_3_OF_3",
+    "productMigrationRehearsal": "PASS_3_MIGRATIONS_CLEANUP_PASS",
+    "openApiDeterministic": "PASS",
+    "pnpmVerify": "PASS_17_OF_17"
+  },
+  "fullVerification": {
+    "baseRef": "HEAD",
+    "baseRefSource": "LOCAL_HEAD_FALLBACK",
+    "comparisonBaseCommit": "6f0adf8f69ceff30ff5834d6d5377cd2d2d9fd46",
+    "commit": "b34c427304131e856148db132b5fbecdf4da2e0f",
+    "startedAt": "2026-08-05T09:44:53.891Z",
+    "endedAt": "2026-08-05T09:52:48.681Z",
+    "stepsPassed": 17,
+    "reportPath": "artifacts/test-results/verification/pnpm-verify.json"
+  },
+  "migrationRehearsal": {
+    "status": "LOCAL_PASS",
+    "commit": "b34c427304131e856148db132b5fbecdf4da2e0f",
+    "emptyMigrations": 2,
+    "upgradeMigrations": 2,
+    "restoreMigrations": 2,
+    "productMigrations": 3,
+    "supplierOnboardingTables": 4,
+    "finalSchemaDrift": "NONE",
+    "idempotentRedeploy": "PASS",
+    "cleanup": "PASS",
+    "reportPath": "artifacts/verification/M1-P003/prisma-migration-rehearsal.json"
+  },
+  "externalDependencies": [
+    {
+      "id": "EXT-006",
+      "status": "NOT_PROVIDED",
+      "impact": "only configurable minimum completeness is enforced; formal supplier qualification compliance is not claimed"
+    }
+  ],
+  "evidenceBoundary": {
+    "local": "LOCAL_PASS",
+    "ci": "NOT_EXECUTED",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_APPLICABLE_TO_BROWSER_SLICE",
+    "production": "NOT_EXECUTED",
+    "productionMigration": "HUMAN_ONLY_NOT_EXECUTED",
+    "formalAcceptance": "BLOCKED_EXTERNAL_EXT_006"
+  }
+}

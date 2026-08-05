@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-05T04:35:34-04:00",
+  "updatedAt": "2026-08-05T05:57:19-04:00",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -14,14 +14,17 @@
   "execution": {
     "status": "M1_IN_PROGRESS",
     "currentStage": "M1",
-    "currentTask": "M1-P003",
-    "nextAllowedTask": "M1-P003",
-    "activeTaskCount": 1,
-    "lastCompletedTask": "M1-P002",
-    "lastCompletedCommit": "fb3c7a5e311d4472778eb63f9ef7351182ddc010",
+    "currentTask": "M1-P004",
+    "nextAllowedTask": "M1-P004",
+    "activeTaskCount": 0,
+    "lastCompletedTask": "M1-P003",
+    "lastCompletedCommit": "b34c427304131e856148db132b5fbecdf4da2e0f",
     "lastPassedGate": "M0-GATE",
-    "prohibitedUntilGate": [],
+    "prohibitedUntilGate": [
+      "M1-P003的Draft PR精确head CI、自审授权、合并及合并后main CI未完成"
+    ],
     "persistentRestrictions": [
+      "M1-P003外部闭环完成前M1-P004仅保持READY，不得进入IN_PROGRESS",
       "真实支付/退款",
       "生产部署/迁移",
       "直接修改或推送main"
@@ -83,18 +86,20 @@
       "taskId": "M1-P003",
       "branch": "codex/m1-m1-p003",
       "baseCommit": "6f0adf8f69ceff30ff5834d6d5377cd2d2d9fd46",
-      "status": "IN_PROGRESS",
-      "localVerify": "NOT_EXECUTED",
+      "status": "DONE_LOCAL_PASS",
+      "verifiedImplementationHead": "b34c427304131e856148db132b5fbecdf4da2e0f",
+      "localVerify": "PASS_17_OF_17",
+      "migrationRehearsal": "LOCAL_PASS_3_PRODUCT_MIGRATIONS_CLEANUP_PASS",
       "pullRequest": "NOT_CREATED",
       "exactHeadCi": "NOT_EXECUTED",
       "review": "NOT_EXECUTED",
       "merge": "NOT_EXECUTED",
       "mainPostMergeCi": "NOT_EXECUTED"
     },
-    "note": "M1-P002精确head fb3c7a5已由PR #9完成CI、自审授权并合并为6f0adf8，合并后main CI通过，P0-002为CI_PASS。M1-P003已从该main提交建立独立分支并作为唯一任务进入IN_PROGRESS。main治理限制、production人工门槛、EXT-005、EXT-006及Dependabot WARN继续显式保留。"
+    "note": "M1-P003实现head b34c427已完成本地完整门禁17/17、真实MySQL迁移演练及P0-003双页面验证，当前为LOCAL_PASS；Draft PR、精确head CI、自审、合并和合并后main CI仍未执行。M1-P004仅READY且受外部闭环限制。真实短信与生产职能会话适配保持默认拒绝，EXT-006未提供；main治理限制、production人工门槛及Dependabot WARN继续显式保留。"
   },
   "evidence": {
-    "local": "NOT_EXECUTED",
+    "local": "LOCAL_PASS",
     "ci": "NOT_EXECUTED",
     "staging": "NOT_EXECUTED",
     "device": "NOT_EXECUTED",
