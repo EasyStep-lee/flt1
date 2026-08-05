@@ -3,10 +3,11 @@
 ## 结论
 
 - 任务：`M1-P002`，P0：`P0-002`。
-- 本地结论：`DONE / LOCAL_PASS`。
-- 实现 head：`c7ea23b6f67cce69224a5f7a8ea76408df1fc44c`。
+- 最终结论：`DONE / CI_PASS / MERGED`。
+- 实现提交：`c7ea23b6f67cce69224a5f7a8ea76408df1fc44c`；交付 head：`fb3c7a5e311d4472778eb63f9ef7351182ddc010`。
 - 对比基线：`c2b4bf420d0629b795cdfbdf2c1c4378224d76f7`。
-- 下一顺序任务：`M1-P003`，只处于 `READY`；本任务完成 Draft PR 精确 head CI、自审授权、合并和合并后 main CI 前不得启动。
+- PR #9 已合并为 `6f0adf8f69ceff30ff5834d6d5377cd2d2d9fd46`；精确 head CI run `30985328986` 与合并后 main CI run `30986393602` 均通过。
+- 下一顺序任务：`M1-P003`，本任务外部闭环已完成，可由独立分支按顺序启动。
 
 ## 本切片实现
 
@@ -30,9 +31,15 @@
 - 不新增 Prisma 模型、迁移、OpenAPI 路径、DTO 或对客页面；这些缺失是本任务的正确业务结果。
 - 不实现 M1-P003 供应商注册及后续账号、权限、商品、支付、配送或结算能力。
 
+## GitHub 闭环
+
+- 单人开发精确 head 自审记录：PR #9 comment `5189059501`。
+- 合并后 main CI 闭环记录：PR #9 comment `5189103973`。
+- main CI `PNPM_VERIFY_OK:steps=17`；迁移保持 `2/2`，真实演练与清理通过；Secret scan 覆盖 335 个跟踪文件。
+
 ## 证据边界与风险
 
-- 当前仅为 `LOCAL_PASS`；Draft PR、GitHub Actions 精确 head CI、自审授权、合并和合并后 main CI 均为 `NOT_EXECUTED`。
+- 本地、PR 精确 head CI、自审授权、合并和合并后 main CI 均已闭环为 `CI_PASS`/`MERGED`。
 - 预发布、生产和正式验收均未执行；本禁止性切片无真机要求。
 - `EXT-005` 及既有 GitHub Actions Node.js 20、Dependabot 警告继续保留，不冒充本任务已修复。
 - 仓库守卫只把结构化 Schema、迁移、OpenAPI 与应用路由视为能力证据；历史产品文档和负面测试中的禁止词不会被误判为运行时能力。
@@ -40,4 +47,4 @@
 ## 回退与恢复
 
 - 应用与测试可按原子提交反向回退；本任务没有新增迁移，不涉及数据库回滚。
-- 恢复时读取根与提示词包 `AGENTS.md`、基线锁、项目状态、本交接和 `M1-P003` 任务行，并实时核验本任务 PR/CI。
+- 恢复时读取根与提示词包 `AGENTS.md`、基线锁、项目状态、本交接和 `M1-P003` 任务行，并实时核验 PR #9 与 main CI run `30986393602`。

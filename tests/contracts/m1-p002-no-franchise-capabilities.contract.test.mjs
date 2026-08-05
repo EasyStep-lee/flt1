@@ -88,7 +88,7 @@ test('P0-002 repository scan covers schema, migrations, OpenAPI and UI routes', 
   assert.ok(result.checked.applicationRouteFiles >= 1);
 });
 
-test('M1-P002 closes locally and leaves only M1-P003 ready', async () => {
+test('M1-P002 is merged with CI evidence and M1-P003 is the only active task', async () => {
   const [tasks, p0Rows, evidence, state] = await Promise.all([
     readCsv('03-任务台账.csv'),
     readCsv('04-P0-1至P0-119验收矩阵.csv'),
@@ -109,24 +109,33 @@ test('M1-P002 closes locally and leaves only M1-P003 ready', async () => {
   const m1p003 = tasks.find(({ TaskID }) => TaskID === 'M1-P003');
   const p0 = p0Rows.find(({ P0ID }) => P0ID === 'P0-002');
 
-  assert.deepEqual(active, []);
+  assert.deepEqual(active.map(({ TaskID }) => TaskID), ['M1-P003']);
   assert.equal(m1p002?.Status, 'DONE');
-  assert.equal(m1p002?.EvidenceStatus, 'LOCAL_PASS');
+  assert.equal(m1p002?.EvidenceStatus, 'CI_PASS');
   assert.equal(
     m1p002?.CommitSHA,
-    'c7ea23b6f67cce69224a5f7a8ea76408df1fc44c',
+    'fb3c7a5e311d4472778eb63f9ef7351182ddc010',
   );
-  assert.equal(m1p003?.Status, 'READY');
+  assert.equal(m1p002?.PullRequest, '9');
+  assert.equal(m1p002?.CI, 'CI_PASS');
+  assert.equal(m1p003?.Status, 'IN_PROGRESS');
   assert.equal(m1p003?.EvidenceStatus, 'NOT_EXECUTED');
-  assert.equal(p0?.CurrentEvidenceStatus, 'LOCAL_PASS');
-  assert.equal(evidence.result, 'LOCAL_PASS');
+  assert.equal(p0?.CurrentEvidenceStatus, 'CI_PASS');
+  assert.equal(evidence.result, 'CI_PASS');
   assert.equal(evidence.fullVerification.stepsPassed, 17);
+  assert.equal(evidence.github.pullRequest, 9);
+  assert.equal(evidence.github.mainPostMergeCi.status, 'CI_PASS');
   assert.equal(state.execution.currentTask, 'M1-P003');
   assert.equal(state.execution.nextAllowedTask, 'M1-P003');
-  assert.equal(state.execution.activeTaskCount, 0);
+  assert.equal(state.execution.activeTaskCount, 1);
   assert.equal(state.execution.lastCompletedTask, 'M1-P002');
   assert.equal(
     state.execution.lastCompletedCommit,
-    'c7ea23b6f67cce69224a5f7a8ea76408df1fc44c',
+    'fb3c7a5e311d4472778eb63f9ef7351182ddc010',
   );
+  assert.equal(
+    state.github.mergeCommitSha,
+    '6f0adf8f69ceff30ff5834d6d5377cd2d2d9fd46',
+  );
+  assert.equal(state.github.latestCi.runId, 30986393602);
 });
