@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -112,10 +112,15 @@ test('generator follows raw parents when revision walk is shallow-truncated', as
   const cloneRoot = path.join(directory, 'repository');
   try {
     const sourceCommit = runGit(['rev-parse', 'HEAD']).stdout.trim();
+    const sourceGitDirectory = runGit([
+      'rev-parse',
+      '--absolute-git-dir',
+    ]);
+    assert.equal(sourceGitDirectory.status, 0, sourceGitDirectory.stderr);
     const clone = runGit([
       'clone',
       '--quiet',
-      '--shared',
+      '--no-hardlinks',
       '--no-checkout',
       '--',
       repositoryRoot,
@@ -144,6 +149,29 @@ test('generator follows raw parents when revision walk is shallow-truncated', as
       cloneRoot,
     );
     assert.equal(gitDirectory.status, 0, gitDirectory.stderr);
+    // A shallow source can suppress clone --shared, so expose its complete
+    // object store explicitly before truncating this fixture's revision walk.
+    const cloneObjectsInfoDirectory = path.join(
+      gitDirectory.stdout.trim(),
+      'objects',
+      'info',
+    );
+    await mkdir(cloneObjectsInfoDirectory, { recursive: true });
+    await writeFile(
+      path.join(cloneObjectsInfoDirectory, 'alternates'),
+      `${path.join(sourceGitDirectory.stdout.trim(), 'objects')}\n`,
+      'utf8',
+    );
+    const recordedFirstTaskCommit = await readRecordedTaskCommit('M0-001');
+    const completeObjectCheck = runGit(
+      ['cat-file', '-e', `${recordedFirstTaskCommit}^{commit}`],
+      cloneRoot,
+    );
+    assert.equal(
+      completeObjectCheck.status,
+      0,
+      completeObjectCheck.stderr,
+    );
     await writeFile(
       path.join(gitDirectory.stdout.trim(), 'shallow'),
       `${sourceCommit}\n`,
