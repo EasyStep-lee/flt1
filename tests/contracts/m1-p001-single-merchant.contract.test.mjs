@@ -39,7 +39,7 @@ const readCsv = async (relativePath) => {
   });
 };
 
-test('M1-P001 closes locally and leaves only M1-P002 ready', async () => {
+test('M1-P001 closes in CI and leaves only M1-P002 in progress', async () => {
   const [tasks, state] = await Promise.all([
     readCsv('03-任务台账.csv'),
     readFile(path.join(packRoot, '16-项目状态.json'), 'utf8').then(JSON.parse),
@@ -48,27 +48,29 @@ test('M1-P001 closes locally and leaves only M1-P002 ready', async () => {
   const m1p001 = tasks.find(({ TaskID }) => TaskID === 'M1-P001');
   const m1p002 = tasks.find(({ TaskID }) => TaskID === 'M1-P002');
 
-  assert.deepEqual(active, []);
+  assert.deepEqual(active.map(({ TaskID }) => TaskID), ['M1-P002']);
   assert.equal(m1p001?.Status, 'DONE');
-  assert.equal(m1p001?.EvidenceStatus, 'LOCAL_PASS');
+  assert.equal(m1p001?.EvidenceStatus, 'CI_PASS');
   assert.equal(
     m1p001?.CommitSHA,
-    '9d7d763e41dc8ffba0166d2b9162c162542ccc7d',
+    '7eb91066846204a18afa20c4c8b4c7b94676dca0',
   );
-  assert.equal(m1p002?.Status, 'READY');
+  assert.equal(m1p001?.PullRequest, '8');
+  assert.equal(m1p001?.CI, 'CI_PASS');
+  assert.equal(m1p002?.Status, 'IN_PROGRESS');
   assert.equal(m1p002?.EvidenceStatus, 'NOT_EXECUTED');
   assert.equal(state.execution.currentTask, 'M1-P002');
   assert.equal(state.execution.nextAllowedTask, 'M1-P002');
-  assert.equal(state.execution.activeTaskCount, 0);
+  assert.equal(state.execution.activeTaskCount, 1);
   assert.equal(state.execution.lastCompletedTask, 'M1-P001');
   assert.equal(
     state.execution.lastCompletedCommit,
-    '9d7d763e41dc8ffba0166d2b9162c162542ccc7d',
+    '7eb91066846204a18afa20c4c8b4c7b94676dca0',
   );
-  assert.equal(state.github.pullRequest, 7);
+  assert.equal(state.github.pullRequest, 8);
   assert.equal(
     state.github.latestCi.headSha,
-    '12da44ab2d025bcee4e7791570a2a5c5d046653d',
+    'c2b4bf420d0629b795cdfbdf2c1c4378224d76f7',
   );
 });
 
@@ -93,10 +95,10 @@ test('P0-001 maps its page, API, errors and runnable evidence', async () => {
   assert.match(api?.ErrorCodes ?? '', /SELLER_IDENTITY_FORBIDDEN/u);
   assert.match(api?.ErrorCodes ?? '', /PAYEE_FORBIDDEN/u);
   assert.match(api?.ErrorCodes ?? '', /SINGLE_MERCHANT_VIOLATION/u);
-  assert.equal(p0?.CurrentEvidenceStatus, 'LOCAL_PASS');
+  assert.equal(p0?.CurrentEvidenceStatus, 'CI_PASS');
   assert.equal(evidence.taskId, 'M1-P001');
   assert.equal(evidence.p0Id, 'P0-001');
-  assert.equal(evidence.result, 'LOCAL_PASS');
+  assert.equal(evidence.result, 'CI_PASS');
   assert.deepEqual(
     evidence.negativeTests.map(({ id, status }) => ({ id, status })),
     [

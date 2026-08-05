@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-04T04:14:09-04:00",
+  "updatedAt": "2026-08-05T02:59:41-04:00",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -16,15 +16,12 @@
     "currentStage": "M1",
     "currentTask": "M1-P002",
     "nextAllowedTask": "M1-P002",
-    "activeTaskCount": 0,
+    "activeTaskCount": 1,
     "lastCompletedTask": "M1-P001",
-    "lastCompletedCommit": "9d7d763e41dc8ffba0166d2b9162c162542ccc7d",
+    "lastCompletedCommit": "7eb91066846204a18afa20c4c8b4c7b94676dca0",
     "lastPassedGate": "M0-GATE",
-    "prohibitedUntilGate": [
-      "M1-P001的Draft PR精确head CI、自审授权、合并及合并后main CI未完成"
-    ],
+    "prohibitedUntilGate": [],
     "persistentRestrictions": [
-      "M1-P001外部闭环完成前M1-P002仅保持READY，不得进入IN_PROGRESS",
       "真实支付/退款",
       "生产部署/迁移",
       "直接修改或推送main"
@@ -38,12 +35,12 @@
     "authenticationConfirmed": true,
     "writeAllowed": true,
     "connectorAccessConfirmed": true,
-    "pullRequest": 7,
-    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/7",
+    "pullRequest": 8,
+    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/8",
     "pullRequestState": "MERGED",
     "pullRequestMerged": true,
-    "mergeCommitSha": "12da44ab2d025bcee4e7791570a2a5c5d046653d",
-    "mergedAt": "2026-08-04T06:36:39Z",
+    "mergeCommitSha": "c2b4bf420d0629b795cdfbdf2c1c4378224d76f7",
+    "mergedAt": "2026-08-05T03:52:18Z",
     "reviewPolicy": {
       "mode": "DOCUMENTED_SELF_REVIEW",
       "developmentMode": "SOLO_DEVELOPMENT",
@@ -52,30 +49,30 @@
       "additionalGithubAccountsRequired": false,
       "githubSelfApprovalSupported": false,
       "reviewEvidence": "DOCUMENTED_SELF_REVIEW_COMPLETE",
-      "reviewedHead": "1ff90871222055002466abd99771fd4fa8161969",
+      "reviewedHead": "7eb91066846204a18afa20c4c8b4c7b94676dca0",
       "reviewDecision": "APPROVED_FOR_MERGE",
-      "reviewCommentId": 5175464907,
-      "reviewedAt": "2026-08-04T06:36:09Z",
+      "reviewCommentId": 5187321743,
+      "reviewedAt": "2026-08-05T03:51:16Z",
       "currentHeadReviewRequired": false,
       "authorizationExactHead": true
     },
-    "lastVerifiedPullRequestHead": "1ff90871222055002466abd99771fd4fa8161969",
+    "lastVerifiedPullRequestHead": "7eb91066846204a18afa20c4c8b4c7b94676dca0",
     "pullRequestCi": {
       "status": "CI_PASS",
-      "runId": 30883876592,
-      "jobId": 91910750703,
-      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/30883876592",
-      "headSha": "1ff90871222055002466abd99771fd4fa8161969"
+      "runId": 30972862174,
+      "jobId": 92200744451,
+      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/30972862174",
+      "headSha": "7eb91066846204a18afa20c4c8b4c7b94676dca0"
     },
     "latestCi": {
       "scope": "MAIN_POST_MERGE",
       "status": "CI_PASS",
-      "runId": 30884603598,
-      "jobId": 91912944100,
-      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/30884603598",
-      "headSha": "12da44ab2d025bcee4e7791570a2a5c5d046653d",
+      "runId": 30973491201,
+      "jobId": 92202626637,
+      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/30973491201",
+      "headSha": "c2b4bf420d0629b795cdfbdf2c1c4378224d76f7",
       "event": "push",
-      "completedAt": "2026-08-04T06:39:52Z"
+      "completedAt": "2026-08-05T03:56:26Z"
     },
     "postMergeWarnings": [
       "ACTIONS_NODE20_RUNTIME_DEPRECATED",
@@ -83,20 +80,21 @@
       "DEPENDABOT_DOCKER_MANIFEST_NOT_FOUND"
     ],
     "currentTaskDelivery": {
-      "taskId": "M1-P001",
-      "branch": "codex/m1-m1-p001",
-      "verifiedImplementationHead": "9d7d763e41dc8ffba0166d2b9162c162542ccc7d",
-      "localVerify": "PASS_17_OF_17",
+      "taskId": "M1-P002",
+      "branch": "codex/m1-m1-p002",
+      "baseCommit": "c2b4bf420d0629b795cdfbdf2c1c4378224d76f7",
+      "status": "IN_PROGRESS",
+      "localVerify": "NOT_EXECUTED",
       "pullRequest": "NOT_CREATED",
       "exactHeadCi": "NOT_EXECUTED",
       "review": "NOT_EXECUTED",
       "merge": "NOT_EXECUTED",
       "mainPostMergeCi": "NOT_EXECUTED"
     },
-    "note": "M1-P001实现head 9d7d763已完成本地门禁17/17，P0-001为LOCAL_PASS；Draft PR、精确head CI、自审、合并和合并后main CI仍未执行。M1-P002仅READY且受外部闭环限制。main治理限制、production人工门槛、EXT-005及Dependabot WARN继续显式保留。"
+    "note": "M1-P001精确head 7eb9106已由PR #8完成CI、自审授权并合并为c2b4bf4，合并后main CI通过，P0-001为CI_PASS。M1-P002已从该main提交建立独立分支并作为唯一任务进入IN_PROGRESS。main治理限制、production人工门槛、EXT-005及Dependabot WARN继续显式保留。"
   },
   "evidence": {
-    "local": "LOCAL_PASS",
+    "local": "NOT_EXECUTED",
     "ci": "NOT_EXECUTED",
     "staging": "NOT_EXECUTED",
     "device": "NOT_EXECUTED",

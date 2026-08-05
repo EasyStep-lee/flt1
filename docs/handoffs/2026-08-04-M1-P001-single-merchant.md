@@ -3,10 +3,10 @@
 ## 结论
 
 - 任务：`M1-P001`，P0：`P0-001`。
-- 本地结论：`DONE / LOCAL_PASS`。
-- 已验证实现 head：`9d7d763e41dc8ffba0166d2b9162c162542ccc7d`。
+- 结论：`DONE / CI_PASS`。
+- 已验证实现提交：`9d7d763e41dc8ffba0166d2b9162c162542ccc7d`；精确 PR head：`7eb91066846204a18afa20c4c8b4c7b94676dca0`。
 - 对比基线：`12da44ab2d025bcee4e7791570a2a5c5d046653d`。
-- 下一顺序任务：`M1-P002`，只处于 `READY`；本任务完成 Draft PR 精确 head CI、自审授权、合并和合并后 main CI 前不得启动。
+- PR #8 已合并为 `c2b4bf420d0629b795cdfbdf2c1c4378224d76f7`，合并后 main CI 已通过；`M1-P002` 已获准作为下一唯一任务启动。
 
 ## 本切片实现
 
@@ -33,10 +33,19 @@
 ## 外部边界与风险
 
 - `EXT-005` 公司证照及支付主体材料仍为 `NOT_PROVIDED`，正式主体验收保持 `BLOCKED_EXTERNAL`。
-- 当前证据只为 `LOCAL_PASS`；Draft PR、GitHub Actions 精确 head CI、单人自审、合并和合并后 main CI 均待执行。
+- PR #8 精确 head CI、单人自审授权、合并和合并后 main CI 均已完成；证据等级更新为 `CI_PASS`。
 - GitHub Actions Node.js 20 弃用和既有 Dependabot 提示继续记为 `WARN`，未冒充修复。
 
 ## 回退与恢复
 
 - 应用代码可按原子提交反向回退；已发布迁移不得修改，数据库变化只允许新增向前修复迁移。
 - 恢复时依次读取根与提示词包 `AGENTS.md`、基线锁、项目状态、本交接、`M1-P002` 任务行，并实时核验当前 PR/CI。
+
+## GitHub 外部闭环补记
+
+- PR：`https://github.com/EasyStep-lee/flt1/pull/8`，精确 head `7eb91066846204a18afa20c4c8b4c7b94676dca0`。
+- PR CI：run `30972862174`、job `92200744451`，`17/17 PASS`。
+- 用户对上述精确 head 的自审授权已记录为评论 `5187321743`；无未解决审查线程。
+- 合并提交：`c2b4bf420d0629b795cdfbdf2c1c4378224d76f7`。
+- 合并后 main CI：run `30973491201`、job `92202626637`，`PASS`。
+- `EXT-005`、预发布、真机、生产和正式验收仍未执行或未提供，未因 CI 通过而上调。
