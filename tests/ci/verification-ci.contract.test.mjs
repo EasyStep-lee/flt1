@@ -205,6 +205,24 @@ test('P0 E2E gate runs the available business P0 after contract freeze', () => {
   );
 });
 
+test('P0 E2E gate builds the portal before Playwright starts its production server', async () => {
+  const script = await readRepositoryFile('scripts/run-p0-e2e-gate.mjs');
+  const portalBuild = script.match(
+    /\[\s*pnpmCli,\s*'--filter',\s*'@fulishe\/portal-web',\s*'build',?\s*\]/u,
+  );
+  const playwright = script.match(
+    /\[\s*pnpmCli,\s*'exec',\s*'playwright',\s*'test',\s*'tests\/e2e\/p0',?\s*\]/u,
+  );
+
+  assert.ok(portalBuild, 'P0 gate must build @fulishe/portal-web');
+  assert.ok(playwright, 'P0 gate must execute the Playwright P0 suite');
+  assert.ok(
+    portalBuild.index < playwright.index,
+    'portal build must complete before Playwright starts next start',
+  );
+  assert.match(script, /P0_E2E_PORTAL_BUILD_FAILED/u);
+});
+
 test('GitHub collaboration templates and formal ownership require real accountable identities', async () => {
   const [pullRequestTemplate, codeowners, dependabot, featureIssue, bugIssue] =
     await Promise.all([
