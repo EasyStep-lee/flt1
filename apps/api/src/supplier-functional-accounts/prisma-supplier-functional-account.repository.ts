@@ -22,21 +22,23 @@ const parseStoredResult = (
 ): SupplierFunctionalAccountRecord =>
   structuredClone(value) as unknown as SupplierFunctionalAccountRecord;
 
-const toRecord = (account: {
+const toRecord = (
+  account: {
   readonly accountType: { readonly code: string };
   readonly displayName: string;
   readonly expiresAt: Date | null;
   readonly id: string;
   readonly identityId: string;
   readonly status: SupplierFunctionalAccountRecord['status'];
-  readonly supplierId: string | null;
-  readonly supplierUser: {
+    readonly supplierId: string | null;
+    readonly version: number;
+  },
+  supplierUser: {
     readonly email: string | null;
     readonly lastLoginAt: Date | null;
     readonly mobile: string;
-  };
-  readonly version: number;
-}): SupplierFunctionalAccountRecord => {
+  },
+): SupplierFunctionalAccountRecord => {
   if (!account.supplierId) throw new Error('SUPPLIER_FUNCTIONAL_ACCOUNT_OWNER_INVALID');
   const accountType = resolveSupplierAccountType(account.accountType.code);
   return {
@@ -45,18 +47,17 @@ const toRecord = (account: {
     supplierId: account.supplierId,
     accountTypeCode: accountType.code,
     displayName: account.displayName,
-    mobile: account.supplierUser.mobile,
-    email: account.supplierUser.email,
+    mobile: supplierUser.mobile,
+    email: supplierUser.email,
     status: account.status,
     expiresAt: account.expiresAt?.toISOString() ?? null,
-    lastLoginAt: account.supplierUser.lastLoginAt?.toISOString() ?? null,
+    lastLoginAt: supplierUser.lastLoginAt?.toISOString() ?? null,
     version: account.version,
   };
 };
 
 const accountInclude = {
   accountType: { select: { code: true } },
-  supplierUser: { select: { email: true, lastLoginAt: true, mobile: true } },
 } satisfies Prisma.FunctionalAccountInclude;
 
 @Injectable()
@@ -151,7 +152,7 @@ export class PrismaSupplierFunctionalAccountRepository
         },
         include: accountInclude,
       });
-      const result = toRecord(created);
+      const result = toRecord(created, user);
       await database.functionalAccountStatusHistory.create({
         data: {
           functionalAccountId: created.id,
@@ -210,23 +211,31 @@ export class PrismaSupplierFunctionalAccountRepository
       where: { id: functionalAccountId, ownerType: 'SUPPLIER', supplierId },
       include: accountInclude,
     });
-    return account ? toRecord(account) : null;
+    if (!account) return null;
+    const user = await this.prisma.supplierUser.findUnique({
+      where: { id: account.identityId },
+      select: { email: true, lastLoginAt: true, mobile: true },
+    });
+    return user ? toRecord(account, user) : null;
   }
 
   async findAccountByMobile(
     supplierId: string,
     mobile: string,
   ): Promise<SupplierFunctionalAccountRecord | null> {
-    const account = await this.prisma.functionalAccount.findFirst({
+    const user = await this.prisma.supplierUser.findUnique({
       where: {
-        ownerType: 'SUPPLIER',
-        supplierId,
-        supplierUser: { mobile },
+        supplierId_mobile: { supplierId, mobile },
       },
+      select: { email: true, id: true, lastLoginAt: true, mobile: true },
+    });
+    if (!user) return null;
+    const account = await this.prisma.functionalAccount.findFirst({
+      where: { identityId: user.id, ownerType: 'SUPPLIER', supplierId },
       orderBy: { createdAt: 'asc' },
       include: accountInclude,
     });
-    return account ? toRecord(account) : null;
+    return account ? toRecord(account, user) : null;
   }
 
   async isSupplierActive(supplierId: string): Promise<boolean> {
@@ -262,6 +271,18 @@ export class PrismaSupplierFunctionalAccountRepository
       }),
       this.prisma.functionalAccount.count({ where }),
     ]);
-    return { items: accounts.map(toRecord), total };
+    const users = await this.prisma.supplierUser.findMany({
+      where: { id: { in: accounts.map(({ identityId }) => identityId) } },
+      select: { email: true, id: true, lastLoginAt: true, mobile: true },
+    });
+    const usersById = new Map(users.map((user) => [user.id, user]));
+    return {
+      items: accounts.map((account) => {
+        const user = usersById.get(account.identityId);
+        if (!user) throw new Error('SUPPLIER_FUNCTIONAL_ACCOUNT_IDENTITY_MISSING');
+        return toRecord(account, user);
+      }),
+      total,
+    };
   }
 }

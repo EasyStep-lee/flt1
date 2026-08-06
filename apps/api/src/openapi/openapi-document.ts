@@ -12,6 +12,17 @@ import {
   AUDIT_ACTOR_RESOLVER,
   DenyAuditActorResolver,
 } from '../audit/audit-log.actor.js';
+import { CompanyAuthService } from '../company-auth/company-auth.service.js';
+import {
+  COMPANY_AUTH_REPOSITORY,
+  type CompanyAuthRepository,
+} from '../company-auth/company-auth.repository.js';
+import {
+  COMPANY_CREDENTIAL_VERIFIER,
+  COMPANY_SECOND_VERIFIER,
+  UnavailableCompanyCredentialVerifier,
+  UnavailableCompanySecondVerifier,
+} from '../company-auth/company-auth.security.js';
 import {
   AUDIT_LOG_REPOSITORY,
   type AuditLogRepository,
@@ -77,6 +88,30 @@ type JsonValue =
   providers: [
     HealthService,
     AuditLogService,
+    CompanyAuthService,
+    UnavailableCompanyCredentialVerifier,
+    UnavailableCompanySecondVerifier,
+    {
+      provide: COMPANY_AUTH_REPOSITORY,
+      useValue: {
+        countRecentLoginFailures: async () => 0,
+        createSelectionGrant: async () => undefined,
+        findCompanyUser: async () => null,
+        issueSession: async () => ({ kind: 'GRANT_INVALID' }),
+        listCompanyAccounts: async () => [],
+        markLoginSucceeded: async () => undefined,
+        recordLoginAudit: async () => undefined,
+        resolveSelectionGrant: async () => null,
+      } satisfies CompanyAuthRepository,
+    },
+    {
+      provide: COMPANY_CREDENTIAL_VERIFIER,
+      useExisting: UnavailableCompanyCredentialVerifier,
+    },
+    {
+      provide: COMPANY_SECOND_VERIFIER,
+      useExisting: UnavailableCompanySecondVerifier,
+    },
     DenyAuditActorResolver,
     {
       provide: AUDIT_LOG_REPOSITORY,

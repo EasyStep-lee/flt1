@@ -22,7 +22,7 @@
 
 | 端 | 命名空间 | 入口边界 |
 |---|---|---|
-| 公司后台 | `fulishe:company-admin` | `/company-admin/login`、`/company-admin/select-workspace`、单一`/company-admin/workspaces/*` |
+| 公司后台 | `fulishe:company-admin` | `/company-admin/login`、`/company-admin/account-select`、单一`/company-admin/workspaces/*` |
 | 供应商后台 | `fulishe:supplier-portal` | `/supplier/register`、`/supplier/login`、单一`/supplier/workspaces/*` |
 | 企业门户 | `fulishe:enterprise-portal` | 公开区无企业会话；登录与`/enterprise/*`使用独立私有会话 |
 | 用户小程序 | `fulishe:user-miniapp` | 只供个人用户端，不能复用跑腿员会话 |

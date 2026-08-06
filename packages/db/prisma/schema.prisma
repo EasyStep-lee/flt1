@@ -89,6 +89,28 @@ enum SupplierUserStatus {
   REVOKED
 }
 
+enum CompanyUserStatus {
+  INVITED
+  ACTIVE
+  LOCKED
+  SUSPENDED
+  REVOKED
+}
+
+enum LoginAuditUserType {
+  COMPANY_USER
+  SUPPLIER_USER
+  UNKNOWN
+}
+
+enum LoginAuditResult {
+  SUCCESS
+  AUTH_INVALID
+  ACCOUNT_SUSPENDED
+  RATE_LIMITED
+  SECOND_VERIFICATION_REQUIRED
+}
+
 enum FunctionalAccountStatus {
   PENDING_ACTIVATION
   ACTIVE
@@ -152,8 +174,30 @@ model Company {
   createdAt          DateTime      @default(now()) @map("created_at") @db.DateTime(3)
   updatedAt          DateTime      @updatedAt @map("updated_at") @db.DateTime(3)
   suppliers          Supplier[]
+  users              CompanyUser[]
+  functionalAccounts FunctionalAccount[]
 
   @@map("company")
+}
+
+model CompanyUser {
+  id          String            @id @default(uuid()) @db.Char(36)
+  companyId   String            @map("company_id") @db.Char(36)
+  name        String            @db.VarChar(128)
+  mobile      String            @db.VarChar(16)
+  email       String            @db.VarChar(254)
+  status      CompanyUserStatus @default(INVITED)
+  lastLoginAt DateTime          @default(now()) @map("last_login_at") @db.DateTime(3)
+  version     Int               @default(0)
+  createdAt   DateTime          @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt   DateTime          @updatedAt @map("updated_at") @db.DateTime(3)
+  company     Company           @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  selections  CompanyAuthSelection[]
+
+  @@unique([companyId, mobile], map: "company_user_company_mobile_key")
+  @@unique([companyId, email], map: "company_user_company_email_key")
+  @@index([companyId, status], map: "company_user_company_status_idx")
+  @@map("company_user")
 }
 
 model Supplier {
@@ -209,7 +253,6 @@ model SupplierUser {
   createdAt     DateTime           @default(now()) @map("created_at") @db.DateTime(3)
   updatedAt     DateTime           @updatedAt @map("updated_at") @db.DateTime(3)
   supplier      Supplier           @relation(fields: [supplierId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  accounts      FunctionalAccount[]
 
   @@unique([supplierId, mobile], map: "supplier_user_supplier_mobile_key")
   @@index([supplierId, status], map: "supplier_user_supplier_status_idx")
@@ -231,17 +274,74 @@ model FunctionalAccount {
   createdAt      DateTime                @default(now()) @map("created_at") @db.DateTime(3)
   updatedAt      DateTime                @updatedAt @map("updated_at") @db.DateTime(3)
   supplier       Supplier?               @relation(fields: [supplierId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  supplierUser   SupplierUser            @relation(fields: [identityId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  company        Company?                @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   accountType    FunctionalAccountType   @relation(fields: [accountTypeId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   statusHistory  FunctionalAccountStatusHistory[]
   permissions    FunctionalAccountPermission[]
   dataScopePolicy DataScopePolicy?
   fieldAccessPolicies FieldAccessPolicy[]
+  authSessions    AuthSession[]
 
   @@unique([supplierId, identityId, accountTypeId], map: "functional_account_supplier_identity_type_key")
+  @@unique([companyId, identityId, accountTypeId], map: "functional_account_company_identity_type_key")
   @@index([supplierId, status], map: "functional_account_supplier_status_idx")
+  @@index([companyId, status], map: "functional_account_company_status_idx")
   @@index([identityType, identityId], map: "functional_account_identity_idx")
   @@map("functional_account")
+}
+
+model AuthSession {
+  id                  String                 @id @default(uuid()) @db.Char(36)
+  userType            FunctionalIdentityType @map("user_type")
+  userId              String                 @map("user_id") @db.Char(36)
+  functionalAccountId String                 @map("functional_account_id") @db.Char(36)
+  workspaceRoute      String                 @map("workspace_route") @db.VarChar(255)
+  sessionHash         String                 @unique(map: "auth_session_hash_key") @map("session_hash") @db.Char(64)
+  deviceInfo          Json                   @map("device_info")
+  ip                  String                 @db.VarChar(45)
+  expiresAt           DateTime               @map("expires_at") @db.DateTime(3)
+  revokedAt           DateTime?              @map("revoked_at") @db.DateTime(3)
+  createdAt           DateTime               @default(now()) @map("created_at") @db.DateTime(3)
+  functionalAccount   FunctionalAccount      @relation(fields: [functionalAccountId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([userType, userId, revokedAt, expiresAt], map: "auth_session_user_active_idx")
+  @@index([functionalAccountId, revokedAt], map: "auth_session_account_active_idx")
+  @@map("auth_session")
+}
+
+model CompanyAuthSelection {
+  id                         String      @id @default(uuid()) @db.Char(36)
+  userId                     String      @map("user_id") @db.Char(36)
+  nonceHash                  String      @unique(map: "company_auth_selection_nonce_key") @map("nonce_hash") @db.Char(64)
+  requestId                  String      @map("request_id") @db.Char(36)
+  secondVerificationRequired Boolean     @default(false) @map("second_verification_required")
+  selectedAccountId          String?     @map("selected_account_id") @db.Char(36)
+  selectedSessionId          String?     @map("selected_session_id") @db.Char(36)
+  expiresAt                  DateTime    @map("expires_at") @db.DateTime(3)
+  usedAt                     DateTime?   @map("used_at") @db.DateTime(3)
+  createdAt                  DateTime    @default(now()) @map("created_at") @db.DateTime(3)
+  user                       CompanyUser @relation(fields: [userId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([userId, expiresAt], map: "company_auth_selection_user_expiry_idx")
+  @@unique([userId, requestId], map: "company_auth_selection_user_request_key")
+  @@map("company_auth_selection")
+}
+
+model LoginAudit {
+  id                  String             @id @default(uuid()) @db.Char(36)
+  userType            LoginAuditUserType @map("user_type")
+  userId              String?            @map("user_id") @db.Char(36)
+  functionalAccountId String?            @map("functional_account_id") @db.Char(36)
+  loginAccountHash    String             @map("login_account_hash") @db.Char(64)
+  result              LoginAuditResult
+  riskReason          String             @map("risk_reason") @db.VarChar(128)
+  deviceInfo          Json               @map("device_info")
+  ip                  String             @db.VarChar(45)
+  occurredAt          DateTime           @default(now()) @map("occurred_at") @db.DateTime(3)
+
+  @@index([loginAccountHash, occurredAt], map: "login_audit_account_time_idx")
+  @@index([userType, userId, occurredAt], map: "login_audit_user_time_idx")
+  @@map("login_audit")
 }
 
 model Permission {

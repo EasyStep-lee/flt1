@@ -92,8 +92,8 @@ test('M1-P046 evidence remains closed after M1-P047 local completion', async () 
   assert.equal(state.execution.lastCompletedTask, 'M1-P047');
   assert.equal(state.execution.currentTask, 'M1-P066');
   assert.equal(state.execution.nextAllowedTask, 'M1-P066');
-  assert.equal(state.execution.activeTaskCount, 0);
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M1-P047[\s\S]*M1-P066/u);
+  assert.equal(state.execution.activeTaskCount, 1);
+  assert.deepEqual(state.execution.prohibitedUntilGate, []);
   assert.match(taskLedger, /M1-P046[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(p0Ledger, /P0-046[^\r\n]*LOCAL_PASS/u);
   assert.match(migrationLedger, /MIG-003[^\r\n]*APPLIED_LOCAL/u);

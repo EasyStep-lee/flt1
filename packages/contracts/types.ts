@@ -50,6 +50,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/company-auth/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 公司后台独立登录并解析职能账号 */
+        post: operations["companyauth.login"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/company-auth/workspaces/{accountId}/select": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 选择一个公司职能账号并签发单工作区会话 */
+        post: operations["companyauth.selectWorkspace"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/company/suppliers": {
         parameters: {
             query?: never;
@@ -180,7 +214,7 @@ export interface components {
              * @example RESOURCE_NOT_FOUND
              * @enum {string}
              */
-            code: "ACCESS_DENIED" | "AUTHENTICATION_REQUIRED" | "INTERNAL_ERROR" | "REQUEST_INVALID" | "RESOURCE_NOT_FOUND" | "SERVICE_UNAVAILABLE" | "PAYEE_FORBIDDEN" | "SELLER_IDENTITY_FORBIDDEN" | "SINGLE_MERCHANT_VIOLATION" | "ACTOR_SPOOFED" | "ACCOUNT_TYPE_INVALID" | "APPROVAL_VERSION_CONFLICT" | "DATA_SCOPE_FORBIDDEN" | "FIELD_FORBIDDEN" | "IDEMPOTENCY_CONFLICT" | "SECOND_VERIFICATION_REQUIRED" | "STATE_TRANSITION_INVALID" | "SUPPLIER_DUPLICATE" | "SUPPLIER_SCOPE_FORBIDDEN" | "VALIDATION_FAILED" | "VERSION_CONFLICT" | "WORKSPACE_FORBIDDEN" | "AUDIT_IMMUTABLE" | "AUDIT_REQUIRED" | "EXPORT_APPROVAL_REQUIRED" | "REQUEST_ID_REQUIRED";
+            code: "ACCESS_DENIED" | "AUTHENTICATION_REQUIRED" | "INTERNAL_ERROR" | "REQUEST_INVALID" | "RESOURCE_NOT_FOUND" | "SERVICE_UNAVAILABLE" | "PAYEE_FORBIDDEN" | "SELLER_IDENTITY_FORBIDDEN" | "SINGLE_MERCHANT_VIOLATION" | "ACTOR_SPOOFED" | "ACCOUNT_TYPE_INVALID" | "APPROVAL_VERSION_CONFLICT" | "DATA_SCOPE_FORBIDDEN" | "FIELD_FORBIDDEN" | "IDEMPOTENCY_CONFLICT" | "SECOND_VERIFICATION_REQUIRED" | "STATE_TRANSITION_INVALID" | "SUPPLIER_DUPLICATE" | "SUPPLIER_SCOPE_FORBIDDEN" | "VALIDATION_FAILED" | "VERSION_CONFLICT" | "WORKSPACE_FORBIDDEN" | "ACCOUNT_SUSPENDED" | "AUTH_INVALID" | "RATE_LIMITED" | "WORKSPACE_SELECTION_REQUIRED" | "WORKSPACE_SESSION_CONFLICT" | "AUDIT_IMMUTABLE" | "AUDIT_REQUIRED" | "EXPORT_APPROVAL_REQUIRED" | "REQUEST_ID_REQUIRED";
             /** @example Resource was not found */
             message: string;
             /** @example /missing */
@@ -242,6 +276,14 @@ export interface components {
             page: number;
             /** @default 20 */
             pageSize: number;
+        };
+        CompanyLoginRequestDto: {
+            /** @example 13800138000 */
+            loginAccount: string;
+            password: string;
+            /** Format: uuid */
+            requestId: string;
+            verificationCode?: string;
         };
         CreateFunctionalAccountRequestDto: {
             /** @enum {string} */
@@ -353,6 +395,22 @@ export interface components {
             refundOperator: string;
             /** @example 江苏福礼团供应链科技有限公司 */
             seller: string;
+        };
+        SelectWorkspaceRequestDto: {
+            secondVerificationCode?: string;
+            selectionNonce: string;
+        };
+        SessionResponseDto: {
+            accountTypeCode: string;
+            /** Format: uuid */
+            companyId: string;
+            /** Format: date-time */
+            expiresAt: string;
+            /** Format: uuid */
+            functionalAccountId: string;
+            /** @enum {string} */
+            ownerType: "COMPANY";
+            workspaceRoute: string;
         };
         SubmitReviewRequestDto: {
             /** Format: uuid */
@@ -466,6 +524,25 @@ export interface components {
             secondVerificationCode?: string;
             version: number;
         };
+        WorkspaceChoiceDto: {
+            /** Format: uuid */
+            accountId: string;
+            accountTypeCode: string;
+            accountTypeName: string;
+            /** Format: date-time */
+            lastUsedAt?: string | null;
+            ownerDisplayName: string;
+            /** @enum {string} */
+            ownerType: "COMPANY";
+            /** @enum {string} */
+            status: "ACTIVE" | "PENDING_ACTIVATION" | "REVOKED" | "SUSPENDED";
+            workspaceRoute: string;
+        };
+        WorkspaceChoiceResponseDto: {
+            accounts: components["schemas"]["WorkspaceChoiceDto"][];
+            selectionNonce: string;
+            selectionRequired: boolean;
+        };
     };
     responses: never;
     parameters: never;
@@ -566,6 +643,54 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
+    "companyauth.login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CompanyLoginRequestDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkspaceChoiceResponseDto"];
+                };
+            };
+        };
+    };
+    "companyauth.selectWorkspace": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                accountId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SelectWorkspaceRequestDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionResponseDto"];
                 };
             };
         };

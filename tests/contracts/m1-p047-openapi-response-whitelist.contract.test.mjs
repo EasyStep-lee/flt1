@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 const repositoryRoot = fileURLToPath(new URL('../../', import.meta.url));
 const packRoot = path.join(repositoryRoot, '福礼社Codex5.6开发执行包V1.1');
 
-test('M1-P047 evidence closes the local gate and keeps M1-P066 external-gate blocked', async () => {
+test('M1-P047 evidence remains closed after PR 20 merge and M1-P066 starts', async () => {
   const [contract, evidence, state, taskLedger, p0Ledger, evidenceLedger] = await Promise.all([
     readFile(
       path.join(repositoryRoot, 'docs', 'contracts', 'm1', 'M1-P047-openapi-response-whitelist.md'),
@@ -46,17 +46,20 @@ test('M1-P047 evidence closes the local gate and keeps M1-P066 external-gate blo
   assert.equal(state.execution.lastCompletedTask, 'M1-P047');
   assert.equal(state.execution.currentTask, 'M1-P066');
   assert.equal(state.execution.nextAllowedTask, 'M1-P066');
-  assert.equal(state.execution.activeTaskCount, 0);
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M1-P047[\s\S]*M1-P066/u);
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M1-P047');
-  assert.equal(state.github.currentTaskDelivery.status, 'DONE_LOCAL_PASS');
-  assert.equal(state.github.currentTaskDelivery.pullRequest, 20);
-  assert.equal(state.github.currentTaskDelivery.pullRequestState, 'DRAFT');
+  assert.equal(state.execution.activeTaskCount, 1);
+  assert.deepEqual(state.execution.prohibitedUntilGate, []);
+  assert.equal(state.github.pullRequest, 20);
+  assert.equal(state.github.pullRequestState, 'MERGED');
+  assert.equal(state.github.pullRequestMerged, true);
+  assert.equal(state.github.mergeCommitSha, '993184234f930ec3999164ce48668e95dca9368b');
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M1-P066');
+  assert.equal(state.github.currentTaskDelivery.status, 'IN_PROGRESS');
+  assert.equal(state.github.currentTaskDelivery.pullRequest, null);
   assert.equal(state.github.currentTaskDelivery.exactHeadCi, 'NOT_EXECUTED');
   assert.equal(state.evidence.local, 'LOCAL_PASS');
   assert.equal(state.evidence.ci, 'NOT_EXECUTED');
-  assert.match(taskLedger, /M1-P047[^\r\n]*DONE[^\r\n]*LOCAL_PASS/u);
-  assert.match(taskLedger, /M1-P066[^\r\n]*READY[^\r\n]*NOT_EXECUTED/u);
+  assert.match(taskLedger, /M1-P047[^\r\n]*DONE[^\r\n]*CI_PASS/u);
+  assert.match(taskLedger, /M1-P066[^\r\n]*IN_PROGRESS[^\r\n]*NOT_EXECUTED/u);
   assert.match(p0Ledger, /P0-047[^\r\n]*LOCAL_PASS/u);
   assert.match(evidenceLedger, /EVD-047[^\r\n]*LOCAL_PASS/u);
 });
