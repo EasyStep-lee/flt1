@@ -47,7 +47,7 @@ test('all Web applications share the openapi-fetch client package', () => {
   }
 });
 
-test('both mini-programs reuse generated types through the single wx.request adapter', () => {
+test('NEG-M1-047-04 both mini-programs reuse generated types through the single wx.request adapter', () => {
   const contractManifest = readJson('packages', 'contracts', 'package.json');
   assert.equal(contractManifest.name, '@fulishe/contracts');
   const contractSource = readText('packages', 'contracts', 'src', 'miniapp-contracts.ts');

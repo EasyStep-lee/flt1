@@ -49,7 +49,7 @@ const runGate = (base, revision, cacheDirectory) =>
     { cwd: repoRoot, encoding: 'utf8', env: process.env },
   );
 
-test('pinned oasdiff 1.17.0 accepts compatibility and blocks endpoint removal', () => {
+test('NEG-M1-047-03 pinned oasdiff 1.17.0 accepts compatibility and blocks endpoint removal', () => {
   const fixtureRoot = mkdtempSync(path.join(tmpdir(), 'fulishe-oasdiff-'));
   const cacheDirectory = path.join(repoRoot, '.cache', 'oasdiff');
   const basePath = path.join(fixtureRoot, 'base.json');

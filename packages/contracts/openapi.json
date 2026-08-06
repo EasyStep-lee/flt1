@@ -995,6 +995,14 @@
         ],
         "type": "object"
       }
+    },
+    "securitySchemes": {
+      "functionalSession": {
+        "description": "Server-bound functional account session; clients cannot select owner scope",
+        "in": "cookie",
+        "name": "fulishe_session",
+        "type": "apiKey"
+      }
     }
   },
   "info": {
@@ -1149,10 +1157,25 @@
             "description": ""
           }
         },
+        "security": [
+          {
+            "functionalSession": []
+          }
+        ],
         "summary": "List immutable audit events",
         "tags": [
           "audit"
-        ]
+        ],
+        "x-fulishe-actor": "AUTHORIZED_AUDITOR",
+        "x-fulishe-contract-id": "API-015",
+        "x-fulishe-error-codes": [
+          "FIELD_FORBIDDEN",
+          "EXPORT_APPROVAL_REQUIRED"
+        ],
+        "x-fulishe-idempotency": "NONE",
+        "x-fulishe-request-dto": "AuditQueryDto",
+        "x-fulishe-response-dto": "AuditEventPageResponseDto",
+        "x-fulishe-response-policy": "NEVER_RETURN_INTERNAL_PRICING"
       }
     },
     "/v1/company/suppliers": {
@@ -1244,10 +1267,26 @@
             "description": ""
           }
         },
+        "security": [
+          {
+            "functionalSession": []
+          }
+        ],
         "summary": "List supplier onboarding records for company supplier ops",
         "tags": [
           "company-supplier-onboarding"
-        ]
+        ],
+        "x-fulishe-actor": "COMPANY_SUPPLIER_OPS",
+        "x-fulishe-contract-id": "API-011",
+        "x-fulishe-error-codes": [
+          "AUTHENTICATION_REQUIRED",
+          "ACCESS_DENIED",
+          "VALIDATION_FAILED"
+        ],
+        "x-fulishe-idempotency": "NONE",
+        "x-fulishe-request-dto": "SupplierQueryDto",
+        "x-fulishe-response-dto": "SupplierPageResponseDto",
+        "x-fulishe-response-policy": "NEVER_RETURN_INTERNAL_PRICING"
       }
     },
     "/v1/company/suppliers/{supplierId}/review": {
@@ -1323,6 +1362,16 @@
             },
             "description": ""
           },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
           "409": {
             "content": {
               "application/json": {
@@ -1342,12 +1391,42 @@
               }
             },
             "description": ""
+          },
+          "428": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
           }
         },
+        "security": [
+          {
+            "functionalSession": []
+          }
+        ],
         "summary": "Request correction or approve a pending supplier",
         "tags": [
           "company-supplier-onboarding"
-        ]
+        ],
+        "x-fulishe-actor": "COMPANY_SUPPLIER_OPS",
+        "x-fulishe-contract-id": "API-012",
+        "x-fulishe-error-codes": [
+          "AUTHENTICATION_REQUIRED",
+          "ACCESS_DENIED",
+          "VALIDATION_FAILED",
+          "STATE_TRANSITION_INVALID",
+          "APPROVAL_VERSION_CONFLICT",
+          "SECOND_VERIFICATION_REQUIRED",
+          "IDEMPOTENCY_CONFLICT"
+        ],
+        "x-fulishe-idempotency": "Idempotency-Key",
+        "x-fulishe-request-dto": "SupplierReviewRequestDto",
+        "x-fulishe-response-dto": "SupplierResponseDto",
+        "x-fulishe-response-policy": "NEVER_RETURN_INTERNAL_PRICING"
       }
     },
     "/v1/public/merchant-profile": {
@@ -1443,10 +1522,25 @@
             "description": ""
           }
         },
+        "security": [
+          {
+            "functionalSession": []
+          }
+        ],
         "summary": "Get the supplier profile bound to the fixed functional session",
         "tags": [
           "supplier-onboarding-self-service"
-        ]
+        ],
+        "x-fulishe-actor": "SUPPLIER_ACCOUNT_ADMIN",
+        "x-fulishe-contract-id": "API-008",
+        "x-fulishe-error-codes": [
+          "SUPPLIER_SCOPE_FORBIDDEN",
+          "AUTHENTICATION_REQUIRED"
+        ],
+        "x-fulishe-idempotency": "NONE",
+        "x-fulishe-request-dto": "None",
+        "x-fulishe-response-dto": "SupplierProfileResponseDto",
+        "x-fulishe-response-policy": "NEVER_RETURN_INTERNAL_PRICING"
       },
       "patch": {
         "operationId": "supplierOnboarding.patchOwnProfile",
@@ -1501,6 +1595,16 @@
             },
             "description": ""
           },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
           "409": {
             "content": {
               "application/json": {
@@ -1520,12 +1624,45 @@
               }
             },
             "description": ""
+          },
+          "428": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
           }
         },
+        "security": [
+          {
+            "functionalSession": []
+          }
+        ],
         "summary": "Correct the authenticated supplier onboarding draft",
         "tags": [
           "supplier-onboarding-self-service"
-        ]
+        ],
+        "x-fulishe-actor": "SUPPLIER_ACCOUNT_ADMIN",
+        "x-fulishe-contract-id": "API-009",
+        "x-fulishe-error-codes": [
+          "AUTHENTICATION_REQUIRED",
+          "ACCESS_DENIED",
+          "SUPPLIER_SCOPE_FORBIDDEN",
+          "FIELD_FORBIDDEN",
+          "STATE_TRANSITION_INVALID",
+          "VERSION_CONFLICT",
+          "RESOURCE_NOT_FOUND",
+          "VALIDATION_FAILED",
+          "IDEMPOTENCY_CONFLICT",
+          "SECOND_VERIFICATION_REQUIRED"
+        ],
+        "x-fulishe-idempotency": "Idempotency-Key",
+        "x-fulishe-request-dto": "SupplierProfilePatchRequestDto",
+        "x-fulishe-response-dto": "SupplierProfileResponseDto",
+        "x-fulishe-response-policy": "NEVER_RETURN_INTERNAL_PRICING"
       }
     },
     "/v1/supplier/me/submit-review": {
@@ -1582,6 +1719,16 @@
             },
             "description": ""
           },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
           "409": {
             "content": {
               "application/json": {
@@ -1603,10 +1750,30 @@
             "description": ""
           }
         },
+        "security": [
+          {
+            "functionalSession": []
+          }
+        ],
         "summary": "Submit or resubmit the authenticated supplier for review",
         "tags": [
           "supplier-onboarding-self-service"
-        ]
+        ],
+        "x-fulishe-actor": "SUPPLIER_ACCOUNT_ADMIN",
+        "x-fulishe-contract-id": "API-010",
+        "x-fulishe-error-codes": [
+          "AUTHENTICATION_REQUIRED",
+          "ACCESS_DENIED",
+          "SUPPLIER_SCOPE_FORBIDDEN",
+          "VALIDATION_FAILED",
+          "STATE_TRANSITION_INVALID",
+          "VERSION_CONFLICT",
+          "IDEMPOTENCY_CONFLICT"
+        ],
+        "x-fulishe-idempotency": "Idempotency-Key",
+        "x-fulishe-request-dto": "SubmitReviewRequestDto",
+        "x-fulishe-response-dto": "ApprovalTaskResponseDto",
+        "x-fulishe-response-policy": "NEVER_RETURN_INTERNAL_PRICING"
       }
     },
     "/v1/suppliers/registrations": {
@@ -1643,6 +1810,16 @@
             },
             "description": ""
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
           "409": {
             "content": {
               "application/json": {
@@ -1674,10 +1851,25 @@
             "description": ""
           }
         },
+        "security": [],
         "summary": "Create an editable supplier onboarding draft",
         "tags": [
           "supplier-registration"
-        ]
+        ],
+        "x-fulishe-actor": "PUBLIC",
+        "x-fulishe-contract-id": "API-005",
+        "x-fulishe-error-codes": [
+          "SUPPLIER_DUPLICATE",
+          "VALIDATION_FAILED",
+          "FIELD_FORBIDDEN",
+          "SINGLE_MERCHANT_VIOLATION",
+          "IDEMPOTENCY_CONFLICT",
+          "SERVICE_UNAVAILABLE"
+        ],
+        "x-fulishe-idempotency": "Idempotency-Key",
+        "x-fulishe-request-dto": "SupplierRegistrationRequestDto",
+        "x-fulishe-response-dto": "SupplierRegistrationResponseDto",
+        "x-fulishe-response-policy": "NEVER_RETURN_INTERNAL_PRICING"
       }
     },
     "/v1/{ownerType}/functional-accounts": {
@@ -1796,10 +1988,25 @@
             "description": ""
           }
         },
+        "security": [
+          {
+            "functionalSession": []
+          }
+        ],
         "summary": "List functional accounts in the authenticated owner scope",
         "tags": [
           "functional-accounts"
-        ]
+        ],
+        "x-fulishe-actor": "OWNER_ACCOUNT_ADMIN",
+        "x-fulishe-contract-id": "API-013",
+        "x-fulishe-error-codes": [
+          "DATA_SCOPE_FORBIDDEN",
+          "WORKSPACE_FORBIDDEN"
+        ],
+        "x-fulishe-idempotency": "NONE",
+        "x-fulishe-request-dto": "FunctionalAccountQueryDto",
+        "x-fulishe-response-dto": "FunctionalAccountPageResponseDto",
+        "x-fulishe-response-policy": "NEVER_RETURN_INTERNAL_PRICING"
       },
       "post": {
         "operationId": "functionalAccounts.create",
@@ -1897,10 +2104,30 @@
             "description": ""
           }
         },
+        "security": [
+          {
+            "functionalSession": []
+          }
+        ],
         "summary": "Invite a supplier functional account after second verification",
         "tags": [
           "functional-accounts"
-        ]
+        ],
+        "x-fulishe-actor": "OWNER_ACCOUNT_ADMIN",
+        "x-fulishe-contract-id": "API-014",
+        "x-fulishe-error-codes": [
+          "ACCOUNT_TYPE_INVALID",
+          "SECOND_VERIFICATION_REQUIRED",
+          "DATA_SCOPE_FORBIDDEN",
+          "WORKSPACE_FORBIDDEN",
+          "STATE_TRANSITION_INVALID",
+          "IDEMPOTENCY_CONFLICT",
+          "VALIDATION_FAILED"
+        ],
+        "x-fulishe-idempotency": "Idempotency-Key",
+        "x-fulishe-request-dto": "CreateFunctionalAccountRequestDto",
+        "x-fulishe-response-dto": "FunctionalAccountResponseDto",
+        "x-fulishe-response-policy": "NEVER_RETURN_INTERNAL_PRICING"
       }
     }
   },
