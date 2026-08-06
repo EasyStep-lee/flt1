@@ -273,15 +273,23 @@ SELECT COUNT(*) FROM \`information_schema\`.\`referential_constraints\` WHERE \`
 SELECT COUNT(*) FROM \`information_schema\`.\`tables\` WHERE \`table_schema\` = DATABASE() AND \`table_name\` = 'audit_log';
 SELECT COUNT(*) FROM \`information_schema\`.\`triggers\` WHERE \`trigger_schema\` = DATABASE() AND \`trigger_name\` IN ('audit_log_prevent_update', 'audit_log_prevent_delete');
 SELECT COUNT(*) FROM \`audit_log\`;
+SELECT COUNT(*) FROM \`information_schema\`.\`tables\` WHERE \`table_schema\` = DATABASE() AND \`table_name\` IN ('permission', 'functional_account_permission', 'data_scope_policy', 'field_access_policy');
+SELECT COUNT(*) FROM \`information_schema\`.\`referential_constraints\` WHERE \`constraint_schema\` = DATABASE() AND \`constraint_name\` IN ('functional_account_permission_account_id_fkey', 'functional_account_permission_permission_id_fkey', 'data_scope_policy_account_id_fkey', 'field_access_policy_account_id_fkey');
+SELECT COUNT(*) FROM \`information_schema\`.\`triggers\` WHERE \`trigger_schema\` = DATABASE() AND \`trigger_name\` IN ('data_scope_policy_supplier_insert_guard', 'data_scope_policy_supplier_update_guard');
+SELECT COUNT(*) FROM \`permission\`;
+SELECT COUNT(*) FROM \`data_scope_policy\`;
+SELECT CONCAT(COUNT(*), '|', COALESCE(MAX(\`access_mode\`), '<absent>')) FROM \`field_access_policy\`;
 `,
     database,
   );
   const values = output.split(/\r?\n/u);
-  if (values.length !== 19) {
+  if (values.length !== 25) {
     throw new Error(`PRODUCT_COMPANY_PROBE_OUTPUT_INVALID:${output}`);
   }
   const [legalName, platformName] = values[2].split('|');
   const [supplierStatus, supplierVersion] = values[6].split('|');
+  const [fieldAccessPolicyRowCount, fieldAccessDefaultMode] =
+    values[24].split('|');
   return {
     appliedMigrations: Number(values[0]),
     companyRowCount: Number(values[1]),
@@ -304,6 +312,13 @@ SELECT COUNT(*) FROM \`audit_log\`;
     auditLogTableCount: Number(values[16]),
     auditLogTriggerCount: Number(values[17]),
     auditLogRowCount: Number(values[18]),
+    permissionPolicyTableCount: Number(values[19]),
+    permissionPolicyForeignKeyCount: Number(values[20]),
+    dataScopeGuardTriggerCount: Number(values[21]),
+    permissionRowCount: Number(values[22]),
+    dataScopePolicyRowCount: Number(values[23]),
+    fieldAccessPolicyRowCount: Number(fieldAccessPolicyRowCount),
+    fieldAccessDefaultMode,
   };
 };
 
@@ -375,6 +390,10 @@ const parseArguments = (arguments_) => {
       [
         path.join(repositoryRoot, 'artifacts', 'verification', 'M1-P045'),
         'M1-P045',
+      ],
+      [
+        path.join(repositoryRoot, 'artifacts', 'verification', 'M1-P046'),
+        'M1-P046',
       ],
     ]);
     const reportScope = [...allowedScopes.entries()].find(([allowedRoot]) => {
@@ -549,7 +568,14 @@ try {
       productEmptyState.statusHistoryCount === 0 &&
       productEmptyState.auditLogTableCount === 1 &&
       productEmptyState.auditLogTriggerCount === 2 &&
-      productEmptyState.auditLogRowCount === 0,
+      productEmptyState.auditLogRowCount === 0 &&
+      productEmptyState.permissionPolicyTableCount === 4 &&
+      productEmptyState.permissionPolicyForeignKeyCount === 4 &&
+      productEmptyState.dataScopeGuardTriggerCount === 2 &&
+      productEmptyState.permissionRowCount === 0 &&
+      productEmptyState.dataScopePolicyRowCount === 0 &&
+      productEmptyState.fieldAccessPolicyRowCount === 0 &&
+      productEmptyState.fieldAccessDefaultMode === '<absent>',
     'PRODUCT_COMPANY_SCHEMA_STATE_INVALID',
   );
 
@@ -604,6 +630,36 @@ INSERT INTO \`supplier_status_history\` (\`id\`, \`supplier_id\`, \`from_status\
     databaseNames.product,
     'SUPPLIER_HISTORY_VERSION_DUPLICATE_ACCEPTED',
   );
+  const supplierUserId = '20000000-0000-4000-8000-000000000002';
+  const functionalAccountId = '21000000-0000-4000-8000-000000000001';
+  const supplyPricePermissionId = '22000000-0000-4000-8000-000000000001';
+  const accountPermissionId = '23000000-0000-4000-8000-000000000001';
+  const dataScopePolicyId = '24000000-0000-4000-8000-000000000001';
+  const fieldAccessPolicyId = '25000000-0000-4000-8000-000000000001';
+  const duplicateFieldAccessPolicyId =
+    '25000000-0000-4000-8000-000000000002';
+  runRootMysql(
+    `INSERT INTO \`supplier_user\` (\`id\`, \`supplier_id\`, \`name\`, \`mobile\`, \`status\`, \`updated_at\`) VALUES ('${supplierUserId}', '${canonicalSupplierId}', '迁移演练价格员', '13800000001', 'ACTIVE', CURRENT_TIMESTAMP(3));
+INSERT INTO \`functional_account\` (\`id\`, \`identity_type\`, \`identity_id\`, \`owner_type\`, \`supplier_id\`, \`account_type_id\`, \`display_name\`, \`status\`, \`updated_at\`) VALUES ('${functionalAccountId}', 'SUPPLIER_USER', '${supplierUserId}', 'SUPPLIER', '${canonicalSupplierId}', '10000000-0000-4000-8000-000000000003', '迁移演练价格管理', 'ACTIVE', CURRENT_TIMESTAMP(3));
+INSERT INTO \`permission\` (\`id\`, \`code\`, \`resource\`, \`action\`, \`field_group\`, \`risk_level\`) VALUES ('${supplyPricePermissionId}', 'SUPPLY_PRICE_READ', 'supplier_product', 'READ', 'supply_price', 2);
+INSERT INTO \`functional_account_permission\` (\`id\`, \`functional_account_id\`, \`permission_id\`, \`effect\`) VALUES ('${accountPermissionId}', '${functionalAccountId}', '${supplyPricePermissionId}', 'ALLOW');
+INSERT INTO \`data_scope_policy\` (\`id\`, \`functional_account_id\`, \`scope_type\`, \`scope_rules\`) VALUES ('${dataScopePolicyId}', '${functionalAccountId}', 'SUPPLIER', JSON_OBJECT('schemaVersion', '1.0', 'supplierId', '${canonicalSupplierId}'));
+INSERT INTO \`field_access_policy\` (\`id\`, \`functional_account_id\`, \`resource\`, \`field_group\`) VALUES ('${fieldAccessPolicyId}', '${functionalAccountId}', 'supplier_product', 'supply_price');
+`,
+    databaseNames.product,
+  );
+  expectRootMysqlFailure(
+    `INSERT INTO \`field_access_policy\` (\`id\`, \`functional_account_id\`, \`resource\`, \`field_group\`) VALUES ('${duplicateFieldAccessPolicyId}', '${functionalAccountId}', 'supplier_product', 'supply_price');
+`,
+    databaseNames.product,
+    'FIELD_ACCESS_DUPLICATE_ACCEPTED',
+  );
+  expectRootMysqlFailure(
+    `UPDATE \`data_scope_policy\` SET \`scope_rules\` = JSON_OBJECT('schemaVersion', '1.0', 'supplierId', '${duplicateSupplierId}') WHERE \`id\` = '${dataScopePolicyId}';
+`,
+    databaseNames.product,
+    'CROSS_SUPPLIER_SCOPE_ACCEPTED',
+  );
   const auditLogId = '50000000-0000-4000-8000-000000000001';
   const auditRequestId = '60000000-0000-4000-8000-000000000001';
   runRootMysql(
@@ -637,7 +693,14 @@ INSERT INTO \`supplier_status_history\` (\`id\`, \`supplier_id\`, \`from_status\
       productPopulatedState.functionalAccountForeignKeyCount === 5 &&
       productPopulatedState.auditLogTableCount === 1 &&
       productPopulatedState.auditLogTriggerCount === 2 &&
-      productPopulatedState.auditLogRowCount === 1,
+      productPopulatedState.auditLogRowCount === 1 &&
+      productPopulatedState.permissionPolicyTableCount === 4 &&
+      productPopulatedState.permissionPolicyForeignKeyCount === 4 &&
+      productPopulatedState.dataScopeGuardTriggerCount === 2 &&
+      productPopulatedState.permissionRowCount === 1 &&
+      productPopulatedState.dataScopePolicyRowCount === 1 &&
+      productPopulatedState.fieldAccessPolicyRowCount === 1 &&
+      productPopulatedState.fieldAccessDefaultMode === 'HIDDEN',
     'PRODUCT_SINGLE_MERCHANT_STATE_INVALID',
   );
 
@@ -852,7 +915,7 @@ INSERT INTO \`supplier_status_history\` (\`id\`, \`supplier_id\`, \`from_status\
       idempotentRedeploy: 'PASS',
     },
     productRehearsal: {
-      taskId: 'M1-P045',
+      taskId: 'M1-P046',
       migrationCount: productPopulatedState.appliedMigrations,
       companyRowCount: productPopulatedState.companyRowCount,
       fixedIdentity: {
@@ -895,6 +958,22 @@ INSERT INTO \`supplier_status_history\` (\`id\`, \`supplier_id\`, \`from_status\
         updateRejected: true,
         deleteRejected: true,
         logBinTrustFunctionCreatorsRequired: true,
+      },
+      sensitiveDataIsolation: {
+        permissionPolicyTableCount:
+          productPopulatedState.permissionPolicyTableCount,
+        foreignKeyCount: productPopulatedState.permissionPolicyForeignKeyCount,
+        dataScopeGuardTriggerCount:
+          productPopulatedState.dataScopeGuardTriggerCount,
+        permissionRowCount: productPopulatedState.permissionRowCount,
+        dataScopePolicyRowCount:
+          productPopulatedState.dataScopePolicyRowCount,
+        fieldAccessPolicyRowCount:
+          productPopulatedState.fieldAccessPolicyRowCount,
+        fieldAccessDefaultMode:
+          productPopulatedState.fieldAccessDefaultMode,
+        duplicateFieldAccessRejected: true,
+        crossSupplierScopeRejected: true,
       },
       finalSchemaDrift: 'NONE',
       idempotentRedeploy: 'PASS',

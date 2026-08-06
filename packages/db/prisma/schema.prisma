@@ -110,6 +110,39 @@ enum AuditActorType {
   SYSTEM
 }
 
+enum PermissionAction {
+  READ
+  CREATE
+  UPDATE
+  SUBMIT
+  APPROVE
+  REJECT
+  EXPORT
+  REVEAL
+  MANAGE
+  REVOKE
+}
+
+enum PermissionEffect {
+  ALLOW
+  DENY
+}
+
+enum DataScopeType {
+  COMPANY
+  SUPPLIER
+  SELF
+  RESOURCE_SET
+}
+
+enum FieldAccessMode {
+  HIDDEN
+  MASKED
+  VISIBLE
+  VISIBLE_WITH_AUDIT
+  APPROVED_EXPORT_ONLY
+}
+
 model Company {
   id                 String        @id @default(uuid()) @db.Char(36)
   legalName          String        @unique @map("legal_name") @db.VarChar(128)
@@ -201,11 +234,60 @@ model FunctionalAccount {
   supplierUser   SupplierUser            @relation(fields: [identityId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   accountType    FunctionalAccountType   @relation(fields: [accountTypeId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   statusHistory  FunctionalAccountStatusHistory[]
+  permissions    FunctionalAccountPermission[]
+  dataScopePolicy DataScopePolicy?
+  fieldAccessPolicies FieldAccessPolicy[]
 
   @@unique([supplierId, identityId, accountTypeId], map: "functional_account_supplier_identity_type_key")
   @@index([supplierId, status], map: "functional_account_supplier_status_idx")
   @@index([identityType, identityId], map: "functional_account_identity_idx")
   @@map("functional_account")
+}
+
+model Permission {
+  id          String           @id @default(uuid()) @db.Char(36)
+  code        String           @unique @db.VarChar(64)
+  resource    String           @db.VarChar(128)
+  action      PermissionAction
+  fieldGroup  String?          @map("field_group") @db.VarChar(128)
+  riskLevel   Int              @map("risk_level")
+  accounts    FunctionalAccountPermission[]
+
+  @@map("permission")
+}
+
+model FunctionalAccountPermission {
+  id                    String             @id @default(uuid()) @db.Char(36)
+  functionalAccountId   String             @map("functional_account_id") @db.Char(36)
+  permissionId          String             @map("permission_id") @db.Char(36)
+  effect                PermissionEffect
+  functionalAccount     FunctionalAccount  @relation(fields: [functionalAccountId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "functional_account_permission_account_id_fkey")
+  permission            Permission         @relation(fields: [permissionId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "functional_account_permission_permission_id_fkey")
+
+  @@unique([functionalAccountId, permissionId], map: "functional_account_permission_account_permission_key")
+  @@map("functional_account_permission")
+}
+
+model DataScopePolicy {
+  id                    String             @id @default(uuid()) @db.Char(36)
+  functionalAccountId   String             @unique(map: "data_scope_policy_account_key") @map("functional_account_id") @db.Char(36)
+  scopeType             DataScopeType      @map("scope_type")
+  scopeRules            Json               @map("scope_rules")
+  functionalAccount     FunctionalAccount  @relation(fields: [functionalAccountId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "data_scope_policy_account_id_fkey")
+
+  @@map("data_scope_policy")
+}
+
+model FieldAccessPolicy {
+  id                    String             @id @default(uuid()) @db.Char(36)
+  functionalAccountId   String             @map("functional_account_id") @db.Char(36)
+  resource              String             @db.VarChar(128)
+  fieldGroup            String             @map("field_group") @db.VarChar(128)
+  accessMode            FieldAccessMode    @default(HIDDEN) @map("access_mode")
+  functionalAccount     FunctionalAccount  @relation(fields: [functionalAccountId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "field_access_policy_account_id_fkey")
+
+  @@unique([functionalAccountId, resource, fieldGroup], map: "field_access_policy_account_resource_group_key")
+  @@map("field_access_policy")
 }
 
 model FunctionalAccountStatusHistory {

@@ -11,6 +11,10 @@ import {
   type AuditLogRepository,
 } from './audit-log.repository.js';
 import { sanitizeAuditSnapshot } from './audit-log.policy.js';
+import {
+  assertAuditQueryIsolation,
+  omitRestrictedFields,
+} from '../sensitive-data/sensitive-data.policy.js';
 
 const optionalText = (value: unknown, maxLength: number): string | undefined => {
   if (value === undefined) return undefined;
@@ -49,6 +53,7 @@ export class AuditLogService {
         'The company audit workspace is required',
       );
     }
+    assertAuditQueryIsolation(query);
     const page = pageNumber(query.page, 1);
     const pageSize = pageNumber(query.pageSize, 20, 100);
     const action = optionalText(query.action, 128);
@@ -72,8 +77,12 @@ export class AuditLogService {
         action: event.action,
         objectType: event.objectType,
         objectId: event.objectId,
-        beforeSnapshot: sanitizeAuditSnapshot(event.beforeSnapshot),
-        afterSnapshot: sanitizeAuditSnapshot(event.afterSnapshot),
+        beforeSnapshot: omitRestrictedFields(
+          sanitizeAuditSnapshot(event.beforeSnapshot),
+        ),
+        afterSnapshot: omitRestrictedFields(
+          sanitizeAuditSnapshot(event.afterSnapshot),
+        ),
         requestId: event.requestId,
         occurredAt: event.occurredAt,
       })),
