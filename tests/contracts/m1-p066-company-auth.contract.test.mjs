@@ -45,7 +45,7 @@ test('M1-P066 closes local evidence and leaves M1-P067 blocked at READY', async 
   }
 
   assert.equal(evidence.status, 'LOCAL_PASS');
-  assert.equal(evidence.implementationCommit, '01eedbde3fbe6b99bb727dc581bc84330ec93dc2');
+  assert.equal(evidence.implementationCommit, 'f863ecb1ee6ddcb671f8259aa08a2e730b8a1da6');
   assert.equal(evidence.fullVerification.status, 'PASS_17_OF_17');
   assert.equal(evidence.migration.rehearsal, 'PASS_EMPTY_2_UPGRADE_2_RESTORE_2_PRODUCT_7_CLEANUP_PASS');
   assert.equal(evidence.negativeTests.length, 4);

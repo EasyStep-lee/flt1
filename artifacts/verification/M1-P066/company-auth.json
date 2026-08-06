@@ -3,11 +3,11 @@
   "taskId": "M1-P066",
   "p0Id": "P0-066",
   "status": "LOCAL_PASS",
-  "verifiedAt": "2026-08-06T03:42:37-04:00",
+  "verifiedAt": "2026-08-06T04:15:45-04:00",
   "branch": "codex/m1-m1-p066",
   "issue": 21,
   "baseCommit": "993184234f930ec3999164ce48668e95dca9368b",
-  "implementationCommit": "01eedbde3fbe6b99bb727dc581bc84330ec93dc2",
+  "implementationCommit": "f863ecb1ee6ddcb671f8259aa08a2e730b8a1da6",
   "baseline": {
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
     "productBaseline": "PASS_WITH_EXPECTED_EXECUTION_PACK_SNAPSHOT_WARNING",
@@ -45,6 +45,16 @@
       "area": "idempotency",
       "command": "pnpm exec vitest run --config ./vitest.config.ts --project api-contract apps/api/test/supertest/company-auth-api.test.mjs",
       "result": "FAIL_7_OF_8_REQUEST_ID_RETRY_RETURNED_DIFFERENT_SELECTION_NONCE"
+    },
+    {
+      "area": "completed-selection-idempotency",
+      "command": "pnpm exec vitest run apps/api/test/supertest/company-auth-api.test.mjs",
+      "result": "FAIL_8_OF_10_COMPLETED_SELECTION_RESET_ALLOWED_SECOND_ACCOUNT_200_INSTEAD_OF_409"
+    },
+    {
+      "area": "session-issuance-race",
+      "command": "pnpm exec vitest run apps/api/test/supertest/company-auth-api.test.mjs",
+      "result": "FAIL_8_OF_10_SUSPENDED_DURING_ISSUANCE_RETURNED_200_INSTEAD_OF_403"
     }
   ],
   "contract": {
@@ -55,6 +65,8 @@
     "selectionNonceStoredAs": "SHA256_HASH",
     "loginAccountAuditStoredAs": "SHA256_HASH",
     "loginRateLimit": "5_AUTH_INVALID_IN_15_MINUTES",
+    "selectionCommand": "IMMUTABLE_AFTER_FIRST_CREATE",
+    "sessionIssuanceAuthority": "LOCK_AND_RELOAD_USER_AND_FUNCTIONAL_ACCOUNT",
     "credentialProvider": "RUNTIME_INJECTED_PRODUCTION_DEFAULT_FAILS_CLOSED",
     "secondVerificationProvider": "RUNTIME_INJECTED_PRODUCTION_DEFAULT_FAILS_CLOSED",
     "openapiSha256": "A535CC81CEE204F47F88922EBD4BB445D8F4264BF488A05C94AFBEBE3A4DCCFB",
@@ -74,29 +86,30 @@
     {
       "id": "NEG-M1-066-03",
       "status": "PASS",
-      "evidence": "One nonce cannot select two accounts; same-account replay is idempotent and old active sessions are revoked."
+      "evidence": "One nonce cannot select two accounts; a completed selection cannot be reset by a login requestId replay; same-account replay is idempotent and old active sessions are revoked."
     },
     {
       "id": "NEG-M1-066-04",
       "status": "PASS",
-      "evidence": "Suspended, expired, foreign and client-spoofed account selections fail closed without a session."
+      "evidence": "Suspended, expired, foreign and client-spoofed account selections fail closed without a session, including status changes between listing and issuance."
     }
   ],
   "focusedTests": {
-    "companyAuthSupertest": "PASS_8_OF_8",
+    "companyAuthSupertest": "PASS_10_OF_10",
+    "prismaCompanyAuthRepository": "PASS_2_OF_2",
     "companyAdminBundle": "PASS_2_OF_2",
     "openapi": "PASS_11_OF_11",
     "migrationContracts": "PASS_21_OF_21",
     "m1Contracts": "PASS_32_OF_32",
     "p0Chromium": "PASS_11_OF_11",
-    "secretScan": "PASS_433_TRACKED_FILES"
+    "secretScan": "PASS_437_TRACKED_FILES"
   },
   "fullVerification": {
     "status": "PASS_17_OF_17",
     "report": "artifacts/test-results/verification/pnpm-verify.json",
-    "reportCommit": "01eedbde3fbe6b99bb727dc581bc84330ec93dc2",
-    "startedAt": "2026-08-06T07:35:29.931Z",
-    "endedAt": "2026-08-06T07:42:37.501Z",
+    "reportCommit": "f863ecb1ee6ddcb671f8259aa08a2e730b8a1da6",
+    "startedAt": "2026-08-06T08:08:49.772Z",
+    "endedAt": "2026-08-06T08:15:45.301Z",
     "stepsPassed": 17,
     "stepsFailed": 0
   },

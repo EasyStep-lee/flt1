@@ -18,7 +18,7 @@
     "nextAllowedTask": "M1-P067",
     "activeTaskCount": 0,
     "lastCompletedTask": "M1-P066",
-    "lastCompletedCommit": "01eedbde3fbe6b99bb727dc581bc84330ec93dc2",
+    "lastCompletedCommit": "f863ecb1ee6ddcb671f8259aa08a2e730b8a1da6",
     "lastPassedGate": "M0-GATE",
     "prohibitedUntilGate": [
       "M1-P066精确PR head CI、人工审查与用户授权合并、合并后main CI完成前不得启动M1-P067"
@@ -83,7 +83,7 @@
       "branch": "codex/m1-m1-p066",
       "baseCommit": "993184234f930ec3999164ce48668e95dca9368b",
       "status": "DONE_LOCAL_PASS",
-      "verifiedImplementationHead": "01eedbde3fbe6b99bb727dc581bc84330ec93dc2",
+      "verifiedImplementationHead": "f863ecb1ee6ddcb671f8259aa08a2e730b8a1da6",
       "draftHeadAtCreation": "01eedbde3fbe6b99bb727dc581bc84330ec93dc2",
       "localVerify": "PASS_17_OF_17",
       "migrationRehearsal": "PASS_PRODUCT_7_CLEANUP_PASS",
@@ -95,7 +95,7 @@
       "merge": "NOT_EXECUTED",
       "mainPostMergeCi": "NOT_EXECUTED"
     },
-    "note": "M1-P047 PR #20已闭环并以main提交9931842为M1-P066基线。M1-P066实现API-003/API-004与PAGE-001/PAGE-002；API 8/8、OpenAPI 11/11、迁移21/21、M1合同32/32、P0 Chromium 11/11、MySQL product=7 cleanup PASS、pnpm verify 17/17本地通过。Draft PR #22创建时head 01eedbd；最终精确head CI、人工审查与用户授权合并、合并后main CI未执行，M1-P067只能保持READY。"
+    "note": "M1-P047 PR #20已闭环并以main提交9931842为M1-P066基线。M1-P066实现API-003/API-004与PAGE-001/PAGE-002；补强已完成选择不可由登录requestId重置及签发事务权威重验。API 10/10、Prisma仓储2/2、OpenAPI 11/11、迁移21/21、M1合同32/32、P0 Chromium 11/11、MySQL product=7 cleanup PASS、pnpm verify 17/17在f863ecb本地通过。Draft PR #22创建时head 01eedbd；加固后最终精确head CI、人工审查与用户授权合并、合并后main CI未执行，M1-P067只能保持READY。"
   },
   "evidence": {
     "local": "LOCAL_PASS",
