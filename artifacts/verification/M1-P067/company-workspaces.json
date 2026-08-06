@@ -1,0 +1,160 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "M1-P067",
+  "p0Id": "P0-067",
+  "status": "IN_PROGRESS",
+  "verifiedAt": "PENDING_FULL_VERIFICATION",
+  "branch": "codex/m1-m1-p067",
+  "issue": 23,
+  "baseCommit": "1254f710d5849a322c3b5d5c948688444da3fb9f",
+  "implementationCommit": "WORKTREE_PENDING_COMMIT",
+  "baseline": {
+    "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+    "productBaseline": "PASS_WITH_EXPECTED_EXECUTION_PACK_SNAPSHOT_WARNING",
+    "executionPack": "PASS_TASKS_149_P0_119_FIELDS_658_PAGES_80_PERMISSIONS_22"
+  },
+  "scope": {
+    "implementedContractIds": [
+      "API-013-COMPANY",
+      "API-014-COMPANY",
+      "API-082",
+      "PAGE-003",
+      "PAGE-004",
+      "PAGE-005",
+      "PAGE-006",
+      "PAGE-007",
+      "PAGE-008",
+      "PAGE-009",
+      "PAGE-010",
+      "PAGE-011",
+      "PAGE-012"
+    ],
+    "fixedWorkspaceCount": 10,
+    "deferredTask": "M1-P068",
+    "newPrismaModels": [],
+    "newSqlMigrations": 1,
+    "businessWorkspaceContentsImplemented": false
+  },
+  "redEvidence": [
+    {
+      "area": "api-gate",
+      "command": "pnpm exec vitest run --config ./vitest.config.ts --project api-contract apps/api/test/supertest/company-workspace-api.test.mjs",
+      "result": "FAIL_4_OF_4_CURRENT_WORKSPACE_ROUTE_MISSING_AND_ROLE_ERRORS_INCORRECT"
+    },
+    {
+      "area": "company-functional-accounts",
+      "command": "pnpm exec vitest run --config ./vitest.config.ts --project api-contract apps/api/test/supertest/company-workspace-api.test.mjs",
+      "result": "FAIL_2_OF_6_COMPANY_OWNER_BRANCH_RETURNED_401_BEFORE_IMPLEMENTATION"
+    },
+    {
+      "area": "page-permission-state",
+      "command": "pnpm exec playwright test tests/e2e/p0/p0-067-company-workspaces.spec.ts --project=chromium",
+      "result": "FAIL_1_OF_2_PERMISSION_DENIED_TITLE_NOT_EXPOSED_AS_HEADING"
+    },
+    {
+      "area": "openapi",
+      "command": "node --test tests/openapi/m1-p067-company-workspace-contract.test.mjs",
+      "result": "FAIL_REQUIRED_PROPERTY_ASSERTION_ORDER_BEFORE_ORDER_INDEPENDENT_FIX"
+    }
+  ],
+  "contract": {
+    "sessionTransport": "Secure HttpOnly SameSite=Strict __Host-fulishe-company-admin cookie",
+    "routeAuthority": "SERVER_SESSION_FIXED_WORKSPACE_ROUTE",
+    "menuCardinality": 1,
+    "companyAccountAdministrationRole": "COMPANY_SUPER_ADMIN",
+    "companyOwnershipDerivedFromSession": true,
+    "identityOwnershipDerivedFromSession": true,
+    "supplyPriceReturned": false,
+    "openapiSha256": "C37EB905BD4EB2C9FF20C223523124A4EA35909F476736C06F4D848C5DD1F448",
+    "typesSha256": "2EF2F56C727E7B30072CFC0608B878E455AA4933D885025DDB5FCD9B1B2E4720"
+  },
+  "negativeTests": [
+    {
+      "id": "NEG-M1-067-01",
+      "status": "PASS",
+      "evidence": "A deep link whose route differs from the authoritative session workspace returns WORKSPACE_FORBIDDEN before mounting the target component."
+    },
+    {
+      "id": "NEG-M1-067-02",
+      "status": "PASS",
+      "evidence": "Each of the ten workspace DTOs and page shells contains one current-workspace menu item and no foreign workspace route."
+    },
+    {
+      "id": "NEG-M1-067-03",
+      "status": "PASS",
+      "evidence": "A non-audit role cannot query audit logs and a non-super-admin role cannot call company functional-account APIs; rejection precedes repository access."
+    },
+    {
+      "id": "NEG-M1-067-04",
+      "status": "PASS",
+      "evidence": "Issuing a new functional session revokes the old natural-person session; reuse of its old Cookie returns AUTH_SESSION_REVOKED."
+    }
+  ],
+  "focusedTests": {
+    "companyWorkspaceSupertest": "PASS_6_OF_6",
+    "companyAuthAndFunctionalAccountRegression": "PASS_22_OF_22",
+    "migrationAndOpenapiContracts": "PASS_2_OF_2",
+    "companyAdminP0Chromium": "PASS_2_OF_2",
+    "m1FreezeRegression": "PASS_7_OF_7",
+    "apiAndCompanyAdminLint": "PASS",
+    "apiAndCompanyAdminTypecheck": "PASS",
+    "openapiDeterminism": "PASS_BYTE_IDENTICAL"
+  },
+  "fullVerification": {
+    "status": "PENDING",
+    "report": "artifacts/test-results/verification/pnpm-verify.json",
+    "stepsPassed": 0,
+    "stepsFailed": 0
+  },
+  "migration": {
+    "schemaChanged": false,
+    "seedMigrationAdded": true,
+    "publishedMigrations": 7,
+    "currentMigrations": 8,
+    "integrity": "PASS",
+    "migrationSqlSha256": "45DA9EA9ACFDB7F655B397CC3C26D1E8105FF21DEF42B3DB2104630E13CDA5F4",
+    "report": "artifacts/verification/M1-P067/prisma-migration-rehearsal.json",
+    "rehearsal": "PASS_EMPTY_2_UPGRADE_2_RESTORE_2_PRODUCT_8_CLEANUP_PASS",
+    "activeCompanyAccountTypes": 10,
+    "uniqueWorkspaceRoutes": 10,
+    "exactCodeRoutePairs": 10,
+    "singleMenuSchemas": 10,
+    "configuredDatabaseTargeted": false
+  },
+  "environment": {
+    "scope": "LOCAL_WINDOWS_DOCKER_TEMPORARY_MYSQL_CHROMIUM",
+    "node": "22.23.1",
+    "pnpm": "10.12.1",
+    "docker": "29.6.2",
+    "mysql": "8.4.11",
+    "prisma": "6.19.2",
+    "productionSecretsRead": false,
+    "productionOrStagingChanged": false,
+    "realIdentityProviderExecuted": false,
+    "realSecondVerificationExecuted": false
+  },
+  "warnings": [
+    "Existing Vite production bundles exceed the 500 kB warning threshold.",
+    "NO_COLOR is ignored when FORCE_COLOR is already set."
+  ],
+  "externalEvidence": {
+    "pullRequest": null,
+    "pullRequestUrl": "NOT_CREATED",
+    "pullRequestCi": "NOT_EXECUTED",
+    "review": "NOT_EXECUTED",
+    "merge": "NOT_EXECUTED",
+    "mainPostMergeCi": "NOT_EXECUTED",
+    "staging": "NOT_EXECUTED",
+    "production": "NOT_EXECUTED",
+    "formalAcceptance": "NOT_EXECUTED"
+  },
+  "rollback": {
+    "application": "git revert the M1-P067 implementation and evidence commits",
+    "database": "Do not edit or reverse the published migration; use a new forward-fix migration while preserving compatibility with existing account-type rows."
+  },
+  "nextBoundary": {
+    "taskId": "M1-P068",
+    "status": "BLOCKED_UNTIL_P067_EXACT_HEAD_CI_AUTHORIZED_MERGE_AND_GREEN_MAIN_CI",
+    "prohibited": "Do not implement workspace internal lists, filters, details, timelines, or later-stage business content in M1-P067."
+  }
+}

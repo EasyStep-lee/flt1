@@ -1,5 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
+import { COMPANY_WORKSPACES } from './company-workspace.policy.js';
+
 export class CompanyLoginRequestDto {
   @ApiProperty({ example: '13800138000', maxLength: 254, type: String })
   readonly loginAccount!: string;
@@ -80,4 +82,38 @@ export class SessionResponseDto {
 
   @ApiProperty({ format: 'date-time', type: String })
   readonly expiresAt!: string;
+}
+
+export class CompanyWorkspaceMenuItemDto {
+  @ApiProperty({ enum: ['workspace'], type: String })
+  readonly key!: 'workspace';
+
+  @ApiProperty({ type: String })
+  readonly label!: string;
+
+  @ApiProperty({ type: String })
+  readonly route!: string;
+}
+
+export class CompanyWorkspaceResponseDto {
+  @ApiProperty({
+    enum: COMPANY_WORKSPACES.map(({ accountTypeCode }) => accountTypeCode),
+    type: String,
+  })
+  readonly accountTypeCode!: string;
+
+  @ApiProperty({ type: String })
+  readonly accountTypeName!: string;
+
+  @ApiProperty({
+    enum: COMPANY_WORKSPACES.map(({ pageId }) => pageId),
+    type: String,
+  })
+  readonly pageId!: string;
+
+  @ApiProperty({ type: String })
+  readonly workspaceRoute!: string;
+
+  @ApiProperty({ isArray: true, type: () => CompanyWorkspaceMenuItemDto })
+  readonly menuItems!: readonly CompanyWorkspaceMenuItemDto[];
 }

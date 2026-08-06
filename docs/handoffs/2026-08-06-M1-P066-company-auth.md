@@ -5,10 +5,10 @@
 - 仓库：`EasyStep-lee/flt1`
 - 分支：`codex/m1-m1-p066`
 - Issue：[#21](https://github.com/EasyStep-lee/flt1/issues/21)
-- Draft PR：[#22](https://github.com/EasyStep-lee/flt1/pull/22)，创建时 head `01eedbde3fbe6b99bb727dc581bc84330ec93dc2`
+- PR：[#22](https://github.com/EasyStep-lee/flt1/pull/22)，创建时 head `01eedbde3fbe6b99bb727dc581bc84330ec93dc2`，最终 head `4c3e07a359ae2d99f47ed9265730a1d9dd27531c`
 - 基线：`993184234f930ec3999164ce48668e95dca9368b`，即 M1-P047 合并后并经 main CI 通过的提交
-- 已验证实现提交：`f863ecb1ee6ddcb671f8259aa08a2e730b8a1da6`
-- 结果：`LOCAL_PASS`；Draft PR 已创建，本次加固后的最终证据提交尚未推送，因此其精确 head CI、人工审查/授权合并及合并后 main CI 尚未执行
+- 已验证实现提交：`f863ecb1ee6ddcb671f8259aa08a2e730b8a1da6`；最终交付 head：`4c3e07a359ae2d99f47ed9265730a1d9dd27531c`
+- 结果：`CI_PASS`；最终 head CI run `31084427860` 成功，用户按精确 head 授权后已转 Ready 并合并为 `1254f710d5849a322c3b5d5c948688444da3fb9f`，合并后 main CI run `31089444537` 成功
 
 本切片只实现 API-003、API-004、PAGE-001 与 PAGE-002。公司后台没有公众注册；单一有效职能账号且无需二次验证时直接签发一个工作区会话，多账号时先返回服务端账号列表并等待选择。M1-P067 的各职能独立工作台未实现。
 
@@ -52,4 +52,4 @@
 
 ## 下一边界
 
-下一任务是 `M1-P067`，但只能保持 READY。必须先核验 PR #22 最终精确 head CI，完成审查与用户对该 head 的授权合并，再核验合并后 main CI；闭环前不得进入 P067，更不得进入 M2。
+PR #22 的精确 head、人工授权合并和合并后 main CI 已闭环，`M1-P067` 已解锁。此结论只解锁 P067；P067 未以独立 PR 合并并通过 main CI 前仍不得进入 P068。

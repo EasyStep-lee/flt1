@@ -16,15 +16,27 @@ export interface SupplierFunctionalAccountActor {
   readonly workspaceRoute: string;
 }
 
+export interface CompanyFunctionalAccountActor {
+  readonly accountTypeCode: 'COMPANY_SUPER_ADMIN';
+  readonly companyId: string;
+  readonly functionalAccountId: string;
+  readonly identityId: string;
+  readonly workspaceRoute: '/company-admin/workspaces/system';
+}
+
+export type FunctionalAccountActor =
+  | CompanyFunctionalAccountActor
+  | SupplierFunctionalAccountActor;
+
 export interface FunctionalAccountActorResolver {
-  resolve(request: Request): Promise<SupplierFunctionalAccountActor>;
+  resolve(request: Request): Promise<FunctionalAccountActor>;
 }
 
 @Injectable()
 export class DenyFunctionalAccountActorResolver
   implements FunctionalAccountActorResolver
 {
-  resolve(): Promise<SupplierFunctionalAccountActor> {
+  resolve(): Promise<FunctionalAccountActor> {
     return Promise.reject(
       new SafeApiError(
         401,
@@ -34,4 +46,3 @@ export class DenyFunctionalAccountActorResolver
     );
   }
 }
-

@@ -39,6 +39,21 @@ export const M1_OPENAPI_OPERATION_CONTRACTS = Object.freeze([
     responseDto: 'SessionResponseDto',
   }),
   contract({
+    actor: 'COMPANY_FUNCTIONAL_ACCOUNT',
+    contractId: 'API-082',
+    errorCodes: [
+      'AUTHENTICATION_REQUIRED',
+      'AUTH_SESSION_REVOKED',
+      'WORKSPACE_FORBIDDEN',
+      'VALIDATION_FAILED',
+    ],
+    idempotency: 'NONE',
+    method: 'get',
+    path: '/v1/company-auth/workspace/current',
+    requestDto: 'CompanyWorkspaceQueryDto',
+    responseDto: 'CompanyWorkspaceResponseDto',
+  }),
+  contract({
     actor: 'PUBLIC',
     contractId: 'API-005',
     errorCodes: [
@@ -309,6 +324,12 @@ export const applyM1OpenApiContracts = (document: OpenAPIObject): OpenAPIObject 
     name: 'fulishe_session',
     type: 'apiKey',
   };
+  securitySchemes.companyFunctionalSession = {
+    description: 'Secure HttpOnly company functional account session',
+    in: 'cookie',
+    name: '__Host-fulishe-company-admin',
+    type: 'apiKey',
+  };
   components.securitySchemes = securitySchemes;
 
   for (const operationContract of M1_OPENAPI_OPERATION_CONTRACTS) {
@@ -326,6 +347,9 @@ export const applyM1OpenApiContracts = (document: OpenAPIObject): OpenAPIObject 
     operation['x-fulishe-request-dto'] = operationContract.requestDto;
     operation['x-fulishe-response-dto'] = operationContract.responseDto;
     operation['x-fulishe-response-policy'] = 'NEVER_RETURN_INTERNAL_PRICING';
+    if (operationContract.contractId === 'API-082') {
+      operation.security = [{ companyFunctionalSession: [] }];
+    }
   }
   return document;
 };

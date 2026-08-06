@@ -80,6 +80,12 @@ export interface CompanyAuthSessionRecord {
   readonly workspaceRoute: string;
 }
 
+export type ResolveCompanySessionResult =
+  | { readonly kind: 'MISSING' }
+  | { readonly kind: 'REVOKED' }
+  | { readonly kind: 'INVALID' }
+  | { readonly kind: 'ACTIVE'; readonly session: CompanyAuthSessionRecord };
+
 export interface IssueCompanySessionCommand {
   readonly account: CompanyFunctionalAccountRecord;
   readonly deviceInfo: Readonly<Record<string, unknown>>;
@@ -107,6 +113,10 @@ export interface CompanyAuthRepository {
   listCompanyAccounts(userId: string): Promise<readonly CompanyFunctionalAccountRecord[]>;
   markLoginSucceeded(userId: string, occurredAt: string): Promise<void>;
   recordLoginAudit(record: CompanyLoginAuditRecord): Promise<void>;
+  resolveSession(
+    sessionHash: string,
+    now: string,
+  ): Promise<ResolveCompanySessionResult>;
   resolveSelectionGrant(nonceHash: string): Promise<CompanySelectionGrantRecord | null>;
 }
 

@@ -1,4 +1,4 @@
-import { createHash, randomUUID } from 'node:crypto';
+import { randomUUID } from 'node:crypto';
 
 import type {
   CompanyAuthRepository,
@@ -9,6 +9,7 @@ import type {
   CompanyUserRecord,
   IssueCompanySessionCommand,
   IssueCompanySessionResult,
+  ResolveCompanySessionResult,
 } from './company-auth.repository.js';
 
 interface InMemoryCompanyAuthSeed {
@@ -23,6 +24,7 @@ export class InMemoryCompanyAuthRepository implements CompanyAuthRepository {
   private readonly audits: CompanyLoginAuditRecord[] = [];
   private readonly grants = new Map<string, CompanySelectionGrantRecord>();
   private readonly sessions = new Map<string, CompanyAuthSessionRecord>();
+  private readonly sessionIdsByHash = new Map<string, string>();
   private readonly users = new Map<string, CompanyUserRecord>();
 
   constructor(seed: InMemoryCompanyAuthSeed = {}) {
@@ -118,6 +120,7 @@ export class InMemoryCompanyAuthRepository implements CompanyAuthRepository {
       workspaceRoute: account.workspaceRoute,
     };
     this.sessions.set(session.id, session);
+    this.sessionIdsByHash.set(command.sessionHash, session.id);
     this.accounts.set(account.id, { ...account, lastUsedAt: now });
     if (command.nonceHash) {
       const grant = this.grants.get(command.nonceHash);
@@ -157,6 +160,34 @@ export class InMemoryCompanyAuthRepository implements CompanyAuthRepository {
     return Promise.resolve(grant ? structuredClone(grant) : null);
   }
 
+  resolveSession(
+    sessionHash: string,
+    now: string,
+  ): Promise<ResolveCompanySessionResult> {
+    const sessionId = this.sessionIdsByHash.get(sessionHash);
+    if (!sessionId) return Promise.resolve({ kind: 'MISSING' });
+    const session = this.sessions.get(sessionId);
+    if (!session) return Promise.resolve({ kind: 'MISSING' });
+    if (session.revokedAt) return Promise.resolve({ kind: 'REVOKED' });
+    const account = this.accounts.get(session.functionalAccountId);
+    const user = this.users.get(session.userId);
+    if (
+      session.expiresAt <= now ||
+      !account ||
+      !user ||
+      user.status !== 'ACTIVE' ||
+      account.status !== 'ACTIVE' ||
+      (account.expiresAt !== null && account.expiresAt <= now) ||
+      account.identityId !== session.userId ||
+      account.companyId !== session.companyId ||
+      account.accountTypeCode !== session.accountTypeCode ||
+      account.workspaceRoute !== session.workspaceRoute
+    ) {
+      return Promise.resolve({ kind: 'INVALID' });
+    }
+    return Promise.resolve({ kind: 'ACTIVE', session: structuredClone(session) });
+  }
+
   countActiveSessions(userId: string): Promise<number> {
     const now = new Date().toISOString();
     return Promise.resolve(
@@ -187,8 +218,6 @@ export class InMemoryCompanyAuthRepository implements CompanyAuthRepository {
   }
 
   readStoredSessionHashes(): readonly string[] {
-    return [...this.sessions.keys()].map((id) =>
-      createHash('sha256').update(id).digest('hex'),
-    );
+    return [...this.sessionIdsByHash.keys()];
   }
 }

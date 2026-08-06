@@ -2,12 +2,12 @@
   "schemaVersion": "1.0.0",
   "taskId": "M1-P066",
   "p0Id": "P0-066",
-  "status": "LOCAL_PASS",
+  "status": "CI_PASS",
   "verifiedAt": "2026-08-06T04:15:45-04:00",
   "branch": "codex/m1-m1-p066",
   "issue": 21,
   "baseCommit": "993184234f930ec3999164ce48668e95dca9368b",
-  "implementationCommit": "f863ecb1ee6ddcb671f8259aa08a2e730b8a1da6",
+  "implementationCommit": "4c3e07a359ae2d99f47ed9265730a1d9dd27531c",
   "baseline": {
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
     "productBaseline": "PASS_WITH_EXPECTED_EXECUTION_PACK_SNAPSHOT_WARNING",
@@ -143,10 +143,10 @@
     "pullRequest": 22,
     "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/22",
     "draftHeadAtCreation": "01eedbde3fbe6b99bb727dc581bc84330ec93dc2",
-    "pullRequestCi": "NOT_EXECUTED_FOR_FINAL_HEAD",
-    "review": "NOT_EXECUTED",
-    "merge": "NOT_EXECUTED",
-    "mainPostMergeCi": "NOT_EXECUTED",
+    "pullRequestCi": "CI_PASS_RUN_31084427860_JOB_92560443230_HEAD_4c3e07a359ae2d99f47ed9265730a1d9dd27531c",
+    "review": "USER_AUTHORIZED_READY_AND_MERGE_FOR_EXACT_HEAD",
+    "merge": "MERGED_1254f710d5849a322c3b5d5c948688444da3fb9f_AT_2026-08-06T09:31:08Z",
+    "mainPostMergeCi": "CI_PASS_RUN_31089444537_JOB_92576632017_HEAD_1254f710d5849a322c3b5d5c948688444da3fb9f",
     "staging": "NOT_EXECUTED",
     "production": "NOT_EXECUTED",
     "formalAcceptance": "NOT_EXECUTED"
@@ -157,7 +157,7 @@
   },
   "nextBoundary": {
     "taskId": "M1-P067",
-    "status": "READY_BUT_BLOCKED_BY_M1_P066_EXTERNAL_GATE",
-    "prohibited": "Do not implement M1-P067 before exact final PR head CI, human review and authorized merge, and post-merge main CI are complete."
+    "status": "UNLOCKED_BY_MERGED_PR_AND_GREEN_MAIN_CI",
+    "prohibited": "Do not enter M1-P068 before M1-P067 has its own exact-head CI, authorized merge, and green post-merge main CI."
   }
 }
