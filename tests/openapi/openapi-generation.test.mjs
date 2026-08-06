@@ -113,6 +113,7 @@ test('generated contract exposes health, merchant identity, supplier onboarding 
     '/health/ready',
     '/v1/audit/events',
     '/v1/company-auth/login',
+    '/v1/company-auth/workspace/current',
     '/v1/company-auth/workspaces/{accountId}/select',
     '/v1/company/suppliers',
     '/v1/company/suppliers/{supplierId}/review',
@@ -127,6 +128,10 @@ test('generated contract exposes health, merchant identity, supplier onboarding 
   assert.equal(
     spec.paths['/v1/public/merchant-profile'].get.operationId,
     'publicMerchant.getProfile',
+  );
+  assert.equal(
+    spec.paths['/v1/company-auth/workspace/current'].get.operationId,
+    'companyauth.currentWorkspace',
   );
   assert.equal(
     spec.paths['/v1/company/suppliers'].get.operationId,
@@ -163,8 +168,10 @@ test('generated contract exposes health, merchant identity, supplier onboarding 
       'ApprovalTaskResponseDto',
       'AuditEventPageResponseDto',
       'AuditEventResponseDto',
-    'AuditQueryDto',
+      'AuditQueryDto',
       'CompanyLoginRequestDto',
+      'CompanyWorkspaceMenuItemDto',
+      'CompanyWorkspaceResponseDto',
       'CreateFunctionalAccountRequestDto',
       'FoundationDependencyCheckDto',
       'FunctionalAccountPageResponseDto',
