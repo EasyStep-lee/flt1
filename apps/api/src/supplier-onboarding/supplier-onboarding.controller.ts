@@ -24,6 +24,8 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
+  ApiNotFoundResponse,
+  ApiPreconditionRequiredResponse,
   ApiQuery,
   ApiResponse,
   ApiTags,
@@ -99,6 +101,7 @@ export class SupplierRegistrationController {
   @ApiBody({ type: SupplierRegistrationRequestDto })
   @ApiCreatedResponse({ type: SupplierRegistrationResponseDto })
   @ApiConflictResponse({ type: ApiErrorResponseDto })
+  @ApiForbiddenResponse({ type: ApiErrorResponseDto })
   @ApiUnprocessableEntityResponse({ type: ApiErrorResponseDto })
   @ApiResponse({ status: 503, type: ApiErrorResponseDto })
   async register(
@@ -157,6 +160,8 @@ export class SupplierSelfServiceController {
   @ApiOkResponse({ type: SupplierProfileResponseDto })
   @ApiConflictResponse({ type: ApiErrorResponseDto })
   @ApiForbiddenResponse({ type: ApiErrorResponseDto })
+  @ApiNotFoundResponse({ type: ApiErrorResponseDto })
+  @ApiPreconditionRequiredResponse({ type: ApiErrorResponseDto })
   @ApiUnauthorizedResponse({ type: ApiErrorResponseDto })
   @ApiUnprocessableEntityResponse({ type: ApiErrorResponseDto })
   async patchOwnProfile(
@@ -184,6 +189,7 @@ export class SupplierSelfServiceController {
   @ApiCreatedResponse({ type: ApprovalTaskResponseDto })
   @ApiConflictResponse({ type: ApiErrorResponseDto })
   @ApiForbiddenResponse({ type: ApiErrorResponseDto })
+  @ApiNotFoundResponse({ type: ApiErrorResponseDto })
   @ApiUnauthorizedResponse({ type: ApiErrorResponseDto })
   @ApiUnprocessableEntityResponse({ type: ApiErrorResponseDto })
   async submitOwnProfile(
@@ -255,6 +261,8 @@ export class CompanySupplierOnboardingController {
   @ApiBadRequestResponse({ type: ApiErrorResponseDto })
   @ApiConflictResponse({ type: ApiErrorResponseDto })
   @ApiForbiddenResponse({ type: ApiErrorResponseDto })
+  @ApiNotFoundResponse({ type: ApiErrorResponseDto })
+  @ApiPreconditionRequiredResponse({ type: ApiErrorResponseDto })
   @ApiUnauthorizedResponse({ type: ApiErrorResponseDto })
   @ApiUnprocessableEntityResponse({ type: ApiErrorResponseDto })
   async review(

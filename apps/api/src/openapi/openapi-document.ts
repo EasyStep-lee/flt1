@@ -59,6 +59,10 @@ import {
   UnavailableSupplierRegistrationVerifier,
 } from '../supplier-onboarding/supplier-registration.verifier.js';
 import { OPENAPI_CONTROLLERS } from './openapi-controller.registry.js';
+import {
+  applyM1OpenApiContracts,
+  assertM1OpenApiContracts,
+} from './m1-openapi-contract.js';
 
 type JsonValue =
   | boolean
@@ -67,16 +71,6 @@ type JsonValue =
   | string
   | readonly JsonValue[]
   | { readonly [key: string]: JsonValue };
-
-const forbiddenPublicResponseFields = new Set([
-  'approvedSupplyPrice',
-  'grossMargin',
-  'grossMarginRate',
-  'supplierPayable',
-  'supplierPayableAmount',
-  'supplyPrice',
-  'supplyPriceSnapshot',
-]);
 
 @Module({
   controllers: [...OPENAPI_CONTROLLERS],
@@ -187,25 +181,6 @@ const stableDocument = (document: OpenAPIObject): OpenAPIObject =>
     JSON.parse(JSON.stringify(document)) as JsonValue,
   ) as unknown as OpenAPIObject;
 
-const collectForbiddenFields = (
-  value: JsonValue,
-  location = '$',
-): readonly string[] => {
-  if (Array.isArray(value)) {
-    return value.flatMap((entry, index) =>
-      collectForbiddenFields(entry, `${location}[${index}]`),
-    );
-  }
-  if (value === null || typeof value !== 'object') {
-    return [];
-  }
-  return Object.entries(value).flatMap(([key, entry]) => {
-    const current = `${location}.${key}`;
-    const matches = forbiddenPublicResponseFields.has(key) ? [current] : [];
-    return [...matches, ...collectForbiddenFields(entry, current)];
-  });
-};
-
 export const createDeterministicOpenApiDocument = async (): Promise<OpenAPIObject> => {
   const app = await NestFactory.create(OpenApiGenerationModule, {
     abortOnError: true,
@@ -228,13 +203,9 @@ export const createDeterministicOpenApiDocument = async (): Promise<OpenAPIObjec
       operationIdFactory: (controllerKey, methodKey) =>
         `${controllerKey.replace(/Controller$/u, '').toLowerCase()}.${methodKey}`,
     });
+    applyM1OpenApiContracts(document);
+    assertM1OpenApiContracts(document);
     const sorted = stableDocument(document);
-    const forbidden = collectForbiddenFields(
-      JSON.parse(JSON.stringify(sorted)) as JsonValue,
-    );
-    if (forbidden.length > 0) {
-      throw new Error(`PUBLIC_RESPONSE_FIELD_FORBIDDEN: ${forbidden.join(', ')}`);
-    }
     return sorted;
   } finally {
     await app.close();

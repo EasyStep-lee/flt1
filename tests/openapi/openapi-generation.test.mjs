@@ -77,7 +77,7 @@ test('openapi:generate builds runtime contracts before loading API sources', () 
   );
 });
 
-test('OpenAPI generation is byte-stable and ignores runtime infrastructure configuration', () => {
+test('NEG-M1-047-02 OpenAPI generation is byte-stable and ignores runtime infrastructure configuration', () => {
   const hostileRuntimeEnvironment = {
     ...process.env,
     APP_ENV: 'production',

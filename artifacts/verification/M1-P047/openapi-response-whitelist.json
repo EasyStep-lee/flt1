@@ -1,0 +1,155 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "M1-P047",
+  "p0Id": "P0-047",
+  "status": "LOCAL_PASS",
+  "verifiedAt": "2026-08-06T00:42:17-04:00",
+  "branch": "codex/m1-m1-p047",
+  "issue": 19,
+  "baseCommit": "7637fe3ce87ba08860738af847cf1aeeff60c618",
+  "implementationCommits": [
+    "ca090334d652d3a0b83e0cd5869d2b1df4b9e29f",
+    "c7cb19ca80a13d82cb7741f8f1c4b1e2944a7f9d"
+  ],
+  "baseline": {
+    "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+    "productBaseline": "PASS_WITH_EXPECTED_EXECUTION_PACK_SNAPSHOT_WARNING",
+    "executionPack": "PASS"
+  },
+  "scope": {
+    "implementedContractIds": [
+      "API-005",
+      "API-008",
+      "API-009",
+      "API-010",
+      "API-011",
+      "API-012",
+      "API-013",
+      "API-014",
+      "API-015"
+    ],
+    "deferredContractIds": ["API-003", "API-004", "API-006", "API-007"],
+    "newBusinessApis": 0,
+    "newBusinessPages": 0,
+    "newPrismaModels": 0,
+    "newSqlMigrations": 0
+  },
+  "redEvidence": {
+    "command": "node --test ./tests/openapi/m1-p047-contract.test.mjs",
+    "passed": 0,
+    "failed": 1,
+    "failure": "generated components.securitySchemes.functionalSession was undefined"
+  },
+  "contract": {
+    "operationMetadata": [
+      "x-fulishe-contract-id",
+      "x-fulishe-actor",
+      "x-fulishe-request-dto",
+      "x-fulishe-response-dto",
+      "x-fulishe-idempotency",
+      "x-fulishe-error-codes",
+      "x-fulishe-response-policy"
+    ],
+    "securityScheme": "functionalSession cookie bound to the server-side functional account scope",
+    "responsePolicy": "NEVER_RETURN_INTERNAL_PRICING",
+    "forbiddenResponseFields": [
+      "supplyPrice",
+      "approvedSupplyPrice",
+      "supplyPriceSnapshot",
+      "supplierPayable",
+      "supplierPayableAmount",
+      "grossMargin",
+      "grossMarginRate"
+    ],
+    "recursiveSchemaKeywords": ["$ref", "items", "allOf", "anyOf", "oneOf"],
+    "openapiSha256": "D2219EDEE601CF53D7F49A4BB478FCBB139F907BA3E2AFB084BD83E0DEDABDA4",
+    "typesSha256": "56AF3612CFFD657667646B3D2AC4663B4B01C0C030D3A2DC4A8335A156549784"
+  },
+  "negativeTests": [
+    {
+      "id": "NEG-M1-047-01",
+      "status": "PASS",
+      "evidence": "unit leak injection and Supertest tainted merchant entity map to the exact public DTO"
+    },
+    {
+      "id": "NEG-M1-047-02",
+      "status": "PASS",
+      "evidence": "two hostile-environment generations are byte-identical and openapi:check passes"
+    },
+    {
+      "id": "NEG-M1-047-03",
+      "status": "PASS",
+      "evidence": "pinned oasdiff 1.17.0 blocks endpoint removal; origin/main comparison has no breaking change"
+    },
+    {
+      "id": "NEG-M1-047-04",
+      "status": "PASS",
+      "evidence": "both native mini-programs reuse generated types through miniapp-kit without direct wx.request"
+    }
+  ],
+  "focusedTests": {
+    "openapi": "PASS_10_OF_10",
+    "responseWhitelistUnit": "PASS_1_OF_1",
+    "responseWhitelistSupertest": "PASS_1_OF_1",
+    "miniappKit": "PASS_2_OF_2",
+    "m1ContractsAfterFirstFullVerifyFailure": "PASS_30_OF_30",
+    "finalEvidenceContracts": "PASS_31_OF_31",
+    "p0Chromium": "PASS_8_OF_8",
+    "oasdiffAgainstOriginMain": "PASS_NO_BREAKING_CHANGES"
+  },
+  "fullVerification": {
+    "status": "PASS_17_OF_17",
+    "report": "artifacts/test-results/verification/pnpm-verify.json",
+    "reportHead": "ca090334d652d3a0b83e0cd5869d2b1df4b9e29f",
+    "verifiedTreeCommit": "c7cb19ca80a13d82cb7741f8f1c4b1e2944a7f9d",
+    "note": "The five historical M1 ledger assertions were present in the verified working tree and committed unchanged as c7cb19c immediately after the passing run.",
+    "stepsPassed": 17,
+    "stepsFailed": 0,
+    "p0Chromium": "8/8",
+    "m1ContractRegression": "30/30",
+    "trackedSecretFiles": 415
+  },
+  "migration": {
+    "schemaChanged": false,
+    "publishedMigrations": 6,
+    "integrity": "PASS",
+    "rehearsal": "PASS_EMPTY_2_UPGRADE_2_RESTORE_2_PRODUCT_6_CLEANUP_PASS"
+  },
+  "environment": {
+    "scope": "LOCAL_WINDOWS_DOCKER_TEMPORARY_MYSQL_CHROMIUM",
+    "node": "22.23.1",
+    "pnpm": "10.12.1",
+    "docker": "29.6.2",
+    "dockerCompose": "5.3.1",
+    "mysql": "8.4.11 pinned digest",
+    "productionSecretsRead": false,
+    "productionOrStagingChanged": false
+  },
+  "warnings": [
+    "Existing Vite production bundles exceed the 500 kB warning threshold",
+    "NO_COLOR is ignored when FORCE_COLOR is already set"
+  ],
+  "controlPackVerification": {
+    "productBaseline": "PASS_WITH_EXPECTED_EXECUTION_PACK_SNAPSHOT_WARNING",
+    "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+    "executionPackSelfCheck": "PASS_TASKS_149_P0_119_FIELDS_658_PAGES_80_PERMISSIONS_22",
+    "finalEvidenceContracts": "PASS_31_OF_31"
+  },
+  "externalEvidence": {
+    "pullRequest": "#20_DRAFT",
+    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/20",
+    "headAtCreation": "886e13a284decf013c26e9d71b7d8b2f5ad0850d",
+    "pullRequestCi": "NOT_EXECUTED",
+    "review": "NOT_EXECUTED",
+    "merge": "NOT_EXECUTED",
+    "mainPostMergeCi": "NOT_EXECUTED",
+    "staging": "NOT_EXECUTED",
+    "production": "NOT_EXECUTED",
+    "formalAcceptance": "NOT_EXECUTED"
+  },
+  "nextBoundary": {
+    "taskId": "M1-P066",
+    "status": "READY_BUT_BLOCKED_BY_M1_P047_EXTERNAL_GATE",
+    "prohibited": "Do not implement M1-P066 before the exact M1-P047 PR head CI, review, human merge and post-merge main CI are complete."
+  }
+}
