@@ -34,7 +34,7 @@ const SESSION_TTL_MS = 8 * 60 * 60 * 1000;
 const SELECTION_TTL_MS = 10 * 60 * 1000;
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
 const RATE_LIMIT_FAILURES = 5;
-const SESSION_TOKEN_PATTERN = /^[A-Za-z0-9_-]{43}$/u;
+const SESSION_VALUE_PATTERN = /^[A-Za-z0-9_-]{43}$/u;
 const FORBIDDEN_LOGIN_FIELDS = new Set([
   'companyId',
   'functionalAccountId',
@@ -92,7 +92,7 @@ const sessionTokenFromCookie = (cookieHeader?: string): string | null => {
     const name = part.slice(0, separator).trim();
     if (name !== '__Host-fulishe-company-admin') continue;
     const value = part.slice(separator + 1).trim();
-    return SESSION_TOKEN_PATTERN.test(value) ? value : null;
+    return SESSION_VALUE_PATTERN.test(value) ? value : null;
   }
   return null;
 };

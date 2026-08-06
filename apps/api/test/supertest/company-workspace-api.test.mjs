@@ -24,7 +24,7 @@ const workspaces = [
 const config = () => ({
   appEnv: 'test',
   port: 3000,
-  databaseUrl: 'mysql://local:test@127.0.0.1:3306/test',
+  databaseUrl: 'mysql://local:unit-test-only@127.0.0.1:3306/test',
   redisUrl: 'redis://127.0.0.1:6379/0',
   logLevel: 'silent',
   healthProbeTimeoutMs: 50,
