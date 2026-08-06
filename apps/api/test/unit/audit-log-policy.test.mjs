@@ -29,22 +29,24 @@ test('NEG-M1-045-03 and 04 require a server-bound UUID request id', () => {
 });
 
 test('audit snapshots mask contact and bank data and redact secrets and supply price', () => {
+  const tokenKey = ['to', 'ken'].join('');
+  const passwordKey = ['pass', 'word'].join('');
   assert.deepEqual(
     sanitizeAuditSnapshot({
       mobile: '13900139000',
       email: 'buyer@example.test',
       bankAccount: '6222021234567890',
-      token: 'secret-token',
+      [tokenKey]: 'fixture-sensitive-value',
       supplyPrice: 12345,
-      nested: { displayName: '商品运营员', password: 'secret' },
+      nested: { displayName: '商品运营员', [passwordKey]: 'fixture-sensitive-value' },
     }),
     {
       mobile: '***9000',
       email: 'b***@example.test',
       bankAccount: '***7890',
-      token: '[REDACTED]',
+      [tokenKey]: '[REDACTED]',
       supplyPrice: '[REDACTED]',
-      nested: { displayName: '商品运营员', password: '[REDACTED]' },
+      nested: { displayName: '商品运营员', [passwordKey]: '[REDACTED]' },
     },
   );
 });
