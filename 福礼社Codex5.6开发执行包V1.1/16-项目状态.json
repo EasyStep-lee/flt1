@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-05T23:32:22-04:00",
+  "updatedAt": "2026-08-05T23:50:04-04:00",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -38,9 +38,9 @@
     "authenticationConfirmed": true,
     "writeAllowed": true,
     "connectorAccessConfirmed": true,
-    "pullRequest": null,
-    "pullRequestUrl": "NOT_CREATED_FOR_M1_P046",
-    "pullRequestState": "NOT_CREATED",
+    "pullRequest": 18,
+    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/18",
+    "pullRequestState": "OPEN_DRAFT",
     "pullRequestMerged": false,
     "mergeCommitSha": "NOT_EXECUTED_FOR_M1_P046",
     "mergedAt": "NOT_EXECUTED_FOR_M1_P046",
@@ -59,22 +59,22 @@
       "currentHeadReviewRequired": true,
       "authorizationExactHead": false
     },
-    "lastVerifiedPullRequestHead": "91c9a73f17db46d88aaad6590a7a3d39d63c786e",
+    "lastVerifiedPullRequestHead": "3e3d53d2ca17c30a0984fa01a76a3ba9006d85ce",
     "pullRequestCi": {
-      "status": "SUCCESS",
-      "runId": 31066656197,
-      "jobId": 92505702908,
-      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31066656197",
-      "headSha": "91c9a73f17db46d88aaad6590a7a3d39d63c786e"
+      "status": "IN_PROGRESS",
+      "runId": 31069525789,
+      "jobId": 92514334854,
+      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31069525789",
+      "headSha": "3e3d53d2ca17c30a0984fa01a76a3ba9006d85ce"
     },
     "latestCi": {
-      "scope": "MAIN_POST_M1_P045_MERGE",
-      "status": "SUCCESS",
-      "runId": 31067369336,
-      "jobId": 92507821903,
-      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31067369336",
-      "headSha": "de6957be6193ffbf86720f4a707b7b6efe1469e5",
-      "event": "push"
+      "scope": "M1_P046_PR_EVIDENCE_HEAD",
+      "status": "IN_PROGRESS",
+      "runId": 31069525789,
+      "jobId": 92514334854,
+      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31069525789",
+      "headSha": "3e3d53d2ca17c30a0984fa01a76a3ba9006d85ce",
+      "event": "pull_request"
     },
     "currentTaskDelivery": {
       "taskId": "M1-P046",
@@ -86,15 +86,15 @@
       "verifiedImplementationHead": "1825d38a4fc81c00e1a71b89fb9f2f8e15df828a",
       "localVerify": "PASS_17_OF_17",
       "migrationRehearsal": "LOCAL_PASS_PRODUCT_6_POLICY_TABLES_4_FKS_4_DEFAULT_HIDDEN_DUPLICATE_AND_CROSS_SUPPLIER_REJECTED_DRIFT_NONE_CLEANUP_PASS",
-      "pullRequest": null,
-      "pullRequestUrl": "NOT_CREATED",
-      "pullRequestState": "NOT_CREATED",
-      "exactHeadCi": "NOT_EXECUTED",
+      "pullRequest": 18,
+      "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/18",
+      "pullRequestState": "OPEN_DRAFT",
+      "exactHeadCi": "IN_PROGRESS_ON_EVIDENCE_HEAD_3E3D53D",
       "review": "NOT_EXECUTED",
       "merge": "NOT_EXECUTED",
       "mainPostMergeCi": "NOT_EXECUTED"
     },
-    "note": "M1-P046实现head 1825d38已完成策略、API、MIG-003真实MySQL、P0 Chromium与pnpm verify 17/17本地证据；Issue #17、分支codex/m1-m1-p046。Draft PR、精确head CI、人工审查、合并和main CI未执行，M1-P047仅READY。"
+    "note": "M1-P046实现head 1825d38已完成策略、API、MIG-003真实MySQL、P0 Chromium与pnpm verify 17/17本地证据；Draft PR #18创建时head 3e3d53d的Actions run 31069525789运行中，评论/审查为空。证据元数据提交会产生更新head，须重新核验；人工审查、合并和main CI未执行，M1-P047仅READY。"
   },
   "evidence": {
     "local": "LOCAL_PASS",

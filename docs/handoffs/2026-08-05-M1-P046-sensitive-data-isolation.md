@@ -19,8 +19,8 @@
 ## GitHub 与门禁
 
 - Issue [#17](https://github.com/EasyStep-lee/flt1/issues/17) OPEN。
-- 分支 `codex/m1-m1-p046`；Draft PR 尚未创建，精确 head CI、审查、合并与合并后 main CI 均未执行。
-- 创建并推送证据提交后必须重新读取 PR 最新 head、Actions、Draft/Ready、未解决评论和合并状态。
+- Draft PR [#18](https://github.com/EasyStep-lee/flt1/pull/18) OPEN；创建时 head `3e3d53d2ca17c30a0984fa01a76a3ba9006d85ce` 的 Actions run `31069525789` 为 IN_PROGRESS，评论与审查为空。
+- 本次 GitHub 状态元数据提交会形成更新 head；推送后必须重新读取 PR 最新 head、Actions、Draft/Ready、未解决评论和合并状态。
 - 未经用户对精确 head 的人工授权不得合并；外部门禁闭环前 `M1-P047` 仅保持 READY，不得进入实现。
 
 ## 环境边界、风险与回滚
@@ -32,4 +32,4 @@
 
 ## 下一恢复点
 
-只发布当前分支并创建 Draft PR，然后核验其最新精确 head CI、评论、审查和合并状态。外部门禁未闭环时不启动 `M1-P047`。
+只核验 Draft PR #18 最新精确 head CI、评论、审查和合并状态。外部门禁未闭环时不启动 `M1-P047`。
