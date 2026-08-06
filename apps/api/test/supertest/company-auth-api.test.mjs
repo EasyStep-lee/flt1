@@ -216,6 +216,38 @@ describe('P0-066 company login and functional workspace selection', () => {
     }
   });
 
+  it('keeps a completed selection command immutable across login requestId retries', async () => {
+    const fixture = await createFixture({
+      accounts: [account(), account({ id: secondAccountId })],
+    });
+    try {
+      const login = await request(fixture.app.getHttpServer())
+        .post('/v1/company-auth/login')
+        .send(loginBody());
+      const selected = await request(fixture.app.getHttpServer())
+        .post(`/v1/company-auth/workspaces/${firstAccountId}/select`)
+        .send({ selectionNonce: login.body.selectionNonce });
+      const replayedLogin = await request(fixture.app.getHttpServer())
+        .post('/v1/company-auth/login')
+        .send(loginBody());
+      const conflictingSelection = await request(fixture.app.getHttpServer())
+        .post(`/v1/company-auth/workspaces/${secondAccountId}/select`)
+        .send({ selectionNonce: replayedLogin.body.selectionNonce });
+
+      expect(selected.status).toBe(200);
+      expect(replayedLogin.status).toBe(200);
+      expect(replayedLogin.body.selectionNonce).toBe(login.body.selectionNonce);
+      expect(conflictingSelection.status).toBe(409);
+      expect(conflictingSelection.body).toMatchObject({
+        code: 'WORKSPACE_SESSION_CONFLICT',
+      });
+      expect(await fixture.repository.countSelectionGrants(userId)).toBe(1);
+      expect(await fixture.repository.countActiveSessions(userId)).toBe(1);
+    } finally {
+      await fixture.app.close();
+    }
+  });
+
   it('NEG-M1-066-04 rejects a disabled account without issuing a session', async () => {
     const fixture = await createFixture({
       accounts: [account(), account({ id: secondAccountId, status: 'SUSPENDED' })],
@@ -238,6 +270,27 @@ describe('P0-066 company login and functional workspace selection', () => {
         .send({ selectionNonce: login.body.selectionNonce, companyId });
       expect(spoofedOwner.status).toBe(403);
       expect(spoofedOwner.body).toMatchObject({ code: 'DATA_SCOPE_FORBIDDEN' });
+    } finally {
+      await fixture.app.close();
+    }
+  });
+
+  it('fails closed when an account is suspended during session issuance', async () => {
+    const fixture = await createFixture();
+    const issueSession = fixture.repository.issueSession.bind(fixture.repository);
+    fixture.repository.issueSession = async (command) => {
+      fixture.repository.setAccountStatusForTest(firstAccountId, 'SUSPENDED');
+      return issueSession(command);
+    };
+    try {
+      const response = await request(fixture.app.getHttpServer())
+        .post('/v1/company-auth/login')
+        .send(loginBody());
+
+      expect(response.status).toBe(403);
+      expect(response.body).toMatchObject({ code: 'WORKSPACE_FORBIDDEN' });
+      expect(response.headers['set-cookie']).toBeUndefined();
+      expect(await fixture.repository.countActiveSessions(userId)).toBe(0);
     } finally {
       await fixture.app.close();
     }

@@ -44,9 +44,9 @@ export class InMemoryCompanyAuthRepository implements CompanyAuthRepository {
   }
 
   createSelectionGrant(record: CompanySelectionGrantRecord): Promise<void> {
-    for (const [nonceHash, grant] of this.grants) {
+    for (const grant of this.grants.values()) {
       if (grant.userId === record.userId && grant.requestId === record.requestId) {
-        this.grants.delete(nonceHash);
+        return Promise.resolve();
       }
     }
     this.grants.set(record.nonceHash, structuredClone(record));
@@ -65,6 +65,20 @@ export class InMemoryCompanyAuthRepository implements CompanyAuthRepository {
 
   issueSession(command: IssueCompanySessionCommand): Promise<IssueCompanySessionResult> {
     const now = new Date().toISOString();
+    const account = this.accounts.get(command.account.id);
+    const user = this.users.get(command.userId);
+    if (
+      !account ||
+      !user ||
+      user.status !== 'ACTIVE' ||
+      account.identityId !== command.userId ||
+      account.companyId !== user.companyId ||
+      account.ownerType !== 'COMPANY' ||
+      account.status !== 'ACTIVE' ||
+      (account.expiresAt !== null && account.expiresAt <= now)
+    ) {
+      return Promise.resolve({ kind: 'GRANT_INVALID' });
+    }
     if (command.nonceHash) {
       const grant = this.grants.get(command.nonceHash);
       if (!grant || grant.userId !== command.userId || grant.expiresAt <= now) {
@@ -76,7 +90,13 @@ export class InMemoryCompanyAuthRepository implements CompanyAuthRepository {
         }
         const session = this.sessions.get(grant.selectedSessionId);
         return Promise.resolve(
-          session ? { kind: 'OK', replayed: true, session } : { kind: 'GRANT_INVALID' },
+          session &&
+            session.userId === command.userId &&
+            session.functionalAccountId === account.id &&
+            !session.revokedAt &&
+            session.expiresAt > now
+            ? { kind: 'OK', replayed: true, session }
+            : { kind: 'GRANT_INVALID' },
         );
       }
     }
@@ -87,24 +107,24 @@ export class InMemoryCompanyAuthRepository implements CompanyAuthRepository {
       }
     }
     const session: CompanyAuthSessionRecord = {
-      accountTypeCode: command.account.accountTypeCode,
-      companyId: command.account.companyId,
+      accountTypeCode: account.accountTypeCode,
+      companyId: account.companyId,
       expiresAt: command.expiresAt,
-      functionalAccountId: command.account.id,
+      functionalAccountId: account.id,
       id: randomUUID(),
       ownerType: 'COMPANY',
       revokedAt: null,
       userId: command.userId,
-      workspaceRoute: command.account.workspaceRoute,
+      workspaceRoute: account.workspaceRoute,
     };
     this.sessions.set(session.id, session);
-    this.accounts.set(command.account.id, { ...command.account, lastUsedAt: now });
+    this.accounts.set(account.id, { ...account, lastUsedAt: now });
     if (command.nonceHash) {
       const grant = this.grants.get(command.nonceHash);
       if (!grant) return Promise.resolve({ kind: 'GRANT_INVALID' });
       this.grants.set(command.nonceHash, {
         ...grant,
-        selectedAccountId: command.account.id,
+        selectedAccountId: account.id,
         selectedSessionId: session.id,
         usedAt: now,
       });
@@ -151,6 +171,15 @@ export class InMemoryCompanyAuthRepository implements CompanyAuthRepository {
     return Promise.resolve(
       [...this.grants.values()].filter((grant) => grant.userId === userId).length,
     );
+  }
+
+  setAccountStatusForTest(
+    accountId: string,
+    status: CompanyFunctionalAccountRecord['status'],
+  ): void {
+    const account = this.accounts.get(accountId);
+    if (!account) throw new Error(`Unknown functional account: ${accountId}`);
+    this.accounts.set(accountId, { ...account, status });
   }
 
   readLoginAudits(): readonly CompanyLoginAuditRecord[] {

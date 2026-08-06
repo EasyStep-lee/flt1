@@ -141,7 +141,7 @@ export class PrismaCompanyAuthRepository implements CompanyAuthRepository {
         userId_requestId: { requestId: record.requestId, userId: record.userId },
       },
       create: data,
-      update: data,
+      update: {},
     });
   }
 
@@ -161,6 +161,31 @@ export class PrismaCompanyAuthRepository implements CompanyAuthRepository {
       await database.$queryRaw(
         Prisma.sql`SELECT id FROM company_user WHERE id = ${command.userId} FOR UPDATE`,
       );
+      const user = await database.companyUser.findUnique({
+        where: { id: command.userId },
+        select: { companyId: true, status: true },
+      });
+      await database.$queryRaw(
+        Prisma.sql`SELECT id FROM functional_account WHERE id = ${command.account.id} FOR UPDATE`,
+      );
+      const storedAccount = await database.functionalAccount.findUnique({
+        where: { id: command.account.id },
+        include: accountInclude,
+      });
+      if (
+        !user ||
+        user.status !== 'ACTIVE' ||
+        !storedAccount ||
+        storedAccount.identityType !== 'COMPANY_USER' ||
+        storedAccount.identityId !== command.userId ||
+        storedAccount.ownerType !== 'COMPANY' ||
+        storedAccount.companyId !== user.companyId ||
+        storedAccount.status !== 'ACTIVE' ||
+        (storedAccount.expiresAt !== null && storedAccount.expiresAt <= now)
+      ) {
+        return { kind: 'GRANT_INVALID' } as const;
+      }
+      const account = toAccount(storedAccount);
       if (command.nonceHash) {
         const grant = await database.companyAuthSelection.findUnique({
           where: { nonceHash: command.nonceHash },
@@ -176,7 +201,12 @@ export class PrismaCompanyAuthRepository implements CompanyAuthRepository {
             where: { id: grant.selectedSessionId },
             include: sessionInclude,
           });
-          return session
+          return session &&
+            session.userId === command.userId &&
+            session.userType === 'COMPANY_USER' &&
+            session.functionalAccountId === account.id &&
+            !session.revokedAt &&
+            session.expiresAt > now
             ? ({ kind: 'OK', replayed: true, session: toSession(session) } as const)
             : ({ kind: 'GRANT_INVALID' } as const);
         }
@@ -191,7 +221,7 @@ export class PrismaCompanyAuthRepository implements CompanyAuthRepository {
             userId: command.userId,
           },
           data: {
-            selectedAccountId: command.account.id,
+            selectedAccountId: account.id,
             selectedSessionId: sessionId,
             usedAt: now,
           },
@@ -211,13 +241,13 @@ export class PrismaCompanyAuthRepository implements CompanyAuthRepository {
         data: {
           deviceInfo: asInputJson(command.deviceInfo),
           expiresAt: new Date(command.expiresAt),
-          functionalAccountId: command.account.id,
+          functionalAccountId: account.id,
           id: sessionId,
           ip: command.ip.slice(0, 45),
           sessionHash: command.sessionHash,
           userId: command.userId,
           userType: 'COMPANY_USER',
-          workspaceRoute: command.account.workspaceRoute,
+          workspaceRoute: account.workspaceRoute,
         },
         include: sessionInclude,
       });
