@@ -52,7 +52,7 @@ test('M1-P046 policy is default-deny for price, settlement, runner address and e
   assert.doesNotMatch(policy, /COMPANY_SUPER_ADMIN[\s\S]*VISIBLE_WITH_AUDIT/u);
 });
 
-test('M1-P046 local evidence advances only to the externally gated M1-P047 boundary', async () => {
+test('M1-P046 evidence remains closed while M1-P047 is the sole active task', async () => {
   const [state, evidence, taskLedger, p0Ledger, migrationLedger] =
     await Promise.all([
       readFile(
@@ -92,9 +92,9 @@ test('M1-P046 local evidence advances only to the externally gated M1-P047 bound
   assert.equal(state.execution.lastCompletedTask, 'M1-P046');
   assert.equal(state.execution.currentTask, 'M1-P047');
   assert.equal(state.execution.nextAllowedTask, 'M1-P047');
-  assert.equal(state.execution.activeTaskCount, 0);
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M1-P046/u);
-  assert.match(taskLedger, /M1-P046[^\r\n]*DONE[^\r\n]*LOCAL_PASS/u);
+  assert.equal(state.execution.activeTaskCount, 1);
+  assert.deepEqual(state.execution.prohibitedUntilGate, []);
+  assert.match(taskLedger, /M1-P046[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(p0Ledger, /P0-046[^\r\n]*LOCAL_PASS/u);
   assert.match(migrationLedger, /MIG-003[^\r\n]*APPLIED_LOCAL/u);
 });
