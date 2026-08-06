@@ -1,5 +1,17 @@
 import { Module, type DynamicModule, type Provider } from '@nestjs/common';
 
+import {
+  AUDIT_ACTOR_RESOLVER,
+  DenyAuditActorResolver,
+  type AuditActorResolver,
+} from './audit/audit-log.actor.js';
+import {
+  AUDIT_LOG_REPOSITORY,
+  type AuditLogRepository,
+} from './audit/audit-log.repository.js';
+import { AuditLogService } from './audit/audit-log.service.js';
+import { PrismaAuditLogRepository } from './audit/prisma-audit-log.repository.js';
+
 import { RUNTIME_CONFIG, type RuntimeConfig } from './config/runtime-config.js';
 import { HealthService } from './health/health.service.js';
 import {
@@ -64,6 +76,8 @@ export interface AppModuleOptions {
   readonly functionalAccountActorResolver?: FunctionalAccountActorResolver;
   readonly functionalAccountSecondVerifier?: FunctionalAccountSecondVerifier;
   readonly functionalAccountAuditSink?: FunctionalAccountAuditSink;
+  readonly auditLogRepository?: AuditLogRepository;
+  readonly auditActorResolver?: AuditActorResolver;
 }
 
 @Module({})
@@ -88,6 +102,9 @@ export class AppModule {
       UnavailableFunctionalAccountSecondVerifier,
       LoggingFunctionalAccountAuditSink,
       SupplierFunctionalAccountService,
+      PrismaAuditLogRepository,
+      DenyAuditActorResolver,
+      AuditLogService,
       options.merchantRepository
         ? {
             provide: SINGLE_MERCHANT_REPOSITORY,
@@ -160,6 +177,12 @@ export class AppModule {
             provide: FUNCTIONAL_ACCOUNT_AUDIT_SINK,
             useExisting: LoggingFunctionalAccountAuditSink,
           },
+      options.auditLogRepository
+        ? { provide: AUDIT_LOG_REPOSITORY, useValue: options.auditLogRepository }
+        : { provide: AUDIT_LOG_REPOSITORY, useExisting: PrismaAuditLogRepository },
+      options.auditActorResolver
+        ? { provide: AUDIT_ACTOR_RESOLVER, useValue: options.auditActorResolver }
+        : { provide: AUDIT_ACTOR_RESOLVER, useExisting: DenyAuditActorResolver },
     ];
 
     if (options.probes) {

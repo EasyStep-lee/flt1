@@ -8,6 +8,16 @@ import {
   type OpenAPIObject,
 } from '@nestjs/swagger';
 
+import {
+  AUDIT_ACTOR_RESOLVER,
+  DenyAuditActorResolver,
+} from '../audit/audit-log.actor.js';
+import {
+  AUDIT_LOG_REPOSITORY,
+  type AuditLogRepository,
+} from '../audit/audit-log.repository.js';
+import { AuditLogService } from '../audit/audit-log.service.js';
+
 import { HealthLivenessDto, HealthReadinessDto } from '../health/health.dto.js';
 import { HealthService } from '../health/health.service.js';
 import { ApiErrorResponseDto } from '../http/api-error.dto.js';
@@ -72,6 +82,21 @@ const forbiddenPublicResponseFields = new Set([
   controllers: [...OPENAPI_CONTROLLERS],
   providers: [
     HealthService,
+    AuditLogService,
+    DenyAuditActorResolver,
+    {
+      provide: AUDIT_LOG_REPOSITORY,
+      useValue: {
+        append: async () => {
+          throw new Error('OPENAPI_GENERATION_ONLY');
+        },
+        list: async () => ({ items: [], total: 0 }),
+      } satisfies AuditLogRepository,
+    },
+    {
+      provide: AUDIT_ACTOR_RESOLVER,
+      useExisting: DenyAuditActorResolver,
+    },
     { provide: FOUNDATION_PROBES, useValue: [] },
     { provide: HEALTH_PROBE_TIMEOUT_MS, useValue: 50 },
     SingleMerchantService,

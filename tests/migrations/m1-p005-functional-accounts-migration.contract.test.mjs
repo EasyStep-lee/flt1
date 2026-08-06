@@ -53,5 +53,5 @@ test('the real product rehearsal verifies functional account tables, routes and 
   assert.match(rehearsal, /activeSupplierAccountTypeCount === 8/u);
   assert.match(rehearsal, /uniqueSupplierWorkspaceRouteCount === 8/u);
   assert.match(rehearsal, /functionalAccountForeignKeyCount === 5/u);
-  assert.match(rehearsal, /taskId: 'M1-P005'/u);
+  assert.match(rehearsal, /supplierFunctionalAccounts/u);
 });

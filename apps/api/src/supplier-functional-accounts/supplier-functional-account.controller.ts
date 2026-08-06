@@ -30,6 +30,7 @@ import {
 import type { Request, Response } from 'express';
 
 import { ApiErrorResponseDto } from '../http/api-error.dto.js';
+import type { RequestWithId } from '../http/request-id.middleware.js';
 import {
   FUNCTIONAL_ACCOUNT_ACTOR_RESOLVER,
   type FunctionalAccountActorResolver,
@@ -100,14 +101,21 @@ export class SupplierFunctionalAccountController {
   @ApiUnauthorizedResponse({ type: ApiErrorResponseDto })
   @ApiUnprocessableEntityResponse({ type: ApiErrorResponseDto })
   async create(
-    @Req() request: Request,
+    @Req() request: RequestWithId,
     @Param('ownerType') ownerType: string,
     @Body() body: CreateFunctionalAccountRequestDto & Record<string, unknown>,
     @Headers('idempotency-key') idempotencyKey: string | undefined,
     @Res({ passthrough: true }) response: Response,
   ): Promise<FunctionalAccountResponseDto> {
     const actor = await this.actorResolver.resolve(request);
-    const result = await this.service.create(actor, ownerType, body, idempotencyKey);
+    const result = await this.service.create(
+      actor,
+      ownerType,
+      body,
+      idempotencyKey,
+      request.requestId,
+      request.ip,
+    );
     if (result.replayed) response.setHeader('Idempotency-Replayed', 'true');
     return result.body;
   }

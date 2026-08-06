@@ -22,6 +22,8 @@ import { companySessionBoundary } from './session-boundary.js';
 type SupplierRow = components['schemas']['SupplierResponseDto'];
 type SupplierStatus = SupplierRow['status'];
 type SupplierPage = components['schemas']['SupplierPageResponseDto'];
+type AuditEvent = components['schemas']['AuditEventResponseDto'];
+type AuditEventPage = components['schemas']['AuditEventPageResponseDto'];
 
 const api = createCompanyAdminApiClient(import.meta.env.VITE_API_BASE_URL ?? '');
 
@@ -332,10 +334,180 @@ function CompanySupplierOpsPage() {
   );
 }
 
+function CompanyAuditPage() {
+  const [action, setAction] = useState('');
+  const [objectType, setObjectType] = useState('');
+  const [data, setData] = useState<AuditEventPage>();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<{
+    kind: 'error' | 'offline' | 'permission';
+    message: string;
+  }>();
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(undefined);
+    try {
+      const response = await api.GET('/v1/audit/events', {
+        params: {
+          query: {
+            page: 1,
+            pageSize: 20,
+            ...(action.trim() ? { action: action.trim() } : {}),
+            ...(objectType.trim() ? { objectType: objectType.trim() } : {}),
+          },
+        },
+      });
+      if (!response.data) {
+        const kind =
+          response.response.status === 401 || response.response.status === 403
+            ? 'permission'
+            : 'error';
+        setError({ kind, message: readErrorMessage(response.error) });
+        setData(undefined);
+        return;
+      }
+      setData(response.data);
+    } catch {
+      setError({ kind: 'offline', message: '网络连接超时或已离线，请恢复网络后重试。' });
+      setData(undefined);
+    } finally {
+      setLoading(false);
+    }
+  }, [action, objectType]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const columns = [
+    {
+      title: '发生时间',
+      dataIndex: 'occurredAt',
+      key: 'occurredAt',
+      render: (value: string) => new Date(value).toLocaleString('zh-CN'),
+    },
+    {
+      title: '操作人',
+      key: 'actor',
+      render: (_value: unknown, row: AuditEvent) => (
+        <Space direction="vertical" size={0}>
+          <Tag color="cyan">{row.actorType}</Tag>
+          <Typography.Text copyable>{row.actorId}</Typography.Text>
+        </Space>
+      ),
+    },
+    { title: '动作', dataIndex: 'action', key: 'action' },
+    {
+      title: '对象',
+      key: 'object',
+      render: (_value: unknown, row: AuditEvent) => (
+        <Space direction="vertical" size={0}>
+          <strong>{row.objectType}</strong>
+          <Typography.Text copyable>{row.objectId}</Typography.Text>
+        </Space>
+      ),
+    },
+    {
+      title: '脱敏变更快照',
+      key: 'snapshot',
+      render: (_value: unknown, row: AuditEvent) => (
+        <Typography.Text code>
+          {JSON.stringify({ before: row.beforeSnapshot, after: row.afterSnapshot })}
+        </Typography.Text>
+      ),
+    },
+    {
+      title: '请求编号',
+      dataIndex: 'requestId',
+      key: 'requestId',
+      render: (value: string) => <Typography.Text copyable>{value}</Typography.Text>,
+    },
+  ];
+
+  return (
+    <main className="supplier-ops-page" data-page-id="PAGE-012" data-role="COMPANY_AUDIT">
+      <header className="admin-topbar">
+        <div className="brand-mark">福</div>
+        <div>
+          <strong>福礼社 · 公司管理后台</strong>
+          <span>江苏福礼团供应链科技有限公司</span>
+        </div>
+        <Tag color="cyan">审计职能</Tag>
+      </header>
+      <div className="admin-shell">
+        <aside className="admin-sidebar">
+          <Typography.Text className="sidebar-label">当前独立页面</Typography.Text>
+          <div className="active-menu">敏感操作审计</div>
+          <div className="boundary-note">
+            <strong>COMPANY_AUDIT</strong>
+            <span>只读查询脱敏事件，不可修改业务或审计记录</span>
+          </div>
+        </aside>
+        <section className="admin-content">
+          <div className="page-title-row">
+            <div>
+              <Typography.Text className="eyebrow">IMMUTABLE AUDIT</Typography.Text>
+              <Typography.Title level={1}>敏感操作审计</Typography.Title>
+              <Typography.Paragraph>
+                按动作和对象查询不可变事件；页面仅展示最小必要字段与脱敏前后快照。
+              </Typography.Paragraph>
+            </div>
+            <Button onClick={() => void load()}>刷新记录</Button>
+          </div>
+          <Card className="supplier-table-card" bordered={false}>
+            <div className="table-toolbar">
+              <Input
+                aria-label="审计动作"
+                onChange={(event) => setAction(event.target.value)}
+                placeholder="动作，例如 functional_account.invited"
+                value={action}
+              />
+              <Input
+                aria-label="对象类型"
+                onChange={(event) => setObjectType(event.target.value)}
+                placeholder="对象类型"
+                value={objectType}
+              />
+            </div>
+            {error ? (
+              <Alert
+                action={<Button onClick={() => void load()}>重新加载</Button>}
+                description={error.message}
+                message={
+                  error.kind === 'permission'
+                    ? '无权访问审计页面'
+                    : error.kind === 'offline'
+                      ? '网络离线或请求超时'
+                      : '加载失败'
+                }
+                showIcon
+                type="error"
+              />
+            ) : null}
+            <Table<AuditEvent>
+              columns={columns}
+              dataSource={data?.items ?? []}
+              loading={loading}
+              locale={{ emptyText: <Empty description="暂无符合条件的审计记录" /> }}
+              pagination={false}
+              rowKey="id"
+              scroll={{ x: 1180 }}
+            />
+          </Card>
+        </section>
+      </div>
+    </main>
+  );
+}
+
 export function CompanyAdminShell() {
   const currentPath = window.location.pathname;
   if (currentPath === '/company-admin/workspaces/supplier-ops') {
     return <CompanySupplierOpsPage />;
+  }
+  if (currentPath === '/company-admin/workspaces/audit') {
+    return <CompanyAuditPage />;
   }
 
   return (

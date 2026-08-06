@@ -270,11 +270,14 @@ SELECT COUNT(*) FROM \`functional_account_type\` WHERE \`owner_type\` = 'SUPPLIE
 SELECT COUNT(DISTINCT \`workspace_route\`) FROM \`functional_account_type\` WHERE \`owner_type\` = 'SUPPLIER' AND \`status\` = 'ACTIVE';
 SELECT COUNT(*) FROM \`information_schema\`.\`tables\` WHERE \`table_schema\` = DATABASE() AND \`table_name\` IN ('functional_account_type', 'supplier_user', 'functional_account', 'functional_account_status_history', 'functional_account_command');
 SELECT COUNT(*) FROM \`information_schema\`.\`referential_constraints\` WHERE \`constraint_schema\` = DATABASE() AND \`constraint_name\` IN ('supplier_user_supplier_id_fkey', 'functional_account_supplier_id_fkey', 'functional_account_identity_id_fkey', 'functional_account_account_type_id_fkey', 'functional_account_history_account_id_fkey');
+SELECT COUNT(*) FROM \`information_schema\`.\`tables\` WHERE \`table_schema\` = DATABASE() AND \`table_name\` = 'audit_log';
+SELECT COUNT(*) FROM \`information_schema\`.\`triggers\` WHERE \`trigger_schema\` = DATABASE() AND \`trigger_name\` IN ('audit_log_prevent_update', 'audit_log_prevent_delete');
+SELECT COUNT(*) FROM \`audit_log\`;
 `,
     database,
   );
   const values = output.split(/\r?\n/u);
-  if (values.length !== 16) {
+  if (values.length !== 19) {
     throw new Error(`PRODUCT_COMPANY_PROBE_OUTPUT_INVALID:${output}`);
   }
   const [legalName, platformName] = values[2].split('|');
@@ -298,6 +301,9 @@ SELECT COUNT(*) FROM \`information_schema\`.\`referential_constraints\` WHERE \`
     uniqueSupplierWorkspaceRouteCount: Number(values[13]),
     functionalAccountTableCount: Number(values[14]),
     functionalAccountForeignKeyCount: Number(values[15]),
+    auditLogTableCount: Number(values[16]),
+    auditLogTriggerCount: Number(values[17]),
+    auditLogRowCount: Number(values[18]),
   };
 };
 
@@ -366,6 +372,10 @@ const parseArguments = (arguments_) => {
         path.join(repositoryRoot, 'artifacts', 'verification', 'M1-P005'),
         'M1-P005',
       ],
+      [
+        path.join(repositoryRoot, 'artifacts', 'verification', 'M1-P045'),
+        'M1-P045',
+      ],
     ]);
     const reportScope = [...allowedScopes.entries()].find(([allowedRoot]) => {
       const relative = path.relative(allowedRoot, reportPath);
@@ -402,6 +412,8 @@ let mysqlReady = false;
 let mysqlStartAttempted = false;
 let temporaryFilesRemoved = false;
 let mysqlPriorRunningStateRestored = false;
+let originalLogBinTrustFunctionCreators;
+let logBinTrustFunctionCreatorsChanged = false;
 let report;
 let executionError;
 const cleanupErrors = [];
@@ -415,6 +427,18 @@ try {
     runCompose(['up', '-d', '--wait', 'mysql']);
   }
   mysqlReady = true;
+
+  originalLogBinTrustFunctionCreators = Number(
+    runRootMysql('SELECT @@GLOBAL.log_bin_trust_function_creators;\n'),
+  );
+  assertState(
+    [0, 1].includes(originalLogBinTrustFunctionCreators),
+    'MYSQL_LOG_BIN_TRUST_FUNCTION_CREATORS_INVALID',
+  );
+  if (originalLogBinTrustFunctionCreators === 0) {
+    runRootMysql('SET GLOBAL log_bin_trust_function_creators = 1;\n');
+    logBinTrustFunctionCreatorsChanged = true;
+  }
 
   const composeConfiguration = JSON.parse(
     runCompose(['config', '--format', 'json']).stdout,
@@ -522,7 +546,10 @@ try {
       productEmptyState.uniqueCreditIndexCount === 1 &&
       productEmptyState.ownershipForeignKeyCount === 2 &&
       productEmptyState.approvalTaskCount === 0 &&
-      productEmptyState.statusHistoryCount === 0,
+      productEmptyState.statusHistoryCount === 0 &&
+      productEmptyState.auditLogTableCount === 1 &&
+      productEmptyState.auditLogTriggerCount === 2 &&
+      productEmptyState.auditLogRowCount === 0,
     'PRODUCT_COMPANY_SCHEMA_STATE_INVALID',
   );
 
@@ -577,6 +604,22 @@ INSERT INTO \`supplier_status_history\` (\`id\`, \`supplier_id\`, \`from_status\
     databaseNames.product,
     'SUPPLIER_HISTORY_VERSION_DUPLICATE_ACCEPTED',
   );
+  const auditLogId = '50000000-0000-4000-8000-000000000001';
+  const auditRequestId = '60000000-0000-4000-8000-000000000001';
+  runRootMysql(
+    `INSERT INTO \`audit_log\` (\`id\`, \`actor_type\`, \`actor_id\`, \`action\`, \`object_type\`, \`object_id\`, \`before_snapshot\`, \`after_snapshot\`, \`request_id\`) VALUES ('${auditLogId}', 'SUPPLIER_USER', '${applicantIdentityId}', 'functional_account.invited', 'functional_account', '${canonicalSupplierId}', JSON_OBJECT('status', NULL), JSON_OBJECT('status', 'PENDING_ACTIVATION'), '${auditRequestId}');\n`,
+    databaseNames.product,
+  );
+  expectRootMysqlFailure(
+    `UPDATE \`audit_log\` SET \`action\` = 'tampered' WHERE \`id\` = '${auditLogId}';\n`,
+    databaseNames.product,
+    'AUDIT_IMMUTABLE_UPDATE_NOT_ENFORCED',
+  );
+  expectRootMysqlFailure(
+    `DELETE FROM \`audit_log\` WHERE \`id\` = '${auditLogId}';\n`,
+    databaseNames.product,
+    'AUDIT_IMMUTABLE_DELETE_NOT_ENFORCED',
+  );
   const productPopulatedState = readProductCompanyState(databaseNames.product);
   assertState(
     productPopulatedState.appliedMigrations === productMigrationCountBefore &&
@@ -591,7 +634,10 @@ INSERT INTO \`supplier_status_history\` (\`id\`, \`supplier_id\`, \`from_status\
       productPopulatedState.activeSupplierAccountTypeCount === 8 &&
       productPopulatedState.uniqueSupplierWorkspaceRouteCount === 8 &&
       productPopulatedState.functionalAccountTableCount === 5 &&
-      productPopulatedState.functionalAccountForeignKeyCount === 5,
+      productPopulatedState.functionalAccountForeignKeyCount === 5 &&
+      productPopulatedState.auditLogTableCount === 1 &&
+      productPopulatedState.auditLogTriggerCount === 2 &&
+      productPopulatedState.auditLogRowCount === 1,
     'PRODUCT_SINGLE_MERCHANT_STATE_INVALID',
   );
 
@@ -806,7 +852,7 @@ INSERT INTO \`supplier_status_history\` (\`id\`, \`supplier_id\`, \`from_status\
       idempotentRedeploy: 'PASS',
     },
     productRehearsal: {
-      taskId: 'M1-P005',
+      taskId: 'M1-P045',
       migrationCount: productPopulatedState.appliedMigrations,
       companyRowCount: productPopulatedState.companyRowCount,
       fixedIdentity: {
@@ -842,6 +888,14 @@ INSERT INTO \`supplier_status_history\` (\`id\`, \`supplier_id\`, \`from_status\
         ownershipForeignKeyCount:
           productPopulatedState.functionalAccountForeignKeyCount,
       },
+      sensitiveAudit: {
+        tableCount: productPopulatedState.auditLogTableCount,
+        triggerCount: productPopulatedState.auditLogTriggerCount,
+        rowCount: productPopulatedState.auditLogRowCount,
+        updateRejected: true,
+        deleteRejected: true,
+        logBinTrustFunctionCreatorsRequired: true,
+      },
       finalSchemaDrift: 'NONE',
       idempotentRedeploy: 'PASS',
     },
@@ -871,6 +925,16 @@ INSERT INTO \`supplier_status_history\` (\`id\`, \`supplier_id\`, \`from_status\
         assertSafeUserName(rehearsalUser);
         runRootMysql(`DROP USER IF EXISTS '${rehearsalUser}'@'%';\n`);
         userCreated = false;
+      } catch (error) {
+        cleanupErrors.push(error);
+      }
+    }
+    if (logBinTrustFunctionCreatorsChanged) {
+      try {
+        runRootMysql(
+          `SET GLOBAL log_bin_trust_function_creators = ${originalLogBinTrustFunctionCreators};\n`,
+        );
+        logBinTrustFunctionCreatorsChanged = false;
       } catch (error) {
         cleanupErrors.push(error);
       }
@@ -926,7 +990,9 @@ if (report !== undefined) {
     disposableDatabasesDropped: createdDatabases.size === 0,
     disposableUserDropped: !userCreated,
     temporaryFilesRemoved,
-    mysqlPriorRunningStateRestored,
+      mysqlPriorRunningStateRestored,
+      logBinTrustFunctionCreatorsRestored:
+        !logBinTrustFunctionCreatorsChanged,
     errors: cleanupErrors.map((error) =>
       redact(error instanceof Error ? error.message : String(error), secrets),
     ),

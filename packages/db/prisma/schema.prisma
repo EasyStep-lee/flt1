@@ -104,6 +104,12 @@ enum FunctionalAccountStatusEvent {
   REVOKE
 }
 
+enum AuditActorType {
+  COMPANY_USER
+  SUPPLIER_USER
+  SYSTEM
+}
+
 model Company {
   id                 String        @id @default(uuid()) @db.Char(36)
   legalName          String        @unique @map("legal_name") @db.VarChar(128)
@@ -276,4 +282,24 @@ model SupplierOnboardingCommand {
 
   @@unique([scope, idempotencyKey], map: "supplier_onboarding_command_scope_key")
   @@map("supplier_onboarding_command")
+}
+
+model AuditLog {
+  id             String         @id @default(uuid()) @db.Char(36)
+  actorType      AuditActorType @map("actor_type")
+  actorId        String         @map("actor_id") @db.VarChar(128)
+  action         String         @db.VarChar(128)
+  objectType     String         @map("object_type") @db.VarChar(128)
+  objectId       String         @map("object_id") @db.VarChar(64)
+  beforeSnapshot Json           @map("before_snapshot")
+  afterSnapshot  Json           @map("after_snapshot")
+  requestId      String         @map("request_id") @db.Char(36)
+  ip             String?        @db.VarChar(64)
+  occurredAt     DateTime       @default(now()) @map("occurred_at") @db.DateTime(3)
+
+  @@index([action, occurredAt], map: "audit_log_action_time_idx")
+  @@index([objectType, objectId, occurredAt], map: "audit_log_object_time_idx")
+  @@index([actorType, actorId, occurredAt], map: "audit_log_actor_time_idx")
+  @@index([requestId], map: "audit_log_request_id_idx")
+  @@map("audit_log")
 }

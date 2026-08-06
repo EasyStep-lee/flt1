@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import type { Prisma } from '@fulishe/db';
 
 import { PrismaService } from '../infrastructure/prisma.service.js';
+import { assertAuditRequestId, sanitizeAuditSnapshot } from '../audit/audit-log.policy.js';
 import { resolveSupplierAccountType } from './supplier-functional-account.policy.js';
 import type {
   CreateSupplierFunctionalAccountCommand,
@@ -169,7 +170,35 @@ export class PrismaSupplierFunctionalAccountRepository
           responseSnapshot: asInputJson(result),
         },
       });
+      try {
+        await database.auditLog.create({
+          data: {
+            actorType: 'SUPPLIER_USER',
+            actorId: command.actorIdentityId,
+            action: 'functional_account.invited',
+            objectType: 'functional_account',
+            objectId: result.id,
+            beforeSnapshot: asInputJson({ status: null }),
+            afterSnapshot: asInputJson(
+              sanitizeAuditSnapshot({
+                accountTypeCode: result.accountTypeCode,
+                displayName: result.displayName,
+                status: result.status,
+              }),
+            ),
+            requestId: assertAuditRequestId(command.requestId),
+            ip: command.ip,
+          },
+        });
+      } catch {
+        throw new Error('AUDIT_APPEND_REQUIRED');
+      }
       return { kind: 'OK', replayed: false, value: result } as const;
+    }).catch((error: unknown) => {
+      if (error instanceof Error && error.message === 'AUDIT_APPEND_REQUIRED') {
+        return { kind: 'AUDIT_REQUIRED' } as const;
+      }
+      throw error;
     });
   }
 

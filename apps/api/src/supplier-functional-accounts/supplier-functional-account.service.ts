@@ -3,6 +3,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
 
 import { SafeApiError } from '../http/api-error.js';
+import { AuditPolicyError, assertAuditRequestId } from '../audit/audit-log.policy.js';
 import type { SupplierFunctionalAccountActor } from './supplier-functional-account.actor.js';
 import type {
   CreateFunctionalAccountRequestDto,
@@ -47,6 +48,7 @@ const OWNERSHIP_FIELDS = new Set([
   'supplierId',
   'workspaceRoute',
 ]);
+const ACTOR_SPOOF_FIELDS = new Set(['actorId', 'applicantId']);
 const ACCOUNT_STATUSES = new Set<FunctionalAccountStatus>([
   'PENDING_ACTIVATION',
   'ACTIVE',
@@ -105,6 +107,13 @@ const assertOwnerPath = (ownerType: string): void => {
 
 const assertCreateFields = (body: Record<string, unknown>): void => {
   for (const field of Object.keys(body)) {
+    if (ACTOR_SPOOF_FIELDS.has(field)) {
+      throw new SafeApiError(
+        403,
+        'ACTOR_SPOOFED',
+        'The audit actor is derived from the authenticated session',
+      );
+    }
     if (OWNERSHIP_FIELDS.has(field)) {
       throw new SafeApiError(
         403,
@@ -241,10 +250,21 @@ export class SupplierFunctionalAccountService {
     ownerType: string,
     body: CreateFunctionalAccountRequestDto & Record<string, unknown>,
     idempotencyKey: string | undefined,
+    requestIdValue?: string,
+    ip?: string,
   ): Promise<{ readonly body: FunctionalAccountResponseDto; readonly replayed: boolean }> {
     assertOwnerPath(ownerType);
     await this.assertActor(actor);
     assertCreateFields(body);
+    let requestId: string;
+    try {
+      requestId = assertAuditRequestId(requestIdValue);
+    } catch (error) {
+      if (error instanceof AuditPolicyError) {
+        throw new SafeApiError(422, error.code, error.message);
+      }
+      throw error;
+    }
     const key = requiredText(idempotencyKey, 'Idempotency-Key', 128);
     if (key.length < 8) {
       throw new SafeApiError(422, 'VALIDATION_FAILED', 'Idempotency-Key is invalid');
@@ -315,10 +335,19 @@ export class SupplierFunctionalAccountService {
     const result = await this.repository.createAccount({
       ...canonical,
       actorIdentityId: actor.identityId,
+      ip: ip ?? null,
       identityId: targetIdentityId,
       idempotencyKey: key,
       requestHash: requestHash(canonical),
+      requestId,
     });
+    if (result.kind === 'AUDIT_REQUIRED') {
+      throw new SafeApiError(
+        503,
+        'AUDIT_REQUIRED',
+        'The sensitive operation was rolled back because its audit event could not be persisted',
+      );
+    }
     if (result.kind === 'IDEMPOTENCY_CONFLICT') {
       throw new SafeApiError(
         409,
@@ -332,14 +361,6 @@ export class SupplierFunctionalAccountService {
         'ACCOUNT_TYPE_INVALID',
         'The invited identity already has this functional account type',
       );
-    }
-    if (!result.replayed) {
-      await this.auditSink.record({
-        actorIdentityId: actor.identityId,
-        event: 'FUNCTIONAL_ACCOUNT_INVITED',
-        supplierId: actor.supplierId,
-        targetAccountTypeCode: accountType.code,
-      });
     }
     return { body: toResponse(result.value), replayed: result.replayed };
   }

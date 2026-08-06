@@ -3,6 +3,9 @@ import 'reflect-metadata';
 import type { INestApplication, LoggerService } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 
+import type { AuditActorResolver } from './audit/audit-log.actor.js';
+import type { AuditLogRepository } from './audit/audit-log.repository.js';
+
 import { AppModule } from './app.module.js';
 import {
   loadRuntimeConfig,
@@ -37,6 +40,8 @@ export interface CreateApplicationOptions {
   readonly functionalAccountActorResolver?: FunctionalAccountActorResolver;
   readonly functionalAccountSecondVerifier?: FunctionalAccountSecondVerifier;
   readonly functionalAccountAuditSink?: FunctionalAccountAuditSink;
+  readonly auditLogRepository?: AuditLogRepository;
+  readonly auditActorResolver?: AuditActorResolver;
   readonly logger?: LoggerService | false;
 }
 
@@ -70,6 +75,12 @@ export const createApplication = async (
       : {}),
     ...(options.functionalAccountAuditSink
       ? { functionalAccountAuditSink: options.functionalAccountAuditSink }
+      : {}),
+    ...(options.auditLogRepository
+      ? { auditLogRepository: options.auditLogRepository }
+      : {}),
+    ...(options.auditActorResolver
+      ? { auditActorResolver: options.auditActorResolver }
       : {}),
   };
   const logger = options.logger === false ? false : options.logger ?? new SafeJsonLogger();
