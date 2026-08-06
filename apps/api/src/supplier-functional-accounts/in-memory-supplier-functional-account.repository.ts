@@ -1,3 +1,5 @@
+import { InMemoryAuditLogRepository } from '../audit/in-memory-audit-log.repository.js';
+import type { AuditLogRepository } from '../audit/audit-log.repository.js';
 import type {
   CreateSupplierFunctionalAccountCommand,
   FunctionalAccountCreateResult,
@@ -25,7 +27,11 @@ export class InMemorySupplierFunctionalAccountRepository
   >();
   private readonly suppliers = new Map<string, SupplierStatus>();
 
-  constructor(options: InMemoryRepositoryOptions = {}) {
+  constructor(
+    options: InMemoryRepositoryOptions = {},
+    private readonly auditRepository: AuditLogRepository =
+      new InMemoryAuditLogRepository(),
+  ) {
     for (const supplier of options.suppliers ?? []) {
       this.suppliers.set(supplier.id, supplier.status);
     }
@@ -66,6 +72,25 @@ export class InMemorySupplierFunctionalAccountRepository
       lastLoginAt: null,
       version: 0,
     };
+    try {
+      await this.auditRepository.append({
+        actorType: 'SUPPLIER_USER',
+        actorId: command.actorIdentityId,
+        action: 'functional_account.invited',
+        objectType: 'functional_account',
+        objectId: value.id,
+        beforeSnapshot: { status: null },
+        afterSnapshot: {
+          accountTypeCode: value.accountTypeCode,
+          displayName: value.displayName,
+          status: value.status,
+        },
+        requestId: command.requestId,
+        ip: command.ip,
+      });
+    } catch {
+      return { kind: 'AUDIT_REQUIRED' };
+    }
     this.accounts.set(value.id, value);
     this.commands.set(commandKey, { requestHash: command.requestHash, value });
     return { kind: 'OK', replayed: false, value: clone(value) };

@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "taskId": "M1-P045",
+  "p0Id": "P0-045",
+  "status": "LOCAL_PASS",
+  "generatedAt": "2026-08-06T02:38:20Z",
+  "baseline": {
+    "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+    "baseCommit": "a128a6f6515a8cfb455786ac08ead7340499d85e",
+    "verifiedHead": "8fef06e90c2266c80dc7d50f019501c1b7cfefe2"
+  },
+  "redEvidence": [
+    {
+      "scope": "audit policy",
+      "result": "FAIL",
+      "reason": "ERR_MODULE_NOT_FOUND for the not-yet-implemented audit policy module"
+    },
+    {
+      "scope": "audit migration contract",
+      "result": "FAIL_0_OF_3",
+      "reason": "AuditActorType, AuditLog, immutability triggers and rehearsal probes were absent"
+    }
+  ],
+  "greenEvidence": {
+    "focusedPolicyAndPriorPolicy": "PASS_8_OF_8",
+    "focusedApi": "PASS_9_OF_9",
+    "contractAndMigration": "PASS_6_OF_6",
+    "openApiRegression": "PASS_4_OF_4",
+    "p0Chromium": "PASS_6_OF_6",
+    "fullVerify": "PASS_17_OF_17",
+    "fullVerifyReport": "artifacts/test-results/verification/pnpm-verify.json",
+    "migrationRehearsal": "artifacts/verification/M1-P045/prisma-migration-rehearsal.json"
+  },
+  "p0Evidence": {
+    "apiContract": "API-015 GET /v1/audit/events",
+    "pageContract": "PAGE-012 /company-admin/workspaces/audit",
+    "negativeTests": [
+      "NEG-M1-045-01",
+      "NEG-M1-045-02",
+      "NEG-M1-045-03",
+      "NEG-M1-045-04"
+    ],
+    "atomicSensitiveOperation": "functional_account.invited",
+    "laterActionCodesFrozenOnly": [
+      "refund.approved",
+      "product.force_unpublished",
+      "supplier.bank_account.changed",
+      "supplier.payment.marked"
+    ],
+    "responseBoundary": "IP, contact data, bank plaintext, secrets, supply price, internal margin and supplier payable are omitted or redacted"
+  },
+  "database": {
+    "productMigrationCount": 5,
+    "auditLogTableCount": 1,
+    "auditLogTriggerCount": 2,
+    "updateRejected": true,
+    "deleteRejected": true,
+    "schemaDrift": "NONE",
+    "idempotentRedeploy": "PASS",
+    "cleanup": "PASS"
+  },
+  "environment": {
+    "os": "Windows",
+    "node": "22.23.1",
+    "pnpm": "10.12.1",
+    "dockerServer": "29.6.2",
+    "mysql": "8.4.11",
+    "browser": "Playwright Chromium",
+    "productionAuthenticationAdapter": "FAIL_CLOSED_NOT_WIRED",
+    "productionMigration": "HUMAN_ONLY_NOT_EXECUTED",
+    "staging": "NOT_EXECUTED",
+    "formalAcceptance": "NOT_EXECUTED"
+  },
+  "github": {
+    "repository": "EasyStep-lee/flt1",
+    "issue": 15,
+    "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/15",
+    "branch": "codex/m1-m1-p045",
+    "pullRequest": 16,
+    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/16",
+    "pullRequestStateAtEvidenceWrite": "OPEN_DRAFT",
+    "observedCiRun": 31066180380,
+    "observedCiHead": "8fef06e90c2266c80dc7d50f019501c1b7cfefe2",
+    "observedCiStatus": "IN_PROGRESS",
+    "review": "NOT_EXECUTED",
+    "merge": "NOT_EXECUTED",
+    "mainPostMergeCi": "NOT_EXECUTED"
+  },
+  "risk": [
+    "MySQL with binary logging requires log_bin_trust_function_creators=1 before the trigger migration; production preflight remains human-owned",
+    "Current production audit actor resolver is fail-closed until the company session slice wires authentication",
+    "The four later sensitive business actions are contract codes only and are not implemented in this slice"
+  ],
+  "rollback": "Revert application commits before merge; after migration deployment do not edit the published migration, use an approved forward fix. Audit rows are append-only and must not be deleted during rollback.",
+  "nextTask": {
+    "taskId": "M1-P046",
+    "status": "READY_BLOCKED_BY_M1_P045_EXTERNAL_CLOSURE"
+  }
+}

@@ -33,6 +33,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/audit/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List immutable audit events */
+        get: operations["auditEvents.list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/company/suppliers": {
         parameters: {
             query?: never;
@@ -163,7 +180,7 @@ export interface components {
              * @example RESOURCE_NOT_FOUND
              * @enum {string}
              */
-            code: "ACCESS_DENIED" | "AUTHENTICATION_REQUIRED" | "INTERNAL_ERROR" | "REQUEST_INVALID" | "RESOURCE_NOT_FOUND" | "SERVICE_UNAVAILABLE" | "PAYEE_FORBIDDEN" | "SELLER_IDENTITY_FORBIDDEN" | "SINGLE_MERCHANT_VIOLATION" | "ACCOUNT_TYPE_INVALID" | "APPROVAL_VERSION_CONFLICT" | "DATA_SCOPE_FORBIDDEN" | "FIELD_FORBIDDEN" | "IDEMPOTENCY_CONFLICT" | "SECOND_VERIFICATION_REQUIRED" | "STATE_TRANSITION_INVALID" | "SUPPLIER_DUPLICATE" | "SUPPLIER_SCOPE_FORBIDDEN" | "VALIDATION_FAILED" | "VERSION_CONFLICT" | "WORKSPACE_FORBIDDEN";
+            code: "ACCESS_DENIED" | "AUTHENTICATION_REQUIRED" | "INTERNAL_ERROR" | "REQUEST_INVALID" | "RESOURCE_NOT_FOUND" | "SERVICE_UNAVAILABLE" | "PAYEE_FORBIDDEN" | "SELLER_IDENTITY_FORBIDDEN" | "SINGLE_MERCHANT_VIOLATION" | "ACTOR_SPOOFED" | "ACCOUNT_TYPE_INVALID" | "APPROVAL_VERSION_CONFLICT" | "DATA_SCOPE_FORBIDDEN" | "FIELD_FORBIDDEN" | "IDEMPOTENCY_CONFLICT" | "SECOND_VERIFICATION_REQUIRED" | "STATE_TRANSITION_INVALID" | "SUPPLIER_DUPLICATE" | "SUPPLIER_SCOPE_FORBIDDEN" | "VALIDATION_FAILED" | "VERSION_CONFLICT" | "WORKSPACE_FORBIDDEN" | "AUDIT_IMMUTABLE" | "AUDIT_REQUIRED" | "EXPORT_APPROVAL_REQUIRED" | "REQUEST_ID_REQUIRED";
             /** @example Resource was not found */
             message: string;
             /** @example /missing */
@@ -193,6 +210,38 @@ export interface components {
             /** @enum {string} */
             status: "PENDING" | "IN_REVIEW" | "APPROVED" | "REJECTED" | "CANCELLED";
             version: number;
+        };
+        AuditEventPageResponseDto: {
+            items: components["schemas"]["AuditEventResponseDto"][];
+            page: number;
+            pageSize: number;
+            total: number;
+        };
+        AuditEventResponseDto: {
+            action: string;
+            /** Format: uuid */
+            actorId: string;
+            /** @enum {string} */
+            actorType: "COMPANY_USER" | "SUPPLIER_USER" | "SYSTEM";
+            afterSnapshot: Record<string, never>;
+            beforeSnapshot: Record<string, never>;
+            /** Format: uuid */
+            id: string;
+            objectId: string;
+            objectType: string;
+            /** Format: date-time */
+            occurredAt: string;
+            /** Format: uuid */
+            requestId: string;
+        };
+        AuditQueryDto: {
+            action?: string;
+            objectId?: string;
+            objectType?: string;
+            /** @default 1 */
+            page: number;
+            /** @default 20 */
+            pageSize: number;
         };
         CreateFunctionalAccountRequestDto: {
             /** @enum {string} */
@@ -468,6 +517,55 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HealthReadinessDto"];
+                };
+            };
+        };
+    };
+    "auditEvents.list": {
+        parameters: {
+            query?: {
+                pageSize?: number;
+                page?: number;
+                objectId?: string;
+                objectType?: string;
+                action?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditEventPageResponseDto"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
                 };
             };
         };

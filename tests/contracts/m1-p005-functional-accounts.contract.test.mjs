@@ -123,10 +123,11 @@ test('M1-P005 evidence and ledgers stop at the local verified boundary', async (
     evidence.fullVerification.commit,
     'f62db171bfd792a60b46b96d6cf04b28d3898399',
   );
-  assert.equal(state.execution.lastCompletedTask, 'M1-P005');
-  assert.equal(state.execution.currentTask, 'M1-P045');
+  assert.equal(state.execution.currentStage, 'M1');
+  assert.equal(state.execution.currentTask, state.execution.nextAllowedTask);
+  assert.match(state.execution.lastCompletedTask, /^M1-/u);
   assert.equal(state.execution.activeTaskCount, 0);
-  assert.match(taskLedger, /M1-P005[^\r\n]*DONE[^\r\n]*LOCAL_PASS/u);
+  assert.match(taskLedger, /M1-P005[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(p0Ledger, /P0-005[^\r\n]*LOCAL_PASS/u);
   assert.match(apiLedger, /API-013[^\r\n]*GENERATED[^\r\n]*IMPLEMENTED/u);
   assert.match(apiLedger, /API-014[^\r\n]*SECOND_VERIFICATION_REQUIRED[^\r\n]*GENERATED/u);

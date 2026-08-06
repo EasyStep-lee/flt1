@@ -14,6 +14,7 @@
               "PAYEE_FORBIDDEN",
               "SELLER_IDENTITY_FORBIDDEN",
               "SINGLE_MERCHANT_VIOLATION",
+              "ACTOR_SPOOFED",
               "ACCOUNT_TYPE_INVALID",
               "APPROVAL_VERSION_CONFLICT",
               "DATA_SCOPE_FORBIDDEN",
@@ -25,7 +26,11 @@
               "SUPPLIER_SCOPE_FORBIDDEN",
               "VALIDATION_FAILED",
               "VERSION_CONFLICT",
-              "WORKSPACE_FORBIDDEN"
+              "WORKSPACE_FORBIDDEN",
+              "AUDIT_IMMUTABLE",
+              "AUDIT_REQUIRED",
+              "EXPORT_APPROVAL_REQUIRED",
+              "REQUEST_ID_REQUIRED"
             ],
             "example": "RESOURCE_NOT_FOUND",
             "type": "string"
@@ -118,6 +123,120 @@
           "assignedAccountTypeCode",
           "version"
         ],
+        "type": "object"
+      },
+      "AuditEventPageResponseDto": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/AuditEventResponseDto"
+            },
+            "type": "array"
+          },
+          "page": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "pageSize": {
+            "maximum": 100,
+            "minimum": 1,
+            "type": "number"
+          },
+          "total": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "page",
+          "pageSize",
+          "total"
+        ],
+        "type": "object"
+      },
+      "AuditEventResponseDto": {
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "actorId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "actorType": {
+            "enum": [
+              "COMPANY_USER",
+              "SUPPLIER_USER",
+              "SYSTEM"
+            ],
+            "type": "string"
+          },
+          "afterSnapshot": {
+            "type": "object"
+          },
+          "beforeSnapshot": {
+            "type": "object"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "objectId": {
+            "type": "string"
+          },
+          "objectType": {
+            "type": "string"
+          },
+          "occurredAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "requestId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "actorType",
+          "actorId",
+          "action",
+          "objectType",
+          "objectId",
+          "beforeSnapshot",
+          "afterSnapshot",
+          "requestId",
+          "occurredAt"
+        ],
+        "type": "object"
+      },
+      "AuditQueryDto": {
+        "properties": {
+          "action": {
+            "maxLength": 128,
+            "type": "string"
+          },
+          "objectId": {
+            "maxLength": 64,
+            "type": "string"
+          },
+          "objectType": {
+            "maxLength": 128,
+            "type": "string"
+          },
+          "page": {
+            "default": 1,
+            "minimum": 1,
+            "type": "number"
+          },
+          "pageSize": {
+            "default": 20,
+            "maximum": 100,
+            "minimum": 1,
+            "type": "number"
+          }
+        },
         "type": "object"
       },
       "CreateFunctionalAccountRequestDto": {
@@ -937,6 +1056,102 @@
         "summary": "Readiness probe",
         "tags": [
           "health"
+        ]
+      }
+    },
+    "/v1/audit/events": {
+      "get": {
+        "operationId": "auditEvents.list",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "pageSize",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "objectId",
+            "required": false,
+            "schema": {
+              "maxLength": 64,
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "objectType",
+            "required": false,
+            "schema": {
+              "maxLength": 128,
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "action",
+            "required": false,
+            "schema": {
+              "maxLength": 128,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuditEventPageResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "List immutable audit events",
+        "tags": [
+          "audit"
         ]
       }
     },

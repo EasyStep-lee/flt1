@@ -1,3 +1,4 @@
+import { AuditLogController } from '../audit/audit-log.controller.js';
 import { HealthController } from '../health/health.controller.js';
 import { SingleMerchantController } from '../merchant/single-merchant.controller.js';
 import { SupplierFunctionalAccountController } from '../supplier-functional-accounts/supplier-functional-account.controller.js';
@@ -8,6 +9,7 @@ import {
 } from '../supplier-onboarding/supplier-onboarding.controller.js';
 
 export const OPENAPI_CONTROLLERS = Object.freeze([
+  AuditLogController,
   HealthController,
   SingleMerchantController,
   SupplierFunctionalAccountController,

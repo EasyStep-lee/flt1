@@ -30,6 +30,7 @@ export interface FunctionalAccountListQuery {
 
 export interface CreateSupplierFunctionalAccountCommand {
   readonly actorIdentityId: string;
+  readonly ip: string | null;
   readonly accountTypeCode: SupplierFunctionalAccountTypeCode;
   readonly displayName: string;
   readonly email: string | null;
@@ -38,6 +39,7 @@ export interface CreateSupplierFunctionalAccountCommand {
   readonly identityId: string;
   readonly mobile: string;
   readonly requestHash: string;
+  readonly requestId: string;
   readonly supplierId: string;
 }
 
@@ -48,7 +50,8 @@ export type FunctionalAccountCreateResult =
       readonly value: SupplierFunctionalAccountRecord;
     }
   | { readonly kind: 'DUPLICATE' }
-  | { readonly kind: 'IDEMPOTENCY_CONFLICT' };
+  | { readonly kind: 'IDEMPOTENCY_CONFLICT' }
+  | { readonly kind: 'AUDIT_REQUIRED' };
 
 export interface SupplierFunctionalAccountRepository {
   createAccount(

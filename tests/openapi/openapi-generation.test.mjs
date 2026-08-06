@@ -111,6 +111,7 @@ test('generated contract exposes health, merchant identity, supplier onboarding 
   assert.deepEqual(Object.keys(spec.paths), [
     '/health/live',
     '/health/ready',
+    '/v1/audit/events',
     '/v1/company/suppliers',
     '/v1/company/suppliers/{supplierId}/review',
     '/v1/public/merchant-profile',
@@ -158,6 +159,9 @@ test('generated contract exposes health, merchant identity, supplier onboarding 
     [
       'ApiErrorResponseDto',
       'ApprovalTaskResponseDto',
+      'AuditEventPageResponseDto',
+      'AuditEventResponseDto',
+      'AuditQueryDto',
       'CreateFunctionalAccountRequestDto',
       'FoundationDependencyCheckDto',
       'FunctionalAccountPageResponseDto',

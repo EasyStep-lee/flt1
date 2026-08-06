@@ -16,6 +16,7 @@ export const SINGLE_MERCHANT_ERROR_CODES = Object.freeze([
 ] as const);
 
 export const SUPPLIER_ONBOARDING_ERROR_CODES = Object.freeze([
+  'ACTOR_SPOOFED',
   'ACCOUNT_TYPE_INVALID',
   'APPROVAL_VERSION_CONFLICT',
   'DATA_SCOPE_FORBIDDEN',
@@ -30,10 +31,18 @@ export const SUPPLIER_ONBOARDING_ERROR_CODES = Object.freeze([
   'WORKSPACE_FORBIDDEN',
 ] as const);
 
+export const AUDIT_ERROR_CODES = Object.freeze([
+  'AUDIT_IMMUTABLE',
+  'AUDIT_REQUIRED',
+  'EXPORT_APPROVAL_REQUIRED',
+  'REQUEST_ID_REQUIRED',
+] as const);
+
 export const API_ERROR_CODES = Object.freeze([
   ...FOUNDATION_ERROR_CODES,
   ...SINGLE_MERCHANT_ERROR_CODES,
   ...SUPPLIER_ONBOARDING_ERROR_CODES,
+  ...AUDIT_ERROR_CODES,
 ] as const);
 
 export type ApiErrorCode = (typeof API_ERROR_CODES)[number];
