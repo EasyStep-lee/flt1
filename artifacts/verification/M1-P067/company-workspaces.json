@@ -2,12 +2,12 @@
   "schemaVersion": "1.0.0",
   "taskId": "M1-P067",
   "p0Id": "P0-067",
-  "status": "IN_PROGRESS",
-  "verifiedAt": "PENDING_FULL_VERIFICATION",
+  "status": "LOCAL_PASS",
+  "verifiedAt": "2026-08-06T06:54:11-04:00",
   "branch": "codex/m1-m1-p067",
   "issue": 23,
   "baseCommit": "1254f710d5849a322c3b5d5c948688444da3fb9f",
-  "implementationCommit": "WORKTREE_PENDING_COMMIT",
+  "implementationCommit": "2da2aacc9374bdbd066b945f19fb3405c3e3c743",
   "baseline": {
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
     "productBaseline": "PASS_WITH_EXPECTED_EXECUTION_PACK_SNAPSHOT_WARNING",
@@ -92,7 +92,7 @@
   ],
   "focusedTests": {
     "companyWorkspaceSupertest": "PASS_6_OF_6",
-    "companyAuthAndFunctionalAccountRegression": "PASS_22_OF_22",
+    "companyAuthAndFunctionalAccountRegression": "PASS_25_OF_25",
     "migrationAndOpenapiContracts": "PASS_2_OF_2",
     "companyAdminP0Chromium": "PASS_2_OF_2",
     "m1FreezeRegression": "PASS_7_OF_7",
@@ -101,9 +101,12 @@
     "openapiDeterminism": "PASS_BYTE_IDENTICAL"
   },
   "fullVerification": {
-    "status": "PENDING",
+    "status": "PASS_17_OF_17",
     "report": "artifacts/test-results/verification/pnpm-verify.json",
-    "stepsPassed": 0,
+    "reportCommit": "2da2aacc9374bdbd066b945f19fb3405c3e3c743",
+    "startedAt": "2026-08-06T10:46:16.265Z",
+    "endedAt": "2026-08-06T10:54:11.065Z",
+    "stepsPassed": 17,
     "stepsFailed": 0
   },
   "migration": {
@@ -137,6 +140,7 @@
     "Existing Vite production bundles exceed the 500 kB warning threshold.",
     "NO_COLOR is ignored when FORCE_COLOR is already set."
   ],
+  "secretScan": "PASS_452_TRACKED_FILES",
   "externalEvidence": {
     "pullRequest": null,
     "pullRequestUrl": "NOT_CREATED",

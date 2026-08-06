@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-06T05:58:00-04:00",
+  "updatedAt": "2026-08-06T06:54:11-04:00",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -82,11 +82,11 @@
       "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/23",
       "branch": "codex/m1-m1-p067",
       "baseCommit": "1254f710d5849a322c3b5d5c948688444da3fb9f",
-      "status": "IN_PROGRESS",
-      "verifiedImplementationHead": "WORKTREE_NOT_COMMITTED",
+      "status": "DONE_LOCAL_PASS",
+      "verifiedImplementationHead": "2da2aacc9374bdbd066b945f19fb3405c3e3c743",
       "draftHeadAtCreation": "NOT_CREATED",
-      "localVerify": "IN_PROGRESS",
-      "migrationRehearsal": "NOT_EXECUTED_FOR_M1_P067",
+      "localVerify": "PASS_17_OF_17_REPORT_COMMIT_2da2aacc9374bdbd066b945f19fb3405c3e3c743",
+      "migrationRehearsal": "PASS_EMPTY_2_UPGRADE_2_RESTORE_2_PRODUCT_8_CLEANUP_PASS",
       "pullRequest": null,
       "pullRequestUrl": "NOT_CREATED_FOR_M1_P067",
       "pullRequestState": "NOT_CREATED",
@@ -95,10 +95,10 @@
       "merge": "NOT_EXECUTED",
       "mainPostMergeCi": "NOT_EXECUTED"
     },
-    "note": "M1-P066 PR #22最终head 4c3e07a精确CI成功，用户授权合并为1254f710，合并后main CI run 31089444537成功。M1-P067已在Issue #23和codex/m1-m1-p067进入先红后绿开发；当前尚未完成全量验证、提交、Draft PR或CI，P068禁止启动。"
+    "note": "M1-P066 PR #22及合并后main CI已闭环。M1-P067在Issue #23和codex/m1-m1-p067完成先红后绿开发，提交2da2aac的pnpm verify 17/17及真实MySQL演练通过；Draft PR、精确head CI、人工授权合并和合并后main CI尚未执行，P068禁止启动。"
   },
   "evidence": {
-    "local": "NOT_EXECUTED_FOR_M1_P067",
+    "local": "LOCAL_PASS",
     "ci": "NOT_EXECUTED",
     "staging": "NOT_EXECUTED",
     "device": "NOT_REQUIRED_PC_WEB_SLICE",
