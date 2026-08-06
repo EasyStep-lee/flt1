@@ -50,6 +50,8 @@ test('M1-P047 evidence closes the local gate and keeps M1-P066 external-gate blo
   assert.match(state.execution.prohibitedUntilGate.join('\n'), /M1-P047[\s\S]*M1-P066/u);
   assert.equal(state.github.currentTaskDelivery.taskId, 'M1-P047');
   assert.equal(state.github.currentTaskDelivery.status, 'DONE_LOCAL_PASS');
+  assert.equal(state.github.currentTaskDelivery.pullRequest, 20);
+  assert.equal(state.github.currentTaskDelivery.pullRequestState, 'DRAFT');
   assert.equal(state.github.currentTaskDelivery.exactHeadCi, 'NOT_EXECUTED');
   assert.equal(state.evidence.local, 'LOCAL_PASS');
   assert.equal(state.evidence.ci, 'NOT_EXECUTED');

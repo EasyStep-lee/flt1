@@ -136,7 +136,9 @@
     "finalEvidenceContracts": "PASS_31_OF_31"
   },
   "externalEvidence": {
-    "pullRequest": "NOT_CREATED",
+    "pullRequest": "#20_DRAFT",
+    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/20",
+    "headAtCreation": "886e13a284decf013c26e9d71b7d8b2f5ad0850d",
     "pullRequestCi": "NOT_EXECUTED",
     "review": "NOT_EXECUTED",
     "merge": "NOT_EXECUTED",

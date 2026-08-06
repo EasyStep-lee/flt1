@@ -5,9 +5,10 @@
 - 仓库：`EasyStep-lee/flt1`
 - 分支：`codex/m1-m1-p047`
 - Issue：[#19](https://github.com/EasyStep-lee/flt1/issues/19)
+- Draft PR：[#20](https://github.com/EasyStep-lee/flt1/pull/20)，创建时 head `886e13a284decf013c26e9d71b7d8b2f5ad0850d`
 - 基线：`7637fe3ce87ba08860738af847cf1aeeff60c618`，即 PR #18 合并后并经 main CI 通过的提交
 - 实现提交：`ca090334d652d3a0b83e0cd5869d2b1df4b9e29f`、`c7cb19ca80a13d82cb7741f8f1c4b1e2944a7f9d`
-- 结果：`LOCAL_PASS`；Draft PR、精确 head CI、人工审查/合并及合并后 main CI 尚未执行
+- 结果：`LOCAL_PASS`；Draft PR 已创建，最终精确 head CI、人工审查/合并及合并后 main CI 尚未执行
 
 本切片没有重建 M0 工具链。它为已实现的 API-005、API-008 至 API-015 增加了机器可读的 actor/权限、请求/响应 DTO、幂等、错误码和响应字段策略，并把敏感字段守卫收窄为递归解析受保护成功响应。API-003/API-004/API-006/API-007 仍归后续认证切片，未创建占位接口。
 
@@ -47,4 +48,4 @@
 
 ## 下一边界
 
-下一任务是 `M1-P066`，但当前只能保持 READY。必须先创建/核验 M1-P047 Draft PR 的精确 head CI，完成审查与用户授权人工合并，再核验合并后 main CI；闭环前不得进入 P066，更不得进入 M2。
+下一任务是 `M1-P066`，但当前只能保持 READY。必须先核验 M1-P047 Draft PR 的最终精确 head CI，完成审查与用户授权人工合并，再核验合并后 main CI；闭环前不得进入 P066，更不得进入 M2。
