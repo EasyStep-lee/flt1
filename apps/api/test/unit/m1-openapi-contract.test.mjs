@@ -23,3 +23,35 @@ test('NEG-M1-047-01 rejects a forbidden field injected into a protected response
     /PUBLIC_RESPONSE_FIELD_FORBIDDEN:API-005:.*supplyPrice/u,
   );
 });
+
+test('NEG-M1-047-01 follows arrays, compositions and nested references', () => {
+  const generated = JSON.parse(
+    readFileSync(path.join(repoRoot, 'packages', 'contracts', 'openapi.json'), 'utf8'),
+  );
+  const leaked = JSON.parse(JSON.stringify(generated));
+  leaked.components.schemas.SupplierRegistrationResponseDto.properties.nested = {
+    type: 'array',
+    items: {
+      allOf: [
+        {
+          anyOf: [
+            {
+              oneOf: [{ $ref: '#/components/schemas/NestedInternalPricingDto' }],
+            },
+          ],
+        },
+      ],
+    },
+  };
+  leaked.components.schemas.NestedInternalPricingDto = {
+    type: 'object',
+    properties: {
+      grossMarginRate: { type: 'number' },
+    },
+  };
+
+  assert.throws(
+    () => assertM1OpenApiContracts(leaked),
+    /PUBLIC_RESPONSE_FIELD_FORBIDDEN:API-005:.*grossMarginRate/u,
+  );
+});
