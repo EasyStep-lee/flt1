@@ -38,5 +38,8 @@ test('the real product rehearsal probes the audit table and both immutability tr
   assert.match(rehearsal, /auditLogTableCount === 1/u);
   assert.match(rehearsal, /auditLogTriggerCount === 2/u);
   assert.match(rehearsal, /AUDIT_IMMUTABLE/u);
-  assert.match(rehearsal, /taskId: 'M1-P045'/u);
+  assert.match(
+    rehearsal,
+    /sensitiveAudit:[\s\S]*updateRejected: true[\s\S]*deleteRejected: true/u,
+  );
 });

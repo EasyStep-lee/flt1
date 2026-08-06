@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "taskId": "M1-P046",
+  "p0Id": "P0-046",
+  "status": "LOCAL_PASS",
+  "generatedAt": "2026-08-06T03:32:22Z",
+  "baseline": {
+    "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+    "baseCommit": "de6957be6193ffbf86720f4a707b7b6efe1469e5",
+    "verifiedHead": "1825d38a4fc81c00e1a71b89fb9f2f8e15df828a"
+  },
+  "redEvidence": [
+    {
+      "scope": "sensitive data policy",
+      "result": "FAIL",
+      "reason": "ERR_MODULE_NOT_FOUND for the not-yet-implemented sensitive data policy module"
+    },
+    {
+      "scope": "sensitive audit API boundary",
+      "result": "FAIL_1_OF_3",
+      "reason": "Audit DTO exposed supplyPrice, supplierPayableAmount and grossMargin; fieldGroup escalation returned 200"
+    },
+    {
+      "scope": "MIG-003 migration contract",
+      "result": "FAIL_0_OF_3",
+      "reason": "The four policy models, migration SQL and MySQL rehearsal probes were absent"
+    }
+  ],
+  "greenEvidence": {
+    "focusedPolicy": "PASS_7_OF_7",
+    "focusedApiAndAuditRegression": "PASS_6_OF_6",
+    "migrationContract": "PASS_3_OF_3",
+    "p0Chromium": "PASS_7_OF_7",
+    "fullVerify": "PASS_17_OF_17",
+    "fullVerifyReport": "artifacts/test-results/verification/pnpm-verify.json",
+    "migrationRehearsal": "artifacts/verification/M1-P046/prisma-migration-rehearsal.json"
+  },
+  "p0Evidence": {
+    "negativeTests": [
+      "NEG-M1-046-01",
+      "NEG-M1-046-02",
+      "NEG-M1-046-03",
+      "NEG-M1-046-04"
+    ],
+    "companySupplyPriceRoles": [
+      "COMPANY_PRICE_REVIEW",
+      "COMPANY_FINANCE"
+    ],
+    "supplierSupplyPriceRoles": [
+      "SUPPLIER_PRICING",
+      "SUPPLIER_FINANCE"
+    ],
+    "supplierScope": "Exact server-bound supplierId only",
+    "runnerAddressScope": "Assigned runner plus consumer channel plus active fulfillment stage; MASKED only",
+    "enterpriseRunnerHall": "FORBIDDEN",
+    "responseBoundary": "Supply price, supplier payable and gross margin keys are recursively omitted",
+    "exportBoundary": "Approved audit evidence with canonical server-bound UUID is mandatory"
+  },
+  "database": {
+    "productMigrationCount": 6,
+    "permissionPolicyTableCount": 4,
+    "permissionPolicyForeignKeyCount": 4,
+    "dataScopeGuardTriggerCount": 2,
+    "fieldAccessDefaultMode": "HIDDEN",
+    "duplicateFieldAccessRejected": true,
+    "crossSupplierScopeRejected": true,
+    "schemaDrift": "NONE",
+    "idempotentRedeploy": "PASS",
+    "cleanup": "PASS"
+  },
+  "environment": {
+    "os": "Windows",
+    "node": "22.23.1",
+    "pnpm": "10.12.1",
+    "dockerServer": "29.6.2",
+    "mysql": "8.4.11",
+    "browser": "Playwright Chromium",
+    "realRunnerFulfillment": "DEFERRED_TO_M4_NOT_IMPLEMENTED",
+    "productionMigration": "HUMAN_ONLY_NOT_EXECUTED",
+    "staging": "NOT_EXECUTED",
+    "formalAcceptance": "NOT_EXECUTED"
+  },
+  "github": {
+    "repository": "EasyStep-lee/flt1",
+    "issue": 17,
+    "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/17",
+    "branch": "codex/m1-m1-p046",
+    "pullRequest": 18,
+    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/18",
+    "pullRequestStateAtEvidenceWrite": "OPEN_DRAFT",
+    "observedCiRun": 31069525789,
+    "observedCiHead": "3e3d53d2ca17c30a0984fa01a76a3ba9006d85ce",
+    "observedCiStatus": "IN_PROGRESS",
+    "commentsAtEvidenceWrite": 0,
+    "exactHeadCi": "IN_PROGRESS_ON_EVIDENCE_HEAD",
+    "review": "NOT_EXECUTED",
+    "merge": "NOT_EXECUTED",
+    "mainPostMergeCi": "NOT_EXECUTED"
+  },
+  "risk": [
+    "The reusable runner-address policy has no M4 order or runner API integration yet and must be revalidated with object-level and true-device evidence in M4",
+    "Production trigger preflight must confirm the MySQL permissions and binary logging configuration before MIG-003 deployment",
+    "M2 supply-price and M5 settlement resources do not exist yet; their future DTOs must invoke this policy and repeat response-whitelist tests"
+  ],
+  "rollback": "Revert application commits before merge. After migration deployment do not edit the published migration; apply an approved forward fix and preserve a schema-compatible application rollback window.",
+  "nextTask": {
+    "taskId": "M1-P047",
+    "status": "READY_BLOCKED_BY_M1_P046_EXTERNAL_CLOSURE"
+  }
+}
