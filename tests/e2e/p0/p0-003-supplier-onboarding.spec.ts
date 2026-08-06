@@ -39,6 +39,25 @@ test('P0-003 supplier can register and see the frozen onboarding states', async 
 });
 
 test('P0-003 company supplier ops can filter and review pending applications', async ({ page }) => {
+  await page.route('**/v1/company-auth/workspace/current**', async (route) => {
+    await route.fulfill({
+      contentType: 'application/json',
+      status: 200,
+      body: JSON.stringify({
+        accountTypeCode: 'COMPANY_SUPPLIER_OPS',
+        accountTypeName: '供应商运营',
+        pageId: 'PAGE-004',
+        workspaceRoute: '/company-admin/workspaces/supplier-ops',
+        menuItems: [
+          {
+            key: 'workspace',
+            label: '供应商运营',
+            route: '/company-admin/workspaces/supplier-ops',
+          },
+        ],
+      }),
+    });
+  });
   await page.route('**/v1/company/suppliers**', async (route) => {
     if (route.request().method() === 'GET') {
       await route.fulfill({

@@ -3,6 +3,25 @@ import { expect, test } from '@playwright/test';
 const companyOrigin = 'http://127.0.0.1:4321';
 
 test('P0-045 company audit workspace lists masked immutable sensitive events', async ({ page }) => {
+  await page.route('**/v1/company-auth/workspace/current**', async (route) => {
+    await route.fulfill({
+      contentType: 'application/json',
+      status: 200,
+      body: JSON.stringify({
+        accountTypeCode: 'COMPANY_AUDIT',
+        accountTypeName: '审计/只读',
+        pageId: 'PAGE-012',
+        workspaceRoute: '/company-admin/workspaces/audit',
+        menuItems: [
+          {
+            key: 'workspace',
+            label: '审计风控',
+            route: '/company-admin/workspaces/audit',
+          },
+        ],
+      }),
+    });
+  });
   await page.route('**/v1/audit/events**', async (route) => {
     await route.fulfill({
       contentType: 'application/json',

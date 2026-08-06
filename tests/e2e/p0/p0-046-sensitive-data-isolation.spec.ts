@@ -6,6 +6,25 @@ test('P0-046 non-price audit workspace does not request or render restricted fie
   page,
 }) => {
   let requestedUrl = '';
+  await page.route('**/v1/company-auth/workspace/current**', async (route) => {
+    await route.fulfill({
+      contentType: 'application/json',
+      status: 200,
+      body: JSON.stringify({
+        accountTypeCode: 'COMPANY_AUDIT',
+        accountTypeName: '审计/只读',
+        pageId: 'PAGE-012',
+        workspaceRoute: '/company-admin/workspaces/audit',
+        menuItems: [
+          {
+            key: 'workspace',
+            label: '审计风控',
+            route: '/company-admin/workspaces/audit',
+          },
+        ],
+      }),
+    });
+  });
   await page.route('**/v1/audit/events**', async (route) => {
     requestedUrl = route.request().url();
     await route.fulfill({
