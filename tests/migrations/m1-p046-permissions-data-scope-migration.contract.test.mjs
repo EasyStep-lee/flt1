@@ -55,5 +55,9 @@ test('the real MySQL rehearsal probes default deny and supplier scope constraint
   assert.match(rehearsal, /fieldAccessDefaultMode === 'HIDDEN'/u);
   assert.match(rehearsal, /FIELD_ACCESS_DUPLICATE_ACCEPTED/u);
   assert.match(rehearsal, /CROSS_SUPPLIER_SCOPE_ACCEPTED/u);
-  assert.match(rehearsal, /taskId: 'M1-P046'/u);
+  assert.match(
+    rehearsal,
+    /path\.join\(repositoryRoot, 'artifacts', 'verification', 'M1-P046'\)/u,
+  );
+  assert.match(rehearsal, /taskId: options\.reportTaskId/u);
 });
