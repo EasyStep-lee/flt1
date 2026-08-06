@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-05T23:17:55-04:00",
+  "updatedAt": "2026-08-05T23:32:22-04:00",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -14,15 +14,17 @@
   "execution": {
     "status": "M1_IN_PROGRESS",
     "currentStage": "M1",
-    "currentTask": "M1-P046",
-    "nextAllowedTask": "M1-P046",
-    "activeTaskCount": 1,
-    "lastCompletedTask": "M1-P045",
-    "lastCompletedCommit": "de6957be6193ffbf86720f4a707b7b6efe1469e5",
+    "currentTask": "M1-P047",
+    "nextAllowedTask": "M1-P047",
+    "activeTaskCount": 0,
+    "lastCompletedTask": "M1-P046",
+    "lastCompletedCommit": "1825d38a4fc81c00e1a71b89fb9f2f8e15df828a",
     "lastPassedGate": "M0-GATE",
-    "prohibitedUntilGate": [],
+    "prohibitedUntilGate": [
+      "M1-P046的Draft PR精确head CI、人工审查、合并及合并后main CI未完成"
+    ],
     "persistentRestrictions": [
-      "M1-P046完成前不得进入M1-P047或其他后续任务",
+      "M1-P046外部闭环完成前M1-P047仅保持READY，不得进入IN_PROGRESS",
       "真实支付/退款",
       "生产部署/迁移",
       "直接修改或推送main"
@@ -80,10 +82,10 @@
       "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/17",
       "branch": "codex/m1-m1-p046",
       "baseCommit": "de6957be6193ffbf86720f4a707b7b6efe1469e5",
-      "status": "IN_PROGRESS",
-      "verifiedImplementationHead": "NOT_EXECUTED",
-      "localVerify": "NOT_EXECUTED",
-      "migrationRehearsal": "NOT_EXECUTED",
+      "status": "DONE_LOCAL_PASS",
+      "verifiedImplementationHead": "1825d38a4fc81c00e1a71b89fb9f2f8e15df828a",
+      "localVerify": "PASS_17_OF_17",
+      "migrationRehearsal": "LOCAL_PASS_PRODUCT_6_POLICY_TABLES_4_FKS_4_DEFAULT_HIDDEN_DUPLICATE_AND_CROSS_SUPPLIER_REJECTED_DRIFT_NONE_CLEANUP_PASS",
       "pullRequest": null,
       "pullRequestUrl": "NOT_CREATED",
       "pullRequestState": "NOT_CREATED",
@@ -92,10 +94,10 @@
       "merge": "NOT_EXECUTED",
       "mainPostMergeCi": "NOT_EXECUTED"
     },
-    "note": "M1-P045由PR #16合并为de6957be且main CI run 31067369336通过。M1-P046从该精确main基线进入IN_PROGRESS，Issue #17、分支codex/m1-m1-p046；只实现MIG-003和默认拒绝字段/数据范围策略。"
+    "note": "M1-P046实现head 1825d38已完成策略、API、MIG-003真实MySQL、P0 Chromium与pnpm verify 17/17本地证据；Issue #17、分支codex/m1-m1-p046。Draft PR、精确head CI、人工审查、合并和main CI未执行，M1-P047仅READY。"
   },
   "evidence": {
-    "local": "NOT_EXECUTED",
+    "local": "LOCAL_PASS",
     "ci": "NOT_EXECUTED",
     "staging": "NOT_EXECUTED",
     "device": "NOT_REQUIRED_PC_WEB_SLICE",
