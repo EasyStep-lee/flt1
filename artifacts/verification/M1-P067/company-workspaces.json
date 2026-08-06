@@ -142,8 +142,9 @@
   ],
   "secretScan": "PASS_452_TRACKED_FILES",
   "externalEvidence": {
-    "pullRequest": null,
-    "pullRequestUrl": "NOT_CREATED",
+    "pullRequest": 24,
+    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/24",
+    "draftHeadAtCreation": "7783911b4f2e012d63e5a6dc0addefc251fbb454",
     "pullRequestCi": "NOT_EXECUTED",
     "review": "NOT_EXECUTED",
     "merge": "NOT_EXECUTED",

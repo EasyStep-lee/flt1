@@ -6,6 +6,7 @@
 - 基线：`main` 提交 `1254f710d5849a322c3b5d5c948688444da3fb9f`
 - 分支：`codex/m1-m1-p067`
 - Issue：[#23](https://github.com/EasyStep-lee/flt1/issues/23)
+- PR：[#24](https://github.com/EasyStep-lee/flt1/pull/24)，Draft 创建 head `7783911b4f2e012d63e5a6dc0addefc251fbb454`
 - 本地全量验证提交：`2da2aacc9374bdbd066b945f19fb3405c3e3c743`
 - 方案 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`
 - 结论：`LOCAL_PASS`。Draft PR、精确 head CI、人工授权合并与合并后 main CI 尚未形成，因此 P0-067 不能升级为 `CI_PASS`，不得进入 M1-P068。
@@ -60,4 +61,4 @@ M1-P068 的内部列表、筛选、详情、时间线与逐页完整状态未实
 
 ## GitHub 与下一门禁
 
-当前只有 Issue #23 和本地分支/提交，Draft PR 与 Actions 尚未创建/执行。下一步仅允许推送本分支、创建 Draft PR、读取精确 head Actions 并修复同切片问题。未经用户对精确 head 明确授权，不得转 Ready 或合并；合并后 main CI 成功前不得启动 M1-P068。
+Draft PR #24 已创建，Actions 尚未对写回 PR 链接后的最终 head 形成结论。下一步仅允许读取精确 head Actions 并修复同切片问题。未经用户对精确 head 明确授权，不得转 Ready 或合并；合并后 main CI 成功前不得启动 M1-P068。
