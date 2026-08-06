@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Alert,
   Button,
@@ -8,8 +8,11 @@ import {
   Form,
   Input,
   InputNumber,
+  Modal,
   Row,
+  Select,
   Space,
+  Table,
   Tag,
   Typography,
 } from 'antd';
@@ -21,6 +24,8 @@ import { supplierSessionBoundary } from './session-boundary.js';
 
 type RegistrationResponse = components['schemas']['SupplierRegistrationResponseDto'];
 type SupplierStatus = RegistrationResponse['status'];
+type FunctionalAccount = components['schemas']['FunctionalAccountResponseDto'];
+type CreateFunctionalAccount = components['schemas']['CreateFunctionalAccountRequestDto'];
 
 interface RegistrationFormValues {
   readonly legalName: string;
@@ -47,6 +52,17 @@ const statusMeta: Record<SupplierStatus, { label: string; color: string }> = {
   EXITING: { label: '退出处理中', color: 'orange' },
   EXITED: { label: '已退出', color: 'default' },
 };
+
+const functionalAccountTypes = [
+  ['SUPPLIER_ACCOUNT_ADMIN', '主体管理'],
+  ['SUPPLIER_PRODUCT', '商品运营'],
+  ['SUPPLIER_PRICING', '价格管理'],
+  ['SUPPLIER_INVENTORY', '库存/仓库'],
+  ['SUPPLIER_FULFILLMENT', '订单履约'],
+  ['SUPPLIER_AFTERSALES', '售后'],
+  ['SUPPLIER_FINANCE', '财务对账'],
+  ['SUPPLIER_AUDIT', '只读审计'],
+] as const;
 
 const readErrorMessage = (value: unknown): string => {
   if (value && typeof value === 'object' && 'message' in value) {
@@ -282,10 +298,198 @@ function SupplierRegistrationPage() {
   );
 }
 
+function SupplierAccountAdminPage() {
+  return (
+    <main className="functional-account-page" data-page-id="PAGE-016" data-route="/supplier/workspaces/account-admin">
+      <div className="functional-account-header">
+        <div>
+          <Typography.Text className="eyebrow">FIXED WORKSPACE</Typography.Text>
+          <Typography.Title level={1}>主体管理</Typography.Title>
+          <Typography.Paragraph>
+            当前会话仅可管理本供应商主体资料和职能账号；每个账号进入服务端固定的独立工作区。
+          </Typography.Paragraph>
+        </div>
+        <Tag color="cyan">SUPPLIER_ACCOUNT_ADMIN</Tag>
+      </div>
+      <Row gutter={[20, 20]}>
+        <Col lg={12} xs={24}>
+          <Card title="主体资料" bordered={false}>
+            <p>查看资质、主体状态与取货点。敏感变更按独立流程复核。</p>
+          </Card>
+        </Col>
+        <Col lg={12} xs={24}>
+          <Card title="职能账号" bordered={false}>
+            <p>邀请独立职能账号，并由服务端锁定其工作区入口。</p>
+            <Button href="/supplier/workspaces/account-admin/accounts" type="primary">
+              进入账号管理
+            </Button>
+          </Card>
+        </Col>
+      </Row>
+    </main>
+  );
+}
+
+type InviteAccountFormValues = CreateFunctionalAccount;
+
+function SupplierFunctionalAccountsPage() {
+  const [form] = Form.useForm<InviteAccountFormValues>();
+  const [accounts, setAccounts] = useState<readonly FunctionalAccount[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [state, setState] = useState<'success' | 'error' | 'permission' | 'offline'>('success');
+  const [message, setMessage] = useState('');
+
+  const loadAccounts = async () => {
+    setLoading(true);
+    setMessage('');
+    try {
+      const response = await api.GET('/v1/{ownerType}/functional-accounts', {
+        params: {
+          path: { ownerType: 'supplier' },
+          query: { page: 1, pageSize: 20 },
+        },
+      });
+      if (!response.data) {
+        const permission = response.response.status === 401 || response.response.status === 403;
+        setState(permission ? 'permission' : 'error');
+        setMessage(readErrorMessage(response.error));
+        return;
+      }
+      setAccounts(response.data.items);
+      setState('success');
+    } catch {
+      setState('offline');
+      setMessage('网络连接超时或已离线，请恢复网络后重试。');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void loadAccounts();
+  }, []);
+
+  const invite = async (values: InviteAccountFormValues) => {
+    setSubmitting(true);
+    try {
+      const response = await api.POST('/v1/{ownerType}/functional-accounts', {
+        params: {
+          path: { ownerType: 'supplier' },
+          header: { 'Idempotency-Key': crypto.randomUUID() },
+        },
+        body: values,
+      });
+      if (!response.data) {
+        const code =
+          response.error && typeof response.error === 'object' && 'code' in response.error
+            ? response.error.code
+            : undefined;
+        setMessage(
+          code === 'SECOND_VERIFICATION_REQUIRED'
+            ? '该账号变更必须先完成二次验证。'
+            : readErrorMessage(response.error),
+        );
+        return;
+      }
+      setAccounts((current) => [...current, response.data as FunctionalAccount]);
+      setOpen(false);
+      form.resetFields();
+      setState('success');
+      setMessage('邀请已创建，账号等待独立激活。');
+    } catch {
+      setState('offline');
+      setMessage('网络连接超时或已离线，请恢复网络后重试。');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <main className="functional-account-page" data-page-id="PAGE-024" data-route="/supplier/workspaces/account-admin/accounts">
+      <div className="functional-account-header">
+        <div>
+          <Typography.Text className="eyebrow">ACCOUNT SECURITY</Typography.Text>
+          <Typography.Title level={1}>职能账号管理</Typography.Title>
+          <Typography.Paragraph>
+            八类职能账号相互隔离；邀请时由服务端绑定供应商、自然人身份和固定工作区。
+          </Typography.Paragraph>
+        </div>
+        <Button onClick={() => setOpen(true)} type="primary">邀请职能账号</Button>
+      </div>
+
+      {message ? (
+        <Alert
+          className="form-alert"
+          message={state === 'permission' ? '无权操作' : state === 'offline' ? '网络不可用' : '账号管理提示'}
+          description={message}
+          showIcon
+          type={state === 'success' ? 'success' : 'error'}
+        />
+      ) : null}
+
+      <Card bordered={false} loading={loading} data-ui-state={loading ? 'loading' : accounts.length === 0 ? 'empty' : state}>
+        <Table
+          dataSource={[...accounts]}
+          locale={{ emptyText: '当前没有可显示的职能账号' }}
+          pagination={false}
+          rowKey="id"
+          columns={[
+            { title: '姓名', dataIndex: 'displayName' },
+            { title: '职能类型', dataIndex: 'accountTypeName' },
+            { title: '固定工作区', dataIndex: 'workspaceRoute' },
+            {
+              title: '状态',
+              dataIndex: 'status',
+              render: (status: FunctionalAccount['status']) => <Tag>{status}</Tag>,
+            },
+          ]}
+        />
+      </Card>
+
+      <Modal
+        destroyOnHidden
+        footer={null}
+        onCancel={() => setOpen(false)}
+        open={open}
+        title="邀请职能账号"
+      >
+        <Form form={form} layout="vertical" onFinish={invite} requiredMark="optional">
+          <Form.Item label="职能类型" name="accountTypeCode" rules={[{ required: true }]}>
+            <Select
+              options={functionalAccountTypes.map(([value, label]) => ({ label, value }))}
+            />
+          </Form.Item>
+          <Form.Item label="姓名" name="inviteeName" rules={[{ required: true }]}>
+            <Input maxLength={128} />
+          </Form.Item>
+          <Form.Item label="手机号" name="inviteeMobile" rules={[{ required: true }]}>
+            <Input maxLength={16} />
+          </Form.Item>
+          <Form.Item label="邮箱（选填）" name="inviteeEmail">
+            <Input maxLength={254} type="email" />
+          </Form.Item>
+          <Form.Item label="二次验证码" name="secondVerificationCode" rules={[{ required: true }]}>
+            <Input maxLength={8} />
+          </Form.Item>
+          <Button block htmlType="submit" loading={submitting} type="primary">确认邀请</Button>
+        </Form>
+      </Modal>
+    </main>
+  );
+}
+
 export function SupplierPortalShell() {
   const currentPath = window.location.pathname;
   if (currentPath === supplierSessionBoundary.registerRoute) {
     return <SupplierRegistrationPage />;
+  }
+  if (currentPath === '/supplier/workspaces/account-admin') {
+    return <SupplierAccountAdminPage />;
+  }
+  if (currentPath === '/supplier/workspaces/account-admin/accounts') {
+    return <SupplierFunctionalAccountsPage />;
   }
 
   return (

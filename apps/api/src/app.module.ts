@@ -18,6 +18,25 @@ import {
 import { SingleMerchantService } from './merchant/single-merchant.service.js';
 import { OPENAPI_CONTROLLERS } from './openapi/openapi-controller.registry.js';
 import {
+  DenyFunctionalAccountActorResolver,
+  FUNCTIONAL_ACCOUNT_ACTOR_RESOLVER,
+  type FunctionalAccountActorResolver,
+} from './supplier-functional-accounts/supplier-functional-account.actor.js';
+import { PrismaSupplierFunctionalAccountRepository } from './supplier-functional-accounts/prisma-supplier-functional-account.repository.js';
+import {
+  FUNCTIONAL_ACCOUNT_REPOSITORY,
+  type SupplierFunctionalAccountRepository,
+} from './supplier-functional-accounts/supplier-functional-account.repository.js';
+import {
+  FUNCTIONAL_ACCOUNT_AUDIT_SINK,
+  FUNCTIONAL_ACCOUNT_SECOND_VERIFIER,
+  LoggingFunctionalAccountAuditSink,
+  UnavailableFunctionalAccountSecondVerifier,
+  type FunctionalAccountAuditSink,
+  type FunctionalAccountSecondVerifier,
+} from './supplier-functional-accounts/supplier-functional-account.security.js';
+import { SupplierFunctionalAccountService } from './supplier-functional-accounts/supplier-functional-account.service.js';
+import {
   DenySupplierOnboardingActorResolver,
   SUPPLIER_ONBOARDING_ACTOR_RESOLVER,
   type SupplierOnboardingActorResolver,
@@ -41,6 +60,10 @@ export interface AppModuleOptions {
   readonly supplierOnboardingRepository?: SupplierOnboardingRepository;
   readonly supplierOnboardingActorResolver?: SupplierOnboardingActorResolver;
   readonly supplierRegistrationVerifier?: SupplierRegistrationVerifier;
+  readonly functionalAccountRepository?: SupplierFunctionalAccountRepository;
+  readonly functionalAccountActorResolver?: FunctionalAccountActorResolver;
+  readonly functionalAccountSecondVerifier?: FunctionalAccountSecondVerifier;
+  readonly functionalAccountAuditSink?: FunctionalAccountAuditSink;
 }
 
 @Module({})
@@ -60,6 +83,11 @@ export class AppModule {
       DenySupplierOnboardingActorResolver,
       UnavailableSupplierRegistrationVerifier,
       SupplierOnboardingService,
+      PrismaSupplierFunctionalAccountRepository,
+      DenyFunctionalAccountActorResolver,
+      UnavailableFunctionalAccountSecondVerifier,
+      LoggingFunctionalAccountAuditSink,
+      SupplierFunctionalAccountService,
       options.merchantRepository
         ? {
             provide: SINGLE_MERCHANT_REPOSITORY,
@@ -95,6 +123,42 @@ export class AppModule {
         : {
             provide: SUPPLIER_REGISTRATION_VERIFIER,
             useExisting: UnavailableSupplierRegistrationVerifier,
+          },
+      options.functionalAccountRepository
+        ? {
+            provide: FUNCTIONAL_ACCOUNT_REPOSITORY,
+            useValue: options.functionalAccountRepository,
+          }
+        : {
+            provide: FUNCTIONAL_ACCOUNT_REPOSITORY,
+            useExisting: PrismaSupplierFunctionalAccountRepository,
+          },
+      options.functionalAccountActorResolver
+        ? {
+            provide: FUNCTIONAL_ACCOUNT_ACTOR_RESOLVER,
+            useValue: options.functionalAccountActorResolver,
+          }
+        : {
+            provide: FUNCTIONAL_ACCOUNT_ACTOR_RESOLVER,
+            useExisting: DenyFunctionalAccountActorResolver,
+          },
+      options.functionalAccountSecondVerifier
+        ? {
+            provide: FUNCTIONAL_ACCOUNT_SECOND_VERIFIER,
+            useValue: options.functionalAccountSecondVerifier,
+          }
+        : {
+            provide: FUNCTIONAL_ACCOUNT_SECOND_VERIFIER,
+            useExisting: UnavailableFunctionalAccountSecondVerifier,
+          },
+      options.functionalAccountAuditSink
+        ? {
+            provide: FUNCTIONAL_ACCOUNT_AUDIT_SINK,
+            useValue: options.functionalAccountAuditSink,
+          }
+        : {
+            provide: FUNCTIONAL_ACCOUNT_AUDIT_SINK,
+            useExisting: LoggingFunctionalAccountAuditSink,
           },
     ];
 

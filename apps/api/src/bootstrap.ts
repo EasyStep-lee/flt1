@@ -13,6 +13,12 @@ import { requestIdMiddleware } from './http/request-id.middleware.js';
 import type { InfrastructureProbe } from './infrastructure/probe.js';
 import { SafeJsonLogger } from './logging/safe-json.logger.js';
 import type { SingleMerchantRepository } from './merchant/single-merchant.repository.js';
+import type { FunctionalAccountActorResolver } from './supplier-functional-accounts/supplier-functional-account.actor.js';
+import type { SupplierFunctionalAccountRepository } from './supplier-functional-accounts/supplier-functional-account.repository.js';
+import type {
+  FunctionalAccountAuditSink,
+  FunctionalAccountSecondVerifier,
+} from './supplier-functional-accounts/supplier-functional-account.security.js';
 import type { SupplierOnboardingActorResolver } from './supplier-onboarding/supplier-onboarding.actor.js';
 import type { SupplierOnboardingRepository } from './supplier-onboarding/supplier-onboarding.repository.js';
 import type { SupplierRegistrationVerifier } from './supplier-onboarding/supplier-registration.verifier.js';
@@ -27,6 +33,10 @@ export interface CreateApplicationOptions {
   readonly supplierOnboardingRepository?: SupplierOnboardingRepository;
   readonly supplierOnboardingActorResolver?: SupplierOnboardingActorResolver;
   readonly supplierRegistrationVerifier?: SupplierRegistrationVerifier;
+  readonly functionalAccountRepository?: SupplierFunctionalAccountRepository;
+  readonly functionalAccountActorResolver?: FunctionalAccountActorResolver;
+  readonly functionalAccountSecondVerifier?: FunctionalAccountSecondVerifier;
+  readonly functionalAccountAuditSink?: FunctionalAccountAuditSink;
   readonly logger?: LoggerService | false;
 }
 
@@ -48,6 +58,18 @@ export const createApplication = async (
       : {}),
     ...(options.supplierRegistrationVerifier
       ? { supplierRegistrationVerifier: options.supplierRegistrationVerifier }
+      : {}),
+    ...(options.functionalAccountRepository
+      ? { functionalAccountRepository: options.functionalAccountRepository }
+      : {}),
+    ...(options.functionalAccountActorResolver
+      ? { functionalAccountActorResolver: options.functionalAccountActorResolver }
+      : {}),
+    ...(options.functionalAccountSecondVerifier
+      ? { functionalAccountSecondVerifier: options.functionalAccountSecondVerifier }
+      : {}),
+    ...(options.functionalAccountAuditSink
+      ? { functionalAccountAuditSink: options.functionalAccountAuditSink }
       : {}),
   };
   const logger = options.logger === false ? false : options.logger ?? new SafeJsonLogger();

@@ -66,6 +66,44 @@ enum SupplierStatusEvent {
   COMPLETE_EXIT
 }
 
+enum FunctionalOwnerType {
+  COMPANY
+  SUPPLIER
+}
+
+enum FunctionalAccountTypeStatus {
+  ACTIVE
+  DISABLED
+}
+
+enum FunctionalIdentityType {
+  COMPANY_USER
+  SUPPLIER_USER
+}
+
+enum SupplierUserStatus {
+  INVITED
+  ACTIVE
+  LOCKED
+  SUSPENDED
+  REVOKED
+}
+
+enum FunctionalAccountStatus {
+  PENDING_ACTIVATION
+  ACTIVE
+  SUSPENDED
+  REVOKED
+}
+
+enum FunctionalAccountStatusEvent {
+  INVITE
+  ACTIVATE
+  SUSPEND
+  RESTORE
+  REVOKE
+}
+
 model Company {
   id                 String        @id @default(uuid()) @db.Char(36)
   legalName          String        @unique @map("legal_name") @db.VarChar(128)
@@ -96,9 +134,100 @@ model Supplier {
   updatedAt               DateTime                @updatedAt @map("updated_at") @db.DateTime(3)
   company                 Company                 @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   statusHistory           SupplierStatusHistory[]
+  users                   SupplierUser[]
+  functionalAccounts      FunctionalAccount[]
 
   @@index([companyId, status], map: "supplier_company_id_status_idx")
   @@map("supplier")
+}
+
+model FunctionalAccountType {
+  id                 String                      @id @default(uuid()) @db.Char(36)
+  ownerType          FunctionalOwnerType         @map("owner_type")
+  code               String                      @db.VarChar(64)
+  name               String                      @db.VarChar(128)
+  workspaceRoute     String                      @map("workspace_route") @db.VarChar(255)
+  internalMenuSchema Json                        @map("internal_menu_schema")
+  status             FunctionalAccountTypeStatus @default(ACTIVE)
+  createdAt          DateTime                    @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt          DateTime                    @updatedAt @map("updated_at") @db.DateTime(3)
+  accounts           FunctionalAccount[]
+
+  @@unique([ownerType, code], map: "functional_account_type_owner_code_key")
+  @@unique([ownerType, workspaceRoute], map: "functional_account_type_owner_route_key")
+  @@map("functional_account_type")
+}
+
+model SupplierUser {
+  id            String             @id @default(uuid()) @db.Char(36)
+  supplierId    String             @map("supplier_id") @db.Char(36)
+  name          String             @db.VarChar(128)
+  mobile        String             @db.VarChar(16)
+  email         String?            @db.VarChar(254)
+  status        SupplierUserStatus @default(INVITED)
+  lastLoginAt   DateTime?          @map("last_login_at") @db.DateTime(3)
+  version       Int                @default(0)
+  createdAt     DateTime           @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt     DateTime           @updatedAt @map("updated_at") @db.DateTime(3)
+  supplier      Supplier           @relation(fields: [supplierId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  accounts      FunctionalAccount[]
+
+  @@unique([supplierId, mobile], map: "supplier_user_supplier_mobile_key")
+  @@index([supplierId, status], map: "supplier_user_supplier_status_idx")
+  @@map("supplier_user")
+}
+
+model FunctionalAccount {
+  id             String                  @id @default(uuid()) @db.Char(36)
+  identityType   FunctionalIdentityType  @map("identity_type")
+  identityId     String                  @map("identity_id") @db.Char(36)
+  ownerType      FunctionalOwnerType     @map("owner_type")
+  companyId      String?                 @map("company_id") @db.Char(36)
+  supplierId     String?                 @map("supplier_id") @db.Char(36)
+  accountTypeId  String                  @map("account_type_id") @db.Char(36)
+  displayName    String                  @map("display_name") @db.VarChar(128)
+  status         FunctionalAccountStatus @default(PENDING_ACTIVATION)
+  expiresAt      DateTime?               @map("expires_at") @db.DateTime(3)
+  version        Int                     @default(0)
+  createdAt      DateTime                @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt      DateTime                @updatedAt @map("updated_at") @db.DateTime(3)
+  supplier       Supplier?               @relation(fields: [supplierId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  supplierUser   SupplierUser            @relation(fields: [identityId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  accountType    FunctionalAccountType   @relation(fields: [accountTypeId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  statusHistory  FunctionalAccountStatusHistory[]
+
+  @@unique([supplierId, identityId, accountTypeId], map: "functional_account_supplier_identity_type_key")
+  @@index([supplierId, status], map: "functional_account_supplier_status_idx")
+  @@index([identityType, identityId], map: "functional_account_identity_idx")
+  @@map("functional_account")
+}
+
+model FunctionalAccountStatusHistory {
+  id              String                       @id @default(uuid()) @db.Char(36)
+  functionalAccountId String                   @map("functional_account_id") @db.Char(36)
+  fromStatus      FunctionalAccountStatus?     @map("from_status")
+  toStatus        FunctionalAccountStatus      @map("to_status")
+  event           FunctionalAccountStatusEvent
+  actorIdentityId String                       @map("actor_identity_id") @db.Char(36)
+  version         Int
+  occurredAt      DateTime                     @default(now()) @map("occurred_at") @db.DateTime(3)
+  functionalAccount FunctionalAccount          @relation(fields: [functionalAccountId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "functional_account_history_account_id_fkey")
+
+  @@unique([functionalAccountId, version], map: "functional_account_history_account_version_key")
+  @@index([functionalAccountId, occurredAt], map: "functional_account_history_account_time_idx")
+  @@map("functional_account_status_history")
+}
+
+model FunctionalAccountCommand {
+  id               String   @id @default(uuid()) @db.Char(36)
+  scope            String   @db.VarChar(128)
+  idempotencyKey   String   @map("idempotency_key") @db.VarChar(128)
+  requestHash      String   @map("request_hash") @db.Char(64)
+  responseSnapshot Json     @map("response_snapshot")
+  createdAt        DateTime @default(now()) @map("created_at") @db.DateTime(3)
+
+  @@unique([scope, idempotencyKey], map: "functional_account_command_scope_key")
+  @@map("functional_account_command")
 }
 
 model ApprovalTask {

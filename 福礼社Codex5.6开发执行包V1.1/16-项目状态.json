@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-05T07:24:10-04:00",
+  "updatedAt": "2026-08-05T08:29:18-04:00",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -14,17 +14,18 @@
   "execution": {
     "status": "M1_IN_PROGRESS",
     "currentStage": "M1",
-    "currentTask": "M1-P005",
-    "nextAllowedTask": "M1-P005",
+    "currentTask": "M1-P045",
+    "nextAllowedTask": "M1-P045",
     "activeTaskCount": 0,
-    "lastCompletedTask": "M1-P004",
-    "lastCompletedCommit": "a33af8067c1ac17251223682a588a85292038630",
+    "lastCompletedTask": "M1-P005",
+    "lastCompletedCommit": "f62db171bfd792a60b46b96d6cf04b28d3898399",
     "lastPassedGate": "M0-GATE",
     "prohibitedUntilGate": [
-      "M1-P004的Draft PR精确head CI、自审授权、合并及合并后main CI未完成"
+      "M1-P005的Draft PR精确head CI、授权审查、合并及合并后main CI未完成"
     ],
     "persistentRestrictions": [
-      "M1-P004外部闭环完成前M1-P005仅保持READY，不得进入IN_PROGRESS",
+      "M1-P005外部闭环完成前M1-P045仅保持READY，不得进入IN_PROGRESS",
+      "M1-P045完成前不得进入M1-P046或其他后续任务",
       "真实支付/退款",
       "生产部署/迁移",
       "直接修改或推送main"
@@ -38,12 +39,12 @@
     "authenticationConfirmed": true,
     "writeAllowed": true,
     "connectorAccessConfirmed": true,
-    "pullRequest": 10,
-    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/10",
+    "pullRequest": 12,
+    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/12",
     "pullRequestState": "MERGED",
     "pullRequestMerged": true,
-    "mergeCommitSha": "171e1964edb6d13d39bd529e5e767e8792926272",
-    "mergedAt": "2026-08-05T10:24:12Z",
+    "mergeCommitSha": "431576064fb9838d44615d036c5439f2937e3786",
+    "mergedAt": "2026-08-05T11:48:55Z",
     "reviewPolicy": {
       "mode": "DOCUMENTED_SELF_REVIEW",
       "developmentMode": "SOLO_DEVELOPMENT",
@@ -52,62 +53,55 @@
       "additionalGithubAccountsRequired": false,
       "githubSelfApprovalSupported": false,
       "reviewEvidence": "DOCUMENTED_SELF_REVIEW_COMPLETE",
-      "reviewedHead": "d7067a59f1bc66680121d9e2b38e04cb3083dee2",
+      "reviewedHead": "e8fe7c6bd80ff9a7622aea627b0d9b82eb530e3f",
       "reviewDecision": "APPROVED_FOR_MERGE",
-      "reviewCommentId": 5190565419,
-      "reviewedAt": "2026-08-05T10:24:03Z",
+      "reviewCommentId": 5191333025,
+      "reviewedAt": "2026-08-05T11:48:55Z",
       "currentHeadReviewRequired": false,
       "authorizationExactHead": true
     },
-    "lastVerifiedPullRequestHead": "d7067a59f1bc66680121d9e2b38e04cb3083dee2",
+    "lastVerifiedPullRequestHead": "e8fe7c6bd80ff9a7622aea627b0d9b82eb530e3f",
     "pullRequestCi": {
       "status": "CI_PASS",
-      "runId": 30996623719,
-      "jobId": 92275142903,
-      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/30996623719",
-      "headSha": "d7067a59f1bc66680121d9e2b38e04cb3083dee2"
+      "runId": 31002208379,
+      "jobId": 92293516043,
+      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31002208379",
+      "headSha": "e8fe7c6bd80ff9a7622aea627b0d9b82eb530e3f"
     },
     "latestCi": {
       "scope": "MAIN_POST_MERGE",
       "status": "CI_PASS",
-      "runId": 30997274654,
-      "jobId": 92277282092,
-      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/30997274654",
-      "headSha": "171e1964edb6d13d39bd529e5e767e8792926272",
+      "runId": 31002976288,
+      "jobId": 92296050641,
+      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31002976288",
+      "headSha": "431576064fb9838d44615d036c5439f2937e3786",
       "event": "push"
     },
     "currentTaskDelivery": {
-      "taskId": "M1-P004",
-      "issue": 11,
-      "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/11",
-      "branch": "codex/m1-m1-p004",
-      "baseCommit": "171e1964edb6d13d39bd529e5e767e8792926272",
+      "taskId": "M1-P005",
+      "issue": 13,
+      "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/13",
+      "branch": "codex/m1-m1-p005",
+      "baseCommit": "431576064fb9838d44615d036c5439f2937e3786",
       "status": "DONE_LOCAL_PASS",
-      "verifiedImplementationHead": "a33af8067c1ac17251223682a588a85292038630",
+      "verifiedImplementationHead": "f62db171bfd792a60b46b96d6cf04b28d3898399",
       "localVerify": "PASS_17_OF_17",
-      "migrationRehearsal": "LOCAL_PASS_NO_NEW_MIGRATION_PRODUCT_3_CLEANUP_PASS",
-      "pullRequest": 12,
-      "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/12",
-      "pullRequestState": "DRAFT",
-      "previousHeadCi": {
-        "status": "CI_PASS",
-        "headSha": "d75f5160e697ff4c4042de37603dde487911c37c",
-        "runId": 31000691199,
-        "jobId": 92288543070,
-        "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31000691199"
-      },
-      "exactHeadCi": "NOT_EXECUTED_AFTER_MERGE_REVIEW_FIX",
+      "migrationRehearsal": "LOCAL_PASS_PRODUCT_4_ACCOUNT_TYPES_8_ROUTES_8_TABLES_5_FOREIGN_KEYS_5_CLEANUP_PASS",
+      "pullRequest": "NOT_EXECUTED",
+      "pullRequestUrl": "NOT_EXECUTED",
+      "pullRequestState": "NOT_EXECUTED",
+      "exactHeadCi": "NOT_EXECUTED",
       "review": "NOT_EXECUTED",
       "merge": "NOT_EXECUTED",
       "mainPostMergeCi": "NOT_EXECUTED"
     },
-    "note": "M1-P003已通过PR #10及合并后main CI完成外部闭环。M1-P004实现head a33af806已完成本地完整门禁17/17、无新迁移的真实MySQL迁移演练和P0-004策略证据。PR #12旧head d75f516精确CI成功后，合并前技术复核发现并补齐submit-review的403 OpenAPI和台账契约；补丁新head CI、自审、合并和合并后main CI仍未完成。M1-P005仅READY且受外部闭环限制。"
+    "note": "M1-P004已通过PR #12精确head CI、用户授权的文档化自审、合并及main CI完成外部闭环。M1-P005实现head f62db171已完成focused测试、P0浏览器、真实MySQL迁移演练和完整pnpm verify 17/17；Draft PR、精确head CI、审查、合并和main CI仍待执行。M1-P045仅READY且受本任务外部闭环限制。"
   },
   "evidence": {
     "local": "LOCAL_PASS",
-    "ci": "PREVIOUS_HEAD_PASS_CURRENT_HEAD_NOT_EXECUTED",
+    "ci": "NOT_EXECUTED",
     "staging": "NOT_EXECUTED",
-    "device": "NOT_APPLICABLE_TO_API_POLICY_SLICE",
+    "device": "NOT_REQUIRED_PC_WEB_SLICE",
     "production": "NOT_EXECUTED"
   },
   "counts": {

@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "taskId": "M1-P005",
+  "p0Id": "P0-005",
+  "generatedAt": "2026-08-05T08:29:18-04:00",
+  "result": "LOCAL_PASS",
+  "sourceState": {
+    "baseCommit": "431576064fb9838d44615d036c5439f2937e3786",
+    "verifiedImplementationHead": "f62db171bfd792a60b46b96d6cf04b28d3898399"
+  },
+  "scope": {
+    "implemented": [
+      "eight immutable supplier functional account types with unique server-owned workspace routes",
+      "SupplierUser, FunctionalAccount, append-only status history and idempotency persistence",
+      "GET and POST /v1/{ownerType}/functional-accounts for the authenticated supplier owner scope",
+      "second verification, self-escalation, cross-workspace and final-owner-admin domain guards",
+      "response allowlists that omit ownership and personal contact fields",
+      "PAGE-016 supplier account-admin entry and PAGE-024 functional account management"
+    ],
+    "notImplemented": [
+      "supplier login, activation token handling, account selection or session issuance from M1-P069",
+      "eight complete functional workspace shells or role switching from M1-P070",
+      "company functional accounts from M1-P066 and M1-P067",
+      "product, pricing, inventory, fulfillment, aftersales or finance business functions",
+      "real second-verification provider, staging, production migration or formal acceptance"
+    ]
+  },
+  "negativeTests": [
+    {
+      "id": "NEG-M1-005-01",
+      "scenario": "non-account-admin workspace calls account administration",
+      "expectedCode": "WORKSPACE_FORBIDDEN",
+      "status": "PASS"
+    },
+    {
+      "id": "NEG-M1-005-02",
+      "scenario": "natural person attempts self privilege escalation",
+      "expectedCode": "ACCOUNT_TYPE_INVALID_WITH_SECURITY_EVENT",
+      "status": "PASS"
+    },
+    {
+      "id": "NEG-M1-005-03",
+      "scenario": "last active supplier owner administrator is suspended",
+      "expectedCode": "STATE_TRANSITION_INVALID",
+      "status": "PASS"
+    },
+    {
+      "id": "NEG-M1-005-04",
+      "scenario": "sensitive account change lacks second verification",
+      "expectedCode": "SECOND_VERIFICATION_REQUIRED",
+      "status": "PASS"
+    }
+  ],
+  "contractBoundary": {
+    "openApiOperations": [
+      "GET /v1/{ownerType}/functional-accounts",
+      "POST /v1/{ownerType}/functional-accounts"
+    ],
+    "serverOwnedFields": [
+      "identityId",
+      "supplierId",
+      "ownerType",
+      "workspaceRoute"
+    ],
+    "responseDto": "FunctionalAccountResponseDto",
+    "newPrismaModels": [
+      "FunctionalAccountType",
+      "SupplierUser",
+      "FunctionalAccount",
+      "FunctionalAccountStatusHistory",
+      "FunctionalAccountCommand"
+    ],
+    "newMigration": "20260805120000_supplier_functional_accounts"
+  },
+  "verification": {
+    "red": "EXPECTED_FAILURE_ERR_MODULE_NOT_FOUND_SUPPLIER_FUNCTIONAL_ACCOUNT_POLICY",
+    "policy": "PASS_5_OF_5",
+    "supplierApiFocused": "PASS_6_OF_6",
+    "allApiSupertest": "PASS_26_OF_26",
+    "contract": "PASS_3_OF_3",
+    "migrationContract": "PASS_3_OF_3",
+    "openApi": "PASS_9_OF_9_BYTE_STABLE",
+    "p0Browser": "PASS_5_OF_5_INCLUDING_P0_005",
+    "prismaValidate": "PASS",
+    "productMigrationRehearsal": "PASS_4_MIGRATIONS_CLEANUP_PASS",
+    "pnpmVerify": "PASS_17_OF_17"
+  },
+  "fullVerification": {
+    "baseRef": "HEAD",
+    "baseRefSource": "LOCAL_HEAD_FALLBACK",
+    "commit": "f62db171bfd792a60b46b96d6cf04b28d3898399",
+    "startedAt": "2026-08-05T12:38:37.185Z",
+    "endedAt": "2026-08-05T12:48:30.200Z",
+    "stepsPassed": 17,
+    "reportPath": "artifacts/test-results/verification/pnpm-verify.json"
+  },
+  "migrationRehearsal": {
+    "status": "LOCAL_PASS",
+    "report": "artifacts/verification/M1-P005/prisma-migration-rehearsal.json",
+    "emptyMigrations": 2,
+    "upgradeMigrations": 2,
+    "restoreMigrations": 2,
+    "productMigrations": 4,
+    "activeSupplierAccountTypes": 8,
+    "uniqueSupplierWorkspaceRoutes": 8,
+    "functionalAccountTables": 5,
+    "ownershipForeignKeys": 5,
+    "schemaDrift": "NONE",
+    "cleanup": "PASS"
+  },
+  "github": {
+    "issue": 13,
+    "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/13",
+    "branch": "codex/m1-m1-p005",
+    "pullRequest": "NOT_EXECUTED",
+    "ci": "NOT_EXECUTED",
+    "review": "NOT_EXECUTED",
+    "merge": "NOT_EXECUTED"
+  },
+  "warnings": [
+    "production fixed-session resolver and second-verification provider intentionally default to deny until later M1 slices",
+    "security attempts are emitted through the security audit sink; immutable consolidated AuditLog remains M1-P045/M1-P072 work",
+    "existing Vite large-chunk warnings remain",
+    "secret scan passed for 377 tracked files",
+    "EXT-006, staging, production migration and formal acceptance are not executed"
+  ],
+  "evidenceBoundary": {
+    "local": "LOCAL_PASS",
+    "ci": "NOT_EXECUTED",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_REQUIRED_PC_WEB_SLICE",
+    "production": "NOT_EXECUTED",
+    "productionMigration": "HUMAN_ONLY_NOT_EXECUTED",
+    "formalAcceptance": "NOT_EXECUTED"
+  }
+}

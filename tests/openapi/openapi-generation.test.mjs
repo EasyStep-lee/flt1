@@ -102,7 +102,7 @@ test('OpenAPI generation is byte-stable and ignores runtime infrastructure confi
   assert.equal(firstTypes.includes(Buffer.from('\r\n')), false, 'types must use LF');
 });
 
-test('generated contract exposes health, merchant identity and frozen supplier onboarding APIs', () => {
+test('generated contract exposes health, merchant identity, supplier onboarding and functional account APIs', () => {
   const generated = run(pnpm, ['openapi:generate']);
   assertSuccess(generated, 'openapi:generate');
 
@@ -117,6 +117,7 @@ test('generated contract exposes health, merchant identity and frozen supplier o
     '/v1/supplier/me',
     '/v1/supplier/me/submit-review',
     '/v1/suppliers/registrations',
+    '/v1/{ownerType}/functional-accounts',
   ]);
   assert.equal(spec.paths['/health/live'].get.operationId, 'health.getLiveness');
   assert.equal(spec.paths['/health/ready'].get.operationId, 'health.getReadiness');
@@ -144,12 +145,24 @@ test('generated contract exposes health, merchant identity and frozen supplier o
     spec.paths['/v1/suppliers/registrations'].post.operationId,
     'supplierRegistration.create',
   );
+  assert.equal(
+    spec.paths['/v1/{ownerType}/functional-accounts'].get.operationId,
+    'functionalAccounts.list',
+  );
+  assert.equal(
+    spec.paths['/v1/{ownerType}/functional-accounts'].post.operationId,
+    'functionalAccounts.create',
+  );
   assert.deepEqual(
     Object.keys(spec.components.schemas),
     [
       'ApiErrorResponseDto',
       'ApprovalTaskResponseDto',
+      'CreateFunctionalAccountRequestDto',
       'FoundationDependencyCheckDto',
+      'FunctionalAccountPageResponseDto',
+      'FunctionalAccountQueryDto',
+      'FunctionalAccountResponseDto',
       'HealthLivenessDto',
       'HealthReadinessChecksDto',
       'HealthReadinessDto',
@@ -188,6 +201,7 @@ test('generated contract exposes health, merchant identity and frozen supplier o
   assert.match(generatedTypes, /"supplierRegistration\.create"/u);
   assert.match(generatedTypes, /"supplierOnboarding\.submitOwnProfile"/u);
   assert.match(generatedTypes, /"companySupplierOnboarding\.review"/u);
+  assert.match(generatedTypes, /"functionalAccounts\.create"/u);
   assert.match(generatedTypes, /ApiErrorResponseDto/u);
   assert.doesNotMatch(
     generatedTypes,
