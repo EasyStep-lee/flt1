@@ -2,7 +2,7 @@
 
 ## 1. 范围
 
-本任务只为现有健康接口建立后端确定性OpenAPI、生成类型、统一错误结构、Web类型客户端、原生小程序类型接线和破坏性变更执行器。
+M0-008先为健康接口建立后端确定性OpenAPI、生成类型、统一错误结构、Web类型客户端、原生小程序类型接线和破坏性变更执行器；M1-P047复用这条生成链，为当前已实现的API-005、API-008至API-015补齐机器可读合同与响应白名单门禁。
 
 不新增供应商、商品、价格、库存、订单、福利卡、支付、配送或财务业务接口；不创建Prisma业务模型或迁移；不把M0-009测试框架、M0-011完整`pnpm verify`和正式GitHub Actions接线提前到本任务。
 
@@ -21,7 +21,7 @@ NestJS Controller + DTO allowlist + M1 operation contract
 - `@nestjs/swagger 11.4.6`固定依赖的`js-yaml 5.2.1`存在高危拒绝服务公告，根工作区只对该依赖链定向覆盖到已修复的`5.2.2`；`pnpm audit --prod`必须保持零已知漏洞。
 - OpenAPI对象递归按键排序；数组保持语义顺序；JSON与TypeScript统一使用LF并以一个换行结束。
 - `pnpm openapi:check`在系统临时目录重新生成两份文件并逐字节比较，不改写期望文件；差异分别返回`OPENAPI_SPEC_DRIFT`或`OPENAPI_TYPES_DRIFT`。
-- 首个契约只包含`GET /health/live`与`GET /health/ready`。业务Controller只能在所属后续切片中增加。
+- M0-008首个契约只包含`GET /health/live`与`GET /health/ready`；业务Controller仍只能在各自所属切片中增加，M1-P047不新增业务路由。
 
 ## 3. DTO白名单与统一错误
 
