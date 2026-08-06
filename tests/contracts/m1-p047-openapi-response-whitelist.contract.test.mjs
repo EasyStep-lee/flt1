@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 const repositoryRoot = fileURLToPath(new URL('../../', import.meta.url));
 const packRoot = path.join(repositoryRoot, '福礼社Codex5.6开发执行包V1.1');
 
-test('M1-P047 evidence closes the local gate and keeps M1-P066 external-gate blocked', async () => {
+test('M1-P047 evidence remains closed after PR 20 merge and M1-P066 local completion', async () => {
   const [contract, evidence, state, taskLedger, p0Ledger, evidenceLedger] = await Promise.all([
     readFile(
       path.join(repositoryRoot, 'docs', 'contracts', 'm1', 'M1-P047-openapi-response-whitelist.md'),
@@ -43,20 +43,24 @@ test('M1-P047 evidence closes the local gate and keeps M1-P066 external-gate blo
   assert.equal(evidence.fullVerification.status, 'PASS_17_OF_17');
   assert.equal(evidence.negativeTests.length, 4);
   assert.ok(evidence.negativeTests.every(({ status }) => status === 'PASS'));
-  assert.equal(state.execution.lastCompletedTask, 'M1-P047');
-  assert.equal(state.execution.currentTask, 'M1-P066');
-  assert.equal(state.execution.nextAllowedTask, 'M1-P066');
+  assert.equal(state.execution.lastCompletedTask, 'M1-P066');
+  assert.equal(state.execution.currentTask, 'M1-P067');
+  assert.equal(state.execution.nextAllowedTask, 'M1-P067');
   assert.equal(state.execution.activeTaskCount, 0);
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M1-P047[\s\S]*M1-P066/u);
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M1-P047');
+  assert.equal(state.execution.prohibitedUntilGate.length, 1);
+  assert.match(state.execution.prohibitedUntilGate[0], /M1-P066/u);
+  assert.equal(state.github.pullRequest, 22);
+  assert.equal(state.github.pullRequestState, 'DRAFT');
+  assert.equal(state.github.pullRequestMerged, false);
+  assert.equal(state.github.mergeCommitSha, 'NOT_EXECUTED_FOR_M1_P066');
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M1-P066');
   assert.equal(state.github.currentTaskDelivery.status, 'DONE_LOCAL_PASS');
-  assert.equal(state.github.currentTaskDelivery.pullRequest, 20);
-  assert.equal(state.github.currentTaskDelivery.pullRequestState, 'DRAFT');
+  assert.equal(state.github.currentTaskDelivery.pullRequest, 22);
   assert.equal(state.github.currentTaskDelivery.exactHeadCi, 'NOT_EXECUTED');
   assert.equal(state.evidence.local, 'LOCAL_PASS');
   assert.equal(state.evidence.ci, 'NOT_EXECUTED');
-  assert.match(taskLedger, /M1-P047[^\r\n]*DONE[^\r\n]*LOCAL_PASS/u);
-  assert.match(taskLedger, /M1-P066[^\r\n]*READY[^\r\n]*NOT_EXECUTED/u);
+  assert.match(taskLedger, /M1-P047[^\r\n]*DONE[^\r\n]*CI_PASS/u);
+  assert.match(taskLedger, /M1-P066[^\r\n]*DONE[^\r\n]*LOCAL_PASS/u);
   assert.match(p0Ledger, /P0-047[^\r\n]*LOCAL_PASS/u);
   assert.match(evidenceLedger, /EVD-047[^\r\n]*LOCAL_PASS/u);
 });

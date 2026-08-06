@@ -11,6 +11,20 @@ import {
 } from './audit/audit-log.repository.js';
 import { AuditLogService } from './audit/audit-log.service.js';
 import { PrismaAuditLogRepository } from './audit/prisma-audit-log.repository.js';
+import { CompanyAuthService } from './company-auth/company-auth.service.js';
+import { PrismaCompanyAuthRepository } from './company-auth/prisma-company-auth.repository.js';
+import {
+  COMPANY_AUTH_REPOSITORY,
+  type CompanyAuthRepository,
+} from './company-auth/company-auth.repository.js';
+import {
+  COMPANY_CREDENTIAL_VERIFIER,
+  COMPANY_SECOND_VERIFIER,
+  UnavailableCompanyCredentialVerifier,
+  UnavailableCompanySecondVerifier,
+  type CompanyCredentialVerifier,
+  type CompanySecondVerifier,
+} from './company-auth/company-auth.security.js';
 
 import { RUNTIME_CONFIG, type RuntimeConfig } from './config/runtime-config.js';
 import { HealthService } from './health/health.service.js';
@@ -78,6 +92,9 @@ export interface AppModuleOptions {
   readonly functionalAccountAuditSink?: FunctionalAccountAuditSink;
   readonly auditLogRepository?: AuditLogRepository;
   readonly auditActorResolver?: AuditActorResolver;
+  readonly companyAuthRepository?: CompanyAuthRepository;
+  readonly companyCredentialVerifier?: CompanyCredentialVerifier;
+  readonly companySecondVerifier?: CompanySecondVerifier;
 }
 
 @Module({})
@@ -105,6 +122,10 @@ export class AppModule {
       PrismaAuditLogRepository,
       DenyAuditActorResolver,
       AuditLogService,
+      PrismaCompanyAuthRepository,
+      UnavailableCompanyCredentialVerifier,
+      UnavailableCompanySecondVerifier,
+      CompanyAuthService,
       options.merchantRepository
         ? {
             provide: SINGLE_MERCHANT_REPOSITORY,
@@ -183,6 +204,24 @@ export class AppModule {
       options.auditActorResolver
         ? { provide: AUDIT_ACTOR_RESOLVER, useValue: options.auditActorResolver }
         : { provide: AUDIT_ACTOR_RESOLVER, useExisting: DenyAuditActorResolver },
+      options.companyAuthRepository
+        ? { provide: COMPANY_AUTH_REPOSITORY, useValue: options.companyAuthRepository }
+        : { provide: COMPANY_AUTH_REPOSITORY, useExisting: PrismaCompanyAuthRepository },
+      options.companyCredentialVerifier
+        ? {
+            provide: COMPANY_CREDENTIAL_VERIFIER,
+            useValue: options.companyCredentialVerifier,
+          }
+        : {
+            provide: COMPANY_CREDENTIAL_VERIFIER,
+            useExisting: UnavailableCompanyCredentialVerifier,
+          },
+      options.companySecondVerifier
+        ? { provide: COMPANY_SECOND_VERIFIER, useValue: options.companySecondVerifier }
+        : {
+            provide: COMPANY_SECOND_VERIFIER,
+            useExisting: UnavailableCompanySecondVerifier,
+          },
     ];
 
     if (options.probes) {

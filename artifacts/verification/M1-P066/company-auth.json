@@ -1,0 +1,163 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "M1-P066",
+  "p0Id": "P0-066",
+  "status": "LOCAL_PASS",
+  "verifiedAt": "2026-08-06T04:15:45-04:00",
+  "branch": "codex/m1-m1-p066",
+  "issue": 21,
+  "baseCommit": "993184234f930ec3999164ce48668e95dca9368b",
+  "implementationCommit": "f863ecb1ee6ddcb671f8259aa08a2e730b8a1da6",
+  "baseline": {
+    "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+    "productBaseline": "PASS_WITH_EXPECTED_EXECUTION_PACK_SNAPSHOT_WARNING",
+    "executionPack": "PASS_TASKS_149_P0_119_FIELDS_658_PAGES_80_PERMISSIONS_22"
+  },
+  "scope": {
+    "implementedContractIds": ["API-003", "API-004", "PAGE-001", "PAGE-002"],
+    "deferredTask": "M1-P067",
+    "newPrismaModels": [
+      "CompanyUser",
+      "AuthSession",
+      "CompanyAuthSelection",
+      "LoginAudit"
+    ],
+    "newSqlMigrations": 1,
+    "publicCompanyRegistration": false
+  },
+  "redEvidence": [
+    {
+      "area": "api",
+      "command": "pnpm exec vitest run --config ./vitest.config.ts --project api-contract apps/api/test/supertest/company-auth-api.test.mjs",
+      "result": "FAIL_0_TESTS_MODULE_NOT_FOUND_BEFORE_IMPLEMENTATION"
+    },
+    {
+      "area": "migration",
+      "command": "node --test tests/migrations/m1-p066-company-auth-migration.contract.test.mjs",
+      "result": "FAIL_0_OF_2_BEFORE_SCHEMA_AND_FORWARD_MIGRATION"
+    },
+    {
+      "area": "page",
+      "command": "pnpm --filter @fulishe/company-admin test",
+      "result": "FAIL_1_OF_2_ACCOUNT_SELECT_PAGE_MISSING"
+    },
+    {
+      "area": "idempotency",
+      "command": "pnpm exec vitest run --config ./vitest.config.ts --project api-contract apps/api/test/supertest/company-auth-api.test.mjs",
+      "result": "FAIL_7_OF_8_REQUEST_ID_RETRY_RETURNED_DIFFERENT_SELECTION_NONCE"
+    },
+    {
+      "area": "completed-selection-idempotency",
+      "command": "pnpm exec vitest run apps/api/test/supertest/company-auth-api.test.mjs",
+      "result": "FAIL_8_OF_10_COMPLETED_SELECTION_RESET_ALLOWED_SECOND_ACCOUNT_200_INSTEAD_OF_409"
+    },
+    {
+      "area": "session-issuance-race",
+      "command": "pnpm exec vitest run apps/api/test/supertest/company-auth-api.test.mjs",
+      "result": "FAIL_8_OF_10_SUSPENDED_DURING_ISSUANCE_RETURNED_200_INSTEAD_OF_403"
+    }
+  ],
+  "contract": {
+    "oneFunctionalAccountPerSession": true,
+    "sessionTransport": "Secure HttpOnly SameSite=Strict __Host-fulishe-company-admin cookie",
+    "rawSessionTokenStored": false,
+    "rawSessionTokenReturned": false,
+    "selectionNonceStoredAs": "SHA256_HASH",
+    "loginAccountAuditStoredAs": "SHA256_HASH",
+    "loginRateLimit": "5_AUTH_INVALID_IN_15_MINUTES",
+    "selectionCommand": "IMMUTABLE_AFTER_FIRST_CREATE",
+    "sessionIssuanceAuthority": "LOCK_AND_RELOAD_USER_AND_FUNCTIONAL_ACCOUNT",
+    "credentialProvider": "RUNTIME_INJECTED_PRODUCTION_DEFAULT_FAILS_CLOSED",
+    "secondVerificationProvider": "RUNTIME_INJECTED_PRODUCTION_DEFAULT_FAILS_CLOSED",
+    "openapiSha256": "A535CC81CEE204F47F88922EBD4BB445D8F4264BF488A05C94AFBEBE3A4DCCFB",
+    "typesSha256": "CB2DEAA44D80EC3F76939DD9508BC2BE2EA6387A0A824A36154FAFE81DA6E48D"
+  },
+  "negativeTests": [
+    {
+      "id": "NEG-M1-066-01",
+      "status": "PASS",
+      "evidence": "No company registration API or UI entrance; login is noindex and no-store."
+    },
+    {
+      "id": "NEG-M1-066-02",
+      "status": "PASS",
+      "evidence": "Multiple accounts return only a server-listed pending selection and issue no session cookie."
+    },
+    {
+      "id": "NEG-M1-066-03",
+      "status": "PASS",
+      "evidence": "One nonce cannot select two accounts; a completed selection cannot be reset by a login requestId replay; same-account replay is idempotent and old active sessions are revoked."
+    },
+    {
+      "id": "NEG-M1-066-04",
+      "status": "PASS",
+      "evidence": "Suspended, expired, foreign and client-spoofed account selections fail closed without a session, including status changes between listing and issuance."
+    }
+  ],
+  "focusedTests": {
+    "companyAuthSupertest": "PASS_10_OF_10",
+    "prismaCompanyAuthRepository": "PASS_2_OF_2",
+    "companyAdminBundle": "PASS_2_OF_2",
+    "openapi": "PASS_11_OF_11",
+    "migrationContracts": "PASS_21_OF_21",
+    "m1Contracts": "PASS_32_OF_32",
+    "p0Chromium": "PASS_11_OF_11",
+    "secretScan": "PASS_437_TRACKED_FILES"
+  },
+  "fullVerification": {
+    "status": "PASS_17_OF_17",
+    "report": "artifacts/test-results/verification/pnpm-verify.json",
+    "reportCommit": "f863ecb1ee6ddcb671f8259aa08a2e730b8a1da6",
+    "startedAt": "2026-08-06T08:08:49.772Z",
+    "endedAt": "2026-08-06T08:15:45.301Z",
+    "stepsPassed": 17,
+    "stepsFailed": 0
+  },
+  "migration": {
+    "schemaChanged": true,
+    "publishedMigrations": 7,
+    "integrity": "PASS",
+    "report": "artifacts/verification/M1-P066/prisma-migration-rehearsal.json",
+    "rehearsal": "PASS_EMPTY_2_UPGRADE_2_RESTORE_2_PRODUCT_7_CLEANUP_PASS",
+    "loginAuditImmutableTriggers": 2,
+    "configuredDatabaseTargeted": false
+  },
+  "environment": {
+    "scope": "LOCAL_WINDOWS_DOCKER_TEMPORARY_MYSQL_CHROMIUM",
+    "node": "22.23.1",
+    "pnpm": "10.12.1",
+    "docker": "29.6.2",
+    "mysql": "8.4.11",
+    "prisma": "6.19.2",
+    "productionSecretsRead": false,
+    "productionOrStagingChanged": false,
+    "realIdentityProviderExecuted": false,
+    "realSecondVerificationExecuted": false
+  },
+  "warnings": [
+    "The PAGE-001 reference asset body depicts supplier onboarding and conflicts with its company-login filename; implementation follows the V1.1 scheme.",
+    "Existing Vite production bundles exceed the 500 kB warning threshold.",
+    "NO_COLOR is ignored when FORCE_COLOR is already set."
+  ],
+  "externalEvidence": {
+    "pullRequest": 22,
+    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/22",
+    "draftHeadAtCreation": "01eedbde3fbe6b99bb727dc581bc84330ec93dc2",
+    "pullRequestCi": "NOT_EXECUTED_FOR_FINAL_HEAD",
+    "review": "NOT_EXECUTED",
+    "merge": "NOT_EXECUTED",
+    "mainPostMergeCi": "NOT_EXECUTED",
+    "staging": "NOT_EXECUTED",
+    "production": "NOT_EXECUTED",
+    "formalAcceptance": "NOT_EXECUTED"
+  },
+  "rollback": {
+    "application": "git revert the M1-P066 implementation and evidence commits",
+    "database": "Do not edit or reverse the published migration; keep the additive schema compatible and use a new forward-fix migration if required."
+  },
+  "nextBoundary": {
+    "taskId": "M1-P067",
+    "status": "READY_BUT_BLOCKED_BY_M1_P066_EXTERNAL_GATE",
+    "prohibited": "Do not implement M1-P067 before exact final PR head CI, human review and authorized merge, and post-merge main CI are complete."
+  }
+}

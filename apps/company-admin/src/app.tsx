@@ -17,6 +17,10 @@ import { ShellFrame } from '@fulishe/ui';
 import type { components } from '@fulishe/contracts';
 
 import { createCompanyAdminApiClient } from './api-client.js';
+import {
+  CompanyAccountSelectPage,
+  CompanyLoginPage,
+} from './company-auth-pages.js';
 import { companySessionBoundary } from './session-boundary.js';
 
 type SupplierRow = components['schemas']['SupplierResponseDto'];
@@ -503,6 +507,12 @@ function CompanyAuditPage() {
 
 export function CompanyAdminShell() {
   const currentPath = window.location.pathname;
+  if (currentPath === '/company-admin/login') {
+    return <CompanyLoginPage />;
+  }
+  if (currentPath === '/company-admin/account-select') {
+    return <CompanyAccountSelectPage />;
+  }
   if (currentPath === '/company-admin/workspaces/supplier-ops') {
     return <CompanySupplierOpsPage />;
   }

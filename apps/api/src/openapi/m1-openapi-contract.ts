@@ -6,7 +6,7 @@ interface M1OpenApiOperationContract {
   readonly actor: string;
   readonly contractId: string;
   readonly errorCodes: readonly string[];
-  readonly idempotency: 'Idempotency-Key' | 'NONE';
+  readonly idempotency: 'Idempotency-Key' | 'NONE' | 'requestId' | 'selectionNonce';
   readonly method: 'get' | 'patch' | 'post';
   readonly path: string;
   readonly requestDto: string;
@@ -18,6 +18,26 @@ const contract = (
 ): M1OpenApiOperationContract => Object.freeze(value);
 
 export const M1_OPENAPI_OPERATION_CONTRACTS = Object.freeze([
+  contract({
+    actor: 'COMPANY_USER',
+    contractId: 'API-003',
+    errorCodes: ['AUTH_INVALID', 'ACCOUNT_SUSPENDED', 'RATE_LIMITED'],
+    idempotency: 'requestId',
+    method: 'post',
+    path: '/v1/company-auth/login',
+    requestDto: 'CompanyLoginRequestDto',
+    responseDto: 'WorkspaceChoiceResponseDto',
+  }),
+  contract({
+    actor: 'COMPANY_USER',
+    contractId: 'API-004',
+    errorCodes: ['WORKSPACE_FORBIDDEN', 'SECOND_VERIFICATION_REQUIRED'],
+    idempotency: 'selectionNonce',
+    method: 'post',
+    path: '/v1/company-auth/workspaces/{accountId}/select',
+    requestDto: 'SelectWorkspaceRequestDto',
+    responseDto: 'SessionResponseDto',
+  }),
   contract({
     actor: 'PUBLIC',
     contractId: 'API-005',
@@ -294,7 +314,11 @@ export const applyM1OpenApiContracts = (document: OpenAPIObject): OpenAPIObject 
   for (const operationContract of M1_OPENAPI_OPERATION_CONTRACTS) {
     const operation = operationFor(jsonDocument, operationContract);
     operation.security =
-      operationContract.actor === 'PUBLIC' ? [] : [{ functionalSession: [] }];
+      operationContract.actor === 'PUBLIC' ||
+      operationContract.contractId === 'API-003' ||
+      operationContract.contractId === 'API-004'
+        ? []
+        : [{ functionalSession: [] }];
     operation['x-fulishe-actor'] = operationContract.actor;
     operation['x-fulishe-contract-id'] = operationContract.contractId;
     operation['x-fulishe-error-codes'] = [...operationContract.errorCodes];

@@ -27,6 +27,11 @@
               "VALIDATION_FAILED",
               "VERSION_CONFLICT",
               "WORKSPACE_FORBIDDEN",
+              "ACCOUNT_SUSPENDED",
+              "AUTH_INVALID",
+              "RATE_LIMITED",
+              "WORKSPACE_SELECTION_REQUIRED",
+              "WORKSPACE_SESSION_CONFLICT",
               "AUDIT_IMMUTABLE",
               "AUDIT_REQUIRED",
               "EXPORT_APPROVAL_REQUIRED",
@@ -237,6 +242,36 @@
             "type": "number"
           }
         },
+        "type": "object"
+      },
+      "CompanyLoginRequestDto": {
+        "properties": {
+          "loginAccount": {
+            "example": "13800138000",
+            "maxLength": 254,
+            "type": "string"
+          },
+          "password": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string",
+            "writeOnly": true
+          },
+          "requestId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "verificationCode": {
+            "maxLength": 16,
+            "type": "string",
+            "writeOnly": true
+          }
+        },
+        "required": [
+          "loginAccount",
+          "password",
+          "requestId"
+        ],
         "type": "object"
       },
       "CreateFunctionalAccountRequestDto": {
@@ -569,6 +604,61 @@
           "seller",
           "paymentPayee",
           "refundOperator"
+        ],
+        "type": "object"
+      },
+      "SelectWorkspaceRequestDto": {
+        "properties": {
+          "secondVerificationCode": {
+            "maxLength": 16,
+            "type": "string",
+            "writeOnly": true
+          },
+          "selectionNonce": {
+            "minLength": 32,
+            "type": "string",
+            "writeOnly": true
+          }
+        },
+        "required": [
+          "selectionNonce"
+        ],
+        "type": "object"
+      },
+      "SessionResponseDto": {
+        "properties": {
+          "accountTypeCode": {
+            "type": "string"
+          },
+          "companyId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "expiresAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "functionalAccountId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "ownerType": {
+            "enum": [
+              "COMPANY"
+            ],
+            "type": "string"
+          },
+          "workspaceRoute": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "functionalAccountId",
+          "ownerType",
+          "companyId",
+          "accountTypeCode",
+          "workspaceRoute",
+          "expiresAt"
         ],
         "type": "object"
       },
@@ -994,6 +1084,78 @@
           "opinion"
         ],
         "type": "object"
+      },
+      "WorkspaceChoiceDto": {
+        "properties": {
+          "accountId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "accountTypeCode": {
+            "type": "string"
+          },
+          "accountTypeName": {
+            "type": "string"
+          },
+          "lastUsedAt": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "ownerDisplayName": {
+            "type": "string"
+          },
+          "ownerType": {
+            "enum": [
+              "COMPANY"
+            ],
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "ACTIVE",
+              "PENDING_ACTIVATION",
+              "REVOKED",
+              "SUSPENDED"
+            ],
+            "type": "string"
+          },
+          "workspaceRoute": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "accountId",
+          "ownerType",
+          "ownerDisplayName",
+          "accountTypeCode",
+          "accountTypeName",
+          "workspaceRoute",
+          "status"
+        ],
+        "type": "object"
+      },
+      "WorkspaceChoiceResponseDto": {
+        "properties": {
+          "accounts": {
+            "items": {
+              "$ref": "#/components/schemas/WorkspaceChoiceDto"
+            },
+            "type": "array"
+          },
+          "selectionNonce": {
+            "type": "string"
+          },
+          "selectionRequired": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "selectionRequired",
+          "selectionNonce",
+          "accounts"
+        ],
+        "type": "object"
       }
     },
     "securitySchemes": {
@@ -1175,6 +1337,103 @@
         "x-fulishe-idempotency": "NONE",
         "x-fulishe-request-dto": "AuditQueryDto",
         "x-fulishe-response-dto": "AuditEventPageResponseDto",
+        "x-fulishe-response-policy": "NEVER_RETURN_INTERNAL_PRICING"
+      }
+    },
+    "/v1/company-auth/login": {
+      "post": {
+        "operationId": "companyauth.login",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompanyLoginRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkspaceChoiceResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [],
+        "summary": "公司后台独立登录并解析职能账号",
+        "tags": [
+          "company-auth"
+        ],
+        "x-fulishe-actor": "COMPANY_USER",
+        "x-fulishe-contract-id": "API-003",
+        "x-fulishe-error-codes": [
+          "AUTH_INVALID",
+          "ACCOUNT_SUSPENDED",
+          "RATE_LIMITED"
+        ],
+        "x-fulishe-idempotency": "requestId",
+        "x-fulishe-request-dto": "CompanyLoginRequestDto",
+        "x-fulishe-response-dto": "WorkspaceChoiceResponseDto",
+        "x-fulishe-response-policy": "NEVER_RETURN_INTERNAL_PRICING"
+      }
+    },
+    "/v1/company-auth/workspaces/{accountId}/select": {
+      "post": {
+        "operationId": "companyauth.selectWorkspace",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "accountId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SelectWorkspaceRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [],
+        "summary": "选择一个公司职能账号并签发单工作区会话",
+        "tags": [
+          "company-auth"
+        ],
+        "x-fulishe-actor": "COMPANY_USER",
+        "x-fulishe-contract-id": "API-004",
+        "x-fulishe-error-codes": [
+          "WORKSPACE_FORBIDDEN",
+          "SECOND_VERIFICATION_REQUIRED"
+        ],
+        "x-fulishe-idempotency": "selectionNonce",
+        "x-fulishe-request-dto": "SelectWorkspaceRequestDto",
+        "x-fulishe-response-dto": "SessionResponseDto",
         "x-fulishe-response-policy": "NEVER_RETURN_INTERNAL_PRICING"
       }
     },

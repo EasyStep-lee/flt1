@@ -112,6 +112,8 @@ test('generated contract exposes health, merchant identity, supplier onboarding 
     '/health/live',
     '/health/ready',
     '/v1/audit/events',
+    '/v1/company-auth/login',
+    '/v1/company-auth/workspaces/{accountId}/select',
     '/v1/company/suppliers',
     '/v1/company/suppliers/{supplierId}/review',
     '/v1/public/merchant-profile',
@@ -161,7 +163,8 @@ test('generated contract exposes health, merchant identity, supplier onboarding 
       'ApprovalTaskResponseDto',
       'AuditEventPageResponseDto',
       'AuditEventResponseDto',
-      'AuditQueryDto',
+    'AuditQueryDto',
+      'CompanyLoginRequestDto',
       'CreateFunctionalAccountRequestDto',
       'FoundationDependencyCheckDto',
       'FunctionalAccountPageResponseDto',
@@ -173,6 +176,8 @@ test('generated contract exposes health, merchant identity, supplier onboarding 
       'PublicMerchantProfileQuery',
       'PublicMerchantProfileResponse',
       'PublicMerchantSubjectsDto',
+      'SelectWorkspaceRequestDto',
+      'SessionResponseDto',
       'SubmitReviewRequestDto',
       'SupplierPageResponseDto',
       'SupplierProfilePatchRequestDto',
@@ -184,6 +189,8 @@ test('generated contract exposes health, merchant identity, supplier onboarding 
       'SupplierRegistrationResponseDto',
       'SupplierResponseDto',
       'SupplierReviewRequestDto',
+      'WorkspaceChoiceDto',
+      'WorkspaceChoiceResponseDto',
     ],
   );
   assert.deepEqual(
@@ -206,6 +213,8 @@ test('generated contract exposes health, merchant identity, supplier onboarding 
   assert.match(generatedTypes, /"supplierOnboarding\.submitOwnProfile"/u);
   assert.match(generatedTypes, /"companySupplierOnboarding\.review"/u);
   assert.match(generatedTypes, /"functionalAccounts\.create"/u);
+  assert.match(generatedTypes, /"companyauth\.login"/u);
+  assert.match(generatedTypes, /"companyauth\.selectWorkspace"/u);
   assert.match(generatedTypes, /ApiErrorResponseDto/u);
   assert.doesNotMatch(
     generatedTypes,

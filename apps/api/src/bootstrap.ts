@@ -5,6 +5,11 @@ import { NestFactory } from '@nestjs/core';
 
 import type { AuditActorResolver } from './audit/audit-log.actor.js';
 import type { AuditLogRepository } from './audit/audit-log.repository.js';
+import type { CompanyAuthRepository } from './company-auth/company-auth.repository.js';
+import type {
+  CompanyCredentialVerifier,
+  CompanySecondVerifier,
+} from './company-auth/company-auth.security.js';
 
 import { AppModule } from './app.module.js';
 import {
@@ -42,6 +47,9 @@ export interface CreateApplicationOptions {
   readonly functionalAccountAuditSink?: FunctionalAccountAuditSink;
   readonly auditLogRepository?: AuditLogRepository;
   readonly auditActorResolver?: AuditActorResolver;
+  readonly companyAuthRepository?: CompanyAuthRepository;
+  readonly companyCredentialVerifier?: CompanyCredentialVerifier;
+  readonly companySecondVerifier?: CompanySecondVerifier;
   readonly logger?: LoggerService | false;
 }
 
@@ -81,6 +89,15 @@ export const createApplication = async (
       : {}),
     ...(options.auditActorResolver
       ? { auditActorResolver: options.auditActorResolver }
+      : {}),
+    ...(options.companyAuthRepository
+      ? { companyAuthRepository: options.companyAuthRepository }
+      : {}),
+    ...(options.companyCredentialVerifier
+      ? { companyCredentialVerifier: options.companyCredentialVerifier }
+      : {}),
+    ...(options.companySecondVerifier
+      ? { companySecondVerifier: options.companySecondVerifier }
       : {}),
   };
   const logger = options.logger === false ? false : options.logger ?? new SafeJsonLogger();
