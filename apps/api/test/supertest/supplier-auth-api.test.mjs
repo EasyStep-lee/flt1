@@ -10,6 +10,7 @@ const userId = '20000000-0000-4000-8000-000000000069';
 const firstAccountId = '30000000-0000-4000-8000-000000000069';
 const secondAccountId = '30000000-0000-4000-8000-000000000070';
 const validCredential = 'supplier-auth-test-only-valid';
+const invalidCredential = 'supplier-auth-test-only-invalid';
 
 const config = () =>
   loadRuntimeConfig({
@@ -95,7 +96,7 @@ describe('P0-069 supplier login and functional workspace selection', () => {
         .post('/v1/supplier-auth/login')
         .send({
           loginAccount: '13800138000',
-          password: 'invalid',
+          password: invalidCredential,
           requestId: '40000000-0000-4000-8000-000000000069',
           supplierId: '10000000-0000-4000-8000-000000000069',
         });
@@ -114,7 +115,7 @@ describe('P0-069 supplier login and functional workspace selection', () => {
         .post('/v1/supplier-auth/login')
         .send({
           loginAccount: '13800138000',
-          password: 'invalid',
+          password: invalidCredential,
           requestId: '40000000-0000-4000-8000-000000000069',
         });
 
