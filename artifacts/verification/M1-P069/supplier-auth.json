@@ -3,7 +3,7 @@
   "taskId": "M1-P069",
   "p0Id": "P0-069",
   "status": "LOCAL_PASS",
-  "verifiedAt": "2026-08-07T02:09:21-04:00",
+  "verifiedAt": "2026-08-07T02:34:53-04:00",
   "baseline": {
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
     "baseBranch": "main",
@@ -11,7 +11,8 @@
     "branch": "codex/m1-m1-p069",
     "implementationCommit": "c8c18485afb859487722acf39222a01cff99b531",
     "hardeningCommit": "97ce454e2ed1c0a81095a4d429db86d8c67999a1",
-    "sameOriginRuntimeCommit": "561b4752f70e4d67f58fc828baf4e0e75677f541"
+    "sameOriginRuntimeCommit": "561b4752f70e4d67f58fc828baf4e0e75677f541",
+    "browserRuntimeEvidenceCommit": "4f2a0c2047338c0af45fc76f5254967188dcd11a"
   },
   "scope": {
     "pageIds": ["PAGE-013", "PAGE-014", "PAGE-015"],
@@ -72,6 +73,11 @@
       "command": "pnpm --filter @fulishe/supplier-portal test",
       "result": "FAIL_1_OF_3_EXPECTED_HTTP_404",
       "cause": "the real Vite development server handled same-origin /v1 itself instead of forwarding the request to the API upstream"
+    },
+    {
+      "command": "pnpm exec playwright test tests/e2e/p0/p0-069-supplier-auth-runtime.spec.ts --config ./playwright.p0.config.ts",
+      "result": "FAIL_1_OF_1_EXPECTED_CONNECTION_REFUSED",
+      "cause": "the P0 gate had no supplier runtime server connected to the test API through the real same-origin proxy"
     }
   ],
   "focusedEvidence": [
@@ -97,8 +103,8 @@
     },
     {
       "name": "P0-069 Chromium behavior",
-      "command": "pnpm exec playwright test tests/e2e/p0/p0-069-supplier-auth.spec.ts --config ./playwright.p0.config.ts",
-      "result": "PASS_3_OF_3"
+      "command": "pnpm exec playwright test tests/e2e/p0/p0-069-supplier-auth.spec.ts tests/e2e/p0/p0-069-supplier-auth-runtime.spec.ts --config ./playwright.p0.config.ts",
+      "result": "PASS_4_OF_4_WITH_REAL_BROWSER_PROXY_API_COOKIE_CHAIN"
     },
     {
       "name": "Prisma product migration rehearsal",
@@ -136,7 +142,7 @@
   "fullVerification": {
     "status": "PASS_17_OF_17",
     "stepsPassed": 17,
-    "commit": "561b4752f70e4d67f58fc828baf4e0e75677f541",
+    "commit": "4f2a0c2047338c0af45fc76f5254967188dcd11a",
     "report": "artifacts/test-results/verification/pnpm-verify.json"
   },
   "verificationRepairHistory": [
@@ -163,6 +169,12 @@
       "failedStep": null,
       "cause": null,
       "repair": "PNPM_VERIFY_OK:steps=17:base=HEAD"
+    },
+    {
+      "attempt": 5,
+      "failedStep": "focused-browser-cookie-inspection",
+      "cause": "Playwright URL-filtered cookie lookup omitted a Secure loopback cookie even though trace proved it was stored and sent",
+      "repair": "read the complete browser cookie jar and retained strict domain, path, HttpOnly, Secure, SameSite and token assertions"
     }
   ],
   "migration": {
@@ -185,7 +197,7 @@
     "mainPostMergeCi": "NOT_EXECUTED"
   },
   "environment": {
-    "local": "LOCAL_WINDOWS_CHROMIUM_AND_DOCKER_MYSQL",
+    "local": "LOCAL_WINDOWS_CHROMIUM_REAL_VITE_PROXY_INJECTED_NEST_API_AND_DOCKER_MYSQL",
     "staging": "NOT_EXECUTED",
     "device": "NOT_REQUIRED_PC_WEB_SLICE",
     "production": "NOT_EXECUTED"
@@ -194,6 +206,7 @@
     "Production supplier credential verification and second verification integrations remain external and default-deny.",
     "The supplier portal production bundle remains above Vite's 500 kB warning threshold; this is non-blocking for P0-069 but should be code-split before performance acceptance.",
     "Production is expected to expose /v1 through the same operation origin. A separate API origin requires an explicitly reviewed credentialed-CORS gateway and is not proven by this slice.",
+    "The real browser chain uses an injected in-memory supplier auth repository and test-only credential verifier; it proves transport, UI and cookie behavior but not production identity-provider integration.",
     "The forward migration has only local Docker MySQL evidence; staging and production migration remain NOT_EXECUTED."
   ],
   "rollback": {

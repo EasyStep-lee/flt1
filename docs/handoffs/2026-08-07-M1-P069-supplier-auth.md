@@ -4,7 +4,7 @@
 
 - 阶段/任务/P0：`M1` / `M1-P069` / `P0-069`；结论仍为 `LOCAL_PASS`，阶段未完成。
 - 唯一方案 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`。
-- 基线：`main@ff8d5ae6d998a2f05ade69f8e220e2ec5a6527b3`；分支：`codex/m1-m1-p069`；最新实现提交：`561b4752f70e4d67f58fc828baf4e0e75677f541`。
+- 基线：`main@ff8d5ae6d998a2f05ade69f8e220e2ec5a6527b3`；分支：`codex/m1-m1-p069`；已验证实现提交：`4f2a0c2047338c0af45fc76f5254967188dcd11a`。
 - 工作区只保留用户已有未跟踪素材；这些素材未暂存、未修改。M1-P070 及商品、价格、订单、支付、配送、售后、对账均未进入。
 
 ## 实际范围
@@ -16,6 +16,7 @@
 - 独立 API 域请求固定 `credentials: include`；认证成功和失败均返回 `Cache-Control: private, no-store, max-age=0`。
 - 同账号选择重放在事务内轮换不透明 `sessionHash` 并重新签发 Secure HttpOnly Cookie，仍只有一个活动会话；同一 nonce 改选其他账号返回冲突。
 - 浏览器按方案使用同一运营域名下的 `/v1`；本地 Vite 将 `/v1` 代理到 `127.0.0.1:$API_PORT`，生产同源转发由部署网关提供。本切片未开启宽泛 CORS，也不把独立 API 域冒充已验收拓扑。
+- P0 浏览器门禁另启专用 Vite 运行入口，由测试自身启动注入式 Nest API；Chromium 真实提交登录/选择请求并验证最终 Cookie jar，而不是仅使用 Playwright route Mock。
 
 ## 数据、迁移与契约
 
@@ -36,10 +37,11 @@
 | API/Prisma focused GREEN | `2` 文件、`16/16`；组合业务 focused 为 `26/26` |
 | Web 客户端与供应商门户 GREEN | `5/5`（含真实同源开发代理行为） |
 | 同源开发代理 RED / GREEN | 实际 Vite 请求先为 `404`；配置后上游路径、Host 和 `Set-Cookie` 转发 `3/3` 通过 |
+| 真实浏览器纵向链路 RED / GREEN | 专用运行入口未启动时 `ERR_CONNECTION_REFUSED`；接入后 P0-069 `4/4`，真实登录、选择、跳转和 Cookie 属性通过 |
 | `pnpm lint` / `pnpm typecheck` | 均退出码 `0` |
-| 同源运行实现 head `pnpm verify` | `17/17`，P0 E2E `18/18`，迁移 `empty=2/upgrade=2/restore=2/product=9/cleanup=PASS`，秘密扫描 `483` 文件 |
+| 真实浏览器链路实现 head `pnpm verify` | `17/17`，P0 E2E `19/19`，迁移 `empty=2/upgrade=2/restore=2/product=9/cleanup=PASS`，秘密扫描 `484` 文件 |
 
-远程 head `760d0c416983b44e003cbfd6a88fa1358065118a` 的 Actions run `31151669634` 曾通过，但同源运行入口修复后只能作为历史证据；新 head 必须重新通过 CI。
+远程 head `86279df8cd7640e4949fccdb86078df486c65e0b` 的 Actions run `31153072804` 曾通过，但真实浏览器纵向链路加入后只能作为历史证据；新 head 必须重新通过 CI。
 
 ## P0、环境与缺口
 
@@ -48,10 +50,11 @@
 - Staging/生产均 `NOT_EXECUTED`。本切片为 PC Web，不要求微信真机；生产供应商凭证与二次验证 Adapter 继续默认拒绝，真实身份源为外部接入缺口。
 - 供应商门户 bundle 仍有超过 500 kB 的非阻断告警；需在性能验收前拆包。本地迁移演练不能替代 staging/生产迁移证据。
 - Chromium loopback 诊断实际接受 `Secure`、`HttpOnly`、`SameSite=Strict` 的 `__Host-` Cookie，但这只是本地诊断，不升级为 staging 或生产证据；独立 API origin 的 credentialed CORS 未实现也未验收。
+- 真实浏览器纵向测试使用注入式内存仓储和测试凭证验证器；它证明页面、代理、Nest API 和 Cookie 传输，不证明生产身份源、短信或二次验证服务。
 
 ## GitHub、回滚与下一步
 
 - 仓库：`EasyStep-lee/flt1`；Issue [#27](https://github.com/EasyStep-lee/flt1/issues/27)；Draft PR [#28](https://github.com/EasyStep-lee/flt1/pull/28)。
 - 当前不具备 Ready/合并授权。推送新 head 后必须读取对应 Actions 和未解决评论；不得使用旧 head CI 宣称通过。
 - 应用回滚：逐个 `git revert` M1-P069 实现/加固/证据提交。数据库回滚：生产发布前恢复经验证备份，或新增受审前向修复迁移；禁止编辑已发布 SQL。
-- 唯一下一最小切片仍是完成 PR #28 的新 head 本地全量门禁、精确 CI 和人工门禁。只有 PR 合并且合并后 main CI 成功，才允许启动 `M1-P070`。
+- 唯一下一最小切片仍是完成 PR #28 的新 head 精确 CI 和人工门禁。本地全量门禁已通过；只有 PR 合并且合并后 main CI 成功，才允许启动 `M1-P070`。
