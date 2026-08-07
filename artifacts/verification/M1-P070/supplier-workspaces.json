@@ -3,7 +3,7 @@
   "taskId": "M1-P070",
   "p0Id": "P0-070",
   "status": "LOCAL_PASS",
-  "verifiedAt": "2026-08-07T08:40:27-04:00",
+  "verifiedAt": "2026-08-07T09:21:07-04:00",
   "baseline": {
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
     "baseBranch": "main",
@@ -11,7 +11,8 @@
     "branch": "codex/m1-m1-p070",
     "implementationCommit": "a9457dc1fc9b5bc9d38faa8c1360a70e88791ce5",
     "browserGuardRegressionCommit": "9e63b832930e20a9ba4bf47860c5c3e4c6c5692a",
-    "historicalStateRegressionCommit": "77ebf06feb5f40b43b182a24a254e457a0713ff4"
+    "historicalStateRegressionCommit": "77ebf06feb5f40b43b182a24a254e457a0713ff4",
+    "staleResponseHardeningCommit": "55da216205059c646772de00e350f34d93776796"
   },
   "scope": {
     "supplierWorkspaceCount": 8,
@@ -36,6 +37,7 @@
     "menuCardinality": 1,
     "moduleCatalogIsolation": "ROLE_SCOPED",
     "queryAndDetailStateIsolation": "RESET_ON_ROLE_OR_ROUTE_CHANGE",
+    "requestOrdering": "LATEST_REQUEST_WINS_STALE_SUCCESS_AND_FAILURE_IGNORED",
     "responseWhitelist": "NO_OWNER_IDENTITY_TOKEN_SUPPLY_PRICE_SETTLEMENT_OR_BANK_FIELDS",
     "cachePolicy": "PRIVATE_NO_STORE_MAX_AGE_ZERO",
     "combinedRolePage": "FORBIDDEN",
@@ -70,6 +72,11 @@
       "name": "scoped migration evidence path",
       "result": "FAIL_EXPECTED_SCOPE_NOT_REGISTERED",
       "cause": "the evidence script rejected M1-P070 until the new task-specific output directory was explicitly allowlisted"
+    },
+    {
+      "name": "stale filter response ordering",
+      "result": "FAIL_1_OF_1_EXPECTED",
+      "cause": "an older slow response replaced the latest filter result after the newer response was already rendered"
     }
   ],
   "focusedEvidence": [
@@ -89,9 +96,14 @@
       "result": "PASS_3_OF_3"
     },
     {
+      "name": "latest request response ordering",
+      "command": "pnpm exec playwright test --config playwright.p0.config.ts tests/e2e/p0/p0-070-supplier-workspaces.spec.ts --grep \"ignores an older filter response\"",
+      "result": "PASS_1_OF_1"
+    },
+    {
       "name": "affected supplier auth/workspace Chromium regression",
       "command": "pnpm exec playwright test --config playwright.p0.config.ts tests/e2e/p0/p0-005-functional-accounts.spec.ts tests/e2e/p0/p0-069-supplier-auth-runtime.spec.ts tests/e2e/p0/p0-069-supplier-auth.spec.ts tests/e2e/p0/p0-070-supplier-workspaces.spec.ts",
-      "result": "PASS_7_OF_7"
+      "result": "PASS_8_OF_8"
     },
     {
       "name": "all M1 historical contracts",
@@ -124,13 +136,18 @@
       "id": "NEG-M1-070-04",
       "scenario": "切换职能后旧会话被撤销，不能复用旧上下文读取原职能页面",
       "status": "PASS"
+    },
+    {
+      "id": "NEG-M1-070-05",
+      "scenario": "较旧的筛选或路由响应晚于最新请求返回时不能覆盖最新页面状态",
+      "status": "PASS"
     }
   ],
   "fullVerification": {
     "status": "PASS_17_OF_17",
     "stepsPassed": 17,
-    "commit": "60a2b4fa4cb3574cc4b00ffa1f936f6c77661ee2",
-    "p0E2e": "PASS_21_OF_21",
+    "commit": "55da216205059c646772de00e350f34d93776796",
+    "p0E2e": "PASS_22_OF_22",
     "migrationIntegrity": "PASS_PUBLISHED_10_CURRENT_10",
     "secretScan": "PASS_495_TRACKED_FILES",
     "report": "artifacts/test-results/verification/pnpm-verify.json"
@@ -159,6 +176,12 @@
       "failedStep": null,
       "cause": null,
       "repair": "PNPM_VERIFY_OK:steps=17:base=HEAD"
+    },
+    {
+      "attempt": 5,
+      "failedStep": "focused stale response ordering audit",
+      "cause": "an older request could overwrite the result of the latest filter or route query",
+      "repair": "added monotonic request sequencing and ignored stale success, failure and loading completion; PNPM_VERIFY_OK:steps=17:base=55da216"
     }
   ],
   "migration": {
@@ -176,7 +199,8 @@
     "pullRequestState": "DRAFT",
     "draftHeadAtCreation": "60a2b4fa4cb3574cc4b00ffa1f936f6c77661ee2",
     "initialHeadCiRun": 31180175439,
-    "exactHeadCi": "NOT_EXECUTED_AFTER_EVIDENCE_UPDATE",
+    "previousHeadCi": "PASS_AT_056F142_RUN_31180343194_JOB_92871915961",
+    "exactHeadCi": "NOT_EXECUTED_AFTER_STALE_RESPONSE_HARDENING",
     "review": "NOT_EXECUTED",
     "merge": "NOT_EXECUTED",
     "mainPostMergeCi": "NOT_EXECUTED"
@@ -192,7 +216,7 @@
   },
   "risks": [
     "PAGE-017 through PAGE-023 expose only role-scoped page shells and deferred capability metadata; M2, M3 and M5 must replace deferred modules with real isolated data without widening DTOs.",
-    "supplier-portal production bundle is 1118.20 kB before gzip and exceeds the non-blocking 500 kB warning threshold.",
+    "supplier-portal production bundle is 1118.31 kB before gzip (352.74 kB gzip) and exceeds the non-blocking 500 kB warning threshold.",
     "Ant Design Spin.tip and Card.bordered deprecation warnings remain non-blocking and should be removed before later UI hardening.",
     "Production supplier identity and second-verification adapters remain default-deny external integrations."
   ],

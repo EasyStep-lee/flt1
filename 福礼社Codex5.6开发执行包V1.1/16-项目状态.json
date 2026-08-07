@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-07T08:54:45-04:00",
+  "updatedAt": "2026-08-07T09:21:07-04:00",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -59,21 +59,21 @@
       "currentHeadReviewRequired": true,
       "authorizationExactHead": false
     },
-    "lastVerifiedPullRequestHead": "c914a5e7d1036e20f6a989f40455c30d9dbe0043",
+    "lastVerifiedPullRequestHead": "056f142c2171762d83da39e96615aab693c4f47d",
     "pullRequestCi": {
-      "status": "INITIAL_HEAD_IN_PROGRESS_STALE_AFTER_EVIDENCE_UPDATE",
-      "runId": 31180175439,
-      "jobId": 92871298917,
-      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31180175439",
-      "headSha": "60a2b4fa4cb3574cc4b00ffa1f936f6c77661ee2"
+      "status": "SUCCESS_STALE_AFTER_STALE_RESPONSE_HARDENING",
+      "runId": 31180343194,
+      "jobId": 92871915961,
+      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31180343194",
+      "headSha": "056f142c2171762d83da39e96615aab693c4f47d"
     },
     "latestCi": {
-      "scope": "PR_M1_P070_INITIAL_DRAFT_HEAD",
-      "status": "IN_PROGRESS_STALE_AFTER_EVIDENCE_UPDATE",
-      "runId": 31180175439,
-      "jobId": 92871298917,
-      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31180175439",
-      "headSha": "60a2b4fa4cb3574cc4b00ffa1f936f6c77661ee2",
+      "scope": "PR_M1_P070_PRE_HARDENING_HEAD",
+      "status": "SUCCESS_STALE_AFTER_STALE_RESPONSE_HARDENING",
+      "runId": 31180343194,
+      "jobId": 92871915961,
+      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31180343194",
+      "headSha": "056f142c2171762d83da39e96615aab693c4f47d",
       "event": "pull_request"
     },
     "currentTaskDelivery": {
@@ -83,14 +83,14 @@
       "branch": "codex/m1-m1-p070",
       "baseCommit": "417d165d0668327af26bbcdadaf7bbd7fdb31471",
       "status": "DRAFT_LOCAL_PASS",
-      "verifiedImplementationHead": "77ebf06feb5f40b43b182a24a254e457a0713ff4",
+      "verifiedImplementationHead": "55da216205059c646772de00e350f34d93776796",
       "draftHeadAtCreation": "60a2b4fa4cb3574cc4b00ffa1f936f6c77661ee2",
-      "localVerify": "PASS_17_OF_17_AT_60A2B4F",
+      "localVerify": "PASS_17_OF_17_AT_55DA216",
       "migrationRehearsal": "PASS_EMPTY_2_UPGRADE_2_RESTORE_2_PRODUCT_10_CLEANUP_PASS",
       "pullRequest": 30,
       "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/30",
       "pullRequestState": "DRAFT",
-      "exactHeadCi": "NOT_EXECUTED_AFTER_EVIDENCE_UPDATE",
+      "exactHeadCi": "NOT_EXECUTED_AFTER_STALE_RESPONSE_HARDENING",
       "review": "NOT_EXECUTED",
       "merge": "NOT_EXECUTED",
       "mainPostMergeCi": "NOT_EXECUTED"
@@ -104,7 +104,7 @@
       "mainPostMergeCiRun": 31175113225,
       "status": "CI_PASS"
     },
-    "note": "M1-P069 PR #28已闭环。M1-P070已实现八类供应商固定页面壳、API-084/API-085服务端会话白名单与旧会话失效；最终证据提交60a2b4f的pnpm verify 17/17通过。Draft PR #30已创建；初始head run 31180175439不替代即将推送的证据head CI，审查/合并未执行；P071/P072/M2禁止启动。"
+    "note": "M1-P069 PR #28已闭环。M1-P070已实现八类供应商固定页面壳、API-084/API-085服务端会话白名单与旧会话失效；55da216进一步保证latest-request-wins，RED 1/1后pnpm verify 17/17与P0 22/22通过。Draft PR #30的先前056f142 CI成功但早于加固；当前最终head CI、审查/合并未执行；P071/P072/M2禁止启动。"
   },
   "evidence": {
     "local": "LOCAL_PASS",

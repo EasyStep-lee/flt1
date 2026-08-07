@@ -47,6 +47,7 @@ test('M1-P070 records eight isolated supplier workspaces at the local evidence b
     'NEG-M1-070-02',
     'NEG-M1-070-03',
     'NEG-M1-070-04',
+    'NEG-M1-070-05',
     'PAGE-016',
     'PAGE-023',
     'P0-071',
@@ -61,9 +62,14 @@ test('M1-P070 records eight isolated supplier workspaces at the local evidence b
   assert.equal(evidence.scope.laterBusinessDataImplemented, false);
   assert.equal(evidence.contract.contextSource, 'SERVER_SESSION_ONLY');
   assert.equal(evidence.contract.menuCardinality, 1);
-  assert.equal(evidence.negativeTests.length, 4);
+  assert.equal(
+    evidence.contract.requestOrdering,
+    'LATEST_REQUEST_WINS_STALE_SUCCESS_AND_FAILURE_IGNORED',
+  );
+  assert.equal(evidence.negativeTests.length, 5);
   assert.ok(evidence.negativeTests.every(({ status }) => status === 'PASS'));
   assert.equal(evidence.fullVerification.status, 'PASS_17_OF_17');
+  assert.equal(evidence.fullVerification.p0E2e, 'PASS_22_OF_22');
   assert.deepEqual(evidence.migration.newMigrations, []);
 
   assert.equal(rehearsal.status, 'LOCAL_PASS');

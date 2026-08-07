@@ -139,7 +139,7 @@ test('NEG-M1-070-03 eight supplier roles render one page and one internal menu e
   }
 });
 
-test('NEG-M1-070-03 ignores an older filter response that arrives after the latest query', async ({
+test('NEG-M1-070-05 ignores an older filter response that arrives after the latest query', async ({
   page,
 }) => {
   await installCurrentWorkspaceRoute(page);
