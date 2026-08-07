@@ -8,6 +8,7 @@
 - API-006 `POST /v1/supplier-auth/login` 认证自然人，不接受 `supplierId`、`functionalAccountId` 或 `workspaceRoute` 覆盖；单一有效账号直达，多账号返回 `/supplier/account-select` 逐一选择。
 - API-006 的 `requestId` 同时约束单账号直达：同一自然人并发或重试同一 `requestId` 时复用同一隐藏选择授权和会话 Cookie，响应乱序不能让最后落地的 Cookie 失效；客户端仍只看到 `selectionNonce=''`，不新增 DTO 字段。
 - API-007 `POST /v1/supplier-auth/workspaces/{accountId}/select` 使用短期、一次性选择上下文签发仅含一个职能账号的 Secure HttpOnly 会话；同账号重放返回同一仍有效的不透明 Cookie 以恢复未知结果，仍只保留同一活动会话，选择另一账号冲突。并发重放即使响应乱序，也不能让较晚到达的响应覆盖为失效 Cookie。
+- API-006 的 `verificationCode?` 与 API-007 的 `secondVerificationCode?` 未提供时可省略；提供时必须是最多 16 字符的字符串。对象、数组、数字、`null` 或超长值必须在调用凭证/二次验证 Adapter、创建选择授权或签发会话前以 `VALIDATION_FAILED` 拒绝。
 - 登录、失败、账号选择和会话签发追加 `LoginAudit`；原始密码、验证码、选择 nonce、会话 token 和完整手机号不得进入响应、日志或审计字段。
 
 ## 依赖与非目标
@@ -49,7 +50,7 @@
 
 ## 先红后绿测试
 
-- `NEG-M1-069-01`：登录/选择请求传入 `supplierId` 等归属覆盖字段时先拒绝且不签发会话。
+- `NEG-M1-069-01`：登录/选择请求传入 `supplierId` 等归属覆盖字段时先拒绝且不签发会话；可选验证码不是字符串或超过 16 字符时先返回 `VALIDATION_FAILED`，不得进入 Adapter 或消耗选择授权。
 - `NEG-M1-069-02`：注册与登录独立；非 `ACTIVE` 供应商即使凭证正确也不能进入后台。
 - `NEG-M1-069-03`：同一人员多职能不能自动合并进入；选择其他身份、其他供应商或停用账号失败。
 - `NEG-M1-069-04`：单账号直达登录或账号选择的同请求重试均幂等并可恢复丢失响应；同账号并发重放返回同一有效 Cookie，按任意响应顺序应用仍可解析到唯一活动会话；并发/顺序重放选择不同账号仅一个结果，旧会话撤销且审计追加。

@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import request from 'supertest';
 
 import { createApplication } from '../../dist/bootstrap.js';
@@ -79,8 +79,10 @@ const sessionTokenFrom = (response) => {
 
 const createFixture = async ({
   accounts = [account()],
+  credentialVerifier: providedCredentialVerifier,
   repository: providedRepository,
   runtimeConfig = config(),
+  secondVerifier: providedSecondVerifier,
   users = [user],
   secondVerificationRequired = false,
 } = {}) => {
@@ -90,13 +92,15 @@ const createFixture = async ({
     config: runtimeConfig,
     probes: probes(),
     supplierAuthRepository: repository,
-    supplierCredentialVerifier: {
+    supplierCredentialVerifier: providedCredentialVerifier ?? {
       verify: async ({ password }) => ({
         valid: password === validCredential,
         secondVerificationRequired,
       }),
     },
-    supplierSecondVerifier: { verify: async ({ code }) => code === '654321' },
+    supplierSecondVerifier: providedSecondVerifier ?? {
+      verify: async ({ code }) => code === '654321',
+    },
     logger: false,
   });
   await app.init();
@@ -119,6 +123,39 @@ describe('P0-069 supplier login and functional workspace selection', () => {
       expect(response.status).toBe(403);
       expect(response.body).toMatchObject({ code: 'DATA_SCOPE_FORBIDDEN' });
       expect(response.headers['cache-control']).toBe('private, no-store, max-age=0');
+    } finally {
+      await fixture.app.close();
+    }
+  });
+
+  it('rejects malformed optional login verification codes before session issuance', async () => {
+    const credentialVerify = vi.fn(async () => ({
+      valid: true,
+      secondVerificationRequired: false,
+    }));
+    const fixture = await createFixture({
+      credentialVerifier: { verify: credentialVerify },
+    });
+    try {
+      const invalidCodes = [{ value: '654321' }, '1'.repeat(17)];
+      for (const [index, verificationCode] of invalidCodes.entries()) {
+        const response = await request(fixture.app.getHttpServer())
+          .post('/v1/supplier-auth/login')
+          .send(
+            loginBody({
+              requestId: `40000000-0000-4000-8000-${String(70 + index).padStart(12, '0')}`,
+              verificationCode,
+            }),
+          );
+
+        expect(response.status).toBe(422);
+        expect(response.body).toMatchObject({ code: 'VALIDATION_FAILED' });
+        expect(response.headers['set-cookie']).toBeUndefined();
+        expect(response.headers['cache-control']).toBe('private, no-store, max-age=0');
+      }
+      expect(await fixture.repository.countSelectionGrants(userId)).toBe(0);
+      expect(await fixture.repository.countActiveSessions(userId)).toBe(0);
+      expect(credentialVerify).not.toHaveBeenCalled();
     } finally {
       await fixture.app.close();
     }
@@ -561,6 +598,49 @@ describe('P0-069 supplier login and functional workspace selection', () => {
           secondVerificationCode: '654321',
         });
       expect(selected.status).toBe(200);
+    } finally {
+      await fixture.app.close();
+    }
+  });
+
+  it('rejects malformed optional second-verification codes without consuming the grant', async () => {
+    const secondVerify = vi.fn(async ({ code }) => code === '654321');
+    const fixture = await createFixture({
+      secondVerificationRequired: true,
+      secondVerifier: { verify: secondVerify },
+    });
+    try {
+      const login = await request(fixture.app.getHttpServer())
+        .post('/v1/supplier-auth/login')
+        .send(
+          loginBody({ requestId: '40000000-0000-4000-8000-000000000072' }),
+        );
+      expect(login.status).toBe(200);
+
+      for (const secondVerificationCode of [{ value: '654321' }, '1'.repeat(17)]) {
+        const response = await request(fixture.app.getHttpServer())
+          .post(`/v1/supplier-auth/workspaces/${firstAccountId}/select`)
+          .send({
+            selectionNonce: login.body.selectionNonce,
+            secondVerificationCode,
+          });
+
+        expect(response.status).toBe(422);
+        expect(response.body).toMatchObject({ code: 'VALIDATION_FAILED' });
+        expect(response.headers['set-cookie']).toBeUndefined();
+        expect(response.headers['cache-control']).toBe('private, no-store, max-age=0');
+      }
+      expect(await fixture.repository.countActiveSessions(userId)).toBe(0);
+      expect(secondVerify).not.toHaveBeenCalled();
+
+      const selected = await request(fixture.app.getHttpServer())
+        .post(`/v1/supplier-auth/workspaces/${firstAccountId}/select`)
+        .send({
+          selectionNonce: login.body.selectionNonce,
+          secondVerificationCode: '654321',
+      });
+      expect(selected.status).toBe(200);
+      expect(secondVerify).toHaveBeenCalledOnce();
     } finally {
       await fixture.app.close();
     }

@@ -114,6 +114,9 @@ const selectionNonceFor = (userId: string, requestId: string): string =>
 
 const normalizeLoginAccount = (value: string): string => value.trim().toLowerCase();
 
+const isValidOptionalVerificationCode = (value: unknown): boolean =>
+  value === undefined || (typeof value === 'string' && value.length <= 16);
+
 const sessionTokenFromCookie = (cookieHeader?: string): string | null => {
   if (!cookieHeader) return null;
   for (const part of cookieHeader.split(';')) {
@@ -177,6 +180,7 @@ const assertLoginBody = (
     typeof body.password !== 'string' ||
     body.password.length < 1 ||
     body.password.length > 256 ||
+    !isValidOptionalVerificationCode(body.verificationCode) ||
     typeof body.requestId !== 'string' ||
     !UUID_PATTERN.test(body.requestId)
   ) {
@@ -378,6 +382,7 @@ export class SupplierAuthService {
       !UUID_PATTERN.test(accountId) ||
       typeof body.selectionNonce !== 'string' ||
       !NONCE_PATTERN.test(body.selectionNonce) ||
+      !isValidOptionalVerificationCode(body.secondVerificationCode) ||
       Object.keys(body).some((key) => !SELECTION_FIELDS.has(key))
     ) {
       throw new SafeApiError(422, 'VALIDATION_FAILED', '职能账号选择参数不正确');
