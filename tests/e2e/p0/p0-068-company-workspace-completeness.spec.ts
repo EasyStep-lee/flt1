@@ -150,6 +150,7 @@ test('NEG-M1-068-02 all company pages keep list, detail and timeline in their ow
 
     await completeness.getByRole('button', { name: '查看详情' }).first().click();
     const drawer = page.getByRole('dialog', { name: '模块详情与交付时间线' });
+    await expect(drawer).toHaveAccessibleName('模块详情与交付时间线');
     await expect(drawer).toContainText(moduleLabel(moduleKeys[workspace[0]][0]));
     await expect(drawer).toContainText('固定职能路由已就绪');
     for (const other of workspaces.filter((candidate) => candidate[0] !== workspace[0])) {

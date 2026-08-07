@@ -303,6 +303,7 @@ export function CompanyWorkspacePagePanel({
       </Card>
 
       <Drawer
+        aria-label="模块详情与交付时间线"
         onClose={() => setSelected(undefined)}
         open={Boolean(selected)}
         size="large"
