@@ -220,6 +220,7 @@ test('P0 E2E gate builds every mapped application before Playwright starts produ
   );
 
   assert.ok(applicationBuilds, 'P0 gate must declare mapped application builds');
+  assert.match(applicationBuilds[0], /@fulishe\/api\.\.\./u);
   assert.match(applicationBuilds[0], /@fulishe\/portal-web/u);
   assert.match(applicationBuilds[0], /@fulishe\/supplier-portal/u);
   assert.match(applicationBuilds[0], /@fulishe\/company-admin/u);

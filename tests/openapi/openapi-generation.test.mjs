@@ -119,6 +119,8 @@ test('generated contract exposes health, merchant identity, supplier onboarding 
     '/v1/company/suppliers',
     '/v1/company/suppliers/{supplierId}/review',
     '/v1/public/merchant-profile',
+    '/v1/supplier-auth/login',
+    '/v1/supplier-auth/workspaces/{accountId}/select',
     '/v1/supplier/me',
     '/v1/supplier/me/submit-review',
     '/v1/suppliers/registrations',
@@ -145,6 +147,14 @@ test('generated contract exposes health, merchant identity, supplier onboarding 
   assert.equal(
     spec.paths['/v1/company/suppliers/{supplierId}/review'].post.operationId,
     'companySupplierOnboarding.review',
+  );
+  assert.equal(
+    spec.paths['/v1/supplier-auth/login'].post.operationId,
+    'supplierauth.login',
+  );
+  assert.equal(
+    spec.paths['/v1/supplier-auth/workspaces/{accountId}/select'].post.operationId,
+    'supplierauth.selectWorkspace',
   );
   assert.equal(
     spec.paths['/v1/supplier/me'].patch.operationId,
@@ -197,6 +207,7 @@ test('generated contract exposes health, merchant identity, supplier onboarding 
       'SelectWorkspaceRequestDto',
       'SessionResponseDto',
       'SubmitReviewRequestDto',
+      'SupplierLoginRequestDto',
       'SupplierPageResponseDto',
       'SupplierProfilePatchRequestDto',
       'SupplierProfileResponseDto',
@@ -207,6 +218,10 @@ test('generated contract exposes health, merchant identity, supplier onboarding 
       'SupplierRegistrationResponseDto',
       'SupplierResponseDto',
       'SupplierReviewRequestDto',
+      'SupplierSelectWorkspaceRequestDto',
+      'SupplierSessionResponseDto',
+      'SupplierWorkspaceChoiceDto',
+      'SupplierWorkspaceChoiceResponseDto',
       'WorkspaceChoiceDto',
       'WorkspaceChoiceResponseDto',
     ],
@@ -233,6 +248,8 @@ test('generated contract exposes health, merchant identity, supplier onboarding 
   assert.match(generatedTypes, /"functionalAccounts\.create"/u);
   assert.match(generatedTypes, /"companyauth\.login"/u);
   assert.match(generatedTypes, /"companyauth\.selectWorkspace"/u);
+  assert.match(generatedTypes, /"supplierauth\.login"/u);
+  assert.match(generatedTypes, /"supplierauth\.selectWorkspace"/u);
   assert.match(generatedTypes, /ApiErrorResponseDto/u);
   assert.doesNotMatch(
     generatedTypes,

@@ -1,0 +1,326 @@
+{
+  "schemaVersion": "1.1.0",
+  "taskId": "M1-P069",
+  "p0Id": "P0-069",
+  "status": "LOCAL_PASS",
+  "verifiedAt": "2026-08-07T06:34:19-04:00",
+  "baseline": {
+    "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+    "baseBranch": "main",
+    "baseCommit": "ff8d5ae6d998a2f05ade69f8e220e2ec5a6527b3",
+    "branch": "codex/m1-m1-p069",
+    "implementationCommit": "c8c18485afb859487722acf39222a01cff99b531",
+    "hardeningCommit": "97ce454e2ed1c0a81095a4d429db86d8c67999a1",
+    "sameOriginRuntimeCommit": "561b4752f70e4d67f58fc828baf4e0e75677f541",
+    "browserRuntimeEvidenceCommit": "4f2a0c2047338c0af45fc76f5254967188dcd11a",
+    "cleanInstallCiFixCommit": "a462adf8717408a44da5305612453c2bdd0e2b52",
+    "apiDependencyClosureFixCommit": "ea6fed4a6bfa9ff2d5b4ad5204723e362fc57c62",
+    "expiredAccountVisibilityFixCommit": "72f3696ca3a2dfb0756cb34e69a183bc488f62c6",
+    "concurrentReplayCookieFixCommit": "b8a69dc3d6eef959451e8ff670eb7c7feef2a0f9",
+    "directLoginReplayFixCommit": "c8908ef28ab2bc643128b5238678a64785422f01",
+    "verificationCodeValidationFixCommit": "8e0db54175fc41bfa8653450623329542333d04e",
+    "selectionNonceSecretBindingFixCommit": "624e799431e0cf8977d8efba9b1a5cb5b3fadfe5",
+    "secondVerifiedReplayFixCommit": "1c2ae1cd08a9669dd2b37b396dfa6eb40f0e63b3",
+    "selectionFailureAuditFixCommit": "d12c9ab6a5afaedff0535733edce34e41eebd9af"
+  },
+  "scope": {
+    "pageIds": ["PAGE-013", "PAGE-014", "PAGE-015"],
+    "apiContracts": ["API-006", "API-007"],
+    "migration": "20260807010000_supplier_auth_sessions",
+    "supplierRegistrationReusedFrom": "M1-P003",
+    "supplierWorkspacePagesImplemented": false,
+    "nextWithinTask": "GITHUB_EXACT_HEAD_CI_AND_REVIEW",
+    "nextTask": "M1-P070",
+    "nextTaskAllowed": false
+  },
+  "contract": {
+    "registrationAndLogin": "SEPARATE_ROUTES",
+    "supplierOwnership": "SERVER_SESSION_ONLY",
+    "approvedApplicantActivation": "TRANSACTIONAL_SUPPLIER_USER_AND_ACCOUNT_ADMIN",
+    "functionalSession": "ONE_ACTIVE_ACCOUNT_PER_SESSION",
+    "selectionContext": "HASHED_ONE_TIME_IMMUTABLE_REQUEST_ID",
+    "ambiguousLoginIdentifier": "FAIL_CLOSED_NON_ENUMERATING",
+    "inactiveSupplierOrAccount": "FAIL_CLOSED_AND_OLD_SESSION_INVALID",
+    "responseWhitelist": "NO_SUPPLIER_USER_IDENTITY_SESSION_OR_TOKEN_FIELDS",
+    "cachePolicy": "PRIVATE_NO_STORE_MAX_AGE_ZERO_ON_SUCCESS_AND_FAILURE",
+    "cookieTransport": "CREDENTIALS_INCLUDE_ON_SAME_OPERATION_ORIGIN",
+    "browserApiTopology": "SAME_OPERATION_ORIGIN_WITH_LOCAL_VITE_PROXY",
+    "selectionReplayRecovery": "STABLE_HMAC_COOKIE_FOR_DIRECT_LOGIN_OR_SELECTION_RETRY_AND_ANY_RESPONSE_ORDER",
+    "selectionNonceDerivation": "DOMAIN_SEPARATED_HMAC_SERVER_SECRET",
+    "secondVerifiedReplayRecovery": "COMPLETED_SAME_ACCOUNT_SELECTION_REUSES_VERIFICATION_AND_SESSION",
+    "verificationCodeValidation": "OPTIONAL_STRING_MAX_16_REJECT_BEFORE_ADAPTER_OR_SESSION_SIDE_EFFECT",
+    "sessionStorage": "SHA256_TOKEN_ONLY_NO_RAW_TOKEN",
+    "sessionSigningKey": "REMOTE_REQUIRED_BASE64URL_SECRET_ROTATION_REVOKES_EXISTING_SUPPLIER_SESSIONS",
+    "credentialAndSecondVerificationAdapters": "DEFAULT_DENY",
+    "selectionFailureAudit": "HASHED_CONTEXT_TRUSTED_SCOPE_DEVICE_IP_RESULT_RISK"
+  },
+  "uiStates": [
+    "loading",
+    "empty",
+    "error",
+    "permission-denied",
+    "offline-or-timeout",
+    "expired",
+    "success"
+  ],
+  "redEvidence": {
+    "command": "pnpm --filter @fulishe/api build; pnpm exec vitest run --config ./vitest.config.ts --project api-contract apps/api/test/supertest/supplier-auth-api.test.mjs",
+    "result": "FAIL_3_OF_3_EXPECTED",
+    "cause": "API-006 and API-007 returned HTTP 404 before the supplier authentication slice existed",
+    "assertionsWeakened": false
+  },
+  "hardeningRedEvidence": [
+    {
+      "command": "node --test packages/web-api-client/test/package.test.mjs",
+      "result": "FAIL_EXPECTED_EXPORT_MISSING",
+      "cause": "the supplier portal client did not force credentials=include for an independent API origin"
+    },
+    {
+      "command": "pnpm exec vitest run --config ./vitest.config.ts --project api-contract apps/api/test/supertest/supplier-auth-api.test.mjs",
+      "result": "FAIL_2_OF_12_EXPECTED",
+      "cause": "supplier authentication error responses omitted the private no-store cache policy"
+    },
+    {
+      "command": "pnpm exec vitest run --config ./vitest.config.ts --project api-contract apps/api/test/supertest/supplier-auth-api.test.mjs",
+      "result": "FAIL_1_OF_12_EXPECTED",
+      "cause": "same-account selection replay returned no recovery Set-Cookie after an unknown first response"
+    },
+    {
+      "command": "pnpm --filter @fulishe/supplier-portal test",
+      "result": "FAIL_1_OF_3_EXPECTED_HTTP_404",
+      "cause": "the real Vite development server handled same-origin /v1 itself instead of forwarding the request to the API upstream"
+    },
+    {
+      "command": "pnpm exec playwright test tests/e2e/p0/p0-069-supplier-auth-runtime.spec.ts --config ./playwright.p0.config.ts",
+      "result": "FAIL_1_OF_1_EXPECTED_CONNECTION_REFUSED",
+      "cause": "the P0 gate had no supplier runtime server connected to the test API through the real same-origin proxy"
+    },
+    {
+      "command": "pnpm exec vitest run --config vitest.config.ts --project api-contract apps/api/test/supertest/supplier-auth-api.test.mjs",
+      "result": "FAIL_1_OF_13_EXPECTED",
+      "cause": "an expired functional account whose stored status remained ACTIVE was incorrectly returned to PAGE-015 as selectable"
+    },
+    {
+      "command": "pnpm exec vitest run --config vitest.config.ts --project api-contract apps/api/test/supertest/supplier-auth-api.test.mjs",
+      "result": "FAIL_1_OF_14_EXPECTED",
+      "cause": "three concurrent same-account selection responses carried three different cookies, so an out-of-order stale response could overwrite the only valid cookie"
+    },
+    {
+      "command": "pnpm exec vitest run --config vitest.config.ts --project api-contract apps/api/test/supertest/supplier-auth-prisma-repository.test.mjs",
+      "result": "FAIL_1_OF_4_EXPECTED",
+      "cause": "the replay repository path still overwrote the stored session hash instead of preserving the original credential"
+    },
+    {
+      "command": "node --test tests/configuration/configuration-schema.test.mjs",
+      "result": "FAIL_4_OF_10_EXPECTED",
+      "cause": "the runtime schema did not yet require, validate or redact the supplier session signing key"
+    },
+    {
+      "command": "pnpm exec vitest run --config vitest.config.ts --project api-contract apps/api/test/supertest/supplier-auth-api.test.mjs",
+      "result": "FAIL_1_OF_15_EXPECTED",
+      "cause": "an existing supplier cookie remained accepted after the HMAC signing key changed"
+    },
+    {
+      "command": "pnpm exec vitest run --config vitest.config.ts --project api-contract apps/api/test/supertest/supplier-auth-api.test.mjs",
+      "result": "FAIL_1_OF_16_EXPECTED",
+      "cause": "three concurrent API-006 direct logins with the same requestId created three sessions and cookies, so a late response could overwrite the only active cookie"
+    },
+    {
+      "command": "pnpm exec vitest run --config vitest.config.ts --project api-contract apps/api/test/supertest/supplier-auth-api.test.mjs",
+      "result": "FAIL_2_OF_18_EXPECTED",
+      "cause": "object and overlength optional verification codes reached the credential or second-verification adapter instead of failing input validation before session side effects"
+    },
+    {
+      "command": "pnpm exec vitest run --config vitest.config.ts --project api-contract apps/api/test/supertest/supplier-auth-api.test.mjs",
+      "result": "FAIL_1_OF_19_EXPECTED",
+      "cause": "different server signing keys generated the same selection nonce because the previous public SHA-256 derivation was not bound to a server secret"
+    },
+    {
+      "command": "pnpm exec vitest run --config vitest.config.ts --project api-contract apps/api/test/supertest/supplier-auth-api.test.mjs -t \"recovers a second-verified workspace\"",
+      "result": "FAIL_1_OF_20_EXPECTED",
+      "cause": "a completed second-verified same-account retry called the one-time verifier again and returned HTTP 428 instead of recovering the already issued session"
+    },
+    {
+      "command": "pnpm exec vitest run --config vitest.config.ts --project api-contract apps/api/test/supertest/supplier-auth-api.test.mjs -t \"refuses workspace selection|rejects disabled accounts\"",
+      "result": "FAIL_2_OF_20_EXPECTED",
+      "cause": "invalid or expired selection grants, unavailable accounts and completed cross-account conflicts returned the correct errors but appended no LoginAudit"
+    }
+  ],
+  "focusedEvidence": [
+    {
+      "name": "supplier auth, approval activation, and regression behavior",
+      "command": "pnpm exec vitest run --config ./vitest.config.ts --project api-contract apps/api/test/supertest/supplier-auth-api.test.mjs apps/api/test/supertest/supplier-auth-prisma-repository.test.mjs apps/api/test/supertest/supplier-onboarding-api.test.mjs apps/api/test/supertest/supplier-onboarding-prisma-activation.test.mjs",
+      "result": "PASS_34_OF_34"
+    },
+    {
+      "name": "supplier session signing-key schema, remote safety and redaction",
+      "command": "node --test tests/configuration/configuration-schema.test.mjs",
+      "result": "PASS_10_OF_10"
+    },
+    {
+      "name": "cookie-bound shared web client and supplier portal shell",
+      "command": "node --test packages/web-api-client/test/package.test.mjs; pnpm --filter @fulishe/supplier-portal test",
+      "result": "PASS_5_OF_5"
+    },
+    {
+      "name": "supplier auth OpenAPI and migration contracts",
+      "command": "node --test tests/openapi/m1-p069-supplier-auth-contract.test.mjs tests/migrations/m1-p069-supplier-auth-migration.contract.test.mjs",
+      "result": "PASS_2_OF_2"
+    },
+    {
+      "name": "deterministic OpenAPI",
+      "command": "pnpm openapi:check",
+      "result": "PASS_BYTE_IDENTICAL"
+    },
+    {
+      "name": "P0-069 Chromium behavior",
+      "command": "pnpm exec playwright test tests/e2e/p0/p0-069-supplier-auth.spec.ts tests/e2e/p0/p0-069-supplier-auth-runtime.spec.ts --config ./playwright.p0.config.ts",
+      "result": "PASS_4_OF_4_WITH_REAL_BROWSER_PROXY_API_COOKIE_CHAIN"
+    },
+    {
+      "name": "Prisma product migration rehearsal",
+      "command": "node scripts/prisma-migration-rehearsal.mjs --report artifacts/verification/M1-P069/prisma-migration-rehearsal.json",
+      "result": "PASS_EMPTY_2_UPGRADE_2_RESTORE_2_PRODUCT_9_CLEANUP_PASS"
+    },
+    {
+      "name": "typecheck after error-code contract repair",
+      "command": "pnpm typecheck",
+      "result": "PASS_13_OF_13"
+    }
+  ],
+  "negativeTests": [
+    {
+      "id": "NEG-M1-069-01",
+      "scenario": "客户端提交supplierId等归属字段被拒绝，归属只取服务端账号；可选验证码非字符串或超过16字符时在Adapter和会话副作用前拒绝",
+      "status": "PASS"
+    },
+    {
+      "id": "NEG-M1-069-02",
+      "scenario": "未知、歧义登录标识、错误凭证、停用用户或供应商均不泄露可枚举信息且不签发会话",
+      "status": "PASS"
+    },
+    {
+      "id": "NEG-M1-069-03",
+      "scenario": "没有有效选择上下文不能直接进入账号选择页或调用选择接口，并追加不含原始nonce的WORKSPACE_SELECTION_INVALID审计",
+      "status": "PASS"
+    },
+    {
+      "id": "NEG-M1-069-04",
+      "scenario": "停用或过期账号及职能类型不可选并追加WORKSPACE_ACCOUNT_UNAVAILABLE审计；选择nonce由服务端密钥和独立域HMAC派生，同一密钥与requestId稳定、不同密钥不同；单账号直登同requestId或同一nonce选择同账号的并发重放返回同一有效Cookie，任意响应顺序仍可恢复；已完成二次验证的同账号重放不再次消费一次性验证码；改选冲突且只保留一个会话并追加WORKSPACE_SESSION_CONFLICT审计",
+      "status": "PASS"
+    }
+  ],
+  "fullVerification": {
+    "status": "PASS_17_OF_17",
+    "stepsPassed": 17,
+    "commit": "d12c9ab6a5afaedff0535733edce34e41eebd9af",
+    "report": "artifacts/test-results/verification/pnpm-verify.json"
+  },
+  "verificationRepairHistory": [
+    {
+      "attempt": 1,
+      "failedStep": "openapi-diff",
+      "cause": "deterministic generated artifacts were still uncommitted",
+      "repair": "created the scoped implementation commit before comparing generated artifacts to HEAD"
+    },
+    {
+      "attempt": 2,
+      "failedStep": "regression",
+      "cause": "the exact OpenAPI route and schema inventory did not yet include API-006 and API-007",
+      "repair": "added the two paths, five DTO schemas, and generated operation assertions without weakening exact inventory checks"
+    },
+    {
+      "attempt": 3,
+      "failedStep": "secrets",
+      "cause": "two negative-test credential literals matched the repository secret scanner",
+      "repair": "reused an explicit test-only invalid credential constant; no scanner allowlist or suppression was added"
+    },
+    {
+      "attempt": 4,
+      "failedStep": null,
+      "cause": null,
+      "repair": "PNPM_VERIFY_OK:steps=17:base=HEAD"
+    },
+    {
+      "attempt": 5,
+      "failedStep": "focused-browser-cookie-inspection",
+      "cause": "Playwright URL-filtered cookie lookup omitted a Secure loopback cookie even though trace proved it was stored and sent",
+      "repair": "read the complete browser cookie jar and retained strict domain, path, HttpOnly, Secure, SameSite and token assertions"
+    },
+    {
+      "attempt": 6,
+      "failedStep": "github-actions-typecheck-run-31154584849",
+      "cause": "the runtime P0 specification statically imported API dist modules that were absent before typecheck in a clean checkout",
+      "repair": "load built API modules dynamically with source-only types and make the standalone P0 gate build @fulishe/api before Chromium; no assertion was removed"
+    },
+    {
+      "attempt": 7,
+      "failedStep": "github-actions-regression-run-31155519986",
+      "cause": "the standalone P0 gate built the API package but not its workspace dependency outputs, so Linux could not load @fulishe/config/dist/index.js",
+      "repair": "added a failing CI contract for the API dependency closure and changed the P0 build filter to @fulishe/api...; focused and full tests passed without weakening browser assertions"
+    },
+    {
+      "attempt": 8,
+      "failedStep": "secrets",
+      "cause": "the dependency-injection symbol name ended in TOKEN_KEY and matched the credential-assignment detector even though no secret value was present",
+      "repair": "renamed only the internal injection symbol; the scanner rule and tracked-file scope were not weakened, then 484 tracked files passed"
+    }
+  ],
+  "migration": {
+    "newMigrations": ["20260807010000_supplier_auth_sessions"],
+    "schemaChanged": true,
+    "rehearsal": "PASS_EMPTY_2_UPGRADE_2_RESTORE_2_PRODUCT_9_CLEANUP_PASS",
+    "report": "artifacts/verification/M1-P069/prisma-migration-rehearsal.json",
+    "rollback": "FORWARD_ONLY; before production restore the pre-migration backup or apply a reviewed forward repair migration"
+  },
+  "github": {
+    "repository": "EasyStep-lee/flt1",
+    "issue": 27,
+    "pullRequest": 28,
+    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/28",
+    "pullRequestState": "DRAFT",
+    "draftHeadAtCreation": "4a00801e40df283bf7ac998f5b3e3aff70ff8c5f",
+    "exactHeadCi": "NOT_EXECUTED_FOR_LOCAL_D12C9AB_AND_PENDING_EVIDENCE_HEAD",
+    "lastSuccessfulRemoteCi": {
+      "runId": 31169256471,
+      "headSha": "d3782058aee2fdfaf321c5654bdaa9768b182b47",
+      "status": "SUCCESS_NOT_CURRENT_HEAD"
+    },
+    "failedExactHeadCiRuns": [
+      {
+        "runId": 31154584849,
+        "headSha": "a392b65a2d5c998a2415a880bfd548b463cec022",
+        "failedStep": "typecheck"
+      },
+      {
+        "runId": 31155519986,
+        "headSha": "dbb40d16699a3413d17e884c008c33f1f4309263",
+        "failedStep": "regression-p0-runtime-workspace-dependency"
+      }
+    ],
+    "review": "NOT_EXECUTED",
+    "merge": "NOT_EXECUTED",
+    "mainPostMergeCi": "NOT_EXECUTED"
+  },
+  "environment": {
+    "local": "LOCAL_WINDOWS_CHROMIUM_REAL_VITE_PROXY_INJECTED_NEST_API_AND_DOCKER_MYSQL",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_REQUIRED_PC_WEB_SLICE",
+    "production": "NOT_EXECUTED"
+  },
+  "risks": [
+    "Production supplier credential verification and second verification integrations remain external and default-deny.",
+    "The supplier portal production bundle remains above Vite's 500 kB warning threshold; this is non-blocking for P0-069 but should be code-split before performance acceptance.",
+    "Production is expected to expose /v1 through the same operation origin. A separate API origin requires an explicitly reviewed credentialed-CORS gateway and is not proven by this slice.",
+    "The real browser chain uses an injected in-memory supplier auth repository and test-only credential verifier; it proves transport, UI and cookie behavior but not production identity-provider integration.",
+    "Rotating SUPPLIER_AUTH_SESSION_SIGNING_KEY intentionally invalidates existing supplier cookies and requires a planned re-login window; staging and production secret injection remain NOT_EXECUTED.",
+    "Pending account-selection nonces and active supplier cookies share the server signing-key rotation boundary; rotation intentionally invalidates both and requires supplier re-login.",
+    "The real second-verification provider is still external; this slice proves that a stored completed same-account selection recovers without re-consuming a one-time code, but production provider integration remains NOT_EXECUTED.",
+    "Selection-failure audit writes are fail-closed and retain only a hashed fixed context marker plus trusted scope, device/IP, result and risk. Production audit retention and access-control policies remain NOT_EXECUTED.",
+    "The forward migration has only local Docker MySQL evidence; staging and production migration remain NOT_EXECUTED."
+  ],
+  "rollback": {
+    "application": "git revert the M1-P069 implementation and evidence commits",
+    "database": "do not edit a published migration; restore the verified pre-migration backup before release or apply a reviewed forward repair"
+  }
+}

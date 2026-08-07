@@ -20,6 +20,10 @@ import { ShellFrame } from '@fulishe/ui';
 import type { components } from '@fulishe/contracts';
 
 import { createSupplierPortalApiClient } from './api-client.js';
+import {
+  SupplierAccountSelectPage,
+  SupplierLoginPage,
+} from './supplier-auth-pages.js';
 import { supplierSessionBoundary } from './session-boundary.js';
 
 type RegistrationResponse = components['schemas']['SupplierRegistrationResponseDto'];
@@ -288,7 +292,7 @@ function SupplierRegistrationPage() {
               </Space>
               <Divider />
               <Typography.Text type="secondary">
-                已有账号？请从供应商独立登录入口进入。
+                已有账号？<Typography.Link href="/supplier/login">从供应商独立登录入口进入</Typography.Link>。
               </Typography.Text>
             </Card>
           )}
@@ -484,6 +488,12 @@ export function SupplierPortalShell() {
   const currentPath = window.location.pathname;
   if (currentPath === supplierSessionBoundary.registerRoute) {
     return <SupplierRegistrationPage />;
+  }
+  if (currentPath === supplierSessionBoundary.loginRoute) {
+    return <SupplierLoginPage />;
+  }
+  if (currentPath === supplierSessionBoundary.accountSelectRoute) {
+    return <SupplierAccountSelectPage />;
   }
   if (currentPath === '/supplier/workspaces/account-admin') {
     return <SupplierAccountAdminPage />;

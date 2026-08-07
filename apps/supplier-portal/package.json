@@ -6,7 +6,7 @@
   "scripts": {
     "build": "pnpm --filter @fulishe/ui build && tsc -p tsconfig.json --noEmit && vite build",
     "dev": "vite --host 127.0.0.1 --port 5174",
-    "lint": "eslint src --max-warnings=0",
+    "lint": "eslint src test vite.config.ts --max-warnings=0",
     "test": "node --test ./test/*.test.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },

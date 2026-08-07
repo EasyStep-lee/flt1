@@ -31,6 +31,7 @@
               "AUTH_INVALID",
               "AUTH_SESSION_REVOKED",
               "RATE_LIMITED",
+              "SUPPLIER_NOT_ACTIVE",
               "WORKSPACE_MENU_VIOLATION",
               "WORKSPACE_MODULE_NOT_FOUND",
               "WORKSPACE_SELECTION_REQUIRED",
@@ -1051,6 +1052,36 @@
         ],
         "type": "object"
       },
+      "SupplierLoginRequestDto": {
+        "properties": {
+          "loginAccount": {
+            "example": "13800138000",
+            "maxLength": 254,
+            "type": "string"
+          },
+          "password": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string",
+            "writeOnly": true
+          },
+          "requestId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "verificationCode": {
+            "maxLength": 16,
+            "type": "string",
+            "writeOnly": true
+          }
+        },
+        "required": [
+          "loginAccount",
+          "password",
+          "requestId"
+        ],
+        "type": "object"
+      },
       "SupplierPageResponseDto": {
         "properties": {
           "items": {
@@ -1454,6 +1485,133 @@
           "decision",
           "version",
           "opinion"
+        ],
+        "type": "object"
+      },
+      "SupplierSelectWorkspaceRequestDto": {
+        "properties": {
+          "secondVerificationCode": {
+            "maxLength": 16,
+            "type": "string",
+            "writeOnly": true
+          },
+          "selectionNonce": {
+            "minLength": 32,
+            "type": "string",
+            "writeOnly": true
+          }
+        },
+        "required": [
+          "selectionNonce"
+        ],
+        "type": "object"
+      },
+      "SupplierSessionResponseDto": {
+        "properties": {
+          "accountTypeCode": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "functionalAccountId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "ownerType": {
+            "enum": [
+              "SUPPLIER"
+            ],
+            "type": "string"
+          },
+          "workspaceRoute": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "functionalAccountId",
+          "ownerType",
+          "accountTypeCode",
+          "workspaceRoute",
+          "expiresAt"
+        ],
+        "type": "object"
+      },
+      "SupplierWorkspaceChoiceDto": {
+        "properties": {
+          "accountId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "accountTypeCode": {
+            "type": "string"
+          },
+          "accountTypeName": {
+            "type": "string"
+          },
+          "lastUsedAt": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "ownerDisplayName": {
+            "type": "string"
+          },
+          "ownerType": {
+            "enum": [
+              "SUPPLIER"
+            ],
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "ACTIVE",
+              "PENDING_ACTIVATION",
+              "REVOKED",
+              "SUSPENDED"
+            ],
+            "type": "string"
+          },
+          "workspaceRoute": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "accountId",
+          "ownerType",
+          "ownerDisplayName",
+          "accountTypeCode",
+          "accountTypeName",
+          "workspaceRoute",
+          "status"
+        ],
+        "type": "object"
+      },
+      "SupplierWorkspaceChoiceResponseDto": {
+        "properties": {
+          "accountSelectRoute": {
+            "example": "/supplier/account-select",
+            "type": "string"
+          },
+          "accounts": {
+            "items": {
+              "$ref": "#/components/schemas/SupplierWorkspaceChoiceDto"
+            },
+            "type": "array"
+          },
+          "selectionNonce": {
+            "type": "string"
+          },
+          "selectionRequired": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "selectionRequired",
+          "selectionNonce",
+          "accounts",
+          "accountSelectRoute"
         ],
         "type": "object"
       },
@@ -2273,6 +2431,120 @@
         "tags": [
           "public-merchant"
         ]
+      }
+    },
+    "/v1/supplier-auth/login": {
+      "post": {
+        "operationId": "supplierauth.login",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SupplierLoginRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupplierWorkspaceChoiceResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          },
+          "422": {
+            "description": ""
+          }
+        },
+        "security": [],
+        "summary": "供应商独立登录并解析本方职能账号",
+        "tags": [
+          "supplier-auth"
+        ],
+        "x-fulishe-actor": "SUPPLIER_USER",
+        "x-fulishe-contract-id": "API-006",
+        "x-fulishe-error-codes": [
+          "AUTH_INVALID",
+          "SUPPLIER_NOT_ACTIVE",
+          "ACCOUNT_SUSPENDED",
+          "RATE_LIMITED"
+        ],
+        "x-fulishe-idempotency": "requestId",
+        "x-fulishe-request-dto": "SupplierLoginRequestDto",
+        "x-fulishe-response-dto": "SupplierWorkspaceChoiceResponseDto",
+        "x-fulishe-response-policy": "NEVER_RETURN_INTERNAL_PRICING"
+      }
+    },
+    "/v1/supplier-auth/workspaces/{accountId}/select": {
+      "post": {
+        "operationId": "supplierauth.selectWorkspace",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "accountId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SupplierSelectWorkspaceRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupplierSessionResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          },
+          "422": {
+            "description": ""
+          }
+        },
+        "security": [],
+        "summary": "选择一个供应商职能账号并签发单工作区会话",
+        "tags": [
+          "supplier-auth"
+        ],
+        "x-fulishe-actor": "SUPPLIER_USER",
+        "x-fulishe-contract-id": "API-007",
+        "x-fulishe-error-codes": [
+          "WORKSPACE_FORBIDDEN",
+          "SECOND_VERIFICATION_REQUIRED",
+          "WORKSPACE_SESSION_CONFLICT"
+        ],
+        "x-fulishe-idempotency": "selectionNonce",
+        "x-fulishe-request-dto": "SupplierSelectWorkspaceRequestDto",
+        "x-fulishe-response-dto": "SupplierSessionResponseDto",
+        "x-fulishe-response-policy": "NEVER_RETURN_INTERNAL_PRICING"
       }
     },
     "/v1/supplier/me": {

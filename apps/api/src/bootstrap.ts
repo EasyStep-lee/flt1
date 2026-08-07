@@ -22,6 +22,11 @@ import { requestIdMiddleware } from './http/request-id.middleware.js';
 import type { InfrastructureProbe } from './infrastructure/probe.js';
 import { SafeJsonLogger } from './logging/safe-json.logger.js';
 import type { SingleMerchantRepository } from './merchant/single-merchant.repository.js';
+import type { SupplierAuthRepository } from './supplier-auth/supplier-auth.repository.js';
+import type {
+  SupplierCredentialVerifier,
+  SupplierSecondVerifier,
+} from './supplier-auth/supplier-auth.security.js';
 import type { FunctionalAccountActorResolver } from './supplier-functional-accounts/supplier-functional-account.actor.js';
 import type { SupplierFunctionalAccountRepository } from './supplier-functional-accounts/supplier-functional-account.repository.js';
 import type {
@@ -52,6 +57,9 @@ export interface CreateApplicationOptions {
   readonly companyCredentialVerifier?: CompanyCredentialVerifier;
   readonly companySecondVerifier?: CompanySecondVerifier;
   readonly companyFunctionalAccountRepository?: CompanyFunctionalAccountRepository;
+  readonly supplierAuthRepository?: SupplierAuthRepository;
+  readonly supplierCredentialVerifier?: SupplierCredentialVerifier;
+  readonly supplierSecondVerifier?: SupplierSecondVerifier;
   readonly logger?: LoggerService | false;
 }
 
@@ -106,6 +114,15 @@ export const createApplication = async (
           companyFunctionalAccountRepository:
             options.companyFunctionalAccountRepository,
         }
+      : {}),
+    ...(options.supplierAuthRepository
+      ? { supplierAuthRepository: options.supplierAuthRepository }
+      : {}),
+    ...(options.supplierCredentialVerifier
+      ? { supplierCredentialVerifier: options.supplierCredentialVerifier }
+      : {}),
+    ...(options.supplierSecondVerifier
+      ? { supplierSecondVerifier: options.supplierSecondVerifier }
       : {}),
   };
   const logger = options.logger === false ? false : options.logger ?? new SafeJsonLogger();
