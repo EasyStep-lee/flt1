@@ -399,8 +399,13 @@ export class SupplierAuthService {
     if (!account || !isEligibleAccount(account, now)) {
       throw new SafeApiError(403, 'WORKSPACE_FORBIDDEN', '职能账号不可用');
     }
+    const isCompletedSameAccountReplay =
+      grant.usedAt !== null &&
+      grant.selectedAccountId === account.id &&
+      grant.selectedSessionId !== null;
     if (
       grant.secondVerificationRequired &&
+      !isCompletedSameAccountReplay &&
       !(await this.secondVerifier.verify({
         userId: grant.userId,
         ...(body.secondVerificationCode ? { code: body.secondVerificationCode } : {}),

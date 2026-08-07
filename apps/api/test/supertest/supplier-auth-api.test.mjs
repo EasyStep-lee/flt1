@@ -640,6 +640,41 @@ describe('P0-069 supplier login and functional workspace selection', () => {
     }
   });
 
+  it('recovers a second-verified workspace without consuming another one-time code', async () => {
+    const secondVerify = vi
+      .fn()
+      .mockResolvedValueOnce(true)
+      .mockResolvedValue(false);
+    const fixture = await createFixture({
+      secondVerificationRequired: true,
+      secondVerifier: { verify: secondVerify },
+    });
+    try {
+      const login = await request(fixture.app.getHttpServer())
+        .post('/v1/supplier-auth/login')
+        .send(loginBody({ requestId: '40000000-0000-4000-8000-000000000073' }));
+      const selected = await request(fixture.app.getHttpServer())
+        .post(`/v1/supplier-auth/workspaces/${firstAccountId}/select`)
+        .send({
+          selectionNonce: login.body.selectionNonce,
+          secondVerificationCode: '654321',
+        });
+      const recovered = await request(fixture.app.getHttpServer())
+        .post(`/v1/supplier-auth/workspaces/${firstAccountId}/select`)
+        .send({ selectionNonce: login.body.selectionNonce });
+
+      expect(selected.status).toBe(200);
+      expect(recovered.status).toBe(200);
+      expect(recovered.body).toEqual(selected.body);
+      expect(recovered.headers['idempotency-replayed']).toBe('true');
+      expect(sessionTokenFrom(recovered)).toBe(sessionTokenFrom(selected));
+      expect(secondVerify).toHaveBeenCalledOnce();
+      expect(await fixture.repository.countActiveSessions(userId)).toBe(1);
+    } finally {
+      await fixture.app.close();
+    }
+  });
+
   it('rejects malformed optional second-verification codes without consuming the grant', async () => {
     const secondVerify = vi.fn(async ({ code }) => code === '654321');
     const fixture = await createFixture({

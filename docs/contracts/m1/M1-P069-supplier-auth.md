@@ -7,7 +7,7 @@
 - 供应商经公司审核为 `ACTIVE` 时，在同一事务中激活申请主联系人对应的 `SupplierUser` 和唯一 `SUPPLIER_ACCOUNT_ADMIN` 职能账号。
 - API-006 `POST /v1/supplier-auth/login` 认证自然人，不接受 `supplierId`、`functionalAccountId` 或 `workspaceRoute` 覆盖；单一有效账号直达，多账号返回 `/supplier/account-select` 逐一选择。
 - API-006 的 `requestId` 同时约束单账号直达：同一自然人并发或重试同一 `requestId` 时复用同一隐藏选择授权和会话 Cookie，响应乱序不能让最后落地的 Cookie 失效；客户端仍只看到 `selectionNonce=''`，不新增 DTO 字段。选择 nonce 使用独立域标签和服务端认证签名密钥做 HMAC：同一实例对同一动作稳定重放，但不能仅由 `userId + requestId` 推导；不同服务端密钥必须产生不同 nonce。
-- API-007 `POST /v1/supplier-auth/workspaces/{accountId}/select` 使用短期、一次性选择上下文签发仅含一个职能账号的 Secure HttpOnly 会话；同账号重放返回同一仍有效的不透明 Cookie 以恢复未知结果，仍只保留同一活动会话，选择另一账号冲突。并发重放即使响应乱序，也不能让较晚到达的响应覆盖为失效 Cookie。
+- API-007 `POST /v1/supplier-auth/workspaces/{accountId}/select` 使用短期、一次性选择上下文签发仅含一个职能账号的 Secure HttpOnly 会话；同账号重放返回同一仍有效的不透明 Cookie 以恢复未知结果，仍只保留同一活动会话，选择另一账号冲突。并发重放即使响应乱序，也不能让较晚到达的响应覆盖为失效 Cookie。需要二次验证的首次选择必须通过 Adapter；一旦该 nonce 已完成同账号选择，未知结果重放复用已完成的验证与会话，不得再次消费一次性验证码。
 - API-006 的 `verificationCode?` 与 API-007 的 `secondVerificationCode?` 未提供时可省略；提供时必须是最多 16 字符的字符串。对象、数组、数字、`null` 或超长值必须在调用凭证/二次验证 Adapter、创建选择授权或签发会话前以 `VALIDATION_FAILED` 拒绝。
 - 登录、失败、账号选择和会话签发追加 `LoginAudit`；原始密码、验证码、选择 nonce、会话 token 和完整手机号不得进入响应、日志或审计字段。
 
@@ -21,7 +21,7 @@
 ## 字段、状态和数据范围
 
 - `SupplierUser.supplierId` 仅由审核激活或受信邀请在服务端写入；登录请求、URL、Cookie 外字段和页面状态均不能覆盖。
-- `SupplierAuthSelection` 保存 `userId`、哈希后的 nonce、`requestId`、是否需要二次验证、选中账号/会话、到期与使用时间；不保存原始 nonce。单账号直达也在服务端使用同一授权，以便同 `requestId` 的未知结果和并发重试恢复同一会话，但不把 nonce 返回给页面。
+- `SupplierAuthSelection` 保存 `userId`、哈希后的 nonce、`requestId`、是否需要二次验证、选中账号/会话、到期与使用时间；不保存原始 nonce。单账号直达也在服务端使用同一授权，以便同 `requestId` 的未知结果和并发重试恢复同一会话，但不把 nonce 返回给页面。`usedAt + selectedAccountId + selectedSessionId` 共同证明同账号选择已经完成；只有该完成态重放可跳过再次调用一次性二次验证 Adapter，改选、未完成、过期或会话失效仍失败关闭。
 - `AuthSession.userType=SUPPLIER_USER`，`userId`、`functionalAccountId`、`workspaceRoute` 与当前数据库关系必须一致；新会话撤销该自然人旧供应商职能会话。
 - 会话 token 由随机服务端 `AuthSession.id` 与服务端 HMAC 密钥确定性派生；选择 nonce 不能推导 token。数据库仍只保存 token 的 SHA-256，重放不覆盖原 hash，响应和日志仍不暴露 token。
 - 可登录要求：`Supplier.status=ACTIVE`、`SupplierUser.status=ACTIVE`、职能账号及账号类型均为 `ACTIVE`、账号未过期。
