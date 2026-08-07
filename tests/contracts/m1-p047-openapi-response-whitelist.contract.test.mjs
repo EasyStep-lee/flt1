@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 const repositoryRoot = fileURLToPath(new URL('../../', import.meta.url));
 const packRoot = path.join(repositoryRoot, '福礼社Codex5.6开发执行包V1.1');
 
-test('M1-P047 evidence remains closed after PR 20 merge and M1-P066 local completion', async () => {
+test('M1-P047 evidence remains closed after PR 20 merge as the project advances', async () => {
   const [contract, evidence, state, taskLedger, p0Ledger, evidenceLedger] = await Promise.all([
     readFile(
       path.join(repositoryRoot, 'docs', 'contracts', 'm1', 'M1-P047-openapi-response-whitelist.md'),
@@ -44,16 +44,16 @@ test('M1-P047 evidence remains closed after PR 20 merge and M1-P066 local comple
   assert.equal(evidence.negativeTests.length, 4);
   assert.ok(evidence.negativeTests.every(({ status }) => status === 'PASS'));
   assert.match(state.execution.lastCompletedTask, /^M1-P06[67]$/u);
-  assert.equal(state.execution.currentTask, 'M1-P067');
-  assert.equal(state.execution.nextAllowedTask, 'M1-P067');
+  assert.equal(state.execution.currentTask, 'M1-P068');
+  assert.equal(state.execution.nextAllowedTask, 'M1-P068');
   assert.ok([0, 1].includes(state.execution.activeTaskCount));
   assert.equal(state.execution.prohibitedUntilGate.length, 1);
-  assert.match(state.execution.prohibitedUntilGate[0], /M1-P068/u);
+  assert.match(state.execution.prohibitedUntilGate[0], /M1-P069/u);
   assert.ok(state.github.pullRequest === null || Number.isInteger(state.github.pullRequest));
   assert.ok(['NOT_CREATED', 'DRAFT'].includes(state.github.pullRequestState));
   assert.equal(state.github.pullRequestMerged, false);
-  assert.equal(state.github.mergeCommitSha, 'NOT_EXECUTED_FOR_M1_P067');
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M1-P067');
+  assert.equal(state.github.mergeCommitSha, 'NOT_EXECUTED_FOR_M1_P068');
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M1-P068');
   assert.ok(
     ['IN_PROGRESS', 'DONE_LOCAL_PASS'].includes(
       state.github.currentTaskDelivery.status,
@@ -65,7 +65,7 @@ test('M1-P047 evidence remains closed after PR 20 merge and M1-P066 local comple
   );
   assert.match(state.github.currentTaskDelivery.exactHeadCi, /NOT_EXECUTED/u);
   assert.ok(
-    ['NOT_EXECUTED_FOR_M1_P067', 'LOCAL_PASS'].includes(state.evidence.local),
+    ['NOT_EXECUTED_FOR_M1_P068', 'LOCAL_PASS'].includes(state.evidence.local),
   );
   assert.equal(state.evidence.ci, 'NOT_EXECUTED');
   assert.match(taskLedger, /M1-P047[^\r\n]*DONE[^\r\n]*CI_PASS/u);
