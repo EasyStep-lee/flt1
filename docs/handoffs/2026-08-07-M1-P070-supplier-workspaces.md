@@ -36,7 +36,7 @@
 | P005/P070 Chromium GREEN | `3/3`；扩大到 P005/P069/P070 为 `7/7` |
 | M1 历史契约 | 推进状态断言修正后 `35/35`；没有改变历史精确 head/CI 证据 |
 | P070 迁移演练 | `empty=2/upgrade=2/restore=2/product=10/cleanup=PASS`；schema 前后哈希一致 |
-| 完整 `pnpm verify` | `17/17`、退出码 `0`；P0 E2E `21/21`、迁移 `published=10/current=10`、秘密扫描 491 个跟踪文件 |
+| 完整 `pnpm verify` | 最终证据提交 `60a2b4f` 上 `17/17`、退出码 `0`；P0 E2E `21/21`、迁移 `published=10/current=10`、秘密扫描 495 个跟踪文件 |
 
 完整验证早期有三项真实失败并已保留：生成契约未提交导致 `openapi-diff` 失败；P069 浏览器 Mock 未覆盖新门禁导致连接 3000 端口失败；八个历史证据测试仍把 P069 当作当前任务。修复均只补装配/进度断言，没有删测试、降断言或放宽权限。
 
@@ -49,6 +49,6 @@
 
 ## GitHub、回滚与下一门禁
 
-- 仓库：`EasyStep-lee/flt1`；Issue [#29](https://github.com/EasyStep-lee/flt1/issues/29)。当前尚未创建 PR，精确 head CI、评论、审查、合并及合并后 main CI 均 `NOT_EXECUTED`。
+- 仓库：`EasyStep-lee/flt1`；Issue [#29](https://github.com/EasyStep-lee/flt1/issues/29)；Draft PR [#30](https://github.com/EasyStep-lee/flt1/pull/30)。创建时 head `60a2b4f` 的 Actions run `31180175439` 已启动，但本次 PR 元数据入库会产生新 head，因此该 run 不作为最终精确 head 证据；评论、审查、合并及合并后 main CI 均 `NOT_EXECUTED`。
 - 应用回滚：按提交顺序 `git revert` P070 实现、回归和证据提交；数据库无需回滚，因为 schema/迁移未变。
-- 下一步仅允许推送本分支、创建/更新 Draft PR、读取该精确 head 的 Actions 与评论并修复当前切片。未获用户对精确 SHA 的 Ready/合并授权且合并后 main CI 未通过前，禁止启动 P071、P072 或 M2。
+- 下一步仅允许推送 PR 元数据提交、读取新精确 head 的 Actions 与评论并修复当前切片。未获用户对精确 SHA 的 Ready/合并授权且合并后 main CI 未通过前，禁止启动 P071、P072 或 M2。

@@ -129,10 +129,10 @@
   "fullVerification": {
     "status": "PASS_17_OF_17",
     "stepsPassed": 17,
-    "commit": "77ebf06feb5f40b43b182a24a254e457a0713ff4",
+    "commit": "60a2b4fa4cb3574cc4b00ffa1f936f6c77661ee2",
     "p0E2e": "PASS_21_OF_21",
     "migrationIntegrity": "PASS_PUBLISHED_10_CURRENT_10",
-    "secretScan": "PASS_491_TRACKED_FILES",
+    "secretScan": "PASS_495_TRACKED_FILES",
     "report": "artifacts/test-results/verification/pnpm-verify.json"
   },
   "verificationRepairHistory": [
@@ -171,10 +171,12 @@
   "github": {
     "repository": "EasyStep-lee/flt1",
     "issue": 29,
-    "pullRequest": null,
-    "pullRequestUrl": null,
-    "pullRequestState": "NOT_CREATED",
-    "exactHeadCi": "NOT_EXECUTED",
+    "pullRequest": 30,
+    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/30",
+    "pullRequestState": "DRAFT",
+    "draftHeadAtCreation": "60a2b4fa4cb3574cc4b00ffa1f936f6c77661ee2",
+    "initialHeadCiRun": 31180175439,
+    "exactHeadCi": "NOT_EXECUTED_AFTER_EVIDENCE_UPDATE",
     "review": "NOT_EXECUTED",
     "merge": "NOT_EXECUTED",
     "mainPostMergeCi": "NOT_EXECUTED"
