@@ -137,7 +137,7 @@ test('M1-P003 retains its local evidence after PR and main CI closure', async ()
   const mappedApis = apis.filter(({ Method, Path }) => operationKeys.has(`${Method} ${Path}`));
 
   assert.ok(active.length <= 1);
-  assert.ok(active.every(({ TaskID }) => TaskID === 'M1-P068'));
+  assert.ok(active.every(({ TaskID }) => TaskID === 'M1-P069'));
   assert.equal(m1p003?.Status, 'DONE');
   assert.equal(m1p003?.EvidenceStatus, 'CI_PASS');
   assert.equal(m1p003?.CommitSHA, 'd7067a59f1bc66680121d9e2b38e04cb3083dee2');
@@ -148,7 +148,7 @@ test('M1-P003 retains its local evidence after PR and main CI closure', async ()
   assert.equal(p0?.CurrentEvidenceStatus, 'CI_PASS');
   assert.equal(p0?.EvidenceLink, 'artifacts/verification/M1-P003/supplier-onboarding.json');
   assert.equal(evidenceRow?.CurrentStatus, 'CI_PASS');
-  assert.equal(migration?.Status, 'PARTIAL_APPLIED_LOCAL');
+  assert.equal(migration?.Status, 'APPLIED_LOCAL');
   assert.equal(mappedPages.length, 2);
   assert.equal(
     mappedPages.find(({ PageID }) => PageID === 'PAGE-004')?.ImplementationStatus,
@@ -156,7 +156,7 @@ test('M1-P003 retains its local evidence after PR and main CI closure', async ()
   );
   assert.equal(
     mappedPages.find(({ PageID }) => PageID === 'PAGE-013')?.ImplementationStatus,
-    'PARTIAL_LOCAL_PASS',
+    'IMPLEMENTED',
   );
   assert.equal(mappedApis.length, 5);
   assert.ok(mappedApis.every(({ OpenAPIStatus }) => OpenAPIStatus === 'GENERATED'));
@@ -178,18 +178,20 @@ test('M1-P003 retains its local evidence after PR and main CI closure', async ()
 
   assert.equal(state.execution.currentStage, 'M1');
   assert.equal(state.execution.currentTask, state.execution.nextAllowedTask);
-  assert.equal(state.execution.currentTask, 'M1-P068');
+  assert.equal(state.execution.currentTask, 'M1-P069');
   assert.equal(state.execution.activeTaskCount, active.length);
   assert.match(state.execution.lastCompletedTask, /^M1-/u);
   assert.equal(state.github.repository, 'EasyStep-lee/flt1');
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M1-P068');
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M1-P069');
   assert.ok(
-    ['IN_PROGRESS', 'DONE_LOCAL_PASS'].includes(
+    ['IN_PROGRESS', 'LOCAL_FOCUSED_PASS', 'DONE_LOCAL_PASS'].includes(
       state.github.currentTaskDelivery.status,
     ),
   );
   assert.ok(
-    ['NOT_EXECUTED_FOR_M1_P067', 'LOCAL_PASS'].includes(state.evidence.local),
+    ['NOT_EXECUTED_FOR_M1_P067', 'LOCAL_FOCUSED_PASS', 'LOCAL_PASS'].includes(
+      state.evidence.local,
+    ),
   );
   assert.equal(state.evidence.ci, 'NOT_EXECUTED');
 });

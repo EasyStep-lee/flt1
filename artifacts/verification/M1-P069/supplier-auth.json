@@ -1,0 +1,169 @@
+{
+  "schemaVersion": "1.1.0",
+  "taskId": "M1-P069",
+  "p0Id": "P0-069",
+  "status": "LOCAL_PASS",
+  "verifiedAt": "2026-08-07T01:09:09-04:00",
+  "baseline": {
+    "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+    "baseBranch": "main",
+    "baseCommit": "ff8d5ae6d998a2f05ade69f8e220e2ec5a6527b3",
+    "branch": "codex/m1-m1-p069",
+    "implementationCommit": "c8c18485afb859487722acf39222a01cff99b531"
+  },
+  "scope": {
+    "pageIds": ["PAGE-013", "PAGE-014", "PAGE-015"],
+    "apiContracts": ["API-006", "API-007"],
+    "migration": "20260807010000_supplier_auth_sessions",
+    "supplierRegistrationReusedFrom": "M1-P003",
+    "supplierWorkspacePagesImplemented": false,
+    "nextTask": "M1-P070",
+    "nextTaskAllowed": false
+  },
+  "contract": {
+    "registrationAndLogin": "SEPARATE_ROUTES",
+    "supplierOwnership": "SERVER_SESSION_ONLY",
+    "approvedApplicantActivation": "TRANSACTIONAL_SUPPLIER_USER_AND_ACCOUNT_ADMIN",
+    "functionalSession": "ONE_ACTIVE_ACCOUNT_PER_SESSION",
+    "selectionContext": "HASHED_ONE_TIME_IMMUTABLE_REQUEST_ID",
+    "ambiguousLoginIdentifier": "FAIL_CLOSED_NON_ENUMERATING",
+    "inactiveSupplierOrAccount": "FAIL_CLOSED_AND_OLD_SESSION_INVALID",
+    "responseWhitelist": "NO_SUPPLIER_USER_IDENTITY_SESSION_OR_TOKEN_FIELDS",
+    "cachePolicy": "PRIVATE_NO_STORE",
+    "credentialAndSecondVerificationAdapters": "DEFAULT_DENY"
+  },
+  "uiStates": [
+    "loading",
+    "empty",
+    "error",
+    "permission-denied",
+    "offline-or-timeout",
+    "expired",
+    "success"
+  ],
+  "redEvidence": {
+    "command": "pnpm --filter @fulishe/api build; pnpm exec vitest run --config ./vitest.config.ts --project api-contract apps/api/test/supertest/supplier-auth-api.test.mjs",
+    "result": "FAIL_3_OF_3_EXPECTED",
+    "cause": "API-006 and API-007 returned HTTP 404 before the supplier authentication slice existed",
+    "assertionsWeakened": false
+  },
+  "focusedEvidence": [
+    {
+      "name": "supplier auth, approval activation, and regression behavior",
+      "command": "pnpm exec vitest run --config ./vitest.config.ts --project api-contract apps/api/test/supertest/supplier-auth-api.test.mjs apps/api/test/supertest/supplier-auth-prisma-repository.test.mjs apps/api/test/supertest/supplier-onboarding-api.test.mjs apps/api/test/supertest/supplier-onboarding-prisma-activation.test.mjs",
+      "result": "PASS_25_OF_25"
+    },
+    {
+      "name": "supplier auth OpenAPI and migration contracts",
+      "command": "node --test tests/openapi/m1-p069-supplier-auth-contract.test.mjs tests/migrations/m1-p069-supplier-auth-migration.contract.test.mjs",
+      "result": "PASS_2_OF_2"
+    },
+    {
+      "name": "deterministic OpenAPI",
+      "command": "pnpm openapi:check",
+      "result": "PASS_BYTE_IDENTICAL"
+    },
+    {
+      "name": "P0-069 Chromium behavior",
+      "command": "pnpm exec playwright test tests/e2e/p0/p0-069-supplier-auth.spec.ts --config ./playwright.p0.config.ts",
+      "result": "PASS_3_OF_3"
+    },
+    {
+      "name": "Prisma product migration rehearsal",
+      "command": "node scripts/prisma-migration-rehearsal.mjs --report artifacts/verification/M1-P069/prisma-migration-rehearsal.json",
+      "result": "PASS_EMPTY_2_UPGRADE_2_RESTORE_2_PRODUCT_9_CLEANUP_PASS"
+    },
+    {
+      "name": "typecheck after error-code contract repair",
+      "command": "pnpm typecheck",
+      "result": "PASS_13_OF_13"
+    }
+  ],
+  "negativeTests": [
+    {
+      "id": "NEG-M1-069-01",
+      "scenario": "客户端提交supplierId等归属字段被拒绝，归属只取服务端账号",
+      "status": "PASS"
+    },
+    {
+      "id": "NEG-M1-069-02",
+      "scenario": "未知、歧义登录标识、错误凭证、停用用户或供应商均不泄露可枚举信息且不签发会话",
+      "status": "PASS"
+    },
+    {
+      "id": "NEG-M1-069-03",
+      "scenario": "没有有效选择上下文不能直接进入账号选择页或调用选择接口",
+      "status": "PASS"
+    },
+    {
+      "id": "NEG-M1-069-04",
+      "scenario": "停用或过期账号及职能类型不可选，同一nonce改选冲突且只保留一个会话",
+      "status": "PASS"
+    }
+  ],
+  "fullVerification": {
+    "status": "PASS_17_OF_17",
+    "stepsPassed": 17,
+    "commit": "59ce2ddb1f34f1894762298f9ae7af3bba1cc465",
+    "report": "artifacts/test-results/verification/pnpm-verify.json"
+  },
+  "verificationRepairHistory": [
+    {
+      "attempt": 1,
+      "failedStep": "openapi-diff",
+      "cause": "deterministic generated artifacts were still uncommitted",
+      "repair": "created the scoped implementation commit before comparing generated artifacts to HEAD"
+    },
+    {
+      "attempt": 2,
+      "failedStep": "regression",
+      "cause": "the exact OpenAPI route and schema inventory did not yet include API-006 and API-007",
+      "repair": "added the two paths, five DTO schemas, and generated operation assertions without weakening exact inventory checks"
+    },
+    {
+      "attempt": 3,
+      "failedStep": "secrets",
+      "cause": "two negative-test credential literals matched the repository secret scanner",
+      "repair": "reused an explicit test-only invalid credential constant; no scanner allowlist or suppression was added"
+    },
+    {
+      "attempt": 4,
+      "failedStep": null,
+      "cause": null,
+      "repair": "PNPM_VERIFY_OK:steps=17:base=HEAD"
+    }
+  ],
+  "migration": {
+    "newMigrations": ["20260807010000_supplier_auth_sessions"],
+    "schemaChanged": true,
+    "rehearsal": "PASS_EMPTY_2_UPGRADE_2_RESTORE_2_PRODUCT_9_CLEANUP_PASS",
+    "report": "artifacts/verification/M1-P069/prisma-migration-rehearsal.json",
+    "rollback": "FORWARD_ONLY; before production restore the pre-migration backup or apply a reviewed forward repair migration"
+  },
+  "github": {
+    "repository": "EasyStep-lee/flt1",
+    "issue": 27,
+    "pullRequest": null,
+    "pullRequestUrl": "NOT_CREATED",
+    "pullRequestState": "NOT_CREATED",
+    "exactHeadCi": "NOT_EXECUTED",
+    "review": "NOT_EXECUTED",
+    "merge": "NOT_EXECUTED",
+    "mainPostMergeCi": "NOT_EXECUTED"
+  },
+  "environment": {
+    "local": "LOCAL_WINDOWS_CHROMIUM_AND_DOCKER_MYSQL",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_REQUIRED_PC_WEB_SLICE",
+    "production": "NOT_EXECUTED"
+  },
+  "risks": [
+    "Production supplier credential verification and second verification integrations remain external and default-deny.",
+    "The supplier portal production bundle remains above Vite's 500 kB warning threshold; this is non-blocking for P0-069 but should be code-split before performance acceptance.",
+    "The forward migration has only local Docker MySQL evidence; staging and production migration remain NOT_EXECUTED."
+  ],
+  "rollback": {
+    "application": "git revert the M1-P069 implementation and evidence commits",
+    "database": "do not edit a published migration; restore the verified pre-migration backup before release or apply a reviewed forward repair"
+  }
+}

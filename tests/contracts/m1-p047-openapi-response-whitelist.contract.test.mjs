@@ -43,19 +43,19 @@ test('M1-P047 evidence remains closed after PR 20 merge as the project advances'
   assert.equal(evidence.fullVerification.status, 'PASS_17_OF_17');
   assert.equal(evidence.negativeTests.length, 4);
   assert.ok(evidence.negativeTests.every(({ status }) => status === 'PASS'));
-  assert.match(state.execution.lastCompletedTask, /^M1-P06[67]$/u);
-  assert.equal(state.execution.currentTask, 'M1-P068');
-  assert.equal(state.execution.nextAllowedTask, 'M1-P068');
+  assert.equal(state.execution.lastCompletedTask, 'M1-P068');
+  assert.equal(state.execution.currentTask, 'M1-P069');
+  assert.equal(state.execution.nextAllowedTask, 'M1-P069');
   assert.ok([0, 1].includes(state.execution.activeTaskCount));
   assert.equal(state.execution.prohibitedUntilGate.length, 1);
-  assert.match(state.execution.prohibitedUntilGate[0], /M1-P069/u);
+  assert.match(state.execution.prohibitedUntilGate[0], /M1-P070/u);
   assert.ok(state.github.pullRequest === null || Number.isInteger(state.github.pullRequest));
   assert.ok(['NOT_CREATED', 'DRAFT'].includes(state.github.pullRequestState));
   assert.equal(state.github.pullRequestMerged, false);
-  assert.equal(state.github.mergeCommitSha, 'NOT_EXECUTED_FOR_M1_P068');
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M1-P068');
+  assert.equal(state.github.mergeCommitSha, 'NOT_EXECUTED_FOR_M1_P069');
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M1-P069');
   assert.ok(
-    ['IN_PROGRESS', 'DONE_LOCAL_PASS'].includes(
+    ['IN_PROGRESS', 'LOCAL_FOCUSED_PASS', 'DONE_LOCAL_PASS'].includes(
       state.github.currentTaskDelivery.status,
     ),
   );
@@ -64,9 +64,7 @@ test('M1-P047 evidence remains closed after PR 20 merge as the project advances'
       Number.isInteger(state.github.currentTaskDelivery.pullRequest),
   );
   assert.match(state.github.currentTaskDelivery.exactHeadCi, /NOT_EXECUTED/u);
-  assert.ok(
-    ['NOT_EXECUTED_FOR_M1_P068', 'LOCAL_PASS'].includes(state.evidence.local),
-  );
+  assert.ok(['NOT_EXECUTED_FOR_M1_P069', 'LOCAL_FOCUSED_PASS', 'LOCAL_PASS'].includes(state.evidence.local));
   assert.equal(state.evidence.ci, 'NOT_EXECUTED');
   assert.match(taskLedger, /M1-P047[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(taskLedger, /M1-P066[^\r\n]*DONE[^\r\n]*CI_PASS/u);

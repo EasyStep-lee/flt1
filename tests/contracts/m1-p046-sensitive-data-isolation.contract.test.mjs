@@ -52,7 +52,7 @@ test('M1-P046 policy is default-deny for price, settlement, runner address and e
   assert.doesNotMatch(policy, /COMPANY_SUPER_ADMIN[\s\S]*VISIBLE_WITH_AUDIT/u);
 });
 
-test('M1-P046 evidence remains closed after the project advances to P068', async () => {
+test('M1-P046 evidence remains closed after the project advances to P069', async () => {
   const [state, evidence, taskLedger, p0Ledger, migrationLedger] =
     await Promise.all([
       readFile(
@@ -89,12 +89,12 @@ test('M1-P046 evidence remains closed after the project advances to P068', async
 
   assert.equal(evidence.status, 'LOCAL_PASS');
   assert.equal(evidence.greenEvidence.fullVerify, 'PASS_17_OF_17');
-  assert.equal(state.execution.lastCompletedTask, 'M1-P067');
-  assert.equal(state.execution.currentTask, 'M1-P068');
-  assert.equal(state.execution.nextAllowedTask, 'M1-P068');
+  assert.equal(state.execution.lastCompletedTask, 'M1-P068');
+  assert.equal(state.execution.currentTask, 'M1-P069');
+  assert.equal(state.execution.nextAllowedTask, 'M1-P069');
   assert.ok([0, 1].includes(state.execution.activeTaskCount));
   assert.equal(state.execution.prohibitedUntilGate.length, 1);
-  assert.match(state.execution.prohibitedUntilGate[0], /M1-P069/u);
+  assert.match(state.execution.prohibitedUntilGate[0], /M1-P070/u);
   assert.match(taskLedger, /M1-P046[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(p0Ledger, /P0-046[^\r\n]*LOCAL_PASS/u);
   assert.match(migrationLedger, /MIG-003[^\r\n]*APPLIED_LOCAL/u);
