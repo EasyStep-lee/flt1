@@ -113,6 +113,7 @@ const isEligibleAccount = (
 
 const toChoice = (
   account: SupplierFunctionalAccountRecord,
+  now: string,
 ): SupplierWorkspaceChoiceDto => ({
   accountId: account.id,
   accountTypeCode: account.accountTypeCode,
@@ -120,7 +121,11 @@ const toChoice = (
   lastUsedAt: account.lastUsedAt,
   ownerDisplayName: account.ownerDisplayName,
   ownerType: 'SUPPLIER',
-  status: account.accountTypeStatus === 'ACTIVE' ? account.status : 'SUSPENDED',
+  status:
+    account.accountTypeStatus !== 'ACTIVE' ||
+    (account.expiresAt !== null && account.expiresAt <= now)
+      ? 'SUSPENDED'
+      : account.status,
   workspaceRoute: account.workspaceRoute,
 });
 
@@ -290,7 +295,7 @@ export class SupplierAuthService {
       return {
         body: {
           accountSelectRoute: ACCOUNT_SELECT_ROUTE,
-          accounts: accounts.map(toChoice),
+          accounts: accounts.map((account) => toChoice(account, now)),
           selectionNonce: '',
           selectionRequired: false,
         },
@@ -313,7 +318,7 @@ export class SupplierAuthService {
     return {
       body: {
         accountSelectRoute: ACCOUNT_SELECT_ROUTE,
-        accounts: accounts.map(toChoice),
+        accounts: accounts.map((account) => toChoice(account, now)),
         selectionNonce: nonce,
         selectionRequired: true,
       },

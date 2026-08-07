@@ -344,6 +344,38 @@ describe('P0-069 supplier login and functional workspace selection', () => {
     }
   });
 
+  it('lists an expired active account as unavailable and refuses its workspace', async () => {
+    const fixture = await createFixture({
+      accounts: [
+        account(),
+        account({
+          accountTypeCode: 'SUPPLIER_FINANCE',
+          accountTypeName: '财务对账',
+          expiresAt: '2020-01-01T00:00:00.000Z',
+          id: secondAccountId,
+          workspaceRoute: '/supplier/workspaces/finance',
+        }),
+      ],
+    });
+    try {
+      const login = await request(fixture.app.getHttpServer())
+        .post('/v1/supplier-auth/login')
+        .send(loginBody());
+      expect(login.body.accounts).toContainEqual(
+        expect.objectContaining({ accountId: secondAccountId, status: 'SUSPENDED' }),
+      );
+
+      const selected = await request(fixture.app.getHttpServer())
+        .post(`/v1/supplier-auth/workspaces/${secondAccountId}/select`)
+        .send({ selectionNonce: login.body.selectionNonce });
+      expect(selected.status).toBe(403);
+      expect(selected.body).toMatchObject({ code: 'WORKSPACE_FORBIDDEN' });
+      expect(await fixture.repository.countActiveSessions(userId)).toBe(0);
+    } finally {
+      await fixture.app.close();
+    }
+  });
+
   it('invalidates an issued session when the supplier is suspended', async () => {
     const fixture = await createFixture();
     try {
