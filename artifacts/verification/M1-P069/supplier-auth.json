@@ -3,7 +3,7 @@
   "taskId": "M1-P069",
   "p0Id": "P0-069",
   "status": "LOCAL_PASS",
-  "verifiedAt": "2026-08-07T03:07:02-04:00",
+  "verifiedAt": "2026-08-07T03:32:33-04:00",
   "baseline": {
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
     "baseBranch": "main",
@@ -14,7 +14,8 @@
     "sameOriginRuntimeCommit": "561b4752f70e4d67f58fc828baf4e0e75677f541",
     "browserRuntimeEvidenceCommit": "4f2a0c2047338c0af45fc76f5254967188dcd11a",
     "cleanInstallCiFixCommit": "a462adf8717408a44da5305612453c2bdd0e2b52",
-    "apiDependencyClosureFixCommit": "ea6fed4a6bfa9ff2d5b4ad5204723e362fc57c62"
+    "apiDependencyClosureFixCommit": "ea6fed4a6bfa9ff2d5b4ad5204723e362fc57c62",
+    "expiredAccountVisibilityFixCommit": "72f3696ca3a2dfb0756cb34e69a183bc488f62c6"
   },
   "scope": {
     "pageIds": ["PAGE-013", "PAGE-014", "PAGE-015"],
@@ -80,13 +81,18 @@
       "command": "pnpm exec playwright test tests/e2e/p0/p0-069-supplier-auth-runtime.spec.ts --config ./playwright.p0.config.ts",
       "result": "FAIL_1_OF_1_EXPECTED_CONNECTION_REFUSED",
       "cause": "the P0 gate had no supplier runtime server connected to the test API through the real same-origin proxy"
+    },
+    {
+      "command": "pnpm exec vitest run --config vitest.config.ts --project api-contract apps/api/test/supertest/supplier-auth-api.test.mjs",
+      "result": "FAIL_1_OF_13_EXPECTED",
+      "cause": "an expired functional account whose stored status remained ACTIVE was incorrectly returned to PAGE-015 as selectable"
     }
   ],
   "focusedEvidence": [
     {
       "name": "supplier auth, approval activation, and regression behavior",
       "command": "pnpm exec vitest run --config ./vitest.config.ts --project api-contract apps/api/test/supertest/supplier-auth-api.test.mjs apps/api/test/supertest/supplier-auth-prisma-repository.test.mjs apps/api/test/supertest/supplier-onboarding-api.test.mjs apps/api/test/supertest/supplier-onboarding-prisma-activation.test.mjs",
-      "result": "PASS_26_OF_26"
+      "result": "PASS_27_OF_27"
     },
     {
       "name": "cookie-bound shared web client and supplier portal shell",
@@ -144,7 +150,7 @@
   "fullVerification": {
     "status": "PASS_17_OF_17",
     "stepsPassed": 17,
-    "commit": "ea6fed4a6bfa9ff2d5b4ad5204723e362fc57c62",
+    "commit": "72f3696ca3a2dfb0756cb34e69a183bc488f62c6",
     "report": "artifacts/test-results/verification/pnpm-verify.json"
   },
   "verificationRepairHistory": [

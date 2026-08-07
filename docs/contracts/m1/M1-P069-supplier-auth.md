@@ -22,6 +22,7 @@
 - `SupplierAuthSelection` 保存 `userId`、哈希后的 nonce、`requestId`、是否需要二次验证、选中账号/会话、到期与使用时间；不保存原始 nonce。
 - `AuthSession.userType=SUPPLIER_USER`，`userId`、`functionalAccountId`、`workspaceRoute` 与当前数据库关系必须一致；新会话撤销该自然人旧供应商职能会话。
 - 可登录要求：`Supplier.status=ACTIVE`、`SupplierUser.status=ACTIVE`、职能账号及账号类型均为 `ACTIVE`、账号未过期。
+- API-006 的账号卡片必须用同一次服务端时钟判断有效期；库内仍为 `ACTIVE` 但已过期的账号只返回不可用状态，不能让 PAGE-015 先展示为可选再由 API-007 拒绝。
 - 供应商暂停、用户锁定/暂停/撤销、职能账号停用/撤销/过期后，旧 Cookie 立即失效。
 
 ## API 与 DTO 白名单
