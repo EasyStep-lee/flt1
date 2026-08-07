@@ -185,7 +185,7 @@ const run = async () => {
     throw new Error('P0_E2E_PNPM_EXEC_PATH_REQUIRED');
   }
   const applicationBuilds = [
-    '@fulishe/api',
+    '@fulishe/api...',
     '@fulishe/portal-web',
     '@fulishe/supplier-portal',
     '@fulishe/company-admin',
