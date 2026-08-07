@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-07T04:25:05-04:00",
+  "updatedAt": "2026-08-07T04:54:05-04:00",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -59,13 +59,13 @@
       "currentHeadReviewRequired": true,
       "authorizationExactHead": false
     },
-    "lastVerifiedPullRequestHead": "f8037a60b16ea6b4bc5f41632bf0c443daaf4e9d",
+    "lastVerifiedPullRequestHead": "ce111556bd6a822d68ceea8fd7aec86523a2af35",
     "pullRequestCi": {
       "status": "SUCCESS_NOT_CURRENT_LOCAL_HEAD",
-      "runId": 31158730468,
-      "jobId": 92803973377,
-      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31158730468",
-      "headSha": "f8037a60b16ea6b4bc5f41632bf0c443daaf4e9d"
+      "runId": 31161896078,
+      "jobId": 92814284922,
+      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31161896078",
+      "headSha": "ce111556bd6a822d68ceea8fd7aec86523a2af35"
     },
     "latestCi": {
       "scope": "MAIN_POST_M1_P068_MERGE",
@@ -83,14 +83,14 @@
       "branch": "codex/m1-m1-p069",
       "baseCommit": "ff8d5ae6d998a2f05ade69f8e220e2ec5a6527b3",
       "status": "DRAFT_LOCAL_PASS",
-      "verifiedImplementationHead": "b8a69dc3d6eef959451e8ff670eb7c7feef2a0f9",
+      "verifiedImplementationHead": "c8908ef28ab2bc643128b5238678a64785422f01",
       "draftHeadAtCreation": "4a00801e40df283bf7ac998f5b3e3aff70ff8c5f",
       "localVerify": "PASS_17_OF_17",
       "migrationRehearsal": "PASS_PRODUCT_9_CLEANUP_PASS",
       "pullRequest": 28,
       "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/28",
       "pullRequestState": "DRAFT",
-      "exactHeadCi": "NOT_EXECUTED_FOR_B8A69DC",
+      "exactHeadCi": "NOT_EXECUTED_FOR_C8908EF_AND_PENDING_EVIDENCE_HEAD",
       "review": "NOT_EXECUTED",
       "merge": "NOT_EXECUTED",
       "mainPostMergeCi": "NOT_EXECUTED"
@@ -104,7 +104,7 @@
       "mainPostMergeCiRun": 31144798071,
       "status": "CI_PASS"
     },
-    "note": "M1-P068 PR #26精确head CI、用户授权合并为ff8d5ae及合并后main CI run 31144798071已闭环。M1-P069并发同账号重放从三种Cookie修复为同一HMAC派生Cookie，响应乱序仍有效；签名密钥远程环境必填且轮换令旧Cookie失败关闭。实现head b8a69dc本地pnpm verify 17/17、P0 E2E 19/19、迁移product=9、secret 484；PR #28旧head f8037a6的run 31158730468成功但不代表当前本地head。等待推送后精确CI、人工审查与用户授权，P070禁止启动。"
+    "note": "M1-P068 PR #26精确head CI、用户授权合并为ff8d5ae及合并后main CI run 31144798071已闭环。M1-P069单账号直登同requestId并发从三个会话修复为同一隐藏授权和Cookie，账号选择并发重放同样在响应乱序下稳定；签名密钥远程环境必填且轮换令旧Cookie失败关闭。实现head c8908ef本地pnpm verify 17/17、focused 30/30、P0 E2E 19/19、迁移product=9、secret 484；PR #28旧head ce11155的run 31161896078重跑成功但不代表当前本地head。等待推送后精确CI、人工审查与用户授权，P070禁止启动。"
   },
   "evidence": {
     "local": "LOCAL_PASS",
