@@ -102,11 +102,18 @@ export class InMemorySupplierAuthRepository implements SupplierAuthRepository {
         ) {
           return Promise.resolve({ kind: 'GRANT_INVALID' });
         }
-        for (const [sessionHash, sessionId] of this.sessionIdsByHash) {
-          if (sessionId === session.id) this.sessionIdsByHash.delete(sessionHash);
+        const existingSessionHash = [...this.sessionIdsByHash].find(
+          ([, sessionId]) => sessionId === session.id,
+        )?.[0];
+        if (!existingSessionHash) {
+          return Promise.resolve({ kind: 'GRANT_INVALID' });
         }
-        this.sessionIdsByHash.set(command.sessionHash, session.id);
-        return Promise.resolve({ kind: 'OK', replayed: true, session });
+        return Promise.resolve({
+          kind: 'OK',
+          replayed: true,
+          session,
+          sessionHash: existingSessionHash,
+        });
       }
     }
 
@@ -119,7 +126,7 @@ export class InMemorySupplierAuthRepository implements SupplierAuthRepository {
       accountTypeCode: account.accountTypeCode,
       expiresAt: command.expiresAt,
       functionalAccountId: account.id,
-      id: randomUUID(),
+      id: command.sessionId,
       ownerType: 'SUPPLIER',
       revokedAt: null,
       supplierId: account.supplierId,
@@ -139,7 +146,12 @@ export class InMemorySupplierAuthRepository implements SupplierAuthRepository {
         usedAt: now,
       });
     }
-    return Promise.resolve({ kind: 'OK', replayed: false, session });
+    return Promise.resolve({
+      kind: 'OK',
+      replayed: false,
+      session,
+      sessionHash: command.sessionHash,
+    });
   }
 
   listSupplierAccounts(

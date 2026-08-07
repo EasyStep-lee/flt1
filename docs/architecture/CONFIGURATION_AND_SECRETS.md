@@ -19,7 +19,7 @@
 
 ## 3. 配置Schema与启动失败
 
-`API_RUNTIME_SCHEMA`标明字段是否必需及是否为秘密。`DATABASE_URL`和`REDIS_URL`缺失时一次汇总后快速失败；URL协议、端口、超时、重试和队列前缀都按明确上下限校验。API沿用`loadRuntimeConfig`兼容入口，但实现来自共享包，避免各应用复制规则。
+`API_RUNTIME_SCHEMA`标明字段是否必需及是否为秘密。`DATABASE_URL`和`REDIS_URL`缺失时一次汇总后快速失败；URL协议、端口、超时、重试和队列前缀都按明确上下限校验。供应商门户会话启用 `SUPPLIER_AUTH_SESSION_SIGNING_KEY`：development/test 可使用明确的本地专用值，staging/production 必须运行时注入 43～128 位 base64url 值，缺失、格式错误或使用开发占位值均失败关闭。API沿用`loadRuntimeConfig`兼容入口，但实现来自共享包，避免各应用复制规则。
 
 开发样例校验：
 
@@ -35,6 +35,7 @@ pnpm config:check
 - development凭据只用于本机隔离容器；test使用独立、可销毁的测试凭据；staging与production必须账户隔离、最小权限、分别授权，不得复用。
 - 部署系统只在运行时把秘密注入服务端进程；任何服务端秘密不得使用`NEXT_PUBLIC_`、`VITE_`或小程序源码可见前缀。
 - 轮换采用“新增版本并行可用 → 部署验证 → 切换生效 → 撤销旧版本 → 复核审计”的顺序。数据库、Redis、支付证书和签名密钥分别制定周期；发现疑似泄漏时立即撤销并按安全事件处理，不能只删除Git中的文本。
+- 当前供应商会话 token 由随机会话 ID 和单一活动 HMAC 密钥确定性派生，数据库只保存 token 的 SHA-256。切换 `SUPPLIER_AUTH_SESSION_SIGNING_KEY` 会让现有供应商 Cookie 失败关闭，必须把它当作显式全量会话撤销，安排重新登录窗口并记录审计；不得在回滚时把旧密钥写入仓库。
 - 读取、变更、轮换和紧急撤销必须由具名自然人执行并保留审计；生产授权资料由人工安全管理员提供，Codex不得生成或猜测。
 
 ## 5. 日志脱敏

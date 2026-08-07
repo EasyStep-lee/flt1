@@ -1,4 +1,9 @@
-import { createHash, randomBytes } from 'node:crypto';
+import {
+  createHash,
+  createHmac,
+  randomUUID,
+  timingSafeEqual,
+} from 'node:crypto';
 
 import { Inject, Injectable } from '@nestjs/common';
 
@@ -34,6 +39,10 @@ const SELECTION_TTL_MS = 10 * 60 * 1000;
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
 const RATE_LIMIT_FAILURES = 5;
 const ACCOUNT_SELECT_ROUTE = '/supplier/account-select' as const;
+
+export const SUPPLIER_AUTH_SESSION_CREDENTIAL = Symbol(
+  'SUPPLIER_AUTH_SESSION_CREDENTIAL',
+);
 
 const LOGIN_FIELDS = new Set([
   'loginAccount',
@@ -79,6 +88,21 @@ export interface SupplierWorkspaceSelectionResult {
 
 const hash = (value: string): string =>
   createHash('sha256').update(value).digest('hex');
+
+const sessionTokenFor = (sessionId: string, key: string): string =>
+  createHmac('sha256', key)
+    .update('fulishe-supplier-auth-session-v1\0')
+    .update(sessionId)
+    .digest('base64url');
+
+const sameSessionToken = (left: string, right: string): boolean => {
+  const leftBytes = Buffer.from(left, 'utf8');
+  const rightBytes = Buffer.from(right, 'utf8');
+  return (
+    leftBytes.length === rightBytes.length &&
+    timingSafeEqual(leftBytes, rightBytes)
+  );
+};
 
 const selectionNonceFor = (userId: string, requestId: string): string =>
   createHash('sha256')
@@ -169,6 +193,8 @@ export class SupplierAuthService {
     private readonly credentialVerifier: SupplierCredentialVerifier,
     @Inject(SUPPLIER_SECOND_VERIFIER)
     private readonly secondVerifier: SupplierSecondVerifier,
+    @Inject(SUPPLIER_AUTH_SESSION_CREDENTIAL)
+    private readonly sessionTokenKey: string,
   ) {}
 
   private async audit(
@@ -199,13 +225,15 @@ export class SupplierAuthService {
     context: SupplierAuthRequestContext,
     nonceHash: string | null,
   ): Promise<SupplierWorkspaceSelectionResult> {
-    const token = randomBytes(32).toString('base64url');
+    const sessionId = randomUUID();
+    const token = sessionTokenFor(sessionId, this.sessionTokenKey);
     const result = await this.repository.issueSession({
       account,
       deviceInfo: context.deviceInfo,
       expiresAt: new Date(Date.now() + SESSION_TTL_MS).toISOString(),
       ip: context.ip,
       nonceHash,
+      sessionId,
       sessionHash: hash(token),
       userId,
     });
@@ -219,10 +247,17 @@ export class SupplierAuthService {
     if (result.kind === 'GRANT_INVALID') {
       throw new SafeApiError(403, 'WORKSPACE_FORBIDDEN', '职能账号选择已失效');
     }
+    const recoveredToken = sessionTokenFor(
+      result.session.id,
+      this.sessionTokenKey,
+    );
+    if (hash(recoveredToken) !== result.sessionHash) {
+      throw new SafeApiError(403, 'WORKSPACE_FORBIDDEN', '职能账号会话已失效');
+    }
     return {
       body: toSession(result.session),
       replayed: result.replayed,
-      sessionToken: token,
+      sessionToken: recoveredToken,
     };
   }
 
@@ -404,6 +439,14 @@ export class SupplierAuthService {
       throw new SafeApiError(401, 'AUTH_SESSION_REVOKED', '原职能会话已撤销');
     }
     if (result.kind === 'INVALID') {
+      throw new SafeApiError(403, 'WORKSPACE_FORBIDDEN', '供应商职能会话已失效');
+    }
+    if (
+      !sameSessionToken(
+        token,
+        sessionTokenFor(result.session.id, this.sessionTokenKey),
+      )
+    ) {
       throw new SafeApiError(403, 'WORKSPACE_FORBIDDEN', '供应商职能会话已失效');
     }
     return result.session;

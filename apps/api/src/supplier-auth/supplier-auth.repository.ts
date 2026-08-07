@@ -103,6 +103,7 @@ export interface IssueSupplierSessionCommand {
   readonly expiresAt: string;
   readonly ip: string;
   readonly nonceHash: string | null;
+  readonly sessionId: string;
   readonly sessionHash: string;
   readonly userId: string;
 }
@@ -113,6 +114,7 @@ export type IssueSupplierSessionResult =
   | {
       readonly kind: 'OK';
       readonly replayed: boolean;
+      readonly sessionHash: string;
       readonly session: SupplierAuthSessionRecord;
     };
 

@@ -54,7 +54,10 @@ import {
 } from './merchant/single-merchant.repository.js';
 import { SingleMerchantService } from './merchant/single-merchant.service.js';
 import { OPENAPI_CONTROLLERS } from './openapi/openapi-controller.registry.js';
-import { SupplierAuthService } from './supplier-auth/supplier-auth.service.js';
+import {
+  SUPPLIER_AUTH_SESSION_CREDENTIAL,
+  SupplierAuthService,
+} from './supplier-auth/supplier-auth.service.js';
 import { PrismaSupplierAuthRepository } from './supplier-auth/prisma-supplier-auth.repository.js';
 import {
   SUPPLIER_AUTH_REPOSITORY,
@@ -131,6 +134,10 @@ export class AppModule {
   static register(options: AppModuleOptions): DynamicModule {
     const providers: Provider[] = [
       { provide: RUNTIME_CONFIG, useValue: options.config },
+      {
+        provide: SUPPLIER_AUTH_SESSION_CREDENTIAL,
+        useValue: options.config.supplierAuthSessionSigningKey,
+      },
       {
         provide: HEALTH_PROBE_TIMEOUT_MS,
         useValue: options.config.healthProbeTimeoutMs,

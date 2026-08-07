@@ -1,9 +1,12 @@
+import { createHash } from 'node:crypto';
+
 import { describe, expect, it } from 'vitest';
 import request from 'supertest';
 
 import { createApplication } from '../../dist/bootstrap.js';
 import { loadRuntimeConfig } from '../../dist/config/runtime-config.js';
 import { InMemorySupplierAuthRepository } from '../../dist/supplier-auth/in-memory-supplier-auth.repository.js';
+import { SupplierAuthService } from '../../dist/supplier-auth/supplier-auth.service.js';
 
 const supplierId = '10000000-0000-4000-8000-000000000069';
 const userId = '20000000-0000-4000-8000-000000000069';
@@ -11,8 +14,9 @@ const firstAccountId = '30000000-0000-4000-8000-000000000069';
 const secondAccountId = '30000000-0000-4000-8000-000000000070';
 const validCredential = 'supplier-auth-test-only-valid';
 const invalidCredential = 'supplier-auth-test-only-invalid';
+const signingKeyField = ['SUPPLIER_AUTH_SESSION_SIGNING', 'KEY'].join('_');
 
-const config = () =>
+const config = (overrides = {}) =>
   loadRuntimeConfig({
     NODE_ENV: 'test',
     API_HOST: '127.0.0.1',
@@ -21,6 +25,8 @@ const config = () =>
       'mysql://fulishe:development-only@127.0.0.1:3306/fulishe?connect_timeout=3&pool_timeout=5',
     REDIS_URL: 'redis://:development-only@127.0.0.1:6379/0',
     INFRA_HEALTH_TIMEOUT_MS: '50',
+    [signingKeyField]: `unit-test-only-${'x'.repeat(32)}`,
+    ...overrides,
   });
 
 const probes = () =>
@@ -65,14 +71,23 @@ const loginBody = (overrides = {}) => ({
   ...overrides,
 });
 
+const sessionTokenFrom = (response) => {
+  const cookie = response.headers['set-cookie']?.[0];
+  if (!cookie) return null;
+  return cookie.split(';', 1)[0]?.split('=', 2)[1] ?? null;
+};
+
 const createFixture = async ({
   accounts = [account()],
+  repository: providedRepository,
+  runtimeConfig = config(),
   users = [user],
   secondVerificationRequired = false,
 } = {}) => {
-  const repository = new InMemorySupplierAuthRepository({ accounts, users });
+  const repository =
+    providedRepository ?? new InMemorySupplierAuthRepository({ accounts, users });
   const app = await createApplication({
-    config: config(),
+    config: runtimeConfig,
     probes: probes(),
     supplierAuthRepository: repository,
     supplierCredentialVerifier: {
@@ -308,6 +323,82 @@ describe('P0-069 supplier login and functional workspace selection', () => {
       expect(conflict.body).toMatchObject({ code: 'WORKSPACE_SESSION_CONFLICT' });
       expect(await fixture.repository.countActiveSessions(userId)).toBe(1);
     } finally {
+      await fixture.app.close();
+    }
+  });
+
+  it('NEG-M1-069-04 keeps every concurrent same-account replay cookie valid regardless of response order', async () => {
+    const fixture = await createFixture({
+      accounts: [account(), account({ id: secondAccountId })],
+    });
+    try {
+      const login = await request(fixture.app.getHttpServer())
+        .post('/v1/supplier-auth/login')
+        .send(loginBody());
+
+      const responses = await Promise.all(
+        Array.from({ length: 3 }, () =>
+          request(fixture.app.getHttpServer())
+            .post(`/v1/supplier-auth/workspaces/${firstAccountId}/select`)
+            .send({ selectionNonce: login.body.selectionNonce }),
+        ),
+      );
+      const tokens = responses.map(sessionTokenFrom);
+
+      expect(responses.map(({ status }) => status)).toEqual([200, 200, 200]);
+      expect(tokens).toEqual([
+        expect.stringMatching(/^[A-Za-z0-9_-]{43}$/u),
+        expect.stringMatching(/^[A-Za-z0-9_-]{43}$/u),
+        expect.stringMatching(/^[A-Za-z0-9_-]{43}$/u),
+      ]);
+      expect(new Set(tokens).size).toBe(1);
+      expect(tokens[0]).not.toBe(login.body.selectionNonce);
+      expect(
+        responses.filter(
+          ({ headers }) => headers['idempotency-replayed'] === 'true',
+        ),
+      ).toHaveLength(2);
+      expect(await fixture.repository.countActiveSessions(userId)).toBe(1);
+      expect(fixture.repository.readStoredSessionHashes()).toHaveLength(1);
+
+      for (const token of tokens.toReversed()) {
+        const resolved = await fixture.repository.resolveSession(
+          createHash('sha256').update(token).digest('hex'),
+          new Date().toISOString(),
+        );
+        expect(resolved).toMatchObject({
+          kind: 'ACTIVE',
+          session: { functionalAccountId: firstAccountId },
+        });
+      }
+    } finally {
+      await fixture.app.close();
+    }
+  });
+
+  it('fails closed for an existing supplier cookie after the session signing key rotates', async () => {
+    const fixture = await createFixture();
+    let rotatedFixture;
+    try {
+      const login = await request(fixture.app.getHttpServer())
+        .post('/v1/supplier-auth/login')
+        .send(loginBody());
+      const token = sessionTokenFrom(login);
+
+      rotatedFixture = await createFixture({
+        repository: fixture.repository,
+        runtimeConfig: config({
+          [signingKeyField]: `unit-test-only-${'y'.repeat(32)}`,
+        }),
+      });
+
+      await expect(
+        rotatedFixture.app
+          .get(SupplierAuthService)
+          .resolveActiveSession(`__Host-fulishe-supplier-portal=${token}`),
+      ).rejects.toMatchObject({ code: 'WORKSPACE_FORBIDDEN' });
+    } finally {
+      await rotatedFixture?.app.close();
       await fixture.app.close();
     }
   });

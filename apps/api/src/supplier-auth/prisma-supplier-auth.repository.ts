@@ -1,5 +1,3 @@
-import { randomUUID } from 'node:crypto';
-
 import { Inject, Injectable } from '@nestjs/common';
 import { Prisma } from '@fulishe/db';
 
@@ -250,20 +248,16 @@ export class PrismaSupplierAuthRepository implements SupplierAuthRepository {
           ) {
             return { kind: 'GRANT_INVALID' } as const;
           }
-          const recovered = await database.authSession.update({
-            where: { id: session.id },
-            data: { sessionHash: command.sessionHash },
-            include: sessionInclude,
-          });
           return {
             kind: 'OK',
             replayed: true,
-            session: toSession(recovered),
+            session: toSession(session),
+            sessionHash: session.sessionHash,
           } as const;
         }
       }
 
-      const sessionId = randomUUID();
+      const sessionId = command.sessionId;
       if (command.nonceHash) {
         const claimed = await database.supplierAuthSelection.updateMany({
           where: {
@@ -302,7 +296,12 @@ export class PrismaSupplierAuthRepository implements SupplierAuthRepository {
         },
         include: sessionInclude,
       });
-      return { kind: 'OK', replayed: false, session: toSession(created) } as const;
+      return {
+        kind: 'OK',
+        replayed: false,
+        session: toSession(created),
+        sessionHash: created.sessionHash,
+      } as const;
     });
   }
 

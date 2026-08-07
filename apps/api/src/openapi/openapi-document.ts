@@ -46,7 +46,10 @@ import {
   type SingleMerchantRepository,
 } from '../merchant/single-merchant.repository.js';
 import { SingleMerchantService } from '../merchant/single-merchant.service.js';
-import { SupplierAuthService } from '../supplier-auth/supplier-auth.service.js';
+import {
+  SUPPLIER_AUTH_SESSION_CREDENTIAL,
+  SupplierAuthService,
+} from '../supplier-auth/supplier-auth.service.js';
 import {
   SUPPLIER_AUTH_REPOSITORY,
   type SupplierAuthRepository,
@@ -107,6 +110,10 @@ type JsonValue =
     CompanyAuthService,
     CompanyFunctionalAccountService,
     SupplierAuthService,
+    {
+      provide: SUPPLIER_AUTH_SESSION_CREDENTIAL,
+      useValue: `development-only-${'x'.repeat(32)}`,
+    },
     UnavailableSupplierCredentialVerifier,
     UnavailableSupplierSecondVerifier,
     UnavailableCompanyCredentialVerifier,

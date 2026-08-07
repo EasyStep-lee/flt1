@@ -38,6 +38,7 @@ const command = {
   expiresAt: '2099-08-07T06:00:00.000Z',
   ip: '127.0.0.1',
   nonceHash: null,
+  sessionId: '50000000-0000-4000-8000-000000000070',
   sessionHash: 'b'.repeat(64),
   userId,
 };
@@ -120,7 +121,7 @@ describe('Prisma supplier auth repository security boundaries', () => {
     expect(createSession).not.toHaveBeenCalled();
   });
 
-  it('rotates the opaque session hash when the same selection recovers a lost response', async () => {
+  it('keeps the original session hash when the same selection recovers a lost response', async () => {
     const sessionId = '50000000-0000-4000-8000-000000000069';
     const storedSession = {
       expiresAt: new Date('2099-08-07T06:00:00.000Z'),
@@ -131,19 +132,15 @@ describe('Prisma supplier auth repository security boundaries', () => {
       functionalAccountId: accountId,
       id: sessionId,
       revokedAt: null,
+      sessionHash: 'b'.repeat(64),
       userId,
       userType: 'SUPPLIER_USER',
       workspaceRoute: '/supplier/workspaces/account-admin',
     };
-    const updateSession = vi.fn().mockImplementation(async ({ data }) => ({
-      ...storedSession,
-      ...data,
-    }));
     const database = {
       $queryRaw: vi.fn().mockResolvedValue([{ id: accountId }]),
       authSession: {
         findUnique: vi.fn().mockResolvedValue(storedSession),
-        update: updateSession,
       },
       supplierAuthSelection: {
         findUnique: vi.fn().mockResolvedValue({
@@ -196,14 +193,9 @@ describe('Prisma supplier auth repository security boundaries', () => {
     ).resolves.toMatchObject({
       kind: 'OK',
       replayed: true,
+      sessionHash: 'b'.repeat(64),
       session: { id: sessionId },
     });
-    expect(updateSession).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: { sessionHash: 'c'.repeat(64) },
-        where: { id: sessionId },
-      }),
-    );
   });
 
   it('resolves only an active supplier-owned session and rejects route drift', async () => {

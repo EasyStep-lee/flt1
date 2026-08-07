@@ -10,6 +10,8 @@ import {
   redactText,
 } from '../../packages/config/dist/index.js';
 
+const signingKeyField = ['SUPPLIER_AUTH_SESSION_SIGNING', 'KEY'].join('_');
+
 const validEnvironment = () => ({
   NODE_ENV: 'test',
   APP_ENV: 'test',
@@ -19,10 +21,14 @@ const validEnvironment = () => ({
     'mysql://fulishe:unit-test-only@127.0.0.1:3306/fulishe?connect_timeout=3&pool_timeout=5',
   REDIS_URL: 'redis://:unit-test-only@127.0.0.1:6379/0',
   BULLMQ_PREFIX: 'fulishe',
+  [signingKeyField]: 'unit-test-only-' + 'x'.repeat(32),
 });
 
 const productionCredential = () =>
   ['S7rong', 'M007', 'Fixture', '9'.repeat(24)].join('');
+
+const productionSigningKey = () =>
+  ['Pr0duction', 'Session', 'Signing', 'K3y', '9'.repeat(24)].join('');
 
 test('configuration schema freezes all four deployment layers and secret fields', () => {
   assert.deepEqual(CONFIGURATION_LAYERS, [
@@ -33,6 +39,7 @@ test('configuration schema freezes all four deployment layers and secret fields'
   ]);
   assert.equal(API_RUNTIME_SCHEMA.DATABASE_URL.secret, true);
   assert.equal(API_RUNTIME_SCHEMA.REDIS_URL.secret, true);
+  assert.equal(API_RUNTIME_SCHEMA[signingKeyField].secret, true);
   assert.equal(API_RUNTIME_SCHEMA.API_PORT.secret, false);
 });
 
@@ -46,6 +53,7 @@ test('configuration parser distinguishes staging deployment from Node production
     `mysql://service-account:${credential}@mysql.internal:3306/fulishe`;
   environment.REDIS_URL =
     `rediss://:${credential}@redis.internal:6380/0`;
+  environment[signingKeyField] = productionSigningKey();
 
   const config = loadApiRuntimeConfig(environment);
 
@@ -83,6 +91,7 @@ test('staging and production reject local endpoints and documented development c
     'mysql://fulishe:fulishe_mysql_dev_only@127.0.0.1:3306/fulishe';
   environment.REDIS_URL =
     'redis://:fulishe_redis_dev_only@127.0.0.1:6379/0';
+  environment[signingKeyField] = productionSigningKey();
 
   assert.throws(
     () => loadApiRuntimeConfig(environment),
@@ -108,6 +117,7 @@ test('production permits a wildcard API bind but rejects the full IPv4 loopback 
     `mysql://service-account:${credential}@mysql.internal:3306/fulishe`;
   environment.REDIS_URL =
     `rediss://:${credential}@redis.internal:6380/0`;
+  environment[signingKeyField] = productionSigningKey();
 
   assert.equal(loadApiRuntimeConfig(environment).apiHost, '0.0.0.0');
 
@@ -134,6 +144,7 @@ test('production rejects documented runtime-placeholder credentials even on remo
     'mysql://service-account:runtime-injected-value@mysql.internal:3306/fulishe';
   environment.REDIS_URL =
     `rediss://:${credential}@redis.internal:6380/0`;
+  environment[signingKeyField] = productionSigningKey();
 
   assert.throws(
     () => loadApiRuntimeConfig(environment),
@@ -142,6 +153,67 @@ test('production rejects documented runtime-placeholder credentials even on remo
       assert.equal(error.code, 'CONFIG_UNSAFE');
       assert.deepEqual(error.fields, ['DATABASE_URL']);
       assert.doesNotMatch(error.message, /runtime-injected-value/);
+      return true;
+    },
+  );
+});
+
+test('staging and production require a strong supplier session signing key', () => {
+  const environment = validEnvironment();
+  const credential = productionCredential();
+  environment.NODE_ENV = 'production';
+  environment.APP_ENV = 'production';
+  environment.API_HOST = '0.0.0.0';
+  environment.DATABASE_URL =
+    `mysql://service-account:${credential}@mysql.internal:3306/fulishe`;
+  environment.REDIS_URL =
+    `rediss://:${credential}@redis.internal:6380/0`;
+  delete environment[signingKeyField];
+
+  assert.throws(
+    () => loadApiRuntimeConfig(environment),
+    (error) => {
+      assert.ok(error instanceof ConfigurationError);
+      assert.equal(error.code, 'CONFIG_MISSING');
+      assert.deepEqual(error.fields, [signingKeyField]);
+      return true;
+    },
+  );
+
+  environment[signingKeyField] = 'development-only-' + 'x'.repeat(32);
+  assert.throws(
+    () => loadApiRuntimeConfig(environment),
+    (error) => {
+      assert.ok(error instanceof ConfigurationError);
+      assert.equal(error.code, 'CONFIG_UNSAFE');
+      assert.ok(error.fields.includes(signingKeyField));
+      assert.doesNotMatch(error.message, /development-only/u);
+      return true;
+    },
+  );
+});
+
+test('supplier session signing key rejects short or non-base64url values', () => {
+  const environment = validEnvironment();
+  environment[signingKeyField] = 'too-short';
+
+  assert.throws(
+    () => loadApiRuntimeConfig(environment),
+    (error) => {
+      assert.ok(error instanceof ConfigurationError);
+      assert.equal(error.code, 'CONFIG_INVALID');
+      assert.deepEqual(error.fields, [signingKeyField]);
+      return true;
+    },
+  );
+
+  environment[signingKeyField] = 'x'.repeat(42) + '!';
+  assert.throws(
+    () => loadApiRuntimeConfig(environment),
+    (error) => {
+      assert.ok(error instanceof ConfigurationError);
+      assert.equal(error.code, 'CONFIG_INVALID');
+      assert.deepEqual(error.fields, [signingKeyField]);
       return true;
     },
   );
@@ -172,6 +244,9 @@ test('structured redaction is recursive, immutable and case-insensitive', () => 
   assert.match(serialized, /safe-request-id/);
   assert.match(serialized, /可以保留/);
   assert.equal(input.account.password, 'must-never-appear');
+
+  const configOutput = redactLogValue(loadApiRuntimeConfig(validEnvironment()));
+  assert.equal(configOutput.supplierAuthSessionSigningKey, '[REDACTED]');
 });
 
 test('text redaction removes credentials, assignments and bearer values', () => {

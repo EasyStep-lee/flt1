@@ -20,6 +20,9 @@ const field = (
   description: string,
 ): ConfigurationFieldSchema => Object.freeze({ required, secret, description });
 
+const supplierSessionCredentialField =
+  'SUPPLIER_AUTH_SESSION_SIGNING_KEY' as const;
+
 export const API_RUNTIME_SCHEMA = Object.freeze({
   NODE_ENV: field(false, false, 'Node runtime mode'),
   APP_ENV: field(false, false, 'Deployment environment layer'),
@@ -27,6 +30,11 @@ export const API_RUNTIME_SCHEMA = Object.freeze({
   API_PORT: field(false, false, 'API bind port'),
   DATABASE_URL: field(true, true, 'MySQL connection URL'),
   REDIS_URL: field(true, true, 'Redis connection URL'),
+  [supplierSessionCredentialField]: field(
+    false,
+    true,
+    'Supplier portal session signing key',
+  ),
   BULLMQ_PREFIX: field(false, false, 'BullMQ key prefix'),
   INFRA_CONNECT_TIMEOUT_MS: field(false, false, 'Dependency connection timeout'),
   INFRA_HEALTH_TIMEOUT_MS: field(false, false, 'Health probe timeout'),
@@ -61,6 +69,7 @@ export interface ApiRuntimeConfig {
   readonly apiPort: number;
   readonly databaseUrl: string;
   readonly redisUrl: string;
+  readonly supplierAuthSessionSigningKey: string;
   readonly queuePrefix: string;
   readonly connectTimeoutMs: number;
   readonly healthProbeTimeoutMs: number;
@@ -159,6 +168,35 @@ const parseUrl = (
   return { raw, parsed };
 };
 
+const parseSupplierSessionCredential = (
+  environment: Environment,
+  deploymentEnvironment: DeploymentEnvironment,
+): string => {
+  const raw = environment[supplierSessionCredentialField]?.trim();
+  if (!raw) {
+    if (
+      deploymentEnvironment === 'development' ||
+      deploymentEnvironment === 'test'
+    ) {
+      const marker =
+        deploymentEnvironment === 'test' ? 'unit-test-only' : 'development-only';
+      return `${marker}-${'x'.repeat(32)}`;
+    }
+    throw new ConfigurationError(
+      'CONFIG_MISSING',
+      `Missing required environment variable: ${supplierSessionCredentialField}`,
+      [supplierSessionCredentialField],
+    );
+  }
+  if (!/^[A-Za-z0-9_-]{43,128}$/u.test(raw)) {
+    return throwInvalid(
+      supplierSessionCredentialField,
+      'must contain 43-128 base64url characters',
+    );
+  }
+  return raw;
+};
+
 const normalizeHostname = (hostname: string): string =>
   hostname.toLowerCase().replace(/^\[|\]$/gu, '');
 
@@ -211,6 +249,7 @@ const validateRemoteEnvironment = (
   apiHost: string,
   databaseUrl: URL,
   redisUrl: URL,
+  supplierSessionCredential: string,
 ): void => {
   if (deploymentEnvironment === 'development' || deploymentEnvironment === 'test') {
     return;
@@ -223,6 +262,9 @@ const validateRemoteEnvironment = (
   }
   if (isLoopbackHostname(apiHost)) {
     unsafe.add('API_HOST');
+  }
+  if (containsDevelopmentCredential(supplierSessionCredential)) {
+    unsafe.add(supplierSessionCredentialField);
   }
 
   for (const [name, url, requireUsername] of [
@@ -279,12 +321,17 @@ export const loadApiRuntimeConfig = (
 
   const database = parseUrl(environment, 'DATABASE_URL', ['mysql:']);
   const redis = parseUrl(environment, 'REDIS_URL', ['redis:', 'rediss:']);
+  const supplierAuthSessionSigningKey = parseSupplierSessionCredential(
+    environment,
+    deploymentEnvironment,
+  );
   validateRemoteEnvironment(
     nodeEnvironment,
     deploymentEnvironment,
     apiHost,
     database.parsed,
     redis.parsed,
+    supplierAuthSessionSigningKey,
   );
 
   const queuePrefix = environment.BULLMQ_PREFIX?.trim() || DEFAULTS.queuePrefix;
@@ -308,6 +355,7 @@ export const loadApiRuntimeConfig = (
     ),
     databaseUrl: database.raw,
     redisUrl: redis.raw,
+    supplierAuthSessionSigningKey,
     queuePrefix,
     connectTimeoutMs: parseInteger(
       environment,
