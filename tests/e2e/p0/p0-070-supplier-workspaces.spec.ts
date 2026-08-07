@@ -139,6 +139,68 @@ test('NEG-M1-070-03 eight supplier roles render one page and one internal menu e
   }
 });
 
+test('NEG-M1-070-03 ignores an older filter response that arrives after the latest query', async ({
+  page,
+}) => {
+  await installCurrentWorkspaceRoute(page);
+  let releaseSlowResponse: (() => void) | undefined;
+  let markSlowStarted: (() => void) | undefined;
+  const slowStarted = new Promise<void>((resolve) => {
+    markSlowStarted = resolve;
+  });
+  const slowResponseGate = new Promise<void>((resolve) => {
+    releaseSlowResponse = resolve;
+  });
+
+  await page.route('**/v1/supplier-auth/workspace/page**', async (route) => {
+    const url = new URL(route.request().url());
+    const keyword = url.searchParams.get('keyword') ?? '';
+    if (keyword === '慢') {
+      markSlowStarted?.();
+      await slowResponseGate;
+    }
+    const response = pageResponse(url);
+    if (!response) {
+      await route.fulfill({
+        contentType: 'application/json',
+        status: 403,
+        body: JSON.stringify({ code: 'WORKSPACE_FORBIDDEN', message: '无权访问该职能页面' }),
+      });
+      return;
+    }
+    const raceItem = keyword
+      ? { ...moduleItem('product-drafts', 0), label: `${keyword}响应结果` }
+      : undefined;
+    await route.fulfill({
+      contentType: 'application/json',
+      status: 200,
+      body: JSON.stringify({
+        ...response,
+        items: raceItem ? [raceItem] : response.items,
+        summary: {
+          ...response.summary,
+          filteredTotal: raceItem ? 1 : response.summary.filteredTotal,
+        },
+      }),
+    });
+  });
+
+  await page.goto(`${supplierOrigin}/supplier/workspaces/products`);
+  await expect(page.locator('[data-supplier-workspace-state="success"]')).toBeVisible();
+  const search = page.getByLabel('搜索当前供应商职能模块');
+  await search.fill('慢');
+  await search.press('Enter');
+  await slowStarted;
+  await search.fill('快');
+  await search.press('Enter');
+  await expect(page.getByText('快响应结果')).toBeVisible();
+
+  releaseSlowResponse?.();
+  await expect(page.getByText('慢响应结果')).toHaveCount(0);
+  await expect(page.getByText('快响应结果')).toBeVisible();
+  await expect(search).toHaveValue('快');
+});
+
 test('NEG-M1-070-01 shared component exposes loading, empty, error, permission and offline states', async ({
   page,
 }) => {

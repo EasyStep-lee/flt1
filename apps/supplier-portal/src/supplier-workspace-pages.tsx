@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import {
   Button,
   Card,
@@ -56,6 +56,7 @@ export function SupplierWorkspacePagePanel({
   const [data, setData] = useState<SupplierWorkspacePage>();
   const [selected, setSelected] = useState<SupplierWorkspaceModuleDetail>();
   const [loading, setLoading] = useState(true);
+  const requestSequence = useRef(0);
   const [state, setState] = useState<
     | {
         readonly kind: 'error' | 'offline-or-timeout' | 'permission-denied';
@@ -74,6 +75,8 @@ export function SupplierWorkspacePagePanel({
       readonly keywordValue: string;
       readonly moduleKey?: string;
     }) => {
+      const requestId = requestSequence.current + 1;
+      requestSequence.current = requestId;
       setLoading(true);
       setState(undefined);
       try {
@@ -89,6 +92,7 @@ export function SupplierWorkspacePagePanel({
             },
           },
         });
+        if (requestId !== requestSequence.current) return;
         if (!response.data) {
           const permission =
             response.response.status === 401 || response.response.status === 403;
@@ -116,6 +120,7 @@ export function SupplierWorkspacePagePanel({
         setData(response.data);
         setSelected(response.data.selectedModule ?? undefined);
       } catch {
+        if (requestId !== requestSequence.current) return;
         setState({
           kind: 'offline-or-timeout',
           message: '网络离线或请求超时，请恢复后重试',
@@ -123,7 +128,7 @@ export function SupplierWorkspacePagePanel({
         setData(undefined);
         setSelected(undefined);
       } finally {
-        setLoading(false);
+        if (requestId === requestSequence.current) setLoading(false);
       }
     },
     [workspace.accountTypeCode, workspace.pageId, workspace.workspaceRoute],
