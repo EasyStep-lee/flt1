@@ -93,15 +93,20 @@ export class InMemorySupplierAuthRepository implements SupplierAuthRepository {
           return Promise.resolve({ kind: 'CONFLICT' });
         }
         const session = this.sessions.get(grant.selectedSessionId);
-        return Promise.resolve(
-          session &&
-            session.userId === command.userId &&
-            session.functionalAccountId === account.id &&
-            !session.revokedAt &&
-            session.expiresAt > now
-            ? { kind: 'OK', replayed: true, session }
-            : { kind: 'GRANT_INVALID' },
-        );
+        if (
+          !session ||
+          session.userId !== command.userId ||
+          session.functionalAccountId !== account.id ||
+          session.revokedAt ||
+          session.expiresAt <= now
+        ) {
+          return Promise.resolve({ kind: 'GRANT_INVALID' });
+        }
+        for (const [sessionHash, sessionId] of this.sessionIdsByHash) {
+          if (sessionId === session.id) this.sessionIdsByHash.delete(sessionHash);
+        }
+        this.sessionIdsByHash.set(command.sessionHash, session.id);
+        return Promise.resolve({ kind: 'OK', replayed: true, session });
       }
     }
 

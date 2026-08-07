@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Header,
   Headers,
   HttpCode,
   Inject,
@@ -55,6 +56,7 @@ export class SupplierAuthController {
   ) {}
 
   @Post('login')
+  @Header('Cache-Control', 'private, no-store, max-age=0')
   @HttpCode(200)
   @ApiOperation({ summary: '供应商独立登录并解析本方职能账号' })
   @ApiBody({ type: SupplierLoginRequestDto })
@@ -70,11 +72,11 @@ export class SupplierAuthController {
   ): Promise<SupplierWorkspaceChoiceResponseDto> {
     const result = await this.service.login(body, contextFrom(request, userAgent));
     setSessionCookie(response, result.sessionToken);
-    response.setHeader('Cache-Control', 'private, no-store');
     return result.body;
   }
 
   @Post('workspaces/:accountId/select')
+  @Header('Cache-Control', 'private, no-store, max-age=0')
   @HttpCode(200)
   @ApiOperation({ summary: '选择一个供应商职能账号并签发单工作区会话' })
   @ApiParam({ format: 'uuid', name: 'accountId', type: String })
@@ -96,7 +98,6 @@ export class SupplierAuthController {
     );
     setSessionCookie(response, result.sessionToken);
     if (result.replayed) response.setHeader('Idempotency-Replayed', 'true');
-    response.setHeader('Cache-Control', 'private, no-store');
     return result.body;
   }
 }

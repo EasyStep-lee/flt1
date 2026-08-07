@@ -240,14 +240,26 @@ export class PrismaSupplierAuthRepository implements SupplierAuthRepository {
             where: { id: grant.selectedSessionId },
             include: sessionInclude,
           });
-          return session &&
-            session.userId === command.userId &&
-            session.userType === 'SUPPLIER_USER' &&
-            session.functionalAccountId === account.id &&
-            !session.revokedAt &&
-            session.expiresAt > now
-            ? ({ kind: 'OK', replayed: true, session: toSession(session) } as const)
-            : ({ kind: 'GRANT_INVALID' } as const);
+          if (
+            !session ||
+            session.userId !== command.userId ||
+            session.userType !== 'SUPPLIER_USER' ||
+            session.functionalAccountId !== account.id ||
+            session.revokedAt ||
+            session.expiresAt <= now
+          ) {
+            return { kind: 'GRANT_INVALID' } as const;
+          }
+          const recovered = await database.authSession.update({
+            where: { id: session.id },
+            data: { sessionHash: command.sessionHash },
+            include: sessionInclude,
+          });
+          return {
+            kind: 'OK',
+            replayed: true,
+            session: toSession(recovered),
+          } as const;
         }
       }
 

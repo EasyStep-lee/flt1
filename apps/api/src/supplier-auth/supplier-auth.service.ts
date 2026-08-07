@@ -217,7 +217,7 @@ export class SupplierAuthService {
     return {
       body: toSession(result.session),
       replayed: result.replayed,
-      ...(result.replayed ? {} : { sessionToken: token }),
+      sessionToken: token,
     };
   }
 

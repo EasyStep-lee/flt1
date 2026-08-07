@@ -103,6 +103,7 @@ describe('P0-069 supplier login and functional workspace selection', () => {
 
       expect(response.status).toBe(403);
       expect(response.body).toMatchObject({ code: 'DATA_SCOPE_FORBIDDEN' });
+      expect(response.headers['cache-control']).toBe('private, no-store, max-age=0');
     } finally {
       await fixture.app.close();
     }
@@ -124,6 +125,7 @@ describe('P0-069 supplier login and functional workspace selection', () => {
         code: 'AUTH_INVALID',
         message: '账号或凭证不正确',
       });
+      expect(response.headers['cache-control']).toBe('private, no-store, max-age=0');
     } finally {
       await fixture.app.close();
     }
@@ -194,7 +196,7 @@ describe('P0-069 supplier login and functional workspace selection', () => {
       expect(JSON.stringify(response.body)).not.toContain(supplierId);
       expect(response.body).not.toHaveProperty('userId');
       expect(response.body).not.toHaveProperty('sessionToken');
-      expect(response.headers['cache-control']).toBe('private, no-store');
+      expect(response.headers['cache-control']).toBe('private, no-store, max-age=0');
       expect(response.headers['set-cookie']?.[0]).toContain(
         '__Host-fulishe-supplier-portal=',
       );
@@ -286,6 +288,18 @@ describe('P0-069 supplier login and functional workspace selection', () => {
         .post(`/v1/supplier-auth/workspaces/${firstAccountId}/select`)
         .send({ selectionNonce: login.body.selectionNonce });
       expect(selected.status).toBe(200);
+
+      const recovered = await request(fixture.app.getHttpServer())
+        .post(`/v1/supplier-auth/workspaces/${firstAccountId}/select`)
+        .send({ selectionNonce: login.body.selectionNonce });
+      expect(recovered.status).toBe(200);
+      expect(recovered.body).toEqual(selected.body);
+      expect(recovered.headers['idempotency-replayed']).toBe('true');
+      expect(recovered.headers['set-cookie']?.[0]).toContain(
+        '__Host-fulishe-supplier-portal=',
+      );
+      expect(await fixture.repository.countActiveSessions(userId)).toBe(1);
+
       fixture.repository.setAccountStatusForTest(secondAccountId, 'ACTIVE');
       const conflict = await request(fixture.app.getHttpServer())
         .post(`/v1/supplier-auth/workspaces/${secondAccountId}/select`)
