@@ -46,6 +46,17 @@ import {
   type SingleMerchantRepository,
 } from '../merchant/single-merchant.repository.js';
 import { SingleMerchantService } from '../merchant/single-merchant.service.js';
+import { SupplierAuthService } from '../supplier-auth/supplier-auth.service.js';
+import {
+  SUPPLIER_AUTH_REPOSITORY,
+  type SupplierAuthRepository,
+} from '../supplier-auth/supplier-auth.repository.js';
+import {
+  SUPPLIER_CREDENTIAL_VERIFIER,
+  SUPPLIER_SECOND_VERIFIER,
+  UnavailableSupplierCredentialVerifier,
+  UnavailableSupplierSecondVerifier,
+} from '../supplier-auth/supplier-auth.security.js';
 import {
   DenyFunctionalAccountActorResolver,
   FUNCTIONAL_ACCOUNT_ACTOR_RESOLVER,
@@ -95,6 +106,9 @@ type JsonValue =
     AuditLogService,
     CompanyAuthService,
     CompanyFunctionalAccountService,
+    SupplierAuthService,
+    UnavailableSupplierCredentialVerifier,
+    UnavailableSupplierSecondVerifier,
     UnavailableCompanyCredentialVerifier,
     UnavailableCompanySecondVerifier,
     {
@@ -129,6 +143,28 @@ type JsonValue =
         isCompanyActive: async () => false,
         listCompanyAccounts: async () => ({ items: [], total: 0 }),
       } satisfies CompanyFunctionalAccountRepository,
+    },
+    {
+      provide: SUPPLIER_AUTH_REPOSITORY,
+      useValue: {
+        countRecentLoginFailures: async () => 0,
+        createSelectionGrant: async () => undefined,
+        findSupplierUser: async () => null,
+        issueSession: async () => ({ kind: 'GRANT_INVALID' }),
+        listSupplierAccounts: async () => [],
+        markLoginSucceeded: async () => undefined,
+        recordLoginAudit: async () => undefined,
+        resolveSelectionGrant: async () => null,
+        resolveSession: async () => ({ kind: 'MISSING' }),
+      } satisfies SupplierAuthRepository,
+    },
+    {
+      provide: SUPPLIER_CREDENTIAL_VERIFIER,
+      useExisting: UnavailableSupplierCredentialVerifier,
+    },
+    {
+      provide: SUPPLIER_SECOND_VERIFIER,
+      useExisting: UnavailableSupplierSecondVerifier,
     },
     DenyAuditActorResolver,
     {

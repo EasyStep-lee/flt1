@@ -444,6 +444,10 @@ export class PrismaSupplierOnboardingRepository
       if (task.applicantId === command.reviewerIdentityId) {
         return { kind: 'SAME_NATURAL_PERSON' } as const;
       }
+      const applicant = qualificationSnapshot(current.qualificationSnapshot).applicant;
+      if (command.decision === 'APPROVE' && !applicant) {
+        return { kind: 'STATE_INVALID' } as const;
+      }
       let nextStatus: SupplierOnboardingRecord['status'];
       try {
         nextStatus = resolveSupplierTransition(current.status, command.decision);
@@ -485,6 +489,91 @@ export class PrismaSupplierOnboardingRepository
           version: nextVersion,
         },
       });
+      if (command.decision === 'APPROVE') {
+        const accountType = await database.functionalAccountType.findUnique({
+          where: {
+            ownerType_code: {
+              code: 'SUPPLIER_ACCOUNT_ADMIN',
+              ownerType: 'SUPPLIER',
+            },
+          },
+        });
+        if (!accountType || accountType.status !== 'ACTIVE') {
+          throw new Error('SUPPLIER_ACCOUNT_ADMIN_TYPE_UNAVAILABLE');
+        }
+        const supplierUser = await database.supplierUser.upsert({
+          where: {
+            supplierId_mobile: {
+              mobile: applicant!.mobile,
+              supplierId: current.id,
+            },
+          },
+          create: {
+            email: applicant!.email ?? null,
+            mobile: applicant!.mobile,
+            name: applicant!.contactName,
+            status: 'ACTIVE',
+            supplierId: current.id,
+          },
+          update: {
+            email: applicant!.email ?? null,
+            name: applicant!.contactName,
+            status: 'ACTIVE',
+            version: { increment: 1 },
+          },
+        });
+        const existingAccount = await database.functionalAccount.findUnique({
+          where: {
+            supplierId_identityId_accountTypeId: {
+              accountTypeId: accountType.id,
+              identityId: supplierUser.id,
+              supplierId: current.id,
+            },
+          },
+        });
+        if (!existingAccount) {
+          const createdAccount = await database.functionalAccount.create({
+            data: {
+              accountTypeId: accountType.id,
+              displayName: applicant!.contactName,
+              identityId: supplierUser.id,
+              identityType: 'SUPPLIER_USER',
+              ownerType: 'SUPPLIER',
+              status: 'ACTIVE',
+              supplierId: current.id,
+            },
+          });
+          await database.functionalAccountStatusHistory.create({
+            data: {
+              actorIdentityId: command.reviewerIdentityId,
+              event: 'ACTIVATE',
+              functionalAccountId: createdAccount.id,
+              fromStatus: null,
+              toStatus: 'ACTIVE',
+              version: 0,
+            },
+          });
+        } else if (existingAccount.status !== 'ACTIVE') {
+          const activatedAccount = await database.functionalAccount.update({
+            where: { id: existingAccount.id },
+            data: {
+              displayName: applicant!.contactName,
+              status: 'ACTIVE',
+              version: { increment: 1 },
+            },
+          });
+          await database.functionalAccountStatusHistory.create({
+            data: {
+              actorIdentityId: command.reviewerIdentityId,
+              event: 'ACTIVATE',
+              functionalAccountId: activatedAccount.id,
+              fromStatus: existingAccount.status,
+              toStatus: 'ACTIVE',
+              version: activatedAccount.version,
+            },
+          });
+        }
+      }
       const updated = await database.supplier.findUniqueOrThrow({
         where: { id: command.supplierId },
       });

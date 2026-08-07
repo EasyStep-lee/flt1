@@ -39,6 +39,35 @@ export const M1_OPENAPI_OPERATION_CONTRACTS = Object.freeze([
     responseDto: 'SessionResponseDto',
   }),
   contract({
+    actor: 'SUPPLIER_USER',
+    contractId: 'API-006',
+    errorCodes: [
+      'AUTH_INVALID',
+      'SUPPLIER_NOT_ACTIVE',
+      'ACCOUNT_SUSPENDED',
+      'RATE_LIMITED',
+    ],
+    idempotency: 'requestId',
+    method: 'post',
+    path: '/v1/supplier-auth/login',
+    requestDto: 'SupplierLoginRequestDto',
+    responseDto: 'SupplierWorkspaceChoiceResponseDto',
+  }),
+  contract({
+    actor: 'SUPPLIER_USER',
+    contractId: 'API-007',
+    errorCodes: [
+      'WORKSPACE_FORBIDDEN',
+      'SECOND_VERIFICATION_REQUIRED',
+      'WORKSPACE_SESSION_CONFLICT',
+    ],
+    idempotency: 'selectionNonce',
+    method: 'post',
+    path: '/v1/supplier-auth/workspaces/{accountId}/select',
+    requestDto: 'SupplierSelectWorkspaceRequestDto',
+    responseDto: 'SupplierSessionResponseDto',
+  }),
+  contract({
     actor: 'COMPANY_FUNCTIONAL_ACCOUNT',
     contractId: 'API-082',
     errorCodes: [
@@ -354,7 +383,9 @@ export const applyM1OpenApiContracts = (document: OpenAPIObject): OpenAPIObject 
     operation.security =
       operationContract.actor === 'PUBLIC' ||
       operationContract.contractId === 'API-003' ||
-      operationContract.contractId === 'API-004'
+      operationContract.contractId === 'API-004' ||
+      operationContract.contractId === 'API-006' ||
+      operationContract.contractId === 'API-007'
         ? []
         : [{ functionalSession: [] }];
     operation['x-fulishe-actor'] = operationContract.actor;

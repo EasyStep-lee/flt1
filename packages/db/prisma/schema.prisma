@@ -253,6 +253,7 @@ model SupplierUser {
   createdAt     DateTime           @default(now()) @map("created_at") @db.DateTime(3)
   updatedAt     DateTime           @updatedAt @map("updated_at") @db.DateTime(3)
   supplier      Supplier           @relation(fields: [supplierId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  selections    SupplierAuthSelection[]
 
   @@unique([supplierId, mobile], map: "supplier_user_supplier_mobile_key")
   @@index([supplierId, status], map: "supplier_user_supplier_status_idx")
@@ -325,6 +326,24 @@ model CompanyAuthSelection {
   @@index([userId, expiresAt], map: "company_auth_selection_user_expiry_idx")
   @@unique([userId, requestId], map: "company_auth_selection_user_request_key")
   @@map("company_auth_selection")
+}
+
+model SupplierAuthSelection {
+  id                         String       @id @default(uuid()) @db.Char(36)
+  userId                     String       @map("user_id") @db.Char(36)
+  nonceHash                  String       @unique(map: "supplier_auth_selection_nonce_key") @map("nonce_hash") @db.Char(64)
+  requestId                  String       @map("request_id") @db.Char(36)
+  secondVerificationRequired Boolean      @default(false) @map("second_verification_required")
+  selectedAccountId          String?      @map("selected_account_id") @db.Char(36)
+  selectedSessionId          String?      @map("selected_session_id") @db.Char(36)
+  expiresAt                  DateTime     @map("expires_at") @db.DateTime(3)
+  usedAt                     DateTime?    @map("used_at") @db.DateTime(3)
+  createdAt                  DateTime     @default(now()) @map("created_at") @db.DateTime(3)
+  user                       SupplierUser @relation(fields: [userId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([userId, expiresAt], map: "supplier_auth_selection_user_expiry_idx")
+  @@unique([userId, requestId], map: "supplier_auth_selection_user_request_key")
+  @@map("supplier_auth_selection")
 }
 
 model LoginAudit {

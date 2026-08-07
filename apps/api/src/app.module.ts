@@ -54,6 +54,20 @@ import {
 } from './merchant/single-merchant.repository.js';
 import { SingleMerchantService } from './merchant/single-merchant.service.js';
 import { OPENAPI_CONTROLLERS } from './openapi/openapi-controller.registry.js';
+import { SupplierAuthService } from './supplier-auth/supplier-auth.service.js';
+import { PrismaSupplierAuthRepository } from './supplier-auth/prisma-supplier-auth.repository.js';
+import {
+  SUPPLIER_AUTH_REPOSITORY,
+  type SupplierAuthRepository,
+} from './supplier-auth/supplier-auth.repository.js';
+import {
+  SUPPLIER_CREDENTIAL_VERIFIER,
+  SUPPLIER_SECOND_VERIFIER,
+  UnavailableSupplierCredentialVerifier,
+  UnavailableSupplierSecondVerifier,
+  type SupplierCredentialVerifier,
+  type SupplierSecondVerifier,
+} from './supplier-auth/supplier-auth.security.js';
 import {
   DenyFunctionalAccountActorResolver,
   FUNCTIONAL_ACCOUNT_ACTOR_RESOLVER,
@@ -107,6 +121,9 @@ export interface AppModuleOptions {
   readonly companyCredentialVerifier?: CompanyCredentialVerifier;
   readonly companySecondVerifier?: CompanySecondVerifier;
   readonly companyFunctionalAccountRepository?: CompanyFunctionalAccountRepository;
+  readonly supplierAuthRepository?: SupplierAuthRepository;
+  readonly supplierCredentialVerifier?: SupplierCredentialVerifier;
+  readonly supplierSecondVerifier?: SupplierSecondVerifier;
 }
 
 @Module({})
@@ -143,6 +160,10 @@ export class AppModule {
       CompanySupplierOnboardingSessionActorResolver,
       PrismaCompanyFunctionalAccountRepository,
       CompanyFunctionalAccountService,
+      PrismaSupplierAuthRepository,
+      UnavailableSupplierCredentialVerifier,
+      UnavailableSupplierSecondVerifier,
+      SupplierAuthService,
       options.merchantRepository
         ? {
             provide: SINGLE_MERCHANT_REPOSITORY,
@@ -250,6 +271,24 @@ export class AppModule {
         : {
             provide: COMPANY_FUNCTIONAL_ACCOUNT_REPOSITORY,
             useExisting: PrismaCompanyFunctionalAccountRepository,
+          },
+      options.supplierAuthRepository
+        ? { provide: SUPPLIER_AUTH_REPOSITORY, useValue: options.supplierAuthRepository }
+        : { provide: SUPPLIER_AUTH_REPOSITORY, useExisting: PrismaSupplierAuthRepository },
+      options.supplierCredentialVerifier
+        ? {
+            provide: SUPPLIER_CREDENTIAL_VERIFIER,
+            useValue: options.supplierCredentialVerifier,
+          }
+        : {
+            provide: SUPPLIER_CREDENTIAL_VERIFIER,
+            useExisting: UnavailableSupplierCredentialVerifier,
+          },
+      options.supplierSecondVerifier
+        ? { provide: SUPPLIER_SECOND_VERIFIER, useValue: options.supplierSecondVerifier }
+        : {
+            provide: SUPPLIER_SECOND_VERIFIER,
+            useExisting: UnavailableSupplierSecondVerifier,
           },
     ];
 

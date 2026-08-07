@@ -401,6 +401,18 @@ describe('P0-003 supplier onboarding API', () => {
       expect(activated.status).toBe(201);
       expect(activated.body).toMatchObject({ status: 'ACTIVE', version: 5 });
       expect(await fixture.repository.countStatusHistory(created.body.registrationId)).toBe(5);
+      expect(
+        await fixture.repository.getActivatedLogin(created.body.registrationId),
+      ).toEqual({
+        accountStatus: 'ACTIVE',
+        accountTypeCode: 'SUPPLIER_ACCOUNT_ADMIN',
+        email: 'supplier@example.test',
+        mobile: '13800138000',
+        name: '张经理',
+        supplierId: created.body.registrationId,
+        userStatus: 'ACTIVE',
+        workspaceRoute: '/supplier/workspaces/account-admin',
+      });
     } finally {
       await fixture.app.close();
     }

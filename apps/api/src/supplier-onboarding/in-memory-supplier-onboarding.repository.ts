@@ -31,6 +31,17 @@ interface StoredCommand {
   readonly result: StoredResult;
 }
 
+interface ActivatedSupplierLogin {
+  readonly accountStatus: 'ACTIVE';
+  readonly accountTypeCode: 'SUPPLIER_ACCOUNT_ADMIN';
+  readonly email: string | null;
+  readonly mobile: string;
+  readonly name: string;
+  readonly supplierId: string;
+  readonly userStatus: 'ACTIVE';
+  readonly workspaceRoute: '/supplier/workspaces/account-admin';
+}
+
 const clone = <T>(value: T): T => structuredClone(value);
 
 export class InMemorySupplierOnboardingRepository
@@ -40,6 +51,7 @@ export class InMemorySupplierOnboardingRepository
   private readonly approvalTasks = new Map<string, ApprovalTaskRecord>();
   private readonly commands = new Map<string, StoredCommand>();
   private readonly history: SupplierStatusHistoryRecord[] = [];
+  private readonly activatedLogins = new Map<string, ActivatedSupplierLogin>();
 
   constructor(private readonly companies: readonly OnboardingCompanyRecord[]) {}
 
@@ -270,6 +282,10 @@ export class InMemorySupplierOnboardingRepository
     if (approvalTask.applicantId === command.reviewerIdentityId) {
       return { kind: 'SAME_NATURAL_PERSON' };
     }
+    const applicant = current.qualificationSnapshot.applicant;
+    if (command.decision === 'APPROVE' && !applicant) {
+      return { kind: 'STATE_INVALID' };
+    }
     let nextStatus: SupplierOnboardingRecord['status'];
     try {
       nextStatus = resolveSupplierTransition(current.status, command.decision);
@@ -299,6 +315,18 @@ export class InMemorySupplierOnboardingRepository
       command.reviewerIdentityId,
       version,
     );
+    if (command.decision === 'APPROVE') {
+      this.activatedLogins.set(current.id, {
+        accountStatus: 'ACTIVE',
+        accountTypeCode: 'SUPPLIER_ACCOUNT_ADMIN',
+        email: applicant!.email ?? null,
+        mobile: applicant!.mobile,
+        name: applicant!.contactName,
+        supplierId: current.id,
+        userStatus: 'ACTIVE',
+        workspaceRoute: '/supplier/workspaces/account-admin',
+      });
+    }
     this.remember(scope, command.idempotencyKey, command.requestHash, supplier);
     return { kind: 'OK', replayed: false, value: clone(supplier) };
   }
@@ -315,5 +343,10 @@ export class InMemorySupplierOnboardingRepository
 
   async countStatusHistory(supplierId: string): Promise<number> {
     return this.history.filter((event) => event.supplierId === supplierId).length;
+  }
+
+  async getActivatedLogin(supplierId: string): Promise<ActivatedSupplierLogin | null> {
+    const login = this.activatedLogins.get(supplierId);
+    return login ? clone(login) : null;
   }
 }

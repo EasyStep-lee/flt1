@@ -281,7 +281,7 @@ SELECT COUNT(*) FROM \`data_scope_policy\`;
 SELECT CONCAT(COUNT(*), '|', COALESCE(MAX(\`access_mode\`), '<absent>')) FROM \`field_access_policy\`;
 SELECT COUNT(*) FROM \`information_schema\`.\`tables\` WHERE \`table_schema\` = DATABASE() AND \`table_name\` IN ('company_user', 'auth_session', 'company_auth_selection', 'login_audit');
 SELECT COUNT(*) FROM \`information_schema\`.\`referential_constraints\` WHERE \`constraint_schema\` = DATABASE() AND \`constraint_name\` IN ('company_user_company_id_fkey', 'functional_account_company_id_fkey', 'auth_session_functional_account_id_fkey', 'company_auth_selection_user_id_fkey');
-SELECT CONCAT((SELECT COUNT(*) FROM \`company_user\`), '|', (SELECT COUNT(*) FROM \`auth_session\`), '|', (SELECT COUNT(*) FROM \`login_audit\`));
+SELECT CONCAT((SELECT COUNT(*) FROM \`company_user\`), '|', (SELECT COUNT(*) FROM \`auth_session\` WHERE \`user_type\` = 'COMPANY_USER'), '|', (SELECT COUNT(*) FROM \`login_audit\` WHERE \`user_type\` = 'COMPANY_USER'));
 SELECT COUNT(*) FROM \`information_schema\`.\`triggers\` WHERE \`trigger_schema\` = DATABASE() AND \`trigger_name\` IN ('login_audit_prevent_update', 'login_audit_prevent_delete');
 SELECT CONCAT(
   COUNT(*), '|',
@@ -302,11 +302,14 @@ SELECT CONCAT(
     AND JSON_UNQUOTE(JSON_EXTRACT(\`internal_menu_schema\`, '$.items[0]')) = 'workspace'
     THEN 1 ELSE 0 END)
 ) FROM \`functional_account_type\` WHERE \`owner_type\` = 'COMPANY' AND \`status\` = 'ACTIVE';
+SELECT COUNT(*) FROM \`information_schema\`.\`tables\` WHERE \`table_schema\` = DATABASE() AND \`table_name\` = 'supplier_auth_selection';
+SELECT COUNT(*) FROM \`information_schema\`.\`referential_constraints\` WHERE \`constraint_schema\` = DATABASE() AND \`constraint_name\` = 'supplier_auth_selection_user_id_fkey';
+SELECT CONCAT((SELECT COUNT(*) FROM \`supplier_user\`), '|', (SELECT COUNT(*) FROM \`supplier_auth_selection\`), '|', (SELECT COUNT(*) FROM \`auth_session\` WHERE \`user_type\` = 'SUPPLIER_USER'), '|', (SELECT COUNT(*) FROM \`login_audit\` WHERE \`user_type\` = 'SUPPLIER_USER'));
 `,
     database,
   );
   const values = output.split(/\r?\n/u);
-  if (values.length !== 30) {
+  if (values.length !== 33) {
     throw new Error(`PRODUCT_COMPANY_PROBE_OUTPUT_INVALID:${output}`);
   }
   const [legalName, platformName] = values[2].split('|');
@@ -321,6 +324,12 @@ SELECT CONCAT(
     exactCompanyWorkspacePairCount,
     singleCompanyWorkspaceMenuCount,
   ] = values[29].split('|');
+  const [
+    supplierUserRowCount,
+    supplierAuthSelectionRowCount,
+    supplierAuthSessionRowCount,
+    supplierLoginAuditRowCount,
+  ] = values[32].split('|');
   return {
     appliedMigrations: Number(values[0]),
     companyRowCount: Number(values[1]),
@@ -360,6 +369,12 @@ SELECT CONCAT(
     uniqueCompanyWorkspaceRouteCount: Number(uniqueCompanyWorkspaceRouteCount),
     exactCompanyWorkspacePairCount: Number(exactCompanyWorkspacePairCount),
     singleCompanyWorkspaceMenuCount: Number(singleCompanyWorkspaceMenuCount),
+    supplierAuthTableCount: Number(values[30]),
+    supplierAuthForeignKeyCount: Number(values[31]),
+    supplierUserRowCount: Number(supplierUserRowCount),
+    supplierAuthSelectionRowCount: Number(supplierAuthSelectionRowCount),
+    supplierAuthSessionRowCount: Number(supplierAuthSessionRowCount),
+    supplierLoginAuditRowCount: Number(supplierLoginAuditRowCount),
   };
 };
 
@@ -447,6 +462,10 @@ const parseArguments = (arguments_) => {
       [
         path.join(repositoryRoot, 'artifacts', 'verification', 'M1-P068'),
         'M1-P068',
+      ],
+      [
+        path.join(repositoryRoot, 'artifacts', 'verification', 'M1-P069'),
+        'M1-P069',
       ],
     ]);
     const reportScope = [...allowedScopes.entries()].find(([allowedRoot]) => {
@@ -638,7 +657,13 @@ try {
       productEmptyState.activeCompanyAccountTypeCount === 10 &&
       productEmptyState.uniqueCompanyWorkspaceRouteCount === 10 &&
       productEmptyState.exactCompanyWorkspacePairCount === 10 &&
-      productEmptyState.singleCompanyWorkspaceMenuCount === 10,
+      productEmptyState.singleCompanyWorkspaceMenuCount === 10 &&
+      productEmptyState.supplierAuthTableCount === 1 &&
+      productEmptyState.supplierAuthForeignKeyCount === 1 &&
+      productEmptyState.supplierUserRowCount === 0 &&
+      productEmptyState.supplierAuthSelectionRowCount === 0 &&
+      productEmptyState.supplierAuthSessionRowCount === 0 &&
+      productEmptyState.supplierLoginAuditRowCount === 0,
     'PRODUCT_COMPANY_SCHEMA_STATE_INVALID',
   );
 
@@ -710,6 +735,25 @@ INSERT INTO \`data_scope_policy\` (\`id\`, \`functional_account_id\`, \`scope_ty
 INSERT INTO \`field_access_policy\` (\`id\`, \`functional_account_id\`, \`resource\`, \`field_group\`) VALUES ('${fieldAccessPolicyId}', '${functionalAccountId}', 'supplier_product', 'supply_price');
 `,
     databaseNames.product,
+  );
+  const supplierSelectionId = '26000000-0000-4000-8000-000000000069';
+  const supplierSessionId = '27000000-0000-4000-8000-000000000069';
+  const supplierLoginAuditId = '28000000-0000-4000-8000-000000000069';
+  const supplierSessionHash = 'd'.repeat(64);
+  const supplierSelectionHash = 'e'.repeat(64);
+  const supplierLoginAccountHash = 'f'.repeat(64);
+  runRootMysql(
+    `INSERT INTO \`supplier_auth_selection\` (\`id\`, \`user_id\`, \`nonce_hash\`, \`request_id\`, \`second_verification_required\`, \`expires_at\`) VALUES ('${supplierSelectionId}', '${supplierUserId}', '${supplierSelectionHash}', '29000000-0000-4000-8000-000000000069', false, DATE_ADD(CURRENT_TIMESTAMP(3), INTERVAL 10 MINUTE));
+INSERT INTO \`auth_session\` (\`id\`, \`user_type\`, \`user_id\`, \`functional_account_id\`, \`workspace_route\`, \`session_hash\`, \`device_info\`, \`ip\`, \`expires_at\`) VALUES ('${supplierSessionId}', 'SUPPLIER_USER', '${supplierUserId}', '${functionalAccountId}', '/supplier/workspaces/pricing', '${supplierSessionHash}', JSON_OBJECT('userAgent', 'migration-rehearsal'), '127.0.0.1', DATE_ADD(CURRENT_TIMESTAMP(3), INTERVAL 8 HOUR));
+INSERT INTO \`login_audit\` (\`id\`, \`user_type\`, \`user_id\`, \`functional_account_id\`, \`login_account_hash\`, \`result\`, \`risk_reason\`, \`device_info\`, \`ip\`) VALUES ('${supplierLoginAuditId}', 'SUPPLIER_USER', '${supplierUserId}', '${functionalAccountId}', '${supplierLoginAccountHash}', 'SUCCESS', 'DIRECT_WORKSPACE', JSON_OBJECT('userAgent', 'migration-rehearsal'), '127.0.0.1');
+`,
+    databaseNames.product,
+  );
+  expectRootMysqlFailure(
+    `INSERT INTO \`supplier_auth_selection\` (\`id\`, \`user_id\`, \`nonce_hash\`, \`request_id\`, \`expires_at\`) VALUES ('26000000-0000-4000-8000-000000000070', '${supplierUserId}', 'raw-selection-token', '29000000-0000-4000-8000-000000000070', DATE_ADD(CURRENT_TIMESTAMP(3), INTERVAL 10 MINUTE));
+`,
+    databaseNames.product,
+    'RAW_SUPPLIER_SELECTION_TOKEN_ACCEPTED',
   );
   expectRootMysqlFailure(
     `INSERT INTO \`field_access_policy\` (\`id\`, \`functional_account_id\`, \`resource\`, \`field_group\`) VALUES ('${duplicateFieldAccessPolicyId}', '${functionalAccountId}', 'supplier_product', 'supply_price');
@@ -809,7 +853,13 @@ INSERT INTO \`login_audit\` (\`id\`, \`user_type\`, \`user_id\`, \`functional_ac
       productPopulatedState.activeCompanyAccountTypeCount === 10 &&
       productPopulatedState.uniqueCompanyWorkspaceRouteCount === 10 &&
       productPopulatedState.exactCompanyWorkspacePairCount === 10 &&
-      productPopulatedState.singleCompanyWorkspaceMenuCount === 10,
+      productPopulatedState.singleCompanyWorkspaceMenuCount === 10 &&
+      productPopulatedState.supplierAuthTableCount === 1 &&
+      productPopulatedState.supplierAuthForeignKeyCount === 1 &&
+      productPopulatedState.supplierUserRowCount === 1 &&
+      productPopulatedState.supplierAuthSelectionRowCount === 1 &&
+      productPopulatedState.supplierAuthSessionRowCount === 1 &&
+      productPopulatedState.supplierLoginAuditRowCount === 1,
     'PRODUCT_SINGLE_MERCHANT_STATE_INVALID',
   );
 
@@ -1024,12 +1074,14 @@ INSERT INTO \`login_audit\` (\`id\`, \`user_type\`, \`user_id\`, \`functional_ac
       idempotentRedeploy: 'PASS',
     },
     productRehearsal: {
-      taskId: options.reportTaskId ?? 'M1-P066',
+      taskId: options.reportTaskId ?? 'M1-P069',
       previouslyVerifiedSlices: [
         {
           taskId:
-            options.reportTaskId === 'M1-P068'
-              ? 'M1-P067'
+            options.reportTaskId === 'M1-P069'
+              ? 'M1-P068'
+              : options.reportTaskId === 'M1-P068'
+                ? 'M1-P067'
               : options.reportTaskId === 'M1-P067'
                 ? 'M1-P066'
                 : 'M1-P046',
@@ -1114,6 +1166,16 @@ INSERT INTO \`login_audit\` (\`id\`, \`user_type\`, \`user_id\`, \`functional_ac
           productPopulatedState.exactCompanyWorkspacePairCount,
         singleMenuSchemaCount:
           productPopulatedState.singleCompanyWorkspaceMenuCount,
+      },
+      supplierAuth: {
+        tableCount: productPopulatedState.supplierAuthTableCount,
+        foreignKeyCount: productPopulatedState.supplierAuthForeignKeyCount,
+        supplierUserRowCount: productPopulatedState.supplierUserRowCount,
+        selectionRowCount:
+          productPopulatedState.supplierAuthSelectionRowCount,
+        authSessionRowCount: productPopulatedState.supplierAuthSessionRowCount,
+        loginAuditRowCount: productPopulatedState.supplierLoginAuditRowCount,
+        rawSelectionTokenRejected: true,
       },
       finalSchemaDrift: 'NONE',
       idempotentRedeploy: 'PASS',
