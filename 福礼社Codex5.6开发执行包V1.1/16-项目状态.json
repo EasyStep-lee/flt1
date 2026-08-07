@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-07T07:55:09-04:00",
+  "updatedAt": "2026-08-07T08:40:27-04:00",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -82,11 +82,11 @@
       "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/29",
       "branch": "codex/m1-m1-p070",
       "baseCommit": "417d165d0668327af26bbcdadaf7bbd7fdb31471",
-      "status": "IN_PROGRESS",
-      "verifiedImplementationHead": "NOT_EXECUTED",
+      "status": "DONE_LOCAL_PASS",
+      "verifiedImplementationHead": "77ebf06feb5f40b43b182a24a254e457a0713ff4",
       "draftHeadAtCreation": "NOT_EXECUTED",
-      "localVerify": "NOT_EXECUTED",
-      "migrationRehearsal": "NOT_EXECUTED",
+      "localVerify": "PASS_17_OF_17_AT_77EBF06",
+      "migrationRehearsal": "PASS_EMPTY_2_UPGRADE_2_RESTORE_2_PRODUCT_10_CLEANUP_PASS",
       "pullRequest": null,
       "pullRequestUrl": null,
       "pullRequestState": "NOT_CREATED",
@@ -104,10 +104,10 @@
       "mainPostMergeCiRun": 31175113225,
       "status": "CI_PASS"
     },
-    "note": "M1-P069 PR #28精确head c914a5e的CI run 31174016101成功，用户授权后合并为417d165，合并后main CI run 31175113225成功。M1-P070已从该main建立codex/m1-m1-p070并创建Issue #29；当前只允许实现八类供应商固定页面壳和服务端当前会话白名单，P071/P072/M2禁止启动。"
+    "note": "M1-P069 PR #28已闭环。M1-P070已实现八类供应商固定页面壳、API-084/API-085服务端会话白名单与旧会话失效；focused、P0 Chromium和pnpm verify 17/17本地通过。Issue #29已创建，PR/精确head CI/审查/合并未执行；P071/P072/M2禁止启动。"
   },
   "evidence": {
-    "local": "NOT_EXECUTED",
+    "local": "LOCAL_PASS",
     "ci": "NOT_EXECUTED",
     "staging": "NOT_EXECUTED",
     "device": "NOT_REQUIRED_PC_WEB_SLICE",
