@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-06T22:52:20-04:00",
+  "updatedAt": "2026-08-06T22:56:26-04:00",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -38,9 +38,9 @@
     "authenticationConfirmed": true,
     "writeAllowed": true,
     "connectorAccessConfirmed": true,
-    "pullRequest": null,
-    "pullRequestUrl": "NOT_CREATED_FOR_M1_P068",
-    "pullRequestState": "NOT_CREATED",
+    "pullRequest": 26,
+    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/26",
+    "pullRequestState": "DRAFT",
     "pullRequestMerged": false,
     "mergeCommitSha": "NOT_EXECUTED_FOR_M1_P068",
     "mergedAt": "NOT_EXECUTED_FOR_M1_P068",
@@ -84,12 +84,12 @@
       "baseCommit": "aa7b9a7a7f8a8b763c1e17c5f471996cc0af9a2e",
       "status": "DONE_LOCAL_PASS",
       "verifiedImplementationHead": "a2cb8a66ac4b3827757203dfde5c10dcb1f08f12",
-      "draftHeadAtCreation": "NOT_CREATED",
+      "draftHeadAtCreation": "d2954cb3945864b02a12e45bcea521937b11843d",
       "localVerify": "PASS_17_OF_17_REPORT_COMMIT_a2cb8a66ac4b3827757203dfde5c10dcb1f08f12",
       "migrationRehearsal": "PASS_EMPTY_2_UPGRADE_2_RESTORE_2_PRODUCT_8_CLEANUP_PASS",
-      "pullRequest": null,
-      "pullRequestUrl": "NOT_CREATED_FOR_M1_P068",
-      "pullRequestState": "NOT_CREATED",
+      "pullRequest": 26,
+      "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/26",
+      "pullRequestState": "DRAFT",
       "exactHeadCi": "NOT_EXECUTED",
       "review": "NOT_EXECUTED",
       "merge": "NOT_EXECUTED",
@@ -104,7 +104,7 @@
       "mainPostMergeCiRun": 31139537997,
       "status": "CI_PASS"
     },
-    "note": "M1-P067 PR #24精确head CI、用户授权合并和合并后main CI已闭环。M1-P068在Issue #25和codex/m1-m1-p068完成先红后绿实现，API-083、十职能独立模块目录及完整页面状态focused测试通过；pnpm verify 17/17及真实MySQL迁移演练通过；等待Draft PR和精确head CI，P069禁止启动。"
+    "note": "M1-P067 PR #24精确head CI、用户授权合并和合并后main CI已闭环。M1-P068在Issue #25和codex/m1-m1-p068完成先红后绿实现，API-083、十职能独立模块目录及完整页面状态focused测试通过；pnpm verify 17/17及真实MySQL迁移演练通过；Draft PR #26已创建并等待精确最终head CI，P069禁止启动。"
   },
   "evidence": {
     "local": "LOCAL_PASS",

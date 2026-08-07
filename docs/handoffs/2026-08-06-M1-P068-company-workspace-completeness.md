@@ -4,7 +4,7 @@
 
 - 方案 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`。
 - 基线：`main@aa7b9a7a7f8a8b763c1e17c5f471996cc0af9a2e`；分支：`codex/m1-m1-p068`；实现提交：`a2cb8a66ac4b3827757203dfde5c10dcb1f08f12`。
-- 当前结论：`LOCAL_PASS`。`pnpm verify` 17/17 与真实 MySQL 迁移演练均通过；Issue #25 已创建，Draft PR 尚未创建，CI/预发布/生产未执行。
+- 当前结论：`LOCAL_PASS`。`pnpm verify` 17/17 与真实 MySQL 迁移演练均通过；Issue #25 与 Draft PR #26 已创建，精确 head CI/预发布/生产未执行。
 - 本切片只完成 P0-068。M1-P069 供应商注册登录与职能选择，以及 M2-M5 商品、价格、订单、福利卡、财务、物流、CMS 业务内容均未进入。
 
 ## 实际变更
@@ -51,6 +51,6 @@ RED 未通过删除测试、降断言或文本锚点规避。完整命令和环�
 ## GitHub 与下一门禁
 
 - 仓库：`EasyStep-lee/flt1`；Issue：[#25](https://github.com/EasyStep-lee/flt1/issues/25)。
-- 开发分支：`codex/m1-m1-p068`；PR：尚未创建；评论/检查/合并：`NOT_EXECUTED`。
+- 开发分支：`codex/m1-m1-p068`；Draft PR：[#26](https://github.com/EasyStep-lee/flt1/pull/26)；评论/检查/合并：`NOT_EXECUTED`。
 - 下一步仅允许：完成全量验证、审查差异、推送分支、创建 Draft PR、读取精确 head Actions 并修复同切片问题。
 - P068 未经精确 head CI、人工审查、用户对精确 head 授权合并且合并后 main CI 成功前，M1-P069 明确禁止进入。
