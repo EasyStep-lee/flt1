@@ -38,6 +38,9 @@ const SESSION_TTL_MS = 8 * 60 * 60 * 1000;
 const SELECTION_TTL_MS = 10 * 60 * 1000;
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
 const RATE_LIMIT_FAILURES = 5;
+const SECOND_VERIFICATION_CLAIM_TTL_MS = 30 * 1000;
+const SECOND_VERIFICATION_WAIT_ATTEMPTS = 100;
+const SECOND_VERIFICATION_WAIT_INTERVAL_MS = 10;
 const ACCOUNT_SELECT_ROUTE = '/supplier/account-select' as const;
 
 export const SUPPLIER_AUTH_SESSION_CREDENTIAL = Symbol(
@@ -88,6 +91,9 @@ export interface SupplierWorkspaceSelectionResult {
 
 const hash = (value: string): string =>
   createHash('sha256').update(value).digest('hex');
+
+const delay = (durationMs: number): Promise<void> =>
+  new Promise((resolve) => setTimeout(resolve, durationMs));
 
 const sessionTokenFor = (sessionId: string, key: string): string =>
   createHmac('sha256', key)
@@ -251,6 +257,9 @@ export class SupplierAuthService {
     if (result.kind === 'GRANT_INVALID') {
       throw new SafeApiError(403, 'WORKSPACE_FORBIDDEN', '职能账号选择已失效');
     }
+    if (result.kind === 'SECOND_VERIFICATION_REQUIRED') {
+      throw new SafeApiError(428, 'SECOND_VERIFICATION_REQUIRED', '需要二次验证');
+    }
     const recoveredToken = sessionTokenFor(
       result.session.id,
       this.sessionTokenKey,
@@ -263,6 +272,32 @@ export class SupplierAuthService {
       replayed: result.replayed,
       sessionToken: recoveredToken,
     };
+  }
+
+  private async waitForSecondVerification(
+    nonceHash: string,
+    accountId: string,
+  ): Promise<boolean> {
+    for (let attempt = 0; attempt < SECOND_VERIFICATION_WAIT_ATTEMPTS; attempt += 1) {
+      await delay(SECOND_VERIFICATION_WAIT_INTERVAL_MS);
+      const grant = await this.repository.resolveSelectionGrant(nonceHash);
+      const now = new Date().toISOString();
+      if (!grant || grant.expiresAt <= now) return false;
+      if (
+        grant.selectedAccountId === accountId &&
+        ((grant.usedAt !== null && grant.selectedSessionId !== null) ||
+          grant.secondVerifiedAt !== null)
+      ) {
+        return true;
+      }
+      if (
+        grant.secondVerificationClaimId === null ||
+        grant.selectedAccountId !== accountId
+      ) {
+        return false;
+      }
+    }
+    return false;
   }
 
   async login(
@@ -323,7 +358,10 @@ export class SupplierAuthService {
       expiresAt: new Date(Date.now() + SELECTION_TTL_MS).toISOString(),
       nonceHash,
       requestId: body.requestId,
+      secondVerificationClaimedAt: null,
+      secondVerificationClaimId: null,
       secondVerificationRequired: verification.secondVerificationRequired,
+      secondVerifiedAt: null,
       selectedAccountId: null,
       selectedSessionId: null,
       usedAt: null,
@@ -419,24 +457,124 @@ export class SupplierAuthService {
       grant.usedAt !== null &&
       grant.selectedAccountId === account.id &&
       grant.selectedSessionId !== null;
-    if (
-      grant.secondVerificationRequired &&
-      !isCompletedSameAccountReplay &&
-      !(await this.secondVerifier.verify({
+    if (grant.secondVerificationRequired && !isCompletedSameAccountReplay) {
+      const claimedAt = new Date().toISOString();
+      const claimId = randomUUID();
+      const claim = await this.repository.claimSecondVerification({
+        accountId: account.id,
+        claimId,
+        claimedAt,
+        claimStaleBefore: new Date(
+          Date.parse(claimedAt) - SECOND_VERIFICATION_CLAIM_TTL_MS,
+        ).toISOString(),
+        nonceHash,
         userId: grant.userId,
-        ...(body.secondVerificationCode ? { code: body.secondVerificationCode } : {}),
-      }))
-    ) {
-      await this.audit(
-        'selection-context',
-        context,
-        'SECOND_VERIFICATION_REQUIRED',
-        'SECOND_VERIFICATION_REQUIRED',
-        null,
-        account.id,
-        grant.userId,
-      );
-      throw new SafeApiError(428, 'SECOND_VERIFICATION_REQUIRED', '需要二次验证');
+      });
+      if (claim.kind === 'GRANT_INVALID') {
+        await this.audit(
+          'selection-context',
+          context,
+          'AUTH_INVALID',
+          'WORKSPACE_SELECTION_INVALID',
+          null,
+          account.id,
+          grant.userId,
+        );
+        throw new SafeApiError(403, 'WORKSPACE_FORBIDDEN', '职能账号选择已失效');
+      }
+      if (claim.kind === 'CONFLICT') {
+        await this.audit(
+          'selection-context',
+          context,
+          'AUTH_INVALID',
+          'WORKSPACE_SESSION_CONFLICT',
+          null,
+          account.id,
+          grant.userId,
+        );
+        throw new SafeApiError(
+          409,
+          'WORKSPACE_SESSION_CONFLICT',
+          '该选择上下文已绑定其他职能账号',
+        );
+      }
+      if (claim.kind === 'IN_PROGRESS') {
+        const recovered = await this.waitForSecondVerification(nonceHash, account.id);
+        if (!recovered) {
+          await this.audit(
+            'selection-context',
+            context,
+            'SECOND_VERIFICATION_REQUIRED',
+            'SECOND_VERIFICATION_IN_PROGRESS',
+            null,
+            account.id,
+            grant.userId,
+          );
+          throw new SafeApiError(428, 'SECOND_VERIFICATION_REQUIRED', '需要二次验证');
+        }
+      }
+      if (claim.kind === 'CLAIMED') {
+        let verified: boolean;
+        try {
+          verified = await this.secondVerifier.verify({
+            userId: grant.userId,
+            ...(body.secondVerificationCode
+              ? { code: body.secondVerificationCode }
+              : {}),
+          });
+        } catch (error) {
+          await this.repository.releaseSecondVerificationClaim({
+            claimId,
+            nonceHash,
+            userId: grant.userId,
+          });
+          await this.audit(
+            'selection-context',
+            context,
+            'SECOND_VERIFICATION_REQUIRED',
+            'SECOND_VERIFICATION_PROVIDER_ERROR',
+            null,
+            account.id,
+            grant.userId,
+          );
+          throw error;
+        }
+        if (!verified) {
+          await this.repository.releaseSecondVerificationClaim({
+            claimId,
+            nonceHash,
+            userId: grant.userId,
+          });
+          await this.audit(
+            'selection-context',
+            context,
+            'SECOND_VERIFICATION_REQUIRED',
+            'SECOND_VERIFICATION_REQUIRED',
+            null,
+            account.id,
+            grant.userId,
+          );
+          throw new SafeApiError(428, 'SECOND_VERIFICATION_REQUIRED', '需要二次验证');
+        }
+        const completed = await this.repository.completeSecondVerification({
+          claimId,
+          nonceHash,
+          userId: grant.userId,
+          verifiedAt: new Date().toISOString(),
+        });
+        if (!completed && !(await this.waitForSecondVerification(nonceHash, account.id))) {
+          await this.audit(
+            'selection-context',
+            context,
+            'SECOND_VERIFICATION_REQUIRED',
+            'SECOND_VERIFICATION_CLAIM_LOST',
+            null,
+            account.id,
+            grant.userId,
+          );
+          throw new SafeApiError(428, 'SECOND_VERIFICATION_REQUIRED', '需要二次验证');
+        }
+      }
     }
     let issued: SupplierWorkspaceSelectionResult;
     try {
@@ -446,7 +584,9 @@ export class SupplierAuthService {
         await this.audit(
           'selection-context',
           context,
-          'AUTH_INVALID',
+          error.code === 'SECOND_VERIFICATION_REQUIRED'
+            ? 'SECOND_VERIFICATION_REQUIRED'
+            : 'AUTH_INVALID',
           error.code,
           null,
           account.id,

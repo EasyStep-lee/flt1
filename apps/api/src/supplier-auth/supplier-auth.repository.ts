@@ -72,7 +72,10 @@ export interface SupplierSelectionGrantRecord {
   readonly expiresAt: string;
   readonly nonceHash: string;
   readonly requestId: string;
+  readonly secondVerificationClaimedAt: string | null;
+  readonly secondVerificationClaimId: string | null;
   readonly secondVerificationRequired: boolean;
+  readonly secondVerifiedAt: string | null;
   readonly selectedAccountId: string | null;
   readonly selectedSessionId: string | null;
   readonly usedAt: string | null;
@@ -111,6 +114,7 @@ export interface IssueSupplierSessionCommand {
 export type IssueSupplierSessionResult =
   | { readonly kind: 'CONFLICT' }
   | { readonly kind: 'GRANT_INVALID' }
+  | { readonly kind: 'SECOND_VERIFICATION_REQUIRED' }
   | {
       readonly kind: 'OK';
       readonly replayed: boolean;
@@ -118,7 +122,42 @@ export type IssueSupplierSessionResult =
       readonly session: SupplierAuthSessionRecord;
     };
 
+export interface ClaimSupplierSecondVerificationCommand {
+  readonly accountId: string;
+  readonly claimId: string;
+  readonly claimedAt: string;
+  readonly claimStaleBefore: string;
+  readonly nonceHash: string;
+  readonly userId: string;
+}
+
+export type ClaimSupplierSecondVerificationResult =
+  | { readonly kind: 'CLAIMED' }
+  | { readonly kind: 'IN_PROGRESS' }
+  | { readonly kind: 'VERIFIED' }
+  | { readonly kind: 'CONFLICT' }
+  | { readonly kind: 'GRANT_INVALID' };
+
+export interface CompleteSupplierSecondVerificationCommand {
+  readonly claimId: string;
+  readonly nonceHash: string;
+  readonly userId: string;
+  readonly verifiedAt: string;
+}
+
+export interface ReleaseSupplierSecondVerificationCommand {
+  readonly claimId: string;
+  readonly nonceHash: string;
+  readonly userId: string;
+}
+
 export interface SupplierAuthRepository {
+  claimSecondVerification(
+    command: ClaimSupplierSecondVerificationCommand,
+  ): Promise<ClaimSupplierSecondVerificationResult>;
+  completeSecondVerification(
+    command: CompleteSupplierSecondVerificationCommand,
+  ): Promise<boolean>;
   countRecentLoginFailures(loginAccountHash: string, since: string): Promise<number>;
   createSelectionGrant(record: SupplierSelectionGrantRecord): Promise<void>;
   findSupplierUser(loginAccount: string): Promise<SupplierUserRecord | null>;
@@ -126,6 +165,9 @@ export interface SupplierAuthRepository {
   listSupplierAccounts(userId: string): Promise<readonly SupplierFunctionalAccountRecord[]>;
   markLoginSucceeded(userId: string, occurredAt: string): Promise<void>;
   recordLoginAudit(record: SupplierLoginAuditRecord): Promise<void>;
+  releaseSecondVerificationClaim(
+    command: ReleaseSupplierSecondVerificationCommand,
+  ): Promise<void>;
   resolveSelectionGrant(nonceHash: string): Promise<SupplierSelectionGrantRecord | null>;
   resolveSession(sessionHash: string, now: string): Promise<ResolveSupplierSessionResult>;
 }

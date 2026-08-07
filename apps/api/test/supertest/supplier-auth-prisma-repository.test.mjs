@@ -10,7 +10,10 @@ const selection = (overrides = {}) => ({
   expiresAt: '2026-08-07T05:30:00.000Z',
   nonceHash: 'a'.repeat(64),
   requestId: '40000000-0000-4000-8000-000000000069',
+  secondVerificationClaimedAt: null,
+  secondVerificationClaimId: null,
   secondVerificationRequired: false,
+  secondVerifiedAt: null,
   selectedAccountId: null,
   selectedSessionId: null,
   usedAt: null,
@@ -44,6 +47,80 @@ const command = {
 };
 
 describe('Prisma supplier auth repository security boundaries', () => {
+  it('serializes second-verification claims with a persistent row lock', async () => {
+    let stored = {
+      ...selection({ secondVerificationRequired: true }),
+      expiresAt: new Date('2099-08-07T05:30:00.000Z'),
+      id: '60000000-0000-4000-8000-000000000069',
+    };
+    const updateMany = vi.fn(async ({ where, data }) => {
+      if (
+        (where.secondVerificationClaimId !== undefined &&
+          where.secondVerificationClaimId !== stored.secondVerificationClaimId) ||
+        (where.secondVerifiedAt === null && stored.secondVerifiedAt !== null) ||
+        (where.usedAt === null && stored.usedAt !== null)
+      ) {
+        return { count: 0 };
+      }
+      stored = { ...stored, ...data };
+      return { count: 1 };
+    });
+    const database = {
+      $queryRaw: vi.fn().mockResolvedValue([{ id: stored.id }]),
+      supplierAuthSelection: {
+        findUnique: vi.fn(async () => stored),
+        updateMany,
+      },
+    };
+    const repository = new PrismaSupplierAuthRepository({
+      $transaction: async (callback) => callback(database),
+      supplierAuthSelection: { updateMany },
+    });
+    const claim = {
+      accountId,
+      claimId: '70000000-0000-4000-8000-000000000069',
+      claimedAt: '2026-08-07T05:00:00.000Z',
+      claimStaleBefore: '2026-08-07T04:59:30.000Z',
+      nonceHash: 'a'.repeat(64),
+      userId,
+    };
+
+    await expect(repository.claimSecondVerification(claim)).resolves.toEqual({
+      kind: 'CLAIMED',
+    });
+    await expect(
+      repository.claimSecondVerification({
+        ...claim,
+        claimId: '70000000-0000-4000-8000-000000000070',
+        claimedAt: '2026-08-07T05:00:01.000Z',
+        claimStaleBefore: '2026-08-07T04:59:31.000Z',
+      }),
+    ).resolves.toEqual({ kind: 'IN_PROGRESS' });
+    await expect(
+      repository.completeSecondVerification({
+        claimId: claim.claimId,
+        nonceHash: claim.nonceHash,
+        userId,
+        verifiedAt: '2026-08-07T05:00:02.000Z',
+      }),
+    ).resolves.toBe(true);
+    await expect(
+      repository.claimSecondVerification({
+        ...claim,
+        claimId: '70000000-0000-4000-8000-000000000071',
+        claimedAt: '2026-08-07T05:00:03.000Z',
+        claimStaleBefore: '2026-08-07T04:59:33.000Z',
+      }),
+    ).resolves.toEqual({ kind: 'VERIFIED' });
+    expect(database.$queryRaw).toHaveBeenCalledTimes(3);
+    expect(stored).toMatchObject({
+      secondVerificationClaimedAt: null,
+      secondVerificationClaimId: null,
+      secondVerifiedAt: new Date('2026-08-07T05:00:02.000Z'),
+      selectedAccountId: accountId,
+    });
+  });
+
   it('does not reset a completed selection when login reuses its requestId', async () => {
     let stored = null;
     const prisma = {

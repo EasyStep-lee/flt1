@@ -1,8 +1,12 @@
 import { randomUUID } from 'node:crypto';
 
 import type {
+  ClaimSupplierSecondVerificationCommand,
+  ClaimSupplierSecondVerificationResult,
+  CompleteSupplierSecondVerificationCommand,
   IssueSupplierSessionCommand,
   IssueSupplierSessionResult,
+  ReleaseSupplierSecondVerificationCommand,
   ResolveSupplierSessionResult,
   SupplierAuthRepository,
   SupplierAuthSessionRecord,
@@ -45,13 +49,87 @@ export class InMemorySupplierAuthRepository implements SupplierAuthRepository {
     );
   }
 
+  claimSecondVerification(
+    command: ClaimSupplierSecondVerificationCommand,
+  ): Promise<ClaimSupplierSecondVerificationResult> {
+    const grant = this.grants.get(command.nonceHash);
+    if (
+      !grant ||
+      grant.userId !== command.userId ||
+      grant.expiresAt <= command.claimedAt ||
+      !grant.secondVerificationRequired
+    ) {
+      return Promise.resolve({ kind: 'GRANT_INVALID' });
+    }
+    if (grant.usedAt !== null) {
+      return Promise.resolve(
+        grant.selectedAccountId === command.accountId && grant.selectedSessionId !== null
+          ? { kind: 'VERIFIED' }
+          : { kind: 'CONFLICT' },
+      );
+    }
+    if (grant.secondVerifiedAt !== null) {
+      return Promise.resolve(
+        grant.selectedAccountId === command.accountId
+          ? { kind: 'VERIFIED' }
+          : { kind: 'CONFLICT' },
+      );
+    }
+    const activeClaim =
+      grant.secondVerificationClaimId !== null &&
+      grant.secondVerificationClaimedAt !== null &&
+      grant.secondVerificationClaimedAt > command.claimStaleBefore;
+    if (activeClaim) {
+      return Promise.resolve(
+        grant.selectedAccountId === command.accountId
+          ? { kind: 'IN_PROGRESS' }
+          : { kind: 'CONFLICT' },
+      );
+    }
+    this.grants.set(command.nonceHash, {
+      ...grant,
+      secondVerificationClaimedAt: command.claimedAt,
+      secondVerificationClaimId: command.claimId,
+      secondVerifiedAt: null,
+      selectedAccountId: command.accountId,
+    });
+    return Promise.resolve({ kind: 'CLAIMED' });
+  }
+
+  completeSecondVerification(
+    command: CompleteSupplierSecondVerificationCommand,
+  ): Promise<boolean> {
+    const grant = this.grants.get(command.nonceHash);
+    if (
+      !grant ||
+      grant.userId !== command.userId ||
+      grant.usedAt !== null ||
+      grant.secondVerificationClaimId !== command.claimId ||
+      grant.secondVerifiedAt !== null
+    ) {
+      return Promise.resolve(false);
+    }
+    this.grants.set(command.nonceHash, {
+      ...grant,
+      secondVerificationClaimedAt: null,
+      secondVerificationClaimId: null,
+      secondVerifiedAt: command.verifiedAt,
+    });
+    return Promise.resolve(true);
+  }
+
   createSelectionGrant(record: SupplierSelectionGrantRecord): Promise<void> {
     for (const grant of this.grants.values()) {
       if (grant.userId === record.userId && grant.requestId === record.requestId) {
         return Promise.resolve();
       }
     }
-    this.grants.set(record.nonceHash, structuredClone(record));
+    this.grants.set(record.nonceHash, {
+      ...structuredClone(record),
+      secondVerificationClaimedAt: record.secondVerificationClaimedAt ?? null,
+      secondVerificationClaimId: record.secondVerificationClaimId ?? null,
+      secondVerifiedAt: record.secondVerifiedAt ?? null,
+    });
     return Promise.resolve();
   }
 
@@ -115,6 +193,12 @@ export class InMemorySupplierAuthRepository implements SupplierAuthRepository {
           sessionHash: existingSessionHash,
         });
       }
+      if (
+        grant.secondVerificationRequired &&
+        (grant.secondVerifiedAt === null || grant.selectedAccountId !== account.id)
+      ) {
+        return Promise.resolve({ kind: 'SECOND_VERIFICATION_REQUIRED' });
+      }
     }
 
     for (const [id, session] of this.sessions) {
@@ -173,6 +257,28 @@ export class InMemorySupplierAuthRepository implements SupplierAuthRepository {
 
   recordLoginAudit(record: SupplierLoginAuditRecord): Promise<void> {
     this.audits.push({ ...structuredClone(record), id: randomUUID() });
+    return Promise.resolve();
+  }
+
+  releaseSecondVerificationClaim(
+    command: ReleaseSupplierSecondVerificationCommand,
+  ): Promise<void> {
+    const grant = this.grants.get(command.nonceHash);
+    if (
+      !grant ||
+      grant.userId !== command.userId ||
+      grant.usedAt !== null ||
+      grant.secondVerifiedAt !== null ||
+      grant.secondVerificationClaimId !== command.claimId
+    ) {
+      return Promise.resolve();
+    }
+    this.grants.set(command.nonceHash, {
+      ...grant,
+      secondVerificationClaimedAt: null,
+      secondVerificationClaimId: null,
+      selectedAccountId: null,
+    });
     return Promise.resolve();
   }
 

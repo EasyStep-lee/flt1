@@ -154,6 +154,8 @@ type JsonValue =
     {
       provide: SUPPLIER_AUTH_REPOSITORY,
       useValue: {
+        claimSecondVerification: async () => ({ kind: 'GRANT_INVALID' }),
+        completeSecondVerification: async () => false,
         countRecentLoginFailures: async () => 0,
         createSelectionGrant: async () => undefined,
         findSupplierUser: async () => null,
@@ -161,6 +163,7 @@ type JsonValue =
         listSupplierAccounts: async () => [],
         markLoginSucceeded: async () => undefined,
         recordLoginAudit: async () => undefined,
+        releaseSecondVerificationClaim: async () => undefined,
         resolveSelectionGrant: async () => null,
         resolveSession: async () => ({ kind: 'MISSING' }),
       } satisfies SupplierAuthRepository,

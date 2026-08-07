@@ -710,6 +710,155 @@ describe('P0-069 supplier login and functional workspace selection', () => {
     }
   });
 
+  it('serializes concurrent first-time second verification to one code consumption', async () => {
+    let releaseFirstVerification;
+    const firstVerification = new Promise((resolve) => {
+      releaseFirstVerification = resolve;
+    });
+    const secondVerify = vi
+      .fn()
+      .mockImplementationOnce(() => firstVerification)
+      .mockResolvedValue(false);
+    const fixture = await createFixture({
+      secondVerificationRequired: true,
+      secondVerifier: { verify: secondVerify },
+    });
+    const resolveGrant = vi.spyOn(fixture.repository, 'resolveSelectionGrant');
+    try {
+      const login = await request(fixture.app.getHttpServer())
+        .post('/v1/supplier-auth/login')
+        .send(loginBody({ requestId: '40000000-0000-4000-8000-000000000074' }));
+      const select = () =>
+        request(fixture.app.getHttpServer())
+          .post(`/v1/supplier-auth/workspaces/${firstAccountId}/select`)
+          .send({
+            selectionNonce: login.body.selectionNonce,
+            secondVerificationCode: '654321',
+          });
+
+      const first = select().then((response) => response);
+      await vi.waitFor(() => expect(secondVerify).toHaveBeenCalledTimes(1));
+      const concurrent = select().then((response) => response);
+      await vi.waitFor(() =>
+        expect(resolveGrant.mock.calls.length).toBeGreaterThanOrEqual(2),
+      );
+      await new Promise((resolve) => setTimeout(resolve, 25));
+      releaseFirstVerification(true);
+
+      const [selected, recovered] = await Promise.all([first, concurrent]);
+      expect(selected.status).toBe(200);
+      expect(recovered.status).toBe(200);
+      expect(recovered.body).toEqual(selected.body);
+      expect(sessionTokenFrom(recovered)).toBe(sessionTokenFrom(selected));
+      expect(secondVerify).toHaveBeenCalledOnce();
+      expect(await fixture.repository.countActiveSessions(userId)).toBe(1);
+    } finally {
+      await fixture.app.close();
+    }
+  });
+
+  it('releases a second-verification claim after provider failure and retries safely', async () => {
+    const secondVerify = vi
+      .fn()
+      .mockRejectedValueOnce(new Error('SECOND_PROVIDER_UNAVAILABLE'))
+      .mockResolvedValue(true);
+    const fixture = await createFixture({
+      secondVerificationRequired: true,
+      secondVerifier: { verify: secondVerify },
+    });
+    try {
+      const login = await request(fixture.app.getHttpServer())
+        .post('/v1/supplier-auth/login')
+        .send(loginBody({ requestId: '40000000-0000-4000-8000-000000000075' }));
+      const nonceHash = createHash('sha256')
+        .update(login.body.selectionNonce)
+        .digest('hex');
+      const failed = await request(fixture.app.getHttpServer())
+        .post(`/v1/supplier-auth/workspaces/${firstAccountId}/select`)
+        .send({
+          selectionNonce: login.body.selectionNonce,
+          secondVerificationCode: '654321',
+        });
+
+      expect(failed.status).toBe(500);
+      expect(JSON.stringify(failed.body)).not.toContain('SECOND_PROVIDER_UNAVAILABLE');
+      expect(failed.headers['set-cookie']).toBeUndefined();
+      await expect(fixture.repository.resolveSelectionGrant(nonceHash)).resolves.toMatchObject({
+        secondVerificationClaimedAt: null,
+        secondVerificationClaimId: null,
+        secondVerifiedAt: null,
+        selectedAccountId: null,
+      });
+
+      const selected = await request(fixture.app.getHttpServer())
+        .post(`/v1/supplier-auth/workspaces/${firstAccountId}/select`)
+        .send({
+          selectionNonce: login.body.selectionNonce,
+          secondVerificationCode: '654321',
+        });
+      expect(selected.status).toBe(200);
+      expect(secondVerify).toHaveBeenCalledTimes(2);
+      expect(await fixture.repository.countActiveSessions(userId)).toBe(1);
+      expect(fixture.repository.readLoginAudits()).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            result: 'SECOND_VERIFICATION_REQUIRED',
+            riskReason: 'SECOND_VERIFICATION_PROVIDER_ERROR',
+          }),
+        ]),
+      );
+    } finally {
+      await fixture.app.close();
+    }
+  });
+
+  it('takes over a stale second-verification claim and rejects its old owner', async () => {
+    const secondVerify = vi.fn().mockResolvedValue(true);
+    const fixture = await createFixture({
+      secondVerificationRequired: true,
+      secondVerifier: { verify: secondVerify },
+    });
+    try {
+      const login = await request(fixture.app.getHttpServer())
+        .post('/v1/supplier-auth/login')
+        .send(loginBody({ requestId: '40000000-0000-4000-8000-000000000076' }));
+      const nonceHash = createHash('sha256')
+        .update(login.body.selectionNonce)
+        .digest('hex');
+      const abandonedClaimId = '50000000-0000-4000-8000-000000000076';
+      await expect(
+        fixture.repository.claimSecondVerification({
+          accountId: firstAccountId,
+          claimId: abandonedClaimId,
+          claimedAt: '2000-01-01T00:00:00.000Z',
+          claimStaleBefore: '1999-12-31T23:59:30.000Z',
+          nonceHash,
+          userId,
+        }),
+      ).resolves.toEqual({ kind: 'CLAIMED' });
+
+      const selected = await request(fixture.app.getHttpServer())
+        .post(`/v1/supplier-auth/workspaces/${firstAccountId}/select`)
+        .send({
+          selectionNonce: login.body.selectionNonce,
+          secondVerificationCode: '654321',
+        });
+      expect(selected.status).toBe(200);
+      expect(secondVerify).toHaveBeenCalledOnce();
+      await expect(
+        fixture.repository.completeSecondVerification({
+          claimId: abandonedClaimId,
+          nonceHash,
+          userId,
+          verifiedAt: new Date().toISOString(),
+        }),
+      ).resolves.toBe(false);
+      expect(await fixture.repository.countActiveSessions(userId)).toBe(1);
+    } finally {
+      await fixture.app.close();
+    }
+  });
+
   it('rejects malformed optional second-verification codes without consuming the grant', async () => {
     const secondVerify = vi.fn(async ({ code }) => code === '654321');
     const fixture = await createFixture({

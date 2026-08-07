@@ -304,12 +304,14 @@ SELECT CONCAT(
 ) FROM \`functional_account_type\` WHERE \`owner_type\` = 'COMPANY' AND \`status\` = 'ACTIVE';
 SELECT COUNT(*) FROM \`information_schema\`.\`tables\` WHERE \`table_schema\` = DATABASE() AND \`table_name\` = 'supplier_auth_selection';
 SELECT COUNT(*) FROM \`information_schema\`.\`referential_constraints\` WHERE \`constraint_schema\` = DATABASE() AND \`constraint_name\` = 'supplier_auth_selection_user_id_fkey';
+SELECT COUNT(*) FROM \`information_schema\`.\`columns\` WHERE \`table_schema\` = DATABASE() AND \`table_name\` = 'supplier_auth_selection' AND \`column_name\` IN ('second_verification_claim_id', 'second_verification_claimed_at', 'second_verified_at');
+SELECT COUNT(*) FROM \`information_schema\`.\`table_constraints\` WHERE \`constraint_schema\` = DATABASE() AND \`table_name\` = 'supplier_auth_selection' AND \`constraint_type\` = 'CHECK' AND \`constraint_name\` IN ('supplier_auth_selection_second_verification_claim_pair_chk', 'supplier_auth_selection_second_verification_claim_id_chk', 'supplier_auth_selection_second_verified_account_chk');
 SELECT CONCAT((SELECT COUNT(*) FROM \`supplier_user\`), '|', (SELECT COUNT(*) FROM \`supplier_auth_selection\`), '|', (SELECT COUNT(*) FROM \`auth_session\` WHERE \`user_type\` = 'SUPPLIER_USER'), '|', (SELECT COUNT(*) FROM \`login_audit\` WHERE \`user_type\` = 'SUPPLIER_USER'));
 `,
     database,
   );
   const values = output.split(/\r?\n/u);
-  if (values.length !== 33) {
+  if (values.length !== 35) {
     throw new Error(`PRODUCT_COMPANY_PROBE_OUTPUT_INVALID:${output}`);
   }
   const [legalName, platformName] = values[2].split('|');
@@ -329,7 +331,7 @@ SELECT CONCAT((SELECT COUNT(*) FROM \`supplier_user\`), '|', (SELECT COUNT(*) FR
     supplierAuthSelectionRowCount,
     supplierAuthSessionRowCount,
     supplierLoginAuditRowCount,
-  ] = values[32].split('|');
+  ] = values[34].split('|');
   return {
     appliedMigrations: Number(values[0]),
     companyRowCount: Number(values[1]),
@@ -371,6 +373,8 @@ SELECT CONCAT((SELECT COUNT(*) FROM \`supplier_user\`), '|', (SELECT COUNT(*) FR
     singleCompanyWorkspaceMenuCount: Number(singleCompanyWorkspaceMenuCount),
     supplierAuthTableCount: Number(values[30]),
     supplierAuthForeignKeyCount: Number(values[31]),
+    supplierSecondVerificationColumnCount: Number(values[32]),
+    supplierSecondVerificationCheckCount: Number(values[33]),
     supplierUserRowCount: Number(supplierUserRowCount),
     supplierAuthSelectionRowCount: Number(supplierAuthSelectionRowCount),
     supplierAuthSessionRowCount: Number(supplierAuthSessionRowCount),
@@ -660,6 +664,8 @@ try {
       productEmptyState.singleCompanyWorkspaceMenuCount === 10 &&
       productEmptyState.supplierAuthTableCount === 1 &&
       productEmptyState.supplierAuthForeignKeyCount === 1 &&
+      productEmptyState.supplierSecondVerificationColumnCount === 3 &&
+      productEmptyState.supplierSecondVerificationCheckCount === 3 &&
       productEmptyState.supplierUserRowCount === 0 &&
       productEmptyState.supplierAuthSelectionRowCount === 0 &&
       productEmptyState.supplierAuthSessionRowCount === 0 &&
@@ -742,8 +748,10 @@ INSERT INTO \`field_access_policy\` (\`id\`, \`functional_account_id\`, \`resour
   const supplierSessionHash = 'd'.repeat(64);
   const supplierSelectionHash = 'e'.repeat(64);
   const supplierLoginAccountHash = 'f'.repeat(64);
+  const supplierSecondVerificationClaimId =
+    '2a000000-0000-4000-8000-000000000069';
   runRootMysql(
-    `INSERT INTO \`supplier_auth_selection\` (\`id\`, \`user_id\`, \`nonce_hash\`, \`request_id\`, \`second_verification_required\`, \`expires_at\`) VALUES ('${supplierSelectionId}', '${supplierUserId}', '${supplierSelectionHash}', '29000000-0000-4000-8000-000000000069', false, DATE_ADD(CURRENT_TIMESTAMP(3), INTERVAL 10 MINUTE));
+    `INSERT INTO \`supplier_auth_selection\` (\`id\`, \`user_id\`, \`nonce_hash\`, \`request_id\`, \`second_verification_required\`, \`expires_at\`) VALUES ('${supplierSelectionId}', '${supplierUserId}', '${supplierSelectionHash}', '29000000-0000-4000-8000-000000000069', true, DATE_ADD(CURRENT_TIMESTAMP(3), INTERVAL 10 MINUTE));
 INSERT INTO \`auth_session\` (\`id\`, \`user_type\`, \`user_id\`, \`functional_account_id\`, \`workspace_route\`, \`session_hash\`, \`device_info\`, \`ip\`, \`expires_at\`) VALUES ('${supplierSessionId}', 'SUPPLIER_USER', '${supplierUserId}', '${functionalAccountId}', '/supplier/workspaces/pricing', '${supplierSessionHash}', JSON_OBJECT('userAgent', 'migration-rehearsal'), '127.0.0.1', DATE_ADD(CURRENT_TIMESTAMP(3), INTERVAL 8 HOUR));
 INSERT INTO \`login_audit\` (\`id\`, \`user_type\`, \`user_id\`, \`functional_account_id\`, \`login_account_hash\`, \`result\`, \`risk_reason\`, \`device_info\`, \`ip\`) VALUES ('${supplierLoginAuditId}', 'SUPPLIER_USER', '${supplierUserId}', '${functionalAccountId}', '${supplierLoginAccountHash}', 'SUCCESS', 'DIRECT_WORKSPACE', JSON_OBJECT('userAgent', 'migration-rehearsal'), '127.0.0.1');
 `,
@@ -754,6 +762,24 @@ INSERT INTO \`login_audit\` (\`id\`, \`user_type\`, \`user_id\`, \`functional_ac
 `,
     databaseNames.product,
     'RAW_SUPPLIER_SELECTION_TOKEN_ACCEPTED',
+  );
+  expectRootMysqlFailure(
+    `UPDATE \`supplier_auth_selection\` SET \`second_verification_claim_id\` = '${supplierSecondVerificationClaimId}' WHERE \`id\` = '${supplierSelectionId}';
+`,
+    databaseNames.product,
+    'INCOMPLETE_SECOND_VERIFICATION_CLAIM_ACCEPTED',
+  );
+  runRootMysql(
+    `UPDATE \`supplier_auth_selection\` SET \`second_verification_claim_id\` = '${supplierSecondVerificationClaimId}', \`second_verification_claimed_at\` = CURRENT_TIMESTAMP(3) WHERE \`id\` = '${supplierSelectionId}';
+UPDATE \`supplier_auth_selection\` SET \`selected_account_id\` = '${functionalAccountId}', \`second_verification_claim_id\` = NULL, \`second_verification_claimed_at\` = NULL, \`second_verified_at\` = CURRENT_TIMESTAMP(3) WHERE \`id\` = '${supplierSelectionId}' AND \`second_verification_claim_id\` = '${supplierSecondVerificationClaimId}';
+`,
+    databaseNames.product,
+  );
+  expectRootMysqlFailure(
+    `UPDATE \`supplier_auth_selection\` SET \`second_verification_claim_id\` = '${supplierSecondVerificationClaimId}', \`second_verification_claimed_at\` = CURRENT_TIMESTAMP(3) WHERE \`id\` = '${supplierSelectionId}';
+`,
+    databaseNames.product,
+    'VERIFIED_SECOND_FACTOR_RECLAIMED',
   );
   expectRootMysqlFailure(
     `INSERT INTO \`field_access_policy\` (\`id\`, \`functional_account_id\`, \`resource\`, \`field_group\`) VALUES ('${duplicateFieldAccessPolicyId}', '${functionalAccountId}', 'supplier_product', 'supply_price');
@@ -856,6 +882,8 @@ INSERT INTO \`login_audit\` (\`id\`, \`user_type\`, \`user_id\`, \`functional_ac
       productPopulatedState.singleCompanyWorkspaceMenuCount === 10 &&
       productPopulatedState.supplierAuthTableCount === 1 &&
       productPopulatedState.supplierAuthForeignKeyCount === 1 &&
+      productPopulatedState.supplierSecondVerificationColumnCount === 3 &&
+      productPopulatedState.supplierSecondVerificationCheckCount === 3 &&
       productPopulatedState.supplierUserRowCount === 1 &&
       productPopulatedState.supplierAuthSelectionRowCount === 1 &&
       productPopulatedState.supplierAuthSessionRowCount === 1 &&
@@ -1170,12 +1198,18 @@ INSERT INTO \`login_audit\` (\`id\`, \`user_type\`, \`user_id\`, \`functional_ac
       supplierAuth: {
         tableCount: productPopulatedState.supplierAuthTableCount,
         foreignKeyCount: productPopulatedState.supplierAuthForeignKeyCount,
+        secondVerificationColumnCount:
+          productPopulatedState.supplierSecondVerificationColumnCount,
+        secondVerificationCheckCount:
+          productPopulatedState.supplierSecondVerificationCheckCount,
         supplierUserRowCount: productPopulatedState.supplierUserRowCount,
         selectionRowCount:
           productPopulatedState.supplierAuthSelectionRowCount,
         authSessionRowCount: productPopulatedState.supplierAuthSessionRowCount,
         loginAuditRowCount: productPopulatedState.supplierLoginAuditRowCount,
         rawSelectionTokenRejected: true,
+        incompleteSecondVerificationClaimRejected: true,
+        verifiedSecondFactorReclaimRejected: true,
       },
       finalSchemaDrift: 'NONE',
       idempotentRedeploy: 'PASS',

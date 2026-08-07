@@ -3,8 +3,12 @@ import { Prisma } from '@fulishe/db';
 
 import { PrismaService } from '../infrastructure/prisma.service.js';
 import type {
+  ClaimSupplierSecondVerificationCommand,
+  ClaimSupplierSecondVerificationResult,
+  CompleteSupplierSecondVerificationCommand,
   IssueSupplierSessionCommand,
   IssueSupplierSessionResult,
+  ReleaseSupplierSecondVerificationCommand,
   ResolveSupplierSessionResult,
   SupplierAuthRepository,
   SupplierAuthSessionRecord,
@@ -157,12 +161,97 @@ export class PrismaSupplierAuthRepository implements SupplierAuthRepository {
     });
   }
 
+  claimSecondVerification(
+    command: ClaimSupplierSecondVerificationCommand,
+  ): Promise<ClaimSupplierSecondVerificationResult> {
+    return this.prisma.$transaction(async (database: TransactionClient) => {
+      await database.$queryRaw(
+        Prisma.sql`SELECT id FROM supplier_auth_selection WHERE nonce_hash = ${command.nonceHash} FOR UPDATE`,
+      );
+      const grant = await database.supplierAuthSelection.findUnique({
+        where: { nonceHash: command.nonceHash },
+      });
+      const claimedAt = new Date(command.claimedAt);
+      if (
+        !grant ||
+        grant.userId !== command.userId ||
+        grant.expiresAt <= claimedAt ||
+        !grant.secondVerificationRequired
+      ) {
+        return { kind: 'GRANT_INVALID' } as const;
+      }
+      if (grant.usedAt !== null) {
+        return grant.selectedAccountId === command.accountId &&
+          grant.selectedSessionId !== null
+          ? ({ kind: 'VERIFIED' } as const)
+          : ({ kind: 'CONFLICT' } as const);
+      }
+      if (grant.secondVerifiedAt !== null) {
+        return grant.selectedAccountId === command.accountId
+          ? ({ kind: 'VERIFIED' } as const)
+          : ({ kind: 'CONFLICT' } as const);
+      }
+      const activeClaim =
+        grant.secondVerificationClaimId !== null &&
+        grant.secondVerificationClaimedAt !== null &&
+        grant.secondVerificationClaimedAt > new Date(command.claimStaleBefore);
+      if (activeClaim) {
+        return grant.selectedAccountId === command.accountId
+          ? ({ kind: 'IN_PROGRESS' } as const)
+          : ({ kind: 'CONFLICT' } as const);
+      }
+      const claimed = await database.supplierAuthSelection.updateMany({
+        where: {
+          id: grant.id,
+          secondVerifiedAt: null,
+          usedAt: null,
+        },
+        data: {
+          secondVerificationClaimedAt: claimedAt,
+          secondVerificationClaimId: command.claimId,
+          secondVerifiedAt: null,
+          selectedAccountId: command.accountId,
+        },
+      });
+      return claimed.count === 1
+        ? ({ kind: 'CLAIMED' } as const)
+        : ({ kind: 'GRANT_INVALID' } as const);
+    });
+  }
+
+  async completeSecondVerification(
+    command: CompleteSupplierSecondVerificationCommand,
+  ): Promise<boolean> {
+    const completed = await this.prisma.supplierAuthSelection.updateMany({
+      where: {
+        nonceHash: command.nonceHash,
+        secondVerificationClaimId: command.claimId,
+        secondVerifiedAt: null,
+        usedAt: null,
+        userId: command.userId,
+      },
+      data: {
+        secondVerificationClaimedAt: null,
+        secondVerificationClaimId: null,
+        secondVerifiedAt: new Date(command.verifiedAt),
+      },
+    });
+    return completed.count === 1;
+  }
+
   async createSelectionGrant(record: SupplierSelectionGrantRecord): Promise<void> {
     const data = {
       expiresAt: new Date(record.expiresAt),
       nonceHash: record.nonceHash,
       requestId: record.requestId,
+      secondVerificationClaimedAt: record.secondVerificationClaimedAt
+        ? new Date(record.secondVerificationClaimedAt)
+        : null,
+      secondVerificationClaimId: record.secondVerificationClaimId,
       secondVerificationRequired: record.secondVerificationRequired,
+      secondVerifiedAt: record.secondVerifiedAt
+        ? new Date(record.secondVerifiedAt)
+        : null,
       selectedAccountId: record.selectedAccountId,
       selectedSessionId: record.selectedSessionId,
       usedAt: record.usedAt ? new Date(record.usedAt) : null,
@@ -255,6 +344,12 @@ export class PrismaSupplierAuthRepository implements SupplierAuthRepository {
             sessionHash: session.sessionHash,
           } as const;
         }
+        if (
+          grant.secondVerificationRequired &&
+          (grant.secondVerifiedAt === null || grant.selectedAccountId !== account.id)
+        ) {
+          return { kind: 'SECOND_VERIFICATION_REQUIRED' } as const;
+        }
       }
 
       const sessionId = command.sessionId;
@@ -343,6 +438,25 @@ export class PrismaSupplierAuthRepository implements SupplierAuthRepository {
     });
   }
 
+  async releaseSecondVerificationClaim(
+    command: ReleaseSupplierSecondVerificationCommand,
+  ): Promise<void> {
+    await this.prisma.supplierAuthSelection.updateMany({
+      where: {
+        nonceHash: command.nonceHash,
+        secondVerificationClaimId: command.claimId,
+        secondVerifiedAt: null,
+        usedAt: null,
+        userId: command.userId,
+      },
+      data: {
+        secondVerificationClaimedAt: null,
+        secondVerificationClaimId: null,
+        selectedAccountId: null,
+      },
+    });
+  }
+
   async resolveSelectionGrant(
     nonceHash: string,
   ): Promise<SupplierSelectionGrantRecord | null> {
@@ -354,7 +468,11 @@ export class PrismaSupplierAuthRepository implements SupplierAuthRepository {
           expiresAt: grant.expiresAt.toISOString(),
           nonceHash: grant.nonceHash,
           requestId: grant.requestId,
+          secondVerificationClaimedAt:
+            grant.secondVerificationClaimedAt?.toISOString() ?? null,
+          secondVerificationClaimId: grant.secondVerificationClaimId,
           secondVerificationRequired: grant.secondVerificationRequired,
+          secondVerifiedAt: grant.secondVerifiedAt?.toISOString() ?? null,
           selectedAccountId: grant.selectedAccountId,
           selectedSessionId: grant.selectedSessionId,
           usedAt: grant.usedAt?.toISOString() ?? null,
