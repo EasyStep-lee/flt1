@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-07T02:50:46-04:00",
+  "updatedAt": "2026-08-07T03:07:02-04:00",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -83,7 +83,7 @@
       "branch": "codex/m1-m1-p069",
       "baseCommit": "ff8d5ae6d998a2f05ade69f8e220e2ec5a6527b3",
       "status": "DRAFT_LOCAL_PASS",
-      "verifiedImplementationHead": "a462adf8717408a44da5305612453c2bdd0e2b52",
+      "verifiedImplementationHead": "ea6fed4a6bfa9ff2d5b4ad5204723e362fc57c62",
       "draftHeadAtCreation": "4a00801e40df283bf7ac998f5b3e3aff70ff8c5f",
       "localVerify": "PASS_17_OF_17",
       "migrationRehearsal": "PASS_PRODUCT_9_CLEANUP_PASS",
@@ -104,7 +104,7 @@
       "mainPostMergeCiRun": 31144798071,
       "status": "CI_PASS"
     },
-    "note": "M1-P068 PR #26精确head CI、用户授权合并为ff8d5ae及合并后main CI run 31144798071已闭环。M1-P069真实浏览器链路P069 4/4；Actions run 31154584849在干净typecheck暴露静态dist依赖后，已改为源码类型＋动态构建产物且P0门禁独立build API，修复head本地pnpm verify 17/17、P0 E2E 19/19。Draft PR #28等待新精确CI、人工审查与用户授权，P070禁止启动。"
+    "note": "M1-P068 PR #26精确head CI、用户授权合并为ff8d5ae及合并后main CI run 31144798071已闭环。M1-P069真实浏览器链路P069 4/4；Actions runs 31154584849/31155519986依次暴露静态dist和workspace依赖输出缺失，已以源码类型＋动态构建产物和@fulishe/api...依赖闭包修复并新增RED/GREEN合同；修复head本地pnpm verify 17/17、P0 E2E 19/19。Draft PR #28等待新精确CI、人工审查与用户授权，P070禁止启动。"
   },
   "evidence": {
     "local": "LOCAL_PASS",

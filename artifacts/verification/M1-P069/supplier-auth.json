@@ -3,7 +3,7 @@
   "taskId": "M1-P069",
   "p0Id": "P0-069",
   "status": "LOCAL_PASS",
-  "verifiedAt": "2026-08-07T02:50:46-04:00",
+  "verifiedAt": "2026-08-07T03:07:02-04:00",
   "baseline": {
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
     "baseBranch": "main",
@@ -13,7 +13,8 @@
     "hardeningCommit": "97ce454e2ed1c0a81095a4d429db86d8c67999a1",
     "sameOriginRuntimeCommit": "561b4752f70e4d67f58fc828baf4e0e75677f541",
     "browserRuntimeEvidenceCommit": "4f2a0c2047338c0af45fc76f5254967188dcd11a",
-    "cleanInstallCiFixCommit": "a462adf8717408a44da5305612453c2bdd0e2b52"
+    "cleanInstallCiFixCommit": "a462adf8717408a44da5305612453c2bdd0e2b52",
+    "apiDependencyClosureFixCommit": "ea6fed4a6bfa9ff2d5b4ad5204723e362fc57c62"
   },
   "scope": {
     "pageIds": ["PAGE-013", "PAGE-014", "PAGE-015"],
@@ -143,7 +144,7 @@
   "fullVerification": {
     "status": "PASS_17_OF_17",
     "stepsPassed": 17,
-    "commit": "a462adf8717408a44da5305612453c2bdd0e2b52",
+    "commit": "ea6fed4a6bfa9ff2d5b4ad5204723e362fc57c62",
     "report": "artifacts/test-results/verification/pnpm-verify.json"
   },
   "verificationRepairHistory": [
@@ -182,6 +183,12 @@
       "failedStep": "github-actions-typecheck-run-31154584849",
       "cause": "the runtime P0 specification statically imported API dist modules that were absent before typecheck in a clean checkout",
       "repair": "load built API modules dynamically with source-only types and make the standalone P0 gate build @fulishe/api before Chromium; no assertion was removed"
+    },
+    {
+      "attempt": 7,
+      "failedStep": "github-actions-regression-run-31155519986",
+      "cause": "the standalone P0 gate built the API package but not its workspace dependency outputs, so Linux could not load @fulishe/config/dist/index.js",
+      "repair": "added a failing CI contract for the API dependency closure and changed the P0 build filter to @fulishe/api...; focused and full tests passed without weakening browser assertions"
     }
   ],
   "migration": {
@@ -198,7 +205,19 @@
     "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/28",
     "pullRequestState": "DRAFT",
     "draftHeadAtCreation": "4a00801e40df283bf7ac998f5b3e3aff70ff8c5f",
-    "exactHeadCi": "NOT_EXECUTED_AFTER_FAILED_RUN_31154584849_HEAD_A392B65A2D5C998A2415A880BFD548B463CEC022",
+    "exactHeadCi": "NOT_EXECUTED",
+    "failedExactHeadCiRuns": [
+      {
+        "runId": 31154584849,
+        "headSha": "a392b65a2d5c998a2415a880bfd548b463cec022",
+        "failedStep": "typecheck"
+      },
+      {
+        "runId": 31155519986,
+        "headSha": "dbb40d16699a3413d17e884c008c33f1f4309263",
+        "failedStep": "regression-p0-runtime-workspace-dependency"
+      }
+    ],
     "review": "NOT_EXECUTED",
     "merge": "NOT_EXECUTED",
     "mainPostMergeCi": "NOT_EXECUTED"
