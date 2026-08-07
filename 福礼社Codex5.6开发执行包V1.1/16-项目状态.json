@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-07T06:34:19-04:00",
+  "updatedAt": "2026-08-07T07:55:09-04:00",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -14,17 +14,17 @@
   "execution": {
     "status": "M1_IN_PROGRESS",
     "currentStage": "M1",
-    "currentTask": "M1-P069",
-    "nextAllowedTask": "M1-P069",
+    "currentTask": "M1-P070",
+    "nextAllowedTask": "M1-P070",
     "activeTaskCount": 1,
-    "lastCompletedTask": "M1-P068",
-    "lastCompletedCommit": "9c91673bc698083ffaac9df07ba401c75f61e939",
+    "lastCompletedTask": "M1-P069",
+    "lastCompletedCommit": "417d165d0668327af26bbcdadaf7bbd7fdb31471",
     "lastPassedGate": "M0-GATE",
     "prohibitedUntilGate": [
-      "M1-P069独立PR精确head CI、人工审查与用户授权合并、合并后main CI完成前不得启动M1-P070"
+      "M1-P070独立PR精确head CI、人工审查与用户授权合并、合并后main CI完成前不得启动M1-P071或M1-P072"
     ],
     "persistentRestrictions": [
-      "M1-P069闭环前M1-P070只能保持NOT_STARTED",
+      "M1-P070闭环前M1-P071和M1-P072只能保持NOT_STARTED",
       "真实支付/退款",
       "生产部署/迁移",
       "直接修改或推送main"
@@ -38,12 +38,12 @@
     "authenticationConfirmed": true,
     "writeAllowed": true,
     "connectorAccessConfirmed": true,
-    "pullRequest": 28,
-    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/28",
-    "pullRequestState": "DRAFT",
+    "pullRequest": null,
+    "pullRequestUrl": null,
+    "pullRequestState": "NOT_CREATED",
     "pullRequestMerged": false,
-    "mergeCommitSha": "NOT_EXECUTED_FOR_M1_P069",
-    "mergedAt": "NOT_EXECUTED_FOR_M1_P069",
+    "mergeCommitSha": "NOT_EXECUTED_FOR_M1_P070",
+    "mergedAt": "NOT_EXECUTED_FOR_M1_P070",
     "reviewPolicy": {
       "mode": "DOCUMENTED_SELF_REVIEW",
       "developmentMode": "SOLO_DEVELOPMENT",
@@ -51,7 +51,7 @@
       "githubAccountCount": 1,
       "additionalGithubAccountsRequired": false,
       "githubSelfApprovalSupported": false,
-      "reviewEvidence": "NOT_EXECUTED_FOR_M1_P069",
+      "reviewEvidence": "NOT_EXECUTED_FOR_M1_P070",
       "reviewedHead": "NOT_EXECUTED",
       "reviewDecision": "NOT_EXECUTED",
       "reviewCommentId": null,
@@ -59,55 +59,55 @@
       "currentHeadReviewRequired": true,
       "authorizationExactHead": false
     },
-    "lastVerifiedPullRequestHead": "d3782058aee2fdfaf321c5654bdaa9768b182b47",
+    "lastVerifiedPullRequestHead": "c914a5e7d1036e20f6a989f40455c30d9dbe0043",
     "pullRequestCi": {
-      "status": "SUCCESS_NOT_CURRENT_LOCAL_HEAD",
-      "runId": 31169256471,
-      "jobId": 92837098719,
-      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31169256471",
-      "headSha": "d3782058aee2fdfaf321c5654bdaa9768b182b47"
+      "status": "NOT_EXECUTED_FOR_M1_P070",
+      "runId": null,
+      "jobId": null,
+      "runUrl": null,
+      "headSha": null
     },
     "latestCi": {
-      "scope": "MAIN_POST_M1_P068_MERGE",
+      "scope": "MAIN_POST_M1_P069_MERGE",
       "status": "SUCCESS",
-      "runId": 31144798071,
-      "jobId": 92761917112,
-      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31144798071",
-      "headSha": "ff8d5ae6d998a2f05ade69f8e220e2ec5a6527b3",
+      "runId": 31175113225,
+      "jobId": 92855302194,
+      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31175113225",
+      "headSha": "417d165d0668327af26bbcdadaf7bbd7fdb31471",
       "event": "push"
     },
     "currentTaskDelivery": {
-      "taskId": "M1-P069",
-      "issue": 27,
-      "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/27",
-      "branch": "codex/m1-m1-p069",
-      "baseCommit": "ff8d5ae6d998a2f05ade69f8e220e2ec5a6527b3",
-      "status": "DRAFT_LOCAL_PASS",
-      "verifiedImplementationHead": "d12c9ab6a5afaedff0535733edce34e41eebd9af",
-      "draftHeadAtCreation": "4a00801e40df283bf7ac998f5b3e3aff70ff8c5f",
-      "localVerify": "PASS_17_OF_17",
-      "migrationRehearsal": "PASS_PRODUCT_9_CLEANUP_PASS",
-      "pullRequest": 28,
-      "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/28",
-      "pullRequestState": "DRAFT",
-      "exactHeadCi": "NOT_EXECUTED_FOR_D12C9AB_AND_PENDING_EVIDENCE_HEAD",
+      "taskId": "M1-P070",
+      "issue": 29,
+      "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/29",
+      "branch": "codex/m1-m1-p070",
+      "baseCommit": "417d165d0668327af26bbcdadaf7bbd7fdb31471",
+      "status": "IN_PROGRESS",
+      "verifiedImplementationHead": "NOT_EXECUTED",
+      "draftHeadAtCreation": "NOT_EXECUTED",
+      "localVerify": "NOT_EXECUTED",
+      "migrationRehearsal": "NOT_EXECUTED",
+      "pullRequest": null,
+      "pullRequestUrl": null,
+      "pullRequestState": "NOT_CREATED",
+      "exactHeadCi": "NOT_EXECUTED",
       "review": "NOT_EXECUTED",
       "merge": "NOT_EXECUTED",
       "mainPostMergeCi": "NOT_EXECUTED"
     },
     "previousTaskDelivery": {
-      "taskId": "M1-P068",
-      "pullRequest": 26,
-      "exactHead": "9c91673bc698083ffaac9df07ba401c75f61e939",
-      "exactHeadCiRun": 31143472876,
-      "mergeCommit": "ff8d5ae6d998a2f05ade69f8e220e2ec5a6527b3",
-      "mainPostMergeCiRun": 31144798071,
+      "taskId": "M1-P069",
+      "pullRequest": 28,
+      "exactHead": "c914a5e7d1036e20f6a989f40455c30d9dbe0043",
+      "exactHeadCiRun": 31174016101,
+      "mergeCommit": "417d165d0668327af26bbcdadaf7bbd7fdb31471",
+      "mainPostMergeCiRun": 31175113225,
       "status": "CI_PASS"
     },
-    "note": "M1-P068 PR #26精确head 9c91673、PR CI、用户授权合并为ff8d5ae及合并后main CI run 31144798071已闭环。M1-P069无效/过期选择、不可用账号和跨账号冲突现追加脱敏LoginAudit；RED 2/20后focused 34/34。实现head d12c9ab本地pnpm verify 17/17、P0 E2E 19/19、迁移product=9、secret 484；PR #28旧head d378205的run 31169256471成功但不代表当前本地head。等待推送后精确CI、人工审查与用户授权，P070禁止启动。"
+    "note": "M1-P069 PR #28精确head c914a5e的CI run 31174016101成功，用户授权后合并为417d165，合并后main CI run 31175113225成功。M1-P070已从该main建立codex/m1-m1-p070并创建Issue #29；当前只允许实现八类供应商固定页面壳和服务端当前会话白名单，P071/P072/M2禁止启动。"
   },
   "evidence": {
-    "local": "LOCAL_PASS",
+    "local": "NOT_EXECUTED",
     "ci": "NOT_EXECUTED",
     "staging": "NOT_EXECUTED",
     "device": "NOT_REQUIRED_PC_WEB_SLICE",
@@ -122,7 +122,7 @@
     "pages": 80,
     "externalDependencies": 28,
     "migrations": 22,
-    "apiContracts": 83
+    "apiContracts": 85
   },
   "resumeProtocol": [
     "读取AGENTS.md、综合方案、00/01/02、project-status和当前任务行",

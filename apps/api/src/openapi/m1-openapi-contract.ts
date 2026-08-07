@@ -68,6 +68,39 @@ export const M1_OPENAPI_OPERATION_CONTRACTS = Object.freeze([
     responseDto: 'SupplierSessionResponseDto',
   }),
   contract({
+    actor: 'SUPPLIER_FUNCTIONAL_ACCOUNT',
+    contractId: 'API-084',
+    errorCodes: [
+      'AUTHENTICATION_REQUIRED',
+      'AUTH_SESSION_REVOKED',
+      'WORKSPACE_FORBIDDEN',
+      'DATA_SCOPE_FORBIDDEN',
+      'VALIDATION_FAILED',
+    ],
+    idempotency: 'NONE',
+    method: 'get',
+    path: '/v1/supplier-auth/workspace/current',
+    requestDto: 'SupplierWorkspaceQueryDto',
+    responseDto: 'SupplierWorkspaceResponseDto',
+  }),
+  contract({
+    actor: 'SUPPLIER_FUNCTIONAL_ACCOUNT',
+    contractId: 'API-085',
+    errorCodes: [
+      'AUTHENTICATION_REQUIRED',
+      'AUTH_SESSION_REVOKED',
+      'WORKSPACE_FORBIDDEN',
+      'DATA_SCOPE_FORBIDDEN',
+      'WORKSPACE_MODULE_NOT_FOUND',
+      'VALIDATION_FAILED',
+    ],
+    idempotency: 'NONE',
+    method: 'get',
+    path: '/v1/supplier-auth/workspace/page',
+    requestDto: 'SupplierWorkspacePageQueryDto',
+    responseDto: 'SupplierWorkspacePageResponseDto',
+  }),
+  contract({
     actor: 'COMPANY_FUNCTIONAL_ACCOUNT',
     contractId: 'API-082',
     errorCodes: [
@@ -376,6 +409,12 @@ export const applyM1OpenApiContracts = (document: OpenAPIObject): OpenAPIObject 
     name: '__Host-fulishe-company-admin',
     type: 'apiKey',
   };
+  securitySchemes.supplierFunctionalSession = {
+    description: 'Secure HttpOnly supplier functional account session',
+    in: 'cookie',
+    name: '__Host-fulishe-supplier-portal',
+    type: 'apiKey',
+  };
   components.securitySchemes = securitySchemes;
 
   for (const operationContract of M1_OPENAPI_OPERATION_CONTRACTS) {
@@ -400,6 +439,12 @@ export const applyM1OpenApiContracts = (document: OpenAPIObject): OpenAPIObject 
       operationContract.contractId === 'API-083'
     ) {
       operation.security = [{ companyFunctionalSession: [] }];
+    }
+    if (
+      operationContract.contractId === 'API-084' ||
+      operationContract.contractId === 'API-085'
+    ) {
+      operation.security = [{ supplierFunctionalSession: [] }];
     }
   }
   return document;

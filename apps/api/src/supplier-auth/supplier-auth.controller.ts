@@ -1,21 +1,25 @@
 import {
   Body,
   Controller,
+  Get,
   Header,
   Headers,
   HttpCode,
   Inject,
   Param,
   Post,
+  Query,
   Req,
   Res,
 } from '@nestjs/common';
 import {
   ApiBody,
   ApiForbiddenResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiTags,
   ApiUnauthorizedResponse,
   ApiUnprocessableEntityResponse,
@@ -26,7 +30,10 @@ import {
   SupplierLoginRequestDto,
   SupplierSelectWorkspaceRequestDto,
   SupplierSessionResponseDto,
+  SupplierWorkspacePageResponseDto,
+  type SupplierWorkspacePageQueryDto,
   SupplierWorkspaceChoiceResponseDto,
+  SupplierWorkspaceResponseDto,
 } from './supplier-auth.dto.js';
 import { SupplierAuthService } from './supplier-auth.service.js';
 
@@ -54,6 +61,45 @@ export class SupplierAuthController {
   constructor(
     @Inject(SupplierAuthService) private readonly service: SupplierAuthService,
   ) {}
+
+  @Get('workspace/page')
+  @Header('Cache-Control', 'private, no-store, max-age=0')
+  @ApiOperation({ summary: '读取当前供应商职能页面的隔离模块目录' })
+  @ApiQuery({ maxLength: 255, name: 'route', required: true, type: String })
+  @ApiQuery({ maxLength: 64, name: 'keyword', required: false, type: String })
+  @ApiQuery({
+    enum: ['ALL', 'AVAILABLE', 'DEFERRED'],
+    name: 'availability',
+    required: false,
+    type: String,
+  })
+  @ApiQuery({ maxLength: 64, name: 'moduleKey', required: false, type: String })
+  @ApiOkResponse({ type: SupplierWorkspacePageResponseDto })
+  @ApiForbiddenResponse()
+  @ApiNotFoundResponse()
+  @ApiUnauthorizedResponse()
+  @ApiUnprocessableEntityResponse()
+  workspacePage(
+    @Headers('cookie') cookieHeader: string | undefined,
+    @Query() query: SupplierWorkspacePageQueryDto & Record<string, unknown>,
+  ): Promise<SupplierWorkspacePageResponseDto> {
+    return this.service.workspacePage(cookieHeader, query);
+  }
+
+  @Get('workspace/current')
+  @Header('Cache-Control', 'private, no-store, max-age=0')
+  @ApiOperation({ summary: '读取当前固定供应商职能工作区白名单' })
+  @ApiQuery({ maxLength: 255, name: 'route', required: true, type: String })
+  @ApiOkResponse({ type: SupplierWorkspaceResponseDto })
+  @ApiForbiddenResponse()
+  @ApiUnauthorizedResponse()
+  @ApiUnprocessableEntityResponse()
+  currentWorkspace(
+    @Headers('cookie') cookieHeader: string | undefined,
+    @Query() query: Record<string, unknown>,
+  ): Promise<SupplierWorkspaceResponseDto> {
+    return this.service.currentWorkspace(cookieHeader, query);
+  }
 
   @Post('login')
   @Header('Cache-Control', 'private, no-store, max-age=0')

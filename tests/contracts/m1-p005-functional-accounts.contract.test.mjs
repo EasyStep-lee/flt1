@@ -43,16 +43,29 @@ test('M1-P005 generated OpenAPI implements API-013 and API-014 with response all
   );
 });
 
-test('M1-P005 portal maps PAGE-016 and PAGE-024 without implementing later workspace shells', async () => {
-  const source = await readFile(
-    path.join(repositoryRoot, 'apps', 'supplier-portal', 'src', 'app.tsx'),
-    'utf8',
-  );
-  assert.match(source, /data-page-id="PAGE-016"/u);
-  assert.match(source, /data-page-id="PAGE-024"/u);
-  assert.match(source, /\/supplier\/workspaces\/account-admin\/accounts/u);
-  assert.match(source, /SECOND_VERIFICATION_REQUIRED/u);
-  assert.doesNotMatch(source, /供应价|毛利|供应商应付/u);
+test('M1-P005 portal keeps PAGE-016 and PAGE-024 while P070 adds the fixed workspace gate', async () => {
+  const [appSource, workspaceSource] = await Promise.all([
+    readFile(
+      path.join(repositoryRoot, 'apps', 'supplier-portal', 'src', 'app.tsx'),
+      'utf8',
+    ),
+    readFile(
+      path.join(
+        repositoryRoot,
+        'apps',
+        'supplier-portal',
+        'src',
+        'supplier-workspace-pages.tsx',
+      ),
+      'utf8',
+    ),
+  ]);
+  assert.match(workspaceSource, /data-page-id=\{workspace\.pageId\}/u);
+  assert.match(workspaceSource, /PAGE-016|SUPPLIER_ACCOUNT_ADMIN/u);
+  assert.match(appSource, /data-page-id="PAGE-024"/u);
+  assert.match(appSource, /\/supplier\/workspaces\/account-admin\/accounts/u);
+  assert.match(appSource, /SECOND_VERIFICATION_REQUIRED/u);
+  assert.doesNotMatch(`${appSource}\n${workspaceSource}`, /毛利|供应商应付/u);
 });
 
 test('M1-P005 implementation contract names every frozen negative check', async () => {
@@ -126,9 +139,9 @@ test('M1-P005 evidence and ledgers stop at the local verified boundary', async (
   assert.equal(state.execution.currentStage, 'M1');
   assert.equal(state.execution.currentTask, state.execution.nextAllowedTask);
   assert.match(state.execution.lastCompletedTask, /^M1-/u);
-  assert.equal(state.execution.currentTask, 'M1-P069');
+  assert.equal(state.execution.currentTask, 'M1-P070');
   assert.ok([0, 1].includes(state.execution.activeTaskCount));
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M1-P070/u);
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M1-P071|M1-P072/u);
   assert.match(taskLedger, /M1-P005[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(p0Ledger, /P0-005[^\r\n]*LOCAL_PASS/u);
   assert.match(apiLedger, /API-013[^\r\n]*GENERATED[^\r\n]*IMPLEMENTED/u);

@@ -2,48 +2,64 @@ export const SUPPLIER_FUNCTIONAL_ACCOUNT_TYPES = Object.freeze([
   {
     code: 'SUPPLIER_ACCOUNT_ADMIN',
     name: '主体管理',
+    menuLabel: '主体管理',
+    pageId: 'PAGE-016',
     workspaceRoute: '/supplier/workspaces/account-admin',
     internalMenuSchema: { version: '1.0', items: ['profile', 'accounts'] },
   },
   {
     code: 'SUPPLIER_PRODUCT',
     name: '商品运营',
+    menuLabel: '商品管理',
+    pageId: 'PAGE-017',
     workspaceRoute: '/supplier/workspaces/products',
     internalMenuSchema: { version: '1.0', items: [] },
   },
   {
     code: 'SUPPLIER_PRICING',
     name: '价格管理',
+    menuLabel: '价格管理',
+    pageId: 'PAGE-018',
     workspaceRoute: '/supplier/workspaces/pricing',
     internalMenuSchema: { version: '1.0', items: [] },
   },
   {
     code: 'SUPPLIER_INVENTORY',
     name: '库存/仓库',
+    menuLabel: '库存管理',
+    pageId: 'PAGE-019',
     workspaceRoute: '/supplier/workspaces/inventory',
     internalMenuSchema: { version: '1.0', items: [] },
   },
   {
     code: 'SUPPLIER_FULFILLMENT',
     name: '订单履约',
+    menuLabel: '履约管理',
+    pageId: 'PAGE-020',
     workspaceRoute: '/supplier/workspaces/fulfillment',
     internalMenuSchema: { version: '1.0', items: [] },
   },
   {
     code: 'SUPPLIER_AFTERSALES',
     name: '售后',
+    menuLabel: '售后协同',
+    pageId: 'PAGE-021',
     workspaceRoute: '/supplier/workspaces/aftersales',
     internalMenuSchema: { version: '1.0', items: [] },
   },
   {
     code: 'SUPPLIER_FINANCE',
     name: '财务对账',
+    menuLabel: '财务对账',
+    pageId: 'PAGE-022',
     workspaceRoute: '/supplier/workspaces/finance',
     internalMenuSchema: { version: '1.0', items: [] },
   },
   {
     code: 'SUPPLIER_AUDIT',
     name: '只读审计',
+    menuLabel: '审计记录',
+    pageId: 'PAGE-023',
     workspaceRoute: '/supplier/workspaces/audit',
     internalMenuSchema: { version: '1.0', items: [] },
   },
@@ -176,4 +192,3 @@ export const resolveFunctionalAccountTransition = (
   }
   return next;
 };
-

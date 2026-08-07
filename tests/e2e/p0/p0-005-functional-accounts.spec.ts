@@ -3,6 +3,25 @@ import { expect, test } from '@playwright/test';
 const supplierOrigin = 'http://127.0.0.1:4320';
 
 test('P0-005 account admin lists and invites a fixed supplier functional account', async ({ page }) => {
+  await page.route('**/v1/supplier-auth/workspace/current**', async (route) => {
+    await route.fulfill({
+      contentType: 'application/json',
+      status: 200,
+      body: JSON.stringify({
+        accountTypeCode: 'SUPPLIER_ACCOUNT_ADMIN',
+        accountTypeName: '主体管理',
+        pageId: 'PAGE-016',
+        workspaceRoute: '/supplier/workspaces/account-admin',
+        menuItems: [
+          {
+            key: 'workspace',
+            label: '主体管理',
+            route: '/supplier/workspaces/account-admin',
+          },
+        ],
+      }),
+    });
+  });
   const accounts = [
     {
       id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
@@ -51,4 +70,3 @@ test('P0-005 account admin lists and invites a fixed supplier functional account
   await expect(page.getByText('/supplier/workspaces/products')).toBeVisible();
   await expect(page.locator('body')).not.toContainText(/供应价|毛利|供应商应付/u);
 });
-
