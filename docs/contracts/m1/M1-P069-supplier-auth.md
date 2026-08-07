@@ -9,7 +9,7 @@
 - API-006 的 `requestId` 同时约束单账号直达：同一自然人并发或重试同一 `requestId` 时复用同一隐藏选择授权和会话 Cookie，响应乱序不能让最后落地的 Cookie 失效；客户端仍只看到 `selectionNonce=''`，不新增 DTO 字段。选择 nonce 使用独立域标签和服务端认证签名密钥做 HMAC：同一实例对同一动作稳定重放，但不能仅由 `userId + requestId` 推导；不同服务端密钥必须产生不同 nonce。
 - API-007 `POST /v1/supplier-auth/workspaces/{accountId}/select` 使用短期、一次性选择上下文签发仅含一个职能账号的 Secure HttpOnly 会话；同账号重放返回同一仍有效的不透明 Cookie 以恢复未知结果，仍只保留同一活动会话，选择另一账号冲突。并发重放即使响应乱序，也不能让较晚到达的响应覆盖为失效 Cookie。需要二次验证的首次选择必须通过 Adapter；一旦该 nonce 已完成同账号选择，未知结果重放复用已完成的验证与会话，不得再次消费一次性验证码。
 - API-006 的 `verificationCode?` 与 API-007 的 `secondVerificationCode?` 未提供时可省略；提供时必须是最多 16 字符的字符串。对象、数组、数字、`null` 或超长值必须在调用凭证/二次验证 Adapter、创建选择授权或签发会话前以 `VALIDATION_FAILED` 拒绝。
-- 登录、失败、账号选择和会话签发追加 `LoginAudit`；原始密码、验证码、选择 nonce、会话 token 和完整手机号不得进入响应、日志或审计字段。
+- 登录、失败、账号选择和会话签发追加 `LoginAudit`；无效或过期选择上下文记录脱敏的 `WORKSPACE_SELECTION_INVALID`，已知用户选择停用/过期账号记录 `WORKSPACE_ACCOUNT_UNAVAILABLE`，完成态改选冲突记录 `WORKSPACE_SESSION_CONFLICT`。审计只保存哈希后的固定选择上下文标识、可信用户/账号、设备/IP、结果和风险原因；原始密码、验证码、选择 nonce、会话 token 和完整手机号不得进入响应、日志或审计字段。
 
 ## 依赖与非目标
 

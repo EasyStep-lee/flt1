@@ -392,11 +392,27 @@ export class SupplierAuthService {
     const grant = await this.repository.resolveSelectionGrant(nonceHash);
     const now = new Date().toISOString();
     if (!grant || grant.expiresAt <= now) {
+      await this.audit(
+        'selection-context',
+        context,
+        'AUTH_INVALID',
+        'WORKSPACE_SELECTION_INVALID',
+        null,
+      );
       throw new SafeApiError(403, 'WORKSPACE_FORBIDDEN', '职能账号选择已失效');
     }
     const accounts = await this.repository.listSupplierAccounts(grant.userId);
     const account = accounts.find((candidate) => candidate.id === accountId);
     if (!account || !isEligibleAccount(account, now)) {
+      await this.audit(
+        'selection-context',
+        context,
+        'ACCOUNT_SUSPENDED',
+        'WORKSPACE_ACCOUNT_UNAVAILABLE',
+        null,
+        account?.id ?? null,
+        grant.userId,
+      );
       throw new SafeApiError(403, 'WORKSPACE_FORBIDDEN', '职能账号不可用');
     }
     const isCompletedSameAccountReplay =
@@ -422,7 +438,23 @@ export class SupplierAuthService {
       );
       throw new SafeApiError(428, 'SECOND_VERIFICATION_REQUIRED', '需要二次验证');
     }
-    const issued = await this.issue(grant.userId, account, context, nonceHash);
+    let issued: SupplierWorkspaceSelectionResult;
+    try {
+      issued = await this.issue(grant.userId, account, context, nonceHash);
+    } catch (error) {
+      if (error instanceof SafeApiError) {
+        await this.audit(
+          'selection-context',
+          context,
+          'AUTH_INVALID',
+          error.code,
+          null,
+          account.id,
+          grant.userId,
+        );
+      }
+      throw error;
+    }
     await this.audit(
       'selection-context',
       context,

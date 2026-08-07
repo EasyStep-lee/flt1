@@ -219,6 +219,17 @@ describe('P0-069 supplier login and functional workspace selection', () => {
       expect(response.status).toBe(403);
       expect(response.body).toMatchObject({ code: 'WORKSPACE_FORBIDDEN' });
       expect(response.headers['set-cookie']).toBeUndefined();
+      expect(fixture.repository.readLoginAudits()).toEqual([
+        expect.objectContaining({
+          deviceInfo: { userAgent: expect.any(String) },
+          functionalAccountId: null,
+          ip: expect.any(String),
+          result: 'AUTH_INVALID',
+          riskReason: 'WORKSPACE_SELECTION_INVALID',
+          userId: null,
+          userType: 'UNKNOWN',
+        }),
+      ]);
     } finally {
       await fixture.app.close();
     }
@@ -433,6 +444,30 @@ describe('P0-069 supplier login and functional workspace selection', () => {
       expect(conflict.status).toBe(409);
       expect(conflict.body).toMatchObject({ code: 'WORKSPACE_SESSION_CONFLICT' });
       expect(await fixture.repository.countActiveSessions(userId)).toBe(1);
+      expect(
+        fixture.repository
+          .readLoginAudits()
+          .filter(({ riskReason }) =>
+            ['WORKSPACE_ACCOUNT_UNAVAILABLE', 'WORKSPACE_SESSION_CONFLICT'].includes(
+              riskReason,
+            ),
+          ),
+      ).toEqual([
+        expect.objectContaining({
+          functionalAccountId: secondAccountId,
+          result: 'ACCOUNT_SUSPENDED',
+          riskReason: 'WORKSPACE_ACCOUNT_UNAVAILABLE',
+          userId,
+          userType: 'SUPPLIER_USER',
+        }),
+        expect.objectContaining({
+          functionalAccountId: secondAccountId,
+          result: 'AUTH_INVALID',
+          riskReason: 'WORKSPACE_SESSION_CONFLICT',
+          userId,
+          userType: 'SUPPLIER_USER',
+        }),
+      ]);
     } finally {
       await fixture.app.close();
     }
