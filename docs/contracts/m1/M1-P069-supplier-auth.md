@@ -6,7 +6,7 @@
 - 供应商合作入口分别进入 `/supplier/register` 与 `/supplier/login`，注册和登录不能合并为同一表单或同一认证动作。
 - 供应商经公司审核为 `ACTIVE` 时，在同一事务中激活申请主联系人对应的 `SupplierUser` 和唯一 `SUPPLIER_ACCOUNT_ADMIN` 职能账号。
 - API-006 `POST /v1/supplier-auth/login` 认证自然人，不接受 `supplierId`、`functionalAccountId` 或 `workspaceRoute` 覆盖；单一有效账号直达，多账号返回 `/supplier/account-select` 逐一选择。
-- API-006 的 `requestId` 同时约束单账号直达：同一自然人并发或重试同一 `requestId` 时复用同一隐藏选择授权和会话 Cookie，响应乱序不能让最后落地的 Cookie 失效；客户端仍只看到 `selectionNonce=''`，不新增 DTO 字段。
+- API-006 的 `requestId` 同时约束单账号直达：同一自然人并发或重试同一 `requestId` 时复用同一隐藏选择授权和会话 Cookie，响应乱序不能让最后落地的 Cookie 失效；客户端仍只看到 `selectionNonce=''`，不新增 DTO 字段。选择 nonce 使用独立域标签和服务端认证签名密钥做 HMAC：同一实例对同一动作稳定重放，但不能仅由 `userId + requestId` 推导；不同服务端密钥必须产生不同 nonce。
 - API-007 `POST /v1/supplier-auth/workspaces/{accountId}/select` 使用短期、一次性选择上下文签发仅含一个职能账号的 Secure HttpOnly 会话；同账号重放返回同一仍有效的不透明 Cookie 以恢复未知结果，仍只保留同一活动会话，选择另一账号冲突。并发重放即使响应乱序，也不能让较晚到达的响应覆盖为失效 Cookie。
 - API-006 的 `verificationCode?` 与 API-007 的 `secondVerificationCode?` 未提供时可省略；提供时必须是最多 16 字符的字符串。对象、数组、数字、`null` 或超长值必须在调用凭证/二次验证 Adapter、创建选择授权或签发会话前以 `VALIDATION_FAILED` 拒绝。
 - 登录、失败、账号选择和会话签发追加 `LoginAudit`；原始密码、验证码、选择 nonce、会话 token 和完整手机号不得进入响应、日志或审计字段。

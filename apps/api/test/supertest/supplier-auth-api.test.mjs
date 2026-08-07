@@ -358,6 +358,43 @@ describe('P0-069 supplier login and functional workspace selection', () => {
     }
   });
 
+  it('binds selection nonces to a server secret while preserving requestId replay', async () => {
+    const accounts = [account(), account({ id: secondAccountId })];
+    const firstFixture = await createFixture({
+      accounts,
+      runtimeConfig: config({
+        [signingKeyField]: `unit-test-only-${'a'.repeat(32)}`,
+      }),
+    });
+    const secondFixture = await createFixture({
+      accounts,
+      runtimeConfig: config({
+        [signingKeyField]: `unit-test-only-${'b'.repeat(32)}`,
+      }),
+    });
+    try {
+      const first = await request(firstFixture.app.getHttpServer())
+        .post('/v1/supplier-auth/login')
+        .send(loginBody());
+      const firstReplay = await request(firstFixture.app.getHttpServer())
+        .post('/v1/supplier-auth/login')
+        .send(loginBody());
+      const second = await request(secondFixture.app.getHttpServer())
+        .post('/v1/supplier-auth/login')
+        .send(loginBody());
+
+      expect(first.status).toBe(200);
+      expect(firstReplay.body.selectionNonce).toBe(first.body.selectionNonce);
+      expect(second.status).toBe(200);
+      expect(first.body.selectionNonce).toMatch(/^[A-Za-z0-9_-]{43}$/u);
+      expect(second.body.selectionNonce).toMatch(/^[A-Za-z0-9_-]{43}$/u);
+      expect(second.body.selectionNonce).not.toBe(first.body.selectionNonce);
+    } finally {
+      await firstFixture.app.close();
+      await secondFixture.app.close();
+    }
+  });
+
   it('NEG-M1-069-04 rejects disabled accounts and cross-account selection replay', async () => {
     const fixture = await createFixture({
       accounts: [account(), account({ id: secondAccountId })],

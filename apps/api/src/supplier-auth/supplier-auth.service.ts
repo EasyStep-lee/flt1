@@ -104,8 +104,8 @@ const sameSessionToken = (left: string, right: string): boolean => {
   );
 };
 
-const selectionNonceFor = (userId: string, requestId: string): string =>
-  createHash('sha256')
+const selectionNonceFor = (userId: string, requestId: string, key: string): string =>
+  createHmac('sha256', key)
     .update('fulishe-supplier-auth-selection-v1\0')
     .update(userId)
     .update('\0')
@@ -317,7 +317,7 @@ export class SupplierAuthService {
     const accounts = await this.repository.listSupplierAccounts(user.id);
     const eligibleAccounts = accounts.filter((account) => isEligibleAccount(account, now));
     await this.repository.markLoginSucceeded(user.id, now);
-    const nonce = selectionNonceFor(user.id, body.requestId);
+    const nonce = selectionNonceFor(user.id, body.requestId, this.sessionTokenKey);
     const nonceHash = hash(nonce);
     await this.repository.createSelectionGrant({
       expiresAt: new Date(Date.now() + SELECTION_TTL_MS).toISOString(),
