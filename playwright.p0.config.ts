@@ -38,6 +38,14 @@ export default defineConfig({
     },
     {
       command:
+        'pnpm --filter @fulishe/supplier-portal exec vite --host 127.0.0.1 --port 4323 --strictPort',
+      env: { API_PORT: '4322' },
+      url: 'http://127.0.0.1:4323/supplier/',
+      reuseExistingServer: false,
+      timeout: 60_000,
+    },
+    {
+      command:
         'pnpm --filter @fulishe/company-admin exec vite preview --host 127.0.0.1 --port 4321 --strictPort',
       url: 'http://127.0.0.1:4321/company-admin/',
       reuseExistingServer: false,
