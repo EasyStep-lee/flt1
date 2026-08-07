@@ -55,10 +55,11 @@ Actions run `31154584849`（head `a392b65…`）和 run `31155519986`（head `db
 - 供应商门户 bundle 仍有超过 500 kB 的非阻断告警；需在性能验收前拆包。本地迁移演练不能替代 staging/生产迁移证据。
 - Chromium loopback 诊断实际接受 `Secure`、`HttpOnly`、`SameSite=Strict` 的 `__Host-` Cookie，但这只是本地诊断，不升级为 staging 或生产证据；独立 API origin 的 credentialed CORS 未实现也未验收。
 - 真实浏览器纵向测试使用注入式内存仓储和测试凭证验证器；它证明页面、代理、Nest API 和 Cookie 传输，不证明生产身份源、短信或二次验证服务。
+- 同 nonce、同账号的顺序重放已验证会恢复 Cookie；但当前实现每次恢复轮换 `sessionHash`，尚无多请求并发及响应乱序下“较旧 Set-Cookie 不覆盖较新有效 Cookie”的行为证据。该缺口必须留在 M1-P069 内继续加固，不能以当前 CI 成功替代。
 
 ## GitHub、回滚与下一步
 
 - 仓库：`EasyStep-lee/flt1`；Issue [#27](https://github.com/EasyStep-lee/flt1/issues/27)；Draft PR [#28](https://github.com/EasyStep-lee/flt1/pull/28)。
 - 当前不具备 Ready/合并授权。推送新 head 后必须读取对应 Actions 和未解决评论；不得使用旧 head CI 宣称通过。
 - 应用回滚：逐个 `git revert` M1-P069 实现/加固/证据提交。数据库回滚：生产发布前恢复经验证备份，或新增受审前向修复迁移；禁止编辑已发布 SQL。
-- 唯一下一最小切片仍是完成 PR #28 的新 head 精确 CI 和人工门禁。本地全量门禁已通过；只有 PR 合并且合并后 main CI 成功，才允许启动 `M1-P070`。
+- 唯一下一最小切片是 M1-P069 同账号并发重放与响应乱序 Cookie 恢复：先写失败行为测试，再采用不泄露原始 token、不能绕过二次验证的最小实现。该缺口和新 head CI 完成后才可请求 PR #28 的 Ready/合并授权；只有合并且合并后 main CI 成功，才允许启动 `M1-P070`。

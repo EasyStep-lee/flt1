@@ -23,6 +23,7 @@
     "migration": "20260807010000_supplier_auth_sessions",
     "supplierRegistrationReusedFrom": "M1-P003",
     "supplierWorkspacePagesImplemented": false,
+    "nextWithinTask": "CONCURRENT_SAME_ACCOUNT_REPLAY_COOKIE_RECOVERY",
     "nextTask": "M1-P070",
     "nextTaskAllowed": false
   },
@@ -239,6 +240,7 @@
     "The supplier portal production bundle remains above Vite's 500 kB warning threshold; this is non-blocking for P0-069 but should be code-split before performance acceptance.",
     "Production is expected to expose /v1 through the same operation origin. A separate API origin requires an explicitly reviewed credentialed-CORS gateway and is not proven by this slice.",
     "The real browser chain uses an injected in-memory supplier auth repository and test-only credential verifier; it proves transport, UI and cookie behavior but not production identity-provider integration.",
+    "Sequential same-account selection replay recovers a cookie, but concurrent retries with out-of-order responses are not yet proven safe because each replay rotates the session hash; this remains inside M1-P069 before Ready review.",
     "The forward migration has only local Docker MySQL evidence; staging and production migration remain NOT_EXECUTED."
   ],
   "rollback": {
