@@ -3,13 +3,14 @@
   "taskId": "M1-P069",
   "p0Id": "P0-069",
   "status": "LOCAL_PASS",
-  "verifiedAt": "2026-08-07T01:09:09-04:00",
+  "verifiedAt": "2026-08-07T01:44:30-04:00",
   "baseline": {
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
     "baseBranch": "main",
     "baseCommit": "ff8d5ae6d998a2f05ade69f8e220e2ec5a6527b3",
     "branch": "codex/m1-m1-p069",
-    "implementationCommit": "c8c18485afb859487722acf39222a01cff99b531"
+    "implementationCommit": "c8c18485afb859487722acf39222a01cff99b531",
+    "hardeningCommit": "97ce454e2ed1c0a81095a4d429db86d8c67999a1"
   },
   "scope": {
     "pageIds": ["PAGE-013", "PAGE-014", "PAGE-015"],
@@ -29,7 +30,9 @@
     "ambiguousLoginIdentifier": "FAIL_CLOSED_NON_ENUMERATING",
     "inactiveSupplierOrAccount": "FAIL_CLOSED_AND_OLD_SESSION_INVALID",
     "responseWhitelist": "NO_SUPPLIER_USER_IDENTITY_SESSION_OR_TOKEN_FIELDS",
-    "cachePolicy": "PRIVATE_NO_STORE",
+    "cachePolicy": "PRIVATE_NO_STORE_MAX_AGE_ZERO_ON_SUCCESS_AND_FAILURE",
+    "cookieTransport": "CREDENTIALS_INCLUDE_FOR_INDEPENDENT_API_ORIGIN",
+    "selectionReplayRecovery": "ROTATE_OPAQUE_SESSION_HASH_AND_REISSUE_COOKIE",
     "credentialAndSecondVerificationAdapters": "DEFAULT_DENY"
   },
   "uiStates": [
@@ -47,11 +50,33 @@
     "cause": "API-006 and API-007 returned HTTP 404 before the supplier authentication slice existed",
     "assertionsWeakened": false
   },
+  "hardeningRedEvidence": [
+    {
+      "command": "node --test packages/web-api-client/test/package.test.mjs",
+      "result": "FAIL_EXPECTED_EXPORT_MISSING",
+      "cause": "the supplier portal client did not force credentials=include for an independent API origin"
+    },
+    {
+      "command": "pnpm exec vitest run --config ./vitest.config.ts --project api-contract apps/api/test/supertest/supplier-auth-api.test.mjs",
+      "result": "FAIL_2_OF_12_EXPECTED",
+      "cause": "supplier authentication error responses omitted the private no-store cache policy"
+    },
+    {
+      "command": "pnpm exec vitest run --config ./vitest.config.ts --project api-contract apps/api/test/supertest/supplier-auth-api.test.mjs",
+      "result": "FAIL_1_OF_12_EXPECTED",
+      "cause": "same-account selection replay returned no recovery Set-Cookie after an unknown first response"
+    }
+  ],
   "focusedEvidence": [
     {
       "name": "supplier auth, approval activation, and regression behavior",
       "command": "pnpm exec vitest run --config ./vitest.config.ts --project api-contract apps/api/test/supertest/supplier-auth-api.test.mjs apps/api/test/supertest/supplier-auth-prisma-repository.test.mjs apps/api/test/supertest/supplier-onboarding-api.test.mjs apps/api/test/supertest/supplier-onboarding-prisma-activation.test.mjs",
-      "result": "PASS_25_OF_25"
+      "result": "PASS_26_OF_26"
+    },
+    {
+      "name": "cookie-bound shared web client and supplier portal shell",
+      "command": "node --test packages/web-api-client/test/package.test.mjs; pnpm --filter @fulishe/supplier-portal test",
+      "result": "PASS_4_OF_4"
     },
     {
       "name": "supplier auth OpenAPI and migration contracts",
@@ -97,14 +122,14 @@
     },
     {
       "id": "NEG-M1-069-04",
-      "scenario": "停用或过期账号及职能类型不可选，同一nonce改选冲突且只保留一个会话",
+      "scenario": "停用或过期账号及职能类型不可选；同一nonce同账号重放轮换Cookie并恢复未知结果，改选冲突且只保留一个会话",
       "status": "PASS"
     }
   ],
   "fullVerification": {
     "status": "PASS_17_OF_17",
     "stepsPassed": 17,
-    "commit": "59ce2ddb1f34f1894762298f9ae7af3bba1cc465",
+    "commit": "97ce454e2ed1c0a81095a4d429db86d8c67999a1",
     "report": "artifacts/test-results/verification/pnpm-verify.json"
   },
   "verificationRepairHistory": [

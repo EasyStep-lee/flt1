@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-07T01:12:44-04:00",
+  "updatedAt": "2026-08-07T01:44:30-04:00",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -83,7 +83,7 @@
       "branch": "codex/m1-m1-p069",
       "baseCommit": "ff8d5ae6d998a2f05ade69f8e220e2ec5a6527b3",
       "status": "DRAFT_LOCAL_PASS",
-      "verifiedImplementationHead": "59ce2ddb1f34f1894762298f9ae7af3bba1cc465",
+      "verifiedImplementationHead": "97ce454e2ed1c0a81095a4d429db86d8c67999a1",
       "draftHeadAtCreation": "4a00801e40df283bf7ac998f5b3e3aff70ff8c5f",
       "localVerify": "PASS_17_OF_17",
       "migrationRehearsal": "PASS_PRODUCT_9_CLEANUP_PASS",
@@ -104,7 +104,7 @@
       "mainPostMergeCiRun": 31144798071,
       "status": "CI_PASS"
     },
-    "note": "M1-P068 PR #26精确head CI、用户授权合并为ff8d5ae及合并后main CI run 31144798071已闭环。M1-P069本地门禁通过并创建Draft PR #28；等待最终head精确CI、人工审查与用户授权，P070禁止启动。"
+    "note": "M1-P068 PR #26精确head CI、用户授权合并为ff8d5ae及合并后main CI run 31144798071已闭环。M1-P069补强独立API域Cookie携带、认证失败禁缓存和同账号重放Cookie恢复；加固实现head本地pnpm verify 17/17通过，Draft PR #28等待新远程head精确CI、人工审查与用户授权，P070禁止启动。"
   },
   "evidence": {
     "local": "LOCAL_PASS",

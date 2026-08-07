@@ -6,7 +6,7 @@
 - 供应商合作入口分别进入 `/supplier/register` 与 `/supplier/login`，注册和登录不能合并为同一表单或同一认证动作。
 - 供应商经公司审核为 `ACTIVE` 时，在同一事务中激活申请主联系人对应的 `SupplierUser` 和唯一 `SUPPLIER_ACCOUNT_ADMIN` 职能账号。
 - API-006 `POST /v1/supplier-auth/login` 认证自然人，不接受 `supplierId`、`functionalAccountId` 或 `workspaceRoute` 覆盖；单一有效账号直达，多账号返回 `/supplier/account-select` 逐一选择。
-- API-007 `POST /v1/supplier-auth/workspaces/{accountId}/select` 使用短期、一次性选择上下文签发仅含一个职能账号的 Secure HttpOnly 会话；选择重放只能返回同一结果，选择另一账号冲突。
+- API-007 `POST /v1/supplier-auth/workspaces/{accountId}/select` 使用短期、一次性选择上下文签发仅含一个职能账号的 Secure HttpOnly 会话；同账号重放轮换不透明会话哈希并重新签发 Cookie 以恢复未知结果，仍只保留同一活动会话，选择另一账号冲突。
 - 登录、失败、账号选择和会话签发追加 `LoginAudit`；原始密码、验证码、选择 nonce、会话 token 和完整手机号不得进入响应、日志或审计字段。
 
 ## 依赖与非目标
@@ -33,7 +33,8 @@
 
 - 账号卡片仅返回 opaque `accountId`、职能名称、所属供应商展示名、固定路由、状态和最近使用时间。
 - API-007 响应不返回 `supplierId`、`userId`、`identityId`、`sessionHash`、token、联系方式、供应价、应付、毛利或银行字段；归属只保存在 HttpOnly Cookie 对应的服务端会话中。
-- 所有认证响应 `Cache-Control: private, no-store`；登录和选择页面 `noindex`。
+- 所有认证成功和失败响应 `Cache-Control: private, no-store, max-age=0`；登录和选择页面 `noindex`。
+- 供应商门户通过共享 `openapi-fetch` Cookie 客户端发送请求；即使 `VITE_API_BASE_URL` 指向独立 API 域名也固定 `credentials: include`，页面仍不接触原始会话 token。
 
 ## 页面与失败状态
 
@@ -47,7 +48,7 @@
 - `NEG-M1-069-01`：登录/选择请求传入 `supplierId` 等归属覆盖字段时先拒绝且不签发会话。
 - `NEG-M1-069-02`：注册与登录独立；非 `ACTIVE` 供应商即使凭证正确也不能进入后台。
 - `NEG-M1-069-03`：同一人员多职能不能自动合并进入；选择其他身份、其他供应商或停用账号失败。
-- `NEG-M1-069-04`：重复选择同一账号幂等；并发/顺序重放选择不同账号仅一个结果，旧会话撤销且审计追加。
+- `NEG-M1-069-04`：重复选择同一账号幂等并可恢复丢失响应；每次恢复轮换不透明会话哈希但仍只有一个活动会话，并发/顺序重放选择不同账号仅一个结果，旧会话撤销且审计追加。
 - 正向：供应商审核通过后主体管理账号激活；单账号直达；多账号选择后只签发一个固定职能会话；PAGE-013～015 行为与缓存/索引边界通过。
 
 ## 风险与回滚
