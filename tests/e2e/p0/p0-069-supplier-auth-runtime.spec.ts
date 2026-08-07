@@ -1,8 +1,8 @@
 import { expect, test } from '@playwright/test';
 
-import { createApplication } from '../../../apps/api/dist/bootstrap.js';
-import { loadRuntimeConfig } from '../../../apps/api/dist/config/runtime-config.js';
-import { InMemorySupplierAuthRepository } from '../../../apps/api/dist/supplier-auth/in-memory-supplier-auth.repository.js';
+type BootstrapModule = typeof import('../../../apps/api/src/bootstrap.js');
+type RuntimeConfigModule = typeof import('../../../apps/api/src/config/runtime-config.js');
+type SupplierAuthRepositoryModule = typeof import('../../../apps/api/src/supplier-auth/in-memory-supplier-auth.repository.js');
 
 const apiPort = 4322;
 const supplierPortalOrigin = 'http://127.0.0.1:4323';
@@ -33,9 +33,34 @@ const account = (
   workspaceRoute,
 });
 
-let api: Awaited<ReturnType<typeof createApplication>> | undefined;
+const loadApiRuntime = async () => {
+  const apiDistribution = new URL('../../../apps/api/dist/', import.meta.url);
+  const [bootstrap, runtimeConfig, supplierAuthRepository] = await Promise.all([
+    import(new URL('bootstrap.js', apiDistribution).href) as Promise<BootstrapModule>,
+    import(new URL('config/runtime-config.js', apiDistribution).href) as Promise<RuntimeConfigModule>,
+    import(
+      new URL(
+        'supplier-auth/in-memory-supplier-auth.repository.js',
+        apiDistribution,
+      ).href
+    ) as Promise<SupplierAuthRepositoryModule>,
+  ]);
+  return {
+    createApplication: bootstrap.createApplication,
+    InMemorySupplierAuthRepository:
+      supplierAuthRepository.InMemorySupplierAuthRepository,
+    loadRuntimeConfig: runtimeConfig.loadRuntimeConfig,
+  };
+};
+
+let api: Awaited<ReturnType<BootstrapModule['createApplication']>> | undefined;
 
 test.beforeAll(async () => {
+  const {
+    createApplication,
+    InMemorySupplierAuthRepository,
+    loadRuntimeConfig,
+  } = await loadApiRuntime();
   const repository = new InMemorySupplierAuthRepository({
     accounts: [
       account(
