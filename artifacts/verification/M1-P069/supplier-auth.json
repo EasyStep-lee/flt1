@@ -3,7 +3,7 @@
   "taskId": "M1-P069",
   "p0Id": "P0-069",
   "status": "LOCAL_PASS",
-  "verifiedAt": "2026-08-07T03:32:33-04:00",
+  "verifiedAt": "2026-08-07T04:25:05-04:00",
   "baseline": {
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
     "baseBranch": "main",
@@ -15,7 +15,8 @@
     "browserRuntimeEvidenceCommit": "4f2a0c2047338c0af45fc76f5254967188dcd11a",
     "cleanInstallCiFixCommit": "a462adf8717408a44da5305612453c2bdd0e2b52",
     "apiDependencyClosureFixCommit": "ea6fed4a6bfa9ff2d5b4ad5204723e362fc57c62",
-    "expiredAccountVisibilityFixCommit": "72f3696ca3a2dfb0756cb34e69a183bc488f62c6"
+    "expiredAccountVisibilityFixCommit": "72f3696ca3a2dfb0756cb34e69a183bc488f62c6",
+    "concurrentReplayCookieFixCommit": "b8a69dc3d6eef959451e8ff670eb7c7feef2a0f9"
   },
   "scope": {
     "pageIds": ["PAGE-013", "PAGE-014", "PAGE-015"],
@@ -23,7 +24,7 @@
     "migration": "20260807010000_supplier_auth_sessions",
     "supplierRegistrationReusedFrom": "M1-P003",
     "supplierWorkspacePagesImplemented": false,
-    "nextWithinTask": "CONCURRENT_SAME_ACCOUNT_REPLAY_COOKIE_RECOVERY",
+    "nextWithinTask": "GITHUB_EXACT_HEAD_CI_AND_REVIEW",
     "nextTask": "M1-P070",
     "nextTaskAllowed": false
   },
@@ -39,7 +40,9 @@
     "cachePolicy": "PRIVATE_NO_STORE_MAX_AGE_ZERO_ON_SUCCESS_AND_FAILURE",
     "cookieTransport": "CREDENTIALS_INCLUDE_ON_SAME_OPERATION_ORIGIN",
     "browserApiTopology": "SAME_OPERATION_ORIGIN_WITH_LOCAL_VITE_PROXY",
-    "selectionReplayRecovery": "ROTATE_OPAQUE_SESSION_HASH_AND_REISSUE_COOKIE",
+    "selectionReplayRecovery": "STABLE_HMAC_COOKIE_FOR_SAME_SESSION_AND_ANY_RESPONSE_ORDER",
+    "sessionStorage": "SHA256_TOKEN_ONLY_NO_RAW_TOKEN",
+    "sessionSigningKey": "REMOTE_REQUIRED_BASE64URL_SECRET_ROTATION_REVOKES_EXISTING_SUPPLIER_SESSIONS",
     "credentialAndSecondVerificationAdapters": "DEFAULT_DENY"
   },
   "uiStates": [
@@ -87,13 +90,38 @@
       "command": "pnpm exec vitest run --config vitest.config.ts --project api-contract apps/api/test/supertest/supplier-auth-api.test.mjs",
       "result": "FAIL_1_OF_13_EXPECTED",
       "cause": "an expired functional account whose stored status remained ACTIVE was incorrectly returned to PAGE-015 as selectable"
+    },
+    {
+      "command": "pnpm exec vitest run --config vitest.config.ts --project api-contract apps/api/test/supertest/supplier-auth-api.test.mjs",
+      "result": "FAIL_1_OF_14_EXPECTED",
+      "cause": "three concurrent same-account selection responses carried three different cookies, so an out-of-order stale response could overwrite the only valid cookie"
+    },
+    {
+      "command": "pnpm exec vitest run --config vitest.config.ts --project api-contract apps/api/test/supertest/supplier-auth-prisma-repository.test.mjs",
+      "result": "FAIL_1_OF_4_EXPECTED",
+      "cause": "the replay repository path still overwrote the stored session hash instead of preserving the original credential"
+    },
+    {
+      "command": "node --test tests/configuration/configuration-schema.test.mjs",
+      "result": "FAIL_4_OF_10_EXPECTED",
+      "cause": "the runtime schema did not yet require, validate or redact the supplier session signing key"
+    },
+    {
+      "command": "pnpm exec vitest run --config vitest.config.ts --project api-contract apps/api/test/supertest/supplier-auth-api.test.mjs",
+      "result": "FAIL_1_OF_15_EXPECTED",
+      "cause": "an existing supplier cookie remained accepted after the HMAC signing key changed"
     }
   ],
   "focusedEvidence": [
     {
       "name": "supplier auth, approval activation, and regression behavior",
       "command": "pnpm exec vitest run --config ./vitest.config.ts --project api-contract apps/api/test/supertest/supplier-auth-api.test.mjs apps/api/test/supertest/supplier-auth-prisma-repository.test.mjs apps/api/test/supertest/supplier-onboarding-api.test.mjs apps/api/test/supertest/supplier-onboarding-prisma-activation.test.mjs",
-      "result": "PASS_27_OF_27"
+      "result": "PASS_29_OF_29"
+    },
+    {
+      "name": "supplier session signing-key schema, remote safety and redaction",
+      "command": "node --test tests/configuration/configuration-schema.test.mjs",
+      "result": "PASS_10_OF_10"
     },
     {
       "name": "cookie-bound shared web client and supplier portal shell",
@@ -144,14 +172,14 @@
     },
     {
       "id": "NEG-M1-069-04",
-      "scenario": "停用或过期账号及职能类型不可选；同一nonce同账号重放轮换Cookie并恢复未知结果，改选冲突且只保留一个会话",
+      "scenario": "停用或过期账号及职能类型不可选；同一nonce同账号并发重放返回同一有效Cookie，任意响应顺序仍可恢复；改选冲突且只保留一个会话",
       "status": "PASS"
     }
   ],
   "fullVerification": {
     "status": "PASS_17_OF_17",
     "stepsPassed": 17,
-    "commit": "72f3696ca3a2dfb0756cb34e69a183bc488f62c6",
+    "commit": "b8a69dc3d6eef959451e8ff670eb7c7feef2a0f9",
     "report": "artifacts/test-results/verification/pnpm-verify.json"
   },
   "verificationRepairHistory": [
@@ -196,6 +224,12 @@
       "failedStep": "github-actions-regression-run-31155519986",
       "cause": "the standalone P0 gate built the API package but not its workspace dependency outputs, so Linux could not load @fulishe/config/dist/index.js",
       "repair": "added a failing CI contract for the API dependency closure and changed the P0 build filter to @fulishe/api...; focused and full tests passed without weakening browser assertions"
+    },
+    {
+      "attempt": 8,
+      "failedStep": "secrets",
+      "cause": "the dependency-injection symbol name ended in TOKEN_KEY and matched the credential-assignment detector even though no secret value was present",
+      "repair": "renamed only the internal injection symbol; the scanner rule and tracked-file scope were not weakened, then 484 tracked files passed"
     }
   ],
   "migration": {
@@ -213,6 +247,11 @@
     "pullRequestState": "DRAFT",
     "draftHeadAtCreation": "4a00801e40df283bf7ac998f5b3e3aff70ff8c5f",
     "exactHeadCi": "NOT_EXECUTED",
+    "lastSuccessfulPreHardeningCi": {
+      "runId": 31158730468,
+      "headSha": "f8037a60b16ea6b4bc5f41632bf0c443daaf4e9d",
+      "status": "SUCCESS_NOT_CURRENT_HEAD"
+    },
     "failedExactHeadCiRuns": [
       {
         "runId": 31154584849,
@@ -240,7 +279,7 @@
     "The supplier portal production bundle remains above Vite's 500 kB warning threshold; this is non-blocking for P0-069 but should be code-split before performance acceptance.",
     "Production is expected to expose /v1 through the same operation origin. A separate API origin requires an explicitly reviewed credentialed-CORS gateway and is not proven by this slice.",
     "The real browser chain uses an injected in-memory supplier auth repository and test-only credential verifier; it proves transport, UI and cookie behavior but not production identity-provider integration.",
-    "Sequential same-account selection replay recovers a cookie, but concurrent retries with out-of-order responses are not yet proven safe because each replay rotates the session hash; this remains inside M1-P069 before Ready review.",
+    "Rotating SUPPLIER_AUTH_SESSION_SIGNING_KEY intentionally invalidates existing supplier cookies and requires a planned re-login window; staging and production secret injection remain NOT_EXECUTED.",
     "The forward migration has only local Docker MySQL evidence; staging and production migration remain NOT_EXECUTED."
   ],
   "rollback": {
