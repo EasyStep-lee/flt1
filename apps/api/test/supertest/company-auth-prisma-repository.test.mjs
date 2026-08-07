@@ -121,4 +121,54 @@ describe('Prisma company auth repository security boundaries', () => {
     });
     expect(createSession).not.toHaveBeenCalled();
   });
+
+  it('resolves only an active authoritative company session and rejects route drift', async () => {
+    const storedSession = {
+      expiresAt: new Date('2099-08-06T06:00:00.000Z'),
+      functionalAccountId: accountId,
+      id: '50000000-0000-4000-8000-000000000001',
+      revokedAt: null,
+      userId,
+      userType: 'COMPANY_USER',
+      workspaceRoute: '/company-admin/workspaces/system',
+      functionalAccount: {
+        accountType: {
+          code: 'COMPANY_SUPER_ADMIN',
+          ownerType: 'COMPANY',
+          status: 'ACTIVE',
+          workspaceRoute: '/company-admin/workspaces/system',
+        },
+        companyId,
+        expiresAt: null,
+        identityId: userId,
+        identityType: 'COMPANY_USER',
+        ownerType: 'COMPANY',
+        status: 'ACTIVE',
+      },
+    };
+    const prisma = {
+      authSession: { findUnique: vi.fn().mockResolvedValue(storedSession) },
+      companyUser: {
+        findUnique: vi.fn().mockResolvedValue({ companyId, status: 'ACTIVE' }),
+      },
+    };
+    const repository = new PrismaCompanyAuthRepository(prisma);
+
+    await expect(
+      repository.resolveSession('d'.repeat(64), '2026-08-06T05:00:00.000Z'),
+    ).resolves.toMatchObject({
+      kind: 'ACTIVE',
+      session: {
+        accountTypeCode: 'COMPANY_SUPER_ADMIN',
+        functionalAccountId: accountId,
+        workspaceRoute: '/company-admin/workspaces/system',
+      },
+    });
+
+    storedSession.functionalAccount.accountType.workspaceRoute =
+      '/company-admin/workspaces/finance';
+    await expect(
+      repository.resolveSession('d'.repeat(64), '2026-08-06T05:00:00.000Z'),
+    ).resolves.toEqual({ kind: 'INVALID' });
+  });
 });

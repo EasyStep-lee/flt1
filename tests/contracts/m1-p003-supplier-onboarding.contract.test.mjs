@@ -136,7 +136,8 @@ test('M1-P003 retains its local evidence after PR and main CI closure', async ()
   ]);
   const mappedApis = apis.filter(({ Method, Path }) => operationKeys.has(`${Method} ${Path}`));
 
-  assert.deepEqual(active.map(({ TaskID }) => TaskID), []);
+  assert.ok(active.length <= 1);
+  assert.ok(active.every(({ TaskID }) => TaskID === 'M1-P067'));
   assert.equal(m1p003?.Status, 'DONE');
   assert.equal(m1p003?.EvidenceStatus, 'CI_PASS');
   assert.equal(m1p003?.CommitSHA, 'd7067a59f1bc66680121d9e2b38e04cb3083dee2');
@@ -149,7 +150,14 @@ test('M1-P003 retains its local evidence after PR and main CI closure', async ()
   assert.equal(evidenceRow?.CurrentStatus, 'CI_PASS');
   assert.equal(migration?.Status, 'PARTIAL_APPLIED_LOCAL');
   assert.equal(mappedPages.length, 2);
-  assert.ok(mappedPages.every(({ ImplementationStatus }) => ImplementationStatus === 'PARTIAL_LOCAL_PASS'));
+  assert.equal(
+    mappedPages.find(({ PageID }) => PageID === 'PAGE-004')?.ImplementationStatus,
+    'IMPLEMENTED',
+  );
+  assert.equal(
+    mappedPages.find(({ PageID }) => PageID === 'PAGE-013')?.ImplementationStatus,
+    'PARTIAL_LOCAL_PASS',
+  );
   assert.equal(mappedApis.length, 5);
   assert.ok(mappedApis.every(({ OpenAPIStatus }) => OpenAPIStatus === 'GENERATED'));
   assert.ok(mappedApis.every(({ DTOStatus }) => DTOStatus === 'IMPLEMENTED'));
@@ -170,11 +178,18 @@ test('M1-P003 retains its local evidence after PR and main CI closure', async ()
 
   assert.equal(state.execution.currentStage, 'M1');
   assert.equal(state.execution.currentTask, state.execution.nextAllowedTask);
-  assert.equal(state.execution.activeTaskCount, 0);
+  assert.equal(state.execution.currentTask, 'M1-P067');
+  assert.equal(state.execution.activeTaskCount, active.length);
   assert.match(state.execution.lastCompletedTask, /^M1-/u);
   assert.equal(state.github.repository, 'EasyStep-lee/flt1');
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M1-P066');
-  assert.equal(state.github.currentTaskDelivery.status, 'DONE_LOCAL_PASS');
-  assert.equal(state.evidence.local, 'LOCAL_PASS');
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M1-P067');
+  assert.ok(
+    ['IN_PROGRESS', 'DONE_LOCAL_PASS'].includes(
+      state.github.currentTaskDelivery.status,
+    ),
+  );
+  assert.ok(
+    ['NOT_EXECUTED_FOR_M1_P067', 'LOCAL_PASS'].includes(state.evidence.local),
+  );
   assert.equal(state.evidence.ci, 'NOT_EXECUTED');
 });

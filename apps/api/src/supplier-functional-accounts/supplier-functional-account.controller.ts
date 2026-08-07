@@ -29,6 +29,8 @@ import {
 } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
 
+import { SafeApiError } from '../http/api-error.js';
+import { CompanyFunctionalAccountService } from '../company-functional-accounts/company-functional-account.service.js';
 import { ApiErrorResponseDto } from '../http/api-error.dto.js';
 import type { RequestWithId } from '../http/request-id.middleware.js';
 import {
@@ -56,6 +58,8 @@ export class SupplierFunctionalAccountController {
   constructor(
     @Inject(SupplierFunctionalAccountService)
     private readonly service: SupplierFunctionalAccountService,
+    @Inject(CompanyFunctionalAccountService)
+    private readonly companyService: CompanyFunctionalAccountService,
     @Inject(FUNCTIONAL_ACCOUNT_ACTOR_RESOLVER)
     private readonly actorResolver: FunctionalAccountActorResolver,
   ) {}
@@ -82,6 +86,15 @@ export class SupplierFunctionalAccountController {
     @Query() query: FunctionalAccountQueryDto & Record<string, unknown>,
   ): Promise<FunctionalAccountPageResponseDto> {
     const actor = await this.actorResolver.resolve(request);
+    if (ownerType === 'company') {
+      if (!('companyId' in actor)) {
+        throw new SafeApiError(403, 'DATA_SCOPE_FORBIDDEN', '公司归属与会话不匹配');
+      }
+      return this.companyService.list(actor, query);
+    }
+    if (!('supplierId' in actor)) {
+      throw new SafeApiError(403, 'DATA_SCOPE_FORBIDDEN', '供应商归属与会话不匹配');
+    }
     return this.service.list(actor, ownerType, query);
   }
 
@@ -108,14 +121,31 @@ export class SupplierFunctionalAccountController {
     @Res({ passthrough: true }) response: Response,
   ): Promise<FunctionalAccountResponseDto> {
     const actor = await this.actorResolver.resolve(request);
-    const result = await this.service.create(
-      actor,
-      ownerType,
-      body,
-      idempotencyKey,
-      request.requestId,
-      request.ip,
-    );
+    const result =
+      ownerType === 'company'
+        ? 'companyId' in actor
+          ? await this.companyService.create(
+              actor,
+              body,
+              idempotencyKey,
+              request.requestId,
+              request.ip,
+            )
+          : await Promise.reject(
+              new SafeApiError(403, 'DATA_SCOPE_FORBIDDEN', '公司归属与会话不匹配'),
+            )
+        : 'supplierId' in actor
+          ? await this.service.create(
+              actor,
+              ownerType,
+              body,
+              idempotencyKey,
+              request.requestId,
+              request.ip,
+            )
+          : await Promise.reject(
+              new SafeApiError(403, 'DATA_SCOPE_FORBIDDEN', '供应商归属与会话不匹配'),
+            );
     if (result.replayed) response.setHeader('Idempotency-Replayed', 'true');
     return result.body;
   }

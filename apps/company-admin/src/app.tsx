@@ -21,6 +21,7 @@ import {
   CompanyAccountSelectPage,
   CompanyLoginPage,
 } from './company-auth-pages.js';
+import { CompanyWorkspaceGate } from './company-workspace-pages.js';
 import { companySessionBoundary } from './session-boundary.js';
 
 type SupplierRow = components['schemas']['SupplierResponseDto'];
@@ -230,7 +231,7 @@ function CompanySupplierOpsPage() {
       <div className="admin-shell">
         <aside className="admin-sidebar">
           <Typography.Text className="sidebar-label">当前独立页面</Typography.Text>
-          <div className="active-menu">供应商入驻审核</div>
+          <div className="active-menu" data-workspace-menu>供应商入驻审核</div>
           <div className="boundary-note">
             <strong>COMPANY_SUPPLIER_OPS</strong>
             <span>仅处理主体、资质和入驻状态</span>
@@ -442,7 +443,7 @@ function CompanyAuditPage() {
       <div className="admin-shell">
         <aside className="admin-sidebar">
           <Typography.Text className="sidebar-label">当前独立页面</Typography.Text>
-          <div className="active-menu">敏感操作审计</div>
+          <div className="active-menu" data-workspace-menu>敏感操作审计</div>
           <div className="boundary-note">
             <strong>COMPANY_AUDIT</strong>
             <span>只读查询脱敏事件，不可修改业务或审计记录</span>
@@ -513,11 +514,19 @@ export function CompanyAdminShell() {
   if (currentPath === '/company-admin/account-select') {
     return <CompanyAccountSelectPage />;
   }
-  if (currentPath === '/company-admin/workspaces/supplier-ops') {
-    return <CompanySupplierOpsPage />;
-  }
-  if (currentPath === '/company-admin/workspaces/audit') {
-    return <CompanyAuditPage />;
+  if (currentPath.startsWith(companySessionBoundary.workspaceRoutePrefix)) {
+    return (
+      <CompanyWorkspaceGate
+        content={
+          currentPath === '/company-admin/workspaces/supplier-ops' ? (
+            <CompanySupplierOpsPage />
+          ) : currentPath === '/company-admin/workspaces/audit' ? (
+            <CompanyAuditPage />
+          ) : undefined
+        }
+        route={currentPath}
+      />
+    );
   }
 
   return (

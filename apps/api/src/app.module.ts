@@ -12,6 +12,17 @@ import {
 import { AuditLogService } from './audit/audit-log.service.js';
 import { PrismaAuditLogRepository } from './audit/prisma-audit-log.repository.js';
 import { CompanyAuthService } from './company-auth/company-auth.service.js';
+import {
+  CompanyAuditSessionActorResolver,
+  CompanyFunctionalAccountSessionActorResolver,
+  CompanySupplierOnboardingSessionActorResolver,
+} from './company-auth/company-session-actors.js';
+import { CompanyFunctionalAccountService } from './company-functional-accounts/company-functional-account.service.js';
+import { PrismaCompanyFunctionalAccountRepository } from './company-functional-accounts/prisma-company-functional-account.repository.js';
+import {
+  COMPANY_FUNCTIONAL_ACCOUNT_REPOSITORY,
+  type CompanyFunctionalAccountRepository,
+} from './company-functional-accounts/company-functional-account.repository.js';
 import { PrismaCompanyAuthRepository } from './company-auth/prisma-company-auth.repository.js';
 import {
   COMPANY_AUTH_REPOSITORY,
@@ -95,6 +106,7 @@ export interface AppModuleOptions {
   readonly companyAuthRepository?: CompanyAuthRepository;
   readonly companyCredentialVerifier?: CompanyCredentialVerifier;
   readonly companySecondVerifier?: CompanySecondVerifier;
+  readonly companyFunctionalAccountRepository?: CompanyFunctionalAccountRepository;
 }
 
 @Module({})
@@ -126,6 +138,11 @@ export class AppModule {
       UnavailableCompanyCredentialVerifier,
       UnavailableCompanySecondVerifier,
       CompanyAuthService,
+      CompanyAuditSessionActorResolver,
+      CompanyFunctionalAccountSessionActorResolver,
+      CompanySupplierOnboardingSessionActorResolver,
+      PrismaCompanyFunctionalAccountRepository,
+      CompanyFunctionalAccountService,
       options.merchantRepository
         ? {
             provide: SINGLE_MERCHANT_REPOSITORY,
@@ -151,7 +168,7 @@ export class AppModule {
           }
         : {
             provide: SUPPLIER_ONBOARDING_ACTOR_RESOLVER,
-            useExisting: DenySupplierOnboardingActorResolver,
+            useExisting: CompanySupplierOnboardingSessionActorResolver,
           },
       options.supplierRegistrationVerifier
         ? {
@@ -178,7 +195,7 @@ export class AppModule {
           }
         : {
             provide: FUNCTIONAL_ACCOUNT_ACTOR_RESOLVER,
-            useExisting: DenyFunctionalAccountActorResolver,
+            useExisting: CompanyFunctionalAccountSessionActorResolver,
           },
       options.functionalAccountSecondVerifier
         ? {
@@ -203,7 +220,10 @@ export class AppModule {
         : { provide: AUDIT_LOG_REPOSITORY, useExisting: PrismaAuditLogRepository },
       options.auditActorResolver
         ? { provide: AUDIT_ACTOR_RESOLVER, useValue: options.auditActorResolver }
-        : { provide: AUDIT_ACTOR_RESOLVER, useExisting: DenyAuditActorResolver },
+        : {
+            provide: AUDIT_ACTOR_RESOLVER,
+            useExisting: CompanyAuditSessionActorResolver,
+          },
       options.companyAuthRepository
         ? { provide: COMPANY_AUTH_REPOSITORY, useValue: options.companyAuthRepository }
         : { provide: COMPANY_AUTH_REPOSITORY, useExisting: PrismaCompanyAuthRepository },
@@ -221,6 +241,15 @@ export class AppModule {
         : {
             provide: COMPANY_SECOND_VERIFIER,
             useExisting: UnavailableCompanySecondVerifier,
+          },
+      options.companyFunctionalAccountRepository
+        ? {
+            provide: COMPANY_FUNCTIONAL_ACCOUNT_REPOSITORY,
+            useValue: options.companyFunctionalAccountRepository,
+          }
+        : {
+            provide: COMPANY_FUNCTIONAL_ACCOUNT_REPOSITORY,
+            useExisting: PrismaCompanyFunctionalAccountRepository,
           },
     ];
 

@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 const repositoryRoot = fileURLToPath(new URL('../../', import.meta.url));
 const packRoot = path.join(repositoryRoot, '福礼社Codex5.6开发执行包V1.1');
 
-test('M1-P066 closes local evidence and leaves M1-P067 blocked at READY', async () => {
+test('M1-P066 remains bound to its merged exact-head and post-merge CI evidence', async () => {
   const [contract, evidence, state, tasks, p0, pages, migrations, apis, evidenceLedger] =
     await Promise.all([
       readFile(
@@ -44,31 +44,30 @@ test('M1-P066 closes local evidence and leaves M1-P067 blocked at READY', async 
     assert.match(contract, new RegExp(marker, 'u'));
   }
 
-  assert.equal(evidence.status, 'LOCAL_PASS');
-  assert.equal(evidence.implementationCommit, 'f863ecb1ee6ddcb671f8259aa08a2e730b8a1da6');
+  assert.equal(evidence.status, 'CI_PASS');
+  assert.equal(evidence.implementationCommit, '4c3e07a359ae2d99f47ed9265730a1d9dd27531c');
   assert.equal(evidence.fullVerification.status, 'PASS_17_OF_17');
   assert.equal(evidence.migration.rehearsal, 'PASS_EMPTY_2_UPGRADE_2_RESTORE_2_PRODUCT_7_CLEANUP_PASS');
   assert.equal(evidence.negativeTests.length, 4);
   assert.ok(evidence.negativeTests.every(({ status }) => status === 'PASS'));
 
-  assert.equal(state.execution.lastCompletedTask, 'M1-P066');
   assert.equal(state.execution.currentTask, 'M1-P067');
   assert.equal(state.execution.nextAllowedTask, 'M1-P067');
-  assert.equal(state.execution.activeTaskCount, 0);
-  assert.equal(state.execution.prohibitedUntilGate.length, 1);
-  assert.equal(state.github.pullRequest, 22);
-  assert.equal(state.github.pullRequestState, 'DRAFT');
-  assert.equal(state.github.currentTaskDelivery.status, 'DONE_LOCAL_PASS');
-  assert.equal(state.github.currentTaskDelivery.localVerify, 'PASS_17_OF_17');
-  assert.equal(state.github.currentTaskDelivery.exactHeadCi, 'NOT_EXECUTED');
+  assert.equal(
+    state.execution.prohibitedUntilGate.some((item) => item.includes('M1-P066')),
+    false,
+  );
+  assert.match(evidence.externalEvidence.pullRequestCi, /31084427860/u);
+  assert.match(evidence.externalEvidence.merge, /1254f710/u);
+  assert.match(evidence.externalEvidence.mainPostMergeCi, /31089444537/u);
 
-  assert.match(tasks, /M1-P066[^\r\n]*DONE[^\r\n]*LOCAL_PASS/u);
-  assert.match(tasks, /M1-P067[^\r\n]*READY[^\r\n]*NOT_EXECUTED/u);
-  assert.match(p0, /P0-066[^\r\n]*LOCAL_PASS/u);
+  assert.match(tasks, /M1-P066[^\r\n]*DONE[^\r\n]*CI_PASS/u);
+  assert.match(tasks, /M1-P067[^\r\n]*(?:IN_PROGRESS|DONE)[^\r\n]*(?:NOT_EXECUTED|LOCAL_PASS)/u);
+  assert.match(p0, /P0-066[^\r\n]*CI_PASS/u);
   assert.match(pages, /PAGE-001[^\r\n]*IMPLEMENTED[^\r\n]*LOCAL_PASS/u);
   assert.match(pages, /PAGE-002[^\r\n]*IMPLEMENTED[^\r\n]*LOCAL_PASS/u);
   assert.match(migrations, /MIG-002[^\r\n]*APPLIED_LOCAL/u);
   assert.match(apis, /API-003[^\r\n]*GENERATED[^\r\n]*IMPLEMENTED/u);
   assert.match(apis, /API-004[^\r\n]*WORKSPACE_SESSION_CONFLICT[^\r\n]*GENERATED/u);
-  assert.match(evidenceLedger, /EVD-066[^\r\n]*LOCAL_PASS/u);
+  assert.match(evidenceLedger, /EVD-066[^\r\n]*CI_PASS/u);
 });

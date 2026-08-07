@@ -5,8 +5,18 @@ import {
   type FunctionalAccountStatus,
   type SupplierFunctionalAccountTypeCode,
 } from './supplier-functional-account.policy.js';
+import {
+  COMPANY_WORKSPACES,
+  type CompanyAccountTypeCode,
+} from '../company-auth/company-workspace.policy.js';
 
-const accountTypeCodes = SUPPLIER_FUNCTIONAL_ACCOUNT_TYPES.map(({ code }) => code);
+const accountTypeCodes = [
+  ...SUPPLIER_FUNCTIONAL_ACCOUNT_TYPES.map(({ code }) => code),
+  ...COMPANY_WORKSPACES.map(({ accountTypeCode }) => accountTypeCode),
+];
+export type FunctionalAccountTypeCode =
+  | CompanyAccountTypeCode
+  | SupplierFunctionalAccountTypeCode;
 const accountStatuses = [
   'PENDING_ACTIVATION',
   'ACTIVE',
@@ -16,7 +26,7 @@ const accountStatuses = [
 
 export class FunctionalAccountQueryDto {
   @ApiPropertyOptional({ enum: accountTypeCodes, type: String })
-  readonly accountTypeCode?: SupplierFunctionalAccountTypeCode;
+  readonly accountTypeCode?: FunctionalAccountTypeCode;
 
   @ApiPropertyOptional({ enum: accountStatuses, type: String })
   readonly status?: FunctionalAccountStatus;
@@ -33,7 +43,7 @@ export class FunctionalAccountQueryDto {
 
 export class CreateFunctionalAccountRequestDto {
   @ApiProperty({ enum: accountTypeCodes, type: String })
-  readonly accountTypeCode!: SupplierFunctionalAccountTypeCode;
+  readonly accountTypeCode!: FunctionalAccountTypeCode;
 
   @ApiProperty({ maxLength: 128, minLength: 1, type: String })
   readonly inviteeName!: string;
@@ -59,7 +69,7 @@ export class FunctionalAccountResponseDto {
   readonly displayName!: string;
 
   @ApiProperty({ enum: accountTypeCodes, type: String })
-  readonly accountTypeCode!: SupplierFunctionalAccountTypeCode;
+  readonly accountTypeCode!: FunctionalAccountTypeCode;
 
   @ApiProperty({ maxLength: 128, type: String })
   readonly accountTypeName!: string;
@@ -90,4 +100,3 @@ export class FunctionalAccountPageResponseDto {
   @ApiProperty({ minimum: 0, type: Number })
   readonly total!: number;
 }
-

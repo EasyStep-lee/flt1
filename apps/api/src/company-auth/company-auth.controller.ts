@@ -1,25 +1,33 @@
 import {
   Body,
   Controller,
+  Get,
+  Header,
   Headers,
   HttpCode,
   Inject,
   Param,
   Post,
+  Query,
   Req,
   Res,
 } from '@nestjs/common';
 import {
   ApiBody,
+  ApiForbiddenResponse,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiTags,
+  ApiUnauthorizedResponse,
+  ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
 
 import {
   CompanyLoginRequestDto,
+  CompanyWorkspaceResponseDto,
   SelectWorkspaceRequestDto,
   SessionResponseDto,
   WorkspaceChoiceResponseDto,
@@ -51,6 +59,21 @@ export class CompanyAuthController {
   constructor(
     @Inject(CompanyAuthService) private readonly service: CompanyAuthService,
   ) {}
+
+  @Get('workspace/current')
+  @Header('Cache-Control', 'private, no-store, max-age=0')
+  @ApiOperation({ summary: '读取当前固定公司职能工作区白名单' })
+  @ApiQuery({ maxLength: 255, name: 'route', required: true, type: String })
+  @ApiOkResponse({ type: CompanyWorkspaceResponseDto })
+  @ApiForbiddenResponse()
+  @ApiUnauthorizedResponse()
+  @ApiUnprocessableEntityResponse()
+  currentWorkspace(
+    @Headers('cookie') cookieHeader: string | undefined,
+    @Query('route') route: string | undefined,
+  ): Promise<CompanyWorkspaceResponseDto> {
+    return this.service.currentWorkspace(cookieHeader, route);
+  }
 
   @Post('login')
   @HttpCode(200)

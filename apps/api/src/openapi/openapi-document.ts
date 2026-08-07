@@ -23,6 +23,11 @@ import {
   UnavailableCompanyCredentialVerifier,
   UnavailableCompanySecondVerifier,
 } from '../company-auth/company-auth.security.js';
+import { CompanyFunctionalAccountService } from '../company-functional-accounts/company-functional-account.service.js';
+import {
+  COMPANY_FUNCTIONAL_ACCOUNT_REPOSITORY,
+  type CompanyFunctionalAccountRepository,
+} from '../company-functional-accounts/company-functional-account.repository.js';
 import {
   AUDIT_LOG_REPOSITORY,
   type AuditLogRepository,
@@ -89,6 +94,7 @@ type JsonValue =
     HealthService,
     AuditLogService,
     CompanyAuthService,
+    CompanyFunctionalAccountService,
     UnavailableCompanyCredentialVerifier,
     UnavailableCompanySecondVerifier,
     {
@@ -101,6 +107,7 @@ type JsonValue =
         listCompanyAccounts: async () => [],
         markLoginSucceeded: async () => undefined,
         recordLoginAudit: async () => undefined,
+        resolveSession: async () => ({ kind: 'MISSING' }),
         resolveSelectionGrant: async () => null,
       } satisfies CompanyAuthRepository,
     },
@@ -111,6 +118,17 @@ type JsonValue =
     {
       provide: COMPANY_SECOND_VERIFIER,
       useExisting: UnavailableCompanySecondVerifier,
+    },
+    {
+      provide: COMPANY_FUNCTIONAL_ACCOUNT_REPOSITORY,
+      useValue: {
+        createCompanyAccount: async () => {
+          throw new Error('OPENAPI_GENERATION_ONLY');
+        },
+        findCompanyAccountByMobile: async () => null,
+        isCompanyActive: async () => false,
+        listCompanyAccounts: async () => ({ items: [], total: 0 }),
+      } satisfies CompanyFunctionalAccountRepository,
     },
     DenyAuditActorResolver,
     {

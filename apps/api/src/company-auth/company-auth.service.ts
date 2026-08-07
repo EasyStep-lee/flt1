@@ -5,6 +5,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { SafeApiError } from '../http/api-error.js';
 import type {
   CompanyLoginRequestDto,
+  CompanyWorkspaceResponseDto,
   SelectWorkspaceRequestDto,
   SessionResponseDto,
   WorkspaceChoiceDto,
@@ -15,8 +16,10 @@ import {
   type CompanyAuthRepository,
   type CompanyFunctionalAccountRecord,
   type CompanyLoginAuditRecord,
+  type CompanyAuthSessionRecord,
   type CompanyUserRecord,
 } from './company-auth.repository.js';
+import { resolveCompanyWorkspace } from './company-workspace.policy.js';
 import {
   COMPANY_CREDENTIAL_VERIFIER,
   COMPANY_SECOND_VERIFIER,
@@ -31,6 +34,7 @@ const SESSION_TTL_MS = 8 * 60 * 60 * 1000;
 const SELECTION_TTL_MS = 10 * 60 * 1000;
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
 const RATE_LIMIT_FAILURES = 5;
+const SESSION_VALUE_PATTERN = /^[A-Za-z0-9_-]{43}$/u;
 const FORBIDDEN_LOGIN_FIELDS = new Set([
   'companyId',
   'functionalAccountId',
@@ -79,6 +83,19 @@ const selectionNonceFor = (userId: string, requestId: string): string =>
     .digest('base64url');
 
 const normalizeLoginAccount = (value: string): string => value.trim().toLowerCase();
+
+const sessionTokenFromCookie = (cookieHeader?: string): string | null => {
+  if (!cookieHeader) return null;
+  for (const part of cookieHeader.split(';')) {
+    const separator = part.indexOf('=');
+    if (separator < 1) continue;
+    const name = part.slice(0, separator).trim();
+    if (name !== '__Host-fulishe-company-admin') continue;
+    const value = part.slice(separator + 1).trim();
+    return SESSION_VALUE_PATTERN.test(value) ? value : null;
+  }
+  return null;
+};
 
 const isEligibleAccount = (
   account: CompanyFunctionalAccountRecord,
@@ -197,6 +214,70 @@ export class CompanyAuthService {
       body: toSession(result.session),
       replayed: result.replayed,
       ...(result.replayed ? {} : { sessionToken: token }),
+    };
+  }
+
+  async resolveActiveSession(cookieHeader?: string): Promise<CompanyAuthSessionRecord> {
+    const token = sessionTokenFromCookie(cookieHeader);
+    if (!token) {
+      throw new SafeApiError(
+        401,
+        'AUTHENTICATION_REQUIRED',
+        '公司职能会话缺失或格式无效',
+      );
+    }
+    const result = await this.repository.resolveSession(
+      hash(token),
+      new Date().toISOString(),
+    );
+    if (result.kind === 'MISSING') {
+      throw new SafeApiError(
+        401,
+        'AUTHENTICATION_REQUIRED',
+        '公司职能会话不存在',
+      );
+    }
+    if (result.kind === 'REVOKED') {
+      throw new SafeApiError(401, 'AUTH_SESSION_REVOKED', '原职能会话已撤销');
+    }
+    if (result.kind === 'INVALID') {
+      throw new SafeApiError(403, 'WORKSPACE_FORBIDDEN', '公司职能会话已失效');
+    }
+    return result.session;
+  }
+
+  async currentWorkspace(
+    cookieHeader: string | undefined,
+    route: unknown,
+  ): Promise<CompanyWorkspaceResponseDto> {
+    if (
+      typeof route !== 'string' ||
+      route.length > 255 ||
+      !route.startsWith('/company-admin/workspaces/')
+    ) {
+      throw new SafeApiError(422, 'VALIDATION_FAILED', '工作区路由格式不正确');
+    }
+    const session = await this.resolveActiveSession(cookieHeader);
+    const workspace = resolveCompanyWorkspace(session.accountTypeCode);
+    if (
+      !workspace ||
+      session.workspaceRoute !== workspace.workspaceRoute ||
+      route !== workspace.workspaceRoute
+    ) {
+      throw new SafeApiError(403, 'WORKSPACE_FORBIDDEN', '无权访问该职能页面');
+    }
+    return {
+      accountTypeCode: workspace.accountTypeCode,
+      accountTypeName: workspace.accountTypeName,
+      menuItems: [
+        {
+          key: 'workspace',
+          label: workspace.menuLabel,
+          route: workspace.workspaceRoute,
+        },
+      ],
+      pageId: workspace.pageId,
+      workspaceRoute: workspace.workspaceRoute,
     };
   }
 

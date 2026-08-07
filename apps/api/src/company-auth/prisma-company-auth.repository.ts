@@ -13,6 +13,7 @@ import type {
   CompanyUserRecord,
   IssueCompanySessionCommand,
   IssueCompanySessionResult,
+  ResolveCompanySessionResult,
 } from './company-auth.repository.js';
 
 type TransactionClient = Prisma.TransactionClient;
@@ -107,6 +108,16 @@ const sessionInclude = {
     select: {
       accountType: { select: { code: true } },
       companyId: true,
+    },
+  },
+} satisfies Prisma.AuthSessionInclude;
+
+const activeSessionInclude = {
+  functionalAccount: {
+    include: {
+      accountType: {
+        select: { code: true, ownerType: true, status: true, workspaceRoute: true },
+      },
     },
   },
 } satisfies Prisma.AuthSessionInclude;
@@ -287,6 +298,44 @@ export class PrismaCompanyAuthRepository implements CompanyAuthRepository {
         userType: record.userType,
       },
     });
+  }
+
+  async resolveSession(
+    sessionHash: string,
+    nowValue: string,
+  ): Promise<ResolveCompanySessionResult> {
+    const session = await this.prisma.authSession.findUnique({
+      where: { sessionHash },
+      include: activeSessionInclude,
+    });
+    if (!session) return { kind: 'MISSING' };
+    if (session.revokedAt) return { kind: 'REVOKED' };
+
+    const now = new Date(nowValue);
+    const account = session.functionalAccount;
+    const user = await this.prisma.companyUser.findUnique({
+      where: { id: session.userId },
+      select: { companyId: true, status: true },
+    });
+    if (
+      session.userType !== 'COMPANY_USER' ||
+      session.expiresAt <= now ||
+      !user ||
+      user.status !== 'ACTIVE' ||
+      account.identityType !== 'COMPANY_USER' ||
+      account.identityId !== session.userId ||
+      account.ownerType !== 'COMPANY' ||
+      !account.companyId ||
+      account.companyId !== user.companyId ||
+      account.status !== 'ACTIVE' ||
+      (account.expiresAt !== null && account.expiresAt <= now) ||
+      account.accountType.ownerType !== 'COMPANY' ||
+      account.accountType.status !== 'ACTIVE' ||
+      account.accountType.workspaceRoute !== session.workspaceRoute
+    ) {
+      return { kind: 'INVALID' };
+    }
+    return { kind: 'ACTIVE', session: toSession(session) };
   }
 
   async resolveSelectionGrant(

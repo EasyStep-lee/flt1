@@ -10,6 +10,7 @@ import type {
   CompanyCredentialVerifier,
   CompanySecondVerifier,
 } from './company-auth/company-auth.security.js';
+import type { CompanyFunctionalAccountRepository } from './company-functional-accounts/company-functional-account.repository.js';
 
 import { AppModule } from './app.module.js';
 import {
@@ -50,6 +51,7 @@ export interface CreateApplicationOptions {
   readonly companyAuthRepository?: CompanyAuthRepository;
   readonly companyCredentialVerifier?: CompanyCredentialVerifier;
   readonly companySecondVerifier?: CompanySecondVerifier;
+  readonly companyFunctionalAccountRepository?: CompanyFunctionalAccountRepository;
   readonly logger?: LoggerService | false;
 }
 
@@ -98,6 +100,12 @@ export const createApplication = async (
       : {}),
     ...(options.companySecondVerifier
       ? { companySecondVerifier: options.companySecondVerifier }
+      : {}),
+    ...(options.companyFunctionalAccountRepository
+      ? {
+          companyFunctionalAccountRepository:
+            options.companyFunctionalAccountRepository,
+        }
       : {}),
   };
   const logger = options.logger === false ? false : options.logger ?? new SafeJsonLogger();
