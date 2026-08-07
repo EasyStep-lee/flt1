@@ -143,9 +143,10 @@
   "github": {
     "repository": "EasyStep-lee/flt1",
     "issue": 27,
-    "pullRequest": null,
-    "pullRequestUrl": "NOT_CREATED",
-    "pullRequestState": "NOT_CREATED",
+    "pullRequest": 28,
+    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/28",
+    "pullRequestState": "DRAFT",
+    "draftHeadAtCreation": "4a00801e40df283bf7ac998f5b3e3aff70ff8c5f",
     "exactHeadCi": "NOT_EXECUTED",
     "review": "NOT_EXECUTED",
     "merge": "NOT_EXECUTED",

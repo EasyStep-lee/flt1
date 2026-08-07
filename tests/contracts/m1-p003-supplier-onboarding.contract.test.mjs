@@ -184,7 +184,7 @@ test('M1-P003 retains its local evidence after PR and main CI closure', async ()
   assert.equal(state.github.repository, 'EasyStep-lee/flt1');
   assert.equal(state.github.currentTaskDelivery.taskId, 'M1-P069');
   assert.ok(
-    ['IN_PROGRESS', 'LOCAL_FOCUSED_PASS', 'DONE_LOCAL_PASS'].includes(
+    ['IN_PROGRESS', 'LOCAL_FOCUSED_PASS', 'DONE_LOCAL_PASS', 'DRAFT_LOCAL_PASS'].includes(
       state.github.currentTaskDelivery.status,
     ),
   );

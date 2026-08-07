@@ -55,7 +55,7 @@ test('M1-P047 evidence remains closed after PR 20 merge as the project advances'
   assert.equal(state.github.mergeCommitSha, 'NOT_EXECUTED_FOR_M1_P069');
   assert.equal(state.github.currentTaskDelivery.taskId, 'M1-P069');
   assert.ok(
-    ['IN_PROGRESS', 'LOCAL_FOCUSED_PASS', 'DONE_LOCAL_PASS'].includes(
+    ['IN_PROGRESS', 'LOCAL_FOCUSED_PASS', 'DONE_LOCAL_PASS', 'DRAFT_LOCAL_PASS'].includes(
       state.github.currentTaskDelivery.status,
     ),
   );
