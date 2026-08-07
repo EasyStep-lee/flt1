@@ -51,8 +51,8 @@ test('M1-P066 remains bound to its merged exact-head and post-merge CI evidence'
   assert.equal(evidence.negativeTests.length, 4);
   assert.ok(evidence.negativeTests.every(({ status }) => status === 'PASS'));
 
-  assert.equal(state.execution.currentTask, 'M1-P067');
-  assert.equal(state.execution.nextAllowedTask, 'M1-P067');
+  assert.equal(state.execution.currentTask, 'M1-P068');
+  assert.equal(state.execution.nextAllowedTask, 'M1-P068');
   assert.equal(
     state.execution.prohibitedUntilGate.some((item) => item.includes('M1-P066')),
     false,
@@ -62,7 +62,8 @@ test('M1-P066 remains bound to its merged exact-head and post-merge CI evidence'
   assert.match(evidence.externalEvidence.mainPostMergeCi, /31089444537/u);
 
   assert.match(tasks, /M1-P066[^\r\n]*DONE[^\r\n]*CI_PASS/u);
-  assert.match(tasks, /M1-P067[^\r\n]*(?:IN_PROGRESS|DONE)[^\r\n]*(?:NOT_EXECUTED|LOCAL_PASS)/u);
+  assert.match(tasks, /M1-P067[^\r\n]*DONE[^\r\n]*CI_PASS/u);
+  assert.match(tasks, /M1-P068[^\r\n]*IN_PROGRESS[^\r\n]*LOCAL_PASS/u);
   assert.match(p0, /P0-066[^\r\n]*CI_PASS/u);
   assert.match(pages, /PAGE-001[^\r\n]*IMPLEMENTED[^\r\n]*LOCAL_PASS/u);
   assert.match(pages, /PAGE-002[^\r\n]*IMPLEMENTED[^\r\n]*LOCAL_PASS/u);

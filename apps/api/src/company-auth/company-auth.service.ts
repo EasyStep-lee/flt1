@@ -5,6 +5,10 @@ import { Inject, Injectable } from '@nestjs/common';
 import { SafeApiError } from '../http/api-error.js';
 import type {
   CompanyLoginRequestDto,
+  CompanyWorkspaceModuleDetailDto,
+  CompanyWorkspaceModuleItemDto,
+  CompanyWorkspacePageQueryDto,
+  CompanyWorkspacePageResponseDto,
   CompanyWorkspaceResponseDto,
   SelectWorkspaceRequestDto,
   SessionResponseDto,
@@ -19,6 +23,10 @@ import {
   type CompanyAuthSessionRecord,
   type CompanyUserRecord,
 } from './company-auth.repository.js';
+import {
+  resolveCompanyWorkspaceModules,
+  type CompanyWorkspaceModuleDefinition,
+} from './company-workspace-page.policy.js';
 import { resolveCompanyWorkspace } from './company-workspace.policy.js';
 import {
   COMPANY_CREDENTIAL_VERIFIER,
@@ -54,6 +62,23 @@ const FORBIDDEN_SELECTION_FIELDS = new Set([
   'workspaceRoute',
 ]);
 const SELECTION_FIELDS = new Set(['secondVerificationCode', 'selectionNonce']);
+const WORKSPACE_PAGE_FIELDS = new Set([
+  'availability',
+  'keyword',
+  'moduleKey',
+  'route',
+]);
+const FORBIDDEN_WORKSPACE_PAGE_FIELDS = new Set([
+  'accountTypeCode',
+  'companyId',
+  'functionalAccountId',
+  'identityId',
+  'ownerType',
+  'pageId',
+  'userId',
+  'workspaceRoute',
+]);
+const WORKSPACE_MODULE_KEY_PATTERN = /^[a-z][a-z0-9-]{1,63}$/u;
 
 export interface CompanyAuthRequestContext {
   readonly deviceInfo: Readonly<Record<string, unknown>>;
@@ -96,6 +121,100 @@ const sessionTokenFromCookie = (cookieHeader?: string): string | null => {
   }
   return null;
 };
+
+interface NormalizedWorkspacePageQuery {
+  readonly availability: 'ALL' | 'AVAILABLE' | 'DEFERRED';
+  readonly keyword: string;
+  readonly moduleKey?: string;
+  readonly route: string;
+}
+
+const normalizeWorkspacePageQuery = (
+  query: CompanyWorkspacePageQueryDto & Record<string, unknown>,
+): NormalizedWorkspacePageQuery => {
+  for (const key of Object.keys(query)) {
+    if (FORBIDDEN_WORKSPACE_PAGE_FIELDS.has(key)) {
+      throw new SafeApiError(
+        403,
+        'DATA_SCOPE_FORBIDDEN',
+        '工作区上下文只能由服务端会话确定',
+      );
+    }
+    if (!WORKSPACE_PAGE_FIELDS.has(key)) {
+      throw new SafeApiError(422, 'VALIDATION_FAILED', '工作区查询字段不正确');
+    }
+  }
+  if (
+    typeof query.route !== 'string' ||
+    query.route.length > 255 ||
+    !query.route.startsWith('/company-admin/workspaces/')
+  ) {
+    throw new SafeApiError(422, 'VALIDATION_FAILED', '工作区路由格式不正确');
+  }
+  if (query.keyword !== undefined && typeof query.keyword !== 'string') {
+    throw new SafeApiError(422, 'VALIDATION_FAILED', '关键词格式不正确');
+  }
+  const keyword = query.keyword?.trim() ?? '';
+  if (keyword.length > 64) {
+    throw new SafeApiError(422, 'VALIDATION_FAILED', '关键词长度超出限制');
+  }
+  const availability = query.availability ?? 'ALL';
+  if (!['ALL', 'AVAILABLE', 'DEFERRED'].includes(availability)) {
+    throw new SafeApiError(422, 'VALIDATION_FAILED', '模块状态筛选不正确');
+  }
+  if (
+    query.moduleKey !== undefined &&
+    (typeof query.moduleKey !== 'string' ||
+      !WORKSPACE_MODULE_KEY_PATTERN.test(query.moduleKey))
+  ) {
+    throw new SafeApiError(422, 'VALIDATION_FAILED', '模块键格式不正确');
+  }
+  return {
+    availability,
+    keyword,
+    ...(query.moduleKey ? { moduleKey: query.moduleKey } : {}),
+    route: query.route,
+  };
+};
+
+const toWorkspaceModuleItem = (
+  value: CompanyWorkspaceModuleDefinition,
+): CompanyWorkspaceModuleItemDto => ({
+  availability: value.availability,
+  dataBoundary: value.dataBoundary,
+  deliveryStage: value.deliveryStage,
+  description: value.description,
+  label: value.label,
+  moduleKey: value.moduleKey,
+});
+
+const toWorkspaceModuleDetail = (
+  value: CompanyWorkspaceModuleDefinition,
+): CompanyWorkspaceModuleDetailDto => ({
+  ...toWorkspaceModuleItem(value),
+  sections: value.sections,
+  timeline: [
+    {
+      code: 'WORKSPACE_ROUTE_READY',
+      label: '固定职能路由已就绪',
+      stage: 'M1',
+      status: 'DONE',
+    },
+    value.availability === 'AVAILABLE'
+      ? {
+          code: 'MODULE_AVAILABLE',
+          label: '当前模块可用',
+          stage: value.deliveryStage,
+          status: 'DONE',
+        }
+      : {
+          code: 'BUSINESS_STAGE_DEFERRED',
+          label: '业务能力按阶段交付',
+          stage: value.deliveryStage,
+          status: 'DEFERRED',
+        },
+  ],
+});
 
 const isEligibleAccount = (
   account: CompanyFunctionalAccountRecord,
@@ -246,10 +365,10 @@ export class CompanyAuthService {
     return result.session;
   }
 
-  async currentWorkspace(
+  private async resolveWorkspaceForRoute(
     cookieHeader: string | undefined,
     route: unknown,
-  ): Promise<CompanyWorkspaceResponseDto> {
+  ): Promise<NonNullable<ReturnType<typeof resolveCompanyWorkspace>>> {
     if (
       typeof route !== 'string' ||
       route.length > 255 ||
@@ -266,6 +385,72 @@ export class CompanyAuthService {
     ) {
       throw new SafeApiError(403, 'WORKSPACE_FORBIDDEN', '无权访问该职能页面');
     }
+    return workspace;
+  }
+
+  async workspacePage(
+    cookieHeader: string | undefined,
+    query: CompanyWorkspacePageQueryDto & Record<string, unknown>,
+  ): Promise<CompanyWorkspacePageResponseDto> {
+    const normalized = normalizeWorkspacePageQuery(query);
+    const workspace = await this.resolveWorkspaceForRoute(
+      cookieHeader,
+      normalized.route,
+    );
+    const catalog = resolveCompanyWorkspaceModules(workspace.accountTypeCode);
+    const keyword = normalized.keyword.toLocaleLowerCase('zh-CN');
+    const items = catalog.filter((item) => {
+      if (
+        normalized.availability !== 'ALL' &&
+        item.availability !== normalized.availability
+      ) {
+        return false;
+      }
+      if (!keyword) return true;
+      return [item.moduleKey, item.label, item.description, item.dataBoundary]
+        .join(' ')
+        .toLocaleLowerCase('zh-CN')
+        .includes(keyword);
+    });
+    const selected = normalized.moduleKey
+      ? catalog.find(({ moduleKey }) => moduleKey === normalized.moduleKey)
+      : undefined;
+    if (normalized.moduleKey && !selected) {
+      throw new SafeApiError(
+        404,
+        'WORKSPACE_MODULE_NOT_FOUND',
+        '当前职能页面不存在该模块',
+      );
+    }
+    return {
+      accountTypeCode: workspace.accountTypeCode,
+      accountTypeName: workspace.accountTypeName,
+      filters: {
+        availability: normalized.availability,
+        keyword: normalized.keyword,
+      },
+      items: items.map(toWorkspaceModuleItem),
+      pageId: workspace.pageId,
+      selectedModule: selected ? toWorkspaceModuleDetail(selected) : null,
+      summary: {
+        availableTotal: catalog.filter(
+          ({ availability }) => availability === 'AVAILABLE',
+        ).length,
+        catalogTotal: catalog.length,
+        deferredTotal: catalog.filter(
+          ({ availability }) => availability === 'DEFERRED',
+        ).length,
+        filteredTotal: items.length,
+      },
+      workspaceRoute: workspace.workspaceRoute,
+    };
+  }
+
+  async currentWorkspace(
+    cookieHeader: string | undefined,
+    route: unknown,
+  ): Promise<CompanyWorkspaceResponseDto> {
+    const workspace = await this.resolveWorkspaceForRoute(cookieHeader, route);
     return {
       accountTypeCode: workspace.accountTypeCode,
       accountTypeName: workspace.accountTypeName,

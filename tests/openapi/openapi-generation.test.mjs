@@ -114,6 +114,7 @@ test('generated contract exposes health, merchant identity, supplier onboarding 
     '/v1/audit/events',
     '/v1/company-auth/login',
     '/v1/company-auth/workspace/current',
+    '/v1/company-auth/workspace/page',
     '/v1/company-auth/workspaces/{accountId}/select',
     '/v1/company/suppliers',
     '/v1/company/suppliers/{supplierId}/review',
@@ -132,6 +133,10 @@ test('generated contract exposes health, merchant identity, supplier onboarding 
   assert.equal(
     spec.paths['/v1/company-auth/workspace/current'].get.operationId,
     'companyauth.currentWorkspace',
+  );
+  assert.equal(
+    spec.paths['/v1/company-auth/workspace/page'].get.operationId,
+    'companyauth.workspacePage',
   );
   assert.equal(
     spec.paths['/v1/company/suppliers'].get.operationId,
@@ -171,6 +176,12 @@ test('generated contract exposes health, merchant identity, supplier onboarding 
       'AuditQueryDto',
       'CompanyLoginRequestDto',
       'CompanyWorkspaceMenuItemDto',
+      'CompanyWorkspaceModuleDetailDto',
+      'CompanyWorkspaceModuleItemDto',
+      'CompanyWorkspaceModuleTimelineEventDto',
+      'CompanyWorkspacePageFiltersDto',
+      'CompanyWorkspacePageResponseDto',
+      'CompanyWorkspacePageSummaryDto',
       'CompanyWorkspaceResponseDto',
       'CreateFunctionalAccountRequestDto',
       'FoundationDependencyCheckDto',

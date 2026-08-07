@@ -21,7 +21,11 @@ import {
   CompanyAccountSelectPage,
   CompanyLoginPage,
 } from './company-auth-pages.js';
-import { CompanyWorkspaceGate } from './company-workspace-pages.js';
+import {
+  CompanyWorkspaceGate,
+  CompanyWorkspacePagePanel,
+  type CompanyWorkspace,
+} from './company-workspace-pages.js';
 import { companySessionBoundary } from './session-boundary.js';
 
 type SupplierRow = components['schemas']['SupplierResponseDto'];
@@ -50,7 +54,11 @@ const readErrorMessage = (value: unknown): string => {
   return '供应商列表暂时无法加载。';
 };
 
-function CompanySupplierOpsPage() {
+function CompanySupplierOpsPage({
+  workspace,
+}: {
+  readonly workspace: CompanyWorkspace;
+}) {
   const [status, setStatus] = useState<SupplierStatus | undefined>();
   const [keyword, setKeyword] = useState('');
   const [data, setData] = useState<SupplierPage>();
@@ -250,6 +258,8 @@ function CompanySupplierOpsPage() {
             <Button onClick={() => void load()}>刷新列表</Button>
           </div>
 
+          <CompanyWorkspacePagePanel workspace={workspace} />
+
           <div className="metric-grid">
             <Card bordered={false}>
               <Statistic title="当前结果" value={data?.total ?? 0} suffix="家" />
@@ -339,7 +349,7 @@ function CompanySupplierOpsPage() {
   );
 }
 
-function CompanyAuditPage() {
+function CompanyAuditPage({ workspace }: { readonly workspace: CompanyWorkspace }) {
   const [action, setAction] = useState('');
   const [objectType, setObjectType] = useState('');
   const [data, setData] = useState<AuditEventPage>();
@@ -460,6 +470,7 @@ function CompanyAuditPage() {
             </div>
             <Button onClick={() => void load()}>刷新记录</Button>
           </div>
+          <CompanyWorkspacePagePanel workspace={workspace} />
           <Card className="supplier-table-card" bordered={false}>
             <div className="table-toolbar">
               <Input
@@ -519,9 +530,9 @@ export function CompanyAdminShell() {
       <CompanyWorkspaceGate
         content={
           currentPath === '/company-admin/workspaces/supplier-ops' ? (
-            <CompanySupplierOpsPage />
+            (workspace) => <CompanySupplierOpsPage workspace={workspace} />
           ) : currentPath === '/company-admin/workspaces/audit' ? (
-            <CompanyAuditPage />
+            (workspace) => <CompanyAuditPage workspace={workspace} />
           ) : undefined
         }
         route={currentPath}

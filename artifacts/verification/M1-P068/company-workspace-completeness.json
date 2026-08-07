@@ -1,0 +1,148 @@
+{
+  "schemaVersion": "1.1.0",
+  "taskId": "M1-P068",
+  "p0Id": "P0-068",
+  "status": "LOCAL_PASS",
+  "verifiedAt": "2026-08-06T22:52:20-04:00",
+  "baseline": {
+    "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+    "baseBranch": "main",
+    "baseCommit": "aa7b9a7a7f8a8b763c1e17c5f471996cc0af9a2e",
+    "branch": "codex/m1-m1-p068",
+    "implementationCommit": "a2cb8a66ac4b3827757203dfde5c10dcb1f08f12"
+  },
+  "scope": {
+    "companyWorkspaceCount": 10,
+    "pageIds": [
+      "PAGE-003",
+      "PAGE-004",
+      "PAGE-005",
+      "PAGE-006",
+      "PAGE-007",
+      "PAGE-008",
+      "PAGE-009",
+      "PAGE-010",
+      "PAGE-011",
+      "PAGE-012"
+    ],
+    "apiContracts": ["API-083"],
+    "laterBusinessDataImplemented": false,
+    "nextTask": "M1-P069",
+    "nextTaskAllowed": false
+  },
+  "contract": {
+    "contextSource": "SERVER_SESSION_ONLY",
+    "routeMatch": "EXACT_FIXED_WORKSPACE_ROUTE",
+    "moduleCatalogIsolation": "ROLE_SCOPED",
+    "queryAndDetailStateIsolation": "RESET_ON_ROLE_OR_ROUTE_CHANGE",
+    "responseWhitelist": "NO_INTERNAL_OWNER_OR_PRICE_OR_SETTLEMENT_FIELDS",
+    "cachePolicy": "PRIVATE_NO_STORE",
+    "moduleAvailability": "AVAILABLE_OR_DEFERRED_WITHOUT_FAKE_BUSINESS_RECORDS"
+  },
+  "uiStates": [
+    "loading",
+    "empty",
+    "error",
+    "permission-denied",
+    "offline-or-timeout",
+    "success"
+  ],
+  "redEvidence": {
+    "command": "pnpm --filter @fulishe/api build && pnpm exec vitest run --config ./vitest.config.ts --project api-contract apps/api/test/supertest/company-workspace-page-api.test.mjs",
+    "result": "FAIL_4_OF_4_EXPECTED",
+    "cause": "API-083 and WORKSPACE_MODULE_NOT_FOUND behavior did not exist",
+    "assertionsWeakened": false
+  },
+  "focusedEvidence": [
+    {
+      "name": "API-083 behavior",
+      "command": "pnpm exec vitest run --config ./vitest.config.ts --project api-contract apps/api/test/supertest/company-workspace-page-api.test.mjs",
+      "result": "PASS_4_OF_4"
+    },
+    {
+      "name": "company auth and workspace regression",
+      "command": "pnpm exec vitest run --config ./vitest.config.ts --project api-contract apps/api/test/supertest/company-workspace-page-api.test.mjs apps/api/test/supertest/company-workspace-api.test.mjs apps/api/test/supertest/company-auth-api.test.mjs",
+      "result": "PASS_20_OF_20"
+    },
+    {
+      "name": "API-083 OpenAPI contract",
+      "command": "node --test tests/openapi/m1-p068-company-workspace-page-contract.test.mjs",
+      "result": "PASS_1_OF_1"
+    },
+    {
+      "name": "P0-068 Chromium behavior",
+      "command": "pnpm exec playwright test --config playwright.p0.config.ts tests/e2e/p0/p0-068-company-workspace-completeness.spec.ts",
+      "result": "PASS_2_OF_2"
+    },
+    {
+      "name": "affected P003/P045/P046/P067 Chromium regression",
+      "command": "pnpm exec playwright test --config playwright.p0.config.ts tests/e2e/p0/p0-003-supplier-onboarding.spec.ts tests/e2e/p0/p0-045-audit-log.spec.ts tests/e2e/p0/p0-046-sensitive-data-isolation.spec.ts tests/e2e/p0/p0-067-company-workspaces.spec.ts",
+      "result": "PASS_6_OF_6"
+    },
+    {
+      "name": "lint",
+      "command": "pnpm lint",
+      "result": "PASS"
+    },
+    {
+      "name": "typecheck",
+      "command": "pnpm typecheck",
+      "result": "PASS"
+    }
+  ],
+  "negativeTests": [
+    {
+      "id": "NEG-M1-068-01",
+      "scenario": "每个职能页面均暴露完整加载、空态、错误、权限、离线和成功状态",
+      "status": "PASS"
+    },
+    {
+      "id": "NEG-M1-068-02",
+      "scenario": "跨职能路由、模块目录、查询和详情上下文不合并",
+      "status": "PASS"
+    },
+    {
+      "id": "NEG-M1-068-03",
+      "scenario": "错误和成功响应不泄露内部归属、令牌、供应价、结算或银行字段",
+      "status": "PASS"
+    }
+  ],
+  "fullVerification": {
+    "status": "PASS_17_OF_17",
+    "stepsPassed": 17,
+    "commit": "a2cb8a66ac4b3827757203dfde5c10dcb1f08f12",
+    "report": "artifacts/test-results/verification/pnpm-verify.json"
+  },
+  "migration": {
+    "newMigrations": [],
+    "schemaChanged": false,
+    "rehearsal": "PASS_EMPTY_2_UPGRADE_2_RESTORE_2_PRODUCT_8_CLEANUP_PASS",
+    "report": "artifacts/verification/M1-P068/prisma-migration-rehearsal.json",
+    "rollback": "NOT_APPLICABLE_NO_SCHEMA_CHANGE"
+  },
+  "github": {
+    "repository": "EasyStep-lee/flt1",
+    "issue": 25,
+    "pullRequest": 26,
+    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/26",
+    "pullRequestState": "DRAFT",
+    "exactHeadCi": "NOT_EXECUTED",
+    "review": "NOT_EXECUTED",
+    "merge": "NOT_EXECUTED",
+    "mainPostMergeCi": "NOT_EXECUTED"
+  },
+  "environment": {
+    "local": "LOCAL_WINDOWS_CHROMIUM",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_REQUIRED_PC_WEB_SLICE",
+    "production": "NOT_EXECUTED"
+  },
+  "risks": [
+    "API-083 currently exposes capability metadata rather than M2-M5 business records; later slices must replace DEFERRED modules with real role-scoped APIs without widening DTOs.",
+    "Production identity source and second verification remain external integrations and default-deny."
+  ],
+  "rollback": {
+    "application": "git revert the M1-P068 implementation and evidence commits",
+    "database": "not applicable because no schema or migration changed"
+  }
+}

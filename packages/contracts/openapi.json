@@ -32,6 +32,7 @@
               "AUTH_SESSION_REVOKED",
               "RATE_LIMITED",
               "WORKSPACE_MENU_VIOLATION",
+              "WORKSPACE_MODULE_NOT_FOUND",
               "WORKSPACE_SELECTION_REQUIRED",
               "WORKSPACE_SESSION_CONFLICT",
               "AUDIT_IMMUTABLE",
@@ -295,6 +296,269 @@
           "key",
           "label",
           "route"
+        ],
+        "type": "object"
+      },
+      "CompanyWorkspaceModuleDetailDto": {
+        "properties": {
+          "availability": {
+            "enum": [
+              "AVAILABLE",
+              "DEFERRED"
+            ],
+            "type": "string"
+          },
+          "dataBoundary": {
+            "maxLength": 512,
+            "type": "string"
+          },
+          "deliveryStage": {
+            "enum": [
+              "M1",
+              "M2",
+              "M3",
+              "M4",
+              "M5"
+            ],
+            "type": "string"
+          },
+          "description": {
+            "maxLength": 512,
+            "type": "string"
+          },
+          "label": {
+            "maxLength": 128,
+            "type": "string"
+          },
+          "moduleKey": {
+            "maxLength": 64,
+            "type": "string"
+          },
+          "sections": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 8,
+            "type": "array"
+          },
+          "timeline": {
+            "items": {
+              "$ref": "#/components/schemas/CompanyWorkspaceModuleTimelineEventDto"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "moduleKey",
+          "label",
+          "description",
+          "deliveryStage",
+          "availability",
+          "dataBoundary",
+          "sections",
+          "timeline"
+        ],
+        "type": "object"
+      },
+      "CompanyWorkspaceModuleItemDto": {
+        "properties": {
+          "availability": {
+            "enum": [
+              "AVAILABLE",
+              "DEFERRED"
+            ],
+            "type": "string"
+          },
+          "dataBoundary": {
+            "maxLength": 512,
+            "type": "string"
+          },
+          "deliveryStage": {
+            "enum": [
+              "M1",
+              "M2",
+              "M3",
+              "M4",
+              "M5"
+            ],
+            "type": "string"
+          },
+          "description": {
+            "maxLength": 512,
+            "type": "string"
+          },
+          "label": {
+            "maxLength": 128,
+            "type": "string"
+          },
+          "moduleKey": {
+            "maxLength": 64,
+            "type": "string"
+          }
+        },
+        "required": [
+          "moduleKey",
+          "label",
+          "description",
+          "deliveryStage",
+          "availability",
+          "dataBoundary"
+        ],
+        "type": "object"
+      },
+      "CompanyWorkspaceModuleTimelineEventDto": {
+        "properties": {
+          "code": {
+            "maxLength": 64,
+            "type": "string"
+          },
+          "label": {
+            "maxLength": 128,
+            "type": "string"
+          },
+          "stage": {
+            "enum": [
+              "M1",
+              "M2",
+              "M3",
+              "M4",
+              "M5"
+            ],
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "DONE",
+              "DEFERRED"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "label",
+          "stage",
+          "status"
+        ],
+        "type": "object"
+      },
+      "CompanyWorkspacePageFiltersDto": {
+        "properties": {
+          "availability": {
+            "enum": [
+              "ALL",
+              "AVAILABLE",
+              "DEFERRED"
+            ],
+            "type": "string"
+          },
+          "keyword": {
+            "maxLength": 64,
+            "type": "string"
+          }
+        },
+        "required": [
+          "keyword",
+          "availability"
+        ],
+        "type": "object"
+      },
+      "CompanyWorkspacePageResponseDto": {
+        "properties": {
+          "accountTypeCode": {
+            "enum": [
+              "COMPANY_SUPER_ADMIN",
+              "COMPANY_SUPPLIER_OPS",
+              "COMPANY_PRODUCT_OPS",
+              "COMPANY_PRICE_REVIEW",
+              "COMPANY_ORDER_SERVICE",
+              "COMPANY_WELFARE_CARD",
+              "COMPANY_FINANCE",
+              "COMPANY_LOGISTICS",
+              "COMPANY_CONTENT",
+              "COMPANY_AUDIT"
+            ],
+            "type": "string"
+          },
+          "accountTypeName": {
+            "type": "string"
+          },
+          "filters": {
+            "$ref": "#/components/schemas/CompanyWorkspacePageFiltersDto"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CompanyWorkspaceModuleItemDto"
+            },
+            "type": "array"
+          },
+          "pageId": {
+            "enum": [
+              "PAGE-003",
+              "PAGE-004",
+              "PAGE-005",
+              "PAGE-006",
+              "PAGE-007",
+              "PAGE-008",
+              "PAGE-009",
+              "PAGE-010",
+              "PAGE-011",
+              "PAGE-012"
+            ],
+            "type": "string"
+          },
+          "selectedModule": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CompanyWorkspaceModuleDetailDto"
+              }
+            ],
+            "nullable": true,
+            "type": "object"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/CompanyWorkspacePageSummaryDto"
+          },
+          "workspaceRoute": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "accountTypeCode",
+          "accountTypeName",
+          "pageId",
+          "workspaceRoute",
+          "summary",
+          "filters",
+          "items",
+          "selectedModule"
+        ],
+        "type": "object"
+      },
+      "CompanyWorkspacePageSummaryDto": {
+        "properties": {
+          "availableTotal": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "catalogTotal": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "deferredTotal": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "filteredTotal": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "catalogTotal",
+          "availableTotal",
+          "deferredTotal",
+          "filteredTotal"
         ],
         "type": "object"
       },
@@ -1553,6 +1817,100 @@
         "x-fulishe-idempotency": "NONE",
         "x-fulishe-request-dto": "CompanyWorkspaceQueryDto",
         "x-fulishe-response-dto": "CompanyWorkspaceResponseDto",
+        "x-fulishe-response-policy": "NEVER_RETURN_INTERNAL_PRICING"
+      }
+    },
+    "/v1/company-auth/workspace/page": {
+      "get": {
+        "operationId": "companyauth.workspacePage",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "moduleKey",
+            "required": false,
+            "schema": {
+              "maxLength": 64,
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "availability",
+            "required": false,
+            "schema": {
+              "enum": [
+                "ALL",
+                "AVAILABLE",
+                "DEFERRED"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "keyword",
+            "required": false,
+            "schema": {
+              "maxLength": 64,
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "route",
+            "required": true,
+            "schema": {
+              "maxLength": 255,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanyWorkspacePageResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          },
+          "404": {
+            "description": ""
+          },
+          "422": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "companyFunctionalSession": []
+          }
+        ],
+        "summary": "读取当前公司职能页面的隔离模块目录",
+        "tags": [
+          "company-auth"
+        ],
+        "x-fulishe-actor": "COMPANY_FUNCTIONAL_ACCOUNT",
+        "x-fulishe-contract-id": "API-083",
+        "x-fulishe-error-codes": [
+          "AUTHENTICATION_REQUIRED",
+          "AUTH_SESSION_REVOKED",
+          "WORKSPACE_FORBIDDEN",
+          "DATA_SCOPE_FORBIDDEN",
+          "WORKSPACE_MODULE_NOT_FOUND",
+          "VALIDATION_FAILED"
+        ],
+        "x-fulishe-idempotency": "NONE",
+        "x-fulishe-request-dto": "CompanyWorkspacePageQueryDto",
+        "x-fulishe-response-dto": "CompanyWorkspacePageResponseDto",
         "x-fulishe-response-policy": "NEVER_RETURN_INTERNAL_PRICING"
       }
     },

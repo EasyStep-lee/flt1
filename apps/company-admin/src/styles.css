@@ -173,6 +173,85 @@ body {
   font-size: 12px;
 }
 
+.workspace-completeness {
+  display: grid;
+  gap: 18px;
+  margin: 24px 0;
+}
+
+.workspace-completeness-card {
+  display: grid;
+  min-height: 220px;
+  margin: 24px 0;
+  place-items: center;
+  border: 1px solid #dce9e7;
+  border-radius: 16px;
+  box-shadow: 0 14px 36px rgba(23, 63, 70, 0.06);
+}
+
+.workspace-completeness-card .ant-card-body {
+  width: 100%;
+  text-align: center;
+}
+
+.workspace-section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.workspace-section-heading h2.ant-typography {
+  margin: 6px 0 8px;
+  color: #173f46;
+}
+
+.workspace-section-heading p.ant-typography {
+  max-width: 760px;
+  color: #687f84;
+}
+
+.workspace-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.workspace-metric-grid .ant-card,
+.workspace-module-card {
+  border: 1px solid #dce9e7;
+  border-radius: 16px;
+  box-shadow: 0 14px 36px rgba(23, 63, 70, 0.06);
+}
+
+.workspace-module-card .ant-card-body {
+  padding: 0;
+}
+
+.workspace-module-toolbar {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) 190px;
+  gap: 14px;
+  padding: 20px;
+  border-bottom: 1px solid #e6efee;
+}
+
+.workspace-module-card .ant-table-wrapper {
+  padding: 4px 20px 20px;
+}
+
+.workspace-module-name {
+  display: grid;
+  gap: 4px;
+}
+
+.workspace-module-name span {
+  max-width: 420px;
+  color: #71878c;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
 .company-auth-page {
   min-height: 100vh;
   color: #16363d;
@@ -436,8 +515,17 @@ body {
     grid-template-columns: 1fr;
   }
 
-  .table-toolbar {
+  .workspace-metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .table-toolbar,
+  .workspace-module-toolbar {
     grid-template-columns: 1fr;
+  }
+
+  .workspace-section-heading {
+    display: block;
   }
 
   .auth-brand-panel,
