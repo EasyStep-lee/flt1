@@ -34,7 +34,7 @@
 - 账号卡片仅返回 opaque `accountId`、职能名称、所属供应商展示名、固定路由、状态和最近使用时间。
 - API-007 响应不返回 `supplierId`、`userId`、`identityId`、`sessionHash`、token、联系方式、供应价、应付、毛利或银行字段；归属只保存在 HttpOnly Cookie 对应的服务端会话中。
 - 所有认证成功和失败响应 `Cache-Control: private, no-store, max-age=0`；登录和选择页面 `noindex`。
-- 供应商门户通过共享 `openapi-fetch` Cookie 客户端发送请求；即使 `VITE_API_BASE_URL` 指向独立 API 域名也固定 `credentials: include`，页面仍不接触原始会话 token。
+- 供应商门户通过共享 `openapi-fetch` Cookie 客户端发送请求并固定 `credentials: include`，页面不接触原始会话 token。按方案使用同一运营域名：浏览器请求同源 `/v1`，本地 Vite 开发服务器代理到 `127.0.0.1:$API_PORT`，生产由同源网关转发；本切片不开放宽泛跨域 CORS。
 
 ## 页面与失败状态
 

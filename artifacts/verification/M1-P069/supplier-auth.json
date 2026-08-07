@@ -3,14 +3,15 @@
   "taskId": "M1-P069",
   "p0Id": "P0-069",
   "status": "LOCAL_PASS",
-  "verifiedAt": "2026-08-07T01:44:30-04:00",
+  "verifiedAt": "2026-08-07T02:09:21-04:00",
   "baseline": {
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
     "baseBranch": "main",
     "baseCommit": "ff8d5ae6d998a2f05ade69f8e220e2ec5a6527b3",
     "branch": "codex/m1-m1-p069",
     "implementationCommit": "c8c18485afb859487722acf39222a01cff99b531",
-    "hardeningCommit": "97ce454e2ed1c0a81095a4d429db86d8c67999a1"
+    "hardeningCommit": "97ce454e2ed1c0a81095a4d429db86d8c67999a1",
+    "sameOriginRuntimeCommit": "561b4752f70e4d67f58fc828baf4e0e75677f541"
   },
   "scope": {
     "pageIds": ["PAGE-013", "PAGE-014", "PAGE-015"],
@@ -31,7 +32,8 @@
     "inactiveSupplierOrAccount": "FAIL_CLOSED_AND_OLD_SESSION_INVALID",
     "responseWhitelist": "NO_SUPPLIER_USER_IDENTITY_SESSION_OR_TOKEN_FIELDS",
     "cachePolicy": "PRIVATE_NO_STORE_MAX_AGE_ZERO_ON_SUCCESS_AND_FAILURE",
-    "cookieTransport": "CREDENTIALS_INCLUDE_FOR_INDEPENDENT_API_ORIGIN",
+    "cookieTransport": "CREDENTIALS_INCLUDE_ON_SAME_OPERATION_ORIGIN",
+    "browserApiTopology": "SAME_OPERATION_ORIGIN_WITH_LOCAL_VITE_PROXY",
     "selectionReplayRecovery": "ROTATE_OPAQUE_SESSION_HASH_AND_REISSUE_COOKIE",
     "credentialAndSecondVerificationAdapters": "DEFAULT_DENY"
   },
@@ -65,6 +67,11 @@
       "command": "pnpm exec vitest run --config ./vitest.config.ts --project api-contract apps/api/test/supertest/supplier-auth-api.test.mjs",
       "result": "FAIL_1_OF_12_EXPECTED",
       "cause": "same-account selection replay returned no recovery Set-Cookie after an unknown first response"
+    },
+    {
+      "command": "pnpm --filter @fulishe/supplier-portal test",
+      "result": "FAIL_1_OF_3_EXPECTED_HTTP_404",
+      "cause": "the real Vite development server handled same-origin /v1 itself instead of forwarding the request to the API upstream"
     }
   ],
   "focusedEvidence": [
@@ -76,7 +83,7 @@
     {
       "name": "cookie-bound shared web client and supplier portal shell",
       "command": "node --test packages/web-api-client/test/package.test.mjs; pnpm --filter @fulishe/supplier-portal test",
-      "result": "PASS_4_OF_4"
+      "result": "PASS_5_OF_5"
     },
     {
       "name": "supplier auth OpenAPI and migration contracts",
@@ -129,7 +136,7 @@
   "fullVerification": {
     "status": "PASS_17_OF_17",
     "stepsPassed": 17,
-    "commit": "97ce454e2ed1c0a81095a4d429db86d8c67999a1",
+    "commit": "561b4752f70e4d67f58fc828baf4e0e75677f541",
     "report": "artifacts/test-results/verification/pnpm-verify.json"
   },
   "verificationRepairHistory": [
@@ -186,6 +193,7 @@
   "risks": [
     "Production supplier credential verification and second verification integrations remain external and default-deny.",
     "The supplier portal production bundle remains above Vite's 500 kB warning threshold; this is non-blocking for P0-069 but should be code-split before performance acceptance.",
+    "Production is expected to expose /v1 through the same operation origin. A separate API origin requires an explicitly reviewed credentialed-CORS gateway and is not proven by this slice.",
     "The forward migration has only local Docker MySQL evidence; staging and production migration remain NOT_EXECUTED."
   ],
   "rollback": {

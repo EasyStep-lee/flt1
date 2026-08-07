@@ -4,7 +4,7 @@
 
 - 阶段/任务/P0：`M1` / `M1-P069` / `P0-069`；结论仍为 `LOCAL_PASS`，阶段未完成。
 - 唯一方案 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`。
-- 基线：`main@ff8d5ae6d998a2f05ade69f8e220e2ec5a6527b3`；分支：`codex/m1-m1-p069`；最新实现提交：`97ce454e2ed1c0a81095a4d429db86d8c67999a1`。
+- 基线：`main@ff8d5ae6d998a2f05ade69f8e220e2ec5a6527b3`；分支：`codex/m1-m1-p069`；最新实现提交：`561b4752f70e4d67f58fc828baf4e0e75677f541`。
 - 工作区只保留用户已有未跟踪素材；这些素材未暂存、未修改。M1-P070 及商品、价格、订单、支付、配送、售后、对账均未进入。
 
 ## 实际范围
@@ -15,6 +15,7 @@
 - 登录、失败、选择、重放与会话签发追加 `LoginAudit`；供应商/用户/职能账号或类型停用、撤销、过期后旧会话立即失效。
 - 独立 API 域请求固定 `credentials: include`；认证成功和失败均返回 `Cache-Control: private, no-store, max-age=0`。
 - 同账号选择重放在事务内轮换不透明 `sessionHash` 并重新签发 Secure HttpOnly Cookie，仍只有一个活动会话；同一 nonce 改选其他账号返回冲突。
+- 浏览器按方案使用同一运营域名下的 `/v1`；本地 Vite 将 `/v1` 代理到 `127.0.0.1:$API_PORT`，生产同源转发由部署网关提供。本切片未开启宽泛 CORS，也不把独立 API 域冒充已验收拓扑。
 
 ## 数据、迁移与契约
 
@@ -33,11 +34,12 @@
 | 加固 RED：认证错误缓存 | `2/12` 因错误响应无 Cache-Control 按预期失败 |
 | 加固 RED：重放恢复 | `1/12` 因同账号重放无 Set-Cookie 按预期失败 |
 | API/Prisma focused GREEN | `2` 文件、`16/16`；组合业务 focused 为 `26/26` |
-| Web 客户端与供应商门户 GREEN | `4/4` |
+| Web 客户端与供应商门户 GREEN | `5/5`（含真实同源开发代理行为） |
+| 同源开发代理 RED / GREEN | 实际 Vite 请求先为 `404`；配置后上游路径、Host 和 `Set-Cookie` 转发 `3/3` 通过 |
 | `pnpm lint` / `pnpm typecheck` | 均退出码 `0` |
-| 加固实现 head `pnpm verify` | `17/17`，P0 E2E `18/18`，迁移 `empty=2/upgrade=2/restore=2/product=9/cleanup=PASS` |
+| 同源运行实现 head `pnpm verify` | `17/17`，P0 E2E `18/18`，迁移 `empty=2/upgrade=2/restore=2/product=9/cleanup=PASS`，秘密扫描 `483` 文件 |
 
-旧远程 head `e553a8464233c88f450d457b6bf58735d5b2de85` 的 Actions run `31149928452` 曾通过，但加固提交后只能作为历史证据；新 head 必须重新通过 CI。
+远程 head `760d0c416983b44e003cbfd6a88fa1358065118a` 的 Actions run `31151669634` 曾通过，但同源运行入口修复后只能作为历史证据；新 head 必须重新通过 CI。
 
 ## P0、环境与缺口
 
@@ -45,6 +47,7 @@
 - 本地环境：Windows、Node 22.23.1、pnpm 10.12.1、Docker MySQL、Playwright Chromium。
 - Staging/生产均 `NOT_EXECUTED`。本切片为 PC Web，不要求微信真机；生产供应商凭证与二次验证 Adapter 继续默认拒绝，真实身份源为外部接入缺口。
 - 供应商门户 bundle 仍有超过 500 kB 的非阻断告警；需在性能验收前拆包。本地迁移演练不能替代 staging/生产迁移证据。
+- Chromium loopback 诊断实际接受 `Secure`、`HttpOnly`、`SameSite=Strict` 的 `__Host-` Cookie，但这只是本地诊断，不升级为 staging 或生产证据；独立 API origin 的 credentialed CORS 未实现也未验收。
 
 ## GitHub、回滚与下一步
 
