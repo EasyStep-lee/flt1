@@ -3,7 +3,7 @@
   "taskId": "M1-P069",
   "p0Id": "P0-069",
   "status": "LOCAL_PASS",
-  "verifiedAt": "2026-08-07T05:20:53-04:00",
+  "verifiedAt": "2026-08-07T05:44:40-04:00",
   "baseline": {
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
     "baseBranch": "main",
@@ -18,7 +18,8 @@
     "expiredAccountVisibilityFixCommit": "72f3696ca3a2dfb0756cb34e69a183bc488f62c6",
     "concurrentReplayCookieFixCommit": "b8a69dc3d6eef959451e8ff670eb7c7feef2a0f9",
     "directLoginReplayFixCommit": "c8908ef28ab2bc643128b5238678a64785422f01",
-    "verificationCodeValidationFixCommit": "8e0db54175fc41bfa8653450623329542333d04e"
+    "verificationCodeValidationFixCommit": "8e0db54175fc41bfa8653450623329542333d04e",
+    "selectionNonceSecretBindingFixCommit": "624e799431e0cf8977d8efba9b1a5cb5b3fadfe5"
   },
   "scope": {
     "pageIds": ["PAGE-013", "PAGE-014", "PAGE-015"],
@@ -43,6 +44,7 @@
     "cookieTransport": "CREDENTIALS_INCLUDE_ON_SAME_OPERATION_ORIGIN",
     "browserApiTopology": "SAME_OPERATION_ORIGIN_WITH_LOCAL_VITE_PROXY",
     "selectionReplayRecovery": "STABLE_HMAC_COOKIE_FOR_DIRECT_LOGIN_OR_SELECTION_RETRY_AND_ANY_RESPONSE_ORDER",
+    "selectionNonceDerivation": "DOMAIN_SEPARATED_HMAC_SERVER_SECRET",
     "verificationCodeValidation": "OPTIONAL_STRING_MAX_16_REJECT_BEFORE_ADAPTER_OR_SESSION_SIDE_EFFECT",
     "sessionStorage": "SHA256_TOKEN_ONLY_NO_RAW_TOKEN",
     "sessionSigningKey": "REMOTE_REQUIRED_BASE64URL_SECRET_ROTATION_REVOKES_EXISTING_SUPPLIER_SESSIONS",
@@ -123,13 +125,18 @@
       "command": "pnpm exec vitest run --config vitest.config.ts --project api-contract apps/api/test/supertest/supplier-auth-api.test.mjs",
       "result": "FAIL_2_OF_18_EXPECTED",
       "cause": "object and overlength optional verification codes reached the credential or second-verification adapter instead of failing input validation before session side effects"
+    },
+    {
+      "command": "pnpm exec vitest run --config vitest.config.ts --project api-contract apps/api/test/supertest/supplier-auth-api.test.mjs",
+      "result": "FAIL_1_OF_19_EXPECTED",
+      "cause": "different server signing keys generated the same selection nonce because the previous public SHA-256 derivation was not bound to a server secret"
     }
   ],
   "focusedEvidence": [
     {
       "name": "supplier auth, approval activation, and regression behavior",
       "command": "pnpm exec vitest run --config ./vitest.config.ts --project api-contract apps/api/test/supertest/supplier-auth-api.test.mjs apps/api/test/supertest/supplier-auth-prisma-repository.test.mjs apps/api/test/supertest/supplier-onboarding-api.test.mjs apps/api/test/supertest/supplier-onboarding-prisma-activation.test.mjs",
-      "result": "PASS_32_OF_32"
+      "result": "PASS_33_OF_33"
     },
     {
       "name": "supplier session signing-key schema, remote safety and redaction",
@@ -185,14 +192,14 @@
     },
     {
       "id": "NEG-M1-069-04",
-      "scenario": "停用或过期账号及职能类型不可选；单账号直登同requestId或同一nonce选择同账号的并发重放返回同一有效Cookie，任意响应顺序仍可恢复；改选冲突且只保留一个会话",
+      "scenario": "停用或过期账号及职能类型不可选；选择nonce由服务端密钥和独立域HMAC派生，同一密钥与requestId稳定、不同密钥不同；单账号直登同requestId或同一nonce选择同账号的并发重放返回同一有效Cookie，任意响应顺序仍可恢复；改选冲突且只保留一个会话",
       "status": "PASS"
     }
   ],
   "fullVerification": {
     "status": "PASS_17_OF_17",
     "stepsPassed": 17,
-    "commit": "8e0db54175fc41bfa8653450623329542333d04e",
+    "commit": "624e799431e0cf8977d8efba9b1a5cb5b3fadfe5",
     "report": "artifacts/test-results/verification/pnpm-verify.json"
   },
   "verificationRepairHistory": [
@@ -259,10 +266,10 @@
     "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/28",
     "pullRequestState": "DRAFT",
     "draftHeadAtCreation": "4a00801e40df283bf7ac998f5b3e3aff70ff8c5f",
-    "exactHeadCi": "NOT_EXECUTED_FOR_LOCAL_8E0DB54_AND_PENDING_EVIDENCE_HEAD",
+    "exactHeadCi": "NOT_EXECUTED_FOR_LOCAL_624E799_AND_PENDING_EVIDENCE_HEAD",
     "lastSuccessfulRemoteCi": {
-      "runId": 31163935153,
-      "headSha": "6eea7ae25bfabfdb83d1adc3912a87ad9d95cb62",
+      "runId": 31165757502,
+      "headSha": "fbd696af2e72fe00bb594e52347557252e6bc01d",
       "status": "SUCCESS_NOT_CURRENT_HEAD"
     },
     "failedExactHeadCiRuns": [
@@ -293,6 +300,7 @@
     "Production is expected to expose /v1 through the same operation origin. A separate API origin requires an explicitly reviewed credentialed-CORS gateway and is not proven by this slice.",
     "The real browser chain uses an injected in-memory supplier auth repository and test-only credential verifier; it proves transport, UI and cookie behavior but not production identity-provider integration.",
     "Rotating SUPPLIER_AUTH_SESSION_SIGNING_KEY intentionally invalidates existing supplier cookies and requires a planned re-login window; staging and production secret injection remain NOT_EXECUTED.",
+    "Pending account-selection nonces and active supplier cookies share the server signing-key rotation boundary; rotation intentionally invalidates both and requires supplier re-login.",
     "The forward migration has only local Docker MySQL evidence; staging and production migration remain NOT_EXECUTED."
   ],
   "rollback": {
