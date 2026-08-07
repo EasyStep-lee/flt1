@@ -15,6 +15,7 @@ import {
 import {
   ApiBody,
   ApiForbiddenResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
@@ -25,8 +26,10 @@ import {
 } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
 
+import type { CompanyWorkspacePageQueryDto } from './company-auth.dto.js';
 import {
   CompanyLoginRequestDto,
+  CompanyWorkspacePageResponseDto,
   CompanyWorkspaceResponseDto,
   SelectWorkspaceRequestDto,
   SessionResponseDto,
@@ -59,6 +62,30 @@ export class CompanyAuthController {
   constructor(
     @Inject(CompanyAuthService) private readonly service: CompanyAuthService,
   ) {}
+
+  @Get('workspace/page')
+  @Header('Cache-Control', 'private, no-store, max-age=0')
+  @ApiOperation({ summary: '读取当前公司职能页面的隔离模块目录' })
+  @ApiQuery({ maxLength: 255, name: 'route', required: true, type: String })
+  @ApiQuery({ maxLength: 64, name: 'keyword', required: false, type: String })
+  @ApiQuery({
+    enum: ['ALL', 'AVAILABLE', 'DEFERRED'],
+    name: 'availability',
+    required: false,
+    type: String,
+  })
+  @ApiQuery({ maxLength: 64, name: 'moduleKey', required: false, type: String })
+  @ApiOkResponse({ type: CompanyWorkspacePageResponseDto })
+  @ApiForbiddenResponse()
+  @ApiNotFoundResponse()
+  @ApiUnauthorizedResponse()
+  @ApiUnprocessableEntityResponse()
+  workspacePage(
+    @Headers('cookie') cookieHeader: string | undefined,
+    @Query() query: CompanyWorkspacePageQueryDto & Record<string, unknown>,
+  ): Promise<CompanyWorkspacePageResponseDto> {
+    return this.service.workspacePage(cookieHeader, query);
+  }
 
   @Get('workspace/current')
   @Header('Cache-Control', 'private, no-store, max-age=0')

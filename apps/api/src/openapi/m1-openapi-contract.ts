@@ -54,6 +54,23 @@ export const M1_OPENAPI_OPERATION_CONTRACTS = Object.freeze([
     responseDto: 'CompanyWorkspaceResponseDto',
   }),
   contract({
+    actor: 'COMPANY_FUNCTIONAL_ACCOUNT',
+    contractId: 'API-083',
+    errorCodes: [
+      'AUTHENTICATION_REQUIRED',
+      'AUTH_SESSION_REVOKED',
+      'WORKSPACE_FORBIDDEN',
+      'DATA_SCOPE_FORBIDDEN',
+      'WORKSPACE_MODULE_NOT_FOUND',
+      'VALIDATION_FAILED',
+    ],
+    idempotency: 'NONE',
+    method: 'get',
+    path: '/v1/company-auth/workspace/page',
+    requestDto: 'CompanyWorkspacePageQueryDto',
+    responseDto: 'CompanyWorkspacePageResponseDto',
+  }),
+  contract({
     actor: 'PUBLIC',
     contractId: 'API-005',
     errorCodes: [
@@ -347,7 +364,10 @@ export const applyM1OpenApiContracts = (document: OpenAPIObject): OpenAPIObject 
     operation['x-fulishe-request-dto'] = operationContract.requestDto;
     operation['x-fulishe-response-dto'] = operationContract.responseDto;
     operation['x-fulishe-response-policy'] = 'NEVER_RETURN_INTERNAL_PRICING';
-    if (operationContract.contractId === 'API-082') {
+    if (
+      operationContract.contractId === 'API-082' ||
+      operationContract.contractId === 'API-083'
+    ) {
       operation.security = [{ companyFunctionalSession: [] }];
     }
   }

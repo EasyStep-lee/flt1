@@ -84,6 +84,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/company-auth/workspace/page": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 读取当前公司职能页面的隔离模块目录 */
+        get: operations["companyauth.workspacePage"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/company-auth/workspaces/{accountId}/select": {
         parameters: {
             query?: never;
@@ -231,7 +248,7 @@ export interface components {
              * @example RESOURCE_NOT_FOUND
              * @enum {string}
              */
-            code: "ACCESS_DENIED" | "AUTHENTICATION_REQUIRED" | "INTERNAL_ERROR" | "REQUEST_INVALID" | "RESOURCE_NOT_FOUND" | "SERVICE_UNAVAILABLE" | "PAYEE_FORBIDDEN" | "SELLER_IDENTITY_FORBIDDEN" | "SINGLE_MERCHANT_VIOLATION" | "ACTOR_SPOOFED" | "ACCOUNT_TYPE_INVALID" | "APPROVAL_VERSION_CONFLICT" | "DATA_SCOPE_FORBIDDEN" | "FIELD_FORBIDDEN" | "IDEMPOTENCY_CONFLICT" | "SECOND_VERIFICATION_REQUIRED" | "STATE_TRANSITION_INVALID" | "SUPPLIER_DUPLICATE" | "SUPPLIER_SCOPE_FORBIDDEN" | "VALIDATION_FAILED" | "VERSION_CONFLICT" | "WORKSPACE_FORBIDDEN" | "ACCOUNT_SUSPENDED" | "AUTH_INVALID" | "AUTH_SESSION_REVOKED" | "RATE_LIMITED" | "WORKSPACE_MENU_VIOLATION" | "WORKSPACE_SELECTION_REQUIRED" | "WORKSPACE_SESSION_CONFLICT" | "AUDIT_IMMUTABLE" | "AUDIT_REQUIRED" | "EXPORT_APPROVAL_REQUIRED" | "REQUEST_ID_REQUIRED";
+            code: "ACCESS_DENIED" | "AUTHENTICATION_REQUIRED" | "INTERNAL_ERROR" | "REQUEST_INVALID" | "RESOURCE_NOT_FOUND" | "SERVICE_UNAVAILABLE" | "PAYEE_FORBIDDEN" | "SELLER_IDENTITY_FORBIDDEN" | "SINGLE_MERCHANT_VIOLATION" | "ACTOR_SPOOFED" | "ACCOUNT_TYPE_INVALID" | "APPROVAL_VERSION_CONFLICT" | "DATA_SCOPE_FORBIDDEN" | "FIELD_FORBIDDEN" | "IDEMPOTENCY_CONFLICT" | "SECOND_VERIFICATION_REQUIRED" | "STATE_TRANSITION_INVALID" | "SUPPLIER_DUPLICATE" | "SUPPLIER_SCOPE_FORBIDDEN" | "VALIDATION_FAILED" | "VERSION_CONFLICT" | "WORKSPACE_FORBIDDEN" | "ACCOUNT_SUSPENDED" | "AUTH_INVALID" | "AUTH_SESSION_REVOKED" | "RATE_LIMITED" | "WORKSPACE_MENU_VIOLATION" | "WORKSPACE_MODULE_NOT_FOUND" | "WORKSPACE_SELECTION_REQUIRED" | "WORKSPACE_SESSION_CONFLICT" | "AUDIT_IMMUTABLE" | "AUDIT_REQUIRED" | "EXPORT_APPROVAL_REQUIRED" | "REQUEST_ID_REQUIRED";
             /** @example Resource was not found */
             message: string;
             /** @example /missing */
@@ -307,6 +324,59 @@ export interface components {
             key: "workspace";
             label: string;
             route: string;
+        };
+        CompanyWorkspaceModuleDetailDto: {
+            /** @enum {string} */
+            availability: "AVAILABLE" | "DEFERRED";
+            dataBoundary: string;
+            /** @enum {string} */
+            deliveryStage: "M1" | "M2" | "M3" | "M4" | "M5";
+            description: string;
+            label: string;
+            moduleKey: string;
+            sections: string[];
+            timeline: components["schemas"]["CompanyWorkspaceModuleTimelineEventDto"][];
+        };
+        CompanyWorkspaceModuleItemDto: {
+            /** @enum {string} */
+            availability: "AVAILABLE" | "DEFERRED";
+            dataBoundary: string;
+            /** @enum {string} */
+            deliveryStage: "M1" | "M2" | "M3" | "M4" | "M5";
+            description: string;
+            label: string;
+            moduleKey: string;
+        };
+        CompanyWorkspaceModuleTimelineEventDto: {
+            code: string;
+            label: string;
+            /** @enum {string} */
+            stage: "M1" | "M2" | "M3" | "M4" | "M5";
+            /** @enum {string} */
+            status: "DONE" | "DEFERRED";
+        };
+        CompanyWorkspacePageFiltersDto: {
+            /** @enum {string} */
+            availability: "ALL" | "AVAILABLE" | "DEFERRED";
+            keyword: string;
+        };
+        CompanyWorkspacePageResponseDto: {
+            /** @enum {string} */
+            accountTypeCode: "COMPANY_SUPER_ADMIN" | "COMPANY_SUPPLIER_OPS" | "COMPANY_PRODUCT_OPS" | "COMPANY_PRICE_REVIEW" | "COMPANY_ORDER_SERVICE" | "COMPANY_WELFARE_CARD" | "COMPANY_FINANCE" | "COMPANY_LOGISTICS" | "COMPANY_CONTENT" | "COMPANY_AUDIT";
+            accountTypeName: string;
+            filters: components["schemas"]["CompanyWorkspacePageFiltersDto"];
+            items: components["schemas"]["CompanyWorkspaceModuleItemDto"][];
+            /** @enum {string} */
+            pageId: "PAGE-003" | "PAGE-004" | "PAGE-005" | "PAGE-006" | "PAGE-007" | "PAGE-008" | "PAGE-009" | "PAGE-010" | "PAGE-011" | "PAGE-012";
+            selectedModule: components["schemas"]["CompanyWorkspaceModuleDetailDto"] | null;
+            summary: components["schemas"]["CompanyWorkspacePageSummaryDto"];
+            workspaceRoute: string;
+        };
+        CompanyWorkspacePageSummaryDto: {
+            availableTotal: number;
+            catalogTotal: number;
+            deferredTotal: number;
+            filteredTotal: number;
         };
         CompanyWorkspaceResponseDto: {
             /** @enum {string} */
@@ -728,6 +798,54 @@ export interface operations {
                 content?: never;
             };
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    "companyauth.workspacePage": {
+        parameters: {
+            query: {
+                moduleKey?: string;
+                availability?: "ALL" | "AVAILABLE" | "DEFERRED";
+                keyword?: string;
+                route: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompanyWorkspacePageResponseDto"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
