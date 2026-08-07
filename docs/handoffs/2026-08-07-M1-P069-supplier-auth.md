@@ -4,7 +4,7 @@
 
 - 阶段/任务/P0：`M1` / `M1-P069` / `P0-069`；结论仍为 `LOCAL_PASS`，阶段未完成。
 - 唯一方案 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`。
-- 基线：`main@ff8d5ae6d998a2f05ade69f8e220e2ec5a6527b3`；分支：`codex/m1-m1-p069`；精确本地验证实现提交：`1c2ae1cd08a9669dd2b37b396dfa6eb40f0e63b3`。
+- 基线：`main@ff8d5ae6d998a2f05ade69f8e220e2ec5a6527b3`；分支：`codex/m1-m1-p069`；精确本地验证实现提交：`d12c9ab6a5afaedff0535733edce34e41eebd9af`。
 - 工作区只保留用户已有未跟踪素材；这些素材未暂存、未修改。M1-P070 及商品、价格、订单、支付、配送、售后、对账均未进入。
 
 ## 实际范围
@@ -20,6 +20,7 @@
 - API-006/007 的可选验证码在服务边界统一校验：只有未提供或最多 16 字符的字符串可进入 Adapter；对象、数组、数字、`null` 与超长值先返回 `VALIDATION_FAILED`，不会创建选择授权、签发会话或消耗已有授权。
 - 选择 nonce 使用现有服务端签名密钥及独立域字符串做 HMAC-SHA-256：同一实例、用户和 `requestId` 的重试稳定，服务端密钥不同则 nonce 不同，不能再仅凭公开的用户与请求标识预测；数据库仍只保存 nonce 哈希。
 - 二次验证首次成功并完成同账号选择后，`usedAt + selectedAccountId + selectedSessionId` 证明该选择已完成；同 nonce、同账号的未知结果重放直接恢复原会话，不再次调用或消费一次性验证码。未完成、改选、过期或会话失效仍按原路径失败关闭。
+- 无效或过期选择上下文、停用/过期账号、完成态跨账号冲突在返回既有错误码前追加脱敏 `LoginAudit`：只保留哈希固定上下文标识、可信用户/账号、设备/IP、结果和风险原因，不保存原始 nonce、验证码或会话 token。
 - `SUPPLIER_AUTH_SESSION_SIGNING_KEY` 在 staging/production 缺失、使用开发占位值或不符合 43～128 位 base64url 格式时启动失败；结构化日志会脱敏。密钥轮换会让现有供应商 Cookie 失败关闭，须安排重新登录窗口。
 - 浏览器按方案使用同一运营域名下的 `/v1`；本地 Vite 将 `/v1` 代理到 `127.0.0.1:$API_PORT`，生产同源转发由部署网关提供。本切片未开启宽泛 CORS，也不把独立 API 域冒充已验收拓扑。
 - P0 浏览器门禁另启专用 Vite 运行入口，由测试自身启动注入式 Nest API；Chromium 真实提交登录/选择请求并验证最终 Cookie jar，而不是仅使用 Playwright route Mock。
@@ -48,7 +49,8 @@
 | 加固 RED：可选验证码边界 | API `2/18`：登录验证码对象错误返回 200 并签发会话，二次验证码对象错误返回 428，均未先做 DTO 校验 |
 | 加固 RED：选择 nonce 密钥绑定 | API `1/19` 因两组不同服务端签名密钥仍生成相同 nonce 按预期失败；改为独立域 HMAC 后同密钥重放稳定、不同密钥结果不同 |
 | 加固 RED：二次验证未知结果恢复 | API `1/20`：首次选择已成功后，同 nonce 同账号重试再次调用一次性验证器并返回 `428`；最小修复后重试 `200`、同一 Cookie、`Idempotency-Replayed=true`，验证器仍只调用一次 |
-| API/Prisma focused GREEN | 服务边界最小校验、nonce HMAC 及完成态重放后，组合业务 focused 为 `34/34`；spy 证明非法输入时两个 Adapter 零调用，合法二次验证码随后仍可使用原授权，完成态重放不重复消费验证码；配置合同 `10/10`；API lint/typecheck 均退出码 `0` |
+| 加固 RED：选择失败审计 | API `2/20`：无效选择上下文、不可用账号和跨账号冲突均返回正确错误但没有 `LoginAudit`；最小修复后分别追加 `WORKSPACE_SELECTION_INVALID`、`WORKSPACE_ACCOUNT_UNAVAILABLE`、`WORKSPACE_SESSION_CONFLICT`，响应契约不变 |
+| API/Prisma focused GREEN | 服务边界最小校验、nonce HMAC、完成态重放及选择失败审计后，组合业务 focused 为 `34/34`；spy 证明非法输入时两个 Adapter 零调用，合法二次验证码随后仍可使用原授权，完成态重放不重复消费验证码；配置合同 `10/10`；API lint/typecheck 均退出码 `0` |
 | Web 客户端与供应商门户 GREEN | `5/5`（含真实同源开发代理行为） |
 | 同源开发代理 RED / GREEN | 实际 Vite 请求先为 `404`；配置后上游路径、Host 和 `Set-Cookie` 转发 `3/3` 通过 |
 | 真实浏览器纵向链路 RED / GREEN | 专用运行入口未启动时 `ERR_CONNECTION_REFUSED`；接入后 P0-069 `4/4`，真实登录、选择、跳转和 Cookie 属性通过 |
@@ -56,19 +58,20 @@
 | 干净 CI RED 2 / 修复 | run `31155519986` 已通过 typecheck，但回归 P0 缺少 `@fulishe/config/dist`；新增依赖闭包合同先红，再以 `@fulishe/api...` 构建 API 及 workspace 依赖后转绿，浏览器断言不变 |
 | `pnpm lint` / `pnpm typecheck` | 均退出码 `0` |
 | 秘密扫描首轮失败/修复 | 内部 DI 符号名误触 `credential-assignment` 共 `1` 项；未放宽规则，仅重命名内部符号后 `484` 个跟踪文件通过 |
-| 当前实现 head `pnpm verify` | 精确 head `1c2ae1c…`：退出码 `0`、`17/17`，P0 E2E `19/19`，Prisma `published=9/current=9`，迁移 `empty=2/upgrade=2/restore=2/product=9/cleanup=PASS`，秘密扫描 `484` 文件 |
+| 当前实现 head `pnpm verify` | 精确 head `d12c9ab…`：退出码 `0`、`17/17`，P0 E2E `19/19`，Prisma `published=9/current=9`，迁移 `empty=2/upgrade=2/restore=2/product=9/cleanup=PASS`，秘密扫描 `484` 文件 |
 
 Actions run `31154584849`（head `a392b65…`）和 run `31155519986`（head `dbb40d1…`）均已真实失败并保留为修复证据；前者暴露静态 `dist` 类型依赖，后者暴露 API workspace 依赖未构建。两项都只修复干净环境装配，业务断言未降低；后续证据提交的新 head 必须重新通过 CI。
 
 ## P0、环境与缺口
 
-- P0-069 当前仍为 `LOCAL_PASS`；PR #28 的远端旧 head `e7afe9f…` Actions run `31167601155` 成功，但二次验证未知结果恢复实现 head `1c2ae1c…` 与本交接证据尚未推送，因此该成功不能升级为当前精确 head CI。人工审查、用户对精确 head 的 Ready/合并授权、合并后 main CI 均未完成。
+- P0-069 当前仍为 `LOCAL_PASS`；PR #28 的远端旧 head `d378205…` Actions run `31169256471` 成功，但选择失败审计实现 head `d12c9ab…` 与本交接证据尚未推送，因此该成功不能升级为当前精确 head CI。人工审查、用户对精确 head 的 Ready/合并授权、合并后 main CI 均未完成。
 - 本地环境：Windows、Node 22.23.1、pnpm 10.12.1、Docker MySQL、Playwright Chromium。
 - Staging/生产均 `NOT_EXECUTED`。本切片为 PC Web，不要求微信真机；生产供应商凭证与二次验证 Adapter 继续默认拒绝，真实身份源为外部接入缺口。
 - 供应商门户 bundle 仍有超过 500 kB 的非阻断告警；需在性能验收前拆包。本地迁移演练不能替代 staging/生产迁移证据。
 - Chromium loopback 诊断实际接受 `Secure`、`HttpOnly`、`SameSite=Strict` 的 `__Host-` Cookie，但这只是本地诊断，不升级为 staging 或生产证据；独立 API origin 的 credentialed CORS 未实现也未验收。
 - 真实浏览器纵向测试使用注入式内存仓储和测试凭证验证器；它证明页面、代理、Nest API 和 Cookie 传输，不证明生产身份源、短信或二次验证服务。
 - staging/production 会话签名密钥注入仍为 `NOT_EXECUTED`；轮换会主动使现有供应商会话失效，运维必须安排重新登录窗口并记录审计，不能把开发占位值或旧密钥写回仓库。
+- 选择失败审计写入失败时请求失败关闭；生产审计保留期和访问控制仍为 `NOT_EXECUTED`，不得用本地内存/数据库验证替代生产合规验收。
 
 ## GitHub、回滚与下一步
 

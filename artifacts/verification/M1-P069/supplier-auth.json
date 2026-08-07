@@ -3,7 +3,7 @@
   "taskId": "M1-P069",
   "p0Id": "P0-069",
   "status": "LOCAL_PASS",
-  "verifiedAt": "2026-08-07T06:11:06-04:00",
+  "verifiedAt": "2026-08-07T06:34:19-04:00",
   "baseline": {
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
     "baseBranch": "main",
@@ -20,7 +20,8 @@
     "directLoginReplayFixCommit": "c8908ef28ab2bc643128b5238678a64785422f01",
     "verificationCodeValidationFixCommit": "8e0db54175fc41bfa8653450623329542333d04e",
     "selectionNonceSecretBindingFixCommit": "624e799431e0cf8977d8efba9b1a5cb5b3fadfe5",
-    "secondVerifiedReplayFixCommit": "1c2ae1cd08a9669dd2b37b396dfa6eb40f0e63b3"
+    "secondVerifiedReplayFixCommit": "1c2ae1cd08a9669dd2b37b396dfa6eb40f0e63b3",
+    "selectionFailureAuditFixCommit": "d12c9ab6a5afaedff0535733edce34e41eebd9af"
   },
   "scope": {
     "pageIds": ["PAGE-013", "PAGE-014", "PAGE-015"],
@@ -50,7 +51,8 @@
     "verificationCodeValidation": "OPTIONAL_STRING_MAX_16_REJECT_BEFORE_ADAPTER_OR_SESSION_SIDE_EFFECT",
     "sessionStorage": "SHA256_TOKEN_ONLY_NO_RAW_TOKEN",
     "sessionSigningKey": "REMOTE_REQUIRED_BASE64URL_SECRET_ROTATION_REVOKES_EXISTING_SUPPLIER_SESSIONS",
-    "credentialAndSecondVerificationAdapters": "DEFAULT_DENY"
+    "credentialAndSecondVerificationAdapters": "DEFAULT_DENY",
+    "selectionFailureAudit": "HASHED_CONTEXT_TRUSTED_SCOPE_DEVICE_IP_RESULT_RISK"
   },
   "uiStates": [
     "loading",
@@ -137,6 +139,11 @@
       "command": "pnpm exec vitest run --config vitest.config.ts --project api-contract apps/api/test/supertest/supplier-auth-api.test.mjs -t \"recovers a second-verified workspace\"",
       "result": "FAIL_1_OF_20_EXPECTED",
       "cause": "a completed second-verified same-account retry called the one-time verifier again and returned HTTP 428 instead of recovering the already issued session"
+    },
+    {
+      "command": "pnpm exec vitest run --config vitest.config.ts --project api-contract apps/api/test/supertest/supplier-auth-api.test.mjs -t \"refuses workspace selection|rejects disabled accounts\"",
+      "result": "FAIL_2_OF_20_EXPECTED",
+      "cause": "invalid or expired selection grants, unavailable accounts and completed cross-account conflicts returned the correct errors but appended no LoginAudit"
     }
   ],
   "focusedEvidence": [
@@ -194,19 +201,19 @@
     },
     {
       "id": "NEG-M1-069-03",
-      "scenario": "没有有效选择上下文不能直接进入账号选择页或调用选择接口",
+      "scenario": "没有有效选择上下文不能直接进入账号选择页或调用选择接口，并追加不含原始nonce的WORKSPACE_SELECTION_INVALID审计",
       "status": "PASS"
     },
     {
       "id": "NEG-M1-069-04",
-      "scenario": "停用或过期账号及职能类型不可选；选择nonce由服务端密钥和独立域HMAC派生，同一密钥与requestId稳定、不同密钥不同；单账号直登同requestId或同一nonce选择同账号的并发重放返回同一有效Cookie，任意响应顺序仍可恢复；已完成二次验证的同账号重放不再次消费一次性验证码；改选冲突且只保留一个会话",
+      "scenario": "停用或过期账号及职能类型不可选并追加WORKSPACE_ACCOUNT_UNAVAILABLE审计；选择nonce由服务端密钥和独立域HMAC派生，同一密钥与requestId稳定、不同密钥不同；单账号直登同requestId或同一nonce选择同账号的并发重放返回同一有效Cookie，任意响应顺序仍可恢复；已完成二次验证的同账号重放不再次消费一次性验证码；改选冲突且只保留一个会话并追加WORKSPACE_SESSION_CONFLICT审计",
       "status": "PASS"
     }
   ],
   "fullVerification": {
     "status": "PASS_17_OF_17",
     "stepsPassed": 17,
-    "commit": "1c2ae1cd08a9669dd2b37b396dfa6eb40f0e63b3",
+    "commit": "d12c9ab6a5afaedff0535733edce34e41eebd9af",
     "report": "artifacts/test-results/verification/pnpm-verify.json"
   },
   "verificationRepairHistory": [
@@ -273,10 +280,10 @@
     "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/28",
     "pullRequestState": "DRAFT",
     "draftHeadAtCreation": "4a00801e40df283bf7ac998f5b3e3aff70ff8c5f",
-    "exactHeadCi": "NOT_EXECUTED_FOR_LOCAL_1C2AE1C_AND_PENDING_EVIDENCE_HEAD",
+    "exactHeadCi": "NOT_EXECUTED_FOR_LOCAL_D12C9AB_AND_PENDING_EVIDENCE_HEAD",
     "lastSuccessfulRemoteCi": {
-      "runId": 31167601155,
-      "headSha": "e7afe9ffdde3ccfdcb757be74691ddbc16f5339f",
+      "runId": 31169256471,
+      "headSha": "d3782058aee2fdfaf321c5654bdaa9768b182b47",
       "status": "SUCCESS_NOT_CURRENT_HEAD"
     },
     "failedExactHeadCiRuns": [
@@ -309,6 +316,7 @@
     "Rotating SUPPLIER_AUTH_SESSION_SIGNING_KEY intentionally invalidates existing supplier cookies and requires a planned re-login window; staging and production secret injection remain NOT_EXECUTED.",
     "Pending account-selection nonces and active supplier cookies share the server signing-key rotation boundary; rotation intentionally invalidates both and requires supplier re-login.",
     "The real second-verification provider is still external; this slice proves that a stored completed same-account selection recovers without re-consuming a one-time code, but production provider integration remains NOT_EXECUTED.",
+    "Selection-failure audit writes are fail-closed and retain only a hashed fixed context marker plus trusted scope, device/IP, result and risk. Production audit retention and access-control policies remain NOT_EXECUTED.",
     "The forward migration has only local Docker MySQL evidence; staging and production migration remain NOT_EXECUTED."
   ],
   "rollback": {
