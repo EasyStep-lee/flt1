@@ -6,6 +6,7 @@
 - 供应商合作入口分别进入 `/supplier/register` 与 `/supplier/login`，注册和登录不能合并为同一表单或同一认证动作。
 - 供应商经公司审核为 `ACTIVE` 时，在同一事务中激活申请主联系人对应的 `SupplierUser` 和唯一 `SUPPLIER_ACCOUNT_ADMIN` 职能账号。
 - API-006 `POST /v1/supplier-auth/login` 认证自然人，不接受 `supplierId`、`functionalAccountId` 或 `workspaceRoute` 覆盖；单一有效账号直达，多账号返回 `/supplier/account-select` 逐一选择。
+- API-006 的 `requestId` 同时约束单账号直达：同一自然人并发或重试同一 `requestId` 时复用同一隐藏选择授权和会话 Cookie，响应乱序不能让最后落地的 Cookie 失效；客户端仍只看到 `selectionNonce=''`，不新增 DTO 字段。
 - API-007 `POST /v1/supplier-auth/workspaces/{accountId}/select` 使用短期、一次性选择上下文签发仅含一个职能账号的 Secure HttpOnly 会话；同账号重放返回同一仍有效的不透明 Cookie 以恢复未知结果，仍只保留同一活动会话，选择另一账号冲突。并发重放即使响应乱序，也不能让较晚到达的响应覆盖为失效 Cookie。
 - 登录、失败、账号选择和会话签发追加 `LoginAudit`；原始密码、验证码、选择 nonce、会话 token 和完整手机号不得进入响应、日志或审计字段。
 
@@ -19,7 +20,7 @@
 ## 字段、状态和数据范围
 
 - `SupplierUser.supplierId` 仅由审核激活或受信邀请在服务端写入；登录请求、URL、Cookie 外字段和页面状态均不能覆盖。
-- `SupplierAuthSelection` 保存 `userId`、哈希后的 nonce、`requestId`、是否需要二次验证、选中账号/会话、到期与使用时间；不保存原始 nonce。
+- `SupplierAuthSelection` 保存 `userId`、哈希后的 nonce、`requestId`、是否需要二次验证、选中账号/会话、到期与使用时间；不保存原始 nonce。单账号直达也在服务端使用同一授权，以便同 `requestId` 的未知结果和并发重试恢复同一会话，但不把 nonce 返回给页面。
 - `AuthSession.userType=SUPPLIER_USER`，`userId`、`functionalAccountId`、`workspaceRoute` 与当前数据库关系必须一致；新会话撤销该自然人旧供应商职能会话。
 - 会话 token 由随机服务端 `AuthSession.id` 与服务端 HMAC 密钥确定性派生；选择 nonce 不能推导 token。数据库仍只保存 token 的 SHA-256，重放不覆盖原 hash，响应和日志仍不暴露 token。
 - 可登录要求：`Supplier.status=ACTIVE`、`SupplierUser.status=ACTIVE`、职能账号及账号类型均为 `ACTIVE`、账号未过期。
@@ -51,7 +52,7 @@
 - `NEG-M1-069-01`：登录/选择请求传入 `supplierId` 等归属覆盖字段时先拒绝且不签发会话。
 - `NEG-M1-069-02`：注册与登录独立；非 `ACTIVE` 供应商即使凭证正确也不能进入后台。
 - `NEG-M1-069-03`：同一人员多职能不能自动合并进入；选择其他身份、其他供应商或停用账号失败。
-- `NEG-M1-069-04`：重复选择同一账号幂等并可恢复丢失响应；同账号并发重放返回同一有效 Cookie，按任意响应顺序应用仍可解析到唯一活动会话；并发/顺序重放选择不同账号仅一个结果，旧会话撤销且审计追加。
+- `NEG-M1-069-04`：单账号直达登录或账号选择的同请求重试均幂等并可恢复丢失响应；同账号并发重放返回同一有效 Cookie，按任意响应顺序应用仍可解析到唯一活动会话；并发/顺序重放选择不同账号仅一个结果，旧会话撤销且审计追加。
 - 正向：供应商审核通过后主体管理账号激活；单账号直达；多账号选择后只签发一个固定职能会话；PAGE-013～015 行为与缓存/索引边界通过；Chromium 必须通过真实 Vite 同源代理调用注入式 Nest API 完成登录、选择和 Secure HttpOnly Cookie 落地，不能只靠页面路由 Mock。
 
 ## 风险与回滚

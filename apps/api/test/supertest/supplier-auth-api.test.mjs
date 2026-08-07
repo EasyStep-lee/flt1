@@ -225,6 +225,43 @@ describe('P0-069 supplier login and functional workspace selection', () => {
     }
   });
 
+  it('keeps concurrent same-request direct-login cookies valid regardless of response order', async () => {
+    const fixture = await createFixture();
+    try {
+      const responses = await Promise.all(
+        Array.from({ length: 3 }, () =>
+          request(fixture.app.getHttpServer())
+            .post('/v1/supplier-auth/login')
+            .send(loginBody()),
+        ),
+      );
+      const tokens = responses.map(sessionTokenFrom);
+
+      expect(responses.map(({ status }) => status)).toEqual([200, 200, 200]);
+      expect(tokens).toEqual([
+        expect.stringMatching(/^[A-Za-z0-9_-]{43}$/u),
+        expect.stringMatching(/^[A-Za-z0-9_-]{43}$/u),
+        expect.stringMatching(/^[A-Za-z0-9_-]{43}$/u),
+      ]);
+      expect(new Set(tokens).size).toBe(1);
+      expect(await fixture.repository.countActiveSessions(userId)).toBe(1);
+      expect(await fixture.repository.countSelectionGrants(userId)).toBe(1);
+
+      for (const token of tokens.toReversed()) {
+        const resolved = await fixture.repository.resolveSession(
+          createHash('sha256').update(token).digest('hex'),
+          new Date().toISOString(),
+        );
+        expect(resolved).toMatchObject({
+          kind: 'ACTIVE',
+          session: { functionalAccountId: firstAccountId },
+        });
+      }
+    } finally {
+      await fixture.app.close();
+    }
+  });
+
   it('requires an explicit choice for multiple accounts and binds one server-owned workspace', async () => {
     const fixture = await createFixture({
       accounts: [

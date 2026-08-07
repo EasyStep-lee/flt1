@@ -313,12 +313,29 @@ export class SupplierAuthService {
     const accounts = await this.repository.listSupplierAccounts(user.id);
     const eligibleAccounts = accounts.filter((account) => isEligibleAccount(account, now));
     await this.repository.markLoginSucceeded(user.id, now);
+    const nonce = selectionNonceFor(user.id, body.requestId);
+    const nonceHash = hash(nonce);
+    await this.repository.createSelectionGrant({
+      expiresAt: new Date(Date.now() + SELECTION_TTL_MS).toISOString(),
+      nonceHash,
+      requestId: body.requestId,
+      secondVerificationRequired: verification.secondVerificationRequired,
+      selectedAccountId: null,
+      selectedSessionId: null,
+      usedAt: null,
+      userId: user.id,
+    });
     if (
       accounts.length === 1 &&
       eligibleAccounts.length === 1 &&
       !verification.secondVerificationRequired
     ) {
-      const issued = await this.issue(user.id, eligibleAccounts[0]!, context, null);
+      const issued = await this.issue(
+        user.id,
+        eligibleAccounts[0]!,
+        context,
+        nonceHash,
+      );
       await this.audit(
         loginAccount,
         context,
@@ -338,17 +355,6 @@ export class SupplierAuthService {
       };
     }
 
-    const nonce = selectionNonceFor(user.id, body.requestId);
-    await this.repository.createSelectionGrant({
-      expiresAt: new Date(Date.now() + SELECTION_TTL_MS).toISOString(),
-      nonceHash: hash(nonce),
-      requestId: body.requestId,
-      secondVerificationRequired: verification.secondVerificationRequired,
-      selectedAccountId: null,
-      selectedSessionId: null,
-      usedAt: null,
-      userId: user.id,
-    });
     await this.audit(loginAccount, context, 'SUCCESS', 'WORKSPACE_SELECTION_REQUIRED', user);
     return {
       body: {
