@@ -4,7 +4,7 @@
 
 - 阶段/任务/P0：`M1` / `M1-P069` / `P0-069`；结论仍为 `LOCAL_PASS`，阶段未完成。
 - 唯一方案 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`。
-- 基线：`main@ff8d5ae6d998a2f05ade69f8e220e2ec5a6527b3`；分支：`codex/m1-m1-p069`；已验证实现提交：`4f2a0c2047338c0af45fc76f5254967188dcd11a`。
+- 基线：`main@ff8d5ae6d998a2f05ade69f8e220e2ec5a6527b3`；分支：`codex/m1-m1-p069`；已验证实现提交：`a462adf8717408a44da5305612453c2bdd0e2b52`。
 - 工作区只保留用户已有未跟踪素材；这些素材未暂存、未修改。M1-P070 及商品、价格、订单、支付、配送、售后、对账均未进入。
 
 ## 实际范围
@@ -38,10 +38,11 @@
 | Web 客户端与供应商门户 GREEN | `5/5`（含真实同源开发代理行为） |
 | 同源开发代理 RED / GREEN | 实际 Vite 请求先为 `404`；配置后上游路径、Host 和 `Set-Cookie` 转发 `3/3` 通过 |
 | 真实浏览器纵向链路 RED / GREEN | 专用运行入口未启动时 `ERR_CONNECTION_REFUSED`；接入后 P0-069 `4/4`，真实登录、选择、跳转和 Cookie 属性通过 |
+| 干净 CI RED / 修复 | run `31154584849` 在 typecheck 因预构建 `dist` 不存在而失败；改为源码类型＋构建产物动态加载，并让 P0 门禁独立构建 API；focused 类型检查、API build、Chromium `1/1` 通过 |
 | `pnpm lint` / `pnpm typecheck` | 均退出码 `0` |
-| 真实浏览器链路实现 head `pnpm verify` | `17/17`，P0 E2E `19/19`，迁移 `empty=2/upgrade=2/restore=2/product=9/cleanup=PASS`，秘密扫描 `484` 文件 |
+| CI 修复实现 head `pnpm verify` | `17/17`，P0 E2E `19/19`，迁移 `empty=2/upgrade=2/restore=2/product=9/cleanup=PASS`，秘密扫描 `484` 文件 |
 
-远程 head `86279df8cd7640e4949fccdb86078df486c65e0b` 的 Actions run `31153072804` 曾通过，但真实浏览器纵向链路加入后只能作为历史证据；新 head 必须重新通过 CI。
+远程 head `a392b65a2d5c998a2415a880bfd548b463cec022` 的 Actions run `31154584849` 已真实失败并保留为修复证据；失败只涉及干净检出的测试装配，业务断言未降低。修复及后续证据提交的新 head 必须重新通过 CI。
 
 ## P0、环境与缺口
 
