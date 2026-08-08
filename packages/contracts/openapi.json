@@ -1615,6 +1615,334 @@
         ],
         "type": "object"
       },
+      "SupplierWorkspaceMenuItemDto": {
+        "properties": {
+          "key": {
+            "enum": [
+              "workspace"
+            ],
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "route": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "route"
+        ],
+        "type": "object"
+      },
+      "SupplierWorkspaceModuleDetailDto": {
+        "properties": {
+          "availability": {
+            "enum": [
+              "AVAILABLE",
+              "DEFERRED"
+            ],
+            "type": "string"
+          },
+          "dataBoundary": {
+            "maxLength": 512,
+            "type": "string"
+          },
+          "deliveryStage": {
+            "enum": [
+              "M1",
+              "M2",
+              "M3",
+              "M5"
+            ],
+            "type": "string"
+          },
+          "description": {
+            "maxLength": 512,
+            "type": "string"
+          },
+          "label": {
+            "maxLength": 128,
+            "type": "string"
+          },
+          "moduleKey": {
+            "maxLength": 64,
+            "type": "string"
+          },
+          "sections": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 8,
+            "type": "array"
+          },
+          "timeline": {
+            "items": {
+              "$ref": "#/components/schemas/SupplierWorkspaceModuleTimelineEventDto"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "moduleKey",
+          "label",
+          "description",
+          "deliveryStage",
+          "availability",
+          "dataBoundary",
+          "sections",
+          "timeline"
+        ],
+        "type": "object"
+      },
+      "SupplierWorkspaceModuleItemDto": {
+        "properties": {
+          "availability": {
+            "enum": [
+              "AVAILABLE",
+              "DEFERRED"
+            ],
+            "type": "string"
+          },
+          "dataBoundary": {
+            "maxLength": 512,
+            "type": "string"
+          },
+          "deliveryStage": {
+            "enum": [
+              "M1",
+              "M2",
+              "M3",
+              "M5"
+            ],
+            "type": "string"
+          },
+          "description": {
+            "maxLength": 512,
+            "type": "string"
+          },
+          "label": {
+            "maxLength": 128,
+            "type": "string"
+          },
+          "moduleKey": {
+            "maxLength": 64,
+            "type": "string"
+          }
+        },
+        "required": [
+          "moduleKey",
+          "label",
+          "description",
+          "deliveryStage",
+          "availability",
+          "dataBoundary"
+        ],
+        "type": "object"
+      },
+      "SupplierWorkspaceModuleTimelineEventDto": {
+        "properties": {
+          "code": {
+            "maxLength": 64,
+            "type": "string"
+          },
+          "label": {
+            "maxLength": 128,
+            "type": "string"
+          },
+          "stage": {
+            "enum": [
+              "M1",
+              "M2",
+              "M3",
+              "M5"
+            ],
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "DONE",
+              "DEFERRED"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "label",
+          "stage",
+          "status"
+        ],
+        "type": "object"
+      },
+      "SupplierWorkspacePageFiltersDto": {
+        "properties": {
+          "availability": {
+            "enum": [
+              "ALL",
+              "AVAILABLE",
+              "DEFERRED"
+            ],
+            "type": "string"
+          },
+          "keyword": {
+            "maxLength": 64,
+            "type": "string"
+          }
+        },
+        "required": [
+          "keyword",
+          "availability"
+        ],
+        "type": "object"
+      },
+      "SupplierWorkspacePageResponseDto": {
+        "properties": {
+          "accountTypeCode": {
+            "enum": [
+              "SUPPLIER_ACCOUNT_ADMIN",
+              "SUPPLIER_PRODUCT",
+              "SUPPLIER_PRICING",
+              "SUPPLIER_INVENTORY",
+              "SUPPLIER_FULFILLMENT",
+              "SUPPLIER_AFTERSALES",
+              "SUPPLIER_FINANCE",
+              "SUPPLIER_AUDIT"
+            ],
+            "type": "string"
+          },
+          "accountTypeName": {
+            "type": "string"
+          },
+          "filters": {
+            "$ref": "#/components/schemas/SupplierWorkspacePageFiltersDto"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SupplierWorkspaceModuleItemDto"
+            },
+            "type": "array"
+          },
+          "pageId": {
+            "enum": [
+              "PAGE-016",
+              "PAGE-017",
+              "PAGE-018",
+              "PAGE-019",
+              "PAGE-020",
+              "PAGE-021",
+              "PAGE-022",
+              "PAGE-023"
+            ],
+            "type": "string"
+          },
+          "selectedModule": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SupplierWorkspaceModuleDetailDto"
+              }
+            ],
+            "nullable": true,
+            "type": "object"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/SupplierWorkspacePageSummaryDto"
+          },
+          "workspaceRoute": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "accountTypeCode",
+          "accountTypeName",
+          "pageId",
+          "workspaceRoute",
+          "summary",
+          "filters",
+          "items",
+          "selectedModule"
+        ],
+        "type": "object"
+      },
+      "SupplierWorkspacePageSummaryDto": {
+        "properties": {
+          "availableTotal": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "catalogTotal": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "deferredTotal": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "filteredTotal": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "catalogTotal",
+          "availableTotal",
+          "deferredTotal",
+          "filteredTotal"
+        ],
+        "type": "object"
+      },
+      "SupplierWorkspaceResponseDto": {
+        "properties": {
+          "accountTypeCode": {
+            "enum": [
+              "SUPPLIER_ACCOUNT_ADMIN",
+              "SUPPLIER_PRODUCT",
+              "SUPPLIER_PRICING",
+              "SUPPLIER_INVENTORY",
+              "SUPPLIER_FULFILLMENT",
+              "SUPPLIER_AFTERSALES",
+              "SUPPLIER_FINANCE",
+              "SUPPLIER_AUDIT"
+            ],
+            "type": "string"
+          },
+          "accountTypeName": {
+            "type": "string"
+          },
+          "menuItems": {
+            "items": {
+              "$ref": "#/components/schemas/SupplierWorkspaceMenuItemDto"
+            },
+            "type": "array"
+          },
+          "pageId": {
+            "enum": [
+              "PAGE-016",
+              "PAGE-017",
+              "PAGE-018",
+              "PAGE-019",
+              "PAGE-020",
+              "PAGE-021",
+              "PAGE-022",
+              "PAGE-023"
+            ],
+            "type": "string"
+          },
+          "workspaceRoute": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "accountTypeCode",
+          "accountTypeName",
+          "pageId",
+          "workspaceRoute",
+          "menuItems"
+        ],
+        "type": "object"
+      },
       "WorkspaceChoiceDto": {
         "properties": {
           "accountId": {
@@ -1699,6 +2027,12 @@
         "description": "Server-bound functional account session; clients cannot select owner scope",
         "in": "cookie",
         "name": "fulishe_session",
+        "type": "apiKey"
+      },
+      "supplierFunctionalSession": {
+        "description": "Secure HttpOnly supplier functional account session",
+        "in": "cookie",
+        "name": "__Host-fulishe-supplier-portal",
         "type": "apiKey"
       }
     }
@@ -2484,6 +2818,159 @@
         "x-fulishe-idempotency": "requestId",
         "x-fulishe-request-dto": "SupplierLoginRequestDto",
         "x-fulishe-response-dto": "SupplierWorkspaceChoiceResponseDto",
+        "x-fulishe-response-policy": "NEVER_RETURN_INTERNAL_PRICING"
+      }
+    },
+    "/v1/supplier-auth/workspace/current": {
+      "get": {
+        "operationId": "supplierauth.currentWorkspace",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "route",
+            "required": true,
+            "schema": {
+              "maxLength": 255,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupplierWorkspaceResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          },
+          "422": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "supplierFunctionalSession": []
+          }
+        ],
+        "summary": "读取当前固定供应商职能工作区白名单",
+        "tags": [
+          "supplier-auth"
+        ],
+        "x-fulishe-actor": "SUPPLIER_FUNCTIONAL_ACCOUNT",
+        "x-fulishe-contract-id": "API-084",
+        "x-fulishe-error-codes": [
+          "AUTHENTICATION_REQUIRED",
+          "AUTH_SESSION_REVOKED",
+          "WORKSPACE_FORBIDDEN",
+          "DATA_SCOPE_FORBIDDEN",
+          "VALIDATION_FAILED"
+        ],
+        "x-fulishe-idempotency": "NONE",
+        "x-fulishe-request-dto": "SupplierWorkspaceQueryDto",
+        "x-fulishe-response-dto": "SupplierWorkspaceResponseDto",
+        "x-fulishe-response-policy": "NEVER_RETURN_INTERNAL_PRICING"
+      }
+    },
+    "/v1/supplier-auth/workspace/page": {
+      "get": {
+        "operationId": "supplierauth.workspacePage",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "moduleKey",
+            "required": false,
+            "schema": {
+              "maxLength": 64,
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "availability",
+            "required": false,
+            "schema": {
+              "enum": [
+                "ALL",
+                "AVAILABLE",
+                "DEFERRED"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "keyword",
+            "required": false,
+            "schema": {
+              "maxLength": 64,
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "route",
+            "required": true,
+            "schema": {
+              "maxLength": 255,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupplierWorkspacePageResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          },
+          "404": {
+            "description": ""
+          },
+          "422": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "supplierFunctionalSession": []
+          }
+        ],
+        "summary": "读取当前供应商职能页面的隔离模块目录",
+        "tags": [
+          "supplier-auth"
+        ],
+        "x-fulishe-actor": "SUPPLIER_FUNCTIONAL_ACCOUNT",
+        "x-fulishe-contract-id": "API-085",
+        "x-fulishe-error-codes": [
+          "AUTHENTICATION_REQUIRED",
+          "AUTH_SESSION_REVOKED",
+          "WORKSPACE_FORBIDDEN",
+          "DATA_SCOPE_FORBIDDEN",
+          "WORKSPACE_MODULE_NOT_FOUND",
+          "VALIDATION_FAILED"
+        ],
+        "x-fulishe-idempotency": "NONE",
+        "x-fulishe-request-dto": "SupplierWorkspacePageQueryDto",
+        "x-fulishe-response-dto": "SupplierWorkspacePageResponseDto",
         "x-fulishe-response-policy": "NEVER_RETURN_INTERNAL_PRICING"
       }
     },

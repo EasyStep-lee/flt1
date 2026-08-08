@@ -471,6 +471,10 @@ const parseArguments = (arguments_) => {
         path.join(repositoryRoot, 'artifacts', 'verification', 'M1-P069'),
         'M1-P069',
       ],
+      [
+        path.join(repositoryRoot, 'artifacts', 'verification', 'M1-P070'),
+        'M1-P070',
+      ],
     ]);
     const reportScope = [...allowedScopes.entries()].find(([allowedRoot]) => {
       const relative = path.relative(allowedRoot, reportPath);
@@ -1106,7 +1110,9 @@ INSERT INTO \`login_audit\` (\`id\`, \`user_type\`, \`user_id\`, \`functional_ac
       previouslyVerifiedSlices: [
         {
           taskId:
-            options.reportTaskId === 'M1-P069'
+            options.reportTaskId === 'M1-P070'
+              ? 'M1-P069'
+              : options.reportTaskId === 'M1-P069'
               ? 'M1-P068'
               : options.reportTaskId === 'M1-P068'
                 ? 'M1-P067'

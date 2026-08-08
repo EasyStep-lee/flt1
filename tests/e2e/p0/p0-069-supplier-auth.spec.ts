@@ -82,6 +82,46 @@ test('P0-069 multi-account login uses only server-listed supplier workspaces', a
       }),
     });
   });
+  await page.route('**/v1/supplier-auth/workspace/current**', async (route) => {
+    await route.fulfill({
+      contentType: 'application/json',
+      status: 200,
+      body: JSON.stringify({
+        accountTypeCode: 'SUPPLIER_ACCOUNT_ADMIN',
+        accountTypeName: '主体管理',
+        pageId: 'PAGE-016',
+        workspaceRoute: '/supplier/workspaces/account-admin',
+        menuItems: [
+          {
+            key: 'workspace',
+            label: '主体管理',
+            route: '/supplier/workspaces/account-admin',
+          },
+        ],
+      }),
+    });
+  });
+  await page.route('**/v1/supplier-auth/workspace/page**', async (route) => {
+    await route.fulfill({
+      contentType: 'application/json',
+      status: 200,
+      body: JSON.stringify({
+        accountTypeCode: 'SUPPLIER_ACCOUNT_ADMIN',
+        accountTypeName: '主体管理',
+        pageId: 'PAGE-016',
+        workspaceRoute: '/supplier/workspaces/account-admin',
+        filters: { availability: 'ALL', keyword: '' },
+        items: [],
+        selectedModule: null,
+        summary: {
+          availableTotal: 0,
+          catalogTotal: 0,
+          deferredTotal: 0,
+          filteredTotal: 0,
+        },
+      }),
+    });
+  });
 
   await page.goto(`${supplierPortalOrigin}/supplier/login`);
   await page.getByLabel('账号或手机号').fill('test-supplier-admin');

@@ -1,0 +1,231 @@
+{
+  "schemaVersion": 1,
+  "taskId": "M1-P070",
+  "generatedAt": "2026-08-07T12:38:59.873Z",
+  "status": "LOCAL_PASS",
+  "git": {
+    "commit": "77ebf06feb5f40b43b182a24a254e457a0713ff4"
+  },
+  "runtime": {
+    "node": "v22.23.1",
+    "dockerServer": "29.6.2",
+    "mysql": "mysql  Ver 8.4.11 for Linux on x86_64 (MySQL Community Server - GPL)",
+    "prisma": "Prisma schema loaded from prisma\\schema.prisma\nprisma                  : 6.19.2\n@prisma/client          : 6.19.2\nComputed binaryTarget   : windows\nOperating System        : win32\nArchitecture            : x64\nNode.js                 : v22.23.1\nTypeScript              : 5.9.3\nQuery Engine (Node-API) : libquery-engine c2990dca591cba766e3b7ef5d9e8a84796e47ab7 (at ..\\..\\node_modules\\.pnpm\\@prisma+engines@6.19.2\\node_modules\\@prisma\\engines\\query_engine-windows.dll.node)\nPSL                     : @prisma/prisma-schema-wasm 7.1.1-3.c2990dca591cba766e3b7ef5d9e8a84796e47ab7\nSchema Engine           : schema-engine-cli c2990dca591cba766e3b7ef5d9e8a84796e47ab7 (at ..\\..\\node_modules\\.pnpm\\@prisma+engines@6.19.2\\node_modules\\@prisma\\engines\\schema-engine-windows.exe)\nDefault Engines Hash    : c2990dca591cba766e3b7ef5d9e8a84796e47ab7\nStudio                  : 0.511.0"
+  },
+  "productBoundary": {
+    "schemaSha256Before": "4935f69ed9813609d95b045dc995a0142665cff1c9a34da921923169610ed79a",
+    "schemaSha256After": "4935f69ed9813609d95b045dc995a0142665cff1c9a34da921923169610ed79a",
+    "productMigrationSqlBefore": 10,
+    "productMigrationSqlAfter": 10,
+    "configuredDatabaseTargeted": false,
+    "productSchemaMutated": false
+  },
+  "migrationIntegrity": {
+    "schemaVersion": 1,
+    "baseRef": "HEAD",
+    "publishedMigrationCount": 10,
+    "currentMigrationCount": 10,
+    "migrations": [
+      {
+        "name": "20260804065500_engineering_baseline",
+        "path": "packages/db/prisma/migrations/20260804065500_engineering_baseline/migration.sql",
+        "sha256": "e376881829172b5e9d5042e199279e3de99570b0404c75ff72ab9acdd393cc1a"
+      },
+      {
+        "name": "20260804065600_company_single_merchant",
+        "path": "packages/db/prisma/migrations/20260804065600_company_single_merchant/migration.sql",
+        "sha256": "1c15b5b513afbb8043c312f75bd47affe19eda673adaab06f5b2b54c9657787d"
+      },
+      {
+        "name": "20260805090000_supplier_onboarding",
+        "path": "packages/db/prisma/migrations/20260805090000_supplier_onboarding/migration.sql",
+        "sha256": "c6f0310f362d1c501b7fec93baafb512da9c27356dabf01e22e0a84ce6f7a309"
+      },
+      {
+        "name": "20260805120000_supplier_functional_accounts",
+        "path": "packages/db/prisma/migrations/20260805120000_supplier_functional_accounts/migration.sql",
+        "sha256": "a437a358d57939dcc1f4fc187bf85f7438aea9af6b69bd0ded0a878160ef928c"
+      },
+      {
+        "name": "20260806020000_audit_log",
+        "path": "packages/db/prisma/migrations/20260806020000_audit_log/migration.sql",
+        "sha256": "c58e536211ba6f11535118415b67bebe59f4108826e52a8a3b85bd75b29ac995"
+      },
+      {
+        "name": "20260806033000_permissions_data_scope",
+        "path": "packages/db/prisma/migrations/20260806033000_permissions_data_scope/migration.sql",
+        "sha256": "402ee5ab41721e756f92603a0d2cff352d586c485819bf38deef37a925f430ed"
+      },
+      {
+        "name": "20260806070000_company_auth_sessions",
+        "path": "packages/db/prisma/migrations/20260806070000_company_auth_sessions/migration.sql",
+        "sha256": "3d05d2bd4bebbbfa7960b5c3647bae04e18b156246acda2aa17c29a393d7f083"
+      },
+      {
+        "name": "20260806090000_company_fixed_workspaces",
+        "path": "packages/db/prisma/migrations/20260806090000_company_fixed_workspaces/migration.sql",
+        "sha256": "45da9ea9acfdb7f655b397cc3c26d1e8105ff21def42b3db2104630e13cda5f4"
+      },
+      {
+        "name": "20260807010000_supplier_auth_sessions",
+        "path": "packages/db/prisma/migrations/20260807010000_supplier_auth_sessions/migration.sql",
+        "sha256": "b96a577e4edb77b6d14ea7d6f7753c1036962c4367824797f13cf5f3bb17ff3b"
+      },
+      {
+        "name": "20260807105000_supplier_auth_second_verification_claim",
+        "path": "packages/db/prisma/migrations/20260807105000_supplier_auth_second_verification_claim/migration.sql",
+        "sha256": "560b3b49cb1819804c0f382ade520587ad55e20e37e5daeb13056606638fbf3e"
+      }
+    ]
+  },
+  "rehearsal": {
+    "fixtureOnly": true,
+    "baselineMigration": "20260802000000_m0_rehearsal_baseline",
+    "forwardFixMigration": "20260802000100_m0_rehearsal_forward_fix",
+    "emptyPath": {
+      "appliedMigrations": 2,
+      "payload": "empty-path",
+      "forwardColumnCount": 1,
+      "forwardMarker": "forward-fixed"
+    },
+    "upgradePath": {
+      "before": {
+        "appliedMigrations": 1,
+        "payload": "baseline-preserved",
+        "forwardColumnCount": 0
+      },
+      "after": {
+        "appliedMigrations": 2,
+        "payload": "baseline-preserved",
+        "forwardColumnCount": 1,
+        "forwardMarker": "forward-fixed"
+      },
+      "payloadPreserved": true
+    },
+    "backupRestore": {
+      "backup": {
+        "bytes": 2947,
+        "sha256": "fb6e6cf38356ba477e6f9005198e97b8651907cde42968f7d5567aa2fc4ab4b8",
+        "migrationCount": 1
+      },
+      "restoredBeforeForwardFix": {
+        "appliedMigrations": 1,
+        "payload": "baseline-preserved",
+        "forwardColumnCount": 0
+      },
+      "restoredAfterForwardFix": {
+        "appliedMigrations": 2,
+        "payload": "baseline-preserved",
+        "forwardColumnCount": 1,
+        "forwardMarker": "forward-fixed"
+      },
+      "payloadPreserved": true
+    },
+    "finalSchemaDrift": "NONE",
+    "idempotentRedeploy": "PASS"
+  },
+  "productRehearsal": {
+    "taskId": "M1-P070",
+    "previouslyVerifiedSlices": [
+      {
+        "taskId": "M1-P069"
+      }
+    ],
+    "migrationCount": 10,
+    "companyRowCount": 1,
+    "fixedIdentity": {
+      "legalName": "江苏福礼团供应链科技有限公司",
+      "platformName": "福礼社"
+    },
+    "constraints": {
+      "checkConstraintCount": 2,
+      "uniqueIdentityIndexCount": 2
+    },
+    "secondMerchantRejected": true,
+    "invalidLegalNameRejected": true,
+    "supplierOnboarding": {
+      "supplierRowCount": 1,
+      "supplierStatus": "PENDING_REVIEW",
+      "supplierVersion": 1,
+      "approvalTaskCount": 1,
+      "statusHistoryCount": 2,
+      "onboardingTableCount": 4,
+      "uniqueCreditIndexCount": 1,
+      "ownershipForeignKeyCount": 2,
+      "duplicateCreditCodeRejected": true,
+      "duplicateHistoryVersionRejected": true
+    },
+    "supplierFunctionalAccounts": {
+      "activeAccountTypeCount": 8,
+      "uniqueWorkspaceRouteCount": 8,
+      "tableCount": 5,
+      "ownershipForeignKeyCount": 5
+    },
+    "sensitiveAudit": {
+      "tableCount": 1,
+      "triggerCount": 2,
+      "rowCount": 1,
+      "updateRejected": true,
+      "deleteRejected": true,
+      "logBinTrustFunctionCreatorsRequired": true
+    },
+    "sensitiveDataIsolation": {
+      "permissionPolicyTableCount": 4,
+      "foreignKeyCount": 4,
+      "dataScopeGuardTriggerCount": 2,
+      "permissionRowCount": 1,
+      "dataScopePolicyRowCount": 1,
+      "fieldAccessPolicyRowCount": 1,
+      "fieldAccessDefaultMode": "HIDDEN",
+      "duplicateFieldAccessRejected": true,
+      "crossSupplierScopeRejected": true
+    },
+    "companyAuth": {
+      "tableCount": 4,
+      "foreignKeyCount": 4,
+      "companyUserRowCount": 1,
+      "authSessionRowCount": 1,
+      "loginAuditRowCount": 1,
+      "loginAuditTriggerCount": 2,
+      "rawSessionTokenRejected": true,
+      "loginAuditUpdateRejected": true,
+      "loginAuditDeleteRejected": true
+    },
+    "companyFixedWorkspaces": {
+      "activeAccountTypeCount": 10,
+      "uniqueWorkspaceRouteCount": 10,
+      "exactCodeRoutePairCount": 10,
+      "singleMenuSchemaCount": 10
+    },
+    "supplierAuth": {
+      "tableCount": 1,
+      "foreignKeyCount": 1,
+      "secondVerificationColumnCount": 3,
+      "secondVerificationCheckCount": 3,
+      "supplierUserRowCount": 1,
+      "selectionRowCount": 1,
+      "authSessionRowCount": 1,
+      "loginAuditRowCount": 1,
+      "rawSelectionTokenRejected": true,
+      "incompleteSecondVerificationClaimRejected": true,
+      "verifiedSecondFactorReclaimRejected": true
+    },
+    "finalSchemaDrift": "NONE",
+    "idempotentRedeploy": "PASS"
+  },
+  "evidenceBoundary": {
+    "localDockerMySql": "LOCAL_PASS",
+    "ci": "NOT_EXECUTED",
+    "staging": "NOT_EXECUTED",
+    "productionMigration": "HUMAN_ONLY_NOT_EXECUTED",
+    "productionDisasterRecovery": "NOT_EXECUTED"
+  },
+  "cleanup": {
+    "disposableDatabasesDropped": true,
+    "disposableUserDropped": true,
+    "temporaryFilesRemoved": true,
+    "mysqlPriorRunningStateRestored": true,
+    "logBinTrustFunctionCreatorsRestored": true,
+    "errors": []
+  }
+}

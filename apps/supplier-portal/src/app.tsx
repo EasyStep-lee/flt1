@@ -25,6 +25,7 @@ import {
   SupplierLoginPage,
 } from './supplier-auth-pages.js';
 import { supplierSessionBoundary } from './session-boundary.js';
+import { SupplierWorkspaceGate } from './supplier-workspace-pages.js';
 
 type RegistrationResponse = components['schemas']['SupplierRegistrationResponseDto'];
 type SupplierStatus = RegistrationResponse['status'];
@@ -302,38 +303,6 @@ function SupplierRegistrationPage() {
   );
 }
 
-function SupplierAccountAdminPage() {
-  return (
-    <main className="functional-account-page" data-page-id="PAGE-016" data-route="/supplier/workspaces/account-admin">
-      <div className="functional-account-header">
-        <div>
-          <Typography.Text className="eyebrow">FIXED WORKSPACE</Typography.Text>
-          <Typography.Title level={1}>主体管理</Typography.Title>
-          <Typography.Paragraph>
-            当前会话仅可管理本供应商主体资料和职能账号；每个账号进入服务端固定的独立工作区。
-          </Typography.Paragraph>
-        </div>
-        <Tag color="cyan">SUPPLIER_ACCOUNT_ADMIN</Tag>
-      </div>
-      <Row gutter={[20, 20]}>
-        <Col lg={12} xs={24}>
-          <Card title="主体资料" bordered={false}>
-            <p>查看资质、主体状态与取货点。敏感变更按独立流程复核。</p>
-          </Card>
-        </Col>
-        <Col lg={12} xs={24}>
-          <Card title="职能账号" bordered={false}>
-            <p>邀请独立职能账号，并由服务端锁定其工作区入口。</p>
-            <Button href="/supplier/workspaces/account-admin/accounts" type="primary">
-              进入账号管理
-            </Button>
-          </Card>
-        </Col>
-      </Row>
-    </main>
-  );
-}
-
 type InviteAccountFormValues = CreateFunctionalAccount;
 
 function SupplierFunctionalAccountsPage() {
@@ -495,11 +464,16 @@ export function SupplierPortalShell() {
   if (currentPath === supplierSessionBoundary.accountSelectRoute) {
     return <SupplierAccountSelectPage />;
   }
-  if (currentPath === '/supplier/workspaces/account-admin') {
-    return <SupplierAccountAdminPage />;
-  }
   if (currentPath === '/supplier/workspaces/account-admin/accounts') {
-    return <SupplierFunctionalAccountsPage />;
+    return (
+      <SupplierWorkspaceGate
+        content={() => <SupplierFunctionalAccountsPage />}
+        route="/supplier/workspaces/account-admin"
+      />
+    );
+  }
+  if (currentPath.startsWith(supplierSessionBoundary.workspaceRoutePrefix)) {
+    return <SupplierWorkspaceGate route={currentPath} />;
   }
 
   return (

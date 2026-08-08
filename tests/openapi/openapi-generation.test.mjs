@@ -120,6 +120,8 @@ test('generated contract exposes health, merchant identity, supplier onboarding 
     '/v1/company/suppliers/{supplierId}/review',
     '/v1/public/merchant-profile',
     '/v1/supplier-auth/login',
+    '/v1/supplier-auth/workspace/current',
+    '/v1/supplier-auth/workspace/page',
     '/v1/supplier-auth/workspaces/{accountId}/select',
     '/v1/supplier/me',
     '/v1/supplier/me/submit-review',
@@ -151,6 +153,14 @@ test('generated contract exposes health, merchant identity, supplier onboarding 
   assert.equal(
     spec.paths['/v1/supplier-auth/login'].post.operationId,
     'supplierauth.login',
+  );
+  assert.equal(
+    spec.paths['/v1/supplier-auth/workspace/current'].get.operationId,
+    'supplierauth.currentWorkspace',
+  );
+  assert.equal(
+    spec.paths['/v1/supplier-auth/workspace/page'].get.operationId,
+    'supplierauth.workspacePage',
   );
   assert.equal(
     spec.paths['/v1/supplier-auth/workspaces/{accountId}/select'].post.operationId,
@@ -222,6 +232,14 @@ test('generated contract exposes health, merchant identity, supplier onboarding 
       'SupplierSessionResponseDto',
       'SupplierWorkspaceChoiceDto',
       'SupplierWorkspaceChoiceResponseDto',
+      'SupplierWorkspaceMenuItemDto',
+      'SupplierWorkspaceModuleDetailDto',
+      'SupplierWorkspaceModuleItemDto',
+      'SupplierWorkspaceModuleTimelineEventDto',
+      'SupplierWorkspacePageFiltersDto',
+      'SupplierWorkspacePageResponseDto',
+      'SupplierWorkspacePageSummaryDto',
+      'SupplierWorkspaceResponseDto',
       'WorkspaceChoiceDto',
       'WorkspaceChoiceResponseDto',
     ],

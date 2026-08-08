@@ -31,7 +31,7 @@ export class FoundationExceptionFilter implements ExceptionFilter {
         createApiErrorResponse(
           statusCode,
           request.requestId,
-          request.originalUrl,
+          request.path,
           new Date().toISOString(),
           override,
         ),

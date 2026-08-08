@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 const repositoryRoot = fileURLToPath(new URL('../../', import.meta.url));
 const packRoot = path.join(repositoryRoot, '福礼社Codex5.6开发执行包V1.1');
 
-test('M1-P069 records supplier auth and one-functional-session selection without entering P070', async () => {
+test('M1-P069 remains recorded after its exact-head merge and P070 takeover', async () => {
   const [contract, evidence, state, tasks, p0, pages, migrations, apis, openapi] =
     await Promise.all([
       readFile(
@@ -65,17 +65,22 @@ test('M1-P069 records supplier auth and one-functional-session selection without
     '20260807010000_supplier_auth_sessions',
   ]);
 
-  assert.equal(state.execution.currentTask, 'M1-P069');
-  assert.equal(state.execution.nextAllowedTask, 'M1-P069');
-  assert.equal(state.execution.lastCompletedTask, 'M1-P068');
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M1-P069');
-  assert.equal(state.github.currentTaskDelivery.issue, 27);
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M1-P070/u);
+  assert.equal(state.execution.currentTask, 'M1-P070');
+  assert.equal(state.execution.nextAllowedTask, 'M1-P070');
+  assert.equal(state.execution.lastCompletedTask, 'M1-P069');
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M1-P070');
+  assert.equal(state.github.currentTaskDelivery.issue, 29);
+  assert.equal(state.github.previousTaskDelivery.taskId, 'M1-P069');
+  assert.equal(
+    state.github.previousTaskDelivery.exactHead,
+    'c914a5e7d1036e20f6a989f40455c30d9dbe0043',
+  );
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M1-P071|M1-P072/u);
 
   assert.match(tasks, /M1-P068[^\r\n]*DONE[^\r\n]*CI_PASS/u);
-  assert.match(tasks, /M1-P069[^\r\n]*IN_PROGRESS[^\r\n]*LOCAL_PASS/u);
-  assert.match(tasks, /M1-P070[^\r\n]*NOT_STARTED[^\r\n]*NOT_EXECUTED/u);
-  assert.match(p0, /P0-069[^\r\n]*LOCAL_PASS/u);
+  assert.match(tasks, /M1-P069[^\r\n]*DONE[^\r\n]*CI_PASS/u);
+  assert.match(tasks, /M1-P070[^\r\n]*IN_PROGRESS[^\r\n]*NOT_EXECUTED/u);
+  assert.match(p0, /P0-069[^\r\n]*CI_PASS/u);
   assert.match(pages, /PAGE-013[^\r\n]*IMPLEMENTED[^\r\n]*P0-069_LOCAL_PASS/u);
   assert.match(pages, /PAGE-014[^\r\n]*IMPLEMENTED[^\r\n]*LOCAL_PASS/u);
   assert.match(pages, /PAGE-015[^\r\n]*IMPLEMENTED[^\r\n]*LOCAL_PASS/u);

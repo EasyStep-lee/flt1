@@ -186,6 +186,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/supplier-auth/workspace/current": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 读取当前固定供应商职能工作区白名单 */
+        get: operations["supplierauth.currentWorkspace"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/supplier-auth/workspace/page": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 读取当前供应商职能页面的隔离模块目录 */
+        get: operations["supplierauth.workspacePage"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/supplier-auth/workspaces/{accountId}/select": {
         parameters: {
             query?: never;
@@ -703,6 +737,74 @@ export interface components {
             selectionNonce: string;
             selectionRequired: boolean;
         };
+        SupplierWorkspaceMenuItemDto: {
+            /** @enum {string} */
+            key: "workspace";
+            label: string;
+            route: string;
+        };
+        SupplierWorkspaceModuleDetailDto: {
+            /** @enum {string} */
+            availability: "AVAILABLE" | "DEFERRED";
+            dataBoundary: string;
+            /** @enum {string} */
+            deliveryStage: "M1" | "M2" | "M3" | "M5";
+            description: string;
+            label: string;
+            moduleKey: string;
+            sections: string[];
+            timeline: components["schemas"]["SupplierWorkspaceModuleTimelineEventDto"][];
+        };
+        SupplierWorkspaceModuleItemDto: {
+            /** @enum {string} */
+            availability: "AVAILABLE" | "DEFERRED";
+            dataBoundary: string;
+            /** @enum {string} */
+            deliveryStage: "M1" | "M2" | "M3" | "M5";
+            description: string;
+            label: string;
+            moduleKey: string;
+        };
+        SupplierWorkspaceModuleTimelineEventDto: {
+            code: string;
+            label: string;
+            /** @enum {string} */
+            stage: "M1" | "M2" | "M3" | "M5";
+            /** @enum {string} */
+            status: "DONE" | "DEFERRED";
+        };
+        SupplierWorkspacePageFiltersDto: {
+            /** @enum {string} */
+            availability: "ALL" | "AVAILABLE" | "DEFERRED";
+            keyword: string;
+        };
+        SupplierWorkspacePageResponseDto: {
+            /** @enum {string} */
+            accountTypeCode: "SUPPLIER_ACCOUNT_ADMIN" | "SUPPLIER_PRODUCT" | "SUPPLIER_PRICING" | "SUPPLIER_INVENTORY" | "SUPPLIER_FULFILLMENT" | "SUPPLIER_AFTERSALES" | "SUPPLIER_FINANCE" | "SUPPLIER_AUDIT";
+            accountTypeName: string;
+            filters: components["schemas"]["SupplierWorkspacePageFiltersDto"];
+            items: components["schemas"]["SupplierWorkspaceModuleItemDto"][];
+            /** @enum {string} */
+            pageId: "PAGE-016" | "PAGE-017" | "PAGE-018" | "PAGE-019" | "PAGE-020" | "PAGE-021" | "PAGE-022" | "PAGE-023";
+            selectedModule: components["schemas"]["SupplierWorkspaceModuleDetailDto"] | null;
+            summary: components["schemas"]["SupplierWorkspacePageSummaryDto"];
+            workspaceRoute: string;
+        };
+        SupplierWorkspacePageSummaryDto: {
+            availableTotal: number;
+            catalogTotal: number;
+            deferredTotal: number;
+            filteredTotal: number;
+        };
+        SupplierWorkspaceResponseDto: {
+            /** @enum {string} */
+            accountTypeCode: "SUPPLIER_ACCOUNT_ADMIN" | "SUPPLIER_PRODUCT" | "SUPPLIER_PRICING" | "SUPPLIER_INVENTORY" | "SUPPLIER_FULFILLMENT" | "SUPPLIER_AFTERSALES" | "SUPPLIER_FINANCE" | "SUPPLIER_AUDIT";
+            accountTypeName: string;
+            menuItems: components["schemas"]["SupplierWorkspaceMenuItemDto"][];
+            /** @enum {string} */
+            pageId: "PAGE-016" | "PAGE-017" | "PAGE-018" | "PAGE-019" | "PAGE-020" | "PAGE-021" | "PAGE-022" | "PAGE-023";
+            workspaceRoute: string;
+        };
         WorkspaceChoiceDto: {
             /** Format: uuid */
             accountId: string;
@@ -1157,6 +1259,93 @@ export interface operations {
                 content?: never;
             };
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    "supplierauth.currentWorkspace": {
+        parameters: {
+            query: {
+                route: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierWorkspaceResponseDto"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    "supplierauth.workspacePage": {
+        parameters: {
+            query: {
+                moduleKey?: string;
+                availability?: "ALL" | "AVAILABLE" | "DEFERRED";
+                keyword?: string;
+                route: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierWorkspacePageResponseDto"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

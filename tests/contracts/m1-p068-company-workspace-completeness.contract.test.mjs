@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 const repositoryRoot = fileURLToPath(new URL('../../', import.meta.url));
 const packRoot = path.join(repositoryRoot, '福礼社Codex5.6开发执行包V1.1');
 
-test('M1-P068 remains bound to merged evidence after P069 starts', async () => {
+test('M1-P068 remains bound to merged evidence after P070 starts', async () => {
   const [contract, evidence, state, tasks, p0, pages, apis, openapi] = await Promise.all([
     readFile(
       path.join(
@@ -66,16 +66,17 @@ test('M1-P068 remains bound to merged evidence after P069 starts', async () => {
   assert.ok(evidence.negativeTests.every(({ status }) => status === 'PASS'));
   assert.deepEqual(evidence.migration.newMigrations, []);
 
-  assert.equal(state.execution.currentTask, 'M1-P069');
-  assert.equal(state.execution.nextAllowedTask, 'M1-P069');
-  assert.equal(state.execution.lastCompletedTask, 'M1-P068');
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M1-P069');
-  assert.equal(state.github.currentTaskDelivery.issue, 27);
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M1-P070/u);
+  assert.equal(state.execution.currentTask, 'M1-P070');
+  assert.equal(state.execution.nextAllowedTask, 'M1-P070');
+  assert.equal(state.execution.lastCompletedTask, 'M1-P069');
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M1-P070');
+  assert.equal(state.github.currentTaskDelivery.issue, 29);
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M1-P071/u);
 
   assert.match(tasks, /M1-P067[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(tasks, /M1-P068[^\r\n]*DONE[^\r\n]*CI_PASS/u);
-  assert.match(tasks, /M1-P069[^\r\n]*IN_PROGRESS[^\r\n]*LOCAL_PASS/u);
+  assert.match(tasks, /M1-P069[^\r\n]*DONE[^\r\n]*CI_PASS/u);
+  assert.match(tasks, /M1-P070[^\r\n]*IN_PROGRESS/u);
   assert.match(p0, /P0-068[^\r\n]*CI_PASS/u);
   assert.match(pages, /PAGE-003[^\r\n]*IMPLEMENTED[^\r\n]*P0-068_CI_PASS/u);
   assert.match(pages, /PAGE-012[^\r\n]*IMPLEMENTED[^\r\n]*P0-068_CI_PASS/u);
