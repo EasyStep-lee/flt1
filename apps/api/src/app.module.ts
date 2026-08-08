@@ -10,6 +10,7 @@ import {
   type AuditLogRepository,
 } from './audit/audit-log.repository.js';
 import { AuditLogService } from './audit/audit-log.service.js';
+import { AuditSessionActorResolver } from './audit/audit-session-actor.resolver.js';
 import { PrismaAuditLogRepository } from './audit/prisma-audit-log.repository.js';
 import { CompanyAuthService } from './company-auth/company-auth.service.js';
 import {
@@ -53,6 +54,12 @@ import {
   type SingleMerchantRepository,
 } from './merchant/single-merchant.repository.js';
 import { SingleMerchantService } from './merchant/single-merchant.service.js';
+import { PrismaSensitiveApprovalRepository } from './sensitive-approval/prisma-sensitive-approval.repository.js';
+import {
+  SENSITIVE_APPROVAL_REPOSITORY,
+  type SensitiveApprovalRepository,
+} from './sensitive-approval/sensitive-approval.repository.js';
+import { SensitiveApprovalService } from './sensitive-approval/sensitive-approval.service.js';
 import { OPENAPI_CONTROLLERS } from './openapi/openapi-controller.registry.js';
 import {
   SUPPLIER_AUTH_SESSION_CREDENTIAL,
@@ -120,6 +127,7 @@ export interface AppModuleOptions {
   readonly functionalAccountAuditSink?: FunctionalAccountAuditSink;
   readonly auditLogRepository?: AuditLogRepository;
   readonly auditActorResolver?: AuditActorResolver;
+  readonly sensitiveApprovalRepository?: SensitiveApprovalRepository;
   readonly companyAuthRepository?: CompanyAuthRepository;
   readonly companyCredentialVerifier?: CompanyCredentialVerifier;
   readonly companySecondVerifier?: CompanySecondVerifier;
@@ -158,6 +166,9 @@ export class AppModule {
       PrismaAuditLogRepository,
       DenyAuditActorResolver,
       AuditLogService,
+      AuditSessionActorResolver,
+      PrismaSensitiveApprovalRepository,
+      SensitiveApprovalService,
       PrismaCompanyAuthRepository,
       UnavailableCompanyCredentialVerifier,
       UnavailableCompanySecondVerifier,
@@ -250,7 +261,16 @@ export class AppModule {
         ? { provide: AUDIT_ACTOR_RESOLVER, useValue: options.auditActorResolver }
         : {
             provide: AUDIT_ACTOR_RESOLVER,
-            useExisting: CompanyAuditSessionActorResolver,
+            useExisting: AuditSessionActorResolver,
+          },
+      options.sensitiveApprovalRepository
+        ? {
+            provide: SENSITIVE_APPROVAL_REPOSITORY,
+            useValue: options.sensitiveApprovalRepository,
+          }
+        : {
+            provide: SENSITIVE_APPROVAL_REPOSITORY,
+            useExisting: PrismaSensitiveApprovalRepository,
           },
       options.companyAuthRepository
         ? { provide: COMPANY_AUTH_REPOSITORY, useValue: options.companyAuthRepository }

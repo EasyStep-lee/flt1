@@ -47,6 +47,11 @@ import {
 } from '../merchant/single-merchant.repository.js';
 import { SingleMerchantService } from '../merchant/single-merchant.service.js';
 import {
+  SENSITIVE_APPROVAL_REPOSITORY,
+  type SensitiveApprovalRepository,
+} from '../sensitive-approval/sensitive-approval.repository.js';
+import { SensitiveApprovalService } from '../sensitive-approval/sensitive-approval.service.js';
+import {
   SUPPLIER_AUTH_SESSION_CREDENTIAL,
   SupplierAuthService,
 } from '../supplier-auth/supplier-auth.service.js';
@@ -107,6 +112,7 @@ type JsonValue =
   providers: [
     HealthService,
     AuditLogService,
+    SensitiveApprovalService,
     CompanyAuthService,
     CompanyFunctionalAccountService,
     SupplierAuthService,
@@ -189,6 +195,21 @@ type JsonValue =
     {
       provide: AUDIT_ACTOR_RESOLVER,
       useExisting: DenyAuditActorResolver,
+    },
+    {
+      provide: SENSITIVE_APPROVAL_REPOSITORY,
+      useValue: {
+        create: async () => {
+          throw new Error('OPENAPI_GENERATION_ONLY');
+        },
+        list: async () => [],
+        claim: async () => {
+          throw new Error('OPENAPI_GENERATION_ONLY');
+        },
+        decide: async () => {
+          throw new Error('OPENAPI_GENERATION_ONLY');
+        },
+      } satisfies SensitiveApprovalRepository,
     },
     { provide: FOUNDATION_PROBES, useValue: [] },
     { provide: HEALTH_PROBE_TIMEOUT_MS, useValue: 50 },

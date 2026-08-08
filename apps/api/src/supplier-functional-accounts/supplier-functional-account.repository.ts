@@ -29,6 +29,7 @@ export interface FunctionalAccountListQuery {
 }
 
 export interface CreateSupplierFunctionalAccountCommand {
+  readonly actorFunctionalAccountId: string;
   readonly actorIdentityId: string;
   readonly ip: string | null;
   readonly accountTypeCode: SupplierFunctionalAccountTypeCode;

@@ -24,6 +24,8 @@ export class InMemoryAuditLogRepository implements AuditLogRepository {
     if (this.failAppend) throw new Error('AUDIT_APPEND_FAILED');
     const event: AuditLogRecord = {
       ...clone(command),
+      supplierId: command.supplierId ?? null,
+      functionalAccountId: command.functionalAccountId ?? null,
       beforeSnapshot: sanitizeAuditSnapshot(command.beforeSnapshot),
       afterSnapshot: sanitizeAuditSnapshot(command.afterSnapshot),
       id: crypto.randomUUID(),
@@ -43,6 +45,9 @@ export class InMemoryAuditLogRepository implements AuditLogRepository {
       )
       .filter(
         (event) => query.objectId === undefined || event.objectId === query.objectId,
+      )
+      .filter(
+        (event) => query.supplierId === undefined || event.supplierId === query.supplierId,
       )
       .reverse();
     const start = (query.page - 1) * query.pageSize;

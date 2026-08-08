@@ -79,15 +79,15 @@ test('M1-P070 records eight isolated supplier workspaces at the local evidence b
   assert.equal(rehearsal.cleanup.errors.length, 0);
   assert.match(rehearsalScript, /M1-P070/u);
 
-  assert.equal(state.execution.currentTask, 'M1-P070');
-  assert.equal(state.execution.nextAllowedTask, 'M1-P070');
-  assert.equal(state.execution.lastCompletedTask, 'M1-P069');
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M1-P070');
-  assert.equal(state.github.currentTaskDelivery.issue, 29);
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M1-P071|M1-P072/u);
+  assert.equal(state.execution.currentTask, 'M1-P072');
+  assert.equal(state.execution.nextAllowedTask, 'M1-P072');
+  assert.equal(state.execution.lastCompletedTask, 'M1-P070');
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M1-P072');
+  assert.equal(state.github.currentTaskDelivery.issue, 31);
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2/u);
 
-  assert.match(tasks, /M1-P070[^\r\n]*IN_PROGRESS[^\r\n]*LOCAL_PASS/u);
-  assert.match(p0, /P0-070[^\r\n]*LOCAL_PASS/u);
+  assert.match(tasks, /M1-P070[^\r\n]*DONE[^\r\n]*CI_PASS/u);
+  assert.match(p0, /P0-070[^\r\n]*CI_PASS/u);
   for (const pageId of [
     'PAGE-016',
     'PAGE-017',

@@ -76,6 +76,8 @@ export class InMemorySupplierFunctionalAccountRepository
       await this.auditRepository.append({
         actorType: 'SUPPLIER_USER',
         actorId: command.actorIdentityId,
+        supplierId: command.supplierId,
+        functionalAccountId: command.actorFunctionalAccountId,
         action: 'functional_account.invited',
         objectType: 'functional_account',
         objectId: value.id,

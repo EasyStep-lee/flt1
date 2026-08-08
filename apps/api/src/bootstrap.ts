@@ -22,6 +22,7 @@ import { requestIdMiddleware } from './http/request-id.middleware.js';
 import type { InfrastructureProbe } from './infrastructure/probe.js';
 import { SafeJsonLogger } from './logging/safe-json.logger.js';
 import type { SingleMerchantRepository } from './merchant/single-merchant.repository.js';
+import type { SensitiveApprovalRepository } from './sensitive-approval/sensitive-approval.repository.js';
 import type { SupplierAuthRepository } from './supplier-auth/supplier-auth.repository.js';
 import type {
   SupplierCredentialVerifier,
@@ -53,6 +54,7 @@ export interface CreateApplicationOptions {
   readonly functionalAccountAuditSink?: FunctionalAccountAuditSink;
   readonly auditLogRepository?: AuditLogRepository;
   readonly auditActorResolver?: AuditActorResolver;
+  readonly sensitiveApprovalRepository?: SensitiveApprovalRepository;
   readonly companyAuthRepository?: CompanyAuthRepository;
   readonly companyCredentialVerifier?: CompanyCredentialVerifier;
   readonly companySecondVerifier?: CompanySecondVerifier;
@@ -99,6 +101,9 @@ export const createApplication = async (
       : {}),
     ...(options.auditActorResolver
       ? { auditActorResolver: options.auditActorResolver }
+      : {}),
+    ...(options.sensitiveApprovalRepository
+      ? { sensitiveApprovalRepository: options.sensitiveApprovalRepository }
       : {}),
     ...(options.companyAuthRepository
       ? { companyAuthRepository: options.companyAuthRepository }

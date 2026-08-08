@@ -88,11 +88,19 @@ export class CompanyAuditSessionActorResolver implements AuditActorResolver {
       'COMPANY_AUDIT',
     );
     return {
+      ownerType: 'COMPANY',
       accountTypeCode: session.accountTypeCode,
       companyId: session.companyId,
       functionalAccountId: session.functionalAccountId,
+      identityType: 'COMPANY_USER',
       identityId: session.userId,
+      supplierId: null,
       workspaceRoute: session.workspaceRoute,
+      permissionCodes: [
+        'audit_event.read',
+        'sensitive_export.request',
+        'sensitive_export.review',
+      ],
     };
   }
 }

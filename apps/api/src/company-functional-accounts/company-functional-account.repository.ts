@@ -29,6 +29,7 @@ export interface CompanyFunctionalAccountListQuery {
 }
 
 export interface CreateCompanyFunctionalAccountCommand {
+  readonly actorFunctionalAccountId: string;
   readonly accountTypeCode: CompanyAccountTypeCode;
   readonly actorIdentityId: string;
   readonly companyId: string;

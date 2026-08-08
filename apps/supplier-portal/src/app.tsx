@@ -25,12 +25,17 @@ import {
   SupplierLoginPage,
 } from './supplier-auth-pages.js';
 import { supplierSessionBoundary } from './session-boundary.js';
-import { SupplierWorkspaceGate } from './supplier-workspace-pages.js';
+import {
+  SupplierWorkspaceGate,
+  type SupplierWorkspace,
+} from './supplier-workspace-pages.js';
 
 type RegistrationResponse = components['schemas']['SupplierRegistrationResponseDto'];
 type SupplierStatus = RegistrationResponse['status'];
 type FunctionalAccount = components['schemas']['FunctionalAccountResponseDto'];
 type CreateFunctionalAccount = components['schemas']['CreateFunctionalAccountRequestDto'];
+type AuditEvent = components['schemas']['AuditEventResponseDto'];
+type SensitiveApproval = components['schemas']['SensitiveApprovalTaskResponseDto'];
 
 interface RegistrationFormValues {
   readonly legalName: string;
@@ -453,6 +458,134 @@ function SupplierFunctionalAccountsPage() {
   );
 }
 
+function SupplierAuditPage({ workspace }: { readonly workspace: SupplierWorkspace }) {
+  const [events, setEvents] = useState<readonly AuditEvent[]>([]);
+  const [approvals, setApprovals] = useState<readonly SensitiveApproval[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [reason, setReason] = useState('');
+  const [message, setMessage] = useState('');
+
+  const load = async () => {
+    setLoading(true);
+    setMessage('');
+    try {
+      const [auditResponse, approvalResponse] = await Promise.all([
+        api.GET('/v1/audit/events', { params: { query: { page: 1, pageSize: 20 } } }),
+        api.GET('/v1/audit/sensitive-export-approvals'),
+      ]);
+      if (!auditResponse.data || !approvalResponse.data) {
+        setMessage(
+          readErrorMessage(auditResponse.error ?? approvalResponse.error),
+        );
+        return;
+      }
+      setEvents(auditResponse.data.items);
+      setApprovals(approvalResponse.data.items);
+    } catch {
+      setMessage('网络离线或请求超时，请恢复后重试。');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void load();
+  }, []);
+
+  const requestApproval = async () => {
+    if (reason.trim().length < 2) return;
+    setLoading(true);
+    setMessage('');
+    try {
+      const response = await api.POST('/v1/audit/sensitive-export-approvals', {
+        params: { header: { 'Idempotency-Key': crypto.randomUUID() } },
+        body: { reason: reason.trim(), resource: 'AUDIT_EVENTS' },
+      });
+      if (!response.data) {
+        setMessage(readErrorMessage(response.error));
+        return;
+      }
+      setReason('');
+      setMessage('申请已提交公司审计职能复核；不会在 M1 生成导出文件。');
+      await load();
+    } catch {
+      setMessage('申请结果未知，请先重新加载任务列表。');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <main
+      className="functional-account-page"
+      data-page-id="PAGE-023"
+      data-role={workspace.accountTypeCode}
+      data-route="/supplier/workspaces/audit"
+    >
+      <div className="functional-account-header">
+        <div>
+          <Typography.Text className="eyebrow">SUPPLIER AUDIT</Typography.Text>
+          <Typography.Title level={1}>本供应商操作审计</Typography.Title>
+          <Typography.Paragraph>
+            服务端先按当前会话 supplierId 限定范围；页面只读展示脱敏事件和本方审批申请。
+          </Typography.Paragraph>
+        </div>
+        <Button onClick={() => void load()}>刷新记录</Button>
+      </div>
+      {message ? <Alert description={message} message="审计提示" showIcon type="info" /> : null}
+      <Card bordered={false} data-supplier-audit-state={loading ? 'loading' : events.length ? 'success' : 'empty'}>
+        <Table<AuditEvent>
+          dataSource={[...events]}
+          loading={loading}
+          locale={{ emptyText: '本供应商暂无审计事件' }}
+          pagination={false}
+          rowKey="id"
+          columns={[
+            { title: '时间', dataIndex: 'occurredAt' },
+            { title: '动作', dataIndex: 'action' },
+            { title: '对象类型', dataIndex: 'objectType' },
+            { title: '请求编号', dataIndex: 'requestId' },
+          ]}
+        />
+      </Card>
+      <Card bordered={false} title="敏感操作审批申请（不生成文件）">
+        <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+          <Space.Compact block>
+            <Input
+              aria-label="供应商敏感导出申请理由"
+              maxLength={500}
+              onChange={(event) => setReason(event.target.value)}
+              placeholder="填写审计事件导出申请理由"
+              value={reason}
+            />
+            <Button
+              disabled={reason.trim().length < 2}
+              loading={loading}
+              onClick={() => void requestApproval()}
+              type="primary"
+            >
+              提交复核
+            </Button>
+          </Space.Compact>
+          <Table<SensitiveApproval>
+            dataSource={[...approvals]}
+            loading={loading}
+            locale={{ emptyText: '本供应商暂无审批申请' }}
+            pagination={false}
+            rowKey="id"
+            columns={[
+              { title: '资源', dataIndex: 'resource' },
+              { title: '状态', dataIndex: 'status', render: (value: string) => <Tag>{value}</Tag> },
+              { title: '版本', dataIndex: 'version' },
+              { title: '复核意见', dataIndex: 'reviewOpinion', render: (value: string | null) => value ?? '—' },
+            ]}
+          />
+        </Space>
+      </Card>
+    </main>
+  );
+}
+
 export function SupplierPortalShell() {
   const currentPath = window.location.pathname;
   if (currentPath === supplierSessionBoundary.registerRoute) {
@@ -473,7 +606,16 @@ export function SupplierPortalShell() {
     );
   }
   if (currentPath.startsWith(supplierSessionBoundary.workspaceRoutePrefix)) {
-    return <SupplierWorkspaceGate route={currentPath} />;
+    return (
+      <SupplierWorkspaceGate
+        content={
+          currentPath === '/supplier/workspaces/audit'
+            ? (workspace) => <SupplierAuditPage workspace={workspace} />
+            : undefined
+        }
+        route={currentPath}
+      />
+    );
   }
 
   return (

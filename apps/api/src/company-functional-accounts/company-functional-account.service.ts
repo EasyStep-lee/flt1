@@ -264,6 +264,7 @@ export class CompanyFunctionalAccountService {
     };
     const result = await this.repository.createCompanyAccount({
       ...canonical,
+      actorFunctionalAccountId: actor.functionalAccountId,
       actorIdentityId: actor.identityId,
       idempotencyKey: key,
       identityId: targetIdentityId,

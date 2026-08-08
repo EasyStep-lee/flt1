@@ -73,20 +73,21 @@ test('M1-P067 remains bound to its merged evidence after P070 starts', async () 
   assert.equal(rehearsal.productRehearsal.finalSchemaDrift, 'NONE');
   assert.equal(rehearsal.cleanup.errors.length, 0);
 
-  assert.equal(state.execution.currentTask, 'M1-P070');
-  assert.equal(state.execution.nextAllowedTask, 'M1-P070');
+  assert.equal(state.execution.currentTask, 'M1-P072');
+  assert.equal(state.execution.nextAllowedTask, 'M1-P072');
   assert.ok([0, 1].includes(state.execution.activeTaskCount));
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M1-P070');
-  assert.equal(state.github.currentTaskDelivery.issue, 29);
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M1-P071/u);
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M1-P072');
+  assert.equal(state.github.currentTaskDelivery.issue, 31);
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2/u);
 
   assert.match(tasks, /M1-P067[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(tasks, /M1-P068[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(tasks, /M1-P069[^\r\n]*DONE[^\r\n]*CI_PASS/u);
-  assert.match(tasks, /M1-P070[^\r\n]*IN_PROGRESS/u);
+  assert.match(tasks, /M1-P070[^\r\n]*DONE[^\r\n]*CI_PASS/u);
+  assert.match(tasks, /M1-P072[^\r\n]*IN_PROGRESS/u);
   assert.match(p0, /P0-067[^\r\n]*CI_PASS/u);
   assert.match(pages, /PAGE-003[^\r\n]*P0-067_CI_PASS[^\r\n]*P0-068_CI_PASS/u);
-  assert.match(pages, /PAGE-012[^\r\n]*P0-067_CI_PASS[^\r\n]*P0-068_CI_PASS[^\r\n]*P0-072_NOT_EXECUTED/u);
+  assert.match(pages, /PAGE-012[^\r\n]*P0-067_CI_PASS[^\r\n]*P0-068_CI_PASS[^\r\n]*P0-072_LOCAL_PASS/u);
   assert.match(migrations, /MIG-002[^\r\n]*APPLIED_LOCAL/u);
   assert.match(apis, /API-013[^\r\n]*P0-067[^\r\n]*IMPLEMENTED/u);
   assert.match(apis, /API-014[^\r\n]*P0-067[^\r\n]*IMPLEMENTED/u);

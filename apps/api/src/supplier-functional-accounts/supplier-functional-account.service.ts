@@ -334,6 +334,7 @@ export class SupplierFunctionalAccountService {
     };
     const result = await this.repository.createAccount({
       ...canonical,
+      actorFunctionalAccountId: actor.functionalAccountId,
       actorIdentityId: actor.identityId,
       ip: ip ?? null,
       identityId: targetIdentityId,

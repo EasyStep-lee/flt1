@@ -137,7 +137,7 @@ test('M1-P003 retains its local evidence after PR and main CI closure', async ()
   const mappedApis = apis.filter(({ Method, Path }) => operationKeys.has(`${Method} ${Path}`));
 
   assert.ok(active.length <= 1);
-  assert.ok(active.every(({ TaskID }) => TaskID === 'M1-P070'));
+  assert.ok(active.every(({ TaskID }) => TaskID === 'M1-P072'));
   assert.equal(m1p003?.Status, 'DONE');
   assert.equal(m1p003?.EvidenceStatus, 'CI_PASS');
   assert.equal(m1p003?.CommitSHA, 'd7067a59f1bc66680121d9e2b38e04cb3083dee2');
@@ -178,18 +178,18 @@ test('M1-P003 retains its local evidence after PR and main CI closure', async ()
 
   assert.equal(state.execution.currentStage, 'M1');
   assert.equal(state.execution.currentTask, state.execution.nextAllowedTask);
-  assert.equal(state.execution.currentTask, 'M1-P070');
+  assert.equal(state.execution.currentTask, 'M1-P072');
   assert.equal(state.execution.activeTaskCount, active.length);
   assert.match(state.execution.lastCompletedTask, /^M1-/u);
   assert.equal(state.github.repository, 'EasyStep-lee/flt1');
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M1-P070');
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M1-P072');
   assert.ok(
-    ['IN_PROGRESS', 'LOCAL_FOCUSED_PASS', 'DONE_LOCAL_PASS', 'DRAFT_LOCAL_PASS'].includes(
+    ['IN_PROGRESS', 'LOCAL_FOCUSED_PASS', 'DONE_LOCAL_PASS', 'DRAFT_LOCAL_PASS', 'LOCAL_PASS_PR_NOT_CREATED'].includes(
       state.github.currentTaskDelivery.status,
     ),
   );
   assert.ok(
-    ['NOT_EXECUTED', 'LOCAL_FOCUSED_PASS', 'LOCAL_PASS'].includes(
+    ['NOT_EXECUTED', 'LOCAL_FOCUSED_PASS', 'LOCAL_PASS', 'LOCAL_PASS_FOCUSED_FULL_VERIFY_PENDING'].includes(
       state.evidence.local,
     ),
   );

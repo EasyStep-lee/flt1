@@ -176,6 +176,8 @@ export class PrismaSupplierFunctionalAccountRepository
           data: {
             actorType: 'SUPPLIER_USER',
             actorId: command.actorIdentityId,
+            supplierId: command.supplierId,
+            functionalAccountId: command.actorFunctionalAccountId,
             action: 'functional_account.invited',
             objectType: 'functional_account',
             objectId: result.id,
