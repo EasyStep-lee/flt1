@@ -119,6 +119,20 @@ test('NEG-M1-070-03 eight supplier roles render one page and one internal menu e
       ),
     });
   });
+  await page.route('**/v1/audit/events**', async (route) => {
+    await route.fulfill({
+      body: JSON.stringify({ items: [], page: 1, pageSize: 20, total: 0 }),
+      contentType: 'application/json',
+      status: 200,
+    });
+  });
+  await page.route('**/v1/audit/sensitive-export-approvals**', async (route) => {
+    await route.fulfill({
+      body: JSON.stringify({ items: [], total: 0 }),
+      contentType: 'application/json',
+      status: 200,
+    });
+  });
 
   for (const workspace of workspaces) {
     await page.goto(`${supplierOrigin}${workspace[2]}`);
@@ -131,7 +145,9 @@ test('NEG-M1-070-03 eight supplier roles render one page and one internal menu e
       'data-workspace-role',
       workspace[0],
     );
-    await expect(pageShell.locator('[data-supplier-workspace-module]')).toHaveCount(3);
+    await expect(pageShell.locator('[data-supplier-workspace-module]')).toHaveCount(
+      workspace[0] === 'SUPPLIER_AUDIT' ? 0 : 3,
+    );
     for (const other of workspaces.filter((candidate) => candidate[0] !== workspace[0])) {
       await expect(pageShell.locator('[data-workspace-menu]')).not.toContainText(other[4]);
       await expect(pageShell).not.toContainText(`模块 ${moduleKeys[other[0]][0]}`);

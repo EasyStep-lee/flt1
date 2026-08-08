@@ -522,7 +522,11 @@ function SupplierAuditPage({ workspace }: { readonly workspace: SupplierWorkspac
       data-role={workspace.accountTypeCode}
       data-route="/supplier/workspaces/audit"
     >
-      <div className="functional-account-header">
+      <div
+        className="functional-account-header"
+        data-supplier-workspace-page
+        data-workspace-role={workspace.accountTypeCode}
+      >
         <div>
           <Typography.Text className="eyebrow">SUPPLIER AUDIT</Typography.Text>
           <Typography.Title level={1}>本供应商操作审计</Typography.Title>
@@ -530,7 +534,12 @@ function SupplierAuditPage({ workspace }: { readonly workspace: SupplierWorkspac
             服务端先按当前会话 supplierId 限定范围；页面只读展示脱敏事件和本方审批申请。
           </Typography.Paragraph>
         </div>
-        <Button onClick={() => void load()}>刷新记录</Button>
+        <Space>
+          <div className="supplier-active-menu" data-workspace-menu>
+            {workspace.menuItems[0]?.label}
+          </div>
+          <Button onClick={() => void load()}>刷新记录</Button>
+        </Space>
       </div>
       {message ? <Alert description={message} message="审计提示" showIcon type="info" /> : null}
       <Card bordered={false} data-supplier-audit-state={loading ? 'loading' : events.length ? 'success' : 'empty'}>
