@@ -26,6 +26,7 @@ test('M1-P072 records natural-person separation, append-only audit and the curre
     'NEG-M1-072-02',
     'NEG-M1-072-03',
     'NEG-M1-072-04',
+    'NEG-M1-072-05',
     'identityType + identityId',
     'API-086',
     'API-089',
@@ -39,7 +40,7 @@ test('M1-P072 records natural-person separation, append-only audit and the curre
   assert.equal(evidence.contract.superAdminBypass, 'FORBIDDEN');
   assert.equal(evidence.scope.actualExportImplemented, false);
   assert.equal(evidence.permissionCodes.length, 9);
-  assert.equal(evidence.negativeTests.length, 4);
+  assert.equal(evidence.negativeTests.length, 5);
   assert.ok(evidence.negativeTests.every(({ status }) => status === 'PASS'));
   assert.ok(['NOT_EXECUTED', 'PASS_17_OF_17'].includes(evidence.fullVerification.status));
 
