@@ -8,7 +8,7 @@ const repositoryRoot = fileURLToPath(new URL('../../', import.meta.url));
 const packRoot = path.join(repositoryRoot, '福礼社Codex5.6开发执行包V1.1');
 
 test('M1-P072 records natural-person separation, append-only audit and the current gate', async () => {
-  const [contract, evidence, rehearsal, state, tasks, p0, pages, apis, migrations] =
+  const [contract, evidence, rehearsal, state, tasks, p0, pages, apis, migrations, manifest] =
     await Promise.all([
       readFile(path.join(repositoryRoot, 'docs', 'contracts', 'm1', 'M1-P072-sensitive-operations-audit.md'), 'utf8'),
       readFile(path.join(repositoryRoot, 'artifacts', 'verification', 'M1-P072', 'sensitive-operations-audit.json'), 'utf8').then(JSON.parse),
@@ -19,6 +19,7 @@ test('M1-P072 records natural-person separation, append-only audit and the curre
       readFile(path.join(packRoot, '08-页面路由接口P0映射.csv'), 'utf8'),
       readFile(path.join(packRoot, '12-OpenAPI-DTO-错误码台账.csv'), 'utf8'),
       readFile(path.join(packRoot, '11-数据库迁移台账.csv'), 'utf8'),
+      readFile(path.join(packRoot, 'manifest.json'), 'utf8').then(JSON.parse),
     ]);
 
   for (const marker of [
@@ -63,8 +64,15 @@ test('M1-P072 records natural-person separation, append-only audit and the curre
   assert.match(p0, /P0-072[^\r\n]*LOCAL_PASS/u);
   assert.match(pages, /PAGE-012[^\r\n]*P0-072_LOCAL_PASS/u);
   assert.match(pages, /PAGE-023[^\r\n]*P0-072_LOCAL_PASS/u);
+  assert.equal(manifest.counts.apiContracts, 89);
   for (const apiId of ['API-086', 'API-087', 'API-088', 'API-089']) {
-    assert.match(apis, new RegExp(`${apiId}[^\\r\\n]*GENERATED[^\\r\\n]*IMPLEMENTED`, 'u'));
+    assert.match(
+      apis,
+      new RegExp(
+        `${apiId}[^\\r\\n]*GENERATED[^\\r\\n]*IMPLEMENTED[^\\r\\n]*任务内契约细化`,
+        'u',
+      ),
+    );
   }
   assert.match(migrations, /MIG-004[^\r\n]*ApprovalTaskHistory[^\r\n]*APPLIED_LOCAL/u);
 });
