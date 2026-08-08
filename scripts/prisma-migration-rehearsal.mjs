@@ -307,11 +307,16 @@ SELECT COUNT(*) FROM \`information_schema\`.\`referential_constraints\` WHERE \`
 SELECT COUNT(*) FROM \`information_schema\`.\`columns\` WHERE \`table_schema\` = DATABASE() AND \`table_name\` = 'supplier_auth_selection' AND \`column_name\` IN ('second_verification_claim_id', 'second_verification_claimed_at', 'second_verified_at');
 SELECT COUNT(*) FROM \`information_schema\`.\`table_constraints\` WHERE \`constraint_schema\` = DATABASE() AND \`table_name\` = 'supplier_auth_selection' AND \`constraint_type\` = 'CHECK' AND \`constraint_name\` IN ('supplier_auth_selection_second_verification_claim_pair_chk', 'supplier_auth_selection_second_verification_claim_id_chk', 'supplier_auth_selection_second_verified_account_chk');
 SELECT CONCAT((SELECT COUNT(*) FROM \`supplier_user\`), '|', (SELECT COUNT(*) FROM \`supplier_auth_selection\`), '|', (SELECT COUNT(*) FROM \`auth_session\` WHERE \`user_type\` = 'SUPPLIER_USER'), '|', (SELECT COUNT(*) FROM \`login_audit\` WHERE \`user_type\` = 'SUPPLIER_USER'));
+SELECT COUNT(*) FROM \`information_schema\`.\`tables\` WHERE \`table_schema\` = DATABASE() AND \`table_name\` IN ('approval_task_history', 'approval_task_command');
+SELECT COUNT(*) FROM \`information_schema\`.\`triggers\` WHERE \`trigger_schema\` = DATABASE() AND \`trigger_name\` IN ('approval_task_history_immutable_update', 'approval_task_history_immutable_delete');
+SELECT COUNT(*) FROM \`information_schema\`.\`columns\` WHERE \`table_schema\` = DATABASE() AND \`table_name\` = 'audit_log' AND \`column_name\` IN ('supplier_id', 'functional_account_id');
+SELECT COUNT(*) FROM \`information_schema\`.\`columns\` WHERE \`table_schema\` = DATABASE() AND \`table_name\` = 'approval_task' AND \`column_name\` IN ('applicant_functional_account_id', 'supplier_id', 'reviewed_by_type', 'reviewer_functional_account_id', 'request_snapshot');
+SELECT COUNT(*) FROM \`permission\` WHERE \`code\` IN ('supply_price.reveal', 'supply_price.approve', 'refund.review', 'welfare_card.adjust', 'offline_payment.record', 'bank_account.review', 'sensitive_export.request', 'sensitive_export.review', 'audit_event.read');
 `,
     database,
   );
   const values = output.split(/\r?\n/u);
-  if (values.length !== 35) {
+  if (values.length !== 40) {
     throw new Error(`PRODUCT_COMPANY_PROBE_OUTPUT_INVALID:${output}`);
   }
   const [legalName, platformName] = values[2].split('|');
@@ -379,6 +384,11 @@ SELECT CONCAT((SELECT COUNT(*) FROM \`supplier_user\`), '|', (SELECT COUNT(*) FR
     supplierAuthSelectionRowCount: Number(supplierAuthSelectionRowCount),
     supplierAuthSessionRowCount: Number(supplierAuthSessionRowCount),
     supplierLoginAuditRowCount: Number(supplierLoginAuditRowCount),
+    sensitiveApprovalTableCount: Number(values[35]),
+    sensitiveApprovalHistoryTriggerCount: Number(values[36]),
+    auditScopeColumnCount: Number(values[37]),
+    sensitiveApprovalColumnCount: Number(values[38]),
+    frozenSensitivePermissionCount: Number(values[39]),
   };
 };
 
@@ -474,6 +484,10 @@ const parseArguments = (arguments_) => {
       [
         path.join(repositoryRoot, 'artifacts', 'verification', 'M1-P070'),
         'M1-P070',
+      ],
+      [
+        path.join(repositoryRoot, 'artifacts', 'verification', 'M1-P072'),
+        'M1-P072',
       ],
     ]);
     const reportScope = [...allowedScopes.entries()].find(([allowedRoot]) => {
@@ -652,7 +666,7 @@ try {
       productEmptyState.permissionPolicyTableCount === 4 &&
       productEmptyState.permissionPolicyForeignKeyCount === 4 &&
       productEmptyState.dataScopeGuardTriggerCount === 2 &&
-      productEmptyState.permissionRowCount === 0 &&
+      productEmptyState.permissionRowCount === 9 &&
       productEmptyState.dataScopePolicyRowCount === 0 &&
       productEmptyState.fieldAccessPolicyRowCount === 0 &&
       productEmptyState.fieldAccessDefaultMode === '<absent>' &&
@@ -673,7 +687,12 @@ try {
       productEmptyState.supplierUserRowCount === 0 &&
       productEmptyState.supplierAuthSelectionRowCount === 0 &&
       productEmptyState.supplierAuthSessionRowCount === 0 &&
-      productEmptyState.supplierLoginAuditRowCount === 0,
+      productEmptyState.supplierLoginAuditRowCount === 0 &&
+      productEmptyState.sensitiveApprovalTableCount === 2 &&
+      productEmptyState.sensitiveApprovalHistoryTriggerCount === 2 &&
+      productEmptyState.auditScopeColumnCount === 2 &&
+      productEmptyState.sensitiveApprovalColumnCount === 5 &&
+      productEmptyState.frozenSensitivePermissionCount === 9,
     'PRODUCT_COMPANY_SCHEMA_STATE_INVALID',
   );
 
@@ -715,6 +734,21 @@ INSERT INTO \`approval_task\` (\`id\`, \`approval_type\`, \`object_type\`, \`obj
 INSERT INTO \`supplier_status_history\` (\`id\`, \`supplier_id\`, \`from_status\`, \`to_status\`, \`event\`, \`actor_identity_id\`, \`version\`) VALUES ('${submissionHistoryId}', '${canonicalSupplierId}', 'DRAFT', 'PENDING_REVIEW', 'SUBMIT', '${applicantIdentityId}', 1);
 `,
     databaseNames.product,
+  );
+  const approvalHistoryId = '41000000-0000-4000-8000-000000000072';
+  runRootMysql(
+    `INSERT INTO \`approval_task_history\` (\`id\`, \`approval_task_id\`, \`from_status\`, \`to_status\`, \`event\`, \`actor_type\`, \`actor_id\`, \`functional_account_id\`, \`version\`) VALUES ('${approvalHistoryId}', '${approvalTaskId}', NULL, 'PENDING', 'CREATE', 'SUPPLIER_USER', '${applicantIdentityId}', '${applicantIdentityId}', 1);\n`,
+    databaseNames.product,
+  );
+  expectRootMysqlFailure(
+    `UPDATE \`approval_task_history\` SET \`opinion\` = 'tampered' WHERE \`id\` = '${approvalHistoryId}';\n`,
+    databaseNames.product,
+    'APPROVAL_HISTORY_IMMUTABLE_UPDATE_NOT_ENFORCED',
+  );
+  expectRootMysqlFailure(
+    `DELETE FROM \`approval_task_history\` WHERE \`id\` = '${approvalHistoryId}';\n`,
+    databaseNames.product,
+    'APPROVAL_HISTORY_IMMUTABLE_DELETE_NOT_ENFORCED',
   );
   expectRootMysqlFailure(
     `INSERT INTO \`supplier\` (\`id\`, \`company_id\`, \`legal_name\`, \`credit_code\`, \`status\`, \`qualification_snapshot\`, \`version\`, \`updated_at\`) VALUES ('${duplicateSupplierId}', '${canonicalCompanyId}', '重复代码供应商', '${creditCode}', 'DRAFT', JSON_OBJECT('schemaVersion', '1.0', 'files', JSON_ARRAY()), 0, CURRENT_TIMESTAMP(3));
@@ -870,7 +904,7 @@ INSERT INTO \`login_audit\` (\`id\`, \`user_type\`, \`user_id\`, \`functional_ac
       productPopulatedState.permissionPolicyTableCount === 4 &&
       productPopulatedState.permissionPolicyForeignKeyCount === 4 &&
       productPopulatedState.dataScopeGuardTriggerCount === 2 &&
-      productPopulatedState.permissionRowCount === 1 &&
+      productPopulatedState.permissionRowCount === 10 &&
       productPopulatedState.dataScopePolicyRowCount === 1 &&
       productPopulatedState.fieldAccessPolicyRowCount === 1 &&
       productPopulatedState.fieldAccessDefaultMode === 'HIDDEN' &&
@@ -891,7 +925,12 @@ INSERT INTO \`login_audit\` (\`id\`, \`user_type\`, \`user_id\`, \`functional_ac
       productPopulatedState.supplierUserRowCount === 1 &&
       productPopulatedState.supplierAuthSelectionRowCount === 1 &&
       productPopulatedState.supplierAuthSessionRowCount === 1 &&
-      productPopulatedState.supplierLoginAuditRowCount === 1,
+      productPopulatedState.supplierLoginAuditRowCount === 1 &&
+      productPopulatedState.sensitiveApprovalTableCount === 2 &&
+      productPopulatedState.sensitiveApprovalHistoryTriggerCount === 2 &&
+      productPopulatedState.auditScopeColumnCount === 2 &&
+      productPopulatedState.sensitiveApprovalColumnCount === 5 &&
+      productPopulatedState.frozenSensitivePermissionCount === 9,
     'PRODUCT_SINGLE_MERCHANT_STATE_INVALID',
   );
 
@@ -1110,7 +1149,9 @@ INSERT INTO \`login_audit\` (\`id\`, \`user_type\`, \`user_id\`, \`functional_ac
       previouslyVerifiedSlices: [
         {
           taskId:
-            options.reportTaskId === 'M1-P070'
+            options.reportTaskId === 'M1-P072'
+              ? 'M1-P070'
+              : options.reportTaskId === 'M1-P070'
               ? 'M1-P069'
               : options.reportTaskId === 'M1-P069'
               ? 'M1-P068'
@@ -1163,6 +1204,18 @@ INSERT INTO \`login_audit\` (\`id\`, \`user_type\`, \`user_id\`, \`functional_ac
         updateRejected: true,
         deleteRejected: true,
         logBinTrustFunctionCreatorsRequired: true,
+      },
+      sensitiveApproval: {
+        tableCount: productPopulatedState.sensitiveApprovalTableCount,
+        historyTriggerCount:
+          productPopulatedState.sensitiveApprovalHistoryTriggerCount,
+        auditScopeColumnCount: productPopulatedState.auditScopeColumnCount,
+        approvalColumnCount:
+          productPopulatedState.sensitiveApprovalColumnCount,
+        frozenPermissionCount:
+          productPopulatedState.frozenSensitivePermissionCount,
+        historyUpdateRejected: true,
+        historyDeleteRejected: true,
       },
       sensitiveDataIsolation: {
         permissionPolicyTableCount:

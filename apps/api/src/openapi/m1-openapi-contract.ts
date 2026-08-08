@@ -261,7 +261,7 @@ export const M1_OPENAPI_OPERATION_CONTRACTS = Object.freeze([
   contract({
     actor: 'AUTHORIZED_AUDITOR',
     contractId: 'API-015',
-    errorCodes: ['FIELD_FORBIDDEN', 'EXPORT_APPROVAL_REQUIRED'],
+    errorCodes: ['FIELD_FORBIDDEN', 'WORKSPACE_FORBIDDEN'],
     idempotency: 'NONE',
     method: 'get',
     path: '/v1/audit/events',

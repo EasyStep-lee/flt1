@@ -1,0 +1,182 @@
+{
+  "schemaVersion": "1.1.0",
+  "taskId": "M1-P072",
+  "p0Id": "P0-072",
+  "status": "LOCAL_PASS",
+  "verifiedAt": "2026-08-08T00:22:04-04:00",
+  "baseline": {
+    "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+    "baseBranch": "main",
+    "baseCommit": "a721d56f1cf6568da35c65db66fdde28d95eddea",
+    "branch": "codex/m1-m1-p072"
+  },
+  "scope": {
+    "apiContracts": ["API-015", "API-086", "API-087", "API-088", "API-089"],
+    "pageIds": ["PAGE-012", "PAGE-023"],
+    "migration": "20260808013000_sensitive_approval_audit_scope",
+    "actualExportImplemented": false,
+    "laterBusinessOperationsImplemented": false,
+    "nextStage": "M2",
+    "nextStageAllowed": false
+  },
+  "contract": {
+    "naturalPersonKey": "identityType+identityId",
+    "superAdminBypass": "FORBIDDEN",
+    "approvalStateMachine": "PENDING_TO_IN_REVIEW_TO_APPROVED_OR_REJECTED",
+    "concurrency": "VERSION_CAS_EXACTLY_ONE",
+    "history": "APPEND_ONLY_UPDATE_AND_DELETE_TRIGGER_REJECTED",
+    "auditAtomicity": "SAME_TRANSACTION_OR_OPERATION_ROLLBACK",
+    "supplierScope": "SERVER_SESSION_SUPPLIER_ID_QUERY_FILTER",
+    "responseWhitelist": "NO_OWNER_IDENTITY_FUNCTIONAL_ACCOUNT_SUPPLIER_COMPANY_OR_SENSITIVE_FIELDS",
+    "cachePolicy": "PRIVATE_NO_STORE_MAX_AGE_ZERO"
+  },
+  "permissionCodes": [
+    "supply_price.reveal",
+    "supply_price.approve",
+    "refund.review",
+    "welfare_card.adjust",
+    "offline_payment.record",
+    "bank_account.review",
+    "sensitive_export.request",
+    "sensitive_export.review",
+    "audit_event.read"
+  ],
+  "redEvidence": [
+    {
+      "name": "sensitive approval API",
+      "result": "FAIL_5_OF_5_EXPECTED",
+      "cause": "API-086 through API-089 returned HTTP 404 before implementation"
+    },
+    {
+      "name": "OpenAPI allowlist",
+      "result": "FAIL_1_OF_1_EXPECTED",
+      "cause": "sensitive approval operations and DTO were absent"
+    },
+    {
+      "name": "forward migration",
+      "result": "FAIL_1_OF_1_EXPECTED",
+      "cause": "approval history, idempotent command and audit scope migration was absent"
+    },
+    {
+      "name": "concurrent same-key replay hardening",
+      "result": "FAIL_1_OF_7_EXPECTED",
+      "cause": "two in-flight creates returned different approval task ids before command coalescing"
+    },
+    {
+      "name": "execution pack self-check",
+      "result": "FAIL_2_ASSERTIONS_EXPECTED",
+      "cause": "API-086 through API-089 lacked the task-detail marker and manifest apiContracts remained 85 instead of 89"
+    }
+  ],
+  "focusedEvidence": [
+    {
+      "name": "approval, audit and isolation API behavior",
+      "command": "pnpm exec vitest run --config ./vitest.config.ts --project api-contract apps/api/test/supertest/sensitive-approval-api.test.mjs apps/api/test/supertest/audit-log-api.test.mjs apps/api/test/supertest/sensitive-data-isolation-api.test.mjs",
+      "result": "PASS_14_OF_14"
+    },
+    {
+      "name": "OpenAPI deterministic generation and allowlist",
+      "command": "pnpm openapi:generate && node --test tests/openapi/m1-p072-sensitive-approval-contract.test.mjs",
+      "result": "PASS_1_OF_1"
+    },
+    {
+      "name": "company and supplier audit Chromium behavior",
+      "command": "pnpm exec playwright test --config playwright.p0.config.ts tests/e2e/p0/p0-072-sensitive-operations-audit.spec.ts",
+      "result": "PASS_2_OF_2"
+    },
+    {
+      "name": "real MySQL migration rehearsal",
+      "command": "node scripts/prisma-migration-rehearsal.mjs --report artifacts/verification/M1-P072/prisma-migration-rehearsal.json",
+      "result": "PASS_EMPTY_2_UPGRADE_2_RESTORE_2_PRODUCT_11_CLEANUP_PASS"
+    },
+    {
+      "name": "product baseline and execution pack self-check",
+      "command": "pwsh -NoProfile -File ./scripts/verify-product-baseline.ps1",
+      "result": "PASS_SCHEME_HASH_EXECUTION_PACK_149_TASKS_119_P0_89_APIS"
+    }
+  ],
+  "negativeTests": [
+    {
+      "id": "NEG-M1-072-01",
+      "scenario": "同一自然人跨职能账号认领",
+      "status": "PASS",
+      "errorCode": "SAME_NATURAL_PERSON_REVIEW"
+    },
+    {
+      "id": "NEG-M1-072-02",
+      "scenario": "超级管理员绕过独立复核",
+      "status": "PASS",
+      "errorCode": "SECOND_REVIEW_REQUIRED"
+    },
+    {
+      "id": "NEG-M1-072-03",
+      "scenario": "同版本并发决定",
+      "status": "PASS",
+      "errorCode": "APPROVAL_VERSION_CONFLICT"
+    },
+    {
+      "id": "NEG-M1-072-04",
+      "scenario": "强制审计追加失败",
+      "status": "PASS",
+      "errorCode": "AUDIT_REQUIRED"
+    },
+    {
+      "id": "NEG-M1-072-05",
+      "scenario": "同一幂等键并发创建",
+      "status": "PASS",
+      "errorCode": "IDEMPOTENCY_REPLAYED"
+    }
+  ],
+  "fullVerification": {
+    "status": "PASS_17_OF_17",
+    "stepsPassed": 17,
+    "commit": "a9ffb4f92a3f7f1a37d7735f02d75f1a58f4b5ff",
+    "startedAt": "2026-08-08T04:12:20.218Z",
+    "endedAt": "2026-08-08T04:22:04.792Z",
+    "report": "artifacts/test-results/verification/pnpm-verify.json"
+  },
+  "migration": {
+    "newMigrations": ["20260808013000_sensitive_approval_audit_scope"],
+    "schemaChanged": true,
+    "rehearsal": "PASS_EMPTY_2_UPGRADE_2_RESTORE_2_PRODUCT_11_CLEANUP_PASS",
+    "report": "artifacts/verification/M1-P072/prisma-migration-rehearsal.json",
+    "rollback": "应用可回退且新增列保持可空；已发布迁移不逆改，需备份恢复或后续前向修复"
+  },
+  "github": {
+    "repository": "EasyStep-lee/flt1",
+    "issue": 31,
+    "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/31",
+    "branch": "codex/m1-m1-p072",
+    "pullRequest": 32,
+    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/32",
+    "pullRequestState": "DRAFT_OPEN",
+    "draftHeadAtCreation": "907714a93552452b7063eb405c7bb2ac49212dda",
+    "initialCiRun": 31236844414,
+    "lastSuccessfulPreRepairHead": "1139aec3b1762457bf1c4ee6ed33e3438c031091",
+    "lastSuccessfulPreRepairCiRun": 31236962398,
+    "repairHead": "a9ffb4f92a3f7f1a37d7735f02d75f1a58f4b5ff",
+    "exactHeadCi": "NOT_EXECUTED_AFTER_EXECUTION_PACK_REPAIR",
+    "review": "NOT_EXECUTED",
+    "merge": "NOT_EXECUTED",
+    "mainPostMergeCi": "NOT_EXECUTED"
+  },
+  "environment": {
+    "local": "LOCAL_WINDOWS_DOCKER_MYSQL_CHROMIUM",
+    "node": "22.23.1",
+    "pnpm": "10.12.1",
+    "mysql": "8.4.11",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_REQUIRED_PC_WEB_SLICE",
+    "production": "NOT_EXECUTED"
+  },
+  "risks": [
+    "真实公司与供应商身份源、凭证和二次验证Adapter仍默认拒绝，未获得外部环境证据。",
+    "实际导出文件、短期下载授权和下载审计属于M5，本切片只创建和复核审批任务。",
+    "已发布迁移不得回改；应用回退依赖新增列可空兼容，数据库撤销必须备份恢复或前向修复。",
+    "两套后台产物仍有超过500 kB的非阻断拆包告警。"
+  ],
+  "rollback": {
+    "application": "git revert M1-P072原子提交",
+    "database": "不逆改已发布迁移；应用旧版本兼容可空新增列，必要时备份恢复或新增前向修复"
+  }
+}

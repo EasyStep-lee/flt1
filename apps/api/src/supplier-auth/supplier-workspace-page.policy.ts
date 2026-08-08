@@ -101,7 +101,7 @@ export const SUPPLIER_WORKSPACE_PAGE_MODULES = Object.freeze({
       label: '操作审计',
       description: '本供应商经授权的脱敏操作事件视图在 P0-072 交付。',
       deliveryStage: 'M1',
-      availability: 'DEFERRED',
+      availability: 'AVAILABLE',
       dataBoundary: '只读且脱敏，不返回其他供应商、业务秘密或敏感原文。',
       sections: ['事件列表', '脱敏详情', '发生时间线'],
     }),

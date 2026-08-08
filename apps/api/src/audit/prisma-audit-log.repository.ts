@@ -17,6 +17,8 @@ const toRecord = (event: {
   readonly id: string;
   readonly actorType: AuditLogRecord['actorType'];
   readonly actorId: string;
+  readonly supplierId: string | null;
+  readonly functionalAccountId: string | null;
   readonly action: string;
   readonly objectType: string;
   readonly objectId: string;
@@ -53,6 +55,7 @@ export class PrismaAuditLogRepository implements AuditLogRepository {
       ...(query.action ? { action: query.action } : {}),
       ...(query.objectType ? { objectType: query.objectType } : {}),
       ...(query.objectId ? { objectId: query.objectId } : {}),
+      ...(query.supplierId ? { supplierId: query.supplierId } : {}),
     } satisfies Prisma.AuditLogWhereInput;
     const [items, total] = await this.prisma.$transaction([
       this.prisma.auditLog.findMany({

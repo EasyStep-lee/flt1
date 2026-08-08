@@ -39,7 +39,13 @@
               "AUDIT_IMMUTABLE",
               "AUDIT_REQUIRED",
               "EXPORT_APPROVAL_REQUIRED",
-              "REQUEST_ID_REQUIRED"
+              "REQUEST_ID_REQUIRED",
+              "SAME_NATURAL_PERSON_REVIEW",
+              "SECOND_REVIEW_REQUIRED",
+              "APPROVAL_NOT_FOUND",
+              "APPROVAL_STATE_INVALID",
+              "IDEMPOTENCY_KEY_CONFLICT",
+              "IDEMPOTENCY_KEY_REQUIRED"
             ],
             "example": "RESOURCE_NOT_FOUND",
             "type": "string"
@@ -246,6 +252,18 @@
             "type": "number"
           }
         },
+        "type": "object"
+      },
+      "ClaimSensitiveApprovalRequestDto": {
+        "properties": {
+          "version": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "version"
+        ],
         "type": "object"
       },
       "CompanyLoginRequestDto": {
@@ -674,6 +692,58 @@
         ],
         "type": "object"
       },
+      "CreateSensitiveApprovalRequestDto": {
+        "properties": {
+          "reason": {
+            "maxLength": 500,
+            "minLength": 2,
+            "type": "string"
+          },
+          "resource": {
+            "enum": [
+              "AUDIT_EVENTS"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "resource",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "DecideSensitiveApprovalRequestDto": {
+        "properties": {
+          "decision": {
+            "enum": [
+              "APPROVE",
+              "REJECT"
+            ],
+            "type": "string"
+          },
+          "opinion": {
+            "maxLength": 1000,
+            "minLength": 2,
+            "type": "string"
+          },
+          "secondVerificationCode": {
+            "maxLength": 64,
+            "minLength": 4,
+            "type": "string"
+          },
+          "version": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "decision",
+          "opinion",
+          "secondVerificationCode",
+          "version"
+        ],
+        "type": "object"
+      },
       "FoundationDependencyCheckDto": {
         "properties": {
           "code": {
@@ -995,6 +1065,82 @@
         },
         "required": [
           "selectionNonce"
+        ],
+        "type": "object"
+      },
+      "SensitiveApprovalPageResponseDto": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SensitiveApprovalTaskResponseDto"
+            },
+            "type": "array"
+          },
+          "total": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ],
+        "type": "object"
+      },
+      "SensitiveApprovalTaskResponseDto": {
+        "properties": {
+          "approvalType": {
+            "enum": [
+              "SENSITIVE_EXPORT"
+            ],
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "resource": {
+            "enum": [
+              "AUDIT_EVENTS"
+            ],
+            "type": "string"
+          },
+          "reviewOpinion": {
+            "maxLength": 1000,
+            "nullable": true,
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "PENDING",
+              "IN_REVIEW",
+              "APPROVED",
+              "REJECTED",
+              "CANCELLED"
+            ],
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "approvalType",
+          "resource",
+          "status",
+          "version",
+          "createdAt",
+          "updatedAt"
         ],
         "type": "object"
       },
@@ -2202,12 +2348,313 @@
         "x-fulishe-contract-id": "API-015",
         "x-fulishe-error-codes": [
           "FIELD_FORBIDDEN",
-          "EXPORT_APPROVAL_REQUIRED"
+          "WORKSPACE_FORBIDDEN"
         ],
         "x-fulishe-idempotency": "NONE",
         "x-fulishe-request-dto": "AuditQueryDto",
         "x-fulishe-response-dto": "AuditEventPageResponseDto",
         "x-fulishe-response-policy": "NEVER_RETURN_INTERNAL_PRICING"
+      }
+    },
+    "/v1/audit/sensitive-export-approvals": {
+      "get": {
+        "operationId": "sensitiveApproval.list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SensitiveApprovalPageResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "List server-scoped sensitive approval tasks",
+        "tags": [
+          "sensitive-approval"
+        ]
+      },
+      "post": {
+        "operationId": "sensitiveApproval.create",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSensitiveApprovalRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SensitiveApprovalTaskResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": "IDEMPOTENCY_CONFLICT"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": "AUDIT_REQUIRED"
+          }
+        },
+        "summary": "Request an approved audit export operation",
+        "tags": [
+          "sensitive-approval"
+        ]
+      }
+    },
+    "/v1/audit/sensitive-export-approvals/{taskId}/claim": {
+      "post": {
+        "operationId": "sensitiveApproval.claim",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "taskId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClaimSensitiveApprovalRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SensitiveApprovalTaskResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": "SAME_NATURAL_PERSON_REVIEW"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": "APPROVAL_VERSION_CONFLICT"
+          },
+          "428": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": "SECOND_REVIEW_REQUIRED"
+          }
+        },
+        "summary": "Claim as an independent company auditor",
+        "tags": [
+          "sensitive-approval"
+        ]
+      }
+    },
+    "/v1/audit/sensitive-export-approvals/{taskId}/decision": {
+      "post": {
+        "operationId": "sensitiveApproval.decide",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "taskId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DecideSensitiveApprovalRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SensitiveApprovalTaskResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": "APPROVAL_VERSION_CONFLICT"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "428": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": "SECOND_REVIEW_REQUIRED"
+          }
+        },
+        "summary": "Approve or reject after second verification",
+        "tags": [
+          "sensitive-approval"
+        ]
       }
     },
     "/v1/company-auth/login": {

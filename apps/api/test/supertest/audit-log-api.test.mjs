@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import request from 'supertest';
+import { randomUUID } from 'node:crypto';
 
 import { InMemoryAuditLogRepository } from '../../dist/audit/in-memory-audit-log.repository.js';
 import { createApplication } from '../../dist/bootstrap.js';
@@ -62,11 +63,15 @@ const createFixture = async ({ failAppend = false } = {}) => {
   );
   const auditActorRef = {
     current: {
+      ownerType: 'COMPANY',
       accountTypeCode: 'COMPANY_AUDIT',
       companyId: 'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
       functionalAccountId: 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee',
+      identityType: 'COMPANY_USER',
       identityId: 'ffffffff-ffff-4fff-8fff-ffffffffffff',
+      supplierId: null,
       workspaceRoute: '/company-admin/workspaces/audit',
+      permissionCodes: ['audit_event.read'],
     },
   };
   const app = await createApplication({
@@ -166,6 +171,60 @@ describe('P0-045 sensitive operation audit API', () => {
       const denied = await request(fixture.app.getHttpServer()).get('/v1/audit/events');
       expect(denied.status).toBe(403);
       expect(denied.body).toMatchObject({ code: 'WORKSPACE_FORBIDDEN' });
+    } finally {
+      await fixture.app.close();
+    }
+  });
+});
+
+describe('P0-072 supplier audit data scope', () => {
+  it('filters immutable events by session supplierId before returning rows', async () => {
+    const fixture = await createFixture();
+    try {
+      await fixture.auditRepository.append({
+        actorType: 'SUPPLIER_USER',
+        actorId: actorIdentityId,
+        supplierId,
+        functionalAccountId: actorAccountId,
+        action: 'scope.own',
+        objectType: 'scope_probe',
+        objectId: 'scope-own',
+        beforeSnapshot: {},
+        afterSnapshot: {},
+        requestId: randomUUID(),
+        ip: null,
+      });
+      await fixture.auditRepository.append({
+        actorType: 'SUPPLIER_USER',
+        actorId: '99999999-9999-4999-8999-999999999999',
+        supplierId: '88888888-8888-4888-8888-888888888888',
+        functionalAccountId: null,
+        action: 'scope.other',
+        objectType: 'scope_probe',
+        objectId: 'scope-other',
+        beforeSnapshot: {},
+        afterSnapshot: {},
+        requestId: randomUUID(),
+        ip: null,
+      });
+      fixture.auditActorRef.current = {
+        ownerType: 'SUPPLIER',
+        accountTypeCode: 'SUPPLIER_AUDIT',
+        companyId: null,
+        functionalAccountId: actorAccountId,
+        identityType: 'SUPPLIER_USER',
+        identityId: actorIdentityId,
+        supplierId,
+        workspaceRoute: '/supplier/workspaces/audit',
+        permissionCodes: ['audit_event.read'],
+      };
+      const response = await request(fixture.app.getHttpServer()).get(
+        '/v1/audit/events?objectType=scope_probe',
+      );
+      expect(response.status).toBe(200);
+      expect(response.body.items).toHaveLength(1);
+      expect(response.body.items[0]).toMatchObject({ action: 'scope.own' });
+      expect(JSON.stringify(response.body)).not.toContain('scope.other');
     } finally {
       await fixture.app.close();
     }

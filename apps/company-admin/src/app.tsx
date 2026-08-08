@@ -33,6 +33,8 @@ type SupplierStatus = SupplierRow['status'];
 type SupplierPage = components['schemas']['SupplierPageResponseDto'];
 type AuditEvent = components['schemas']['AuditEventResponseDto'];
 type AuditEventPage = components['schemas']['AuditEventPageResponseDto'];
+type SensitiveApproval = components['schemas']['SensitiveApprovalTaskResponseDto'];
+type SensitiveApprovalPage = components['schemas']['SensitiveApprovalPageResponseDto'];
 
 const api = createCompanyAdminApiClient(import.meta.env.VITE_API_BASE_URL ?? '');
 
@@ -354,6 +356,14 @@ function CompanyAuditPage({ workspace }: { readonly workspace: CompanyWorkspace 
   const [objectType, setObjectType] = useState('');
   const [data, setData] = useState<AuditEventPage>();
   const [loading, setLoading] = useState(true);
+  const [approvals, setApprovals] = useState<SensitiveApprovalPage>();
+  const [approvalLoading, setApprovalLoading] = useState(true);
+  const [approvalReason, setApprovalReason] = useState('');
+  const [approvalMessage, setApprovalMessage] = useState('');
+  const [decisionTarget, setDecisionTarget] = useState<SensitiveApproval>();
+  const [decision, setDecision] = useState<'APPROVE' | 'REJECT'>('APPROVE');
+  const [decisionOpinion, setDecisionOpinion] = useState('');
+  const [secondVerificationCode, setSecondVerificationCode] = useState('');
   const [error, setError] = useState<{
     kind: 'error' | 'offline' | 'permission';
     message: string;
@@ -394,6 +404,113 @@ function CompanyAuditPage({ workspace }: { readonly workspace: CompanyWorkspace 
   useEffect(() => {
     void load();
   }, [load]);
+
+  const loadApprovals = useCallback(async () => {
+    setApprovalLoading(true);
+    setApprovalMessage('');
+    try {
+      const response = await api.GET('/v1/audit/sensitive-export-approvals');
+      if (!response.data) {
+        setApprovalMessage(readErrorMessage(response.error));
+        setApprovals(undefined);
+        return;
+      }
+      setApprovals(response.data);
+    } catch {
+      setApprovalMessage('审批列表请求结果未知，请恢复网络后重新查询。');
+      setApprovals(undefined);
+    } finally {
+      setApprovalLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadApprovals();
+  }, [loadApprovals]);
+
+  const createApproval = async () => {
+    if (approvalReason.trim().length < 2) return;
+    setApprovalLoading(true);
+    setApprovalMessage('');
+    try {
+      const response = await api.POST('/v1/audit/sensitive-export-approvals', {
+        params: { header: { 'Idempotency-Key': crypto.randomUUID() } },
+        body: { reason: approvalReason.trim(), resource: 'AUDIT_EVENTS' },
+      });
+      if (!response.data) {
+        setApprovalMessage(readErrorMessage(response.error));
+        return;
+      }
+      setApprovalReason('');
+      setApprovalMessage('导出审批申请已创建；本切片不会生成实际导出文件。');
+      await loadApprovals();
+    } catch {
+      setApprovalMessage('申请结果未知，请先查询审批列表，勿重复判断。');
+    } finally {
+      setApprovalLoading(false);
+    }
+  };
+
+  const claimApproval = async (task: SensitiveApproval) => {
+    setApprovalLoading(true);
+    setApprovalMessage('');
+    try {
+      const response = await api.POST(
+        '/v1/audit/sensitive-export-approvals/{taskId}/claim',
+        {
+          params: {
+            header: { 'Idempotency-Key': crypto.randomUUID() },
+            path: { taskId: task.id },
+          },
+          body: { version: task.version },
+        },
+      );
+      if (!response.data) {
+        setApprovalMessage(readErrorMessage(response.error));
+        return;
+      }
+      await loadApprovals();
+    } catch {
+      setApprovalMessage('认领结果未知，请重新加载任务状态。');
+    } finally {
+      setApprovalLoading(false);
+    }
+  };
+
+  const submitDecision = async () => {
+    if (!decisionTarget || decisionOpinion.trim().length < 2 || !secondVerificationCode.trim()) return;
+    setApprovalLoading(true);
+    setApprovalMessage('');
+    try {
+      const response = await api.POST(
+        '/v1/audit/sensitive-export-approvals/{taskId}/decision',
+        {
+          params: {
+            header: { 'Idempotency-Key': crypto.randomUUID() },
+            path: { taskId: decisionTarget.id },
+          },
+          body: {
+            decision,
+            opinion: decisionOpinion.trim(),
+            secondVerificationCode: secondVerificationCode.trim(),
+            version: decisionTarget.version,
+          },
+        },
+      );
+      if (!response.data) {
+        setApprovalMessage(readErrorMessage(response.error));
+        return;
+      }
+      setDecisionTarget(undefined);
+      setDecisionOpinion('');
+      setSecondVerificationCode('');
+      await loadApprovals();
+    } catch {
+      setApprovalMessage('复核结果未知，请重新加载任务状态。');
+    } finally {
+      setApprovalLoading(false);
+    }
+  };
 
   const columns = [
     {
@@ -511,8 +628,103 @@ function CompanyAuditPage({ workspace }: { readonly workspace: CompanyWorkspace 
               scroll={{ x: 1180 }}
             />
           </Card>
+          <Card
+            className="supplier-table-card"
+            bordered={false}
+            data-sensitive-approval-state={
+              approvalLoading ? 'loading' : approvals?.items.length ? 'success' : 'empty'
+            }
+            title="敏感导出审批（不生成文件）"
+          >
+            <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+              <Alert
+                description="申请、认领和复核只授权后续操作；实际导出能力不在 M1 范围。"
+                message="双人复核按自然人身份隔离，超级管理员不能绕过"
+                showIcon
+                type="warning"
+              />
+              <Space.Compact block>
+                <Input
+                  aria-label="敏感导出申请理由"
+                  maxLength={500}
+                  onChange={(event) => setApprovalReason(event.target.value)}
+                  placeholder="填写申请理由"
+                  value={approvalReason}
+                />
+                <Button
+                  disabled={approvalReason.trim().length < 2}
+                  loading={approvalLoading}
+                  onClick={() => void createApproval()}
+                  type="primary"
+                >
+                  发起审批
+                </Button>
+              </Space.Compact>
+              {approvalMessage ? <Alert message={approvalMessage} showIcon type="info" /> : null}
+              <Table<SensitiveApproval>
+                dataSource={approvals?.items ?? []}
+                loading={approvalLoading}
+                locale={{ emptyText: <Empty description="暂无敏感操作审批" /> }}
+                pagination={false}
+                rowKey="id"
+                columns={[
+                  { title: '资源', dataIndex: 'resource' },
+                  { title: '状态', dataIndex: 'status', render: (value: string) => <Tag>{value}</Tag> },
+                  { title: '版本', dataIndex: 'version', render: (value: number) => `V${value}` },
+                  { title: '复核意见', dataIndex: 'reviewOpinion', render: (value: string | null) => value ?? '—' },
+                  {
+                    title: '操作',
+                    key: 'operation',
+                    render: (_value: unknown, row: SensitiveApproval) =>
+                      row.status === 'PENDING' ? (
+                        <Button onClick={() => void claimApproval(row)}>独立认领</Button>
+                      ) : row.status === 'IN_REVIEW' ? (
+                        <Button onClick={() => setDecisionTarget(row)} type="primary">复核决定</Button>
+                      ) : (
+                        <Typography.Text type="secondary">已完成</Typography.Text>
+                      ),
+                  },
+                ]}
+              />
+            </Space>
+          </Card>
         </section>
       </div>
+      <Modal
+        cancelText="取消"
+        okButtonProps={{
+          disabled: decisionOpinion.trim().length < 2 || !secondVerificationCode.trim(),
+        }}
+        okText="提交复核决定"
+        onCancel={() => setDecisionTarget(undefined)}
+        onOk={() => void submitDecision()}
+        open={Boolean(decisionTarget)}
+        title="独立复核与二次验证"
+      >
+        <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+          <Select
+            aria-label="复核决定"
+            onChange={setDecision}
+            options={[
+              { label: '通过', value: 'APPROVE' },
+              { label: '驳回', value: 'REJECT' },
+            ]}
+            value={decision}
+          />
+          <Input.TextArea
+            aria-label="复核意见"
+            maxLength={1000}
+            onChange={(event) => setDecisionOpinion(event.target.value)}
+            value={decisionOpinion}
+          />
+          <Input.Password
+            aria-label="二次验证码"
+            maxLength={64}
+            onChange={(event) => setSecondVerificationCode(event.target.value)}
+            value={secondVerificationCode}
+          />
+        </Space>
+      </Modal>
     </main>
   );
 }

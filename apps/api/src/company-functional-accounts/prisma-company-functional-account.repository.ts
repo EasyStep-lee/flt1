@@ -177,6 +177,7 @@ export class PrismaCompanyFunctionalAccountRepository
               action: 'functional_account.invited',
               actorId: command.actorIdentityId,
               actorType: 'COMPANY_USER',
+              functionalAccountId: command.actorFunctionalAccountId,
               afterSnapshot: asInputJson(
                 sanitizeAuditSnapshot({
                   accountTypeCode: result.accountTypeCode,

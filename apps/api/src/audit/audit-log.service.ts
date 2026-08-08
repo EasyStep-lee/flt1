@@ -43,9 +43,18 @@ export class AuditLogService {
     actor: AuditActor,
     query: AuditQueryDto & Record<string, unknown>,
   ): Promise<AuditEventPageResponseDto> {
+    const companyAudit =
+      actor.ownerType === 'COMPANY' &&
+      actor.accountTypeCode === 'COMPANY_AUDIT' &&
+      actor.workspaceRoute === '/company-admin/workspaces/audit';
+    const supplierAudit =
+      actor.ownerType === 'SUPPLIER' &&
+      actor.accountTypeCode === 'SUPPLIER_AUDIT' &&
+      actor.workspaceRoute === '/supplier/workspaces/audit' &&
+      actor.supplierId !== null;
     if (
-      actor.accountTypeCode !== 'COMPANY_AUDIT' ||
-      actor.workspaceRoute !== '/company-admin/workspaces/audit'
+      (!companyAudit && !supplierAudit) ||
+      !actor.permissionCodes.includes('audit_event.read')
     ) {
       throw new SafeApiError(
         403,
@@ -65,6 +74,7 @@ export class AuditLogService {
       ...(action ? { action } : {}),
       ...(objectType ? { objectType } : {}),
       ...(objectId ? { objectId } : {}),
+      ...(supplierAudit && actor.supplierId ? { supplierId: actor.supplierId } : {}),
     });
     return {
       page,

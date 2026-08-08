@@ -35,11 +35,15 @@ const createFixture = async () => {
   const repository = new CountingAuditLogRepository();
   const actorRef = {
     current: {
+      ownerType: 'COMPANY',
       accountTypeCode: 'COMPANY_AUDIT',
       companyId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
       functionalAccountId: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+      identityType: 'COMPANY_USER',
       identityId: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+      supplierId: null,
       workspaceRoute: '/company-admin/workspaces/audit',
+      permissionCodes: ['audit_event.read'],
     },
   };
   await repository.append({
