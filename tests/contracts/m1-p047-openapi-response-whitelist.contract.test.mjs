@@ -50,7 +50,7 @@ test('M1-P047 evidence remains closed after PR 20 merge as the project advances'
   assert.equal(state.execution.prohibitedUntilGate.length, 1);
   assert.match(state.execution.prohibitedUntilGate[0], /M2/u);
   assert.ok(state.github.pullRequest === null || Number.isInteger(state.github.pullRequest));
-  assert.ok(['NOT_CREATED', 'DRAFT'].includes(state.github.pullRequestState));
+  assert.ok(['NOT_CREATED', 'DRAFT', 'DRAFT_OPEN'].includes(state.github.pullRequestState));
   assert.equal(state.github.pullRequestMerged, false);
   assert.equal(state.github.mergeCommitSha, 'NOT_EXECUTED_FOR_M1_P072');
   assert.equal(state.github.currentTaskDelivery.taskId, 'M1-P072');

@@ -50,5 +50,5 @@
 ## GitHub 与下一门禁
 
 - 仓库：`EasyStep-lee/flt1`。前序 PR [#30](https://github.com/EasyStep-lee/flt1/pull/30) 已按授权精确 head `acadd8b838c4061c8184b12db077a030d0a8e277` 合并为 `a721d56`；合并后 main Actions run `31232556011` 成功。
-- 当前 Issue [#31](https://github.com/EasyStep-lee/flt1/issues/31)；分支 `codex/m1-m1-p072`；Draft PR、精确 head CI、评论/审查、Ready、合并和合并后 main CI 尚未执行。
-- 下一步只允许提交本交接、推送当前分支、创建/更新 Draft PR，并读取精确 head Actions 与未解决评论。没有用户对最终精确 SHA 的 Ready/合并授权且合并后 main CI 未通过前，不得启动 M2。
+- 当前 Issue [#31](https://github.com/EasyStep-lee/flt1/issues/31)；分支 `codex/m1-m1-p072`；Draft PR [#32](https://github.com/EasyStep-lee/flt1/pull/32) 创建于精确 head `907714a`。创建时 Draft/OPEN/MERGEABLE、无评论或 review，Actions run `31236844414` 正在运行；它不能替代随后元数据提交的新 head CI。
+- 下一步只允许推送本次 PR 元数据提交，并读取新精确 head Actions 与未解决评论。没有用户对最终精确 SHA 的 Ready/合并授权且合并后 main CI 未通过前，不得启动 M2。
