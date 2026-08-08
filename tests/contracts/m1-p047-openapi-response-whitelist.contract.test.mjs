@@ -43,31 +43,23 @@ test('M1-P047 evidence remains closed after PR 20 merge as the project advances'
   assert.equal(evidence.fullVerification.status, 'PASS_17_OF_17');
   assert.equal(evidence.negativeTests.length, 4);
   assert.ok(evidence.negativeTests.every(({ status }) => status === 'PASS'));
-  assert.equal(state.execution.lastCompletedTask, 'M1-P070');
-  assert.equal(state.execution.currentTask, 'M1-P072');
-  assert.equal(state.execution.nextAllowedTask, 'M1-P072');
-  assert.ok([0, 1].includes(state.execution.activeTaskCount));
-  assert.equal(state.execution.prohibitedUntilGate.length, 1);
-  assert.match(state.execution.prohibitedUntilGate[0], /M2/u);
-  assert.ok(state.github.pullRequest === null || Number.isInteger(state.github.pullRequest));
-  assert.ok(['NOT_CREATED', 'DRAFT', 'DRAFT_OPEN'].includes(state.github.pullRequestState));
-  assert.equal(state.github.pullRequestMerged, false);
-  assert.equal(state.github.mergeCommitSha, 'NOT_EXECUTED_FOR_M1_P072');
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M1-P072');
-  assert.ok(
-    ['IN_PROGRESS', 'LOCAL_FOCUSED_PASS', 'DONE_LOCAL_PASS', 'DRAFT_LOCAL_PASS', 'LOCAL_PASS_PR_NOT_CREATED'].includes(
-      state.github.currentTaskDelivery.status,
-    ),
-  );
-  assert.ok(
-    state.github.currentTaskDelivery.pullRequest === null ||
-      Number.isInteger(state.github.currentTaskDelivery.pullRequest),
-  );
+  assert.equal(state.execution.lastCompletedTask, 'M1-P072');
+  assert.equal(state.execution.currentTask, 'M1-GATE');
+  assert.equal(state.execution.nextAllowedTask, 'M1-GATE');
+  assert.equal(state.execution.activeTaskCount, 0);
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2/u);
+  assert.equal(state.github.pullRequest, 32);
+  assert.equal(state.github.pullRequestState, 'MERGED');
+  assert.equal(state.github.pullRequestMerged, true);
+  assert.equal(state.github.mergeCommitSha, '4ff02588379b1928448826d9f83b863c8c8b5bd8');
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M1-GATE');
+  assert.equal(state.github.currentTaskDelivery.status, 'BLOCKED_EXTERNAL');
+  assert.equal(state.github.currentTaskDelivery.pullRequest, 'NOT_CREATED_AT_CAPTURE');
   assert.match(state.github.currentTaskDelivery.exactHeadCi, /NOT_EXECUTED/u);
-  assert.ok(['NOT_EXECUTED', 'LOCAL_FOCUSED_PASS', 'LOCAL_PASS', 'LOCAL_PASS_FOCUSED_FULL_VERIFY_PENDING', 'LOCAL_PASS_VERIFY_17_OF_17'].includes(state.evidence.local));
-  assert.equal(state.evidence.ci, 'NOT_EXECUTED');
+  assert.equal(state.evidence.local, 'LOCAL_PASS');
+  assert.equal(state.evidence.ci, 'CI_PASS_CANDIDATE_MAIN');
   assert.match(taskLedger, /M1-P047[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(taskLedger, /M1-P066[^\r\n]*DONE[^\r\n]*CI_PASS/u);
-  assert.match(p0Ledger, /P0-047[^\r\n]*LOCAL_PASS/u);
-  assert.match(evidenceLedger, /EVD-047[^\r\n]*LOCAL_PASS/u);
+  assert.match(p0Ledger, /P0-047[^\r\n]*CI_PASS/u);
+  assert.match(evidenceLedger, /EVD-047[^\r\n]*CI_PASS/u);
 });

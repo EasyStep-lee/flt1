@@ -79,11 +79,11 @@ test('M1-P070 records eight isolated supplier workspaces at the local evidence b
   assert.equal(rehearsal.cleanup.errors.length, 0);
   assert.match(rehearsalScript, /M1-P070/u);
 
-  assert.equal(state.execution.currentTask, 'M1-P072');
-  assert.equal(state.execution.nextAllowedTask, 'M1-P072');
-  assert.equal(state.execution.lastCompletedTask, 'M1-P070');
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M1-P072');
-  assert.equal(state.github.currentTaskDelivery.issue, 31);
+  assert.equal(state.execution.currentTask, 'M1-GATE');
+  assert.equal(state.execution.nextAllowedTask, 'M1-GATE');
+  assert.equal(state.execution.lastCompletedTask, 'M1-P072');
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M1-GATE');
+  assert.equal(state.github.currentTaskDelivery.issue, 33);
   assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2/u);
 
   assert.match(tasks, /M1-P070[^\r\n]*DONE[^\r\n]*CI_PASS/u);

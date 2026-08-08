@@ -54,14 +54,14 @@ test('M1-P072 records natural-person separation, append-only audit and the curre
   assert.equal(rehearsal.productRehearsal.sensitiveApproval.frozenPermissionCount, 9);
   assert.equal(rehearsal.cleanup.errors.length, 0);
 
-  assert.equal(state.execution.currentTask, 'M1-P072');
-  assert.equal(state.execution.nextAllowedTask, 'M1-P072');
-  assert.equal(state.execution.lastCompletedTask, 'M1-P070');
-  assert.equal(state.github.currentTaskDelivery.issue, 31);
+  assert.equal(state.execution.currentTask, 'M1-GATE');
+  assert.equal(state.execution.nextAllowedTask, 'M1-GATE');
+  assert.equal(state.execution.lastCompletedTask, 'M1-P072');
+  assert.equal(state.github.currentTaskDelivery.issue, 33);
   assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2/u);
   assert.match(tasks, /M1-P070[^\r\n]*DONE[^\r\n]*CI_PASS/u);
-  assert.match(tasks, /M1-P072[^\r\n]*IN_PROGRESS[^\r\n]*LOCAL_PASS/u);
-  assert.match(p0, /P0-072[^\r\n]*LOCAL_PASS/u);
+  assert.match(tasks, /M1-P072[^\r\n]*DONE[^\r\n]*CI_PASS/u);
+  assert.match(p0, /P0-072[^\r\n]*CI_PASS/u);
   assert.match(pages, /PAGE-012[^\r\n]*P0-072_LOCAL_PASS/u);
   assert.match(pages, /PAGE-023[^\r\n]*P0-072_LOCAL_PASS/u);
   assert.equal(manifest.counts.apiContracts, 89);
