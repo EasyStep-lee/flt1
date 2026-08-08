@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-07T22:02:32-04:00",
+  "updatedAt": "2026-08-07T22:54:44-04:00",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -83,9 +83,9 @@
       "branch": "codex/m1-m1-p072",
       "baseCommit": "a721d56f1cf6568da35c65db66fdde28d95eddea",
       "status": "LOCAL_PASS_PR_NOT_CREATED",
-      "verifiedImplementationHead": "WORKTREE_UNCOMMITTED",
+      "verifiedImplementationHead": "4aac6c0222d74a97a550bab5bd9b2336ef1214ce",
       "draftHeadAtCreation": "NOT_CREATED",
-      "localVerify": "FOCUSED_PASS_FULL_VERIFY_PENDING",
+      "localVerify": "PASS_17_OF_17",
       "migrationRehearsal": "PASS_EMPTY_2_UPGRADE_2_RESTORE_2_PRODUCT_11_CLEANUP_PASS",
       "pullRequest": null,
       "pullRequestUrl": null,
@@ -104,10 +104,10 @@
       "mainPostMergeCiRun": 31232556011,
       "status": "CI_PASS"
     },
-    "note": "M1-P070 PR #30已按精确head acadd8b授权合并，main@a721d56的Actions成功。M1-P072已实现敏感审批请求/认领/决定、自然人隔离、并发乐观锁、追加历史、审计supplierId数据域及PAGE-012/PAGE-023；focused与真实MySQL product=11演练通过，完整pnpm verify和Draft PR尚未执行；M2禁止启动。"
+    "note": "M1-P070 PR #30已按精确head acadd8b授权合并，main@a721d56的Actions成功。M1-P072已实现敏感审批请求/认领/决定、自然人隔离、并发乐观锁与同键命令合并、追加历史、审计supplierId数据域及PAGE-012/PAGE-023；4aac6c0上pnpm verify 17/17与真实MySQL product=11演练通过，Draft PR与精确head CI尚未执行；M2禁止启动。"
   },
   "evidence": {
-    "local": "LOCAL_PASS_FOCUSED_FULL_VERIFY_PENDING",
+    "local": "LOCAL_PASS_VERIFY_17_OF_17",
     "ci": "NOT_EXECUTED",
     "staging": "NOT_EXECUTED",
     "device": "NOT_REQUIRED_PC_WEB_SLICE",

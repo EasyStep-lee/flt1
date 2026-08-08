@@ -189,7 +189,7 @@ test('M1-P003 retains its local evidence after PR and main CI closure', async ()
     ),
   );
   assert.ok(
-    ['NOT_EXECUTED', 'LOCAL_FOCUSED_PASS', 'LOCAL_PASS', 'LOCAL_PASS_FOCUSED_FULL_VERIFY_PENDING'].includes(
+    ['NOT_EXECUTED', 'LOCAL_FOCUSED_PASS', 'LOCAL_PASS', 'LOCAL_PASS_FOCUSED_FULL_VERIFY_PENDING', 'LOCAL_PASS_VERIFY_17_OF_17'].includes(
       state.evidence.local,
     ),
   );

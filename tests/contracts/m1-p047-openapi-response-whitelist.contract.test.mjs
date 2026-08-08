@@ -64,7 +64,7 @@ test('M1-P047 evidence remains closed after PR 20 merge as the project advances'
       Number.isInteger(state.github.currentTaskDelivery.pullRequest),
   );
   assert.match(state.github.currentTaskDelivery.exactHeadCi, /NOT_EXECUTED/u);
-  assert.ok(['NOT_EXECUTED', 'LOCAL_FOCUSED_PASS', 'LOCAL_PASS', 'LOCAL_PASS_FOCUSED_FULL_VERIFY_PENDING'].includes(state.evidence.local));
+  assert.ok(['NOT_EXECUTED', 'LOCAL_FOCUSED_PASS', 'LOCAL_PASS', 'LOCAL_PASS_FOCUSED_FULL_VERIFY_PENDING', 'LOCAL_PASS_VERIFY_17_OF_17'].includes(state.evidence.local));
   assert.equal(state.evidence.ci, 'NOT_EXECUTED');
   assert.match(taskLedger, /M1-P047[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(taskLedger, /M1-P066[^\r\n]*DONE[^\r\n]*CI_PASS/u);

@@ -3,7 +3,7 @@
   "taskId": "M1-P072",
   "p0Id": "P0-072",
   "status": "LOCAL_PASS",
-  "verifiedAt": "2026-08-07T22:02:32-04:00",
+  "verifiedAt": "2026-08-07T22:54:44-04:00",
   "baseline": {
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
     "baseBranch": "main",
@@ -118,8 +118,11 @@
     }
   ],
   "fullVerification": {
-    "status": "NOT_EXECUTED",
-    "stepsPassed": 0,
+    "status": "PASS_17_OF_17",
+    "stepsPassed": 17,
+    "commit": "4aac6c0222d74a97a550bab5bd9b2336ef1214ce",
+    "startedAt": "2026-08-08T02:38:29.745Z",
+    "endedAt": "2026-08-08T02:53:34.623Z",
     "report": "artifacts/test-results/verification/pnpm-verify.json"
   },
   "migration": {
