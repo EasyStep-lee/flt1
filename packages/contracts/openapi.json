@@ -2348,7 +2348,7 @@
         "x-fulishe-contract-id": "API-015",
         "x-fulishe-error-codes": [
           "FIELD_FORBIDDEN",
-          "EXPORT_APPROVAL_REQUIRED"
+          "WORKSPACE_FORBIDDEN"
         ],
         "x-fulishe-idempotency": "NONE",
         "x-fulishe-request-dto": "AuditQueryDto",
