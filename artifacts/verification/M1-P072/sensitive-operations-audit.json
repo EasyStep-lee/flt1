@@ -3,7 +3,7 @@
   "taskId": "M1-P072",
   "p0Id": "P0-072",
   "status": "LOCAL_PASS",
-  "verifiedAt": "2026-08-07T22:54:44-04:00",
+  "verifiedAt": "2026-08-08T00:22:04-04:00",
   "baseline": {
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
     "baseBranch": "main",
@@ -61,6 +61,11 @@
       "name": "concurrent same-key replay hardening",
       "result": "FAIL_1_OF_7_EXPECTED",
       "cause": "two in-flight creates returned different approval task ids before command coalescing"
+    },
+    {
+      "name": "execution pack self-check",
+      "result": "FAIL_2_ASSERTIONS_EXPECTED",
+      "cause": "API-086 through API-089 lacked the task-detail marker and manifest apiContracts remained 85 instead of 89"
     }
   ],
   "focusedEvidence": [
@@ -83,6 +88,11 @@
       "name": "real MySQL migration rehearsal",
       "command": "node scripts/prisma-migration-rehearsal.mjs --report artifacts/verification/M1-P072/prisma-migration-rehearsal.json",
       "result": "PASS_EMPTY_2_UPGRADE_2_RESTORE_2_PRODUCT_11_CLEANUP_PASS"
+    },
+    {
+      "name": "product baseline and execution pack self-check",
+      "command": "pwsh -NoProfile -File ./scripts/verify-product-baseline.ps1",
+      "result": "PASS_SCHEME_HASH_EXECUTION_PACK_149_TASKS_119_P0_89_APIS"
     }
   ],
   "negativeTests": [
@@ -120,9 +130,9 @@
   "fullVerification": {
     "status": "PASS_17_OF_17",
     "stepsPassed": 17,
-    "commit": "4aac6c0222d74a97a550bab5bd9b2336ef1214ce",
-    "startedAt": "2026-08-08T02:38:29.745Z",
-    "endedAt": "2026-08-08T02:53:34.623Z",
+    "commit": "a9ffb4f92a3f7f1a37d7735f02d75f1a58f4b5ff",
+    "startedAt": "2026-08-08T04:12:20.218Z",
+    "endedAt": "2026-08-08T04:22:04.792Z",
     "report": "artifacts/test-results/verification/pnpm-verify.json"
   },
   "migration": {
@@ -142,7 +152,10 @@
     "pullRequestState": "DRAFT_OPEN",
     "draftHeadAtCreation": "907714a93552452b7063eb405c7bb2ac49212dda",
     "initialCiRun": 31236844414,
-    "exactHeadCi": "NOT_EXECUTED_FOR_POST_METADATA_HEAD",
+    "lastSuccessfulPreRepairHead": "1139aec3b1762457bf1c4ee6ed33e3438c031091",
+    "lastSuccessfulPreRepairCiRun": 31236962398,
+    "repairHead": "a9ffb4f92a3f7f1a37d7735f02d75f1a58f4b5ff",
+    "exactHeadCi": "NOT_EXECUTED_AFTER_EXECUTION_PACK_REPAIR",
     "review": "NOT_EXECUTED",
     "merge": "NOT_EXECUTED",
     "mainPostMergeCi": "NOT_EXECUTED"

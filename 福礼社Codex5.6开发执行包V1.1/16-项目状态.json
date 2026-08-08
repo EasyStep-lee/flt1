@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-07T23:18:01-04:00",
+  "updatedAt": "2026-08-08T00:22:04-04:00",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -59,22 +59,22 @@
       "currentHeadReviewRequired": true,
       "authorizationExactHead": false
     },
-    "lastVerifiedPullRequestHead": "907714a93552452b7063eb405c7bb2ac49212dda",
+    "lastVerifiedPullRequestHead": "1139aec3b1762457bf1c4ee6ed33e3438c031091",
     "pullRequestCi": {
-      "status": "IN_PROGRESS_FOR_DRAFT_CREATION_HEAD",
-      "runId": 31236844414,
-      "jobId": 93050839168,
-      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31236844414",
-      "headSha": "907714a93552452b7063eb405c7bb2ac49212dda"
+      "status": "SUCCESS_STALE_AFTER_EXECUTION_PACK_REPAIR",
+      "runId": 31236962398,
+      "jobId": 93051195039,
+      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31236962398",
+      "headSha": "1139aec3b1762457bf1c4ee6ed33e3438c031091"
     },
     "latestCi": {
-      "scope": "MAIN_POST_M1_P070_MERGE",
-      "status": "SUCCESS",
-      "runId": 31232556011,
-      "jobId": 93039088228,
-      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31232556011",
-      "headSha": "a721d56f1cf6568da35c65db66fdde28d95eddea",
-      "event": "push"
+      "scope": "PR_M1_P072_PRE_EXECUTION_PACK_REPAIR_HEAD",
+      "status": "SUCCESS_STALE_AFTER_EXECUTION_PACK_REPAIR",
+      "runId": 31236962398,
+      "jobId": 93051195039,
+      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31236962398",
+      "headSha": "1139aec3b1762457bf1c4ee6ed33e3438c031091",
+      "event": "pull_request"
     },
     "currentTaskDelivery": {
       "taskId": "M1-P072",
@@ -83,14 +83,14 @@
       "branch": "codex/m1-m1-p072",
       "baseCommit": "a721d56f1cf6568da35c65db66fdde28d95eddea",
       "status": "DRAFT_LOCAL_PASS",
-      "verifiedImplementationHead": "907714a93552452b7063eb405c7bb2ac49212dda",
+      "verifiedImplementationHead": "a9ffb4f92a3f7f1a37d7735f02d75f1a58f4b5ff",
       "draftHeadAtCreation": "907714a93552452b7063eb405c7bb2ac49212dda",
-      "localVerify": "PASS_17_OF_17",
+      "localVerify": "PASS_17_OF_17_AT_A9FFB4F",
       "migrationRehearsal": "PASS_EMPTY_2_UPGRADE_2_RESTORE_2_PRODUCT_11_CLEANUP_PASS",
       "pullRequest": 32,
       "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/32",
       "pullRequestState": "DRAFT_OPEN",
-      "exactHeadCi": "NOT_EXECUTED_FOR_POST_METADATA_HEAD",
+      "exactHeadCi": "NOT_EXECUTED_AFTER_EXECUTION_PACK_REPAIR",
       "review": "NOT_EXECUTED",
       "merge": "NOT_EXECUTED",
       "mainPostMergeCi": "NOT_EXECUTED"
@@ -104,7 +104,7 @@
       "mainPostMergeCiRun": 31232556011,
       "status": "CI_PASS"
     },
-    "note": "M1-P070 PR #30已按精确head acadd8b授权合并，main@a721d56的Actions成功。M1-P072已实现敏感审批请求/认领/决定、自然人隔离、并发乐观锁与同键命令合并、追加历史、审计supplierId数据域及PAGE-012/PAGE-023；最终候选907714a上pnpm verify 17/17与真实MySQL product=11演练通过，Draft PR #32已创建；元数据提交后的精确head CI、审查、合并仍待执行，M2禁止启动。"
+    "note": "M1-P070 PR #30已按精确head acadd8b授权合并，main@a721d56的Actions成功。M1-P072实现不变量保持不变；续接基线检查发现执行包自检因API-086至089任务内细化标记和manifest计数遗漏失败，已在a9ffb4f先红后绿修复并通过pnpm verify 17/17、P0 E2E 24/24与MySQL product=11演练。旧1139aec CI已过期；修复后精确head CI、审查、合并仍待执行，M2禁止启动。"
   },
   "evidence": {
     "local": "LOCAL_PASS_VERIFY_17_OF_17",
