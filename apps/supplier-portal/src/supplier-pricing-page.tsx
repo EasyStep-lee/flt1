@@ -281,8 +281,14 @@ export function SupplierPricingPage({
         ) : (
           <Space direction="vertical" size="large" style={{ width: '100%' }}>
             {products.map((product) => {
+              const isRecoveryProduct =
+                unknownProductId === product.supplierProductId;
               const locked =
-                !product.initialPriceEditable || unknownProductId === product.supplierProductId;
+                !product.initialPriceEditable || unknownProductId !== undefined;
+              const submitDisabled =
+                unknownProductId === undefined
+                  ? !product.initialPriceEditable
+                  : !isRecoveryProduct;
               return (
                 <Card
                   data-pricing-product={product.supplierProductId}
@@ -384,15 +390,12 @@ export function SupplierPricingPage({
                       type="info"
                     />
                     <Button
-                      disabled={
-                        !product.initialPriceEditable &&
-                        unknownProductId !== product.supplierProductId
-                      }
+                      disabled={submitDisabled}
                       loading={submittingId === product.supplierProductId}
                       onClick={() => void submit(product)}
                       type="primary"
                     >
-                      {unknownProductId === product.supplierProductId
+                      {isRecoveryProduct
                         ? '按原请求恢复'
                         : product.latestReview?.status === 'PENDING'
                           ? '等待公司审核'

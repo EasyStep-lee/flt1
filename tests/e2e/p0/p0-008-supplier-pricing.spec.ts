@@ -5,6 +5,8 @@ const productRoute = '/supplier/workspaces/products';
 const pricingRoute = '/supplier/workspaces/pricing';
 const productId = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const skuId = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+const secondProductId = 'dddddddd-dddd-4ddd-8ddd-dddddddddddd';
+const secondSkuId = 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee';
 
 const workspaces = {
   [productRoute]: {
@@ -100,6 +102,33 @@ const pricingPage = () => ({
     },
   ],
 });
+
+const pricingPageWithTwoProducts = () => {
+  const first = pricingPage();
+  return {
+    total: 2,
+    items: [
+      ...first.items,
+      {
+        supplierProductId: secondProductId,
+        name: '独立定价食用油礼盒',
+        status: 'PENDING_MATERIAL_REVIEW',
+        version: 1,
+        initialPriceEditable: true,
+        latestReview: null,
+        skus: [
+          {
+            id: secondSkuId,
+            supplierSkuCode: 'OIL-PRICE-5L',
+            requestedSupplyPrice: null,
+            requestedRetailSalePrice: null,
+            requestedEnterpriseSalePrice: null,
+          },
+        ],
+      },
+    ],
+  };
+};
 
 test('NEG-M2-008-01/02 keeps PAGE-017 price-free and submits three integer-cent prices only on PAGE-018', async ({
   page,
@@ -217,6 +246,61 @@ test('NEG-M2-008-05 retries an unknown result with the exact same idempotency ke
   expect(firstAttempt.key).toBeTruthy();
   expect(retryAttempt.key).toBe(firstAttempt.key);
   expect(retryAttempt.body).toBe(firstAttempt.body);
+});
+
+test('NEG-M2-008-06 preserves an unknown request by blocking a second product submission until recovery', async ({
+  page,
+}) => {
+  await installWorkspaceRoutes(page);
+  await page.route('**/v1/supplier/pricing/products', async (route) => {
+    await route.fulfill({
+      contentType: 'application/json',
+      status: 200,
+      body: JSON.stringify(pricingPageWithTwoProducts()),
+    });
+  });
+  const attempts: { readonly body: string | null; readonly key: string | undefined }[] = [];
+  await page.route('**/v1/supplier/pricing/products/*/initial-prices', async (route) => {
+    attempts.push({
+      body: route.request().postData(),
+      key: route.request().headers()['idempotency-key'],
+    });
+    if (attempts.length === 1) {
+      await route.abort('failed');
+      return;
+    }
+    const body = route.request().postDataJSON();
+    await route.fulfill({
+      contentType: 'application/json',
+      status: 201,
+      body: JSON.stringify({
+        id: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+        supplierProductId: productId,
+        status: 'PENDING',
+        version: 1,
+        prices: body.prices,
+      }),
+    });
+  });
+
+  await page.goto(`${supplierOrigin}${pricingRoute}`);
+  const firstProduct = page.locator(`[data-pricing-product="${productId}"]`);
+  const secondProduct = page.locator(`[data-pricing-product="${secondProductId}"]`);
+  await firstProduct.getByLabel('RICE-PRICE-5KG供应价整数分').fill('5000');
+  await firstProduct.getByLabel('RICE-PRICE-5KG个人零售价整数分').fill('6990');
+  await firstProduct.getByLabel('RICE-PRICE-5KG企业集采价整数分').fill('6200');
+  await firstProduct.getByRole('button', { name: '提交初始价格审核' }).click();
+  await expect(page.locator('[data-pricing-state="unknown-result"]')).toBeVisible();
+
+  await expect(
+    secondProduct.getByRole('button', { name: '提交初始价格审核' }),
+  ).toBeDisabled();
+  expect(attempts).toHaveLength(1);
+
+  await firstProduct.getByRole('button', { name: '按原请求恢复' }).click();
+  await expect.poll(() => attempts.length).toBe(2);
+  expect(attempts[1]?.key).toBe(attempts[0]?.key);
+  expect(attempts[1]?.body).toBe(attempts[0]?.body);
 });
 
 test('PAGE-018 exposes empty, permission and offline states without ownership leakage', async ({
