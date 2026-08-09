@@ -138,6 +138,20 @@ test('NEG-M1-068-02 all company pages keep list, detail and timeline in their ow
       body: JSON.stringify({ items: [], page: 1, pageSize: 20, total: 0 }),
     });
   });
+  await page.route('**/v1/company/product-material-reviews**', async (route) => {
+    await route.fulfill({
+      contentType: 'application/json',
+      status: 200,
+      body: JSON.stringify({ items: [], total: 0 }),
+    });
+  });
+  await page.route('**/v1/company/price-reviews**', async (route) => {
+    await route.fulfill({
+      contentType: 'application/json',
+      status: 200,
+      body: JSON.stringify({ items: [], total: 0 }),
+    });
+  });
 
   for (const workspace of workspaces) {
     await page.goto(`${companyOrigin}${workspace[2]}`);

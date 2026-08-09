@@ -3,11 +3,11 @@
   "taskId": "M2-P007",
   "p0Ids": ["P0-007"],
   "status": "LOCAL_PASS",
-  "verifiedAt": "2026-08-09T06:25:34-04:00",
+  "verifiedAt": "2026-08-09T07:05:28-04:00",
   "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
   "baseCommit": "ae7abc827f1759cd2dc00201ce23fab4710fe6ce",
   "branch": "codex/m2-product-approval",
-  "commit": "PENDING_LOCAL_COMMIT",
+  "commit": "b4fb026383ecfab86bccf47965377a827d2cd149",
   "redEvidence": {
     "command": "pnpm exec vitest run apps/api/test/supertest/company-product-approvals-api.test.mjs --config vitest.config.ts --project api-contract",
     "exitCode": 1,
@@ -29,7 +29,8 @@
     "prismaValidate": "PASS",
     "migrationRehearsal": "PRISMA_MIGRATION_REHEARSAL_OK:empty=2:upgrade=2:restore=2:product=13:cleanup=PASS",
     "openapiDeterministic": "PASS",
-    "fullVerify": "PENDING_FINAL_RUN"
+    "fullVerify": "PASS_17_OF_17",
+    "fullVerifyReport": "artifacts/test-results/verification/pnpm-verify.json"
   },
   "invariants": {
     "singleApprovalProductCount": 0,

@@ -119,6 +119,10 @@ test('generated contract exposes foundation, identity, onboarding and supplier p
     '/v1/company-auth/workspace/current',
     '/v1/company-auth/workspace/page',
     '/v1/company-auth/workspaces/{accountId}/select',
+    '/v1/company/price-reviews',
+    '/v1/company/price-reviews/{taskId}/decision',
+    '/v1/company/product-material-reviews',
+    '/v1/company/product-material-reviews/{taskId}/decision',
     '/v1/company/suppliers',
     '/v1/company/suppliers/{supplierId}/review',
     '/v1/public/merchant-profile',
@@ -155,6 +159,22 @@ test('generated contract exposes foundation, identity, onboarding and supplier p
   assert.equal(
     spec.paths['/v1/company/suppliers/{supplierId}/review'].post.operationId,
     'companySupplierOnboarding.review',
+  );
+  assert.equal(
+    spec.paths['/v1/company/product-material-reviews'].get.operationId,
+    'companyProductMaterialReviews.list',
+  );
+  assert.equal(
+    spec.paths['/v1/company/product-material-reviews/{taskId}/decision'].post.operationId,
+    'companyProductMaterialReviews.decide',
+  );
+  assert.equal(
+    spec.paths['/v1/company/price-reviews'].get.operationId,
+    'companyInitialPriceReviews.list',
+  );
+  assert.equal(
+    spec.paths['/v1/company/price-reviews/{taskId}/decision'].post.operationId,
+    'companyInitialPriceReviews.decide',
   );
   assert.equal(
     spec.paths['/v1/supplier-auth/login'].post.operationId,
@@ -232,7 +252,15 @@ test('generated contract exposes foundation, identity, onboarding and supplier p
       'HealthLivenessDto',
       'HealthReadinessChecksDto',
       'HealthReadinessDto',
+      'InitialPriceReviewDto',
+      'InitialPriceReviewPageDto',
+      'InitialPriceReviewSkuDto',
+      'ProductApprovalDecisionRequestDto',
+      'ProductApprovalDecisionResponseDto',
       'ProductMaterialApprovalResponseDto',
+      'ProductMaterialReviewDto',
+      'ProductMaterialReviewPageDto',
+      'ProductMaterialReviewSkuDto',
       'PublicMerchantProfileQuery',
       'PublicMerchantProfileResponse',
       'PublicMerchantSubjectsDto',

@@ -4,7 +4,7 @@
 
 - 结论：`LOCAL_PASS`；`CI_PASS`、合并和合并后 `main` CI 均未执行。
 - 方案 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`。
-- 基线：`main@ae7abc827f1759cd2dc00201ce23fab4710fe6ce`；分支 `codex/m2-product-approval`；Issue [#39](https://github.com/EasyStep-lee/flt1/issues/39)。
+- 基线：`main@ae7abc827f1759cd2dc00201ce23fab4710fe6ce`；实现提交 `b4fb026383ecfab86bccf47965377a827d2cd149`；分支 `codex/m2-product-approval`；Issue [#39](https://github.com/EasyStep-lee/flt1/issues/39)。
 - 唯一范围：`P0-007` 公司商品资料审核与公司初始三价审核分离，双通过后唯一物化 `Product/Sku`。
 - 明确未进入：供应商价格页面/API、上架后调价、分类模板、库存、货架、订单、支付、配送；`M2-P008` 仍锁定。
 
@@ -45,13 +45,14 @@
 | lint / typecheck | 全仓命令退出 0 | PASS |
 | Prisma | validate 通过；13 条迁移链演练通过 | PASS |
 | OpenAPI | generate/check 字节一致 | PASS |
-| `pnpm verify` | 最终执行后补写 | NOT_EXECUTED |
+| `pnpm verify` | `PNPM_VERIFY_OK:steps=17:base=HEAD`；报告绑定实现提交 `b4fb026383ecfab86bccf47965377a827d2cd149` | PASS |
 
 行为覆盖：双审门禁、职能交叉拒绝、同人自审拒绝、幂等并发重放、旧版本冲突、审计失败回滚、历史快照、资料端价格字段泄露和页面失败恢复。
 
 ## 风险、外部边界与下一步
 
 - 本地使用内存仓储验证失败恢复，并用真实 MySQL 验证迁移链；未连接生产数据、真实供应商、staging 或生产环境。
+- 非阻塞警告：公司/供应商后台存在大于 500 kB 的构建 chunk，部分 Ant Design `Spin.tip` / `Card.bordered` API 已弃用；本切片不改变性能预算或跨范围重构，后续同阶段维护时处理。
 - 真机、微信和真实支付不适用于本切片；不可据此升级任何 DEVICE/STAGING/PRODUCTION 证据。
 - Draft PR 尚未创建，CI/评论/合并状态均为 `NOT_EXECUTED`。
-- 下一动作是完成 `pnpm verify`、复核 diff、提交推送并创建 Draft PR；只有精确 head CI 成功且人工授权合并、合并后 main CI 成功，才允许开始 `M2-P008`。
+- 下一动作是完成证据复验、复核 diff、提交推送并创建 Draft PR；只有精确 head CI 成功且人工授权合并、合并后 main CI 成功，才允许开始 `M2-P008`。
