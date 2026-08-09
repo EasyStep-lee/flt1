@@ -115,7 +115,7 @@ test('EXT-005 ledger is provided without exposing source documents or contact va
   assert.doesNotMatch(JSON.stringify(dependency), /\d{7,}/u);
 });
 
-test('M1 gate remains locked for exact-head CI and merge after EXT-005 is provided', async () => {
+test('historical EXT-005 evidence stays locked while current state advances only after exact-head CI and merge', async () => {
   const [projectStatus, tasks, evidence, handoff] = await Promise.all([
     readFile(path.join(executionPack, '16-项目状态.json'), 'utf8').then(
       JSON.parse,
@@ -129,23 +129,29 @@ test('M1 gate remains locked for exact-head CI and merge after EXT-005 is provid
   const m1Gate = tasks.find(({ TaskID }) => TaskID === 'M1-GATE');
   const m2Contract = tasks.find(({ TaskID }) => TaskID === 'M2-000');
 
-  assert.equal(projectStatus.execution.status, 'M1_GATE_LOCAL_PASS_PENDING_PR');
-  assert.equal(projectStatus.execution.currentTask, 'M1-GATE');
-  assert.equal(projectStatus.execution.nextAllowedTask, 'M1-GATE');
-  assert.equal(projectStatus.execution.activeTaskCount, 1);
-  assert.equal(projectStatus.github.currentTaskDelivery.pullRequest, 34);
+  assert.equal(projectStatus.execution.status, 'M2_IN_PROGRESS');
+  assert.equal(projectStatus.execution.currentTask, 'M2-P006');
+  assert.equal(projectStatus.execution.nextAllowedTask, 'M2-P006');
+  assert.equal(projectStatus.execution.activeTaskCount, 0);
+  assert.equal(projectStatus.execution.lastPassedGate, 'M1-GATE');
+  assert.equal(projectStatus.github.currentTaskDelivery.taskId, 'M2-000');
+  assert.equal(projectStatus.github.currentTaskDelivery.pullRequest, null);
   assert.equal(projectStatus.github.currentTaskDelivery.status, 'LOCAL_PASS');
   assert.equal(projectStatus.github.currentTaskDelivery.exactHeadCi, 'NOT_EXECUTED');
-  assert.equal(projectStatus.github.currentTaskDelivery.m2Unlocked, false);
+  assert.equal(projectStatus.github.currentTaskDelivery.m2p006StartAllowed, false);
+  assert.equal(projectStatus.github.previousTaskDelivery.taskId, 'M1-GATE');
+  assert.equal(projectStatus.github.previousTaskDelivery.pullRequest, 34);
+  assert.equal(projectStatus.github.previousTaskDelivery.status, 'CI_PASS');
 
-  assert.equal(m1Gate.Status, 'IN_PROGRESS');
-  assert.equal(m1Gate.EvidenceStatus, 'LOCAL_PASS');
+  assert.equal(m1Gate.Status, 'DONE');
+  assert.equal(m1Gate.EvidenceStatus, 'CI_PASS');
   assert.equal(m1Gate.PullRequest, 'https://github.com/EasyStep-lee/flt1/pull/34');
-  assert.equal(m1Gate.CI, 'NOT_EXECUTED');
-  assert.match(m1Gate.Notes, /EXT-005.*PROVIDED/u);
-  assert.match(m1Gate.Notes, /M2.*锁定/u);
-  assert.equal(m2Contract.Status, 'NOT_STARTED');
-  assert.equal(m2Contract.EvidenceStatus, 'NOT_EXECUTED');
+  assert.equal(m1Gate.CI, 'CI_PASS');
+  assert.match(m1Gate.Notes, /f5febff/u);
+  assert.match(m1Gate.Notes, /31295823535/u);
+  assert.equal(m2Contract.Status, 'DONE');
+  assert.equal(m2Contract.EvidenceStatus, 'LOCAL_PASS');
+  assert.equal(m2Contract.CI, 'NOT_EXECUTED');
 
   assert.equal(evidence.schemaVersion, '1.0.0');
   assert.equal(evidence.taskId, 'M1-GATE-EXT005-PROVIDED');

@@ -137,8 +137,7 @@ test('M1-P003 retains its local evidence after PR and main CI closure', async ()
   const mappedApis = apis.filter(({ Method, Path }) => operationKeys.has(`${Method} ${Path}`));
 
   assert.ok(active.length <= 1);
-  assert.equal(active.length, 1);
-  assert.equal(active[0].TaskID, 'M1-GATE');
+  assert.equal(active.length, 0);
   assert.equal(m1p003?.Status, 'DONE');
   assert.equal(m1p003?.EvidenceStatus, 'CI_PASS');
   assert.equal(m1p003?.CommitSHA, 'd7067a59f1bc66680121d9e2b38e04cb3083dee2');
@@ -177,15 +176,18 @@ test('M1-P003 retains its local evidence after PR and main CI closure', async ()
   assert.equal(rehearsal.productRehearsal.supplierOnboarding.onboardingTableCount, 4);
   assert.equal(rehearsal.cleanup.errors.length, 0);
 
-  assert.equal(state.execution.currentStage, 'M1');
+  assert.equal(state.execution.currentStage, 'M2');
   assert.equal(state.execution.currentTask, state.execution.nextAllowedTask);
-  assert.equal(state.execution.currentTask, 'M1-GATE');
+  assert.equal(state.execution.currentTask, 'M2-P006');
   assert.equal(state.execution.activeTaskCount, active.length);
-  assert.match(state.execution.lastCompletedTask, /^M1-/u);
+  assert.equal(state.execution.lastCompletedTask, 'M2-000');
+  assert.equal(state.execution.lastPassedGate, 'M1-GATE');
   assert.equal(state.github.repository, 'EasyStep-lee/flt1');
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M1-GATE');
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M2-000');
   assert.equal(state.github.currentTaskDelivery.status, 'LOCAL_PASS');
-  assert.equal(state.github.currentTaskDelivery.pullRequest, 34);
+  assert.equal(state.github.currentTaskDelivery.pullRequest, null);
+  assert.equal(state.github.previousTaskDelivery.taskId, 'M1-GATE');
+  assert.equal(state.github.previousTaskDelivery.pullRequest, 34);
   assert.equal(state.evidence.local, 'LOCAL_PASS');
-  assert.equal(state.evidence.ci, 'NOT_EXECUTED_CURRENT_HEAD');
+  assert.equal(state.evidence.ci, 'NOT_EXECUTED');
 });

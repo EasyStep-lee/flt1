@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 const repositoryRoot = fileURLToPath(new URL('../../', import.meta.url));
 const packRoot = path.join(repositoryRoot, '福礼社Codex5.6开发执行包V1.1');
 
-test('M1-P072 records natural-person separation, append-only audit and the current gate', async () => {
+test('M1-P072 records natural-person separation and remains closed after the M1 gate', async () => {
   const [contract, evidence, rehearsal, state, tasks, p0, pages, apis, migrations, manifest] =
     await Promise.all([
       readFile(path.join(repositoryRoot, 'docs', 'contracts', 'm1', 'M1-P072-sensitive-operations-audit.md'), 'utf8'),
@@ -54,11 +54,13 @@ test('M1-P072 records natural-person separation, append-only audit and the curre
   assert.equal(rehearsal.productRehearsal.sensitiveApproval.frozenPermissionCount, 9);
   assert.equal(rehearsal.cleanup.errors.length, 0);
 
-  assert.equal(state.execution.currentTask, 'M1-GATE');
-  assert.equal(state.execution.nextAllowedTask, 'M1-GATE');
-  assert.equal(state.execution.lastCompletedTask, 'M1-P072');
-  assert.equal(state.github.currentTaskDelivery.issue, 33);
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2/u);
+  assert.equal(state.execution.currentTask, 'M2-P006');
+  assert.equal(state.execution.nextAllowedTask, 'M2-P006');
+  assert.equal(state.execution.lastCompletedTask, 'M2-000');
+  assert.equal(state.execution.lastPassedGate, 'M1-GATE');
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M2-000');
+  assert.equal(state.github.currentTaskDelivery.issue, 35);
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2-000.*M2-P006/u);
   assert.match(tasks, /M1-P070[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(tasks, /M1-P072[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(p0, /P0-072[^\r\n]*CI_PASS/u);
