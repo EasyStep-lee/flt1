@@ -11,7 +11,7 @@
 - 基线：`main@2f52c218ab88f3a7419f2a77b7e6b730fd7365b6`，对应 M2-000 PR #36 合并提交。
 - 当前分支：`codex/m2-product-model`。
 - Issue：[#37](https://github.com/EasyStep-lee/flt1/issues/37)。
-- 实现提交：`PENDING_COMMIT`。
+- 实现提交：`575109830ad9b23407a22ea417a9180b0dc14000`。
 - PR：`NOT_CREATED`；Draft/Ready、最新 CI、评论、合并状态均为 `NOT_EXECUTED`。
 
 ## 实际变更
@@ -33,7 +33,7 @@
 | API 集成 | `pnpm test:api` | PASS：18 文件 / 103 Vitest 测试，另 3 项 Node contract 测试 |
 | Prisma | `pnpm prisma:validate`、`pnpm prisma:migrate:dry-run` | PASS：empty=2、upgrade=2、restore=2、product=12、cleanup=PASS |
 | OpenAPI | `pnpm openapi:generate`、`pnpm openapi:check` | PASS：字节确定性 |
-| 全量 | `pnpm verify` | `PENDING_FINAL_RUN` |
+| 全量 | `pnpm verify` | PASS：`PNPM_VERIFY_OK:steps=17`；P0 E2E 25/25；退出码 0 |
 
 ## P0 与环境证据
 

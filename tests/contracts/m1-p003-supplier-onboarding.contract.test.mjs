@@ -180,14 +180,14 @@ test('M1-P003 retains its local evidence after PR and main CI closure', async ()
   assert.equal(state.execution.currentTask, state.execution.nextAllowedTask);
   assert.equal(state.execution.currentTask, 'M2-P006');
   assert.equal(state.execution.activeTaskCount, active.length);
-  assert.equal(state.execution.lastCompletedTask, 'M2-000');
+  assert.equal(state.execution.lastCompletedTask, 'M2-P006');
   assert.equal(state.execution.lastPassedGate, 'M1-GATE');
   assert.equal(state.github.repository, 'EasyStep-lee/flt1');
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M2-000');
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M2-P006');
   assert.equal(state.github.currentTaskDelivery.status, 'LOCAL_PASS');
   assert.equal(state.github.currentTaskDelivery.pullRequest, null);
-  assert.equal(state.github.previousTaskDelivery.taskId, 'M1-GATE');
-  assert.equal(state.github.previousTaskDelivery.pullRequest, 34);
+  assert.equal(state.github.previousTaskDelivery.taskId, 'M2-000');
+  assert.equal(state.github.previousTaskDelivery.pullRequest, 36);
   assert.equal(state.evidence.local, 'LOCAL_PASS');
   assert.equal(state.evidence.ci, 'NOT_EXECUTED');
 });
