@@ -209,9 +209,14 @@ test('NEG-M2-008-05 retries an unknown result with the exact same idempotency ke
   await expect(page.locator('[data-pricing-state="unknown-result"]')).toBeVisible();
   await page.getByRole('button', { name: '按原请求恢复' }).first().click();
   await expect.poll(() => attempts.length).toBe(2);
-  expect(attempts[0].key).toBeTruthy();
-  expect(attempts[1].key).toBe(attempts[0].key);
-  expect(attempts[1].body).toBe(attempts[0].body);
+  const firstAttempt = attempts[0];
+  const retryAttempt = attempts[1];
+  if (!firstAttempt || !retryAttempt) {
+    throw new Error('Expected both the original submission and exact retry');
+  }
+  expect(firstAttempt.key).toBeTruthy();
+  expect(retryAttempt.key).toBe(firstAttempt.key);
+  expect(retryAttempt.body).toBe(firstAttempt.body);
 });
 
 test('PAGE-018 exposes empty, permission and offline states without ownership leakage', async ({
