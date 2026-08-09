@@ -53,7 +53,8 @@
               "SUPPLIER_INACTIVE",
               "SUPPLIER_PRODUCT_DUPLICATE",
               "SUPPLIER_PRODUCT_NOT_FOUND",
-              "SUPPLIER_SKU_DUPLICATE"
+              "SUPPLIER_SKU_DUPLICATE",
+              "SELF_APPROVAL_FORBIDDEN"
             ],
             "example": "RESOURCE_NOT_FOUND",
             "type": "string"
@@ -1000,6 +1001,206 @@
         ],
         "type": "object"
       },
+      "InitialPriceReviewDto": {
+        "properties": {
+          "approvalType": {
+            "enum": [
+              "PRODUCT_INITIAL_PRICE"
+            ],
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "reviewOpinion": {
+            "nullable": true,
+            "type": "string"
+          },
+          "skus": {
+            "items": {
+              "$ref": "#/components/schemas/InitialPriceReviewSkuDto"
+            },
+            "type": "array"
+          },
+          "status": {
+            "enum": [
+              "PENDING",
+              "APPROVED",
+              "REJECTED"
+            ],
+            "type": "string"
+          },
+          "supplierId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "supplierProductId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "approvalType",
+          "supplierId",
+          "supplierProductId",
+          "name",
+          "skus",
+          "status",
+          "version",
+          "createdAt",
+          "updatedAt"
+        ],
+        "type": "object"
+      },
+      "InitialPriceReviewPageDto": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/InitialPriceReviewDto"
+            },
+            "type": "array"
+          },
+          "total": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ],
+        "type": "object"
+      },
+      "InitialPriceReviewSkuDto": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "requestedEnterpriseSalePrice": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "requestedRetailSalePrice": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "requestedSupplyPrice": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "supplierSkuCode": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "supplierSkuCode",
+          "requestedSupplyPrice",
+          "requestedRetailSalePrice",
+          "requestedEnterpriseSalePrice"
+        ],
+        "type": "object"
+      },
+      "ProductApprovalDecisionRequestDto": {
+        "properties": {
+          "decision": {
+            "enum": [
+              "APPROVE",
+              "REJECT"
+            ],
+            "type": "string"
+          },
+          "opinion": {
+            "maxLength": 1000,
+            "minLength": 2,
+            "type": "string"
+          },
+          "version": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "decision",
+          "opinion",
+          "version"
+        ],
+        "type": "object"
+      },
+      "ProductApprovalDecisionResponseDto": {
+        "properties": {
+          "approvalType": {
+            "enum": [
+              "PRODUCT_MATERIAL",
+              "PRODUCT_INITIAL_PRICE"
+            ],
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "productId": {
+            "format": "uuid",
+            "nullable": true,
+            "type": "string"
+          },
+          "publicationStatus": {
+            "enum": [
+              "ACTIVE",
+              "REJECTED",
+              "WAITING_OTHER_APPROVAL"
+            ],
+            "type": "string"
+          },
+          "reviewOpinion": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "APPROVED",
+              "REJECTED"
+            ],
+            "type": "string"
+          },
+          "supplierProductId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "approvalType",
+          "supplierProductId",
+          "status",
+          "version",
+          "reviewOpinion",
+          "publicationStatus"
+        ],
+        "type": "object"
+      },
       "ProductMaterialApprovalResponseDto": {
         "properties": {
           "approvalType": {
@@ -1047,6 +1248,151 @@
           "status",
           "assignedAccountTypeCode",
           "version"
+        ],
+        "type": "object"
+      },
+      "ProductMaterialReviewDto": {
+        "properties": {
+          "approvalType": {
+            "enum": [
+              "PRODUCT_MATERIAL"
+            ],
+            "type": "string"
+          },
+          "attributes": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "brand": {
+            "nullable": true,
+            "type": "string"
+          },
+          "categoryId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "isEnterpriseProcurementEnabled": {
+            "type": "boolean"
+          },
+          "isRetailEnabled": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "preparationMinutes": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "qualificationReferenceCount": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "reviewOpinion": {
+            "nullable": true,
+            "type": "string"
+          },
+          "skus": {
+            "items": {
+              "$ref": "#/components/schemas/ProductMaterialReviewSkuDto"
+            },
+            "type": "array"
+          },
+          "status": {
+            "enum": [
+              "PENDING",
+              "APPROVED",
+              "REJECTED"
+            ],
+            "type": "string"
+          },
+          "supplierId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "supplierProductId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "templateVersion": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "approvalType",
+          "supplierId",
+          "supplierProductId",
+          "name",
+          "categoryId",
+          "templateVersion",
+          "attributes",
+          "qualificationReferenceCount",
+          "isRetailEnabled",
+          "isEnterpriseProcurementEnabled",
+          "preparationMinutes",
+          "skus",
+          "status",
+          "version",
+          "createdAt",
+          "updatedAt"
+        ],
+        "type": "object"
+      },
+      "ProductMaterialReviewPageDto": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ProductMaterialReviewDto"
+            },
+            "type": "array"
+          },
+          "total": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ],
+        "type": "object"
+      },
+      "ProductMaterialReviewSkuDto": {
+        "properties": {
+          "attributes": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "supplierSkuCode": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "supplierSkuCode",
+          "attributes"
         ],
         "type": "object"
       },
@@ -3265,6 +3611,290 @@
         "x-fulishe-request-dto": "SelectWorkspaceRequestDto",
         "x-fulishe-response-dto": "SessionResponseDto",
         "x-fulishe-response-policy": "NEVER_RETURN_INTERNAL_PRICING"
+      }
+    },
+    "/v1/company/price-reviews": {
+      "get": {
+        "operationId": "companyInitialPriceReviews.list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InitialPriceReviewPageDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "List initial prices for the price-review role",
+        "tags": [
+          "company-price-reviews"
+        ]
+      }
+    },
+    "/v1/company/price-reviews/{taskId}/decision": {
+      "post": {
+        "operationId": "companyInitialPriceReviews.decide",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "taskId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductApprovalDecisionRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductApprovalDecisionResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Approve or reject the frozen initial three-price snapshot",
+        "tags": [
+          "company-price-reviews"
+        ]
+      }
+    },
+    "/v1/company/product-material-reviews": {
+      "get": {
+        "operationId": "companyProductMaterialReviews.list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductMaterialReviewPageDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "List material reviews for product operations",
+        "tags": [
+          "company-product-material-reviews"
+        ]
+      }
+    },
+    "/v1/company/product-material-reviews/{taskId}/decision": {
+      "post": {
+        "operationId": "companyProductMaterialReviews.decide",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "taskId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductApprovalDecisionRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductApprovalDecisionResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Approve or reject material without price visibility",
+        "tags": [
+          "company-product-material-reviews"
+        ]
       }
     },
     "/v1/company/suppliers": {

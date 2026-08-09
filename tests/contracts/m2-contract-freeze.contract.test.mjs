@@ -296,7 +296,7 @@ test('the deterministic generator rejects placeholders and forbidden product-pag
   }
 });
 
-test('machine control closes M1 and advances exactly one step beyond M2-000', async () => {
+test('machine control preserves the M2 freeze while later slices advance one gate at a time', async () => {
   const [tasks, stages, projectStatus] = await Promise.all([
     readCsv('03-任务台账.csv'),
     readCsv(path.join('data', '阶段门禁.csv')),
@@ -306,8 +306,10 @@ test('machine control closes M1 and advances exactly one step beyond M2-000', as
   const m1Gate = tasks.find(({ TaskID }) => TaskID === 'M1-GATE');
   const m2000 = tasks.find(({ TaskID }) => TaskID === 'M2-000');
   const m2p006 = tasks.find(({ TaskID }) => TaskID === 'M2-P006');
+  const m2p007 = tasks.find(({ TaskID }) => TaskID === 'M2-P007');
   const laterM2Tasks = tasks.filter(
-    ({ Stage, TaskID }) => Stage === 'M2' && !['M2-000', 'M2-P006'].includes(TaskID),
+    ({ Stage, TaskID }) =>
+      Stage === 'M2' && !['M2-000', 'M2-P006', 'M2-P007'].includes(TaskID),
   );
   assert.equal(m1Gate.Status, 'DONE');
   assert.equal(m1Gate.EvidenceStatus, 'CI_PASS');
@@ -318,10 +320,15 @@ test('machine control closes M1 and advances exactly one step beyond M2-000', as
   assert.equal(m2000.Branch, 'codex/m2-contract-freeze');
   assert.equal(m2000.CI, 'CI_PASS');
   assert.equal(m2p006.Status, 'DONE');
-  assert.equal(m2p006.EvidenceStatus, 'LOCAL_PASS');
+  assert.equal(m2p006.EvidenceStatus, 'CI_PASS');
   assert.equal(m2p006.GitHubIssue, 'https://github.com/EasyStep-lee/flt1/issues/37');
   assert.equal(m2p006.Branch, 'codex/m2-product-model');
-  assert.equal(m2p006.CI, 'NOT_EXECUTED');
+  assert.equal(m2p006.CI, 'CI_PASS');
+  assert.equal(m2p007.Status, 'DONE');
+  assert.equal(m2p007.EvidenceStatus, 'LOCAL_PASS');
+  assert.equal(m2p007.GitHubIssue, 'https://github.com/EasyStep-lee/flt1/issues/39');
+  assert.equal(m2p007.Branch, 'codex/m2-product-approval');
+  assert.equal(m2p007.CI, 'NOT_EXECUTED');
   assert.equal(laterM2Tasks.every(({ Status }) => Status === 'NOT_STARTED'), true);
 
   const m1Stage = stages.find(({ Stage }) => Stage === 'M1');
@@ -335,10 +342,10 @@ test('machine control closes M1 and advances exactly one step beyond M2-000', as
 
   assert.equal(projectStatus.execution.status, 'M2_IN_PROGRESS');
   assert.equal(projectStatus.execution.currentStage, 'M2');
-  assert.equal(projectStatus.execution.currentTask, 'M2-P006');
-  assert.equal(projectStatus.execution.nextAllowedTask, 'M2-P006');
+  assert.equal(projectStatus.execution.currentTask, 'M2-P007');
+  assert.equal(projectStatus.execution.nextAllowedTask, 'M2-P007');
   assert.equal(projectStatus.execution.activeTaskCount, 0);
-  assert.equal(projectStatus.execution.lastCompletedTask, 'M2-P006');
+  assert.equal(projectStatus.execution.lastCompletedTask, 'M2-P007');
   assert.equal(projectStatus.execution.lastPassedGate, 'M1-GATE');
   assert.equal(projectStatus.evidence.local, 'LOCAL_PASS');
   assert.equal(projectStatus.evidence.ci, 'NOT_EXECUTED');

@@ -14,6 +14,11 @@ import {
 } from '../audit/audit-log.actor.js';
 import { CompanyAuthService } from '../company-auth/company-auth.service.js';
 import {
+  COMPANY_PRODUCT_APPROVAL_ACTOR_RESOLVER,
+  DenyCompanyProductApprovalActorResolver,
+} from '../company-product-approvals/company-product-approval.actor.js';
+import { CompanyProductApprovalService } from '../company-product-approvals/company-product-approval.service.js';
+import {
   COMPANY_AUTH_REPOSITORY,
   type CompanyAuthRepository,
 } from '../company-auth/company-auth.repository.js';
@@ -288,6 +293,8 @@ type JsonValue =
       useExisting: LoggingFunctionalAccountAuditSink,
     },
     SupplierProductService,
+    CompanyProductApprovalService,
+    DenyCompanyProductApprovalActorResolver,
     DenySupplierProductActorResolver,
     {
       provide: SUPPLIER_PRODUCT_REPOSITORY,
@@ -301,6 +308,15 @@ type JsonValue =
         submitMaterial: async () => {
           throw new Error('OPENAPI_GENERATION_ONLY');
         },
+        stageInitialPrices: async () => {
+          throw new Error('OPENAPI_GENERATION_ONLY');
+        },
+        listMaterialReviews: async () => [],
+        listInitialPriceReviews: async () => [],
+        decideProductApproval: async () => {
+          throw new Error('OPENAPI_GENERATION_ONLY');
+        },
+        resolvePublicationCandidate: async () => null,
         materializeApproved: async () => {
           throw new Error('OPENAPI_GENERATION_ONLY');
         },
@@ -310,6 +326,10 @@ type JsonValue =
     {
       provide: SUPPLIER_PRODUCT_ACTOR_RESOLVER,
       useExisting: DenySupplierProductActorResolver,
+    },
+    {
+      provide: COMPANY_PRODUCT_APPROVAL_ACTOR_RESOLVER,
+      useExisting: DenyCompanyProductApprovalActorResolver,
     },
   ],
 })

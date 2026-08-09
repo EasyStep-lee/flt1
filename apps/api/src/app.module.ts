@@ -14,6 +14,13 @@ import { AuditSessionActorResolver } from './audit/audit-session-actor.resolver.
 import { PrismaAuditLogRepository } from './audit/prisma-audit-log.repository.js';
 import { CompanyAuthService } from './company-auth/company-auth.service.js';
 import {
+  COMPANY_PRODUCT_APPROVAL_ACTOR_RESOLVER,
+  DenyCompanyProductApprovalActorResolver,
+  type CompanyProductApprovalActorResolver,
+} from './company-product-approvals/company-product-approval.actor.js';
+import { CompanyProductApprovalSessionActorResolver } from './company-product-approvals/company-product-approval-session-actor.resolver.js';
+import { CompanyProductApprovalService } from './company-product-approvals/company-product-approval.service.js';
+import {
   CompanyAuditSessionActorResolver,
   CompanyFunctionalAccountSessionActorResolver,
   CompanySupplierOnboardingSessionActorResolver,
@@ -149,6 +156,7 @@ export interface AppModuleOptions {
   readonly supplierSecondVerifier?: SupplierSecondVerifier;
   readonly supplierProductRepository?: SupplierProductRepository;
   readonly supplierProductActorResolver?: SupplierProductActorResolver;
+  readonly companyProductApprovalActorResolver?: CompanyProductApprovalActorResolver;
 }
 
 @Module({})
@@ -200,6 +208,9 @@ export class AppModule {
       DenySupplierProductActorResolver,
       SupplierProductSessionActorResolver,
       SupplierProductService,
+      DenyCompanyProductApprovalActorResolver,
+      CompanyProductApprovalSessionActorResolver,
+      CompanyProductApprovalService,
       options.merchantRepository
         ? {
             provide: SINGLE_MERCHANT_REPOSITORY,
@@ -352,6 +363,15 @@ export class AppModule {
         : {
             provide: SUPPLIER_PRODUCT_ACTOR_RESOLVER,
             useExisting: SupplierProductSessionActorResolver,
+          },
+      options.companyProductApprovalActorResolver
+        ? {
+            provide: COMPANY_PRODUCT_APPROVAL_ACTOR_RESOLVER,
+            useValue: options.companyProductApprovalActorResolver,
+          }
+        : {
+            provide: COMPANY_PRODUCT_APPROVAL_ACTOR_RESOLVER,
+            useExisting: CompanyProductApprovalSessionActorResolver,
           },
     ];
 

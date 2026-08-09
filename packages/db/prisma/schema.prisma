@@ -28,6 +28,7 @@ enum ApprovalType {
   SENSITIVE_EXPORT
   SUPPLIER_SENSITIVE_CHANGE
   PRODUCT_MATERIAL
+  PRODUCT_INITIAL_PRICE
 }
 
 enum ApprovalObjectType {
@@ -64,6 +65,7 @@ enum ApprovalAccountTypeCode {
   COMPANY_AUDIT
   SUPPLIER_ACCOUNT_ADMIN
   COMPANY_PRODUCT_OPS
+  COMPANY_PRICE_REVIEW
 }
 
 enum SupplierProductStatus {

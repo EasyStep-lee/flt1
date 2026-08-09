@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "1.0",
+  "taskId": "M2-P007",
+  "p0Ids": ["P0-007"],
+  "status": "LOCAL_PASS",
+  "verifiedAt": "2026-08-09T06:25:34-04:00",
+  "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+  "baseCommit": "ae7abc827f1759cd2dc00201ce23fab4710fe6ce",
+  "branch": "codex/m2-product-approval",
+  "commit": "PENDING_LOCAL_COMMIT",
+  "redEvidence": {
+    "command": "pnpm exec vitest run apps/api/test/supertest/company-product-approvals-api.test.mjs --config vitest.config.ts --project api-contract",
+    "exitCode": 1,
+    "result": "5/5 failed because stageInitialPrices was not implemented"
+  },
+  "greenEvidence": {
+    "api": {
+      "command": "pnpm exec vitest run apps/api/test/supertest/company-product-approvals-api.test.mjs --config vitest.config.ts --project api-contract",
+      "exitCode": 0,
+      "result": "6/6 passed"
+    },
+    "page": {
+      "command": "pnpm exec playwright test tests/e2e/p0/p0-007-company-product-approvals.spec.ts --config playwright.p0.config.ts",
+      "exitCode": 0,
+      "result": "2/2 passed"
+    },
+    "lint": "PASS",
+    "typecheck": "PASS",
+    "prismaValidate": "PASS",
+    "migrationRehearsal": "PRISMA_MIGRATION_REHEARSAL_OK:empty=2:upgrade=2:restore=2:product=13:cleanup=PASS",
+    "openapiDeterministic": "PASS",
+    "fullVerify": "PENDING_FINAL_RUN"
+  },
+  "invariants": {
+    "singleApprovalProductCount": 0,
+    "bothApprovalsProductCount": 1,
+    "concurrentDecisionProductCount": 1,
+    "sameNaturalPersonReview": "FORBIDDEN_NO_SIDE_EFFECT",
+    "roleCrossCall": "WORKSPACE_FORBIDDEN",
+    "auditFailure": "AUDIT_REQUIRED_ROLLBACK",
+    "materialPriceLeak": "NONE",
+    "rejectedSnapshotMutation": "NONE"
+  },
+  "environment": {
+    "local": "LOCAL_PASS",
+    "ci": "NOT_EXECUTED",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_REQUIRED_M2_P007_BROWSER_ONLY",
+    "production": "NOT_EXECUTED"
+  },
+  "github": {
+    "repository": "EasyStep-lee/flt1",
+    "issue": 39,
+    "pullRequest": null,
+    "draft": "NOT_CREATED",
+    "ci": "NOT_EXECUTED",
+    "comments": "NOT_EXECUTED",
+    "merge": "NOT_EXECUTED"
+  },
+  "nextGate": "Draft PR exact-head CI, human merge authorization, merge, and post-merge main CI are required before M2-P008"
+}

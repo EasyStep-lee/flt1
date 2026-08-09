@@ -1,5 +1,9 @@
 import { AuditLogController } from '../audit/audit-log.controller.js';
 import { CompanyAuthController } from '../company-auth/company-auth.controller.js';
+import {
+  CompanyInitialPriceReviewController,
+  CompanyProductMaterialReviewController,
+} from '../company-product-approvals/company-product-approval.controller.js';
 import { HealthController } from '../health/health.controller.js';
 import { SingleMerchantController } from '../merchant/single-merchant.controller.js';
 import { SensitiveApprovalController } from '../sensitive-approval/sensitive-approval.controller.js';
@@ -15,6 +19,8 @@ import { SupplierProductController } from '../supplier-products/supplier-product
 export const OPENAPI_CONTROLLERS = Object.freeze([
   AuditLogController,
   CompanyAuthController,
+  CompanyProductMaterialReviewController,
+  CompanyInitialPriceReviewController,
   HealthController,
   SingleMerchantController,
   SensitiveApprovalController,

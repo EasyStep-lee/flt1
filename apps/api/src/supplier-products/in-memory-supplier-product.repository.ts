@@ -1,12 +1,20 @@
 import { randomUUID } from 'node:crypto';
 
+import type { AuditLogRepository } from '../audit/audit-log.repository.js';
+import type { JsonObject } from './supplier-product.policy.js';
 import type {
   CreateSupplierProductCommand,
+  DecideProductApprovalCommand,
+  InitialPriceReviewRecord,
   MaterializeApprovedProductCommand,
   MaterializedProductRecord,
   PatchSupplierProductCommand,
+  ProductApprovalDecisionRecord,
+  ProductMaterialReviewRecord,
   ProductMaterialApprovalRecord,
+  ProductPublicationCandidate,
   SellableProductSummary,
+  StageInitialPricesCommand,
   SubmitSupplierProductCommand,
   SupplierProductCompanyRecord,
   SupplierProductMutationResult,
@@ -22,6 +30,7 @@ interface StoredCommand<T> {
 }
 
 interface InMemorySupplierProductOptions {
+  readonly auditLogRepository?: AuditLogRepository;
   readonly companies: readonly SupplierProductCompanyRecord[];
   readonly suppliers: readonly SupplierProductSupplierRecord[];
 }
@@ -33,17 +42,62 @@ interface ApprovedPriceInput {
   readonly requestedEnterpriseSalePrice: number;
 }
 
+interface StoredMaterialApproval {
+  readonly id: string;
+  readonly approvalType: 'PRODUCT_MATERIAL';
+  readonly objectType: 'SUPPLIER_PRODUCT';
+  readonly objectId: string;
+  readonly status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  readonly assignedAccountTypeCode: 'COMPANY_PRODUCT_OPS';
+  readonly version: number;
+  readonly applicantIdentityId: string;
+  readonly supplierId: string;
+  readonly reviewOpinion: string | null;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+  readonly detailSnapshot: JsonObject;
+  readonly afterSaleSnapshot: JsonObject;
+  readonly deliveryRuleId: string;
+  readonly materialReviewSnapshot: {
+    readonly name: string;
+    readonly brand: string | null;
+    readonly categoryId: string;
+    readonly templateVersion: number;
+    readonly attributes: JsonObject;
+    readonly qualificationReferenceCount: number;
+    readonly isRetailEnabled: boolean;
+    readonly isEnterpriseProcurementEnabled: boolean;
+    readonly preparationMinutes: number;
+    readonly skus: ProductMaterialReviewRecord['skus'];
+  };
+}
+
+interface StoredPriceApproval extends InitialPriceReviewRecord {
+  readonly applicantIdentityId: string;
+  readonly assignedAccountTypeCode: 'COMPANY_PRICE_REVIEW';
+}
+
+type StoredApproval = StoredMaterialApproval | StoredPriceApproval;
+
+interface PendingDecision {
+  readonly requestHash: string;
+  readonly result: Promise<SupplierProductMutationResult<ProductApprovalDecisionRecord>>;
+}
+
 const clone = <T>(value: T): T => structuredClone(value);
 
 export class InMemorySupplierProductRepository implements SupplierProductRepository {
+  private readonly auditLogRepository: AuditLogRepository | undefined;
   private readonly companies: readonly SupplierProductCompanyRecord[];
   private readonly suppliers: readonly SupplierProductSupplierRecord[];
   private readonly supplierProducts = new Map<string, SupplierProductRecord>();
-  private readonly approvalTasks = new Map<string, ProductMaterialApprovalRecord>();
+  private readonly approvalTasks = new Map<string, StoredApproval>();
   private readonly products = new Map<string, MaterializedProductRecord>();
   private readonly commands = new Map<string, StoredCommand<unknown>>();
+  private readonly pendingDecisions = new Map<string, PendingDecision>();
 
   constructor(options: InMemorySupplierProductOptions) {
+    this.auditLogRepository = options.auditLogRepository;
     this.companies = clone(options.companies);
     this.suppliers = clone(options.suppliers);
   }
@@ -184,7 +238,8 @@ export class InMemorySupplierProductRepository implements SupplierProductReposit
       version: existing.version + 1,
       submittedAt: new Date().toISOString(),
     };
-    const approvalTask: ProductMaterialApprovalRecord = {
+    const createdAt = new Date().toISOString();
+    const approvalTask: StoredMaterialApproval = {
       id: randomUUID(),
       approvalType: 'PRODUCT_MATERIAL',
       objectType: 'SUPPLIER_PRODUCT',
@@ -192,12 +247,187 @@ export class InMemorySupplierProductRepository implements SupplierProductReposit
       status: 'PENDING',
       assignedAccountTypeCode: 'COMPANY_PRODUCT_OPS',
       version: supplierProduct.version,
+      applicantIdentityId: command.actorIdentityId,
+      supplierId: command.supplierId,
+      reviewOpinion: null,
+      createdAt,
+      updatedAt: createdAt,
+      detailSnapshot: {
+        schemaVersion: '1.0',
+        name: supplierProduct.name,
+        brand: supplierProduct.brand,
+        attributes: clone(supplierProduct.attributes),
+        qualificationSnapshot: clone(supplierProduct.qualificationSnapshot),
+      },
+      afterSaleSnapshot: { schemaVersion: '1.0', policy: 'company-unified-after-sale' },
+      deliveryRuleId: randomUUID(),
+      materialReviewSnapshot: {
+        name: supplierProduct.name,
+        brand: supplierProduct.brand,
+        categoryId: supplierProduct.categoryId,
+        templateVersion: supplierProduct.templateVersion,
+        attributes: clone(supplierProduct.attributes),
+        qualificationReferenceCount: supplierProduct.qualificationSnapshot.references.length,
+        isRetailEnabled: supplierProduct.isRetailEnabled,
+        isEnterpriseProcurementEnabled: supplierProduct.isEnterpriseProcurementEnabled,
+        preparationMinutes: supplierProduct.preparationMinutes,
+        skus: supplierProduct.skus.map(({ id, supplierSkuCode, attributes }) => ({
+          id,
+          supplierSkuCode,
+          attributes: clone(attributes),
+        })),
+      },
     };
-    const value = { supplierProduct, approvalTask };
+    const value = {
+      supplierProduct,
+      approvalTask: {
+        id: approvalTask.id,
+        approvalType: approvalTask.approvalType,
+        objectType: approvalTask.objectType,
+        objectId: approvalTask.objectId,
+        status: 'PENDING',
+        assignedAccountTypeCode: approvalTask.assignedAccountTypeCode,
+        version: approvalTask.version,
+      } satisfies ProductMaterialApprovalRecord,
+    };
     this.supplierProducts.set(existing.id, supplierProduct);
     this.approvalTasks.set(approvalTask.id, approvalTask);
     this.remember('SUBMIT', command, value);
     return { kind: 'OK', value: clone(value), replayed: false };
+  }
+
+  async stageInitialPrices(
+    command: StageInitialPricesCommand,
+  ): Promise<SupplierProductMutationResult<InitialPriceReviewRecord>> {
+    const replay = this.replay<InitialPriceReviewRecord>('STAGE_INITIAL_PRICES', command);
+    if (replay) return replay;
+    const supplierProduct = this.supplierProducts.get(command.supplierProductId);
+    if (!supplierProduct) return { kind: 'NOT_FOUND' };
+    if (supplierProduct.status !== 'PENDING_MATERIAL_REVIEW') {
+      return { kind: 'STATE_INVALID' };
+    }
+    if (
+      command.prices.length !== supplierProduct.skus.length ||
+      command.prices.some(
+        (price) =>
+          !supplierProduct.skus.some(
+            ({ supplierSkuCode }) => supplierSkuCode === price.supplierSkuCode,
+          ) ||
+          ![price.requestedSupplyPrice, price.requestedRetailSalePrice, price.requestedEnterpriseSalePrice].every(
+            (value) => Number.isSafeInteger(value) && value >= 0,
+          ),
+      )
+    ) {
+      return { kind: 'STATE_INVALID' };
+    }
+    const existing = [...this.approvalTasks.values()].find(
+      (task) =>
+        task.approvalType === 'PRODUCT_INITIAL_PRICE' &&
+        task.supplierProductId === supplierProduct.id &&
+        task.status === 'PENDING',
+    );
+    if (existing) return { kind: 'DUPLICATE' };
+    const now = new Date().toISOString();
+    const priceByCode = new Map(command.prices.map((price) => [price.supplierSkuCode, price]));
+    const value: StoredPriceApproval = {
+      id: randomUUID(),
+      approvalType: 'PRODUCT_INITIAL_PRICE',
+      assignedAccountTypeCode: 'COMPANY_PRICE_REVIEW',
+      applicantIdentityId: command.applicantIdentityId,
+      supplierId: supplierProduct.supplierId,
+      supplierProductId: supplierProduct.id,
+      name: supplierProduct.name,
+      skus: supplierProduct.skus.map((sku) => ({
+        id: sku.id,
+        ...priceByCode.get(sku.supplierSkuCode)!,
+      })),
+      status: 'PENDING',
+      version: 1,
+      reviewOpinion: null,
+      createdAt: now,
+      updatedAt: now,
+    };
+    this.approvalTasks.set(value.id, value);
+    this.remember('STAGE_INITIAL_PRICES', command, value);
+    return { kind: 'OK', value: clone(value), replayed: false };
+  }
+
+  async listMaterialReviews(companyId: string): Promise<readonly ProductMaterialReviewRecord[]> {
+    return [...this.approvalTasks.values()]
+      .filter((task): task is StoredMaterialApproval => task.approvalType === 'PRODUCT_MATERIAL')
+      .filter((task) => this.supplierBelongsToCompany(task.supplierId, companyId))
+      .map((task) => {
+        return {
+          id: task.id,
+          approvalType: 'PRODUCT_MATERIAL',
+          supplierId: task.supplierId,
+          supplierProductId: task.objectId,
+          ...clone(task.materialReviewSnapshot),
+          status: task.status,
+          version: task.version,
+          reviewOpinion: task.reviewOpinion,
+          createdAt: task.createdAt,
+          updatedAt: task.updatedAt,
+        };
+      });
+  }
+
+  async listInitialPriceReviews(companyId: string): Promise<readonly InitialPriceReviewRecord[]> {
+    return [...this.approvalTasks.values()]
+      .filter((task): task is StoredPriceApproval => task.approvalType === 'PRODUCT_INITIAL_PRICE')
+      .filter((task) => this.supplierBelongsToCompany(task.supplierId, companyId))
+      .map(clone);
+  }
+
+  async decideProductApproval(
+    command: DecideProductApprovalCommand,
+  ): Promise<SupplierProductMutationResult<ProductApprovalDecisionRecord>> {
+    const action = `APPROVAL_DECISION:${command.taskId}`;
+    const replay = this.replay<ProductApprovalDecisionRecord>(action, command);
+    if (replay) return replay;
+    const pendingKey = `${action}:${command.idempotencyKey}`;
+    const pending = this.pendingDecisions.get(pendingKey);
+    if (pending) {
+      if (pending.requestHash !== command.requestHash) return { kind: 'IDEMPOTENCY_CONFLICT' };
+      const result = await pending.result;
+      return result.kind === 'OK' ? { ...clone(result), replayed: true } : result;
+    }
+    const result = this.decideProductApprovalOnce(command, action);
+    this.pendingDecisions.set(pendingKey, { requestHash: command.requestHash, result });
+    try {
+      return await result;
+    } finally {
+      this.pendingDecisions.delete(pendingKey);
+    }
+  }
+
+  async resolvePublicationCandidate(
+    supplierProductId: string,
+  ): Promise<ProductPublicationCandidate | null> {
+    const material = [...this.approvalTasks.values()].find(
+      (task): task is StoredMaterialApproval =>
+        task.approvalType === 'PRODUCT_MATERIAL' &&
+        task.objectId === supplierProductId &&
+        task.status === 'APPROVED',
+    );
+    const price = [...this.approvalTasks.values()].find(
+      (task): task is StoredPriceApproval =>
+        task.approvalType === 'PRODUCT_INITIAL_PRICE' &&
+        task.supplierProductId === supplierProductId &&
+        task.status === 'APPROVED',
+    );
+    const product = this.supplierProducts.get(supplierProductId);
+    if (!material || !price || product?.status !== 'MATERIAL_APPROVED') return null;
+    return {
+      supplierProductId,
+      materialVersion: product.version,
+      priceVersion: price.version,
+      idempotencyKey: `approval-materialize:${supplierProductId}:${material.version}:${price.version}`,
+      requestHash: '',
+      detailSnapshot: clone(material.detailSnapshot),
+      afterSaleSnapshot: clone(material.afterSaleSnapshot),
+      deliveryRuleId: material.deliveryRuleId,
+    };
   }
 
   async materializeApproved(
@@ -300,9 +530,127 @@ export class InMemorySupplierProductRepository implements SupplierProductReposit
     return [...this.products.values()].reduce((total, product) => total + product.skuIds.length, 0);
   }
 
+  private async decideProductApprovalOnce(
+    command: DecideProductApprovalCommand,
+    action: string,
+  ): Promise<SupplierProductMutationResult<ProductApprovalDecisionRecord>> {
+    const task = this.approvalTasks.get(command.taskId);
+    if (!task || task.approvalType !== command.approvalType) {
+      return { kind: 'APPROVAL_NOT_FOUND' };
+    }
+    if (!this.supplierBelongsToCompany(task.supplierId, command.companyId)) {
+      return { kind: 'APPROVAL_NOT_FOUND' };
+    }
+    const requiredAccountType =
+      command.approvalType === 'PRODUCT_MATERIAL'
+        ? 'COMPANY_PRODUCT_OPS'
+        : 'COMPANY_PRICE_REVIEW';
+    if (task.assignedAccountTypeCode !== requiredAccountType) {
+      return { kind: 'APPROVAL_NOT_FOUND' };
+    }
+    if (task.version !== command.expectedVersion) {
+      return { kind: 'APPROVAL_VERSION_CONFLICT' };
+    }
+    if (task.status !== 'PENDING') return { kind: 'APPROVAL_STATE_INVALID' };
+    if (task.applicantIdentityId === command.actorIdentityId) {
+      return { kind: 'SELF_APPROVAL_FORBIDDEN' };
+    }
+    const supplierProductId =
+      task.approvalType === 'PRODUCT_MATERIAL' ? task.objectId : task.supplierProductId;
+    const product = this.supplierProducts.get(supplierProductId);
+    if (!product) return { kind: 'APPROVAL_NOT_FOUND' };
+    if (
+      (task.approvalType === 'PRODUCT_MATERIAL' &&
+        product.status !== 'PENDING_MATERIAL_REVIEW') ||
+      (task.approvalType === 'PRODUCT_INITIAL_PRICE' &&
+        !['PENDING_MATERIAL_REVIEW', 'MATERIAL_APPROVED'].includes(product.status))
+    ) {
+      return { kind: 'APPROVAL_STATE_INVALID' };
+    }
+
+    const previousTask = clone(task);
+    const previousProduct = clone(product);
+    const nextStatus = command.decision === 'APPROVE' ? 'APPROVED' : 'REJECTED';
+    const decidedAt = new Date().toISOString();
+    const decidedTask: StoredApproval = {
+      ...task,
+      status: nextStatus,
+      version: task.version + 1,
+      reviewOpinion: command.opinion,
+      updatedAt: decidedAt,
+    };
+    const nextProduct: SupplierProductRecord =
+      task.approvalType === 'PRODUCT_MATERIAL'
+        ? {
+            ...product,
+            status: command.decision === 'APPROVE' ? 'MATERIAL_APPROVED' : 'CORRECTION_REQUIRED',
+            version: product.version + 1,
+          }
+        : command.decision === 'APPROVE'
+          ? {
+              ...product,
+              skus: product.skus.map((sku) => {
+                const price = task.skus.find(
+                  ({ supplierSkuCode }) => supplierSkuCode === sku.supplierSkuCode,
+                );
+                if (!price) throw new Error('INITIAL_PRICE_SNAPSHOT_INCOMPLETE');
+                return {
+                  ...sku,
+                  requestedSupplyPrice: price.requestedSupplyPrice,
+                  requestedRetailSalePrice: price.requestedRetailSalePrice,
+                  requestedEnterpriseSalePrice: price.requestedEnterpriseSalePrice,
+                };
+              }),
+            }
+          : product;
+    this.approvalTasks.set(task.id, decidedTask);
+    this.supplierProducts.set(product.id, nextProduct);
+
+    try {
+      if (!this.auditLogRepository) throw new Error('AUDIT_REPOSITORY_UNAVAILABLE');
+      await this.auditLogRepository.append({
+        actorType: 'COMPANY_USER',
+        actorId: command.actorIdentityId,
+        functionalAccountId: command.functionalAccountId,
+        supplierId: task.supplierId,
+        action:
+          task.approvalType === 'PRODUCT_MATERIAL'
+            ? 'PRODUCT_MATERIAL_REVIEW_DECIDED'
+            : 'PRODUCT_INITIAL_PRICE_REVIEW_DECIDED',
+        objectType: 'APPROVAL_TASK',
+        objectId: task.id,
+        beforeSnapshot: { status: task.status, version: task.version },
+        afterSnapshot: { decision: command.decision, status: nextStatus, version: task.version + 1 },
+        requestId: command.requestId,
+        ip: command.ip,
+      });
+    } catch {
+      this.approvalTasks.set(previousTask.id, previousTask);
+      this.supplierProducts.set(previousProduct.id, previousProduct);
+      return { kind: 'AUDIT_REQUIRED' };
+    }
+
+    const value: ProductApprovalDecisionRecord = {
+      id: task.id,
+      approvalType: task.approvalType,
+      supplierProductId,
+      status: nextStatus,
+      version: task.version + 1,
+      reviewOpinion: command.opinion,
+    };
+    this.remember(action, command, value);
+    return { kind: 'OK', value: clone(value), replayed: false };
+  }
+
   private findOwned(id: string, supplierId: string): SupplierProductRecord | null {
     const value = this.supplierProducts.get(id);
     return value?.supplierId === supplierId ? value : null;
+  }
+
+  private supplierBelongsToCompany(supplierId: string, companyId: string): boolean {
+    return this.suppliers.some(
+      (supplier) => supplier.id === supplierId && supplier.companyId === companyId,
+    );
   }
 
   private isActiveSupplier(supplierId: string): boolean {
