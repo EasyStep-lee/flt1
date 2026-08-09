@@ -62,7 +62,9 @@ const draftBody = {
 };
 
 const createFixture = async ({ auditFail = false } = {}) => {
-  const audit = new InMemoryAuditLogRepository({ failAppend: auditFail });
+  const audit = new InMemoryAuditLogRepository({
+    ...(auditFail ? { failOnAppendNumber: 2 } : {}),
+  });
   const repository = new InMemorySupplierProductRepository({
     auditLogRepository: audit,
     companies: [company],
@@ -109,11 +111,14 @@ const prepareReviews = async (fixture) => {
   expect(submitted.status).toBe(201);
 
   const priceTask = await fixture.repository.stageInitialPrices({
+    supplierId: supplier.id,
     supplierProductId: created.body.id,
     applicantIdentityId: supplierIdentityId,
     applicantFunctionalAccountId: supplierFunctionalAccountId,
     idempotencyKey: `price-stage-${randomUUID()}`,
     requestHash: 'initial-price-request-hash',
+    requestId: randomUUID(),
+    ip: '127.0.0.1',
     prices: [
       {
         supplierSkuCode: 'RICE-APPROVAL-5KG',
@@ -225,7 +230,7 @@ describe('P0-007 company product material and price approval split', () => {
       expect(JSON.stringify(price.body)).not.toMatch(/supplyPrice|requestedSupplyPrice/iu);
       expect(await fixture.repository.countProducts()).toBe(1);
       expect(await fixture.repository.countSkus()).toBe(1);
-      expect(await fixture.audit.count()).toBe(2);
+      expect(await fixture.audit.count()).toBe(3);
     } finally {
       await fixture.app.close();
     }
@@ -255,7 +260,7 @@ describe('P0-007 company product material and price approval split', () => {
       expect(responses.filter(({ headers }) => headers['idempotency-replayed'] === 'true')).toHaveLength(4);
       expect(await fixture.repository.countProducts()).toBe(1);
       expect(await fixture.repository.countSkus()).toBe(1);
-      expect(await fixture.audit.count()).toBe(2);
+      expect(await fixture.audit.count()).toBe(3);
 
       const stale = await decide(fixture, 'price', prepared.priceTaskId, {
         decision: 'REJECT',
@@ -284,7 +289,7 @@ describe('P0-007 company product material and price approval split', () => {
       expect(response.status).toBe(403);
       expect(response.body).toMatchObject({ code: 'SELF_APPROVAL_FORBIDDEN' });
       expect(await fixture.repository.countProducts()).toBe(0);
-      expect(await fixture.audit.count()).toBe(0);
+      expect(await fixture.audit.count()).toBe(1);
       const queue = await request(fixture.app.getHttpServer()).get(
         '/v1/company/product-material-reviews',
       );

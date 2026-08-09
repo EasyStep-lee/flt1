@@ -40,6 +40,7 @@ import type { SupplierOnboardingRepository } from './supplier-onboarding/supplie
 import type { SupplierRegistrationVerifier } from './supplier-onboarding/supplier-registration.verifier.js';
 import type { SupplierProductActorResolver } from './supplier-products/supplier-product.actor.js';
 import type { SupplierProductRepository } from './supplier-products/supplier-product.repository.js';
+import type { SupplierPricingActorResolver } from './supplier-pricing/supplier-pricing.actor.js';
 
 type Environment = Readonly<Record<string, string | undefined>>;
 
@@ -67,6 +68,7 @@ export interface CreateApplicationOptions {
   readonly supplierSecondVerifier?: SupplierSecondVerifier;
   readonly supplierProductRepository?: SupplierProductRepository;
   readonly supplierProductActorResolver?: SupplierProductActorResolver;
+  readonly supplierPricingActorResolver?: SupplierPricingActorResolver;
   readonly companyProductApprovalActorResolver?: CompanyProductApprovalActorResolver;
   readonly logger?: LoggerService | false;
 }
@@ -140,6 +142,9 @@ export const createApplication = async (
       : {}),
     ...(options.supplierProductActorResolver
       ? { supplierProductActorResolver: options.supplierProductActorResolver }
+      : {}),
+    ...(options.supplierPricingActorResolver
+      ? { supplierPricingActorResolver: options.supplierPricingActorResolver }
       : {}),
     ...(options.companyProductApprovalActorResolver
       ? {

@@ -46,6 +46,7 @@ const failureMap: Record<SupplierProductFailureKind, readonly [number, ApiErrorC
   DUPLICATE: [409, 'SUPPLIER_PRODUCT_DUPLICATE', 'Approval task already exists'],
   IDEMPOTENCY_CONFLICT: [409, 'IDEMPOTENCY_CONFLICT', 'Idempotency-Key conflicts'],
   NOT_FOUND: [404, 'APPROVAL_NOT_FOUND', 'Approval task was not found'],
+  PRICE_INVALID: [422, 'PRICE_INVALID', 'Price snapshot is invalid'],
   PRODUCT_APPROVAL_INCOMPLETE: [409, 'PRODUCT_APPROVAL_INCOMPLETE', 'Both approvals are required'],
   SELF_APPROVAL_FORBIDDEN: [403, 'SELF_APPROVAL_FORBIDDEN', 'The applicant cannot review their own request'],
   STATE_INVALID: [409, 'APPROVAL_STATE_INVALID', 'Approval task state is invalid'],

@@ -71,7 +71,15 @@ export const SUPPLIER_WORKSPACE_PAGE_MODULES = Object.freeze({
     deferred('collection-flags', '集采标识', '统一商品资源的集采标识与企业规则在 M2 实现。', 'M2', '不创建供应商店铺，也不加载企业订单或结算数据。', ['标识列表', '起购规则', '变更记录']),
   ]),
   SUPPLIER_PRICING: Object.freeze([
-    deferred('initial-prices', '首次上架三类价格', '初始价格提交公司价格审核在 M2 实现。', 'M2', '仅当前供应商价格职能可通过后续专用 DTO 查看本方三类价格。', ['待办列表', 'SKU 价格详情', '审核时间线']),
+    module({
+      moduleKey: 'initial-prices',
+      label: '首次上架三类价格',
+      description: '在独立价格页面按 SKU 填写整数分价格并提交公司价格审核。',
+      deliveryStage: 'M2',
+      availability: 'AVAILABLE',
+      dataBoundary: '仅当前供应商价格职能可查看本方三类价格；公司审核只能通过或驳回。',
+      sections: ['待定价商品', 'SKU 三类价格', '初始价格审核状态'],
+    }),
     deferred('supply-price-changes', '供应价变更申请', '已上架供应价变更审核与旧价保持在 M2 实现。', 'M2', '不能批准自己的供应价申请；目录接口不返回任何金额。', ['申请列表', '变更详情', '审核时间线']),
     deferred('sale-price-history', '销售价版本历史', '零售和集采销售价免审生效及追加留痕在 M2 实现。', 'M2', '销售价修改不改变供应价，也不暴露平台毛利。', ['当前价格', '定时生效', '版本记录']),
   ]),

@@ -8,6 +8,7 @@ import { assertAuditRequestId, sanitizeAuditSnapshot } from './audit-log.policy.
 
 interface InMemoryAuditLogOptions {
   readonly failAppend?: boolean;
+  readonly failOnAppendNumber?: number;
 }
 
 const clone = <T>(value: T): T => structuredClone(value);
@@ -15,13 +16,22 @@ const clone = <T>(value: T): T => structuredClone(value);
 export class InMemoryAuditLogRepository implements AuditLogRepository {
   private readonly events: AuditLogRecord[] = [];
   private readonly failAppend: boolean;
+  private readonly failOnAppendNumber: number | undefined;
+  private appendAttempts = 0;
 
   constructor(options: InMemoryAuditLogOptions = {}) {
     this.failAppend = options.failAppend ?? false;
+    this.failOnAppendNumber = options.failOnAppendNumber;
   }
 
   async append(command: AppendAuditLogCommand): Promise<AuditLogRecord> {
-    if (this.failAppend) throw new Error('AUDIT_APPEND_FAILED');
+    this.appendAttempts += 1;
+    if (
+      this.failAppend ||
+      this.appendAttempts === this.failOnAppendNumber
+    ) {
+      throw new Error('AUDIT_APPEND_FAILED');
+    }
     const event: AuditLogRecord = {
       ...clone(command),
       supplierId: command.supplierId ?? null,
