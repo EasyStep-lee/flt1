@@ -1,0 +1,4670 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "M2-000",
+  "stage": "M2",
+  "status": "CONTRACT_FROZEN",
+  "implementationStatus": "NOT_IMPLEMENTED",
+  "frozenAt": "2026-08-09T02:00:00-04:00",
+  "baseline": {
+    "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+    "mainCommit": "162787ae1687116badf0972664005332220976f9",
+    "m1GatePullRequest": 34,
+    "m1GateMergeCommit": "162787ae1687116badf0972664005332220976f9",
+    "m1GateMainCiRun": "31295823535",
+    "m1GateMainCiJob": "93200635788"
+  },
+  "scope": {
+    "p0Ids": [
+      "P0-006",
+      "P0-007",
+      "P0-008",
+      "P0-009",
+      "P0-010",
+      "P0-011",
+      "P0-012",
+      "P0-013",
+      "P0-014",
+      "P0-015",
+      "P0-016",
+      "P0-017",
+      "P0-018",
+      "P0-019",
+      "P0-021",
+      "P0-061",
+      "P0-063",
+      "P0-071"
+    ],
+    "businessTaskIds": [
+      "M2-P006",
+      "M2-P007",
+      "M2-P008",
+      "M2-P009",
+      "M2-P010",
+      "M2-P011",
+      "M2-P012",
+      "M2-P013",
+      "M2-P014",
+      "M2-P015",
+      "M2-P016",
+      "M2-P017",
+      "M2-P018",
+      "M2-P019",
+      "M2-P021",
+      "M2-P061",
+      "M2-P063",
+      "M2-P071"
+    ],
+    "businessSliceStarted": false,
+    "nextAllowedAfterMergeAndGreenCi": "M2-P006",
+    "nonGoals": [
+      "ORDERING",
+      "PAYMENT",
+      "WELFARE_CARD",
+      "DELIVERY",
+      "SETTLEMENT"
+    ]
+  },
+  "sourceLedgers": {
+    "fields": "福礼社Codex5.6开发执行包V1.1/05-字段字典初始版.csv",
+    "states": "福礼社Codex5.6开发执行包V1.1/06-状态机总表.csv",
+    "permissions": "福礼社Codex5.6开发执行包V1.1/07-权限与数据可见矩阵.csv",
+    "pages": "福礼社Codex5.6开发执行包V1.1/08-页面路由接口P0映射.csv",
+    "apis": "福礼社Codex5.6开发执行包V1.1/12-OpenAPI-DTO-错误码台账.csv",
+    "p0": "福礼社Codex5.6开发执行包V1.1/04-P0-1至P0-119验收矩阵.csv",
+    "tasks": "福礼社Codex5.6开发执行包V1.1/03-任务台账.csv"
+  },
+  "fieldContract": {
+    "entityCount": 10,
+    "fieldCount": 113,
+    "entities": [
+      {
+        "entity": "Category",
+        "fields": [
+          {
+            "name": "id",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "server-owned identifier; ownership verified before lookup result",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-011"
+            ]
+          },
+          {
+            "name": "parentId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "nullable only for level 1; no cycles; parent level must be exactly one less",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-011"
+            ]
+          },
+          {
+            "name": "name",
+            "type": "String(100)",
+            "required": true,
+            "format": "UTF-8; max 100 chars",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "trimmed; non-empty; uniqueness enforced in owner scope",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-011"
+            ]
+          },
+          {
+            "name": "level",
+            "type": "Int",
+            "required": true,
+            "format": "1|2|3",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "integer 1..3; products bind only level 3",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-011"
+            ]
+          },
+          {
+            "name": "sortWeight",
+            "type": "Int",
+            "required": true,
+            "format": "signed integer sort weight",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "DTO whitelist; length/enum/ownership/state validation; client-derived ownership rejected",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-011"
+            ]
+          },
+          {
+            "name": "status",
+            "type": "Enum<CategoryStatus>",
+            "required": true,
+            "format": "ENABLED|DISABLED",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "enum value and legal transition enforced by domain state machine",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-011"
+            ]
+          }
+        ]
+      },
+      {
+        "entity": "CategoryTemplate",
+        "fields": [
+          {
+            "name": "id",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "按角色、对象归属及配送阶段脱敏/解密",
+            "forbiddenExposure": "禁止跨供应商、越阶段或批量无审批导出",
+            "validation": "server-owned identifier; ownership verified before lookup result",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-012",
+              "P0-013",
+              "P0-014",
+              "P0-015",
+              "P0-016",
+              "P0-017",
+              "P0-018"
+            ]
+          },
+          {
+            "name": "categoryId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "按角色、对象归属及配送阶段脱敏/解密",
+            "forbiddenExposure": "禁止跨供应商、越阶段或批量无审批导出",
+            "validation": "must reference an enabled leaf category for product submission",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-012",
+              "P0-013",
+              "P0-014",
+              "P0-015",
+              "P0-016",
+              "P0-017",
+              "P0-018"
+            ]
+          },
+          {
+            "name": "version",
+            "type": "Int",
+            "required": true,
+            "format": "positive monotonic integer",
+            "sensitivity": "INTERNAL",
+            "visibility": "按角色、对象归属及配送阶段脱敏/解密",
+            "forbiddenExposure": "禁止跨供应商、越阶段或批量无审批导出",
+            "validation": "optimistic lock; increment exactly once per successful write",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-012",
+              "P0-013",
+              "P0-014",
+              "P0-015",
+              "P0-016",
+              "P0-017",
+              "P0-018"
+            ]
+          },
+          {
+            "name": "fieldSchema",
+            "type": "Json",
+            "required": true,
+            "format": "canonical JSON object; schema-versioned",
+            "sensitivity": "INTERNAL",
+            "visibility": "按角色、对象归属及配送阶段脱敏/解密",
+            "forbiddenExposure": "禁止跨供应商、越阶段或批量无审批导出",
+            "validation": "server validates field type, required, unit, enum, dependency and display-module schema",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-012",
+              "P0-013",
+              "P0-014",
+              "P0-015",
+              "P0-016",
+              "P0-017",
+              "P0-018"
+            ]
+          },
+          {
+            "name": "skuDimensions",
+            "type": "String(191)",
+            "required": true,
+            "format": "UTF-8; max 191 chars",
+            "sensitivity": "INTERNAL",
+            "visibility": "按角色、对象归属及配送阶段脱敏/解密",
+            "forbiddenExposure": "禁止跨供应商、越阶段或批量无审批导出",
+            "validation": "new version only after publication; referenced versions cannot be overwritten",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-012",
+              "P0-013",
+              "P0-014",
+              "P0-015",
+              "P0-016",
+              "P0-017",
+              "P0-018"
+            ]
+          },
+          {
+            "name": "qualificationRules",
+            "type": "Json",
+            "required": true,
+            "format": "canonical JSON object; schema-versioned",
+            "sensitivity": "INTERNAL",
+            "visibility": "按角色、对象归属及配送阶段脱敏/解密",
+            "forbiddenExposure": "禁止跨供应商、越阶段或批量无审批导出",
+            "validation": "new version only after publication; referenced versions cannot be overwritten",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-012",
+              "P0-013",
+              "P0-014",
+              "P0-015",
+              "P0-016",
+              "P0-017",
+              "P0-018"
+            ]
+          },
+          {
+            "name": "detailModules",
+            "type": "Json",
+            "required": true,
+            "format": "canonical JSON object; schema-versioned",
+            "sensitivity": "INTERNAL",
+            "visibility": "按角色、对象归属及配送阶段脱敏/解密",
+            "forbiddenExposure": "禁止跨供应商、越阶段或批量无审批导出",
+            "validation": "new version only after publication; referenced versions cannot be overwritten",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-012",
+              "P0-013",
+              "P0-014",
+              "P0-015",
+              "P0-016",
+              "P0-017",
+              "P0-018"
+            ]
+          },
+          {
+            "name": "afterSaleRules",
+            "type": "Json",
+            "required": true,
+            "format": "canonical JSON object; schema-versioned",
+            "sensitivity": "INTERNAL",
+            "visibility": "按角色、对象归属及配送阶段脱敏/解密",
+            "forbiddenExposure": "禁止跨供应商、越阶段或批量无审批导出",
+            "validation": "new version only after publication; referenced versions cannot be overwritten",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-012",
+              "P0-013",
+              "P0-014",
+              "P0-015",
+              "P0-016",
+              "P0-017",
+              "P0-018"
+            ]
+          },
+          {
+            "name": "status",
+            "type": "Enum<CategoryTemplateStatus>",
+            "required": true,
+            "format": "DRAFT|PUBLISHED|RETIRED",
+            "sensitivity": "INTERNAL",
+            "visibility": "按角色、对象归属及配送阶段脱敏/解密",
+            "forbiddenExposure": "禁止跨供应商、越阶段或批量无审批导出",
+            "validation": "new version only after publication; referenced versions cannot be overwritten",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-012",
+              "P0-013",
+              "P0-014",
+              "P0-015",
+              "P0-016",
+              "P0-017",
+              "P0-018"
+            ]
+          }
+        ]
+      },
+      {
+        "entity": "SupplierProduct",
+        "fields": [
+          {
+            "name": "id",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "server-owned identifier; ownership verified before lookup result",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-006",
+              "P0-007",
+              "P0-008",
+              "P0-061"
+            ]
+          },
+          {
+            "name": "supplierId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "derived from authenticated server session; client value rejected",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-006",
+              "P0-007",
+              "P0-008",
+              "P0-061"
+            ]
+          },
+          {
+            "name": "categoryId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "must reference an enabled leaf category for product submission",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-006",
+              "P0-007",
+              "P0-008",
+              "P0-061"
+            ]
+          },
+          {
+            "name": "templateVersion",
+            "type": "Int",
+            "required": true,
+            "format": "integer",
+            "sensitivity": "INTERNAL",
+            "visibility": "按角色、对象归属及配送阶段脱敏/解密",
+            "forbiddenExposure": "禁止跨供应商、越阶段或批量无审批导出",
+            "validation": "must reference an immutable published template version",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-006",
+              "P0-007",
+              "P0-008",
+              "P0-061"
+            ]
+          },
+          {
+            "name": "name",
+            "type": "String(200)",
+            "required": true,
+            "format": "UTF-8; max 200 chars",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "trimmed; non-empty; uniqueness enforced in owner scope",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-006",
+              "P0-007",
+              "P0-008",
+              "P0-061"
+            ]
+          },
+          {
+            "name": "brand",
+            "type": "String(120)",
+            "required": false,
+            "format": "UTF-8; max 120 chars",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "DTO whitelist; length/enum/ownership/state validation; client-derived ownership rejected",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-006",
+              "P0-007",
+              "P0-008",
+              "P0-061"
+            ]
+          },
+          {
+            "name": "attributes",
+            "type": "Json",
+            "required": true,
+            "format": "canonical JSON object; schema-versioned",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "validated against frozen schema; canonicalized; dangerous rich-text content rejected",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-006",
+              "P0-007",
+              "P0-008",
+              "P0-061"
+            ]
+          },
+          {
+            "name": "qualificationSnapshot",
+            "type": "Json",
+            "required": true,
+            "format": "canonical JSON object; schema-versioned",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "validated against frozen schema; canonicalized; dangerous rich-text content rejected",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-006",
+              "P0-007",
+              "P0-008",
+              "P0-061"
+            ]
+          },
+          {
+            "name": "isRetailEnabled",
+            "type": "Boolean",
+            "required": true,
+            "format": "true|false",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "DTO whitelist; length/enum/ownership/state validation; client-derived ownership rejected",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-006",
+              "P0-007",
+              "P0-008",
+              "P0-061"
+            ]
+          },
+          {
+            "name": "isEnterpriseProcurementEnabled",
+            "type": "Boolean",
+            "required": true,
+            "format": "true|false",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "true exposes only after Product ACTIVE, enterprise price effective, and shared inventory available",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-006",
+              "P0-007",
+              "P0-008",
+              "P0-061"
+            ]
+          },
+          {
+            "name": "enterpriseMinOrderQty",
+            "type": "Int",
+            "required": true,
+            "format": "non-negative integer quantity",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "positive integer when enterprise procurement is enabled",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-006",
+              "P0-007",
+              "P0-008",
+              "P0-061"
+            ]
+          },
+          {
+            "name": "enterprisePackageMultiple",
+            "type": "Int",
+            "required": true,
+            "format": "non-negative integer quantity",
+            "sensitivity": "INTERNAL",
+            "visibility": "按角色、对象归属及配送阶段脱敏/解密",
+            "forbiddenExposure": "禁止跨供应商、越阶段或批量无审批导出",
+            "validation": "positive integer when enterprise procurement is enabled",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-006",
+              "P0-007",
+              "P0-008",
+              "P0-061"
+            ]
+          },
+          {
+            "name": "preparationMinutes",
+            "type": "Int",
+            "required": true,
+            "format": "non-negative integer quantity",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "DTO whitelist; length/enum/ownership/state validation; client-derived ownership rejected",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-006",
+              "P0-007",
+              "P0-008",
+              "P0-061"
+            ]
+          },
+          {
+            "name": "status",
+            "type": "Enum<SupplierProductStatus>",
+            "required": true,
+            "format": "DRAFT|PENDING_MATERIAL_REVIEW|CORRECTION_REQUIRED|MATERIAL_APPROVED|ACTIVE|OFF_SHELF|REJECTED|ARCHIVED",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "enum value and legal transition enforced by domain state machine",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-006",
+              "P0-007",
+              "P0-008",
+              "P0-061"
+            ]
+          },
+          {
+            "name": "version",
+            "type": "Int",
+            "required": true,
+            "format": "positive monotonic integer",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "optimistic lock; increment exactly once per successful write",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-006",
+              "P0-007",
+              "P0-008",
+              "P0-061"
+            ]
+          }
+        ]
+      },
+      {
+        "entity": "SupplierProductSku",
+        "fields": [
+          {
+            "name": "id",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "server-owned identifier; ownership verified before lookup result",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-006",
+              "P0-007",
+              "P0-008",
+              "P0-019",
+              "P0-061",
+              "P0-063"
+            ]
+          },
+          {
+            "name": "supplierProductId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "server-owned identifier; ownership verified before lookup result",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-006",
+              "P0-007",
+              "P0-008",
+              "P0-019",
+              "P0-061",
+              "P0-063"
+            ]
+          },
+          {
+            "name": "supplierSkuCode",
+            "type": "String(64)",
+            "required": true,
+            "format": "UTF-8; max 64 chars",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "DTO whitelist; length/enum/ownership/state validation; client-derived ownership rejected",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-006",
+              "P0-007",
+              "P0-008",
+              "P0-019",
+              "P0-061",
+              "P0-063"
+            ]
+          },
+          {
+            "name": "attributes",
+            "type": "Json",
+            "required": true,
+            "format": "canonical JSON object; schema-versioned",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "validated against frozen schema; canonicalized; dangerous rich-text content rejected",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-006",
+              "P0-007",
+              "P0-008",
+              "P0-019",
+              "P0-061",
+              "P0-063"
+            ]
+          },
+          {
+            "name": "requestedSupplyPrice",
+            "type": "Int",
+            "required": true,
+            "format": "integer cents; >=0",
+            "sensitivity": "STRICT_INTERNAL_SUPPLY_PRICE",
+            "visibility": "仅公司价格/财务及本供应商价格/财务职能可见",
+            "forbiddenExposure": "禁止出现在消费者端、企业采购端、门户公开端及非授权日志",
+            "validation": "integer cents; supplier pricing/company price review scope only; never public",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-006",
+              "P0-007",
+              "P0-008",
+              "P0-019",
+              "P0-061",
+              "P0-063"
+            ]
+          },
+          {
+            "name": "requestedRetailSalePrice",
+            "type": "Int",
+            "required": true,
+            "format": "integer cents; >=0",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "integer cents; pricing role only; versioned effective time; no approval task after listing",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-006",
+              "P0-007",
+              "P0-008",
+              "P0-019",
+              "P0-061",
+              "P0-063"
+            ]
+          },
+          {
+            "name": "requestedEnterpriseSalePrice",
+            "type": "Int",
+            "required": true,
+            "format": "integer cents; >=0",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "integer cents; pricing role only; versioned effective time; no approval task after listing",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-006",
+              "P0-007",
+              "P0-008",
+              "P0-019",
+              "P0-061",
+              "P0-063"
+            ]
+          },
+          {
+            "name": "initialStock",
+            "type": "Int",
+            "required": true,
+            "format": "non-negative integer quantity",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "non-negative requested setup value; never a transaction inventory truth",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-006",
+              "P0-007",
+              "P0-008",
+              "P0-019",
+              "P0-061",
+              "P0-063"
+            ]
+          },
+          {
+            "name": "status",
+            "type": "Enum<SupplierProductSkuStatus>",
+            "required": true,
+            "format": "DRAFT|ACTIVE|INACTIVE|ARCHIVED",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "enum value and legal transition enforced by domain state machine",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-006",
+              "P0-007",
+              "P0-008",
+              "P0-019",
+              "P0-061",
+              "P0-063"
+            ]
+          }
+        ]
+      },
+      {
+        "entity": "Product",
+        "fields": [
+          {
+            "name": "id",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "server-owned identifier; ownership verified before lookup result",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-006",
+              "P0-007",
+              "P0-009",
+              "P0-010",
+              "P0-011",
+              "P0-012",
+              "P0-018",
+              "P0-021",
+              "P0-061"
+            ]
+          },
+          {
+            "name": "companyId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "derived from authenticated server session; client value rejected",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-006",
+              "P0-007",
+              "P0-009",
+              "P0-010",
+              "P0-011",
+              "P0-012",
+              "P0-018",
+              "P0-021",
+              "P0-061"
+            ]
+          },
+          {
+            "name": "supplierId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "derived from authenticated server session; client value rejected",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-006",
+              "P0-007",
+              "P0-009",
+              "P0-010",
+              "P0-011",
+              "P0-012",
+              "P0-018",
+              "P0-021",
+              "P0-061"
+            ]
+          },
+          {
+            "name": "supplierProductId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "server-owned identifier; ownership verified before lookup result",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-006",
+              "P0-007",
+              "P0-009",
+              "P0-010",
+              "P0-011",
+              "P0-012",
+              "P0-018",
+              "P0-021",
+              "P0-061"
+            ]
+          },
+          {
+            "name": "categoryId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "must reference an enabled leaf category for product submission",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-006",
+              "P0-007",
+              "P0-009",
+              "P0-010",
+              "P0-011",
+              "P0-012",
+              "P0-018",
+              "P0-021",
+              "P0-061"
+            ]
+          },
+          {
+            "name": "templateVersion",
+            "type": "Int",
+            "required": true,
+            "format": "integer",
+            "sensitivity": "INTERNAL",
+            "visibility": "按角色、对象归属及配送阶段脱敏/解密",
+            "forbiddenExposure": "禁止跨供应商、越阶段或批量无审批导出",
+            "validation": "must reference an immutable published template version",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-006",
+              "P0-007",
+              "P0-009",
+              "P0-010",
+              "P0-011",
+              "P0-012",
+              "P0-018",
+              "P0-021",
+              "P0-061"
+            ]
+          },
+          {
+            "name": "name",
+            "type": "String(200)",
+            "required": true,
+            "format": "UTF-8; max 200 chars",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "trimmed; non-empty; uniqueness enforced in owner scope",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-006",
+              "P0-007",
+              "P0-009",
+              "P0-010",
+              "P0-011",
+              "P0-012",
+              "P0-018",
+              "P0-021",
+              "P0-061"
+            ]
+          },
+          {
+            "name": "saleStatus",
+            "type": "Enum<ProductSaleStatus>",
+            "required": true,
+            "format": "DRAFT|READY_TO_PUBLISH|ACTIVE|OFF_SHELF|FORCE_OFFLINE|ARCHIVED",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "enum value and legal transition enforced by domain state machine",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-006",
+              "P0-007",
+              "P0-009",
+              "P0-010",
+              "P0-011",
+              "P0-012",
+              "P0-018",
+              "P0-021",
+              "P0-061"
+            ]
+          },
+          {
+            "name": "isRetailEnabled",
+            "type": "Boolean",
+            "required": true,
+            "format": "true|false",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "DTO whitelist; length/enum/ownership/state validation; client-derived ownership rejected",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-006",
+              "P0-007",
+              "P0-009",
+              "P0-010",
+              "P0-011",
+              "P0-012",
+              "P0-018",
+              "P0-021",
+              "P0-061"
+            ]
+          },
+          {
+            "name": "isEnterpriseProcurementEnabled",
+            "type": "Boolean",
+            "required": true,
+            "format": "true|false",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "true exposes only after Product ACTIVE, enterprise price effective, and shared inventory available",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-006",
+              "P0-007",
+              "P0-009",
+              "P0-010",
+              "P0-011",
+              "P0-012",
+              "P0-018",
+              "P0-021",
+              "P0-061"
+            ]
+          },
+          {
+            "name": "detailSnapshot",
+            "type": "Json",
+            "required": true,
+            "format": "canonical JSON object; schema-versioned",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "validated against frozen schema; canonicalized; dangerous rich-text content rejected",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-006",
+              "P0-007",
+              "P0-009",
+              "P0-010",
+              "P0-011",
+              "P0-012",
+              "P0-018",
+              "P0-021",
+              "P0-061"
+            ]
+          },
+          {
+            "name": "afterSaleSnapshot",
+            "type": "Json",
+            "required": true,
+            "format": "canonical JSON object; schema-versioned",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "validated against frozen schema; canonicalized; dangerous rich-text content rejected",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-006",
+              "P0-007",
+              "P0-009",
+              "P0-010",
+              "P0-011",
+              "P0-012",
+              "P0-018",
+              "P0-021",
+              "P0-061"
+            ]
+          },
+          {
+            "name": "deliveryRuleId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "server-owned identifier; ownership verified before lookup result",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-006",
+              "P0-007",
+              "P0-009",
+              "P0-010",
+              "P0-011",
+              "P0-012",
+              "P0-018",
+              "P0-021",
+              "P0-061"
+            ]
+          },
+          {
+            "name": "version",
+            "type": "Int",
+            "required": true,
+            "format": "positive monotonic integer",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "optimistic lock; increment exactly once per successful write",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-006",
+              "P0-007",
+              "P0-009",
+              "P0-010",
+              "P0-011",
+              "P0-012",
+              "P0-018",
+              "P0-021",
+              "P0-061"
+            ]
+          }
+        ]
+      },
+      {
+        "entity": "Sku",
+        "fields": [
+          {
+            "name": "id",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "server-owned identifier; ownership verified before lookup result",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-019",
+              "P0-021",
+              "P0-063",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "productId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "server-owned identifier; ownership verified before lookup result",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-019",
+              "P0-021",
+              "P0-063",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "supplierProductSkuId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "server-owned identifier; ownership verified before lookup result",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-019",
+              "P0-021",
+              "P0-063",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "skuCode",
+            "type": "String(64)",
+            "required": true,
+            "format": "UTF-8; max 64 chars",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "DTO whitelist; length/enum/ownership/state validation; client-derived ownership rejected",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-019",
+              "P0-021",
+              "P0-063",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "approvedSupplyPrice",
+            "type": "Int",
+            "required": true,
+            "format": "integer cents; >=0",
+            "sensitivity": "STRICT_INTERNAL_SUPPLY_PRICE",
+            "visibility": "仅公司价格/财务及本供应商价格/财务职能可见",
+            "forbiddenExposure": "禁止出现在消费者端、企业采购端、门户公开端及非授权日志",
+            "validation": "integer cents; supplier pricing/company price review scope only; never public",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-019",
+              "P0-021",
+              "P0-063",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "currentRetailSalePrice",
+            "type": "Int",
+            "required": true,
+            "format": "integer cents; >=0",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "integer cents; pricing role only; versioned effective time; no approval task after listing",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-019",
+              "P0-021",
+              "P0-063",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "currentEnterpriseSalePrice",
+            "type": "Int",
+            "required": true,
+            "format": "integer cents; >=0",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "integer cents; pricing role only; versioned effective time; no approval task after listing",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-019",
+              "P0-021",
+              "P0-063",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "marketPrice",
+            "type": "Int",
+            "required": true,
+            "format": "integer cents; >=0",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "DTO whitelist; length/enum/ownership/state validation; client-derived ownership rejected",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-019",
+              "P0-021",
+              "P0-063",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "supplyPriceVersion",
+            "type": "Int",
+            "required": true,
+            "format": "positive monotonic integer",
+            "sensitivity": "STRICT_INTERNAL_SUPPLY_PRICE",
+            "visibility": "仅公司价格/财务及本供应商价格/财务职能可见",
+            "forbiddenExposure": "禁止出现在消费者端、企业采购端、门户公开端及非授权日志",
+            "validation": "optimistic lock; increment exactly once per successful write",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-019",
+              "P0-021",
+              "P0-063",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "retailPriceVersion",
+            "type": "Int",
+            "required": true,
+            "format": "positive monotonic integer",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "optimistic lock; increment exactly once per successful write",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-019",
+              "P0-021",
+              "P0-063",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "enterprisePriceVersion",
+            "type": "Int",
+            "required": true,
+            "format": "positive monotonic integer",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "optimistic lock; increment exactly once per successful write",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-019",
+              "P0-021",
+              "P0-063",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "status",
+            "type": "Enum<SkuStatus>",
+            "required": true,
+            "format": "DRAFT|ACTIVE|INACTIVE|ARCHIVED",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "enum value and legal transition enforced by domain state machine",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-019",
+              "P0-021",
+              "P0-063",
+              "P0-071"
+            ]
+          }
+        ]
+      },
+      {
+        "entity": "SupplyPriceChangeRequest",
+        "fields": [
+          {
+            "name": "id",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "STRICT_INTERNAL_SUPPLY_PRICE",
+            "visibility": "仅公司价格/财务及本供应商价格/财务职能可见",
+            "forbiddenExposure": "禁止出现在消费者端、企业采购端、门户公开端及非授权日志",
+            "validation": "server-owned identifier; ownership verified before lookup result",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-019",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "supplierId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "STRICT_INTERNAL_SUPPLY_PRICE",
+            "visibility": "仅公司价格/财务及本供应商价格/财务职能可见",
+            "forbiddenExposure": "禁止出现在消费者端、企业采购端、门户公开端及非授权日志",
+            "validation": "derived from authenticated server session; client value rejected",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-019",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "productId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "STRICT_INTERNAL_SUPPLY_PRICE",
+            "visibility": "仅公司价格/财务及本供应商价格/财务职能可见",
+            "forbiddenExposure": "禁止出现在消费者端、企业采购端、门户公开端及非授权日志",
+            "validation": "server-owned identifier; ownership verified before lookup result",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-019",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "skuId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "STRICT_INTERNAL_SUPPLY_PRICE",
+            "visibility": "仅公司价格/财务及本供应商价格/财务职能可见",
+            "forbiddenExposure": "禁止出现在消费者端、企业采购端、门户公开端及非授权日志",
+            "validation": "server-owned identifier; ownership verified before lookup result",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-019",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "oldSupplyPrice",
+            "type": "Int",
+            "required": true,
+            "format": "integer cents; >=0",
+            "sensitivity": "STRICT_INTERNAL_SUPPLY_PRICE",
+            "visibility": "仅公司价格/财务及本供应商价格/财务职能可见",
+            "forbiddenExposure": "禁止出现在消费者端、企业采购端、门户公开端及非授权日志",
+            "validation": "integer cents; supplier pricing/company price review scope only; never public",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-019",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "requestedSupplyPrice",
+            "type": "Int",
+            "required": true,
+            "format": "integer cents; >=0",
+            "sensitivity": "STRICT_INTERNAL_SUPPLY_PRICE",
+            "visibility": "仅公司价格/财务及本供应商价格/财务职能可见",
+            "forbiddenExposure": "禁止出现在消费者端、企业采购端、门户公开端及非授权日志",
+            "validation": "integer cents; supplier pricing/company price review scope only; never public",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-019",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "requestedEffectiveAt",
+            "type": "DateTime",
+            "required": true,
+            "format": "UTC ISO-8601",
+            "sensitivity": "STRICT_INTERNAL_SUPPLY_PRICE",
+            "visibility": "仅公司价格/财务及本供应商价格/财务职能可见",
+            "forbiddenExposure": "禁止出现在消费者端、企业采购端、门户公开端及非授权日志",
+            "validation": "DTO whitelist; length/enum/ownership/state validation; client-derived ownership rejected",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-019",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "reviewStatus",
+            "type": "Enum<SupplyPriceReviewStatus>",
+            "required": true,
+            "format": "DRAFT|SUBMITTED|APPROVED|REJECTED|CANCELLED|EFFECTIVE",
+            "sensitivity": "STRICT_INTERNAL_SUPPLY_PRICE",
+            "visibility": "仅公司价格/财务及本供应商价格/财务职能可见",
+            "forbiddenExposure": "禁止出现在消费者端、企业采购端、门户公开端及非授权日志",
+            "validation": "enum value and legal transition enforced by domain state machine",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-019",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "reviewReason",
+            "type": "String(1000)",
+            "required": true,
+            "format": "UTF-8; max 1000 chars",
+            "sensitivity": "STRICT_INTERNAL_SUPPLY_PRICE",
+            "visibility": "仅公司价格/财务及本供应商价格/财务职能可见",
+            "forbiddenExposure": "禁止出现在消费者端、企业采购端、门户公开端及非授权日志",
+            "validation": "trimmed non-empty reason for review or change",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-019",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "reviewedBy",
+            "type": "String(191)",
+            "required": true,
+            "format": "UTF-8; max 191 chars",
+            "sensitivity": "STRICT_INTERNAL_SUPPLY_PRICE",
+            "visibility": "仅公司价格/财务及本供应商价格/财务职能可见",
+            "forbiddenExposure": "禁止出现在消费者端、企业采购端、门户公开端及非授权日志",
+            "validation": "authenticated natural identity; must differ from applicant identity when review separation applies",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-019",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "reviewedAt",
+            "type": "DateTime",
+            "required": true,
+            "format": "UTC ISO-8601",
+            "sensitivity": "STRICT_INTERNAL_SUPPLY_PRICE",
+            "visibility": "仅公司价格/财务及本供应商价格/财务职能可见",
+            "forbiddenExposure": "禁止出现在消费者端、企业采购端、门户公开端及非授权日志",
+            "validation": "DTO whitelist; length/enum/ownership/state validation; client-derived ownership rejected",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-019",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "approvedEffectiveAt",
+            "type": "DateTime",
+            "required": true,
+            "format": "UTC ISO-8601",
+            "sensitivity": "STRICT_INTERNAL_SUPPLY_PRICE",
+            "visibility": "仅公司价格/财务及本供应商价格/财务职能可见",
+            "forbiddenExposure": "禁止出现在消费者端、企业采购端、门户公开端及非授权日志",
+            "validation": "DTO whitelist; length/enum/ownership/state validation; client-derived ownership rejected",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-019",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "version",
+            "type": "Int",
+            "required": true,
+            "format": "positive monotonic integer",
+            "sensitivity": "STRICT_INTERNAL_SUPPLY_PRICE",
+            "visibility": "仅公司价格/财务及本供应商价格/财务职能可见",
+            "forbiddenExposure": "禁止出现在消费者端、企业采购端、门户公开端及非授权日志",
+            "validation": "optimistic lock; increment exactly once per successful write",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-019",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "createdAt",
+            "type": "DateTime",
+            "required": true,
+            "format": "UTC ISO-8601",
+            "sensitivity": "STRICT_INTERNAL_SUPPLY_PRICE",
+            "visibility": "仅公司价格/财务及本供应商价格/财务职能可见",
+            "forbiddenExposure": "禁止出现在消费者端、企业采购端、门户公开端及非授权日志",
+            "validation": "DTO whitelist; length/enum/ownership/state validation; client-derived ownership rejected",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-019",
+              "P0-071"
+            ]
+          }
+        ]
+      },
+      {
+        "entity": "PriceChangeLog",
+        "fields": [
+          {
+            "name": "id",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "server-owned identifier; ownership verified before lookup result",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-019",
+              "P0-021",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "supplierId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "derived from authenticated server session; client value rejected",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-019",
+              "P0-021",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "productId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "server-owned identifier; ownership verified before lookup result",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-019",
+              "P0-021",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "skuId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "server-owned identifier; ownership verified before lookup result",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-019",
+              "P0-021",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "priceType",
+            "type": "Enum<PriceType>",
+            "required": true,
+            "format": "SUPPLY|RETAIL_SALE|ENTERPRISE_SALE",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "DTO whitelist; length/enum/ownership/state validation; client-derived ownership rejected",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-019",
+              "P0-021",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "approvalRequestId",
+            "type": "String(36)",
+            "required": false,
+            "format": "UUID v4; nullable",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "server-owned identifier; ownership verified before lookup result",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-019",
+              "P0-021",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "oldSupplyPrice",
+            "type": "Int",
+            "required": true,
+            "format": "integer cents; >=0",
+            "sensitivity": "STRICT_INTERNAL_SUPPLY_PRICE",
+            "visibility": "仅公司价格/财务及本供应商价格/财务职能可见",
+            "forbiddenExposure": "禁止出现在消费者端、企业采购端、门户公开端及非授权日志",
+            "validation": "integer cents; supplier pricing/company price review scope only; never public",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-019",
+              "P0-021",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "newSupplyPrice",
+            "type": "Int",
+            "required": true,
+            "format": "integer cents; >=0",
+            "sensitivity": "STRICT_INTERNAL_SUPPLY_PRICE",
+            "visibility": "仅公司价格/财务及本供应商价格/财务职能可见",
+            "forbiddenExposure": "禁止出现在消费者端、企业采购端、门户公开端及非授权日志",
+            "validation": "integer cents; supplier pricing/company price review scope only; never public",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-019",
+              "P0-021",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "oldRetailSalePrice",
+            "type": "Int",
+            "required": true,
+            "format": "integer cents; >=0",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "integer cents; pricing role only; versioned effective time; no approval task after listing",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-019",
+              "P0-021",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "newRetailSalePrice",
+            "type": "Int",
+            "required": true,
+            "format": "integer cents; >=0",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "integer cents; pricing role only; versioned effective time; no approval task after listing",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-019",
+              "P0-021",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "oldEnterpriseSalePrice",
+            "type": "Int",
+            "required": true,
+            "format": "integer cents; >=0",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "integer cents; pricing role only; versioned effective time; no approval task after listing",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-019",
+              "P0-021",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "newEnterpriseSalePrice",
+            "type": "Int",
+            "required": true,
+            "format": "integer cents; >=0",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "integer cents; pricing role only; versioned effective time; no approval task after listing",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-019",
+              "P0-021",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "effectiveAt",
+            "type": "DateTime",
+            "required": true,
+            "format": "UTC ISO-8601",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "DTO whitelist; length/enum/ownership/state validation; client-derived ownership rejected",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-019",
+              "P0-021",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "changedBy",
+            "type": "String(191)",
+            "required": true,
+            "format": "UTF-8; max 191 chars",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "DTO whitelist; length/enum/ownership/state validation; client-derived ownership rejected",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-019",
+              "P0-021",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "changeReason",
+            "type": "String(1000)",
+            "required": true,
+            "format": "UTF-8; max 1000 chars",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "trimmed non-empty reason for review or change",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-019",
+              "P0-021",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "reviewStatus",
+            "type": "Enum<PriceReviewStatus>",
+            "required": true,
+            "format": "NOT_REQUIRED|PENDING|APPROVED|REJECTED",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "enum value and legal transition enforced by domain state machine",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-019",
+              "P0-021",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "riskWarning",
+            "type": "String(1000)",
+            "required": true,
+            "format": "UTF-8; max 1000 chars",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "DTO whitelist; length/enum/ownership/state validation; client-derived ownership rejected",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-019",
+              "P0-021",
+              "P0-071"
+            ]
+          },
+          {
+            "name": "createdAt",
+            "type": "DateTime",
+            "required": true,
+            "format": "UTC ISO-8601",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "DTO whitelist; length/enum/ownership/state validation; client-derived ownership rejected",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-019",
+              "P0-021",
+              "P0-071"
+            ]
+          }
+        ]
+      },
+      {
+        "entity": "InventoryBalance",
+        "fields": [
+          {
+            "name": "id",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "server-owned identifier; ownership verified before lookup result",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-023",
+              "P0-063"
+            ]
+          },
+          {
+            "name": "skuId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "server-resolved active Sku; unique exactly once",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-023",
+              "P0-063"
+            ]
+          },
+          {
+            "name": "availableQty",
+            "type": "Int",
+            "required": true,
+            "format": "non-negative integer quantity",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "non-negative; transactional invariant; no lost update",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-023",
+              "P0-063"
+            ]
+          },
+          {
+            "name": "reservedQty",
+            "type": "Int",
+            "required": true,
+            "format": "non-negative integer quantity",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "non-negative; transactional invariant; no lost update",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-023",
+              "P0-063"
+            ]
+          },
+          {
+            "name": "soldQty",
+            "type": "Int",
+            "required": true,
+            "format": "non-negative integer quantity",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "non-negative; transactional invariant; no lost update",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-023",
+              "P0-063"
+            ]
+          },
+          {
+            "name": "version",
+            "type": "Int",
+            "required": true,
+            "format": "positive monotonic integer",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "optimistic lock; increment exactly once per successful write",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-023",
+              "P0-063"
+            ]
+          },
+          {
+            "name": "updatedAt",
+            "type": "DateTime",
+            "required": true,
+            "format": "UTC ISO-8601",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "DTO whitelist; length/enum/ownership/state validation; client-derived ownership rejected",
+            "historyRule": "按实体version或审计日志保留变更证据",
+            "p0Ids": [
+              "P0-023",
+              "P0-063"
+            ]
+          }
+        ]
+      },
+      {
+        "entity": "InventoryChangeLog",
+        "fields": [
+          {
+            "name": "id",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "append-only; before/after arithmetic and idempotent reference must reconcile",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-063"
+            ]
+          },
+          {
+            "name": "supplierId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "derived from authenticated server session; client value rejected",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-063"
+            ]
+          },
+          {
+            "name": "skuId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "append-only; before/after arithmetic and idempotent reference must reconcile",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-063"
+            ]
+          },
+          {
+            "name": "type",
+            "type": "Enum<InventoryChangeType>",
+            "required": true,
+            "format": "INCREASE|DECREASE|STOCKTAKE_GAIN|STOCKTAKE_LOSS|DAMAGE|RESERVE|RELEASE|CONFIRM_SALE",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "append-only; before/after arithmetic and idempotent reference must reconcile",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-063"
+            ]
+          },
+          {
+            "name": "quantityDelta",
+            "type": "Int",
+            "required": true,
+            "format": "signed non-zero integer quantity",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "append-only; before/after arithmetic and idempotent reference must reconcile",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-063"
+            ]
+          },
+          {
+            "name": "beforeQty",
+            "type": "Int",
+            "required": true,
+            "format": "non-negative integer quantity",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "append-only; before/after arithmetic and idempotent reference must reconcile",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-063"
+            ]
+          },
+          {
+            "name": "afterQty",
+            "type": "Int",
+            "required": true,
+            "format": "non-negative integer quantity",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "append-only; before/after arithmetic and idempotent reference must reconcile",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-063"
+            ]
+          },
+          {
+            "name": "referenceType",
+            "type": "Enum<InventoryReferenceType>",
+            "required": true,
+            "format": "MANUAL_ADJUSTMENT|STOCKTAKE|DAMAGE|ORDER_RESERVATION|ORDER_RELEASE|ORDER_CONFIRM",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "append-only; before/after arithmetic and idempotent reference must reconcile",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-063"
+            ]
+          },
+          {
+            "name": "referenceId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "validation": "append-only; before/after arithmetic and idempotent reference must reconcile",
+            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "p0Ids": [
+              "P0-063"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "stateContract": {
+    "transitionCount": 11,
+    "transitions": [
+      {
+        "id": "SupplierProduct:DRAFT:SUBMIT_MATERIAL",
+        "stateMachine": "SupplierProduct",
+        "currentState": "DRAFT",
+        "event": "SUBMIT_MATERIAL",
+        "nextState": "PENDING_MATERIAL_REVIEW",
+        "allowedActor": "SUPPLIER_PRODUCT",
+        "guard": "末级分类模板校验通过且无价格字段在本页面",
+        "sideEffect": "冻结资料快照；创建资料审批",
+        "idempotency": "supplierProductId+version",
+        "illegalTransition": "返回409 STATE_TRANSITION_INVALID；不改变状态；写安全审计（按风险级别）",
+        "concurrencyControl": "version乐观锁/唯一键/事务；受影响行数必须=1",
+        "history": "追加状态日志或不可变快照，禁止覆盖历史",
+        "p0Ids": [
+          "P0-006",
+          "P0-007",
+          "P0-018",
+          "P0-061"
+        ]
+      },
+      {
+        "id": "SupplierProduct:PENDING_MATERIAL_REVIEW:APPROVE_MATERIAL",
+        "stateMachine": "SupplierProduct",
+        "currentState": "PENDING_MATERIAL_REVIEW",
+        "event": "APPROVE_MATERIAL",
+        "nextState": "MATERIAL_APPROVED",
+        "allowedActor": "COMPANY_PRODUCT_OPS",
+        "guard": "资质与模板字段通过",
+        "sideEffect": "等待初始三价审批",
+        "idempotency": "approvalTaskId+decision",
+        "illegalTransition": "返回409 STATE_TRANSITION_INVALID；不改变状态；写安全审计（按风险级别）",
+        "concurrencyControl": "version乐观锁/唯一键/事务；受影响行数必须=1",
+        "history": "追加状态日志或不可变快照，禁止覆盖历史",
+        "p0Ids": [
+          "P0-006",
+          "P0-007",
+          "P0-018",
+          "P0-061"
+        ]
+      },
+      {
+        "id": "SupplierProduct:PENDING_MATERIAL_REVIEW:REJECT_MATERIAL",
+        "stateMachine": "SupplierProduct",
+        "currentState": "PENDING_MATERIAL_REVIEW",
+        "event": "REJECT_MATERIAL",
+        "nextState": "CORRECTION_REQUIRED",
+        "allowedActor": "COMPANY_PRODUCT_OPS",
+        "guard": "意见非空",
+        "sideEffect": "通知供应商商品职能",
+        "idempotency": "approvalTaskId+decision",
+        "illegalTransition": "返回409 STATE_TRANSITION_INVALID；不改变状态；写安全审计（按风险级别）",
+        "concurrencyControl": "version乐观锁/唯一键/事务；受影响行数必须=1",
+        "history": "追加状态日志或不可变快照，禁止覆盖历史",
+        "p0Ids": [
+          "P0-006",
+          "P0-007",
+          "P0-018",
+          "P0-061"
+        ]
+      },
+      {
+        "id": "SupplierProduct:MATERIAL_APPROVED:INITIAL_PRICES_APPROVED",
+        "stateMachine": "SupplierProduct",
+        "currentState": "MATERIAL_APPROVED",
+        "event": "INITIAL_PRICES_APPROVED",
+        "nextState": "ACTIVE",
+        "allowedActor": "SYSTEM",
+        "guard": "每个SKU三类初始价格均由公司价格职能批准",
+        "sideEffect": "创建/更新Product/Sku并上架",
+        "idempotency": "supplierProductId+materialVersion+priceVersion",
+        "illegalTransition": "返回409 STATE_TRANSITION_INVALID；不改变状态；写安全审计（按风险级别）",
+        "concurrencyControl": "version乐观锁/唯一键/事务；受影响行数必须=1",
+        "history": "追加状态日志或不可变快照，禁止覆盖历史",
+        "p0Ids": [
+          "P0-006",
+          "P0-007",
+          "P0-018",
+          "P0-061"
+        ]
+      },
+      {
+        "id": "SupplierProduct:ACTIVE:OFF_SHELF",
+        "stateMachine": "SupplierProduct",
+        "currentState": "ACTIVE",
+        "event": "OFF_SHELF",
+        "nextState": "OFF_SHELF",
+        "allowedActor": "COMPANY_PRODUCT_OPS",
+        "guard": "原因明确",
+        "sideEffect": "前台不可购买；历史订单不变",
+        "idempotency": "productId+version",
+        "illegalTransition": "返回409 STATE_TRANSITION_INVALID；不改变状态；写安全审计（按风险级别）",
+        "concurrencyControl": "version乐观锁/唯一键/事务；受影响行数必须=1",
+        "history": "追加状态日志或不可变快照，禁止覆盖历史",
+        "p0Ids": [
+          "P0-006",
+          "P0-007",
+          "P0-018",
+          "P0-061"
+        ]
+      },
+      {
+        "id": "SupplierProduct:OFF_SHELF:RESUBMIT",
+        "stateMachine": "SupplierProduct",
+        "currentState": "OFF_SHELF",
+        "event": "RESUBMIT",
+        "nextState": "PENDING_MATERIAL_REVIEW",
+        "allowedActor": "SUPPLIER_PRODUCT",
+        "guard": "资料版本变化",
+        "sideEffect": "重新走资料与必要价格审核",
+        "idempotency": "supplierProductId+version",
+        "illegalTransition": "返回409 STATE_TRANSITION_INVALID；不改变状态；写安全审计（按风险级别）",
+        "concurrencyControl": "version乐观锁/唯一键/事务；受影响行数必须=1",
+        "history": "追加状态日志或不可变快照，禁止覆盖历史",
+        "p0Ids": [
+          "P0-006",
+          "P0-007",
+          "P0-018",
+          "P0-061"
+        ]
+      },
+      {
+        "id": "SupplyPriceChangeRequest:DRAFT:SUBMIT",
+        "stateMachine": "SupplyPriceChangeRequest",
+        "currentState": "DRAFT",
+        "event": "SUBMIT",
+        "nextState": "SUBMITTED",
+        "allowedActor": "SUPPLIER_PRICING",
+        "guard": "新供应价、原因、生效意图完整",
+        "sideEffect": "冻结旧价/申请价快照",
+        "idempotency": "requestId+version",
+        "illegalTransition": "返回409 STATE_TRANSITION_INVALID；不改变状态；写安全审计（按风险级别）",
+        "concurrencyControl": "version乐观锁/唯一键/事务；受影响行数必须=1",
+        "history": "追加状态日志或不可变快照，禁止覆盖历史",
+        "p0Ids": [
+          "P0-019",
+          "P0-071"
+        ]
+      },
+      {
+        "id": "SupplyPriceChangeRequest:SUBMITTED:APPROVE",
+        "stateMachine": "SupplyPriceChangeRequest",
+        "currentState": "SUBMITTED",
+        "event": "APPROVE",
+        "nextState": "APPROVED",
+        "allowedActor": "COMPANY_PRICE_REVIEW",
+        "guard": "审核人与申请人职能隔离",
+        "sideEffect": "计划生效；写价格日志",
+        "idempotency": "requestId+decision",
+        "illegalTransition": "返回409 STATE_TRANSITION_INVALID；不改变状态；写安全审计（按风险级别）",
+        "concurrencyControl": "version乐观锁/唯一键/事务；受影响行数必须=1",
+        "history": "追加状态日志或不可变快照，禁止覆盖历史",
+        "p0Ids": [
+          "P0-019",
+          "P0-071"
+        ]
+      },
+      {
+        "id": "SupplyPriceChangeRequest:SUBMITTED:REJECT",
+        "stateMachine": "SupplyPriceChangeRequest",
+        "currentState": "SUBMITTED",
+        "event": "REJECT",
+        "nextState": "REJECTED",
+        "allowedActor": "COMPANY_PRICE_REVIEW",
+        "guard": "拒绝原因非空",
+        "sideEffect": "旧供应价保持",
+        "idempotency": "requestId+decision",
+        "illegalTransition": "返回409 STATE_TRANSITION_INVALID；不改变状态；写安全审计（按风险级别）",
+        "concurrencyControl": "version乐观锁/唯一键/事务；受影响行数必须=1",
+        "history": "追加状态日志或不可变快照，禁止覆盖历史",
+        "p0Ids": [
+          "P0-019",
+          "P0-071"
+        ]
+      },
+      {
+        "id": "SupplyPriceChangeRequest:APPROVED:EFFECT",
+        "stateMachine": "SupplyPriceChangeRequest",
+        "currentState": "APPROVED",
+        "event": "EFFECT",
+        "nextState": "EFFECTIVE",
+        "allowedActor": "SYSTEM",
+        "guard": "达到批准生效时间且SKU版本匹配",
+        "sideEffect": "原子更新当前供应价版本；历史快照不变",
+        "idempotency": "requestId+effectiveAt",
+        "illegalTransition": "返回409 STATE_TRANSITION_INVALID；不改变状态；写安全审计（按风险级别）",
+        "concurrencyControl": "version乐观锁/唯一键/事务；受影响行数必须=1",
+        "history": "追加状态日志或不可变快照，禁止覆盖历史",
+        "p0Ids": [
+          "P0-019",
+          "P0-071"
+        ]
+      },
+      {
+        "id": "SupplyPriceChangeRequest:SUBMITTED:CANCEL",
+        "stateMachine": "SupplyPriceChangeRequest",
+        "currentState": "SUBMITTED",
+        "event": "CANCEL",
+        "nextState": "CANCELLED",
+        "allowedActor": "SUPPLIER_PRICING",
+        "guard": "尚未审结",
+        "sideEffect": "保留取消记录",
+        "idempotency": "requestId+version",
+        "illegalTransition": "返回409 STATE_TRANSITION_INVALID；不改变状态；写安全审计（按风险级别）",
+        "concurrencyControl": "version乐观锁/唯一键/事务；受影响行数必须=1",
+        "history": "追加状态日志或不可变快照，禁止覆盖历史",
+        "p0Ids": [
+          "P0-019",
+          "P0-071"
+        ]
+      }
+    ],
+    "illegalTransition": {
+      "errorCode": "STATE_TRANSITION_INVALID",
+      "httpStatus": 409,
+      "sideEffect": "NONE_EXCEPT_AUDIT"
+    },
+    "concurrency": {
+      "mode": "OPTIMISTIC_VERSION_AND_UNIQUE_KEY",
+      "affectedRows": 1
+    },
+    "history": "APPEND_ONLY_OR_IMMUTABLE_SNAPSHOT"
+  },
+  "permissionContract": {
+    "roleCodes": [
+      "COMPANY_PRODUCT_OPS",
+      "COMPANY_PRICE_REVIEW",
+      "SUPPLIER_PRODUCT",
+      "SUPPLIER_PRICING",
+      "SUPPLIER_INVENTORY"
+    ],
+    "roles": [
+      {
+        "ownerType": "COMPANY",
+        "roleCode": "COMPANY_PRODUCT_OPS",
+        "roleName": "商品与分类运营",
+        "entryRoute": "/company-admin/workspaces/product-ops",
+        "readScope": "分类模板、商品资料、公开售价",
+        "writeScope": "分类模板、商品资料审核、上下架",
+        "approvalAuthority": "商品资料审核",
+        "supplyPriceVisibility": "HIDDEN",
+        "dataScope": "唯一公司全商品",
+        "forbiddenActions": "不得读取供应价或批准供应价",
+        "secondVerification": "强监管开关/批量上下架",
+        "sessionBoundary": "登录后选择一个职能；会话固定workspaceRoute；切换职能重新签发并审计",
+        "p0Ids": [
+          "P0-006",
+          "P0-007",
+          "P0-011",
+          "P0-012",
+          "P0-018",
+          "P0-067",
+          "P0-068"
+        ]
+      },
+      {
+        "ownerType": "COMPANY",
+        "roleCode": "COMPANY_PRICE_REVIEW",
+        "roleName": "采购/价格审核",
+        "entryRoute": "/company-admin/workspaces/price-review",
+        "readScope": "三类价格与价格历史",
+        "writeScope": "供应价审核意见；风险标记",
+        "approvalAuthority": "初始三价与上架后供应价变更",
+        "supplyPriceVisibility": "VISIBLE_WITH_AUDIT",
+        "dataScope": "唯一公司全SKU",
+        "forbiddenActions": "不得静默代供应商改价；不得改商品资料",
+        "secondVerification": "批准/拒绝/批量导出；双人复核按自然人identityId，不得同人跨账号完成",
+        "sessionBoundary": "登录后选择一个职能；会话固定workspaceRoute；切换职能重新签发并审计",
+        "p0Ids": [
+          "P0-007",
+          "P0-019",
+          "P0-067",
+          "P0-068",
+          "P0-071"
+        ]
+      },
+      {
+        "ownerType": "SUPPLIER",
+        "roleCode": "SUPPLIER_PRODUCT",
+        "roleName": "商品运营",
+        "entryRoute": "/supplier/workspaces/products",
+        "readScope": "本供应商商品资料；不加载任何价格字段",
+        "writeScope": "商品草稿、模板资料、资质、集采标识、提交审核",
+        "approvalAuthority": "NONE",
+        "supplyPriceVisibility": "STRICTLY_HIDDEN",
+        "dataScope": "supplierId=当前供应商",
+        "forbiddenActions": "不得读取/写入任何价格；不得自行上架",
+        "secondVerification": "批量提交/删除草稿",
+        "sessionBoundary": "登录后选择一个职能；会话固定workspaceRoute；切换职能重新签发并审计",
+        "p0Ids": [
+          "P0-006",
+          "P0-008",
+          "P0-061",
+          "P0-070"
+        ]
+      },
+      {
+        "ownerType": "SUPPLIER",
+        "roleCode": "SUPPLIER_PRICING",
+        "roleName": "价格管理",
+        "entryRoute": "/supplier/workspaces/pricing",
+        "readScope": "本供应商三类价格与历史",
+        "writeScope": "自主定价；供应价申请审核；零售/集采价免审留痕",
+        "approvalAuthority": "提交初始三价和供应价变更",
+        "supplyPriceVisibility": "VISIBLE_OWN_ONLY",
+        "dataScope": "supplierId=当前供应商",
+        "forbiddenActions": "不得读取其他供应商或静默修改已生效供应价",
+        "secondVerification": "提交供应价/批量调价/导出；双人复核按自然人identityId，不得同人跨账号完成",
+        "sessionBoundary": "登录后选择一个职能；会话固定workspaceRoute；切换职能重新签发并审计",
+        "p0Ids": [
+          "P0-008",
+          "P0-019",
+          "P0-070",
+          "P0-071"
+        ]
+      },
+      {
+        "ownerType": "SUPPLIER",
+        "roleCode": "SUPPLIER_INVENTORY",
+        "roleName": "库存/仓库",
+        "entryRoute": "/supplier/workspaces/inventory",
+        "readScope": "本供应商SKU库存、变更记录",
+        "writeScope": "入库、盘点、调整申请、备货",
+        "approvalAuthority": "库存调整规则内",
+        "supplyPriceVisibility": "HIDDEN",
+        "dataScope": "supplierId=当前供应商",
+        "forbiddenActions": "不得直接覆盖库存或访问售价审批",
+        "secondVerification": "盘点/批量调整",
+        "sessionBoundary": "登录后选择一个职能；会话固定workspaceRoute；切换职能重新签发并审计",
+        "p0Ids": [
+          "P0-023",
+          "P0-031",
+          "P0-070"
+        ]
+      }
+    ],
+    "defaultDecision": "DENY",
+    "ownershipDerivedFromSession": true,
+    "objectScopeCheckedBeforeLookupResult": true,
+    "session": {
+      "activeFunctionalAccountLimit": 1,
+      "roleSwitchReissuesSession": true
+    }
+  },
+  "pageContract": {
+    "pageIds": [
+      "PAGE-005",
+      "PAGE-006",
+      "PAGE-017",
+      "PAGE-018",
+      "PAGE-019"
+    ],
+    "pages": [
+      {
+        "pageId": "PAGE-005",
+        "platform": "COMPANY_ADMIN",
+        "pageName": "商品与分类运营",
+        "route": "/company-admin/workspaces/product-ops",
+        "actor": "公司职能账号",
+        "authPolicy": "REQUIRED_FIXED_FUNCTIONAL_SESSION",
+        "supplyPricePolicy": "NEVER_RETURN",
+        "apiGroup": "company-admin",
+        "requiredUiStates": [
+          "loading",
+          "empty",
+          "error",
+          "permission-denied",
+          "offline-or-timeout",
+          "success",
+          "交易页增加duplicate/unknown-result"
+        ],
+        "shellImplementationStatus": "IMPLEMENTED",
+        "businessImplementationStatus": "NOT_IMPLEMENTED",
+        "p0Ids": [
+          "P0-007",
+          "P0-067",
+          "P0-068"
+        ]
+      },
+      {
+        "pageId": "PAGE-006",
+        "platform": "COMPANY_ADMIN",
+        "pageName": "价格审核",
+        "route": "/company-admin/workspaces/price-review",
+        "actor": "公司职能账号",
+        "authPolicy": "REQUIRED_FIXED_FUNCTIONAL_SESSION",
+        "supplyPricePolicy": "AUTHORIZED_COMPANY_ONLY",
+        "apiGroup": "company-admin",
+        "requiredUiStates": [
+          "loading",
+          "empty",
+          "error",
+          "permission-denied",
+          "offline-or-timeout",
+          "success",
+          "交易页增加duplicate/unknown-result"
+        ],
+        "shellImplementationStatus": "IMPLEMENTED",
+        "businessImplementationStatus": "NOT_IMPLEMENTED",
+        "p0Ids": [
+          "P0-007",
+          "P0-019",
+          "P0-067",
+          "P0-068",
+          "P0-071"
+        ]
+      },
+      {
+        "pageId": "PAGE-017",
+        "platform": "SUPPLIER_ADMIN",
+        "pageName": "商品管理",
+        "route": "/supplier/workspaces/products",
+        "actor": "供应商职能账号",
+        "authPolicy": "REQUIRED_FIXED_FUNCTIONAL_SESSION",
+        "supplyPricePolicy": "NEVER_RETURN",
+        "apiGroup": "supplier",
+        "requiredUiStates": [
+          "loading",
+          "empty",
+          "error",
+          "permission-denied",
+          "offline-or-timeout",
+          "success",
+          "交易页增加duplicate/unknown-result"
+        ],
+        "shellImplementationStatus": "IMPLEMENTED",
+        "businessImplementationStatus": "NOT_IMPLEMENTED",
+        "p0Ids": [
+          "P0-006",
+          "P0-008",
+          "P0-061",
+          "P0-070"
+        ]
+      },
+      {
+        "pageId": "PAGE-018",
+        "platform": "SUPPLIER_ADMIN",
+        "pageName": "价格管理",
+        "route": "/supplier/workspaces/pricing",
+        "actor": "供应商职能账号",
+        "authPolicy": "REQUIRED_FIXED_FUNCTIONAL_SESSION",
+        "supplyPricePolicy": "OWN_SUPPLIER_ONLY",
+        "apiGroup": "supplier",
+        "requiredUiStates": [
+          "loading",
+          "empty",
+          "error",
+          "permission-denied",
+          "offline-or-timeout",
+          "success",
+          "交易页增加duplicate/unknown-result"
+        ],
+        "shellImplementationStatus": "IMPLEMENTED",
+        "businessImplementationStatus": "NOT_IMPLEMENTED",
+        "p0Ids": [
+          "P0-008",
+          "P0-019",
+          "P0-070",
+          "P0-071"
+        ]
+      },
+      {
+        "pageId": "PAGE-019",
+        "platform": "SUPPLIER_ADMIN",
+        "pageName": "库存管理",
+        "route": "/supplier/workspaces/inventory",
+        "actor": "供应商职能账号",
+        "authPolicy": "REQUIRED_FIXED_FUNCTIONAL_SESSION",
+        "supplyPricePolicy": "NEVER_RETURN",
+        "apiGroup": "supplier",
+        "requiredUiStates": [
+          "loading",
+          "empty",
+          "error",
+          "permission-denied",
+          "offline-or-timeout",
+          "success",
+          "交易页增加duplicate/unknown-result"
+        ],
+        "shellImplementationStatus": "IMPLEMENTED",
+        "businessImplementationStatus": "NOT_IMPLEMENTED",
+        "p0Ids": [
+          "P0-023",
+          "P0-070"
+        ]
+      }
+    ],
+    "businessModulesDeferred": true
+  },
+  "apiContract": {
+    "contractIds": [
+      "API-016",
+      "API-017",
+      "API-018",
+      "API-019",
+      "API-020",
+      "API-021",
+      "API-022",
+      "API-023",
+      "API-024",
+      "API-025",
+      "API-026",
+      "API-027",
+      "API-028"
+    ],
+    "contracts": [
+      {
+        "contractId": "API-016",
+        "domain": "categories",
+        "method": "GET",
+        "path": "/v1/company/categories",
+        "actor": "COMPANY_PRODUCT_OPS",
+        "requestDto": "CategoryQuery",
+        "responseDto": "CategoryTreeResponse",
+        "errorCodes": [
+          "COMMON_AUTH_VALIDATION_ERRORS"
+        ],
+        "idempotency": "NONE",
+        "sensitiveFieldPolicy": "NEVER_RETURN; DTO白名单；对象归属校验先于查询结果返回",
+        "moneyRule": "INTEGER_CENTS_ONLY",
+        "p0Ids": [
+          "P0-011"
+        ],
+        "openApiStatus": "PLANNED",
+        "runtimeStatus": "NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-017",
+        "domain": "categories",
+        "method": "POST",
+        "path": "/v1/company/categories",
+        "actor": "COMPANY_PRODUCT_OPS",
+        "requestDto": "CategoryCreateRequest",
+        "responseDto": "CategoryResponse",
+        "errorCodes": [
+          "CATEGORY_PARENT_INVALID",
+          "CATEGORY_LEVEL_INVALID"
+        ],
+        "idempotency": "Idempotency-Key",
+        "sensitiveFieldPolicy": "NEVER_RETURN; DTO白名单；对象归属校验先于查询结果返回",
+        "moneyRule": "INTEGER_CENTS_ONLY",
+        "p0Ids": [
+          "P0-011"
+        ],
+        "openApiStatus": "PLANNED",
+        "runtimeStatus": "NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-018",
+        "domain": "category-templates",
+        "method": "POST",
+        "path": "/v1/company/categories/{categoryId}/template-versions",
+        "actor": "COMPANY_PRODUCT_OPS",
+        "requestDto": "CategoryTemplateVersionRequest",
+        "responseDto": "CategoryTemplateResponse",
+        "errorCodes": [
+          "TEMPLATE_SCHEMA_INVALID"
+        ],
+        "idempotency": "Idempotency-Key",
+        "sensitiveFieldPolicy": "NEVER_RETURN; DTO白名单；对象归属校验先于查询结果返回",
+        "moneyRule": "INTEGER_CENTS_ONLY",
+        "p0Ids": [
+          "P0-012",
+          "P0-018"
+        ],
+        "openApiStatus": "PLANNED",
+        "runtimeStatus": "NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-019",
+        "domain": "supplier-products",
+        "method": "POST",
+        "path": "/v1/supplier/products",
+        "actor": "SUPPLIER_PRODUCT",
+        "requestDto": "SupplierProductDraftRequest",
+        "responseDto": "SupplierProductResponse",
+        "errorCodes": [
+          "CATEGORY_TEMPLATE_INVALID",
+          "PRICE_FIELD_FORBIDDEN"
+        ],
+        "idempotency": "Idempotency-Key",
+        "sensitiveFieldPolicy": "NEVER_RETURN; DTO白名单；对象归属校验先于查询结果返回",
+        "moneyRule": "INTEGER_CENTS_ONLY",
+        "p0Ids": [
+          "P0-006",
+          "P0-008",
+          "P0-061"
+        ],
+        "openApiStatus": "PLANNED",
+        "runtimeStatus": "NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-020",
+        "domain": "supplier-products",
+        "method": "PATCH",
+        "path": "/v1/supplier/products/{supplierProductId}",
+        "actor": "SUPPLIER_PRODUCT",
+        "requestDto": "SupplierProductPatchRequest",
+        "responseDto": "SupplierProductResponse",
+        "errorCodes": [
+          "SUPPLIER_SCOPE_FORBIDDEN",
+          "VERSION_CONFLICT",
+          "PRICE_FIELD_FORBIDDEN"
+        ],
+        "idempotency": "Idempotency-Key",
+        "sensitiveFieldPolicy": "NEVER_RETURN; DTO白名单；对象归属校验先于查询结果返回",
+        "moneyRule": "INTEGER_CENTS_ONLY",
+        "p0Ids": [
+          "P0-006",
+          "P0-008"
+        ],
+        "openApiStatus": "PLANNED",
+        "runtimeStatus": "NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-021",
+        "domain": "supplier-products",
+        "method": "POST",
+        "path": "/v1/supplier/products/{supplierProductId}/submit-material",
+        "actor": "SUPPLIER_PRODUCT",
+        "requestDto": "SubmitMaterialRequest",
+        "responseDto": "ApprovalTaskResponse",
+        "errorCodes": [
+          "TEMPLATE_VALIDATION_FAILED",
+          "STATE_TRANSITION_INVALID"
+        ],
+        "idempotency": "Idempotency-Key",
+        "sensitiveFieldPolicy": "NEVER_RETURN; DTO白名单；对象归属校验先于查询结果返回",
+        "moneyRule": "INTEGER_CENTS_ONLY",
+        "p0Ids": [
+          "P0-006",
+          "P0-007"
+        ],
+        "openApiStatus": "PLANNED",
+        "runtimeStatus": "NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-022",
+        "domain": "supplier-pricing",
+        "method": "PUT",
+        "path": "/v1/supplier/pricing/products/{supplierProductId}/initial-prices",
+        "actor": "SUPPLIER_PRICING",
+        "requestDto": "InitialPricesRequest",
+        "responseDto": "InitialPricesResponse",
+        "errorCodes": [
+          "PRICE_INVALID",
+          "SUPPLIER_SCOPE_FORBIDDEN"
+        ],
+        "idempotency": "Idempotency-Key",
+        "sensitiveFieldPolicy": "ROLE_AND_SUPPLIER_SCOPE_WHITELIST; DTO白名单；对象归属校验先于查询结果返回",
+        "moneyRule": "INTEGER_CENTS_ONLY",
+        "p0Ids": [
+          "P0-008"
+        ],
+        "openApiStatus": "PLANNED",
+        "runtimeStatus": "NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-023",
+        "domain": "supplier-pricing",
+        "method": "POST",
+        "path": "/v1/supplier/pricing/skus/{skuId}/supply-price-change",
+        "actor": "SUPPLIER_PRICING",
+        "requestDto": "SupplyPriceChangeRequestDto",
+        "responseDto": "SupplyPriceChangeResponse",
+        "errorCodes": [
+          "SUPPLY_PRICE_REVIEW_REQUIRED",
+          "VERSION_CONFLICT"
+        ],
+        "idempotency": "Idempotency-Key",
+        "sensitiveFieldPolicy": "ROLE_AND_SUPPLIER_SCOPE_WHITELIST; DTO白名单；对象归属校验先于查询结果返回",
+        "moneyRule": "INTEGER_CENTS_ONLY",
+        "p0Ids": [
+          "P0-019",
+          "P0-071"
+        ],
+        "openApiStatus": "PLANNED",
+        "runtimeStatus": "NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-024",
+        "domain": "supplier-pricing",
+        "method": "PATCH",
+        "path": "/v1/supplier/pricing/skus/{skuId}/sale-prices",
+        "actor": "SUPPLIER_PRICING",
+        "requestDto": "SalePricesPatchRequest",
+        "responseDto": "SkuSalePricesResponse",
+        "errorCodes": [
+          "PRICE_INVALID",
+          "VERSION_CONFLICT"
+        ],
+        "idempotency": "Idempotency-Key",
+        "sensitiveFieldPolicy": "ROLE_AND_SUPPLIER_SCOPE_WHITELIST; DTO白名单；对象归属校验先于查询结果返回",
+        "moneyRule": "INTEGER_CENTS_ONLY",
+        "p0Ids": [
+          "P0-019",
+          "P0-071"
+        ],
+        "openApiStatus": "PLANNED",
+        "runtimeStatus": "NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-025",
+        "domain": "company-product-review",
+        "method": "POST",
+        "path": "/v1/company/product-material-reviews/{taskId}/decision",
+        "actor": "COMPANY_PRODUCT_OPS",
+        "requestDto": "ReviewDecisionRequest",
+        "responseDto": "ApprovalTaskResponse",
+        "errorCodes": [
+          "APPROVAL_VERSION_CONFLICT"
+        ],
+        "idempotency": "Idempotency-Key",
+        "sensitiveFieldPolicy": "NEVER_RETURN; DTO白名单；对象归属校验先于查询结果返回",
+        "moneyRule": "INTEGER_CENTS_ONLY",
+        "p0Ids": [
+          "P0-007"
+        ],
+        "openApiStatus": "PLANNED",
+        "runtimeStatus": "NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-026",
+        "domain": "company-price-review",
+        "method": "POST",
+        "path": "/v1/company/price-reviews/{taskId}/decision",
+        "actor": "COMPANY_PRICE_REVIEW",
+        "requestDto": "ReviewDecisionRequest",
+        "responseDto": "ApprovalTaskResponse",
+        "errorCodes": [
+          "APPROVAL_VERSION_CONFLICT",
+          "SELF_APPROVAL_FORBIDDEN"
+        ],
+        "idempotency": "Idempotency-Key",
+        "sensitiveFieldPolicy": "ROLE_AND_SUPPLIER_SCOPE_WHITELIST; DTO白名单；对象归属校验先于查询结果返回",
+        "moneyRule": "INTEGER_CENTS_ONLY",
+        "p0Ids": [
+          "P0-007",
+          "P0-019",
+          "P0-071"
+        ],
+        "openApiStatus": "PLANNED",
+        "runtimeStatus": "NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-027",
+        "domain": "inventory",
+        "method": "GET",
+        "path": "/v1/supplier/inventory",
+        "actor": "SUPPLIER_INVENTORY",
+        "requestDto": "InventoryQuery",
+        "responseDto": "InventoryPageResponse",
+        "errorCodes": [
+          "SUPPLIER_SCOPE_FORBIDDEN"
+        ],
+        "idempotency": "NONE",
+        "sensitiveFieldPolicy": "NEVER_RETURN; DTO白名单；对象归属校验先于查询结果返回",
+        "moneyRule": "INTEGER_CENTS_ONLY",
+        "p0Ids": [
+          "P0-023",
+          "P0-063"
+        ],
+        "openApiStatus": "PLANNED",
+        "runtimeStatus": "NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-028",
+        "domain": "inventory",
+        "method": "POST",
+        "path": "/v1/supplier/inventory/{skuId}/adjustments",
+        "actor": "SUPPLIER_INVENTORY",
+        "requestDto": "InventoryAdjustmentRequest",
+        "responseDto": "InventoryBalanceResponse",
+        "errorCodes": [
+          "INVENTORY_VERSION_CONFLICT",
+          "INVENTORY_NEGATIVE"
+        ],
+        "idempotency": "Idempotency-Key",
+        "sensitiveFieldPolicy": "NEVER_RETURN; DTO白名单；对象归属校验先于查询结果返回",
+        "moneyRule": "INTEGER_CENTS_ONLY",
+        "p0Ids": [
+          "P0-023",
+          "P0-063"
+        ],
+        "openApiStatus": "PLANNED",
+        "runtimeStatus": "NOT_IMPLEMENTED"
+      }
+    ],
+    "commonResponse": "ApiResponse<T>",
+    "commonErrors": [
+      "AUTHENTICATION_REQUIRED",
+      "WORKSPACE_FORBIDDEN",
+      "VALIDATION_FAILED"
+    ],
+    "objectScopeCheckedBeforeLookupResult": true,
+    "databaseEntityReturnedDirectly": false,
+    "forbiddenPublicFields": [
+      "supplyPrice",
+      "approvedSupplyPrice",
+      "requestedSupplyPrice",
+      "supplyPriceSnapshot",
+      "supplierPayable",
+      "grossMargin"
+    ],
+    "deterministicOpenApiRequired": true,
+    "generatedTypesRequired": true
+  },
+  "migrationContract": [
+    {
+      "migrationId": "MIG-005",
+      "plannedName": "0201_category_templates",
+      "dependsOn": "MIG-004",
+      "objects": [
+        "Category",
+        "CategoryTemplate"
+      ],
+      "status": "PLANNED_NOT_CREATED",
+      "recovery": "已发布迁移不回改；失败前恢复备份或创建向前修复迁移；应用版本可回退时保持schema兼容窗口",
+      "verification": "末级模板版本引用保护；prisma validate；空库/升级路径dry-run；关键不变量SQL"
+    },
+    {
+      "migrationId": "MIG-006",
+      "plannedName": "0202_supplier_product_drafts",
+      "dependsOn": "MIG-005",
+      "objects": [
+        "SupplierProduct",
+        "SupplierProductSku"
+      ],
+      "status": "PLANNED_NOT_CREATED",
+      "recovery": "已发布迁移不回改；失败前恢复备份或创建向前修复迁移；应用版本可回退时保持schema兼容窗口",
+      "verification": "商品页面价格字段物理/DTO隔离；prisma validate；空库/升级路径dry-run；关键不变量SQL"
+    },
+    {
+      "migrationId": "MIG-007",
+      "plannedName": "0203_sellable_product_sku",
+      "dependsOn": "MIG-006",
+      "objects": [
+        "Product",
+        "Sku"
+      ],
+      "status": "PLANNED_NOT_CREATED",
+      "recovery": "已发布迁移不回改；失败前恢复备份或创建向前修复迁移；应用版本可回退时保持schema兼容窗口",
+      "verification": "两层模型、上架状态和版本；prisma validate；空库/升级路径dry-run；关键不变量SQL"
+    },
+    {
+      "migrationId": "MIG-008",
+      "plannedName": "0204_price_history_approval",
+      "dependsOn": "MIG-007",
+      "objects": [
+        "SupplyPriceChangeRequest",
+        "PriceChangeLog"
+      ],
+      "status": "PLANNED_NOT_CREATED",
+      "recovery": "已发布迁移不回改；失败前恢复备份或创建向前修复迁移；应用版本可回退时保持schema兼容窗口",
+      "verification": "三类价格历史与审批唯一性；prisma validate；空库/升级路径dry-run；关键不变量SQL"
+    },
+    {
+      "migrationId": "MIG-009",
+      "plannedName": "0205_inventory_truth",
+      "dependsOn": "MIG-008",
+      "objects": [
+        "InventoryBalance",
+        "InventoryChangeLog"
+      ],
+      "status": "PLANNED_NOT_CREATED",
+      "recovery": "已发布迁移不回改；失败前恢复备份或创建向前修复迁移；应用版本可回退时保持schema兼容窗口",
+      "verification": "skuId唯一、非负、乐观锁；prisma validate；空库/升级路径dry-run；关键不变量SQL"
+    }
+  ],
+  "invariants": {
+    "singleMerchant": {
+      "customerCounterparty": "COMPANY_ONLY",
+      "supplierIsStore": false,
+      "supplierDirectPayment": false
+    },
+    "catalog": {
+      "supplierProductSellable": false,
+      "productSkuOwnedBy": "COMPANY",
+      "channelsShareProductSku": true,
+      "enterpriseFlagCreatesDuplicateResource": false
+    },
+    "categoryTemplate": {
+      "productBindsLeafCategoryOnly": true,
+      "publishedVersionImmutable": true,
+      "regulatedDefault": "DENY"
+    },
+    "supplyPrice": {
+      "defaultPolicy": "NEVER_RETURN",
+      "customerVisibility": [],
+      "authorizedRoles": [
+        "COMPANY_PRICE_REVIEW",
+        "COMPANY_FINANCE",
+        "SUPPLIER_PRICING_OWN",
+        "SUPPLIER_FINANCE_OWN"
+      ]
+    },
+    "priceChange": {
+      "amountUnit": "INTEGER_CENTS",
+      "supplyPriceRequiresApproval": true,
+      "salePriceRequiresApproval": false,
+      "appendOnlyPriceLog": true,
+      "historicalOrderSnapshotMutable": false
+    },
+    "inventory": {
+      "uniqueBalancePerSku": true,
+      "duplicateChannelInventory": false,
+      "negativeQuantityAllowed": false,
+      "optimisticVersionRequired": true,
+      "changeLogAppendOnly": true
+    },
+    "makerChecker": {
+      "identityKey": "identityType+identityId",
+      "superAdminBypass": false
+    }
+  },
+  "slices": [
+    {
+      "taskId": "M2-P006",
+      "p0Id": "P0-006",
+      "title": "商品两层模型",
+      "acceptance": "供应商提交 SupplierProduct，公司审核后才产生/更新可售 Product/Sku。",
+      "dependencies": [
+        "M2-000"
+      ],
+      "contractRefs": {
+        "fields": [
+          "SupplierProduct.id",
+          "SupplierProduct.supplierId",
+          "SupplierProduct.categoryId",
+          "SupplierProduct.templateVersion",
+          "SupplierProduct.name",
+          "SupplierProduct.brand",
+          "SupplierProduct.attributes",
+          "SupplierProduct.qualificationSnapshot",
+          "SupplierProduct.isRetailEnabled",
+          "SupplierProduct.isEnterpriseProcurementEnabled",
+          "SupplierProduct.enterpriseMinOrderQty",
+          "SupplierProduct.enterprisePackageMultiple",
+          "SupplierProduct.preparationMinutes",
+          "SupplierProduct.status",
+          "SupplierProduct.version",
+          "SupplierProductSku.id",
+          "SupplierProductSku.supplierProductId",
+          "SupplierProductSku.supplierSkuCode",
+          "SupplierProductSku.attributes",
+          "SupplierProductSku.requestedSupplyPrice",
+          "SupplierProductSku.requestedRetailSalePrice",
+          "SupplierProductSku.requestedEnterpriseSalePrice",
+          "SupplierProductSku.initialStock",
+          "SupplierProductSku.status",
+          "Product.id",
+          "Product.companyId",
+          "Product.supplierId",
+          "Product.supplierProductId",
+          "Product.categoryId",
+          "Product.templateVersion",
+          "Product.name",
+          "Product.saleStatus",
+          "Product.isRetailEnabled",
+          "Product.isEnterpriseProcurementEnabled",
+          "Product.detailSnapshot",
+          "Product.afterSaleSnapshot",
+          "Product.deliveryRuleId",
+          "Product.version"
+        ],
+        "states": [
+          "SupplierProduct:DRAFT:SUBMIT_MATERIAL",
+          "SupplierProduct:PENDING_MATERIAL_REVIEW:APPROVE_MATERIAL",
+          "SupplierProduct:PENDING_MATERIAL_REVIEW:REJECT_MATERIAL",
+          "SupplierProduct:MATERIAL_APPROVED:INITIAL_PRICES_APPROVED",
+          "SupplierProduct:ACTIVE:OFF_SHELF",
+          "SupplierProduct:OFF_SHELF:RESUBMIT"
+        ],
+        "roles": [
+          "COMPANY_PRODUCT_OPS",
+          "SUPPLIER_PRODUCT"
+        ],
+        "pages": [
+          "PAGE-017"
+        ],
+        "apis": [
+          "API-019",
+          "API-020",
+          "API-021"
+        ]
+      },
+      "negativeTestIds": [
+        "NEG-M2-006-01",
+        "NEG-M2-006-02",
+        "NEG-M2-006-03"
+      ],
+      "implementationStatus": "NOT_STARTED"
+    },
+    {
+      "taskId": "M2-P007",
+      "p0Id": "P0-007",
+      "title": "公司双页面审核上架",
+      "acceptance": "公司商品职能页面完成商品资料审核、公司价格审核页面完成三类初始价格审核；两项均通过前商品无法出现在前台或加入购物车。",
+      "dependencies": [
+        "M2-000",
+        "M2-P006"
+      ],
+      "contractRefs": {
+        "fields": [
+          "SupplierProduct.id",
+          "SupplierProduct.supplierId",
+          "SupplierProduct.categoryId",
+          "SupplierProduct.templateVersion",
+          "SupplierProduct.name",
+          "SupplierProduct.brand",
+          "SupplierProduct.attributes",
+          "SupplierProduct.qualificationSnapshot",
+          "SupplierProduct.isRetailEnabled",
+          "SupplierProduct.isEnterpriseProcurementEnabled",
+          "SupplierProduct.enterpriseMinOrderQty",
+          "SupplierProduct.enterprisePackageMultiple",
+          "SupplierProduct.preparationMinutes",
+          "SupplierProduct.status",
+          "SupplierProduct.version",
+          "SupplierProductSku.id",
+          "SupplierProductSku.supplierProductId",
+          "SupplierProductSku.supplierSkuCode",
+          "SupplierProductSku.attributes",
+          "SupplierProductSku.requestedSupplyPrice",
+          "SupplierProductSku.requestedRetailSalePrice",
+          "SupplierProductSku.requestedEnterpriseSalePrice",
+          "SupplierProductSku.initialStock",
+          "SupplierProductSku.status",
+          "Product.id",
+          "Product.companyId",
+          "Product.supplierId",
+          "Product.supplierProductId",
+          "Product.categoryId",
+          "Product.templateVersion",
+          "Product.name",
+          "Product.saleStatus",
+          "Product.isRetailEnabled",
+          "Product.isEnterpriseProcurementEnabled",
+          "Product.detailSnapshot",
+          "Product.afterSaleSnapshot",
+          "Product.deliveryRuleId",
+          "Product.version"
+        ],
+        "states": [
+          "SupplierProduct:DRAFT:SUBMIT_MATERIAL",
+          "SupplierProduct:PENDING_MATERIAL_REVIEW:APPROVE_MATERIAL",
+          "SupplierProduct:PENDING_MATERIAL_REVIEW:REJECT_MATERIAL",
+          "SupplierProduct:MATERIAL_APPROVED:INITIAL_PRICES_APPROVED",
+          "SupplierProduct:ACTIVE:OFF_SHELF",
+          "SupplierProduct:OFF_SHELF:RESUBMIT"
+        ],
+        "roles": [
+          "COMPANY_PRODUCT_OPS",
+          "COMPANY_PRICE_REVIEW"
+        ],
+        "pages": [
+          "PAGE-005",
+          "PAGE-006"
+        ],
+        "apis": [
+          "API-021",
+          "API-025",
+          "API-026"
+        ]
+      },
+      "negativeTestIds": [
+        "NEG-M2-007-01",
+        "NEG-M2-007-02",
+        "NEG-M2-007-03"
+      ],
+      "implementationStatus": "NOT_STARTED"
+    },
+    {
+      "taskId": "M2-P008",
+      "p0Id": "P0-008",
+      "title": "供应商独立价格页面",
+      "acceptance": "供应商商品页面不加载价格字段；价格职能页面自主设置供应价、平台零售价和集采销售价并提交初始价格审核，公司不得静默改价。",
+      "dependencies": [
+        "M2-000",
+        "M2-P006"
+      ],
+      "contractRefs": {
+        "fields": [
+          "SupplierProduct.id",
+          "SupplierProduct.supplierId",
+          "SupplierProduct.categoryId",
+          "SupplierProduct.templateVersion",
+          "SupplierProduct.name",
+          "SupplierProduct.brand",
+          "SupplierProduct.attributes",
+          "SupplierProduct.qualificationSnapshot",
+          "SupplierProduct.isRetailEnabled",
+          "SupplierProduct.isEnterpriseProcurementEnabled",
+          "SupplierProduct.enterpriseMinOrderQty",
+          "SupplierProduct.enterprisePackageMultiple",
+          "SupplierProduct.preparationMinutes",
+          "SupplierProduct.status",
+          "SupplierProduct.version",
+          "SupplierProductSku.id",
+          "SupplierProductSku.supplierProductId",
+          "SupplierProductSku.supplierSkuCode",
+          "SupplierProductSku.attributes",
+          "SupplierProductSku.requestedSupplyPrice",
+          "SupplierProductSku.requestedRetailSalePrice",
+          "SupplierProductSku.requestedEnterpriseSalePrice",
+          "SupplierProductSku.initialStock",
+          "SupplierProductSku.status"
+        ],
+        "states": [],
+        "roles": [
+          "SUPPLIER_PRODUCT",
+          "SUPPLIER_PRICING"
+        ],
+        "pages": [
+          "PAGE-017",
+          "PAGE-018"
+        ],
+        "apis": [
+          "API-019",
+          "API-020",
+          "API-022"
+        ]
+      },
+      "negativeTestIds": [
+        "NEG-M2-008-01",
+        "NEG-M2-008-02",
+        "NEG-M2-008-03"
+      ],
+      "implementationStatus": "NOT_STARTED"
+    },
+    {
+      "taskId": "M2-P009",
+      "p0Id": "P0-009",
+      "title": "无供应商店铺",
+      "acceptance": "不存在供应商装修页、独立结算、店铺优惠券和供应商收款入口。",
+      "dependencies": [
+        "M2-000",
+        "M2-P006"
+      ],
+      "contractRefs": {
+        "fields": [
+          "Product.id",
+          "Product.companyId",
+          "Product.supplierId",
+          "Product.supplierProductId",
+          "Product.categoryId",
+          "Product.templateVersion",
+          "Product.name",
+          "Product.saleStatus",
+          "Product.isRetailEnabled",
+          "Product.isEnterpriseProcurementEnabled",
+          "Product.detailSnapshot",
+          "Product.afterSaleSnapshot",
+          "Product.deliveryRuleId",
+          "Product.version"
+        ],
+        "states": [],
+        "roles": [],
+        "pages": [],
+        "apis": []
+      },
+      "negativeTestIds": [
+        "NEG-M2-009-01",
+        "NEG-M2-009-02",
+        "NEG-M2-009-03"
+      ],
+      "implementationStatus": "NOT_STARTED"
+    },
+    {
+      "taskId": "M2-P010",
+      "p0Id": "P0-010",
+      "title": "看他还卖什么",
+      "acceptance": "按 supplierId 筛选公司已上架商品，销售主体和统一货架不改变。",
+      "dependencies": [
+        "M2-000",
+        "M2-P006"
+      ],
+      "contractRefs": {
+        "fields": [
+          "Product.id",
+          "Product.companyId",
+          "Product.supplierId",
+          "Product.supplierProductId",
+          "Product.categoryId",
+          "Product.templateVersion",
+          "Product.name",
+          "Product.saleStatus",
+          "Product.isRetailEnabled",
+          "Product.isEnterpriseProcurementEnabled",
+          "Product.detailSnapshot",
+          "Product.afterSaleSnapshot",
+          "Product.deliveryRuleId",
+          "Product.version"
+        ],
+        "states": [],
+        "roles": [],
+        "pages": [],
+        "apis": []
+      },
+      "negativeTestIds": [
+        "NEG-M2-010-01",
+        "NEG-M2-010-02",
+        "NEG-M2-010-03"
+      ],
+      "implementationStatus": "NOT_STARTED"
+    },
+    {
+      "taskId": "M2-P011",
+      "p0Id": "P0-011",
+      "title": "分类树",
+      "acceptance": "商品必须绑定启用的末级分类，分类支持排序、停用和历史引用保护。",
+      "dependencies": [
+        "M2-000"
+      ],
+      "contractRefs": {
+        "fields": [
+          "Category.id",
+          "Category.parentId",
+          "Category.name",
+          "Category.level",
+          "Category.sortWeight",
+          "Category.status",
+          "Product.id",
+          "Product.companyId",
+          "Product.supplierId",
+          "Product.supplierProductId",
+          "Product.categoryId",
+          "Product.templateVersion",
+          "Product.name",
+          "Product.saleStatus",
+          "Product.isRetailEnabled",
+          "Product.isEnterpriseProcurementEnabled",
+          "Product.detailSnapshot",
+          "Product.afterSaleSnapshot",
+          "Product.deliveryRuleId",
+          "Product.version"
+        ],
+        "states": [],
+        "roles": [
+          "COMPANY_PRODUCT_OPS"
+        ],
+        "pages": [],
+        "apis": [
+          "API-016",
+          "API-017"
+        ]
+      },
+      "negativeTestIds": [
+        "NEG-M2-011-01",
+        "NEG-M2-011-02",
+        "NEG-M2-011-03",
+        "NEG-M2-011-04"
+      ],
+      "implementationStatus": "NOT_STARTED"
+    },
+    {
+      "taskId": "M2-P012",
+      "p0Id": "P0-012",
+      "title": "分类模板",
+      "acceptance": "末级分类绑定模板版本，决定必填字段、SKU、资质和详情模块。",
+      "dependencies": [
+        "M2-000",
+        "M2-P011"
+      ],
+      "contractRefs": {
+        "fields": [
+          "CategoryTemplate.id",
+          "CategoryTemplate.categoryId",
+          "CategoryTemplate.version",
+          "CategoryTemplate.fieldSchema",
+          "CategoryTemplate.skuDimensions",
+          "CategoryTemplate.qualificationRules",
+          "CategoryTemplate.detailModules",
+          "CategoryTemplate.afterSaleRules",
+          "CategoryTemplate.status",
+          "Product.id",
+          "Product.companyId",
+          "Product.supplierId",
+          "Product.supplierProductId",
+          "Product.categoryId",
+          "Product.templateVersion",
+          "Product.name",
+          "Product.saleStatus",
+          "Product.isRetailEnabled",
+          "Product.isEnterpriseProcurementEnabled",
+          "Product.detailSnapshot",
+          "Product.afterSaleSnapshot",
+          "Product.deliveryRuleId",
+          "Product.version"
+        ],
+        "states": [],
+        "roles": [
+          "COMPANY_PRODUCT_OPS"
+        ],
+        "pages": [],
+        "apis": [
+          "API-018"
+        ]
+      },
+      "negativeTestIds": [
+        "NEG-M2-012-01",
+        "NEG-M2-012-02",
+        "NEG-M2-012-03"
+      ],
+      "implementationStatus": "NOT_STARTED"
+    },
+    {
+      "taskId": "M2-P013",
+      "p0Id": "P0-013",
+      "title": "食品详情",
+      "acceptance": "配料、营养、许可、保质期、储存和过敏原按模板展示。",
+      "dependencies": [
+        "M2-000",
+        "M2-P012"
+      ],
+      "contractRefs": {
+        "fields": [
+          "CategoryTemplate.id",
+          "CategoryTemplate.categoryId",
+          "CategoryTemplate.version",
+          "CategoryTemplate.fieldSchema",
+          "CategoryTemplate.skuDimensions",
+          "CategoryTemplate.qualificationRules",
+          "CategoryTemplate.detailModules",
+          "CategoryTemplate.afterSaleRules",
+          "CategoryTemplate.status"
+        ],
+        "states": [],
+        "roles": [],
+        "pages": [],
+        "apis": []
+      },
+      "negativeTestIds": [
+        "NEG-M2-013-01",
+        "NEG-M2-013-02",
+        "NEG-M2-013-03"
+      ],
+      "implementationStatus": "NOT_STARTED"
+    },
+    {
+      "taskId": "M2-P014",
+      "p0Id": "P0-014",
+      "title": "生鲜详情",
+      "acceptance": "产地、等级、保鲜、温区、称重和售后规则按模板展示。",
+      "dependencies": [
+        "M2-000",
+        "M2-P012"
+      ],
+      "contractRefs": {
+        "fields": [
+          "CategoryTemplate.id",
+          "CategoryTemplate.categoryId",
+          "CategoryTemplate.version",
+          "CategoryTemplate.fieldSchema",
+          "CategoryTemplate.skuDimensions",
+          "CategoryTemplate.qualificationRules",
+          "CategoryTemplate.detailModules",
+          "CategoryTemplate.afterSaleRules",
+          "CategoryTemplate.status"
+        ],
+        "states": [],
+        "roles": [],
+        "pages": [],
+        "apis": []
+      },
+      "negativeTestIds": [
+        "NEG-M2-014-01",
+        "NEG-M2-014-02",
+        "NEG-M2-014-03"
+      ],
+      "implementationStatus": "NOT_STARTED"
+    },
+    {
+      "taskId": "M2-P015",
+      "p0Id": "P0-015",
+      "title": "服饰详情",
+      "acceptance": "颜色尺码 SKU、材质、尺码表和洗护说明完整。",
+      "dependencies": [
+        "M2-000",
+        "M2-P012"
+      ],
+      "contractRefs": {
+        "fields": [
+          "CategoryTemplate.id",
+          "CategoryTemplate.categoryId",
+          "CategoryTemplate.version",
+          "CategoryTemplate.fieldSchema",
+          "CategoryTemplate.skuDimensions",
+          "CategoryTemplate.qualificationRules",
+          "CategoryTemplate.detailModules",
+          "CategoryTemplate.afterSaleRules",
+          "CategoryTemplate.status"
+        ],
+        "states": [],
+        "roles": [],
+        "pages": [],
+        "apis": []
+      },
+      "negativeTestIds": [
+        "NEG-M2-015-01",
+        "NEG-M2-015-02",
+        "NEG-M2-015-03"
+      ],
+      "implementationStatus": "NOT_STARTED"
+    },
+    {
+      "taskId": "M2-P016",
+      "p0Id": "P0-016",
+      "title": "数码详情",
+      "acceptance": "型号、参数、能效、包装清单和保修信息完整。",
+      "dependencies": [
+        "M2-000",
+        "M2-P012"
+      ],
+      "contractRefs": {
+        "fields": [
+          "CategoryTemplate.id",
+          "CategoryTemplate.categoryId",
+          "CategoryTemplate.version",
+          "CategoryTemplate.fieldSchema",
+          "CategoryTemplate.skuDimensions",
+          "CategoryTemplate.qualificationRules",
+          "CategoryTemplate.detailModules",
+          "CategoryTemplate.afterSaleRules",
+          "CategoryTemplate.status"
+        ],
+        "states": [],
+        "roles": [],
+        "pages": [],
+        "apis": []
+      },
+      "negativeTestIds": [
+        "NEG-M2-016-01",
+        "NEG-M2-016-02",
+        "NEG-M2-016-03"
+      ],
+      "implementationStatus": "NOT_STARTED"
+    },
+    {
+      "taskId": "M2-P017",
+      "p0Id": "P0-017",
+      "title": "礼盒组合",
+      "acceptance": "组合商品明确展示子项、数量、规格和有效期下限。",
+      "dependencies": [
+        "M2-000",
+        "M2-P012"
+      ],
+      "contractRefs": {
+        "fields": [
+          "CategoryTemplate.id",
+          "CategoryTemplate.categoryId",
+          "CategoryTemplate.version",
+          "CategoryTemplate.fieldSchema",
+          "CategoryTemplate.skuDimensions",
+          "CategoryTemplate.qualificationRules",
+          "CategoryTemplate.detailModules",
+          "CategoryTemplate.afterSaleRules",
+          "CategoryTemplate.status"
+        ],
+        "states": [],
+        "roles": [],
+        "pages": [],
+        "apis": []
+      },
+      "negativeTestIds": [
+        "NEG-M2-017-01",
+        "NEG-M2-017-02",
+        "NEG-M2-017-03"
+      ],
+      "implementationStatus": "NOT_STARTED"
+    },
+    {
+      "taskId": "M2-P018",
+      "p0Id": "P0-018",
+      "title": "强监管默认关闭",
+      "acceptance": "未配置公司资质、模板和人工开关的高风险品类不能交易。",
+      "dependencies": [
+        "M2-000",
+        "M2-P012"
+      ],
+      "contractRefs": {
+        "fields": [
+          "CategoryTemplate.id",
+          "CategoryTemplate.categoryId",
+          "CategoryTemplate.version",
+          "CategoryTemplate.fieldSchema",
+          "CategoryTemplate.skuDimensions",
+          "CategoryTemplate.qualificationRules",
+          "CategoryTemplate.detailModules",
+          "CategoryTemplate.afterSaleRules",
+          "CategoryTemplate.status",
+          "Product.id",
+          "Product.companyId",
+          "Product.supplierId",
+          "Product.supplierProductId",
+          "Product.categoryId",
+          "Product.templateVersion",
+          "Product.name",
+          "Product.saleStatus",
+          "Product.isRetailEnabled",
+          "Product.isEnterpriseProcurementEnabled",
+          "Product.detailSnapshot",
+          "Product.afterSaleSnapshot",
+          "Product.deliveryRuleId",
+          "Product.version"
+        ],
+        "states": [
+          "SupplierProduct:DRAFT:SUBMIT_MATERIAL",
+          "SupplierProduct:PENDING_MATERIAL_REVIEW:APPROVE_MATERIAL",
+          "SupplierProduct:PENDING_MATERIAL_REVIEW:REJECT_MATERIAL",
+          "SupplierProduct:MATERIAL_APPROVED:INITIAL_PRICES_APPROVED",
+          "SupplierProduct:ACTIVE:OFF_SHELF",
+          "SupplierProduct:OFF_SHELF:RESUBMIT"
+        ],
+        "roles": [
+          "COMPANY_PRODUCT_OPS"
+        ],
+        "pages": [],
+        "apis": [
+          "API-018"
+        ]
+      },
+      "negativeTestIds": [
+        "NEG-M2-018-01",
+        "NEG-M2-018-02",
+        "NEG-M2-018-03"
+      ],
+      "implementationStatus": "NOT_STARTED"
+    },
+    {
+      "taskId": "M2-P019",
+      "p0Id": "P0-019",
+      "title": "上架商品分级调价",
+      "acceptance": "已上架商品供应价变更必须提交 SupplyPriceChangeRequest，审核通过前继续使用原价；平台零售价和集采销售价变更不产生审批单，立即或定时生效。三类变更均完整留痕且不回改历史订单。",
+      "dependencies": [
+        "M2-000",
+        "M2-P008"
+      ],
+      "contractRefs": {
+        "fields": [
+          "SupplierProductSku.id",
+          "SupplierProductSku.supplierProductId",
+          "SupplierProductSku.supplierSkuCode",
+          "SupplierProductSku.attributes",
+          "SupplierProductSku.requestedSupplyPrice",
+          "SupplierProductSku.requestedRetailSalePrice",
+          "SupplierProductSku.requestedEnterpriseSalePrice",
+          "SupplierProductSku.initialStock",
+          "SupplierProductSku.status",
+          "Sku.id",
+          "Sku.productId",
+          "Sku.supplierProductSkuId",
+          "Sku.skuCode",
+          "Sku.approvedSupplyPrice",
+          "Sku.currentRetailSalePrice",
+          "Sku.currentEnterpriseSalePrice",
+          "Sku.marketPrice",
+          "Sku.supplyPriceVersion",
+          "Sku.retailPriceVersion",
+          "Sku.enterprisePriceVersion",
+          "Sku.status",
+          "SupplyPriceChangeRequest.id",
+          "SupplyPriceChangeRequest.supplierId",
+          "SupplyPriceChangeRequest.productId",
+          "SupplyPriceChangeRequest.skuId",
+          "SupplyPriceChangeRequest.oldSupplyPrice",
+          "SupplyPriceChangeRequest.requestedSupplyPrice",
+          "SupplyPriceChangeRequest.requestedEffectiveAt",
+          "SupplyPriceChangeRequest.reviewStatus",
+          "SupplyPriceChangeRequest.reviewReason",
+          "SupplyPriceChangeRequest.reviewedBy",
+          "SupplyPriceChangeRequest.reviewedAt",
+          "SupplyPriceChangeRequest.approvedEffectiveAt",
+          "SupplyPriceChangeRequest.version",
+          "SupplyPriceChangeRequest.createdAt",
+          "PriceChangeLog.id",
+          "PriceChangeLog.supplierId",
+          "PriceChangeLog.productId",
+          "PriceChangeLog.skuId",
+          "PriceChangeLog.priceType",
+          "PriceChangeLog.approvalRequestId",
+          "PriceChangeLog.oldSupplyPrice",
+          "PriceChangeLog.newSupplyPrice",
+          "PriceChangeLog.oldRetailSalePrice",
+          "PriceChangeLog.newRetailSalePrice",
+          "PriceChangeLog.oldEnterpriseSalePrice",
+          "PriceChangeLog.newEnterpriseSalePrice",
+          "PriceChangeLog.effectiveAt",
+          "PriceChangeLog.changedBy",
+          "PriceChangeLog.changeReason",
+          "PriceChangeLog.reviewStatus",
+          "PriceChangeLog.riskWarning",
+          "PriceChangeLog.createdAt"
+        ],
+        "states": [
+          "SupplyPriceChangeRequest:DRAFT:SUBMIT",
+          "SupplyPriceChangeRequest:SUBMITTED:APPROVE",
+          "SupplyPriceChangeRequest:SUBMITTED:REJECT",
+          "SupplyPriceChangeRequest:APPROVED:EFFECT",
+          "SupplyPriceChangeRequest:SUBMITTED:CANCEL"
+        ],
+        "roles": [
+          "COMPANY_PRICE_REVIEW",
+          "SUPPLIER_PRICING"
+        ],
+        "pages": [
+          "PAGE-006",
+          "PAGE-018"
+        ],
+        "apis": [
+          "API-023",
+          "API-024",
+          "API-026"
+        ]
+      },
+      "negativeTestIds": [
+        "NEG-M2-019-01",
+        "NEG-M2-019-02",
+        "NEG-M2-019-03",
+        "NEG-M2-019-04"
+      ],
+      "implementationStatus": "NOT_STARTED"
+    },
+    {
+      "taskId": "M2-P021",
+      "p0Id": "P0-021",
+      "title": "商品详情与价格隔离",
+      "acceptance": "个人详情只展示平台零售价，企业详情只展示集采销售价；页面、源码、接口响应、缓存和埋点均不包含供应价、供应价快照或内部毛利。",
+      "dependencies": [
+        "M2-000",
+        "M2-P006"
+      ],
+      "contractRefs": {
+        "fields": [
+          "Product.id",
+          "Product.companyId",
+          "Product.supplierId",
+          "Product.supplierProductId",
+          "Product.categoryId",
+          "Product.templateVersion",
+          "Product.name",
+          "Product.saleStatus",
+          "Product.isRetailEnabled",
+          "Product.isEnterpriseProcurementEnabled",
+          "Product.detailSnapshot",
+          "Product.afterSaleSnapshot",
+          "Product.deliveryRuleId",
+          "Product.version",
+          "Sku.id",
+          "Sku.productId",
+          "Sku.supplierProductSkuId",
+          "Sku.skuCode",
+          "Sku.approvedSupplyPrice",
+          "Sku.currentRetailSalePrice",
+          "Sku.currentEnterpriseSalePrice",
+          "Sku.marketPrice",
+          "Sku.supplyPriceVersion",
+          "Sku.retailPriceVersion",
+          "Sku.enterprisePriceVersion",
+          "Sku.status",
+          "PriceChangeLog.id",
+          "PriceChangeLog.supplierId",
+          "PriceChangeLog.productId",
+          "PriceChangeLog.skuId",
+          "PriceChangeLog.priceType",
+          "PriceChangeLog.approvalRequestId",
+          "PriceChangeLog.oldSupplyPrice",
+          "PriceChangeLog.newSupplyPrice",
+          "PriceChangeLog.oldRetailSalePrice",
+          "PriceChangeLog.newRetailSalePrice",
+          "PriceChangeLog.oldEnterpriseSalePrice",
+          "PriceChangeLog.newEnterpriseSalePrice",
+          "PriceChangeLog.effectiveAt",
+          "PriceChangeLog.changedBy",
+          "PriceChangeLog.changeReason",
+          "PriceChangeLog.reviewStatus",
+          "PriceChangeLog.riskWarning",
+          "PriceChangeLog.createdAt"
+        ],
+        "states": [],
+        "roles": [],
+        "pages": [],
+        "apis": []
+      },
+      "negativeTestIds": [
+        "NEG-M2-021-01",
+        "NEG-M2-021-02",
+        "NEG-M2-021-03"
+      ],
+      "implementationStatus": "NOT_STARTED"
+    },
+    {
+      "taskId": "M2-P061",
+      "p0Id": "P0-061",
+      "title": "商品资源与集采标识",
+      "acceptance": "个人小程序和企业采购入口引用同一 Product/Sku、分类、图片和库存；供应商勾选集采标识且商品 ACTIVE 后才进入企业采购货架。",
+      "dependencies": [
+        "M2-000",
+        "M2-P006"
+      ],
+      "contractRefs": {
+        "fields": [
+          "SupplierProduct.id",
+          "SupplierProduct.supplierId",
+          "SupplierProduct.categoryId",
+          "SupplierProduct.templateVersion",
+          "SupplierProduct.name",
+          "SupplierProduct.brand",
+          "SupplierProduct.attributes",
+          "SupplierProduct.qualificationSnapshot",
+          "SupplierProduct.isRetailEnabled",
+          "SupplierProduct.isEnterpriseProcurementEnabled",
+          "SupplierProduct.enterpriseMinOrderQty",
+          "SupplierProduct.enterprisePackageMultiple",
+          "SupplierProduct.preparationMinutes",
+          "SupplierProduct.status",
+          "SupplierProduct.version",
+          "SupplierProductSku.id",
+          "SupplierProductSku.supplierProductId",
+          "SupplierProductSku.supplierSkuCode",
+          "SupplierProductSku.attributes",
+          "SupplierProductSku.requestedSupplyPrice",
+          "SupplierProductSku.requestedRetailSalePrice",
+          "SupplierProductSku.requestedEnterpriseSalePrice",
+          "SupplierProductSku.initialStock",
+          "SupplierProductSku.status",
+          "Product.id",
+          "Product.companyId",
+          "Product.supplierId",
+          "Product.supplierProductId",
+          "Product.categoryId",
+          "Product.templateVersion",
+          "Product.name",
+          "Product.saleStatus",
+          "Product.isRetailEnabled",
+          "Product.isEnterpriseProcurementEnabled",
+          "Product.detailSnapshot",
+          "Product.afterSaleSnapshot",
+          "Product.deliveryRuleId",
+          "Product.version"
+        ],
+        "states": [
+          "SupplierProduct:DRAFT:SUBMIT_MATERIAL",
+          "SupplierProduct:PENDING_MATERIAL_REVIEW:APPROVE_MATERIAL",
+          "SupplierProduct:PENDING_MATERIAL_REVIEW:REJECT_MATERIAL",
+          "SupplierProduct:MATERIAL_APPROVED:INITIAL_PRICES_APPROVED",
+          "SupplierProduct:ACTIVE:OFF_SHELF",
+          "SupplierProduct:OFF_SHELF:RESUBMIT"
+        ],
+        "roles": [
+          "SUPPLIER_PRODUCT"
+        ],
+        "pages": [
+          "PAGE-017"
+        ],
+        "apis": [
+          "API-019"
+        ]
+      },
+      "negativeTestIds": [
+        "NEG-M2-061-01",
+        "NEG-M2-061-02",
+        "NEG-M2-061-03"
+      ],
+      "implementationStatus": "NOT_STARTED"
+    },
+    {
+      "taskId": "M2-P063",
+      "p0Id": "P0-063",
+      "title": "跨渠道共用库存",
+      "acceptance": "个人订单和企业采购订单并发购买同一 SKU 时锁定同一 InventoryBalance，预扣、释放和出库流水完整且不超卖；商品表、供应商草稿和缓存不存在第二套可成交库存。",
+      "dependencies": [
+        "M2-000",
+        "M2-P006"
+      ],
+      "contractRefs": {
+        "fields": [
+          "SupplierProductSku.id",
+          "SupplierProductSku.supplierProductId",
+          "SupplierProductSku.supplierSkuCode",
+          "SupplierProductSku.attributes",
+          "SupplierProductSku.requestedSupplyPrice",
+          "SupplierProductSku.requestedRetailSalePrice",
+          "SupplierProductSku.requestedEnterpriseSalePrice",
+          "SupplierProductSku.initialStock",
+          "SupplierProductSku.status",
+          "Sku.id",
+          "Sku.productId",
+          "Sku.supplierProductSkuId",
+          "Sku.skuCode",
+          "Sku.approvedSupplyPrice",
+          "Sku.currentRetailSalePrice",
+          "Sku.currentEnterpriseSalePrice",
+          "Sku.marketPrice",
+          "Sku.supplyPriceVersion",
+          "Sku.retailPriceVersion",
+          "Sku.enterprisePriceVersion",
+          "Sku.status",
+          "InventoryBalance.id",
+          "InventoryBalance.skuId",
+          "InventoryBalance.availableQty",
+          "InventoryBalance.reservedQty",
+          "InventoryBalance.soldQty",
+          "InventoryBalance.version",
+          "InventoryBalance.updatedAt",
+          "InventoryChangeLog.id",
+          "InventoryChangeLog.supplierId",
+          "InventoryChangeLog.skuId",
+          "InventoryChangeLog.type",
+          "InventoryChangeLog.quantityDelta",
+          "InventoryChangeLog.beforeQty",
+          "InventoryChangeLog.afterQty",
+          "InventoryChangeLog.referenceType",
+          "InventoryChangeLog.referenceId"
+        ],
+        "states": [],
+        "roles": [],
+        "pages": [],
+        "apis": [
+          "API-027",
+          "API-028"
+        ]
+      },
+      "negativeTestIds": [
+        "NEG-M2-063-01",
+        "NEG-M2-063-02",
+        "NEG-M2-063-03",
+        "NEG-M2-063-04"
+      ],
+      "implementationStatus": "NOT_STARTED"
+    },
+    {
+      "taskId": "M2-P071",
+      "p0Id": "P0-071",
+      "title": "独立价格与审批页面",
+      "acceptance": "供应商价格独立页面清楚区分初始价格审核、供应价变更申请和两类销售价直接调价；公司价格审核独立页面展示原值、新值、比例、原因、生效时间和历史意见，重复提交、并发审批和无理由批量通过被阻止。",
+      "dependencies": [
+        "M2-000",
+        "M2-P019"
+      ],
+      "contractRefs": {
+        "fields": [
+          "Sku.id",
+          "Sku.productId",
+          "Sku.supplierProductSkuId",
+          "Sku.skuCode",
+          "Sku.approvedSupplyPrice",
+          "Sku.currentRetailSalePrice",
+          "Sku.currentEnterpriseSalePrice",
+          "Sku.marketPrice",
+          "Sku.supplyPriceVersion",
+          "Sku.retailPriceVersion",
+          "Sku.enterprisePriceVersion",
+          "Sku.status",
+          "SupplyPriceChangeRequest.id",
+          "SupplyPriceChangeRequest.supplierId",
+          "SupplyPriceChangeRequest.productId",
+          "SupplyPriceChangeRequest.skuId",
+          "SupplyPriceChangeRequest.oldSupplyPrice",
+          "SupplyPriceChangeRequest.requestedSupplyPrice",
+          "SupplyPriceChangeRequest.requestedEffectiveAt",
+          "SupplyPriceChangeRequest.reviewStatus",
+          "SupplyPriceChangeRequest.reviewReason",
+          "SupplyPriceChangeRequest.reviewedBy",
+          "SupplyPriceChangeRequest.reviewedAt",
+          "SupplyPriceChangeRequest.approvedEffectiveAt",
+          "SupplyPriceChangeRequest.version",
+          "SupplyPriceChangeRequest.createdAt",
+          "PriceChangeLog.id",
+          "PriceChangeLog.supplierId",
+          "PriceChangeLog.productId",
+          "PriceChangeLog.skuId",
+          "PriceChangeLog.priceType",
+          "PriceChangeLog.approvalRequestId",
+          "PriceChangeLog.oldSupplyPrice",
+          "PriceChangeLog.newSupplyPrice",
+          "PriceChangeLog.oldRetailSalePrice",
+          "PriceChangeLog.newRetailSalePrice",
+          "PriceChangeLog.oldEnterpriseSalePrice",
+          "PriceChangeLog.newEnterpriseSalePrice",
+          "PriceChangeLog.effectiveAt",
+          "PriceChangeLog.changedBy",
+          "PriceChangeLog.changeReason",
+          "PriceChangeLog.reviewStatus",
+          "PriceChangeLog.riskWarning",
+          "PriceChangeLog.createdAt"
+        ],
+        "states": [
+          "SupplyPriceChangeRequest:DRAFT:SUBMIT",
+          "SupplyPriceChangeRequest:SUBMITTED:APPROVE",
+          "SupplyPriceChangeRequest:SUBMITTED:REJECT",
+          "SupplyPriceChangeRequest:APPROVED:EFFECT",
+          "SupplyPriceChangeRequest:SUBMITTED:CANCEL"
+        ],
+        "roles": [
+          "COMPANY_PRICE_REVIEW",
+          "SUPPLIER_PRICING"
+        ],
+        "pages": [
+          "PAGE-006",
+          "PAGE-018"
+        ],
+        "apis": [
+          "API-023",
+          "API-024",
+          "API-026"
+        ]
+      },
+      "negativeTestIds": [
+        "NEG-M2-071-01",
+        "NEG-M2-071-02",
+        "NEG-M2-071-03",
+        "NEG-M2-071-04"
+      ],
+      "implementationStatus": "NOT_STARTED"
+    }
+  ],
+  "negativeTests": [
+    {
+      "id": "NEG-M2-006-01",
+      "taskId": "M2-P006",
+      "p0Id": "P0-006",
+      "category": "SUPPLIER_PRODUCT_NOT_SELLABLE",
+      "scenario": "A SupplierProduct draft is queried as a sellable item",
+      "expected": "Return not-saleable and create no cart/order reference",
+      "errorCode": "PRODUCT_NOT_SALEABLE",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-006-02",
+      "taskId": "M2-P006",
+      "p0Id": "P0-006",
+      "category": "COMPANY_MAPPING_REQUIRED",
+      "scenario": "Product/Sku creation is attempted before both approvals",
+      "expected": "Reject creation and keep supplier submission isolated",
+      "errorCode": "PRODUCT_APPROVAL_INCOMPLETE",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-006-03",
+      "taskId": "M2-P006",
+      "p0Id": "P0-006",
+      "category": "DIRECT_ENTITY_SERIALIZATION",
+      "scenario": "A database product entity is returned directly",
+      "expected": "Response-whitelist test fails",
+      "errorCode": "RESPONSE_WHITELIST_VIOLATION",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-007-01",
+      "taskId": "M2-P007",
+      "p0Id": "P0-007",
+      "category": "DUAL_APPROVAL_GATE",
+      "scenario": "Material approval exists but initial price approval is missing",
+      "expected": "Product remains unavailable and unpublishable",
+      "errorCode": "PRODUCT_APPROVAL_INCOMPLETE",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-007-02",
+      "taskId": "M2-P007",
+      "p0Id": "P0-007",
+      "category": "ROLE_SPLIT",
+      "scenario": "Product operations account decides a price review or price account decides material review",
+      "expected": "Return workspace forbidden with no state change",
+      "errorCode": "WORKSPACE_FORBIDDEN",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-007-03",
+      "taskId": "M2-P007",
+      "p0Id": "P0-007",
+      "category": "DUPLICATE_APPROVAL",
+      "scenario": "The same approval decision is retried or submitted concurrently",
+      "expected": "Exactly one decision applies and duplicates are idempotent/conflict",
+      "errorCode": "APPROVAL_VERSION_CONFLICT",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-008-01",
+      "taskId": "M2-P008",
+      "p0Id": "P0-008",
+      "category": "PRODUCT_PAGE_PRICE_LEAK",
+      "scenario": "Supplier product page requests or receives any of the three prices",
+      "expected": "Reject request or fail response whitelist",
+      "errorCode": "PRICE_FIELD_FORBIDDEN",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-008-02",
+      "taskId": "M2-P008",
+      "p0Id": "P0-008",
+      "category": "COMPANY_SILENT_PRICE_CHANGE",
+      "scenario": "Company attempts to write a supplier price without supplier submission",
+      "expected": "Reject the write and keep effective price unchanged",
+      "errorCode": "PRICE_APPLICANT_REQUIRED",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-008-03",
+      "taskId": "M2-P008",
+      "p0Id": "P0-008",
+      "category": "CROSS_SUPPLIER_PRICE",
+      "scenario": "Supplier pricing account reads another supplier price",
+      "expected": "Return scope forbidden before lookup result",
+      "errorCode": "SUPPLIER_SCOPE_FORBIDDEN",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-009-01",
+      "taskId": "M2-P009",
+      "p0Id": "P0-009",
+      "category": "SUPPLIER_STOREFRONT",
+      "scenario": "A supplier storefront or decoration route is introduced",
+      "expected": "Forbidden-capability contract fails",
+      "errorCode": "FORBIDDEN_CAPABILITY",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-009-02",
+      "taskId": "M2-P009",
+      "p0Id": "P0-009",
+      "category": "SUPPLIER_DIRECT_PAYMENT",
+      "scenario": "Catalog response offers supplier payment or settlement",
+      "expected": "Reject capability and expose company as sole counterparty",
+      "errorCode": "FORBIDDEN_CAPABILITY",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-009-03",
+      "taskId": "M2-P009",
+      "p0Id": "P0-009",
+      "category": "SUPPLIER_STORE_CART",
+      "scenario": "Cart or coupon ownership is scoped as a supplier store",
+      "expected": "Boundary test fails",
+      "errorCode": "FORBIDDEN_CAPABILITY",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-010-01",
+      "taskId": "M2-P010",
+      "p0Id": "P0-010",
+      "category": "SUPPLIER_FILTER_ESCAPE",
+      "scenario": "More-products query returns a different supplierId",
+      "expected": "Omit foreign products",
+      "errorCode": "SUPPLIER_SCOPE_FORBIDDEN",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-010-02",
+      "taskId": "M2-P010",
+      "p0Id": "P0-010",
+      "category": "INACTIVE_PRODUCT_EXPOSURE",
+      "scenario": "Query includes draft/off-shelf/force-offline products",
+      "expected": "Omit all non-ACTIVE products",
+      "errorCode": "PRODUCT_NOT_SALEABLE",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-010-03",
+      "taskId": "M2-P010",
+      "p0Id": "P0-010",
+      "category": "STORE_SEMANTICS",
+      "scenario": "More-products response contains store decoration, store cart or supplier settlement fields",
+      "expected": "Response contract fails",
+      "errorCode": "FORBIDDEN_CAPABILITY",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-011-01",
+      "taskId": "M2-P011",
+      "p0Id": "P0-011",
+      "category": "NON_LEAF_BINDING",
+      "scenario": "A product binds to level 1 or 2 category",
+      "expected": "Reject the submission",
+      "errorCode": "CATEGORY_NOT_LEAF",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-011-02",
+      "taskId": "M2-P011",
+      "p0Id": "P0-011",
+      "category": "DISABLED_CATEGORY",
+      "scenario": "A product submits against a disabled category",
+      "expected": "Reject the submission and publish nothing",
+      "errorCode": "CATEGORY_DISABLED",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-011-03",
+      "taskId": "M2-P011",
+      "p0Id": "P0-011",
+      "category": "REFERENCED_CATEGORY_DELETE",
+      "scenario": "A referenced category is physically deleted",
+      "expected": "Reject deletion and retain historical references",
+      "errorCode": "CATEGORY_REFERENCED",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-011-04",
+      "taskId": "M2-P011",
+      "p0Id": "P0-011",
+      "category": "CATEGORY_CYCLE",
+      "scenario": "A category parent creates a cycle or skips a level",
+      "expected": "Reject the write",
+      "errorCode": "CATEGORY_PARENT_INVALID",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-012-01",
+      "taskId": "M2-P012",
+      "p0Id": "P0-012",
+      "category": "TEMPLATE_VERSION_OVERWRITE",
+      "scenario": "A published/referenced template version is edited in place",
+      "expected": "Reject overwrite and require a new version",
+      "errorCode": "TEMPLATE_VERSION_IMMUTABLE",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-012-02",
+      "taskId": "M2-P012",
+      "p0Id": "P0-012",
+      "category": "UNPUBLISHED_TEMPLATE",
+      "scenario": "A product submits with draft or retired template",
+      "expected": "Reject the submission",
+      "errorCode": "CATEGORY_TEMPLATE_INVALID",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-012-03",
+      "taskId": "M2-P012",
+      "p0Id": "P0-012",
+      "category": "TEMPLATE_SCHEMA_INVALID",
+      "scenario": "Field type, unit, enum, SKU dimension or module schema is invalid",
+      "expected": "Reject version publication",
+      "errorCode": "TEMPLATE_SCHEMA_INVALID",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-013-01",
+      "taskId": "M2-P013",
+      "p0Id": "P0-013",
+      "category": "FOOD_REQUIRED_FIELD_MISSING",
+      "scenario": "Food template omits ingredients, nutrition, licence, shelf life, storage or allergens",
+      "expected": "Template/publication validation fails",
+      "errorCode": "TEMPLATE_SCHEMA_INVALID",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-013-02",
+      "taskId": "M2-P013",
+      "p0Id": "P0-013",
+      "category": "FOOD_WARNING_OVERRIDE",
+      "scenario": "Supplier rich text hides or rewrites a fixed food warning",
+      "expected": "Reject content and retain fixed warning module",
+      "errorCode": "REGULATORY_WARNING_REQUIRED",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-013-03",
+      "taskId": "M2-P013",
+      "p0Id": "P0-013",
+      "category": "FOOD_HISTORY_REWRITE",
+      "scenario": "Template upgrade changes an existing food snapshot",
+      "expected": "Historical snapshot remains unchanged",
+      "errorCode": "TEMPLATE_VERSION_IMMUTABLE",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-014-01",
+      "taskId": "M2-P014",
+      "p0Id": "P0-014",
+      "category": "FRESH_REQUIRED_FIELD_MISSING",
+      "scenario": "Fresh template omits origin, grade, freshness, temperature, weighing or after-sale rules",
+      "expected": "Template/publication validation fails",
+      "errorCode": "TEMPLATE_SCHEMA_INVALID",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-014-02",
+      "taskId": "M2-P014",
+      "p0Id": "P0-014",
+      "category": "FRESH_WEIGHT_RULE_INVALID",
+      "scenario": "Weighing rule conflicts with SKU/unit contract",
+      "expected": "Reject template or product submission",
+      "errorCode": "TEMPLATE_VALIDATION_FAILED",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-014-03",
+      "taskId": "M2-P014",
+      "p0Id": "P0-014",
+      "category": "FRESH_HISTORY_REWRITE",
+      "scenario": "Template upgrade changes an existing fresh-product snapshot",
+      "expected": "Historical snapshot remains unchanged",
+      "errorCode": "TEMPLATE_VERSION_IMMUTABLE",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-015-01",
+      "taskId": "M2-P015",
+      "p0Id": "P0-015",
+      "category": "APPAREL_REQUIRED_FIELD_MISSING",
+      "scenario": "Apparel template omits color/size SKU, material, size chart or care",
+      "expected": "Template/publication validation fails",
+      "errorCode": "TEMPLATE_SCHEMA_INVALID",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-015-02",
+      "taskId": "M2-P015",
+      "p0Id": "P0-015",
+      "category": "APPAREL_SKU_DUPLICATE",
+      "scenario": "Color and size dimensions generate duplicate SKU combinations",
+      "expected": "Reject SKU matrix",
+      "errorCode": "SKU_DIMENSION_DUPLICATE",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-015-03",
+      "taskId": "M2-P015",
+      "p0Id": "P0-015",
+      "category": "APPAREL_HISTORY_REWRITE",
+      "scenario": "Template upgrade changes an existing apparel snapshot",
+      "expected": "Historical snapshot remains unchanged",
+      "errorCode": "TEMPLATE_VERSION_IMMUTABLE",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-016-01",
+      "taskId": "M2-P016",
+      "p0Id": "P0-016",
+      "category": "DIGITAL_REQUIRED_FIELD_MISSING",
+      "scenario": "Digital template omits model, specifications, efficiency, package or warranty",
+      "expected": "Template/publication validation fails",
+      "errorCode": "TEMPLATE_SCHEMA_INVALID",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-016-02",
+      "taskId": "M2-P016",
+      "p0Id": "P0-016",
+      "category": "DIGITAL_MODEL_DUPLICATE",
+      "scenario": "Two enabled SKUs use an indistinguishable model key",
+      "expected": "Reject product submission",
+      "errorCode": "SKU_DIMENSION_DUPLICATE",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-016-03",
+      "taskId": "M2-P016",
+      "p0Id": "P0-016",
+      "category": "DIGITAL_HISTORY_REWRITE",
+      "scenario": "Template upgrade changes an existing digital snapshot",
+      "expected": "Historical snapshot remains unchanged",
+      "errorCode": "TEMPLATE_VERSION_IMMUTABLE",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-017-01",
+      "taskId": "M2-P017",
+      "p0Id": "P0-017",
+      "category": "BUNDLE_ITEM_MISSING",
+      "scenario": "Bundle has no child item, quantity, specification or minimum expiry",
+      "expected": "Reject submission",
+      "errorCode": "BUNDLE_SCHEMA_INVALID",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-017-02",
+      "taskId": "M2-P017",
+      "p0Id": "P0-017",
+      "category": "BUNDLE_CROSS_SUPPLIER",
+      "scenario": "Bundle references another supplier draft as an editable child",
+      "expected": "Reject object scope",
+      "errorCode": "SUPPLIER_SCOPE_FORBIDDEN",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-017-03",
+      "taskId": "M2-P017",
+      "p0Id": "P0-017",
+      "category": "BUNDLE_HISTORY_REWRITE",
+      "scenario": "Child changes rewrite a published bundle snapshot",
+      "expected": "Historical bundle snapshot remains unchanged",
+      "errorCode": "TEMPLATE_VERSION_IMMUTABLE",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-018-01",
+      "taskId": "M2-P018",
+      "p0Id": "P0-018",
+      "category": "REGULATED_DEFAULT_DENY",
+      "scenario": "A regulated category lacks an explicit company enablement",
+      "expected": "Keep listing and trading disabled",
+      "errorCode": "REGULATED_CATEGORY_DISABLED",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-018-02",
+      "taskId": "M2-P018",
+      "p0Id": "P0-018",
+      "category": "REGULATED_QUALIFICATION_MISSING",
+      "scenario": "Company or product qualification is missing/expired",
+      "expected": "Reject approval or force item unavailable",
+      "errorCode": "QUALIFICATION_REQUIRED",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-018-03",
+      "taskId": "M2-P018",
+      "p0Id": "P0-018",
+      "category": "REGULATED_TEMPLATE_MISSING",
+      "scenario": "A regulated category has no published compliant template",
+      "expected": "Reject product submission",
+      "errorCode": "CATEGORY_TEMPLATE_INVALID",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-019-01",
+      "taskId": "M2-P019",
+      "p0Id": "P0-019",
+      "category": "UNAPPROVED_SUPPLY_PRICE_EFFECT",
+      "scenario": "Listed SKU requested supply price is applied before approval/effective time",
+      "expected": "Keep old approved supply price",
+      "errorCode": "SUPPLY_PRICE_REVIEW_REQUIRED",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-019-02",
+      "taskId": "M2-P019",
+      "p0Id": "P0-019",
+      "category": "SALE_PRICE_APPROVAL_CREATED",
+      "scenario": "Retail or enterprise sale-price change creates an approval task",
+      "expected": "Reject the workflow regression; append PriceChangeLog only",
+      "errorCode": "SALE_PRICE_APPROVAL_FORBIDDEN",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-019-03",
+      "taskId": "M2-P019",
+      "p0Id": "P0-019",
+      "category": "PRICE_HISTORY_OVERWRITE",
+      "scenario": "A prior price version/log is updated in place",
+      "expected": "Reject overwrite and append a new version/log",
+      "errorCode": "PRICE_HISTORY_IMMUTABLE",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-019-04",
+      "taskId": "M2-P019",
+      "p0Id": "P0-019",
+      "category": "CONCURRENT_PRICE_EFFECT",
+      "scenario": "Two changes affect the same SKU/version concurrently",
+      "expected": "Exactly one version wins; the other receives conflict",
+      "errorCode": "VERSION_CONFLICT",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-021-01",
+      "taskId": "M2-P021",
+      "p0Id": "P0-021",
+      "category": "SUPPLY_PRICE_RESPONSE_LEAK",
+      "scenario": "Public/consumer/enterprise/runner response contains supply price or derivable margin",
+      "expected": "Response-whitelist test fails",
+      "errorCode": "SENSITIVE_FIELD_LEAK",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-021-02",
+      "taskId": "M2-P021",
+      "p0Id": "P0-021",
+      "category": "SUPPLY_PRICE_CACHE_INDEX_LEAK",
+      "scenario": "Supply price appears in public cache, search index or analytics payload",
+      "expected": "Security scan fails and payload is rejected",
+      "errorCode": "SENSITIVE_FIELD_LEAK",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-021-03",
+      "taskId": "M2-P021",
+      "p0Id": "P0-021",
+      "category": "WRONG_CHANNEL_SALE_PRICE",
+      "scenario": "Consumer receives enterprise price or enterprise receives retail price",
+      "expected": "Channel DTO contract fails",
+      "errorCode": "FIELD_FORBIDDEN",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-061-01",
+      "taskId": "M2-P061",
+      "p0Id": "P0-061",
+      "category": "DUPLICATE_CHANNEL_PRODUCT",
+      "scenario": "Retail and enterprise channels create different Product/Sku resources",
+      "expected": "Uniqueness contract fails",
+      "errorCode": "DUPLICATE_CATALOG_RESOURCE",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-061-02",
+      "taskId": "M2-P061",
+      "p0Id": "P0-061",
+      "category": "ENTERPRISE_FLAG_DISABLED",
+      "scenario": "Non-procurement product enters enterprise catalog",
+      "expected": "Omit the product",
+      "errorCode": "PRODUCT_NOT_SALEABLE",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-061-03",
+      "taskId": "M2-P061",
+      "p0Id": "P0-061",
+      "category": "CHANNEL_FLAG_HISTORY",
+      "scenario": "Disabling enterprise flag changes historical enterprise orders",
+      "expected": "Existing snapshots remain unchanged",
+      "errorCode": "HISTORY_IMMUTABLE",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-063-01",
+      "taskId": "M2-P063",
+      "p0Id": "P0-063",
+      "category": "DUPLICATE_INVENTORY_BALANCE",
+      "scenario": "A second InventoryBalance is created for one SKU/channel",
+      "expected": "Reject unique constraint",
+      "errorCode": "INVENTORY_BALANCE_DUPLICATE",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-063-02",
+      "taskId": "M2-P063",
+      "p0Id": "P0-063",
+      "category": "INVENTORY_NEGATIVE",
+      "scenario": "Adjustment makes any balance quantity negative",
+      "expected": "Reject transaction and write no partial log",
+      "errorCode": "INVENTORY_NEGATIVE",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-063-03",
+      "taskId": "M2-P063",
+      "p0Id": "P0-063",
+      "category": "CONCURRENT_LOST_UPDATE",
+      "scenario": "Concurrent adjustments use the same version",
+      "expected": "Exactly one succeeds and the other receives conflict",
+      "errorCode": "INVENTORY_VERSION_CONFLICT",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-063-04",
+      "taskId": "M2-P063",
+      "p0Id": "P0-063",
+      "category": "DUPLICATE_ADJUSTMENT",
+      "scenario": "Same idempotency key is retried",
+      "expected": "Return original result and append no duplicate log",
+      "errorCode": "IDEMPOTENCY_CONFLICT",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-071-01",
+      "taskId": "M2-P071",
+      "p0Id": "P0-071",
+      "category": "SAME_NATURAL_PERSON_REVIEW",
+      "scenario": "Applicant and reviewer share identityType+identityId through different accounts",
+      "expected": "Reject review with no state change",
+      "errorCode": "SAME_NATURAL_PERSON_REVIEW_FORBIDDEN",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-071-02",
+      "taskId": "M2-P071",
+      "p0Id": "P0-071",
+      "category": "PRICE_PAGE_ROLE_MISMATCH",
+      "scenario": "Product role opens price page/API or price role edits product material",
+      "expected": "Return workspace forbidden",
+      "errorCode": "WORKSPACE_FORBIDDEN",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-071-03",
+      "taskId": "M2-P071",
+      "p0Id": "P0-071",
+      "category": "CONCURRENT_REVIEW",
+      "scenario": "Two price reviewers decide the same version concurrently",
+      "expected": "Exactly one succeeds and the other receives conflict",
+      "errorCode": "APPROVAL_VERSION_CONFLICT",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    },
+    {
+      "id": "NEG-M2-071-04",
+      "taskId": "M2-P071",
+      "p0Id": "P0-071",
+      "category": "REASONLESS_BULK_APPROVAL",
+      "scenario": "Supply-price requests are approved in bulk without item reasons",
+      "expected": "Reject the operation",
+      "errorCode": "REVIEW_REASON_REQUIRED",
+      "executionStatus": "NOT_EXECUTED",
+      "evidenceRequired": "AUTOMATED_TEST_ID_AND_COMMAND"
+    }
+  ],
+  "humanDependencies": [
+    {
+      "dependencyId": "EXT-007",
+      "category": "分类业务",
+      "requiredInputOrDecision": "确认首批分类树、每类模板字段、资质和售后规则",
+      "owner": "UNASSIGNED_HUMAN",
+      "status": "NOT_PROVIDED",
+      "blockingTask": "M2-P012",
+      "blocksFormalAcceptance": false,
+      "blocksContractFreeze": false,
+      "guessedByCode": false
+    },
+    {
+      "dependencyId": "EXT-008",
+      "category": "价格治理",
+      "requiredInputOrDecision": "确认供应价审核阈值、风险提示和计划生效规则",
+      "owner": "UNASSIGNED_HUMAN",
+      "status": "NOT_PROVIDED",
+      "blockingTask": "M2-P019",
+      "blocksFormalAcceptance": false,
+      "blocksContractFreeze": false,
+      "guessedByCode": false
+    }
+  ],
+  "inheritedEvidence": {
+    "p0Ids": [
+      "P0-045",
+      "P0-046",
+      "P0-047",
+      "P0-048",
+      "P0-049",
+      "P0-068",
+      "P0-070",
+      "P0-072"
+    ],
+    "source": "M1 merged-main technical evidence and M0 quality gates",
+    "downgradeAllowed": false
+  },
+  "evidenceBoundary": {
+    "contractReview": "LOCAL_PASS_AFTER_TEST",
+    "negativeTests": "PLANNED_NOT_EXECUTED",
+    "businessApis": "NOT_IMPLEMENTED",
+    "prismaMigrations": "NOT_CREATED",
+    "businessPages": "NOT_IMPLEMENTED",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_REQUIRED_M2_PC_CONTRACT_FREEZE",
+    "production": "NOT_EXECUTED"
+  }
+}

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-09T00:07:41-04:00",
+  "updatedAt": "2026-08-09T03:05:26-04:00",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -12,20 +12,20 @@
     "pageCount": 80
   },
   "execution": {
-    "status": "M1_GATE_LOCAL_PASS_PENDING_PR",
-    "currentStage": "M1",
-    "currentTask": "M1-GATE",
-    "nextAllowedTask": "M1-GATE",
-    "activeTaskCount": 1,
-    "lastCompletedTask": "M1-P072",
-    "lastCompletedCommit": "4ff02588379b1928448826d9f83b863c8c8b5bd8",
-    "lastPassedGate": "M0-GATE",
+    "status": "M2_IN_PROGRESS",
+    "currentStage": "M2",
+    "currentTask": "M2-P006",
+    "nextAllowedTask": "M2-P006",
+    "activeTaskCount": 0,
+    "lastCompletedTask": "M2-000",
+    "lastCompletedCommit": "25dfc2a56bf6943e12cf30cf05b1323385cd65df",
+    "lastPassedGate": "M1-GATE",
     "prohibitedUntilGate": [
-      "EXT-005已提供脱敏人工确认，但M1-GATE尚未取得新head CI与人工合并证据；M1-GATE不能标记PASS",
-      "M1-GATE精确head CI、用户授权合并及合并后main CI完成前不得开始M2"
+      "M2-000 PR精确head CI、人工合并及合并后main CI完成前不得开始M2-P006",
+      "M2-P006以后的M2业务切片必须继续按任务依赖逐项解锁"
     ],
     "persistentRestrictions": [
-      "M1-GATE通过前M2及以后阶段保持LOCKED/NOT_STARTED",
+      "M2-GATE通过前M3及以后阶段保持LOCKED/NOT_STARTED",
       "真实支付/退款",
       "生产部署/迁移",
       "直接修改或推送main"
@@ -39,12 +39,12 @@
     "authenticationConfirmed": true,
     "writeAllowed": true,
     "connectorAccessConfirmed": true,
-    "pullRequest": 32,
-    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/32",
+    "pullRequest": 34,
+    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/34",
     "pullRequestState": "MERGED",
     "pullRequestMerged": true,
-    "mergeCommitSha": "4ff02588379b1928448826d9f83b863c8c8b5bd8",
-    "mergedAt": "2026-08-08T04:55:13Z",
+    "mergeCommitSha": "162787ae1687116badf0972664005332220976f9",
+    "mergedAt": "2026-08-09T05:02:05Z",
     "reviewPolicy": {
       "mode": "DOCUMENTED_SELF_REVIEW",
       "developmentMode": "SOLO_DEVELOPMENT",
@@ -53,64 +53,64 @@
       "additionalGithubAccountsRequired": false,
       "githubSelfApprovalSupported": false,
       "reviewEvidence": "USER_EXACT_HEAD_AUTHORIZATION",
-      "reviewedHead": "efb50c01049686ce5acf8463342a53d4e572a7cd",
+      "reviewedHead": "f5febff9dffadf7506ccc395722021057b4a303c",
       "reviewDecision": "APPROVED_FOR_READY_AND_MERGE",
       "reviewCommentId": null,
-      "reviewedAt": "2026-08-08T04:55:13Z",
+      "reviewedAt": "2026-08-09T05:02:05Z",
       "currentHeadReviewRequired": false,
       "authorizationExactHead": true
     },
-    "lastVerifiedPullRequestHead": "efb50c01049686ce5acf8463342a53d4e572a7cd",
+    "lastVerifiedPullRequestHead": "f5febff9dffadf7506ccc395722021057b4a303c",
     "pullRequestCi": {
       "status": "CI_PASS",
-      "runId": 31239438856,
-      "jobId": 93057793375,
-      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31239438856",
-      "headSha": "efb50c01049686ce5acf8463342a53d4e572a7cd"
+      "runId": 31295412411,
+      "jobId": 93199598880,
+      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31295412411",
+      "headSha": "f5febff9dffadf7506ccc395722021057b4a303c"
     },
     "latestCi": {
       "scope": "MAIN_POST_MERGE",
       "status": "CI_PASS",
-      "runId": 31240531655,
-      "jobId": 93060624824,
-      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31240531655",
-      "headSha": "4ff02588379b1928448826d9f83b863c8c8b5bd8",
+      "runId": 31295823535,
+      "jobId": 93200635788,
+      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31295823535",
+      "headSha": "162787ae1687116badf0972664005332220976f9",
       "event": "push",
-      "completedAt": "2026-08-08T05:03:31Z"
+      "completedAt": "2026-08-09T05:09:05Z"
     },
     "currentTaskDelivery": {
-      "taskId": "M1-GATE",
-      "issue": 33,
-      "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/33",
-      "branch": "codex/m1-m1-gate",
-      "baseCommit": "4ff02588379b1928448826d9f83b863c8c8b5bd8",
+      "taskId": "M2-000",
+      "issue": 35,
+      "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/35",
+      "branch": "codex/m2-contract-freeze",
+      "baseCommit": "162787ae1687116badf0972664005332220976f9",
+      "implementationCommit": "25dfc2a56bf6943e12cf30cf05b1323385cd65df",
       "status": "LOCAL_PASS",
       "technicalConclusion": "LOCAL_PASS",
       "blockingExternalItem": null,
-      "pullRequest": 34,
-      "pullRequestState": "DRAFT",
+      "pullRequest": null,
+      "pullRequestState": "NOT_CREATED",
       "exactHeadCi": "NOT_EXECUTED",
       "review": "NOT_EXECUTED",
       "merge": "NOT_EXECUTED",
       "mainPostMergeCi": "NOT_EXECUTED",
-      "m2Unlocked": false
+      "m2p006StartAllowed": false
     },
     "previousTaskDelivery": {
-      "taskId": "M1-P072",
-      "pullRequest": 32,
-      "exactHead": "efb50c01049686ce5acf8463342a53d4e572a7cd",
-      "exactHeadCiRun": 31239438856,
-      "mergeCommit": "4ff02588379b1928448826d9f83b863c8c8b5bd8",
-      "mainPostMergeCiRun": 31240531655,
+      "taskId": "M1-GATE",
+      "pullRequest": 34,
+      "exactHead": "f5febff9dffadf7506ccc395722021057b4a303c",
+      "mergeCommit": "162787ae1687116badf0972664005332220976f9",
+      "mainPostMergeCiRun": 31295823535,
       "status": "CI_PASS"
     },
-    "note": "M1-P072 PR #32已按精确head efb50c0授权合并为4ff0258，PR CI run 31239438856与main CI run 31240531655均成功。M1的15个前置任务和14项主P0已有技术证据；EXT-005已由授权人员通过脱敏回执提供。PR #34的新head CI、用户精确head授权合并及合并后main CI仍未完成，因此M1-GATE尚未PASS，M2未解锁。"
+    "note": "M1-GATE已在main@162787a取得CI_PASS；M2-000仅完成本地契约冻结，Issue #35已创建，Draft PR尚未创建，M2-P006仍受PR/main门禁约束。"
   },
   "evidence": {
     "local": "LOCAL_PASS",
-    "ci": "NOT_EXECUTED_CURRENT_HEAD",
+    "ci": "NOT_EXECUTED",
     "staging": "NOT_EXECUTED",
-    "device": "NOT_REQUIRED_M1_PC_WEB",
+    "device": "NOT_REQUIRED_M2_000_CONTRACT_ONLY",
     "production": "NOT_EXECUTED"
   },
   "counts": {

@@ -35,6 +35,8 @@ const externalDependencyPath = path.join(
 
 const candidateMain = '4ff02588379b1928448826d9f83b863c8c8b5bd8';
 const p072Head = 'efb50c01049686ce5acf8463342a53d4e572a7cd';
+const m1GateHead = 'f5febff9dffadf7506ccc395722021057b4a303c';
+const m1GateMerge = '162787ae1687116badf0972664005332220976f9';
 const m1P0Ids = [
   'P0-001',
   'P0-002',
@@ -164,7 +166,7 @@ test('M1 gate preflight binds all technical evidence without bypassing EXT-005',
   assert.equal(evidence.decision.nextAllowedTask, 'M1-GATE');
 });
 
-test('M1 ledgers advance to the exact-head gate and keep M2 locked', async () => {
+test('M1 ledgers record the exact-head gate and unlock only the M2 contract slice', async () => {
   const [tasks, p0Rows, stageRows, externalRows] = await Promise.all([
     readCsv(taskLedgerPath),
     readCsv(p0LedgerPath),
@@ -185,14 +187,16 @@ test('M1 ledgers advance to the exact-head gate and keep M2 locked', async () =>
   );
 
   const m1Gate = tasks.find(({ TaskID }) => TaskID === 'M1-GATE');
-  assert.equal(m1Gate.Status, 'IN_PROGRESS');
-  assert.equal(m1Gate.EvidenceStatus, 'LOCAL_PASS');
+  assert.equal(m1Gate.Status, 'DONE');
+  assert.equal(m1Gate.EvidenceStatus, 'CI_PASS');
   assert.equal(m1Gate.Owner, 'CODEX');
   assert.equal(m1Gate.GitHubIssue, 'https://github.com/EasyStep-lee/flt1/issues/33');
   assert.equal(m1Gate.Branch, 'codex/m1-m1-gate');
   assert.equal(m1Gate.PullRequest, 'https://github.com/EasyStep-lee/flt1/pull/34');
-  assert.equal(m1Gate.CI, 'NOT_EXECUTED');
-  assert.match(m1Gate.Notes, /EXT-005/u);
+  assert.equal(m1Gate.CommitSHA, m1GateMerge);
+  assert.equal(m1Gate.CI, 'CI_PASS');
+  assert.match(m1Gate.Notes, /f5febff/u);
+  assert.match(m1Gate.Notes, /31295823535/u);
 
   const mappedRows = p0Rows.filter(({ P0ID }) => m1P0Ids.includes(P0ID));
   assert.equal(mappedRows.length, 14);
@@ -207,11 +211,22 @@ test('M1 ledgers advance to the exact-head gate and keep M2 locked', async () =>
 
   const m1Stage = stageRows.find(({ Stage }) => Stage === 'M1');
   const m2Stage = stageRows.find(({ Stage }) => Stage === 'M2');
-  assert.equal(m1Stage.Status, 'IN_PROGRESS');
-  assert.equal(m1Stage.EvidenceStatus, 'LOCAL_PASS');
-  assert.match(m1Stage.Notes, /EXT-005/u);
-  assert.equal(m2Stage.Status, 'LOCKED');
+  const m3Stage = stageRows.find(({ Stage }) => Stage === 'M3');
+  assert.equal(m1Stage.Status, 'GATE_PASSED');
+  assert.equal(m1Stage.EvidenceStatus, 'CI_PASS');
+  assert.match(m1Stage.Notes, /31295823535/u);
+  assert.equal(m2Stage.Status, 'IN_PROGRESS');
   assert.equal(m2Stage.EvidenceStatus, 'NOT_EXECUTED');
+  assert.equal(m3Stage.Status, 'LOCKED');
+  assert.equal(m3Stage.EvidenceStatus, 'NOT_EXECUTED');
+
+  const m2Contract = tasks.find(({ TaskID }) => TaskID === 'M2-000');
+  const m2FirstSlice = tasks.find(({ TaskID }) => TaskID === 'M2-P006');
+  assert.equal(m2Contract.Status, 'DONE');
+  assert.equal(m2Contract.EvidenceStatus, 'LOCAL_PASS');
+  assert.equal(m2Contract.CI, 'NOT_EXECUTED');
+  assert.equal(m2FirstSlice.Status, 'READY');
+  assert.equal(m2FirstSlice.EvidenceStatus, 'NOT_EXECUTED');
 
   const ext005 = externalRows.find(
     ({ DependencyID }) => DependencyID === 'EXT-005',
@@ -229,42 +244,44 @@ test('M1 ledgers advance to the exact-head gate and keep M2 locked', async () =>
   assert.equal(ext006.BlocksFormalAcceptance, 'NO');
 });
 
-test('project status awaits the exact-head gate while historical handoff preserves the block', async () => {
+test('project status records M1 gate success while historical blocked handoff stays immutable', async () => {
   const [projectStatus, handoff] = await Promise.all([
     readFile(projectStatusPath, 'utf8').then(JSON.parse),
     readFile(handoffPath, 'utf8'),
   ]);
 
-  assert.equal(projectStatus.execution.status, 'M1_GATE_LOCAL_PASS_PENDING_PR');
-  assert.equal(projectStatus.execution.currentStage, 'M1');
-  assert.equal(projectStatus.execution.currentTask, 'M1-GATE');
-  assert.equal(projectStatus.execution.nextAllowedTask, 'M1-GATE');
-  assert.equal(projectStatus.execution.activeTaskCount, 1);
-  assert.equal(projectStatus.execution.lastCompletedTask, 'M1-P072');
-  assert.equal(projectStatus.execution.lastCompletedCommit, candidateMain);
-  assert.equal(projectStatus.execution.lastPassedGate, 'M0-GATE');
+  assert.equal(projectStatus.execution.status, 'M2_IN_PROGRESS');
+  assert.equal(projectStatus.execution.currentStage, 'M2');
+  assert.equal(projectStatus.execution.currentTask, 'M2-P006');
+  assert.equal(projectStatus.execution.nextAllowedTask, 'M2-P006');
+  assert.equal(projectStatus.execution.activeTaskCount, 0);
+  assert.equal(projectStatus.execution.lastCompletedTask, 'M2-000');
+  assert.equal(projectStatus.execution.lastPassedGate, 'M1-GATE');
   assert.equal(
     projectStatus.execution.prohibitedUntilGate.some((item) => /M2/u.test(item)),
     true,
   );
-  assert.equal(projectStatus.github.pullRequest, 32);
+  assert.equal(projectStatus.github.pullRequest, 34);
   assert.equal(projectStatus.github.pullRequestState, 'MERGED');
   assert.equal(projectStatus.github.pullRequestMerged, true);
-  assert.equal(projectStatus.github.mergeCommitSha, candidateMain);
+  assert.equal(projectStatus.github.mergeCommitSha, m1GateMerge);
   assert.equal(projectStatus.github.pullRequestCi.status, 'CI_PASS');
-  assert.equal(projectStatus.github.pullRequestCi.headSha, p072Head);
+  assert.equal(projectStatus.github.pullRequestCi.headSha, m1GateHead);
   assert.equal(projectStatus.github.latestCi.scope, 'MAIN_POST_MERGE');
   assert.equal(projectStatus.github.latestCi.status, 'CI_PASS');
-  assert.equal(projectStatus.github.latestCi.headSha, candidateMain);
-  assert.equal(projectStatus.github.currentTaskDelivery.taskId, 'M1-GATE');
-  assert.equal(projectStatus.github.currentTaskDelivery.issue, 33);
+  assert.equal(projectStatus.github.latestCi.headSha, m1GateMerge);
+  assert.equal(projectStatus.github.currentTaskDelivery.taskId, 'M2-000');
+  assert.equal(projectStatus.github.currentTaskDelivery.issue, 35);
   assert.equal(projectStatus.github.currentTaskDelivery.status, 'LOCAL_PASS');
-  assert.equal(projectStatus.github.currentTaskDelivery.pullRequest, 34);
-  assert.equal(projectStatus.github.currentTaskDelivery.pullRequestState, 'DRAFT');
+  assert.equal(projectStatus.github.currentTaskDelivery.pullRequest, null);
+  assert.equal(projectStatus.github.currentTaskDelivery.pullRequestState, 'NOT_CREATED');
+  assert.equal(projectStatus.github.previousTaskDelivery.taskId, 'M1-GATE');
+  assert.equal(projectStatus.github.previousTaskDelivery.pullRequest, 34);
+  assert.equal(projectStatus.github.previousTaskDelivery.status, 'CI_PASS');
   assert.equal(projectStatus.evidence.local, 'LOCAL_PASS');
-  assert.equal(projectStatus.evidence.ci, 'NOT_EXECUTED_CURRENT_HEAD');
+  assert.equal(projectStatus.evidence.ci, 'NOT_EXECUTED');
   assert.equal(projectStatus.evidence.staging, 'NOT_EXECUTED');
-  assert.equal(projectStatus.evidence.device, 'NOT_REQUIRED_M1_PC_WEB');
+  assert.equal(projectStatus.evidence.device, 'NOT_REQUIRED_M2_000_CONTRACT_ONLY');
   assert.equal(projectStatus.evidence.production, 'NOT_EXECUTED');
 
   assert.match(handoff, /^# M1-GATE 阶段门禁交接/u);

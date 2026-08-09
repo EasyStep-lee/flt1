@@ -211,6 +211,23 @@ if ($projectStatus.execution.lastPassedGate -eq 'M0-GATE') {
     } else {
         Assert-Condition $false 'M1-000状态必须为READY或DONE'
     }
+} elseif ($projectStatus.execution.lastPassedGate -eq 'M1-GATE') {
+    $m1GateTask = @($tasks | Where-Object TaskID -eq 'M1-GATE')
+    $m2StartTask = @($tasks | Where-Object TaskID -eq 'M2-000')
+    $m2FirstTask = @($tasks | Where-Object TaskID -eq 'M2-P006')
+    $laterM2Tasks = @($tasks | Where-Object { $_.Stage -eq 'M2' -and $_.TaskID -notin @('M2-000', 'M2-P006') })
+    $m1StageGate = @($stageGates | Where-Object Stage -eq 'M1')
+    $m2StageGate = @($stageGates | Where-Object Stage -eq 'M2')
+    $m3StageGate = @($stageGates | Where-Object Stage -eq 'M3')
+    Assert-Condition ($m1GateTask.Count -eq 1 -and $m1GateTask[0].Status -eq 'DONE' -and $m1GateTask[0].EvidenceStatus -eq 'CI_PASS' -and $m1GateTask[0].CI -eq 'CI_PASS') 'M1-GATE任务未以CI_PASS完成'
+    Assert-Condition ($m1StageGate.Count -eq 1 -and $m1StageGate[0].Status -eq 'GATE_PASSED' -and $m1StageGate[0].EvidenceStatus -eq 'CI_PASS') 'M1阶段门禁台账未通过'
+    Assert-Condition ($projectStatus.execution.status -eq 'M2_IN_PROGRESS') 'M2契约冻结后项目状态必须为M2_IN_PROGRESS'
+    Assert-Condition ($projectStatus.execution.currentStage -eq 'M2' -and $projectStatus.execution.currentTask -eq 'M2-P006') 'M2-000完成后只能把M2-P006列为下一任务'
+    Assert-Condition ($m2StartTask.Count -eq 1 -and $m2StartTask[0].Status -eq 'DONE' -and $m2StartTask[0].EvidenceStatus -eq 'LOCAL_PASS' -and $m2StartTask[0].CI -eq 'NOT_EXECUTED') 'M2-000必须如实保持DONE/LOCAL_PASS/NOT_EXECUTED'
+    Assert-Condition ($m2FirstTask.Count -eq 1 -and $m2FirstTask[0].Status -eq 'READY' -and $m2FirstTask[0].EvidenceStatus -eq 'NOT_EXECUTED') 'M2-P006未按READY/NOT_EXECUTED列为下一任务'
+    Assert-Condition (@($laterM2Tasks | Where-Object Status -ne 'NOT_STARTED').Count -eq 0) 'M2-P006之后的切片被提前解锁'
+    Assert-Condition ($m2StageGate.Count -eq 1 -and $m2StageGate[0].Status -eq 'IN_PROGRESS' -and $m2StageGate[0].EvidenceStatus -eq 'NOT_EXECUTED') 'M2阶段未按IN_PROGRESS/NOT_EXECUTED推进'
+    Assert-Condition ($m3StageGate.Count -eq 1 -and $m3StageGate[0].Status -eq 'LOCKED' -and $m3StageGate[0].EvidenceStatus -eq 'NOT_EXECUTED') 'M3未保持LOCKED/NOT_EXECUTED'
 }
 
 $manifest = Get-Content -LiteralPath (Join-Path $PackagePath 'manifest.json') -Raw -Encoding UTF8 | ConvertFrom-Json
