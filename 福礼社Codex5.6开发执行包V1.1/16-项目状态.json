@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-08T02:27:50-04:00",
+  "updatedAt": "2026-08-09T00:07:41-04:00",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -12,16 +12,16 @@
     "pageCount": 80
   },
   "execution": {
-    "status": "M1_GATE_BLOCKED_EXTERNAL",
+    "status": "M1_GATE_LOCAL_PASS_PENDING_PR",
     "currentStage": "M1",
     "currentTask": "M1-GATE",
     "nextAllowedTask": "M1-GATE",
-    "activeTaskCount": 0,
+    "activeTaskCount": 1,
     "lastCompletedTask": "M1-P072",
     "lastCompletedCommit": "4ff02588379b1928448826d9f83b863c8c8b5bd8",
     "lastPassedGate": "M0-GATE",
     "prohibitedUntilGate": [
-      "EXT-005仍为NOT_PROVIDED且M1人工门槛未满足；M1-GATE不能标记PASS",
+      "EXT-005已提供脱敏人工确认，但M1-GATE尚未取得新head CI与人工合并证据；M1-GATE不能标记PASS",
       "M1-GATE精确head CI、用户授权合并及合并后main CI完成前不得开始M2"
     ],
     "persistentRestrictions": [
@@ -84,11 +84,11 @@
       "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/33",
       "branch": "codex/m1-m1-gate",
       "baseCommit": "4ff02588379b1928448826d9f83b863c8c8b5bd8",
-      "status": "BLOCKED_EXTERNAL",
+      "status": "LOCAL_PASS",
       "technicalConclusion": "LOCAL_PASS",
-      "blockingExternalItem": "EXT-005",
-      "pullRequest": "NOT_CREATED_AT_CAPTURE",
-      "pullRequestState": "NOT_CREATED_AT_CAPTURE",
+      "blockingExternalItem": null,
+      "pullRequest": 34,
+      "pullRequestState": "DRAFT",
       "exactHeadCi": "NOT_EXECUTED",
       "review": "NOT_EXECUTED",
       "merge": "NOT_EXECUTED",
@@ -104,11 +104,11 @@
       "mainPostMergeCiRun": 31240531655,
       "status": "CI_PASS"
     },
-    "note": "M1-P072 PR #32已按精确head efb50c0授权合并为4ff0258，PR CI run 31239438856与main CI run 31240531655均成功。M1的15个前置任务和14项主P0已进入阶段技术复核；EXT-005仍为NOT_PROVIDED且M1人工门槛未满足，M1-GATE保持BLOCKED_EXTERNAL，M2未解锁。"
+    "note": "M1-P072 PR #32已按精确head efb50c0授权合并为4ff0258，PR CI run 31239438856与main CI run 31240531655均成功。M1的15个前置任务和14项主P0已有技术证据；EXT-005已由授权人员通过脱敏回执提供。PR #34的新head CI、用户精确head授权合并及合并后main CI仍未完成，因此M1-GATE尚未PASS，M2未解锁。"
   },
   "evidence": {
     "local": "LOCAL_PASS",
-    "ci": "CI_PASS_CANDIDATE_MAIN",
+    "ci": "NOT_EXECUTED_CURRENT_HEAD",
     "staging": "NOT_EXECUTED",
     "device": "NOT_REQUIRED_M1_PC_WEB",
     "production": "NOT_EXECUTED"

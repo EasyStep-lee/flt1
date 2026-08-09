@@ -2,18 +2,18 @@
   "schemaVersion": "1.1.0",
   "dependencyId": "EXT-005",
   "status": "CONFIRMED",
-  "confirmationId": "REPLACE_WITH_EXT_005_CONFIRMATION_ID",
-  "confirmedAt": "REPLACE_WITH_ISO_8601_TIMESTAMP",
+  "confirmationId": "EXT-005-20260809-A01",
+  "confirmedAt": "2026-08-09T00:07:41-04:00",
   "confirmedBy": {
     "authorizedRole": "COMPANY_AUTHORIZED_REVIEWER",
-    "identityRef": "identity://controlled/REPLACE_WITH_OPAQUE_ID"
+    "identityRef": "identity://controlled/ext005-reviewer-20260809-a01"
   },
   "customerFacing": {
     "legalName": "江苏福礼团供应链科技有限公司",
-    "displayName": "REPLACE_WITH_APPROVED_PUBLIC_DISPLAY_NAME",
+    "displayName": "福礼团",
     "customerService": {
       "channel": "PHONE",
-      "redactedDisplay": "REPLACE_WITH_MASKED_CONTACT"
+      "redactedDisplay": "189****9999"
     },
     "invoiceTitle": "江苏福礼团供应链科技有限公司"
   },
@@ -35,10 +35,10 @@
     }
   },
   "declarations": {
-    "businessLicenseReviewed": false,
-    "customerFacingNameApproved": false,
-    "customerServiceApproved": false,
-    "invoiceProfileApproved": false,
-    "noSensitiveSourceCommitted": false
+    "businessLicenseReviewed": true,
+    "customerFacingNameApproved": true,
+    "customerServiceApproved": true,
+    "invoiceProfileApproved": true,
+    "noSensitiveSourceCommitted": true
   }
 }

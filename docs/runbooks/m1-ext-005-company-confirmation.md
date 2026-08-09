@@ -6,7 +6,9 @@
 
 1. 授权人员在公司批准的受控存储中核验营业执照、正式对客名称、客服资料和开票资料。
 2. 把 `docs/templates/ext-005-company-confirmation.template.json` 复制到受控的临时工作位置；不要直接修改模板真源。
-3. 只填写脱敏元数据：确认编号、带时区的确认时间、授权人员不透明引用、公开对客字段、打码客服展示值和三个受控存储引用。
+3. 只填写脱敏元数据：确认编号、带时区的确认时间、授权人员不透明引用、公开对客字段、打码客服展示值和三类资料的受控存储状态。
+   - 有真实内部引用时使用 `REFERENCE_PROVIDED`，并填写不含访问令牌的 `vault://controlled/...`、`dms://controlled/...` 或 `object://controlled/...` 引用。
+   - 资料确实位于受控存储但没有内部编号时，使用 `NO_INTERNAL_IDENTIFIER` 且将 `reference` 保持为 `null`；不得为通过校验编造编号。
 4. 所有声明只有在对应资料已经真实核验后才能改为 `true`。
 5. 运行：
 
@@ -21,7 +23,7 @@
 - 不要把完整营业执照图片、统一社会信用代码、税号、银行账号、身份证、完整私人联系方式、证书或密钥写入回执、仓库、PR 或聊天。
 - 不要填写 `file://`、签名 URL、带查询参数的下载地址、Data URL、Base64、PEM 或公开网盘地址。
 - 客服展示值必须打码并包含 `*`；授权人员只使用 `identity://controlled/...` 不透明引用。
-- 原件引用只允许 `vault://controlled/...`、`dms://controlled/...` 或 `object://controlled/...`，且不得包含访问令牌。
+- 如有原件引用，只允许 `vault://controlled/...`、`dms://controlled/...` 或 `object://controlled/...`，且不得包含访问令牌；没有内部编号时必须明确记录 `NO_INTERNAL_IDENTIFIER`。
 
 ## 门禁边界
 

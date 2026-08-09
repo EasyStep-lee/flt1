@@ -16,7 +16,7 @@
     "declarations"
   ],
   "properties": {
-    "schemaVersion": { "const": "1.0.0" },
+    "schemaVersion": { "const": "1.1.0" },
     "dependencyId": { "const": "EXT-005" },
     "status": { "const": "CONFIRMED" },
     "confirmationId": {
@@ -75,14 +75,14 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "businessLicenseRef",
-        "customerServiceRef",
-        "invoiceProfileRef"
+        "businessLicense",
+        "customerService",
+        "invoiceProfile"
       ],
       "properties": {
-        "businessLicenseRef": { "$ref": "#/$defs/controlledReference" },
-        "customerServiceRef": { "$ref": "#/$defs/controlledReference" },
-        "invoiceProfileRef": { "$ref": "#/$defs/controlledReference" }
+        "businessLicense": { "$ref": "#/$defs/controlledEvidenceItem" },
+        "customerService": { "$ref": "#/$defs/controlledEvidenceItem" },
+        "invoiceProfile": { "$ref": "#/$defs/controlledEvidenceItem" }
       }
     },
     "declarations": {
@@ -108,6 +108,47 @@
     "controlledReference": {
       "type": "string",
       "pattern": "^(?:vault|dms|object)://controlled/[A-Za-z0-9][A-Za-z0-9._/-]{5,255}$"
+    },
+    "controlledEvidenceItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["storageStatus", "referenceStatus", "reference"],
+      "properties": {
+        "storageStatus": { "const": "CONTROLLED_STORAGE_CONFIRMED" },
+        "referenceStatus": {
+          "enum": ["REFERENCE_PROVIDED", "NO_INTERNAL_IDENTIFIER"]
+        },
+        "reference": {
+          "oneOf": [
+            { "$ref": "#/$defs/controlledReference" },
+            { "type": "null" }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "referenceStatus": { "const": "REFERENCE_PROVIDED" }
+            }
+          },
+          "then": {
+            "properties": {
+              "reference": { "$ref": "#/$defs/controlledReference" }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "referenceStatus": { "const": "NO_INTERNAL_IDENTIFIER" }
+            }
+          },
+          "then": {
+            "properties": { "reference": { "type": "null" } }
+          }
+        }
+      ]
     }
   }
 }

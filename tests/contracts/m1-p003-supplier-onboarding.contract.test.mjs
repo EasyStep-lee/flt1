@@ -137,7 +137,8 @@ test('M1-P003 retains its local evidence after PR and main CI closure', async ()
   const mappedApis = apis.filter(({ Method, Path }) => operationKeys.has(`${Method} ${Path}`));
 
   assert.ok(active.length <= 1);
-  assert.equal(active.length, 0);
+  assert.equal(active.length, 1);
+  assert.equal(active[0].TaskID, 'M1-GATE');
   assert.equal(m1p003?.Status, 'DONE');
   assert.equal(m1p003?.EvidenceStatus, 'CI_PASS');
   assert.equal(m1p003?.CommitSHA, 'd7067a59f1bc66680121d9e2b38e04cb3083dee2');
@@ -183,7 +184,8 @@ test('M1-P003 retains its local evidence after PR and main CI closure', async ()
   assert.match(state.execution.lastCompletedTask, /^M1-/u);
   assert.equal(state.github.repository, 'EasyStep-lee/flt1');
   assert.equal(state.github.currentTaskDelivery.taskId, 'M1-GATE');
-  assert.equal(state.github.currentTaskDelivery.status, 'BLOCKED_EXTERNAL');
+  assert.equal(state.github.currentTaskDelivery.status, 'LOCAL_PASS');
+  assert.equal(state.github.currentTaskDelivery.pullRequest, 34);
   assert.equal(state.evidence.local, 'LOCAL_PASS');
-  assert.equal(state.evidence.ci, 'CI_PASS_CANDIDATE_MAIN');
+  assert.equal(state.evidence.ci, 'NOT_EXECUTED_CURRENT_HEAD');
 });

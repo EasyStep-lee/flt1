@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const legalName = '江苏福礼团供应链科技有限公司';
-const schemaVersion = '1.0.0';
+const schemaVersion = '1.1.0';
 const dependencyId = 'EXT-005';
 const confirmedStatus = 'CONFIRMED';
 const authorizedRole = 'COMPANY_AUTHORIZED_REVIEWER';
@@ -28,10 +28,11 @@ const exactKeys = Object.freeze({
     'invoiceTitle',
   ],
   customerService: ['channel', 'redactedDisplay'],
-  controlledEvidence: [
-    'businessLicenseRef',
-    'customerServiceRef',
-    'invoiceProfileRef',
+  controlledEvidence: ['businessLicense', 'customerService', 'invoiceProfile'],
+  controlledEvidenceItem: [
+    'storageStatus',
+    'referenceStatus',
+    'reference',
   ],
   declarations: [
     'businessLicenseReviewed',
@@ -50,6 +51,11 @@ const identityReferencePattern =
 const controlledReferencePattern =
   /^(?:vault|dms|object):\/\/controlled\/[A-Za-z0-9][A-Za-z0-9._/-]{5,255}$/u;
 const contactChannels = new Set(['PHONE', 'EMAIL', 'WECHAT', 'OTHER']);
+const controlledStorageStatus = 'CONTROLLED_STORAGE_CONFIRMED';
+const controlledReferenceStatuses = new Set([
+  'REFERENCE_PROVIDED',
+  'NO_INTERNAL_IDENTIFIER',
+]);
 const fullMobilePattern = /(?:^|\D)1[3-9]\d{9}(?:\D|$)/u;
 const fullEmailPattern =
   /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/iu;
@@ -250,20 +256,49 @@ export const validateExt005Confirmation = (value) => {
     )
   ) {
     for (const key of exactKeys.controlledEvidence) {
-      const reference = value.controlledEvidence[key];
+      const field = `$.controlledEvidence.${key}`;
+      const item = value.controlledEvidence[key];
       if (
-        !checkString(
-          reference,
-          `$.controlledEvidence.${key}`,
+        !checkExactObject(
+          item,
+          field,
+          exactKeys.controlledEvidenceItem,
           errors,
-          { max: 280 },
-        ) ||
-        !controlledReferencePattern.test(reference)
+        )
+      ) {
+        continue;
+      }
+      if (item.storageStatus !== controlledStorageStatus) {
+        addError(errors, 'CONTROLLED_STORAGE_NOT_CONFIRMED', `${field}.storageStatus`);
+      }
+      if (!controlledReferenceStatuses.has(item.referenceStatus)) {
+        addError(
+          errors,
+          'CONTROLLED_REFERENCE_STATUS_INVALID',
+          `${field}.referenceStatus`,
+        );
+        continue;
+      }
+      if (item.referenceStatus === 'NO_INTERNAL_IDENTIFIER') {
+        if (item.reference !== null) {
+          addError(
+            errors,
+            'UNEXPECTED_CONTROLLED_REFERENCE',
+            `${field}.reference`,
+          );
+        }
+        continue;
+      }
+      if (
+        !checkString(item.reference, `${field}.reference`, errors, {
+          max: 280,
+        }) ||
+        !controlledReferencePattern.test(item.reference)
       ) {
         addError(
           errors,
           'CONTROLLED_REFERENCE_INVALID',
-          `$.controlledEvidence.${key}`,
+          `${field}.reference`,
         );
       }
     }

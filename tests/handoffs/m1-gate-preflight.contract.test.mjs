@@ -164,7 +164,7 @@ test('M1 gate preflight binds all technical evidence without bypassing EXT-005',
   assert.equal(evidence.decision.nextAllowedTask, 'M1-GATE');
 });
 
-test('M1 ledgers preserve the blocked gate and keep M2 locked', async () => {
+test('M1 ledgers advance to the exact-head gate and keep M2 locked', async () => {
   const [tasks, p0Rows, stageRows, externalRows] = await Promise.all([
     readCsv(taskLedgerPath),
     readCsv(p0LedgerPath),
@@ -185,11 +185,12 @@ test('M1 ledgers preserve the blocked gate and keep M2 locked', async () => {
   );
 
   const m1Gate = tasks.find(({ TaskID }) => TaskID === 'M1-GATE');
-  assert.equal(m1Gate.Status, 'BLOCKED');
+  assert.equal(m1Gate.Status, 'IN_PROGRESS');
   assert.equal(m1Gate.EvidenceStatus, 'LOCAL_PASS');
   assert.equal(m1Gate.Owner, 'CODEX');
   assert.equal(m1Gate.GitHubIssue, 'https://github.com/EasyStep-lee/flt1/issues/33');
   assert.equal(m1Gate.Branch, 'codex/m1-m1-gate');
+  assert.equal(m1Gate.PullRequest, 'https://github.com/EasyStep-lee/flt1/pull/34');
   assert.equal(m1Gate.CI, 'NOT_EXECUTED');
   assert.match(m1Gate.Notes, /EXT-005/u);
 
@@ -206,7 +207,7 @@ test('M1 ledgers preserve the blocked gate and keep M2 locked', async () => {
 
   const m1Stage = stageRows.find(({ Stage }) => Stage === 'M1');
   const m2Stage = stageRows.find(({ Stage }) => Stage === 'M2');
-  assert.equal(m1Stage.Status, 'BLOCKED');
+  assert.equal(m1Stage.Status, 'IN_PROGRESS');
   assert.equal(m1Stage.EvidenceStatus, 'LOCAL_PASS');
   assert.match(m1Stage.Notes, /EXT-005/u);
   assert.equal(m2Stage.Status, 'LOCKED');
@@ -218,23 +219,27 @@ test('M1 ledgers preserve the blocked gate and keep M2 locked', async () => {
   const ext006 = externalRows.find(
     ({ DependencyID }) => DependencyID === 'EXT-006',
   );
-  assert.equal(ext005.CurrentStatus, 'NOT_PROVIDED');
+  assert.equal(ext005.CurrentStatus, 'PROVIDED');
   assert.equal(ext005.BlocksFormalAcceptance, 'YES');
+  assert.equal(
+    ext005.EvidenceLink,
+    'artifacts/verification/M1-GATE/ext-005-company-confirmation.json',
+  );
   assert.equal(ext006.CurrentStatus, 'NOT_PROVIDED');
   assert.equal(ext006.BlocksFormalAcceptance, 'NO');
 });
 
-test('project status and handoff refuse M2 and higher evidence claims', async () => {
+test('project status awaits the exact-head gate while historical handoff preserves the block', async () => {
   const [projectStatus, handoff] = await Promise.all([
     readFile(projectStatusPath, 'utf8').then(JSON.parse),
     readFile(handoffPath, 'utf8'),
   ]);
 
-  assert.equal(projectStatus.execution.status, 'M1_GATE_BLOCKED_EXTERNAL');
+  assert.equal(projectStatus.execution.status, 'M1_GATE_LOCAL_PASS_PENDING_PR');
   assert.equal(projectStatus.execution.currentStage, 'M1');
   assert.equal(projectStatus.execution.currentTask, 'M1-GATE');
   assert.equal(projectStatus.execution.nextAllowedTask, 'M1-GATE');
-  assert.equal(projectStatus.execution.activeTaskCount, 0);
+  assert.equal(projectStatus.execution.activeTaskCount, 1);
   assert.equal(projectStatus.execution.lastCompletedTask, 'M1-P072');
   assert.equal(projectStatus.execution.lastCompletedCommit, candidateMain);
   assert.equal(projectStatus.execution.lastPassedGate, 'M0-GATE');
@@ -253,10 +258,11 @@ test('project status and handoff refuse M2 and higher evidence claims', async ()
   assert.equal(projectStatus.github.latestCi.headSha, candidateMain);
   assert.equal(projectStatus.github.currentTaskDelivery.taskId, 'M1-GATE');
   assert.equal(projectStatus.github.currentTaskDelivery.issue, 33);
-  assert.equal(projectStatus.github.currentTaskDelivery.status, 'BLOCKED_EXTERNAL');
-  assert.equal(projectStatus.github.currentTaskDelivery.pullRequest, 'NOT_CREATED_AT_CAPTURE');
+  assert.equal(projectStatus.github.currentTaskDelivery.status, 'LOCAL_PASS');
+  assert.equal(projectStatus.github.currentTaskDelivery.pullRequest, 34);
+  assert.equal(projectStatus.github.currentTaskDelivery.pullRequestState, 'DRAFT');
   assert.equal(projectStatus.evidence.local, 'LOCAL_PASS');
-  assert.equal(projectStatus.evidence.ci, 'CI_PASS_CANDIDATE_MAIN');
+  assert.equal(projectStatus.evidence.ci, 'NOT_EXECUTED_CURRENT_HEAD');
   assert.equal(projectStatus.evidence.staging, 'NOT_EXECUTED');
   assert.equal(projectStatus.evidence.device, 'NOT_REQUIRED_M1_PC_WEB');
   assert.equal(projectStatus.evidence.production, 'NOT_EXECUTED');

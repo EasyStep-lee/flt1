@@ -190,14 +190,23 @@ if ($projectStatus.execution.lastPassedGate -eq 'M0-GATE') {
             $m2StageGate = @($stageGates | Where-Object Stage -eq 'M2')
             $externalItems = Import-Csv -LiteralPath (Join-Path $PackagePath '09-外部依赖与人工事项.csv')
             $ext005 = @($externalItems | Where-Object DependencyID -eq 'EXT-005')
-            Assert-Condition ($projectStatus.execution.status -eq 'M1_GATE_BLOCKED_EXTERNAL') 'M1业务切片完成且EXT-005未提供时项目必须为M1_GATE_BLOCKED_EXTERNAL'
             Assert-Condition ($projectStatus.execution.currentStage -eq 'M1' -and $projectStatus.execution.currentTask -eq 'M1-GATE') 'M1业务切片完成后只能进入M1-GATE'
             Assert-Condition (@($m1BusinessTasks | Where-Object { $_.Status -ne 'DONE' -or $_.EvidenceStatus -ne 'CI_PASS' -or $_.CI -ne 'CI_PASS' }).Count -eq 0) 'M1-GATE前存在未以CI_PASS闭环的业务切片'
             Assert-Condition ($m1StartTask[0].EvidenceStatus -eq 'CI_PASS' -and $m1StartTask[0].CI -eq 'CI_PASS') 'M1-000在M1-GATE前必须升级为CI_PASS'
-            Assert-Condition ($m1GateTask.Count -eq 1 -and $m1GateTask[0].Status -eq 'BLOCKED' -and $m1GateTask[0].EvidenceStatus -eq 'LOCAL_PASS' -and $m1GateTask[0].CI -eq 'NOT_EXECUTED') 'M1-GATE在外部条件未满足时必须为BLOCKED/LOCAL_PASS/NOT_EXECUTED'
-            Assert-Condition ($m1StageGate.Count -eq 1 -and $m1StageGate[0].Status -eq 'BLOCKED' -and $m1StageGate[0].EvidenceStatus -eq 'LOCAL_PASS') 'M1阶段未如实保持BLOCKED/LOCAL_PASS'
             Assert-Condition ($m2StageGate.Count -eq 1 -and $m2StageGate[0].Status -eq 'LOCKED' -and $m2StageGate[0].EvidenceStatus -eq 'NOT_EXECUTED') 'EXT-005阻塞时M2未保持LOCKED/NOT_EXECUTED'
-            Assert-Condition ($ext005.Count -eq 1 -and $ext005[0].CurrentStatus -eq 'NOT_PROVIDED' -and $ext005[0].BlocksFormalAcceptance -eq 'YES') 'M1-GATE缺少EXT-005未提供且阻塞阶段的真实记录'
+            if ($ext005.Count -eq 1 -and $ext005[0].CurrentStatus -eq 'NOT_PROVIDED') {
+                Assert-Condition ($projectStatus.execution.status -eq 'M1_GATE_BLOCKED_EXTERNAL') 'M1业务切片完成且EXT-005未提供时项目必须为M1_GATE_BLOCKED_EXTERNAL'
+                Assert-Condition ($m1GateTask[0].Status -eq 'BLOCKED' -and $m1GateTask[0].EvidenceStatus -eq 'LOCAL_PASS' -and $m1GateTask[0].CI -eq 'NOT_EXECUTED') 'M1-GATE在外部条件未满足时必须为BLOCKED/LOCAL_PASS/NOT_EXECUTED'
+                Assert-Condition ($m1StageGate[0].Status -eq 'BLOCKED' -and $m1StageGate[0].EvidenceStatus -eq 'LOCAL_PASS') 'M1阶段未如实保持BLOCKED/LOCAL_PASS'
+                Assert-Condition ($ext005[0].BlocksFormalAcceptance -eq 'YES') 'M1-GATE缺少EXT-005阻塞正式验收的真实记录'
+            } elseif ($ext005.Count -eq 1 -and $ext005[0].CurrentStatus -eq 'PROVIDED') {
+                Assert-Condition ($projectStatus.execution.status -eq 'M1_GATE_LOCAL_PASS_PENDING_PR') 'EXT-005提供后M1-GATE必须保持本地通过并等待精确head PR门禁'
+                Assert-Condition ($m1GateTask[0].Status -eq 'IN_PROGRESS' -and $m1GateTask[0].EvidenceStatus -eq 'LOCAL_PASS' -and $m1GateTask[0].CI -eq 'NOT_EXECUTED') 'EXT-005提供后M1-GATE必须为IN_PROGRESS/LOCAL_PASS/NOT_EXECUTED'
+                Assert-Condition ($m1StageGate[0].Status -eq 'IN_PROGRESS' -and $m1StageGate[0].EvidenceStatus -eq 'LOCAL_PASS') 'EXT-005提供后M1阶段必须保持IN_PROGRESS/LOCAL_PASS'
+                Assert-Condition ($ext005[0].EvidenceLink -eq 'artifacts/verification/M1-GATE/ext-005-company-confirmation.json' -and $ext005[0].ApprovedBy -eq 'COMPANY_AUTHORIZED_REVIEWER') 'EXT-005提供状态缺少脱敏回执或授权角色'
+            } else {
+                Assert-Condition $false 'M1-GATE的EXT-005状态必须为NOT_PROVIDED或PROVIDED'
+            }
         }
     } else {
         Assert-Condition $false 'M1-000状态必须为READY或DONE'

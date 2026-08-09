@@ -48,7 +48,7 @@ const handoffPath = path.join(
 const loadValidator = async () => import(pathToFileURL(validatorPath));
 
 const validConfirmation = () => ({
-  schemaVersion: '1.0.0',
+  schemaVersion: '1.1.0',
   dependencyId: 'EXT-005',
   status: 'CONFIRMED',
   confirmationId: 'EXT-005-20260808-A01',
@@ -67,9 +67,21 @@ const validConfirmation = () => ({
     invoiceTitle: '江苏福礼团供应链科技有限公司',
   },
   controlledEvidence: {
-    businessLicenseRef: 'vault://controlled/ext-005/license-a01',
-    customerServiceRef: 'vault://controlled/ext-005/service-a01',
-    invoiceProfileRef: 'vault://controlled/ext-005/invoice-a01',
+    businessLicense: {
+      storageStatus: 'CONTROLLED_STORAGE_CONFIRMED',
+      referenceStatus: 'NO_INTERNAL_IDENTIFIER',
+      reference: null,
+    },
+    customerService: {
+      storageStatus: 'CONTROLLED_STORAGE_CONFIRMED',
+      referenceStatus: 'NO_INTERNAL_IDENTIFIER',
+      reference: null,
+    },
+    invoiceProfile: {
+      storageStatus: 'CONTROLLED_STORAGE_CONFIRMED',
+      referenceStatus: 'NO_INTERNAL_IDENTIFIER',
+      reference: null,
+    },
   },
   declarations: {
     businessLicenseReviewed: true,
@@ -90,7 +102,7 @@ test('EXT-005 accepts only the minimal redacted confirmation receipt', async () 
     errors: [],
   });
   assert.deepEqual(summarizeExt005Confirmation(confirmation), {
-    schemaVersion: '1.0.0',
+    schemaVersion: '1.1.0',
     dependencyId: 'EXT-005',
     status: 'CONFIRMED',
     confirmationId: 'EXT-005-20260808-A01',
@@ -134,10 +146,19 @@ test('EXT-005 rejects wrong scope, missing approval and sensitive payloads', asy
     },
     {
       mutate: (receipt) => {
-        receipt.controlledEvidence.businessLicenseRef =
+        receipt.controlledEvidence.businessLicense.referenceStatus =
+          'REFERENCE_PROVIDED';
+        receipt.controlledEvidence.businessLicense.reference =
           'file:///C:/sensitive/license.png';
       },
       code: 'CONTROLLED_REFERENCE_INVALID',
+    },
+    {
+      mutate: (receipt) => {
+        receipt.controlledEvidence.businessLicense.reference =
+          'vault://controlled/ext-005/license-a01';
+      },
+      code: 'UNEXPECTED_CONTROLLED_REFERENCE',
     },
     {
       mutate: (receipt) => {
@@ -224,6 +245,7 @@ test('EXT-005 schema and operator template cannot masquerade as evidence', async
 
   assert.equal(schema.$schema, 'https://json-schema.org/draft/2020-12/schema');
   assert.equal(schema.additionalProperties, false);
+  assert.equal(schema.properties.schemaVersion.const, '1.1.0');
   assert.deepEqual(schema.properties.dependencyId.const, 'EXT-005');
   assert.deepEqual(schema.properties.status.const, 'CONFIRMED');
   assert.equal(validateExt005Confirmation(template).ok, false);
