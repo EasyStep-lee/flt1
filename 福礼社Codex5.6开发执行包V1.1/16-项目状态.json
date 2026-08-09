@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-09T08:29:08-04:00",
+  "updatedAt": "2026-08-09T09:05:57-04:00",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -16,12 +16,12 @@
     "currentStage": "M2",
     "currentTask": "M2-P008",
     "nextAllowedTask": "M2-P008",
-    "activeTaskCount": 1,
-    "lastCompletedTask": "M2-P007",
-    "lastCompletedCommit": "96367acf9304dadee489e97ca7047deccedbb1a4",
+    "activeTaskCount": 0,
+    "lastCompletedTask": "M2-P008",
+    "lastCompletedCommit": "01bd3490cd84f319a60e0e33a6006f9bf1c4190e",
     "lastPassedGate": "M1-GATE",
     "prohibitedUntilGate": [
-      "M2-P008完整pnpm verify、Draft PR精确head CI、人工合并及合并后main CI完成前不得开始M2-P009",
+      "M2-P008 Draft PR精确head CI、人工合并及合并后main CI完成前不得开始M2-P009",
       "M2-P009及以后的M2业务切片必须继续按任务依赖逐项解锁"
     ],
     "persistentRestrictions": [
@@ -83,9 +83,9 @@
       "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/41",
       "branch": "codex/m2-supplier-pricing",
       "baseCommit": "15a10daae913e2dae8c97f3a47d92ef1497a3c1e",
-      "implementationCommit": null,
-      "status": "IN_PROGRESS",
-      "technicalConclusion": "FOCUSED_GREEN_FULL_GATE_PENDING",
+      "implementationCommit": "01bd3490cd84f319a60e0e33a6006f9bf1c4190e",
+      "status": "LOCAL_PASS",
+      "technicalConclusion": "LOCAL_PASS",
       "blockingExternalItem": null,
       "pullRequest": null,
       "pullRequestState": "NOT_CREATED",
@@ -103,10 +103,10 @@
       "mainPostMergeCiRun": 31311672836,
       "status": "CI_PASS"
     },
-    "note": "M2-P008已完成RED与API/页面focused GREEN；完整pnpm verify、Draft PR及精确head CI尚未执行，M2-P009保持锁定。"
+    "note": "M2-P008已取得当前提交pnpm verify 17/17 LOCAL_PASS；Draft PR精确head CI、人工合并及main CI尚未执行，M2-P009保持锁定。"
   },
   "evidence": {
-    "local": "NOT_EXECUTED",
+    "local": "LOCAL_PASS",
     "ci": "NOT_EXECUTED",
     "staging": "NOT_EXECUTED",
     "device": "NOT_REQUIRED_M2_P008_PC_BROWSER_ONLY",
