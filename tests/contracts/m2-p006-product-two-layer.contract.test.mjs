@@ -103,7 +103,7 @@ test('M2-P006 OpenAPI keeps ownership and every price field out of supplier prod
   );
 });
 
-test('M2-P006 retains merged-main evidence after M2-P007 starts locally', async () => {
+test('M2-P006 and M2-P007 retain merged-main evidence after M2-P008 starts locally', async () => {
   const [tasks, p0Rows, stages, projectStatus, contract, handoff] = await Promise.all([
     readCsv('03-任务台账.csv'),
     readCsv('04-P0-1至P0-119验收矩阵.csv'),
@@ -130,17 +130,17 @@ test('M2-P006 retains merged-main evidence after M2-P007 starts locally', async 
   assert.equal(m2p006.Branch, 'codex/m2-product-model');
   assert.equal(m2p006.CI, 'CI_PASS');
   assert.equal(m2p007.Status, 'DONE');
-  assert.equal(m2p007.EvidenceStatus, 'LOCAL_PASS');
+  assert.equal(m2p007.EvidenceStatus, 'CI_PASS');
   assert.equal(p0006.CurrentEvidenceStatus, 'CI_PASS');
   assert.equal(m2.Status, 'IN_PROGRESS');
   assert.equal(m2.EvidenceStatus, 'LOCAL_PASS');
 
-  assert.equal(projectStatus.execution.currentTask, 'M2-P007');
-  assert.equal(projectStatus.execution.nextAllowedTask, 'M2-P007');
+  assert.equal(projectStatus.execution.currentTask, 'M2-P008');
+  assert.equal(projectStatus.execution.nextAllowedTask, 'M2-P008');
   assert.equal(projectStatus.execution.lastCompletedTask, 'M2-P007');
-  assert.equal(projectStatus.github.currentTaskDelivery.taskId, 'M2-P007');
+  assert.equal(projectStatus.github.currentTaskDelivery.taskId, 'M2-P008');
   assert.equal(projectStatus.github.currentTaskDelivery.pullRequestState, 'NOT_CREATED');
-  assert.equal(projectStatus.github.currentTaskDelivery.m2p008StartAllowed, false);
+  assert.equal(projectStatus.github.currentTaskDelivery.m2p009StartAllowed, false);
   assert.equal(projectStatus.evidence.ci, 'NOT_EXECUTED');
 
   for (const evidence of [contract, handoff]) {
