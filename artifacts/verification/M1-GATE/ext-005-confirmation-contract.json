@@ -1,0 +1,163 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "M1-GATE-EXT005-CONTRACT",
+  "stage": "M1",
+  "status": "LOCAL_PASS",
+  "stageConclusion": "BLOCKED_EXTERNAL",
+  "generatedAt": "2026-08-09T03:37:29.2959056Z",
+  "baseline": {
+    "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+    "verification": "PASS"
+  },
+  "candidate": {
+    "repository": "EasyStep-lee/flt1",
+    "baseBranch": "main",
+    "baseSha": "4ff02588379b1928448826d9f83b863c8c8b5bd8",
+    "branch": "codex/m1-m1-gate",
+    "pullRequest": 34,
+    "pullRequestStateAtCapture": "DRAFT_OPEN",
+    "previousHeadSha": "0d39fdcdedb892d7d929554ddea4b54817ccc447",
+    "nextHeadCi": "NOT_EXECUTED_AT_CAPTURE"
+  },
+  "scope": {
+    "goal": "Provide a machine-verifiable, redacted receipt contract for authorized EXT-005 confirmation without storing source documents or changing the external evidence state.",
+    "nonGoals": [
+      "Do not confirm company documents on behalf of authorized personnel.",
+      "Do not mark EXT-005 as provided.",
+      "Do not pass M1 or unlock M2.",
+      "Do not add a database schema, migration, API, page, permission or external integration."
+    ]
+  },
+  "files": {
+    "schema": "docs/contracts/m1/ext-005-company-confirmation.schema.json",
+    "template": "docs/templates/ext-005-company-confirmation.template.json",
+    "runbook": "docs/runbooks/m1-ext-005-company-confirmation.md",
+    "validator": "scripts/verify-ext-005-company-confirmation.mjs",
+    "test": "tests/handoffs/m1-ext-005-company-confirmation.contract.test.mjs"
+  },
+  "contract": {
+    "acceptedDependencyId": "EXT-005",
+    "acceptedStatus": "CONFIRMED",
+    "legalName": "江苏福礼团供应链科技有限公司",
+    "authorizedRole": "COMPANY_AUTHORIZED_REVIEWER",
+    "allowedIdentityScheme": "identity://controlled/",
+    "allowedEvidenceSchemes": [
+      "vault://controlled/",
+      "dms://controlled/",
+      "object://controlled/"
+    ],
+    "requiresMaskedCustomerService": true,
+    "rejectsUnknownFields": true,
+    "rejectsSensitivePayloads": true,
+    "cliEchoesControlledReferences": false
+  },
+  "externalEvidence": {
+    "dependencyId": "EXT-005",
+    "status": "NOT_PROVIDED",
+    "blocksFormalAcceptance": true,
+    "templateIsEvidence": false,
+    "validatorPassIsHumanConfirmation": false,
+    "requiredHumanAction": "An authorized reviewer must inspect source records in controlled storage and provide a validated redacted receipt."
+  },
+  "tdd": {
+    "red": {
+      "command": "node --test ./tests/handoffs/m1-ext-005-company-confirmation.contract.test.mjs",
+      "testsFailed": 4,
+      "exitCode": 1,
+      "reason": "The validator, schema, template and runbook did not exist."
+    },
+    "green": {
+      "command": "node --test ./tests/handoffs/m1-ext-005-company-confirmation.contract.test.mjs",
+      "testsPassed": 4,
+      "exitCode": 0
+    },
+    "evidenceRed": {
+      "testsPassed": 4,
+      "testsFailed": 1,
+      "exitCode": 1,
+      "reason": "The machine evidence and slice handoff did not exist."
+    }
+  },
+  "verification": {
+    "focused": {
+      "status": "PASS",
+      "testsPassed": 5
+    },
+    "handoff": {
+      "command": "pnpm test:m0-handoff",
+      "status": "PASS",
+      "testsPassed": 20
+    },
+    "m1Contract": {
+      "command": "pnpm test:m1-contract",
+      "status": "PASS",
+      "testsPassed": 37
+    },
+    "executionPack": {
+      "status": "PASS"
+    },
+    "firstFullRun": {
+      "command": "pnpm verify -- --base-ref 4ff02588379b1928448826d9f83b863c8c8b5bd8",
+      "startedAt": "2026-08-09T03:06:47.6220356Z",
+      "endedAt": "2026-08-09T03:16:18.4329962Z",
+      "status": "FAIL",
+      "exitCode": 1,
+      "failureStep": "migration-rehearsal",
+      "failureCode": "DOCKER_ENGINE_UNAVAILABLE"
+    },
+    "migrationRetry": {
+      "command": "pnpm prisma:migrate:dry-run",
+      "startedAt": "2026-08-09T03:26:55.7515815Z",
+      "endedAt": "2026-08-09T03:28:24.8839408Z",
+      "status": "PASS",
+      "exitCode": 0,
+      "empty": 2,
+      "upgrade": 2,
+      "restore": 2,
+      "productMigrations": 11,
+      "cleanup": "PASS"
+    },
+    "finalFullRun": {
+      "command": "pnpm verify -- --base-ref 4ff02588379b1928448826d9f83b863c8c8b5bd8",
+      "startedAt": "2026-08-09T03:28:49.4222835Z",
+      "endedAt": "2026-08-09T03:37:29.2959056Z",
+      "status": "PASS_17_OF_17",
+      "exitCode": 0,
+      "p0E2ePassed": 24,
+      "publishedMigrations": 11,
+      "productMigrations": 11,
+      "migrationCleanup": "PASS",
+      "secretScanTrackedFiles": 515,
+      "capturedBeforeEvidenceFiles": true
+    },
+    "postEvidenceSecretScan": {
+      "command": "pnpm secrets:scan",
+      "status": "PASS",
+      "trackedFiles": 522
+    }
+  },
+  "environment": {
+    "local": "LOCAL_PASS",
+    "pullRequestExactHeadCi": "NOT_EXECUTED_AT_CAPTURE",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_REQUIRED_M1_PC_WEB",
+    "production": "NOT_EXECUTED"
+  },
+  "decision": {
+    "stagePassed": false,
+    "stageConclusion": "BLOCKED_EXTERNAL",
+    "nextAllowedTask": "M1-GATE",
+    "m2Unlocked": false,
+    "requiredActions": [
+      "An authorized reviewer validates source records and supplies a redacted receipt.",
+      "Run the validator without placing source documents or secrets in the repository or chat.",
+      "Update gate evidence and obtain exact-head CI on the validated receipt.",
+      "Obtain explicit user authorization before Ready or merge, then verify post-merge main CI."
+    ]
+  },
+  "rollback": {
+    "application": "Revert the follow-up EXT-005 contract commit through the existing reviewed Draft PR; do not rewrite history.",
+    "database": "No schema or migration change.",
+    "externalState": "Docker Desktop was started locally for verification; no volume was deleted and no external business state changed."
+  }
+}
