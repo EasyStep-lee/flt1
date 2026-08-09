@@ -92,6 +92,7 @@ const createFixture = async ({ auditFail = false } = {}) => {
     logger: false,
   });
   await app.init();
+  await app.listen(0, '127.0.0.1');
   return { actor, app, audit, repository };
 };
 
