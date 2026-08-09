@@ -139,7 +139,10 @@ test('M2-P006 and M2-P007 retain merged-main evidence after M2-P008 starts local
   assert.equal(projectStatus.execution.nextAllowedTask, 'M2-P008');
   assert.equal(projectStatus.execution.lastCompletedTask, 'M2-P008');
   assert.equal(projectStatus.github.currentTaskDelivery.taskId, 'M2-P008');
-  assert.equal(projectStatus.github.currentTaskDelivery.pullRequestState, 'NOT_CREATED');
+  assert.equal(projectStatus.github.currentTaskDelivery.pullRequest, 42);
+  assert.equal(projectStatus.github.currentTaskDelivery.pullRequestState, 'DRAFT');
+  assert.equal(projectStatus.github.currentTaskDelivery.exactHeadCi, 'NOT_EXECUTED');
+  assert.equal(projectStatus.github.currentTaskDelivery.merge, 'NOT_EXECUTED');
   assert.equal(projectStatus.github.currentTaskDelivery.m2p009StartAllowed, false);
   assert.equal(projectStatus.evidence.ci, 'NOT_EXECUTED');
 

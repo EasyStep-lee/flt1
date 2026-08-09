@@ -48,7 +48,7 @@ test('M2-P007 OpenAPI keeps material and initial-price review DTOs and roles sep
   );
 });
 
-test('M2-P007 retains local evidence after exact-head CI, merge and M2-P008 takeover', async () => {
+test('M2-P007 retains local evidence after exact-head CI, merge and M2-P008 Draft PR takeover', async () => {
   const [state, taskLedger, p0Ledger, apiLedger, pageLedger, evidence, handoff] =
     await Promise.all([
       readFile(path.join(pack, '16-项目状态.json'), 'utf8').then(JSON.parse),
@@ -64,7 +64,10 @@ test('M2-P007 retains local evidence after exact-head CI, merge and M2-P008 take
   assert.equal(state.execution.nextAllowedTask, 'M2-P008');
   assert.equal(state.execution.lastCompletedTask, 'M2-P008');
   assert.ok([0, 1].includes(state.execution.activeTaskCount));
-  assert.equal(state.github.currentTaskDelivery.pullRequestState, 'NOT_CREATED');
+  assert.equal(state.github.currentTaskDelivery.pullRequest, 42);
+  assert.equal(state.github.currentTaskDelivery.pullRequestState, 'DRAFT');
+  assert.equal(state.github.currentTaskDelivery.exactHeadCi, 'NOT_EXECUTED');
+  assert.equal(state.github.currentTaskDelivery.merge, 'NOT_EXECUTED');
   assert.equal(state.github.currentTaskDelivery.m2p009StartAllowed, false);
   assert.match(state.evidence.local, /^(?:NOT_EXECUTED|LOCAL_PASS)$/u);
   assert.equal(state.evidence.ci, 'NOT_EXECUTED');

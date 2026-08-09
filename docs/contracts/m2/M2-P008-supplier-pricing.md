@@ -37,5 +37,5 @@
 
 1. 行为 RED：API-022 未接入时提交初始三价失败。
 2. API：职能隔离、供应商隔离、整数分、完整 SKU 集合、幂等/并发、审计回滚、冻结快照。
-3. 页面：PAGE-018 真实读取与提交；覆盖 loading/empty/error/permission/offline/validation/unknown-result/success；PAGE-017 无价格请求和字段。
+3. 页面：PAGE-018 真实读取与提交；覆盖 loading/empty/error/permission/offline/validation/unknown-result/success；未知结果恢复前冻结其他商品提交，确保原 body 和幂等键不被覆盖；PAGE-017 无价格请求和字段。
 4. focused、相关 API/E2E、OpenAPI、迁移演练和 `pnpm verify` 提供新鲜证据。
