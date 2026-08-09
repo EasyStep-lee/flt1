@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "1.1.0",
+  "dependencyId": "EXT-005",
+  "status": "CONFIRMED",
+  "confirmationId": "REPLACE_WITH_EXT_005_CONFIRMATION_ID",
+  "confirmedAt": "REPLACE_WITH_ISO_8601_TIMESTAMP",
+  "confirmedBy": {
+    "authorizedRole": "COMPANY_AUTHORIZED_REVIEWER",
+    "identityRef": "identity://controlled/REPLACE_WITH_OPAQUE_ID"
+  },
+  "customerFacing": {
+    "legalName": "江苏福礼团供应链科技有限公司",
+    "displayName": "REPLACE_WITH_APPROVED_PUBLIC_DISPLAY_NAME",
+    "customerService": {
+      "channel": "PHONE",
+      "redactedDisplay": "REPLACE_WITH_MASKED_CONTACT"
+    },
+    "invoiceTitle": "江苏福礼团供应链科技有限公司"
+  },
+  "controlledEvidence": {
+    "businessLicense": {
+      "storageStatus": "CONTROLLED_STORAGE_CONFIRMED",
+      "referenceStatus": "NO_INTERNAL_IDENTIFIER",
+      "reference": null
+    },
+    "customerService": {
+      "storageStatus": "CONTROLLED_STORAGE_CONFIRMED",
+      "referenceStatus": "NO_INTERNAL_IDENTIFIER",
+      "reference": null
+    },
+    "invoiceProfile": {
+      "storageStatus": "CONTROLLED_STORAGE_CONFIRMED",
+      "referenceStatus": "NO_INTERNAL_IDENTIFIER",
+      "reference": null
+    }
+  },
+  "declarations": {
+    "businessLicenseReviewed": false,
+    "customerFacingNameApproved": false,
+    "customerServiceApproved": false,
+    "invoiceProfileApproved": false,
+    "noSensitiveSourceCommitted": false
+  }
+}

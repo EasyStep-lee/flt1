@@ -1,0 +1,151 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "M1-GATE-EXT005-PROVIDED",
+  "stage": "M1",
+  "status": "LOCAL_PASS",
+  "stageConclusion": "PENDING_EXACT_HEAD_CI_AND_MERGE",
+  "capturedAt": "2026-08-09T00:37:38-04:00",
+  "baseline": {
+    "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+    "baseCommit": "4ff02588379b1928448826d9f83b863c8c8b5bd8",
+    "branch": "codex/m1-m1-gate"
+  },
+  "scope": {
+    "goal": "Accept the authorized redacted EXT-005 confirmation, record absent internal identifiers honestly, and advance only to the exact-head PR gate.",
+    "nonGoals": [
+      "Do not store source documents or complete contact values.",
+      "Do not mark M1 as passed before exact-head PR CI, authorized merge, and post-merge main CI.",
+      "Do not unlock or start M2."
+    ],
+    "p0": [
+      "P0-001",
+      "P0-045",
+      "P0-046"
+    ]
+  },
+  "tdd": {
+    "receiptContractRed": {
+      "command": "node --test tests/handoffs/m1-ext-005-company-confirmation.contract.test.mjs",
+      "testsPassed": 1,
+      "testsFailed": 4,
+      "exitCode": 1,
+      "reason": "The 1.0 validator rejected the new honest NO_INTERNAL_IDENTIFIER representation."
+    },
+    "gateStateRed": {
+      "command": "node --test tests/handoffs/m1-gate-ext-005-provided.contract.test.mjs",
+      "testsPassed": 1,
+      "testsFailed": 2,
+      "exitCode": 1,
+      "reason": "EXT-005 remained NOT_PROVIDED and the provided-state evidence did not exist."
+    }
+  },
+  "externalEvidence": {
+    "dependencyId": "EXT-005",
+    "status": "PROVIDED",
+    "confirmationId": "EXT-005-20260809-A01",
+    "receipt": "artifacts/verification/M1-GATE/ext-005-company-confirmation.json",
+    "approvedBy": "COMPANY_AUTHORIZED_REVIEWER",
+    "controlledStorageConfirmed": true,
+    "internalIdentifierStatus": "NO_INTERNAL_IDENTIFIER",
+    "containsSensitiveSource": false
+  },
+  "verification": {
+    "ext005Receipt": {
+      "command": "pnpm external-evidence:verify:ext005 -- --input artifacts/verification/M1-GATE/ext-005-company-confirmation.json",
+      "status": "PASS",
+      "exitCode": 0
+    },
+    "focused": {
+      "commands": [
+        "node --test tests/handoffs/m1-ext-005-company-confirmation.contract.test.mjs",
+        "node --test tests/handoffs/m1-gate-preflight.contract.test.mjs",
+        "node --test tests/handoffs/m1-gate-ext-005-provided.contract.test.mjs"
+      ],
+      "status": "PASS",
+      "exitCode": 0,
+      "receiptAndGateTestsPassed": 11,
+      "progressionRegressionTestsPassed": 19
+    },
+    "executionPack": {
+      "command": "./福礼社Codex5.6开发执行包V1.1/scripts/verify-execution-pack.ps1",
+      "status": "PASS",
+      "exitCode": 0,
+      "tasks": 149,
+      "p0": 119,
+      "fields": 658,
+      "pages": 80,
+      "permissions": 22,
+      "workbookSha256": "93F1A47C87005392A1B24206EAAB78C46062F453C98F93C2F1164333C9A02782"
+    },
+    "workbook": {
+      "status": "PASS",
+      "engine": "@oai/artifact-tool 2.8.6+",
+      "formulaErrors": 0,
+      "visualRanges": [
+        "外部依赖!A1:N10",
+        "阶段门禁!A1:R4",
+        "任务台账!A27:Y32",
+        "总控看板!A1:L29"
+      ]
+    },
+    "firstFullRun": {
+      "command": "pnpm verify",
+      "startedAt": "2026-08-09T00:21:38.8593103-04:00",
+      "endedAt": "2026-08-09T00:26:03.4443125-04:00",
+      "status": "FAIL",
+      "exitCode": 1,
+      "failedStep": "regression",
+      "passedTests": 30,
+      "failedTests": 7,
+      "failureCode": "STALE_M1_GATE_PROGRESS_ASSERTIONS",
+      "recovery": "Updated only current-progress assertions from zero active tasks/BLOCKED_EXTERNAL to the single active M1-GATE/LOCAL_PASS state; historical task commits and CI assertions remain unchanged."
+    },
+    "full": {
+      "command": "pnpm verify",
+      "startedAt": "2026-08-09T00:27:41.8331378-04:00",
+      "endedAt": "2026-08-09T00:37:38.4593892-04:00",
+      "status": "PASS_17_OF_17",
+      "exitCode": 0,
+      "report": "artifacts/test-results/verification/pnpm-verify.json",
+      "p0E2ePassed": 24,
+      "publishedMigrations": 11,
+      "currentMigrations": 11,
+      "migrationRehearsal": "empty=2:upgrade=2:restore=2:product=11:cleanup=PASS",
+      "secretScanTrackedFiles": 522
+    }
+  },
+  "environment": {
+    "local": "LOCAL_PASS",
+    "ci": "NOT_EXECUTED_CURRENT_HEAD",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_REQUIRED_M1_PC_WEB",
+    "production": "NOT_EXECUTED"
+  },
+  "github": {
+    "repository": "EasyStep-lee/flt1",
+    "issue": 33,
+    "pullRequest": 34,
+    "pullRequestState": "DRAFT",
+    "exactHead": "PENDING_COMMIT",
+    "exactHeadCi": "NOT_EXECUTED",
+    "review": "NOT_EXECUTED",
+    "merge": "NOT_EXECUTED",
+    "mainPostMergeCi": "NOT_EXECUTED"
+  },
+  "risks": [
+    "The authorized reviewer confirmed controlled storage, but the three evidence classes have no internal identifiers; no identifier has been fabricated.",
+    "The redacted receipt is an authorization record and does not replace access-controlled source retention or later legal and financial review.",
+    "The stage remains unpassed until the new exact head completes PR CI, user-authorized merge, and post-merge main CI."
+  ],
+  "rollback": {
+    "application": "Revert the reviewed EXT-005 provided-state commit; do not rewrite public history.",
+    "data": "No database schema, migration, or production data change exists in this slice.",
+    "workbook": "Restore the previous tracked workbook and manifest hash through the same revert."
+  },
+  "decision": {
+    "stagePassed": false,
+    "m2Unlocked": false,
+    "nextAllowedTask": "M1-GATE",
+    "reason": "EXT-005 is provided, but the exact-head PR and merged-main gates are not complete."
+  }
+}

@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:fulishe:schema:m1:ext-005-company-confirmation:1.0.0",
+  "title": "EXT-005 company confirmation receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "dependencyId",
+    "status",
+    "confirmationId",
+    "confirmedAt",
+    "confirmedBy",
+    "customerFacing",
+    "controlledEvidence",
+    "declarations"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.1.0" },
+    "dependencyId": { "const": "EXT-005" },
+    "status": { "const": "CONFIRMED" },
+    "confirmationId": {
+      "type": "string",
+      "pattern": "^EXT-005-[A-Z0-9][A-Z0-9._-]{5,63}$"
+    },
+    "confirmedAt": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,3})?(?:Z|[+-]\\d{2}:\\d{2})$"
+    },
+    "confirmedBy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["authorizedRole", "identityRef"],
+      "properties": {
+        "authorizedRole": { "const": "COMPANY_AUTHORIZED_REVIEWER" },
+        "identityRef": {
+          "type": "string",
+          "pattern": "^identity://controlled/[A-Za-z0-9][A-Za-z0-9._/-]{5,127}$"
+        }
+      }
+    },
+    "customerFacing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "legalName",
+        "displayName",
+        "customerService",
+        "invoiceTitle"
+      ],
+      "properties": {
+        "legalName": { "const": "江苏福礼团供应链科技有限公司" },
+        "displayName": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "invoiceTitle": { "const": "江苏福礼团供应链科技有限公司" },
+        "customerService": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["channel", "redactedDisplay"],
+          "properties": {
+            "channel": {
+              "enum": ["PHONE", "EMAIL", "WECHAT", "OTHER"]
+            },
+            "redactedDisplay": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 96,
+              "pattern": "\\*"
+            }
+          }
+        }
+      }
+    },
+    "controlledEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "businessLicense",
+        "customerService",
+        "invoiceProfile"
+      ],
+      "properties": {
+        "businessLicense": { "$ref": "#/$defs/controlledEvidenceItem" },
+        "customerService": { "$ref": "#/$defs/controlledEvidenceItem" },
+        "invoiceProfile": { "$ref": "#/$defs/controlledEvidenceItem" }
+      }
+    },
+    "declarations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "businessLicenseReviewed",
+        "customerFacingNameApproved",
+        "customerServiceApproved",
+        "invoiceProfileApproved",
+        "noSensitiveSourceCommitted"
+      ],
+      "properties": {
+        "businessLicenseReviewed": { "const": true },
+        "customerFacingNameApproved": { "const": true },
+        "customerServiceApproved": { "const": true },
+        "invoiceProfileApproved": { "const": true },
+        "noSensitiveSourceCommitted": { "const": true }
+      }
+    }
+  },
+  "$defs": {
+    "controlledReference": {
+      "type": "string",
+      "pattern": "^(?:vault|dms|object)://controlled/[A-Za-z0-9][A-Za-z0-9._/-]{5,255}$"
+    },
+    "controlledEvidenceItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["storageStatus", "referenceStatus", "reference"],
+      "properties": {
+        "storageStatus": { "const": "CONTROLLED_STORAGE_CONFIRMED" },
+        "referenceStatus": {
+          "enum": ["REFERENCE_PROVIDED", "NO_INTERNAL_IDENTIFIER"]
+        },
+        "reference": {
+          "oneOf": [
+            { "$ref": "#/$defs/controlledReference" },
+            { "type": "null" }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "referenceStatus": { "const": "REFERENCE_PROVIDED" }
+            }
+          },
+          "then": {
+            "properties": {
+              "reference": { "$ref": "#/$defs/controlledReference" }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "referenceStatus": { "const": "NO_INTERNAL_IDENTIFIER" }
+            }
+          },
+          "then": {
+            "properties": { "reference": { "type": "null" } }
+          }
+        }
+      ]
+    }
+  }
+}

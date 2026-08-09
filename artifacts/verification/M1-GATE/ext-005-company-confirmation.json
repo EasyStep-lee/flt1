@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "1.1.0",
+  "dependencyId": "EXT-005",
+  "status": "CONFIRMED",
+  "confirmationId": "EXT-005-20260809-A01",
+  "confirmedAt": "2026-08-09T00:07:41-04:00",
+  "confirmedBy": {
+    "authorizedRole": "COMPANY_AUTHORIZED_REVIEWER",
+    "identityRef": "identity://controlled/ext005-reviewer-20260809-a01"
+  },
+  "customerFacing": {
+    "legalName": "江苏福礼团供应链科技有限公司",
+    "displayName": "福礼团",
+    "customerService": {
+      "channel": "PHONE",
+      "redactedDisplay": "189****9999"
+    },
+    "invoiceTitle": "江苏福礼团供应链科技有限公司"
+  },
+  "controlledEvidence": {
+    "businessLicense": {
+      "storageStatus": "CONTROLLED_STORAGE_CONFIRMED",
+      "referenceStatus": "NO_INTERNAL_IDENTIFIER",
+      "reference": null
+    },
+    "customerService": {
+      "storageStatus": "CONTROLLED_STORAGE_CONFIRMED",
+      "referenceStatus": "NO_INTERNAL_IDENTIFIER",
+      "reference": null
+    },
+    "invoiceProfile": {
+      "storageStatus": "CONTROLLED_STORAGE_CONFIRMED",
+      "referenceStatus": "NO_INTERNAL_IDENTIFIER",
+      "reference": null
+    }
+  },
+  "declarations": {
+    "businessLicenseReviewed": true,
+    "customerFacingNameApproved": true,
+    "customerServiceApproved": true,
+    "invoiceProfileApproved": true,
+    "noSensitiveSourceCommitted": true
+  }
+}

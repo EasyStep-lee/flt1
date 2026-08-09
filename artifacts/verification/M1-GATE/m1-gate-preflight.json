@@ -1,0 +1,157 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "M1-GATE",
+  "stage": "M1",
+  "generatedAt": "2026-08-08T07:18:38.3465071Z",
+  "status": "BLOCKED_EXTERNAL",
+  "gateConclusion": "BLOCKED",
+  "technicalConclusion": "LOCAL_PASS",
+  "baseline": {
+    "id": "FULISHE-V1.1-2026-08-02",
+    "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+    "verification": "PASS"
+  },
+  "candidate": {
+    "repository": "EasyStep-lee/flt1",
+    "mainSha": "4ff02588379b1928448826d9f83b863c8c8b5bd8",
+    "gateRecord": {
+      "issue": 33,
+      "branch": "codex/m1-m1-gate",
+      "pullRequest": "NOT_CREATED_AT_CAPTURE"
+    },
+    "lastSlice": {
+      "taskId": "M1-P072",
+      "pullRequest": 32,
+      "url": "https://github.com/EasyStep-lee/flt1/pull/32",
+      "headSha": "efb50c01049686ce5acf8463342a53d4e572a7cd",
+      "state": "MERGED",
+      "draft": false,
+      "mergeCommitSha": "4ff02588379b1928448826d9f83b863c8c8b5bd8",
+      "mergedAt": "2026-08-08T04:55:13Z",
+      "issue": 31,
+      "issueState": "CLOSED"
+    }
+  },
+  "stageSlices": [
+    { "taskId": "M1-000", "pullRequest": 7, "headSha": "1ff90871222055002466abd99771fd4fa8161969", "prCiRunId": 30883876592, "mergeCommitSha": "12da44ab2d025bcee4e7791570a2a5c5d046653d", "mainCiRunId": 30884603598 },
+    { "taskId": "M1-P001", "pullRequest": 8, "headSha": "7eb91066846204a18afa20c4c8b4c7b94676dca0", "prCiRunId": 30972862174, "mergeCommitSha": "c2b4bf420d0629b795cdfbdf2c1c4378224d76f7", "mainCiRunId": 30973491201 },
+    { "taskId": "M1-P002", "pullRequest": 9, "headSha": "fb3c7a5e311d4472778eb63f9ef7351182ddc010", "prCiRunId": 30985328986, "mergeCommitSha": "6f0adf8f69ceff30ff5834d6d5377cd2d2d9fd46", "mainCiRunId": 30986393602 },
+    { "taskId": "M1-P003", "pullRequest": 10, "headSha": "d7067a59f1bc66680121d9e2b38e04cb3083dee2", "prCiRunId": 30996623719, "mergeCommitSha": "171e1964edb6d13d39bd529e5e767e8792926272", "mainCiRunId": 30997274654 },
+    { "taskId": "M1-P004", "pullRequest": 12, "headSha": "e8fe7c6bd80ff9a7622aea627b0d9b82eb530e3f", "prCiRunId": 31002208379, "mergeCommitSha": "431576064fb9838d44615d036c5439f2937e3786", "mainCiRunId": 31002976288 },
+    { "taskId": "M1-P005", "pullRequest": 14, "headSha": "2e9846b1872463805c29128414bdfb927b514ad9", "prCiRunId": 31007483633, "mergeCommitSha": "a128a6f6515a8cfb455786ac08ead7340499d85e", "mainCiRunId": 31063510585 },
+    { "taskId": "M1-P045", "pullRequest": 16, "headSha": "91c9a73f17db46d88aaad6590a7a3d39d63c786e", "prCiRunId": 31066656197, "mergeCommitSha": "de6957be6193ffbf86720f4a707b7b6efe1469e5", "mainCiRunId": 31067369336 },
+    { "taskId": "M1-P046", "pullRequest": 18, "headSha": "1dd9074e88e8b1eb16699556648edd6b16ad9a11", "prCiRunId": 31069644893, "mergeCommitSha": "7637fe3ce87ba08860738af847cf1aeeff60c618", "mainCiRunId": 31070163062 },
+    { "taskId": "M1-P047", "pullRequest": 20, "headSha": "2a0791976a8190d7668d98f2bd808e78073582cc", "prCiRunId": 31076242739, "mergeCommitSha": "993184234f930ec3999164ce48668e95dca9368b", "mainCiRunId": 31076692902 },
+    { "taskId": "M1-P066", "pullRequest": 22, "headSha": "4c3e07a359ae2d99f47ed9265730a1d9dd27531c", "prCiRunId": 31084427860, "mergeCommitSha": "1254f710d5849a322c3b5d5c948688444da3fb9f", "mainCiRunId": 31089444537 },
+    { "taskId": "M1-P067", "pullRequest": 24, "headSha": "702aa02b305f96bdc1e02002a108208fc9ac092f", "prCiRunId": 31095481940, "mergeCommitSha": "aa7b9a7a7f8a8b763c1e17c5f471996cc0af9a2e", "mainCiRunId": 31139537997 },
+    { "taskId": "M1-P068", "pullRequest": 26, "headSha": "9c91673bc698083ffaac9df07ba401c75f61e939", "prCiRunId": 31143472876, "mergeCommitSha": "ff8d5ae6d998a2f05ade69f8e220e2ec5a6527b3", "mainCiRunId": 31144798071 },
+    { "taskId": "M1-P069", "pullRequest": 28, "headSha": "c914a5e7d1036e20f6a989f40455c30d9dbe0043", "prCiRunId": 31174016101, "mergeCommitSha": "417d165d0668327af26bbcdadaf7bbd7fdb31471", "mainCiRunId": 31175113225 },
+    { "taskId": "M1-P070", "pullRequest": 30, "headSha": "acadd8b838c4061c8184b12db077a030d0a8e277", "prCiRunId": 31183104823, "mergeCommitSha": "a721d56f1cf6568da35c65db66fdde28d95eddea", "mainCiRunId": 31232556011 },
+    { "taskId": "M1-P072", "pullRequest": 32, "headSha": "efb50c01049686ce5acf8463342a53d4e572a7cd", "prCiRunId": 31239438856, "mergeCommitSha": "4ff02588379b1928448826d9f83b863c8c8b5bd8", "mainCiRunId": 31240531655 }
+  ],
+  "p0": {
+    "mappedCount": 14,
+    "status": "CI_PASS_TECHNICAL_EVIDENCE",
+    "items": [
+      { "p0Id": "P0-001", "status": "CI_PASS", "candidateMainSha": "4ff02588379b1928448826d9f83b863c8c8b5bd8" },
+      { "p0Id": "P0-002", "status": "CI_PASS", "candidateMainSha": "4ff02588379b1928448826d9f83b863c8c8b5bd8" },
+      { "p0Id": "P0-003", "status": "CI_PASS", "candidateMainSha": "4ff02588379b1928448826d9f83b863c8c8b5bd8" },
+      { "p0Id": "P0-004", "status": "CI_PASS", "candidateMainSha": "4ff02588379b1928448826d9f83b863c8c8b5bd8" },
+      { "p0Id": "P0-005", "status": "CI_PASS", "candidateMainSha": "4ff02588379b1928448826d9f83b863c8c8b5bd8" },
+      { "p0Id": "P0-045", "status": "CI_PASS", "candidateMainSha": "4ff02588379b1928448826d9f83b863c8c8b5bd8" },
+      { "p0Id": "P0-046", "status": "CI_PASS", "candidateMainSha": "4ff02588379b1928448826d9f83b863c8c8b5bd8" },
+      { "p0Id": "P0-047", "status": "CI_PASS", "candidateMainSha": "4ff02588379b1928448826d9f83b863c8c8b5bd8" },
+      { "p0Id": "P0-066", "status": "CI_PASS", "candidateMainSha": "4ff02588379b1928448826d9f83b863c8c8b5bd8" },
+      { "p0Id": "P0-067", "status": "CI_PASS", "candidateMainSha": "4ff02588379b1928448826d9f83b863c8c8b5bd8" },
+      { "p0Id": "P0-068", "status": "CI_PASS", "candidateMainSha": "4ff02588379b1928448826d9f83b863c8c8b5bd8" },
+      { "p0Id": "P0-069", "status": "CI_PASS", "candidateMainSha": "4ff02588379b1928448826d9f83b863c8c8b5bd8" },
+      { "p0Id": "P0-070", "status": "CI_PASS", "candidateMainSha": "4ff02588379b1928448826d9f83b863c8c8b5bd8" },
+      { "p0Id": "P0-072", "status": "CI_PASS", "candidateMainSha": "4ff02588379b1928448826d9f83b863c8c8b5bd8" }
+    ]
+  },
+  "evidence": {
+    "lastSlicePullRequestCi": {
+      "status": "CI_PASS",
+      "runId": 31239438856,
+      "jobId": 93057793375,
+      "url": "https://github.com/EasyStep-lee/flt1/actions/runs/31239438856",
+      "headSha": "efb50c01049686ce5acf8463342a53d4e572a7cd",
+      "conclusion": "success"
+    },
+    "candidateMainCi": {
+      "status": "CI_PASS",
+      "runId": 31240531655,
+      "jobId": 93060624824,
+      "url": "https://github.com/EasyStep-lee/flt1/actions/runs/31240531655",
+      "headSha": "4ff02588379b1928448826d9f83b863c8c8b5bd8",
+      "event": "push",
+      "conclusion": "success"
+    },
+    "comments": 0,
+    "reviews": 0,
+    "unresolvedReviewThreads": 0
+  },
+  "technicalChecks": {
+    "failed": [],
+    "baseline": { "status": "PASS" },
+    "executionPack": { "status": "PASS" },
+    "m1Contract": { "status": "PASS", "testsPassed": 37 },
+    "p0E2e": { "status": "PASS", "testsPassed": 24 },
+    "migration": { "status": "PASS", "empty": 2, "upgrade": 2, "restore": 2, "productMigrations": 11, "cleanup": "PASS" },
+    "openapi": { "status": "PASS", "deterministic": true, "breakingChanges": 0 },
+    "fullVerify": { "status": "PASS", "stepsPassed": 17, "baseSha": "4ff02588379b1928448826d9f83b863c8c8b5bd8", "startedAt": "2026-08-08T07:09:58.4740809Z", "endedAt": "2026-08-08T07:18:38.3465071Z" }
+  },
+  "invariants": [
+    { "id": "SINGLE_MERCHANT", "status": "PASS", "evidence": "P0-001/P0-002" },
+    { "id": "SUPPLIER_DATA_SCOPE", "status": "PASS", "evidence": "P0-003/P0-004/P0-069" },
+    { "id": "FUNCTIONAL_WORKSPACE_ISOLATION", "status": "PASS", "evidence": "P0-005/P0-066/P0-067/P0-068/P0-069/P0-070" },
+    { "id": "NATURAL_PERSON_SEPARATION_OF_DUTIES", "status": "PASS", "evidence": "P0-072" },
+    { "id": "SUPERADMIN_NO_BYPASS", "status": "PASS", "evidence": "P0-072" },
+    { "id": "SENSITIVE_RESPONSE_WHITELIST", "status": "PASS", "evidence": "P0-045/P0-046/P0-047/P0-072" }
+  ],
+  "externalItems": {
+    "EXT005": { "status": "NOT_PROVIDED", "blocksStage": true, "requiredAction": "Authorized personnel confirm the company business license, customer-facing name, customer-service details and invoicing details in controlled storage." },
+    "EXT006": { "status": "NOT_PROVIDED", "blocksStage": false, "requiredAction": "Authorized personnel confirm supplier qualification rules and approval owners before formal acceptance." }
+  },
+  "blockers": [
+    {
+      "id": "EXT-005",
+      "status": "NOT_PROVIDED",
+      "blocksStage": true,
+      "reason": "The M1 stage gate explicitly requires authorized confirmation of the company business license, customer-facing name, customer-service details and invoicing details.",
+      "safeBoundary": "Do not place sensitive documents or full personal data in chat; record only redacted confirmation and controlled-storage reference."
+    }
+  ],
+  "knownConstraints": [
+    { "id": "MAIN_BRANCH_PROTECTION_NOT_CONFIGURED", "status": "KNOWN_LIMITATION" },
+    { "id": "PRODUCTION_ENVIRONMENT_REVIEWER_NOT_CONFIGURED", "status": "KNOWN_LIMITATION" },
+    { "id": "ACTIONS_NODE20_RUNTIME_DEPRECATED", "status": "WARN" },
+    { "id": "ADMIN_BUNDLE_SIZE_OVER_500_KB", "status": "WARN" }
+  ],
+  "environment": {
+    "local": "LOCAL_PASS",
+    "candidateMainCi": "CI_PASS",
+    "gateRecordPrCi": "NOT_EXECUTED",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_REQUIRED_M1_PC_WEB",
+    "production": "NOT_EXECUTED"
+  },
+  "decision": {
+    "stagePassed": false,
+    "conclusion": "BLOCKED",
+    "lastPassedGate": "M0-GATE",
+    "nextAllowedTask": "M1-GATE",
+    "m2Unlocked": false,
+    "requiredActions": [
+      "Authorized personnel confirm EXT-005 using redacted metadata and a controlled-storage reference.",
+      "Keep this gate record in Draft while EXT-005 remains NOT_PROVIDED.",
+      "After EXT-005 is satisfied, refresh the exact-head gate evidence; only then may the user authorize Ready and merge.",
+      "Do not start M2 until the final M1-GATE record is merged and its post-merge main CI succeeds."
+    ]
+  },
+  "rollback": {
+    "application": "Revert only the M1-GATE evidence commit through a reviewed PR; do not rewrite public history.",
+    "database": "No schema or migration change in this gate slice.",
+    "externalState": "No external business or production state changed."
+  }
+}

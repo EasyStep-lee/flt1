@@ -89,13 +89,13 @@ test('M1-P046 evidence remains closed after the project advances to P070', async
 
   assert.equal(evidence.status, 'LOCAL_PASS');
   assert.equal(evidence.greenEvidence.fullVerify, 'PASS_17_OF_17');
-  assert.equal(state.execution.lastCompletedTask, 'M1-P070');
-  assert.equal(state.execution.currentTask, 'M1-P072');
-  assert.equal(state.execution.nextAllowedTask, 'M1-P072');
-  assert.ok([0, 1].includes(state.execution.activeTaskCount));
-  assert.equal(state.execution.prohibitedUntilGate.length, 1);
-  assert.match(state.execution.prohibitedUntilGate[0], /M2/u);
+  assert.equal(state.execution.lastCompletedTask, 'M1-P072');
+  assert.equal(state.execution.currentTask, 'M1-GATE');
+  assert.equal(state.execution.nextAllowedTask, 'M1-GATE');
+  assert.equal(state.execution.activeTaskCount, 1);
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2/u);
   assert.match(taskLedger, /M1-P046[^\r\n]*DONE[^\r\n]*CI_PASS/u);
-  assert.match(p0Ledger, /P0-046[^\r\n]*LOCAL_PASS/u);
+  assert.match(taskLedger, /M1-GATE[^\r\n]*IN_PROGRESS[^\r\n]*LOCAL_PASS/u);
+  assert.match(p0Ledger, /P0-046[^\r\n]*CI_PASS/u);
   assert.match(migrationLedger, /MIG-003[^\r\n]*APPLIED_LOCAL/u);
 });
