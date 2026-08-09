@@ -10,6 +10,7 @@ import {
   SupplierRegistrationController,
   SupplierSelfServiceController,
 } from '../supplier-onboarding/supplier-onboarding.controller.js';
+import { SupplierProductController } from '../supplier-products/supplier-product.controller.js';
 
 export const OPENAPI_CONTROLLERS = Object.freeze([
   AuditLogController,
@@ -22,4 +23,5 @@ export const OPENAPI_CONTROLLERS = Object.freeze([
   SupplierRegistrationController,
   SupplierSelfServiceController,
   CompanySupplierOnboardingController,
+  SupplierProductController,
 ]);

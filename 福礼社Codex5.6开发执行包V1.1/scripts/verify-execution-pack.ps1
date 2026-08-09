@@ -55,9 +55,9 @@ $mappedTaskP0 = @($tasks | Where-Object { $_.P0ID -match '^P0-\d{3}$' })
 Assert-Condition ($mappedTaskP0.Count -eq 119) "主P0任务应为119，实际$($mappedTaskP0.Count)"
 Assert-Condition (($mappedTaskP0.P0ID | Sort-Object -Unique).Count -eq 119) '任务台账P0映射不是一对一'
 Assert-Condition (($tasks | Where-Object Status -eq 'IN_PROGRESS').Count -le 1) '同时存在多个IN_PROGRESS任务'
-Assert-Condition (($tasks | Where-Object TaskID -eq 'M0-001').Count -eq 1) '缺少当前任务M0-001'
+Assert-Condition (@($tasks | Where-Object TaskID -eq 'M0-001').Count -eq 1) '缺少任务M0-001'
 foreach ($stage in 'M0','M1','M2','M3','M4','M5','M6') {
-    Assert-Condition (($tasks | Where-Object TaskID -eq "$stage-GATE").Count -eq 1) "缺少阶段门禁：$stage-GATE"
+    Assert-Condition (@($tasks | Where-Object TaskID -eq "$stage-GATE").Count -eq 1) "缺少阶段门禁：$stage-GATE"
 }
 
 $pages = Import-Csv -LiteralPath (Join-Path $PackagePath '08-页面路由接口P0映射.csv')
@@ -214,19 +214,27 @@ if ($projectStatus.execution.lastPassedGate -eq 'M0-GATE') {
 } elseif ($projectStatus.execution.lastPassedGate -eq 'M1-GATE') {
     $m1GateTask = @($tasks | Where-Object TaskID -eq 'M1-GATE')
     $m2StartTask = @($tasks | Where-Object TaskID -eq 'M2-000')
-    $m2FirstTask = @($tasks | Where-Object TaskID -eq 'M2-P006')
-    $laterM2Tasks = @($tasks | Where-Object { $_.Stage -eq 'M2' -and $_.TaskID -notin @('M2-000', 'M2-P006') })
+    $m2BusinessTasks = @($tasks | Where-Object { $_.Stage -eq 'M2' -and $_.TaskID -match '^M2-P[0-9]{3}$' } | Sort-Object { [int]$_.Sequence })
+    $pendingM2Task = @($m2BusinessTasks | Where-Object { $_.Status -ne 'DONE' -or $_.EvidenceStatus -ne 'CI_PASS' -or $_.CI -ne 'CI_PASS' } | Select-Object -First 1)
     $m1StageGate = @($stageGates | Where-Object Stage -eq 'M1')
     $m2StageGate = @($stageGates | Where-Object Stage -eq 'M2')
     $m3StageGate = @($stageGates | Where-Object Stage -eq 'M3')
     Assert-Condition ($m1GateTask.Count -eq 1 -and $m1GateTask[0].Status -eq 'DONE' -and $m1GateTask[0].EvidenceStatus -eq 'CI_PASS' -and $m1GateTask[0].CI -eq 'CI_PASS') 'M1-GATE任务未以CI_PASS完成'
     Assert-Condition ($m1StageGate.Count -eq 1 -and $m1StageGate[0].Status -eq 'GATE_PASSED' -and $m1StageGate[0].EvidenceStatus -eq 'CI_PASS') 'M1阶段门禁台账未通过'
     Assert-Condition ($projectStatus.execution.status -eq 'M2_IN_PROGRESS') 'M2契约冻结后项目状态必须为M2_IN_PROGRESS'
-    Assert-Condition ($projectStatus.execution.currentStage -eq 'M2' -and $projectStatus.execution.currentTask -eq 'M2-P006') 'M2-000完成后只能把M2-P006列为下一任务'
-    Assert-Condition ($m2StartTask.Count -eq 1 -and $m2StartTask[0].Status -eq 'DONE' -and $m2StartTask[0].EvidenceStatus -eq 'LOCAL_PASS' -and $m2StartTask[0].CI -eq 'NOT_EXECUTED') 'M2-000必须如实保持DONE/LOCAL_PASS/NOT_EXECUTED'
-    Assert-Condition ($m2FirstTask.Count -eq 1 -and $m2FirstTask[0].Status -eq 'READY' -and $m2FirstTask[0].EvidenceStatus -eq 'NOT_EXECUTED') 'M2-P006未按READY/NOT_EXECUTED列为下一任务'
-    Assert-Condition (@($laterM2Tasks | Where-Object Status -ne 'NOT_STARTED').Count -eq 0) 'M2-P006之后的切片被提前解锁'
-    Assert-Condition ($m2StageGate.Count -eq 1 -and $m2StageGate[0].Status -eq 'IN_PROGRESS' -and $m2StageGate[0].EvidenceStatus -eq 'NOT_EXECUTED') 'M2阶段未按IN_PROGRESS/NOT_EXECUTED推进'
+    Assert-Condition ($m2StartTask.Count -eq 1 -and $m2StartTask[0].Status -eq 'DONE' -and $m2StartTask[0].EvidenceStatus -eq 'CI_PASS' -and $m2StartTask[0].CI -eq 'CI_PASS') 'M2-000必须以DONE/CI_PASS完成后才能推进业务切片'
+    Assert-Condition ($pendingM2Task.Count -eq 1) 'M2当前未找到唯一待闭环业务切片'
+    if ($pendingM2Task.Count -eq 1) {
+        $pendingSequence = [int]$pendingM2Task[0].Sequence
+        $priorM2Tasks = @($m2BusinessTasks | Where-Object { [int]$_.Sequence -lt $pendingSequence })
+        $laterM2Tasks = @($m2BusinessTasks | Where-Object { [int]$_.Sequence -gt $pendingSequence })
+        Assert-Condition ($projectStatus.execution.currentStage -eq 'M2' -and $projectStatus.execution.currentTask -eq $pendingM2Task[0].TaskID) 'M2当前任务不是按顺序首个未完成GitHub门禁的业务切片'
+        Assert-Condition ($pendingM2Task[0].Status -in @('READY', 'IN_PROGRESS', 'DONE')) 'M2当前任务状态必须为READY、IN_PROGRESS或DONE'
+        Assert-Condition ($pendingM2Task[0].EvidenceStatus -in @('NOT_EXECUTED', 'LOCAL_PASS', 'CI_PASS')) 'M2当前任务证据状态无效'
+        Assert-Condition (@($priorM2Tasks | Where-Object { $_.Status -ne 'DONE' -or $_.EvidenceStatus -ne 'CI_PASS' -or $_.CI -ne 'CI_PASS' }).Count -eq 0) 'M2当前任务之前存在未完成GitHub门禁的切片'
+        Assert-Condition (@($laterM2Tasks | Where-Object Status -ne 'NOT_STARTED').Count -eq 0) 'M2当前任务之后的切片被提前解锁'
+    }
+    Assert-Condition ($m2StageGate.Count -eq 1 -and $m2StageGate[0].Status -eq 'IN_PROGRESS' -and $m2StageGate[0].EvidenceStatus -in @('NOT_EXECUTED', 'LOCAL_PASS')) 'M2阶段未按IN_PROGRESS与真实本地证据推进'
     Assert-Condition ($m3StageGate.Count -eq 1 -and $m3StageGate[0].Status -eq 'LOCKED' -and $m3StageGate[0].EvidenceStatus -eq 'NOT_EXECUTED') 'M3未保持LOCKED/NOT_EXECUTED'
 }
 

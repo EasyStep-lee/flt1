@@ -27,12 +27,14 @@ enum ApprovalType {
   FUNCTIONAL_ACCOUNT_CHANGE
   SENSITIVE_EXPORT
   SUPPLIER_SENSITIVE_CHANGE
+  PRODUCT_MATERIAL
 }
 
 enum ApprovalObjectType {
   SUPPLIER
   FUNCTIONAL_ACCOUNT
   EXPORT_JOB
+  SUPPLIER_PRODUCT
 }
 
 enum ApprovalApplicantType {
@@ -61,6 +63,47 @@ enum ApprovalAccountTypeCode {
   COMPANY_SUPER_ADMIN
   COMPANY_AUDIT
   SUPPLIER_ACCOUNT_ADMIN
+  COMPANY_PRODUCT_OPS
+}
+
+enum SupplierProductStatus {
+  DRAFT
+  PENDING_MATERIAL_REVIEW
+  CORRECTION_REQUIRED
+  MATERIAL_APPROVED
+  ACTIVE
+  OFF_SHELF
+  REJECTED
+  ARCHIVED
+}
+
+enum SupplierProductSkuStatus {
+  DRAFT
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+enum SupplierProductStatusEvent {
+  CREATE
+  UPDATE
+  SUBMIT_MATERIAL
+  APPROVE_MATERIAL
+  ACTIVATE
+  OFF_SHELF
+  ARCHIVE
+}
+
+enum ProductSaleStatus {
+  ACTIVE
+  OFF_SHELF
+  ARCHIVED
+}
+
+enum SkuStatus {
+  ACTIVE
+  INACTIVE
+  ARCHIVED
 }
 
 enum SupplierStatusEvent {
@@ -184,6 +227,7 @@ model Company {
   suppliers          Supplier[]
   users              CompanyUser[]
   functionalAccounts FunctionalAccount[]
+  products           Product[]
 
   @@map("company")
 }
@@ -227,6 +271,8 @@ model Supplier {
   statusHistory           SupplierStatusHistory[]
   users                   SupplierUser[]
   functionalAccounts      FunctionalAccount[]
+  supplierProducts        SupplierProduct[]
+  products                Product[]
 
   @@index([companyId, status], map: "supplier_company_id_status_idx")
   @@map("supplier")
@@ -532,6 +578,134 @@ model SupplierOnboardingCommand {
 
   @@unique([scope, idempotencyKey], map: "supplier_onboarding_command_scope_key")
   @@map("supplier_onboarding_command")
+}
+
+model SupplierProduct {
+  id                             String                         @id @default(uuid()) @db.Char(36)
+  supplierId                     String                         @map("supplier_id") @db.Char(36)
+  categoryId                     String                         @map("category_id") @db.Char(36)
+  templateVersion                Int                            @map("template_version")
+  name                           String                         @db.VarChar(200)
+  brand                          String?                        @db.VarChar(120)
+  attributes                     Json
+  qualificationSnapshot          Json                           @map("qualification_snapshot")
+  isRetailEnabled                Boolean                        @map("is_retail_enabled")
+  isEnterpriseProcurementEnabled Boolean                        @map("is_enterprise_procurement_enabled")
+  enterpriseMinOrderQty          Int                            @map("enterprise_min_order_qty")
+  enterprisePackageMultiple      Int                            @map("enterprise_package_multiple")
+  preparationMinutes             Int                            @map("preparation_minutes")
+  status                         SupplierProductStatus          @default(DRAFT)
+  version                        Int                            @default(0)
+  submittedAt                    DateTime?                      @map("submitted_at") @db.DateTime(3)
+  createdAt                      DateTime                       @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt                      DateTime                       @updatedAt @map("updated_at") @db.DateTime(3)
+  supplier                       Supplier                       @relation(fields: [supplierId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  skus                           SupplierProductSku[]
+  statusHistory                  SupplierProductStatusHistory[]
+  product                        Product?
+
+  @@unique([supplierId, name], map: "supplier_product_supplier_name_key")
+  @@index([supplierId, status], map: "supplier_product_supplier_status_idx")
+  @@index([categoryId, templateVersion, status], map: "supplier_product_category_template_status_idx")
+  @@map("supplier_product")
+}
+
+model SupplierProductSku {
+  id                           String                   @id @default(uuid()) @db.Char(36)
+  supplierProductId            String                   @map("supplier_product_id") @db.Char(36)
+  supplierSkuCode              String                   @map("supplier_sku_code") @db.VarChar(64)
+  attributes                   Json
+  requestedSupplyPrice         Int?                     @map("requested_supply_price")
+  requestedRetailSalePrice     Int?                     @map("requested_retail_sale_price")
+  requestedEnterpriseSalePrice Int?                     @map("requested_enterprise_sale_price")
+  initialStock                 Int                      @map("initial_stock")
+  status                       SupplierProductSkuStatus @default(DRAFT)
+  createdAt                    DateTime                 @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt                    DateTime                 @updatedAt @map("updated_at") @db.DateTime(3)
+  supplierProduct              SupplierProduct          @relation(fields: [supplierProductId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "supplier_product_sku_product_id_fkey")
+  sku                          Sku?
+
+  @@unique([supplierProductId, supplierSkuCode], map: "supplier_product_sku_product_code_key")
+  @@index([supplierProductId, status], map: "supplier_product_sku_product_status_idx")
+  @@map("supplier_product_sku")
+}
+
+model SupplierProductStatusHistory {
+  id                  String                     @id @default(uuid()) @db.Char(36)
+  supplierProductId   String                     @map("supplier_product_id") @db.Char(36)
+  fromStatus          SupplierProductStatus?     @map("from_status")
+  toStatus            SupplierProductStatus      @map("to_status")
+  event               SupplierProductStatusEvent
+  actorIdentityId     String?                    @map("actor_identity_id") @db.Char(36)
+  functionalAccountId String?                    @map("functional_account_id") @db.Char(36)
+  version             Int
+  occurredAt          DateTime                   @default(now()) @map("occurred_at") @db.DateTime(3)
+  supplierProduct     SupplierProduct            @relation(fields: [supplierProductId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "supplier_product_history_product_id_fkey")
+
+  @@unique([supplierProductId, version], map: "supplier_product_history_product_version_key")
+  @@index([supplierProductId, occurredAt], map: "supplier_product_history_product_time_idx")
+  @@map("supplier_product_status_history")
+}
+
+model SupplierProductCommand {
+  id               String   @id @default(uuid()) @db.Char(36)
+  scope            String   @db.VarChar(128)
+  idempotencyKey   String   @map("idempotency_key") @db.VarChar(128)
+  requestHash      String   @map("request_hash") @db.Char(64)
+  responseSnapshot Json     @map("response_snapshot")
+  createdAt        DateTime @default(now()) @map("created_at") @db.DateTime(3)
+
+  @@unique([scope, idempotencyKey], map: "supplier_product_command_scope_key")
+  @@map("supplier_product_command")
+}
+
+model Product {
+  id                             String            @id @default(uuid()) @db.Char(36)
+  companyId                      String            @map("company_id") @db.Char(36)
+  supplierId                     String            @map("supplier_id") @db.Char(36)
+  supplierProductId              String            @unique(map: "product_supplier_product_key") @map("supplier_product_id") @db.Char(36)
+  categoryId                     String            @map("category_id") @db.Char(36)
+  templateVersion                Int               @map("template_version")
+  name                           String            @db.VarChar(200)
+  saleStatus                     ProductSaleStatus @default(ACTIVE) @map("sale_status")
+  isRetailEnabled                Boolean           @map("is_retail_enabled")
+  isEnterpriseProcurementEnabled Boolean           @map("is_enterprise_procurement_enabled")
+  detailSnapshot                 Json              @map("detail_snapshot")
+  afterSaleSnapshot              Json              @map("after_sale_snapshot")
+  deliveryRuleId                 String            @map("delivery_rule_id") @db.Char(36)
+  version                        Int               @default(0)
+  createdAt                      DateTime          @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt                      DateTime          @updatedAt @map("updated_at") @db.DateTime(3)
+  company                        Company           @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  supplier                       Supplier          @relation(fields: [supplierId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  supplierProduct                SupplierProduct   @relation(fields: [supplierProductId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  skus                           Sku[]
+
+  @@index([companyId, saleStatus], map: "product_company_status_idx")
+  @@index([supplierId, saleStatus], map: "product_supplier_status_idx")
+  @@index([categoryId, templateVersion, saleStatus], map: "product_category_template_status_idx")
+  @@map("product")
+}
+
+model Sku {
+  id                         String             @id @default(uuid()) @db.Char(36)
+  productId                  String             @map("product_id") @db.Char(36)
+  supplierProductSkuId       String             @unique(map: "sku_supplier_product_sku_key") @map("supplier_product_sku_id") @db.Char(36)
+  code                       String             @unique @db.VarChar(64)
+  approvedSupplyPrice        Int                @map("approved_supply_price")
+  currentRetailSalePrice     Int                @map("current_retail_sale_price")
+  currentEnterpriseSalePrice Int                @map("current_enterprise_sale_price")
+  supplyPriceVersion         Int                @map("supply_price_version")
+  retailPriceVersion         Int                @map("retail_price_version")
+  enterprisePriceVersion     Int                @map("enterprise_price_version")
+  status                     SkuStatus          @default(ACTIVE)
+  createdAt                  DateTime           @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt                  DateTime           @updatedAt @map("updated_at") @db.DateTime(3)
+  product                    Product            @relation(fields: [productId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  supplierProductSku         SupplierProductSku @relation(fields: [supplierProductSkuId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([productId, status], map: "sku_product_status_idx")
+  @@map("sku")
 }
 
 model AuditLog {
