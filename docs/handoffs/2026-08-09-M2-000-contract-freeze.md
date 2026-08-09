@@ -12,7 +12,8 @@
 - M1-GATE：PR #34 已合并；main CI run `31295823535` / job `93200635788` 成功
 - 当前 Issue：[#35](https://github.com/EasyStep-lee/flt1/issues/35)
 - 当前分支：`codex/m2-contract-freeze`
-- 当前提交/PR/CI：提交和 Draft PR 待本切片完成后登记；CI 为 `NOT_EXECUTED`
+- 实现提交：`25dfc2a56bf6943e12cf30cf05b1323385cd65df`
+- 当前 PR/CI：Draft PR 待发布；当前提交 CI 为 `NOT_EXECUTED`
 - 未解决评论、合并：待创建 PR 后读取；未经用户按精确 head 授权不得合并
 
 ## 实际变更

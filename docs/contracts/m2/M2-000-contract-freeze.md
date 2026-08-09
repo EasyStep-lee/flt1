@@ -4,6 +4,7 @@
 - 基线：`main@162787ae1687116badf0972664005332220976f9`（M1-GATE PR #34 合并后 CI PASS）
 - Issue：[#35](https://github.com/EasyStep-lee/flt1/issues/35)
 - 分支：`codex/m2-contract-freeze`
+- 实现提交：`25dfc2a56bf6943e12cf30cf05b1323385cd65df`
 - 当前证据：`LOCAL_PASS`；当前提交 CI、staging、真机和生产均未执行
 
 ## 唯一目标与完成定义
