@@ -765,7 +765,18 @@ if (mode === '--validate-field-fixture') {
   const generated = `${JSON.stringify(artifact, null, 2)}\n`;
   if (mode === '--check') {
     const committed = await readFile(outputPath, 'utf8');
-    if (committed !== generated) throw new Error('M2_CONTRACT_FREEZE_NOT_DETERMINISTIC');
+    const frozen = JSON.parse(committed);
+    const canonical = `${JSON.stringify(frozen, null, 2)}\n`;
+    if (committed !== canonical) throw new Error('M2_CONTRACT_FREEZE_NOT_CANONICAL');
+    if (frozen.taskId !== 'M2-000' || frozen.status !== 'CONTRACT_FROZEN') {
+      throw new Error('M2_CONTRACT_FREEZE_IDENTITY_INVALID');
+    }
+    validateFields(
+      frozen.fieldContract.entities.flatMap(({ entity, fields }) =>
+        fields.map((field) => ({ entity, ...field })),
+      ),
+    );
+    validatePermissions(frozen.permissionContract.roles);
     process.stdout.write('M2_CONTRACT_FREEZE_CHECK_OK\n');
   } else if (mode === '--write') {
     await mkdir(path.dirname(outputPath), { recursive: true });

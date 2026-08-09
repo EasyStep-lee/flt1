@@ -37,6 +37,8 @@ import type {
 import type { SupplierOnboardingActorResolver } from './supplier-onboarding/supplier-onboarding.actor.js';
 import type { SupplierOnboardingRepository } from './supplier-onboarding/supplier-onboarding.repository.js';
 import type { SupplierRegistrationVerifier } from './supplier-onboarding/supplier-registration.verifier.js';
+import type { SupplierProductActorResolver } from './supplier-products/supplier-product.actor.js';
+import type { SupplierProductRepository } from './supplier-products/supplier-product.repository.js';
 
 type Environment = Readonly<Record<string, string | undefined>>;
 
@@ -62,6 +64,8 @@ export interface CreateApplicationOptions {
   readonly supplierAuthRepository?: SupplierAuthRepository;
   readonly supplierCredentialVerifier?: SupplierCredentialVerifier;
   readonly supplierSecondVerifier?: SupplierSecondVerifier;
+  readonly supplierProductRepository?: SupplierProductRepository;
+  readonly supplierProductActorResolver?: SupplierProductActorResolver;
   readonly logger?: LoggerService | false;
 }
 
@@ -128,6 +132,12 @@ export const createApplication = async (
       : {}),
     ...(options.supplierSecondVerifier
       ? { supplierSecondVerifier: options.supplierSecondVerifier }
+      : {}),
+    ...(options.supplierProductRepository
+      ? { supplierProductRepository: options.supplierProductRepository }
+      : {}),
+    ...(options.supplierProductActorResolver
+      ? { supplierProductActorResolver: options.supplierProductActorResolver }
       : {}),
   };
   const logger = options.logger === false ? false : options.logger ?? new SafeJsonLogger();

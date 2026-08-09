@@ -113,6 +113,18 @@ import {
   UnavailableSupplierRegistrationVerifier,
   type SupplierRegistrationVerifier,
 } from './supplier-onboarding/supplier-registration.verifier.js';
+import {
+  DenySupplierProductActorResolver,
+  SUPPLIER_PRODUCT_ACTOR_RESOLVER,
+  type SupplierProductActorResolver,
+} from './supplier-products/supplier-product.actor.js';
+import { PrismaSupplierProductRepository } from './supplier-products/prisma-supplier-product.repository.js';
+import {
+  SUPPLIER_PRODUCT_REPOSITORY,
+  type SupplierProductRepository,
+} from './supplier-products/supplier-product.repository.js';
+import { SupplierProductService } from './supplier-products/supplier-product.service.js';
+import { SupplierProductSessionActorResolver } from './supplier-products/supplier-product-session-actor.resolver.js';
 
 export interface AppModuleOptions {
   readonly config: RuntimeConfig;
@@ -135,6 +147,8 @@ export interface AppModuleOptions {
   readonly supplierAuthRepository?: SupplierAuthRepository;
   readonly supplierCredentialVerifier?: SupplierCredentialVerifier;
   readonly supplierSecondVerifier?: SupplierSecondVerifier;
+  readonly supplierProductRepository?: SupplierProductRepository;
+  readonly supplierProductActorResolver?: SupplierProductActorResolver;
 }
 
 @Module({})
@@ -182,6 +196,10 @@ export class AppModule {
       UnavailableSupplierCredentialVerifier,
       UnavailableSupplierSecondVerifier,
       SupplierAuthService,
+      PrismaSupplierProductRepository,
+      DenySupplierProductActorResolver,
+      SupplierProductSessionActorResolver,
+      SupplierProductService,
       options.merchantRepository
         ? {
             provide: SINGLE_MERCHANT_REPOSITORY,
@@ -316,6 +334,24 @@ export class AppModule {
         : {
             provide: SUPPLIER_SECOND_VERIFIER,
             useExisting: UnavailableSupplierSecondVerifier,
+          },
+      options.supplierProductRepository
+        ? {
+            provide: SUPPLIER_PRODUCT_REPOSITORY,
+            useValue: options.supplierProductRepository,
+          }
+        : {
+            provide: SUPPLIER_PRODUCT_REPOSITORY,
+            useExisting: PrismaSupplierProductRepository,
+          },
+      options.supplierProductActorResolver
+        ? {
+            provide: SUPPLIER_PRODUCT_ACTOR_RESOLVER,
+            useValue: options.supplierProductActorResolver,
+          }
+        : {
+            provide: SUPPLIER_PRODUCT_ACTOR_RESOLVER,
+            useExisting: SupplierProductSessionActorResolver,
           },
     ];
 

@@ -128,19 +128,21 @@ test('historical EXT-005 evidence stays locked while current state advances only
   ]);
   const m1Gate = tasks.find(({ TaskID }) => TaskID === 'M1-GATE');
   const m2Contract = tasks.find(({ TaskID }) => TaskID === 'M2-000');
+  const m2p006 = tasks.find(({ TaskID }) => TaskID === 'M2-P006');
 
   assert.equal(projectStatus.execution.status, 'M2_IN_PROGRESS');
   assert.equal(projectStatus.execution.currentTask, 'M2-P006');
   assert.equal(projectStatus.execution.nextAllowedTask, 'M2-P006');
   assert.equal(projectStatus.execution.activeTaskCount, 0);
   assert.equal(projectStatus.execution.lastPassedGate, 'M1-GATE');
-  assert.equal(projectStatus.github.currentTaskDelivery.taskId, 'M2-000');
+  assert.equal(projectStatus.github.currentTaskDelivery.taskId, 'M2-P006');
+  assert.equal(projectStatus.github.currentTaskDelivery.issue, 37);
   assert.equal(projectStatus.github.currentTaskDelivery.pullRequest, null);
   assert.equal(projectStatus.github.currentTaskDelivery.status, 'LOCAL_PASS');
   assert.equal(projectStatus.github.currentTaskDelivery.exactHeadCi, 'NOT_EXECUTED');
-  assert.equal(projectStatus.github.currentTaskDelivery.m2p006StartAllowed, false);
-  assert.equal(projectStatus.github.previousTaskDelivery.taskId, 'M1-GATE');
-  assert.equal(projectStatus.github.previousTaskDelivery.pullRequest, 34);
+  assert.equal(projectStatus.github.currentTaskDelivery.m2p007StartAllowed, false);
+  assert.equal(projectStatus.github.previousTaskDelivery.taskId, 'M2-000');
+  assert.equal(projectStatus.github.previousTaskDelivery.pullRequest, 36);
   assert.equal(projectStatus.github.previousTaskDelivery.status, 'CI_PASS');
 
   assert.equal(m1Gate.Status, 'DONE');
@@ -150,8 +152,11 @@ test('historical EXT-005 evidence stays locked while current state advances only
   assert.match(m1Gate.Notes, /f5febff/u);
   assert.match(m1Gate.Notes, /31295823535/u);
   assert.equal(m2Contract.Status, 'DONE');
-  assert.equal(m2Contract.EvidenceStatus, 'LOCAL_PASS');
-  assert.equal(m2Contract.CI, 'NOT_EXECUTED');
+  assert.equal(m2Contract.EvidenceStatus, 'CI_PASS');
+  assert.equal(m2Contract.CI, 'CI_PASS');
+  assert.equal(m2p006.Status, 'DONE');
+  assert.equal(m2p006.EvidenceStatus, 'LOCAL_PASS');
+  assert.equal(m2p006.CI, 'NOT_EXECUTED');
 
   assert.equal(evidence.schemaVersion, '1.0.0');
   assert.equal(evidence.taskId, 'M1-GATE-EXT005-PROVIDED');

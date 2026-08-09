@@ -339,7 +339,7 @@ export function SupplierWorkspacePagePanel({
   );
 }
 
-function FixedSupplierWorkspacePage({
+export function FixedSupplierWorkspacePage({
   workspace,
 }: {
   readonly workspace: SupplierWorkspace;

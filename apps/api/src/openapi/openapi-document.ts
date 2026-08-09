@@ -93,6 +93,15 @@ import {
   SUPPLIER_REGISTRATION_VERIFIER,
   UnavailableSupplierRegistrationVerifier,
 } from '../supplier-onboarding/supplier-registration.verifier.js';
+import {
+  DenySupplierProductActorResolver,
+  SUPPLIER_PRODUCT_ACTOR_RESOLVER,
+} from '../supplier-products/supplier-product.actor.js';
+import {
+  SUPPLIER_PRODUCT_REPOSITORY,
+  type SupplierProductRepository,
+} from '../supplier-products/supplier-product.repository.js';
+import { SupplierProductService } from '../supplier-products/supplier-product.service.js';
 import { OPENAPI_CONTROLLERS } from './openapi-controller.registry.js';
 import {
   applyM1OpenApiContracts,
@@ -277,6 +286,30 @@ type JsonValue =
     {
       provide: FUNCTIONAL_ACCOUNT_AUDIT_SINK,
       useExisting: LoggingFunctionalAccountAuditSink,
+    },
+    SupplierProductService,
+    DenySupplierProductActorResolver,
+    {
+      provide: SUPPLIER_PRODUCT_REPOSITORY,
+      useValue: {
+        createDraft: async () => {
+          throw new Error('OPENAPI_GENERATION_ONLY');
+        },
+        patchDraft: async () => {
+          throw new Error('OPENAPI_GENERATION_ONLY');
+        },
+        submitMaterial: async () => {
+          throw new Error('OPENAPI_GENERATION_ONLY');
+        },
+        materializeApproved: async () => {
+          throw new Error('OPENAPI_GENERATION_ONLY');
+        },
+        findSellableProductBySupplierProductId: async () => null,
+      } satisfies SupplierProductRepository,
+    },
+    {
+      provide: SUPPLIER_PRODUCT_ACTOR_RESOLVER,
+      useExisting: DenySupplierProductActorResolver,
     },
   ],
 })

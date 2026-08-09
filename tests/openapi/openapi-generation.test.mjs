@@ -102,7 +102,7 @@ test('NEG-M1-047-02 OpenAPI generation is byte-stable and ignores runtime infras
   assert.equal(firstTypes.includes(Buffer.from('\r\n')), false, 'types must use LF');
 });
 
-test('generated contract exposes health, merchant identity, supplier onboarding and functional account APIs', () => {
+test('generated contract exposes foundation, identity, onboarding and supplier product APIs', () => {
   const generated = run(pnpm, ['openapi:generate']);
   assertSuccess(generated, 'openapi:generate');
 
@@ -128,6 +128,9 @@ test('generated contract exposes health, merchant identity, supplier onboarding 
     '/v1/supplier-auth/workspaces/{accountId}/select',
     '/v1/supplier/me',
     '/v1/supplier/me/submit-review',
+    '/v1/supplier/products',
+    '/v1/supplier/products/{supplierProductId}',
+    '/v1/supplier/products/{supplierProductId}/submit-material',
     '/v1/suppliers/registrations',
     '/v1/{ownerType}/functional-accounts',
   ]);
@@ -164,6 +167,18 @@ test('generated contract exposes health, merchant identity, supplier onboarding 
   assert.equal(
     spec.paths['/v1/supplier-auth/workspace/page'].get.operationId,
     'supplierauth.workspacePage',
+  );
+  assert.equal(
+    spec.paths['/v1/supplier/products'].post.operationId,
+    'supplierProducts.create',
+  );
+  assert.equal(
+    spec.paths['/v1/supplier/products/{supplierProductId}'].patch.operationId,
+    'supplierProducts.patch',
+  );
+  assert.equal(
+    spec.paths['/v1/supplier/products/{supplierProductId}/submit-material'].post.operationId,
+    'supplierProducts.submitMaterial',
   );
   assert.equal(
     spec.paths['/v1/supplier-auth/workspaces/{accountId}/select'].post.operationId,
@@ -217,6 +232,7 @@ test('generated contract exposes health, merchant identity, supplier onboarding 
       'HealthLivenessDto',
       'HealthReadinessChecksDto',
       'HealthReadinessDto',
+      'ProductMaterialApprovalResponseDto',
       'PublicMerchantProfileQuery',
       'PublicMerchantProfileResponse',
       'PublicMerchantSubjectsDto',
@@ -224,9 +240,15 @@ test('generated contract exposes health, merchant identity, supplier onboarding 
       'SensitiveApprovalPageResponseDto',
       'SensitiveApprovalTaskResponseDto',
       'SessionResponseDto',
+      'SubmitProductMaterialRequestDto',
       'SubmitReviewRequestDto',
       'SupplierLoginRequestDto',
       'SupplierPageResponseDto',
+      'SupplierProductDraftRequestDto',
+      'SupplierProductPatchRequestDto',
+      'SupplierProductResponseDto',
+      'SupplierProductSkuDraftRequestDto',
+      'SupplierProductSkuResponseDto',
       'SupplierProfilePatchRequestDto',
       'SupplierProfileResponseDto',
       'SupplierQualificationSnapshotDto',
@@ -268,6 +290,8 @@ test('generated contract exposes health, merchant identity, supplier onboarding 
   assert.match(generatedTypes, /export interface paths/u);
   assert.match(generatedTypes, /"health\.getLiveness"/u);
   assert.match(generatedTypes, /"publicMerchant\.getProfile"/u);
+  assert.match(generatedTypes, /"supplierProducts\.create"/u);
+  assert.match(generatedTypes, /"supplierProducts\.submitMaterial"/u);
   assert.match(generatedTypes, /"supplierRegistration\.create"/u);
   assert.match(generatedTypes, /"supplierOnboarding\.submitOwnProfile"/u);
   assert.match(generatedTypes, /"companySupplierOnboarding\.review"/u);

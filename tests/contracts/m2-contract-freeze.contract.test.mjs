@@ -313,12 +313,15 @@ test('machine control closes M1 and advances exactly one step beyond M2-000', as
   assert.equal(m1Gate.EvidenceStatus, 'CI_PASS');
   assert.equal(m1Gate.CI, 'CI_PASS');
   assert.equal(m2000.Status, 'DONE');
-  assert.equal(m2000.EvidenceStatus, 'LOCAL_PASS');
+  assert.equal(m2000.EvidenceStatus, 'CI_PASS');
   assert.equal(m2000.GitHubIssue, 'https://github.com/EasyStep-lee/flt1/issues/35');
   assert.equal(m2000.Branch, 'codex/m2-contract-freeze');
-  assert.equal(m2000.CI, 'NOT_EXECUTED');
-  assert.equal(m2p006.Status, 'READY');
-  assert.equal(m2p006.EvidenceStatus, 'NOT_EXECUTED');
+  assert.equal(m2000.CI, 'CI_PASS');
+  assert.equal(m2p006.Status, 'DONE');
+  assert.equal(m2p006.EvidenceStatus, 'LOCAL_PASS');
+  assert.equal(m2p006.GitHubIssue, 'https://github.com/EasyStep-lee/flt1/issues/37');
+  assert.equal(m2p006.Branch, 'codex/m2-product-model');
+  assert.equal(m2p006.CI, 'NOT_EXECUTED');
   assert.equal(laterM2Tasks.every(({ Status }) => Status === 'NOT_STARTED'), true);
 
   const m1Stage = stages.find(({ Stage }) => Stage === 'M1');
@@ -327,7 +330,7 @@ test('machine control closes M1 and advances exactly one step beyond M2-000', as
   assert.equal(m1Stage.Status, 'GATE_PASSED');
   assert.equal(m1Stage.EvidenceStatus, 'CI_PASS');
   assert.equal(m2Stage.Status, 'IN_PROGRESS');
-  assert.equal(m2Stage.EvidenceStatus, 'NOT_EXECUTED');
+  assert.equal(m2Stage.EvidenceStatus, 'LOCAL_PASS');
   assert.equal(m3Stage.Status, 'LOCKED');
 
   assert.equal(projectStatus.execution.status, 'M2_IN_PROGRESS');
@@ -335,7 +338,7 @@ test('machine control closes M1 and advances exactly one step beyond M2-000', as
   assert.equal(projectStatus.execution.currentTask, 'M2-P006');
   assert.equal(projectStatus.execution.nextAllowedTask, 'M2-P006');
   assert.equal(projectStatus.execution.activeTaskCount, 0);
-  assert.equal(projectStatus.execution.lastCompletedTask, 'M2-000');
+  assert.equal(projectStatus.execution.lastCompletedTask, 'M2-P006');
   assert.equal(projectStatus.execution.lastPassedGate, 'M1-GATE');
   assert.equal(projectStatus.evidence.local, 'LOCAL_PASS');
   assert.equal(projectStatus.evidence.ci, 'NOT_EXECUTED');

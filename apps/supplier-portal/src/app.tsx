@@ -29,6 +29,7 @@ import {
   SupplierWorkspaceGate,
   type SupplierWorkspace,
 } from './supplier-workspace-pages.js';
+import { SupplierProductsPage } from './supplier-products-page.js';
 
 type RegistrationResponse = components['schemas']['SupplierRegistrationResponseDto'];
 type SupplierStatus = RegistrationResponse['status'];
@@ -620,7 +621,9 @@ export function SupplierPortalShell() {
         content={
           currentPath === '/supplier/workspaces/audit'
             ? (workspace) => <SupplierAuditPage workspace={workspace} />
-            : undefined
+            : currentPath === '/supplier/workspaces/products'
+              ? (workspace) => <SupplierProductsPage workspace={workspace} />
+              : undefined
         }
         route={currentPath}
       />
