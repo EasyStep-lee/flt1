@@ -89,7 +89,7 @@ test('M1-P046 evidence remains closed after the project advances to P070', async
 
   assert.equal(evidence.status, 'LOCAL_PASS');
   assert.equal(evidence.greenEvidence.fullVerify, 'PASS_17_OF_17');
-  assert.equal(state.execution.lastCompletedTask, 'M2-P007');
+  assert.equal(state.execution.lastCompletedTask, 'M2-P008');
   assert.equal(state.execution.currentTask, 'M2-P008');
   assert.equal(state.execution.nextAllowedTask, 'M2-P008');
   assert.ok([0, 1].includes(state.execution.activeTaskCount));

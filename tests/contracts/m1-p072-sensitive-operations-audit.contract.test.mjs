@@ -56,7 +56,7 @@ test('M1-P072 records natural-person separation and remains closed after the M1 
 
   assert.equal(state.execution.currentTask, 'M2-P008');
   assert.equal(state.execution.nextAllowedTask, 'M2-P008');
-  assert.equal(state.execution.lastCompletedTask, 'M2-P007');
+  assert.equal(state.execution.lastCompletedTask, 'M2-P008');
   assert.equal(state.execution.lastPassedGate, 'M1-GATE');
   assert.equal(state.github.currentTaskDelivery.taskId, 'M2-P008');
   assert.equal(state.github.currentTaskDelivery.issue, 41);

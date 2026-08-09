@@ -360,7 +360,7 @@ test('machine control preserves the M2 freeze while later slices advance one gat
   assert.equal(projectStatus.execution.currentTask, 'M2-P008');
   assert.equal(projectStatus.execution.nextAllowedTask, 'M2-P008');
   assert.ok([0, 1].includes(projectStatus.execution.activeTaskCount));
-  assert.equal(projectStatus.execution.lastCompletedTask, 'M2-P007');
+  assert.equal(projectStatus.execution.lastCompletedTask, 'M2-P008');
   assert.equal(projectStatus.execution.lastPassedGate, 'M1-GATE');
   assert.match(projectStatus.evidence.local, /^(?:NOT_EXECUTED|LOCAL_PASS)$/u);
   assert.equal(projectStatus.evidence.ci, 'NOT_EXECUTED');

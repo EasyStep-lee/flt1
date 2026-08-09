@@ -43,7 +43,7 @@ test('M1-P047 evidence remains closed after PR 20 merge as the project advances'
   assert.equal(evidence.fullVerification.status, 'PASS_17_OF_17');
   assert.equal(evidence.negativeTests.length, 4);
   assert.ok(evidence.negativeTests.every(({ status }) => status === 'PASS'));
-  assert.equal(state.execution.lastCompletedTask, 'M2-P007');
+  assert.equal(state.execution.lastCompletedTask, 'M2-P008');
   assert.equal(state.execution.currentTask, 'M2-P008');
   assert.equal(state.execution.nextAllowedTask, 'M2-P008');
   assert.ok([0, 1].includes(state.execution.activeTaskCount));

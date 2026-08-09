@@ -62,7 +62,7 @@ test('M2-P007 retains local evidence after exact-head CI, merge and M2-P008 take
 
   assert.equal(state.execution.currentTask, 'M2-P008');
   assert.equal(state.execution.nextAllowedTask, 'M2-P008');
-  assert.equal(state.execution.lastCompletedTask, 'M2-P007');
+  assert.equal(state.execution.lastCompletedTask, 'M2-P008');
   assert.ok([0, 1].includes(state.execution.activeTaskCount));
   assert.equal(state.github.currentTaskDelivery.pullRequestState, 'NOT_CREATED');
   assert.equal(state.github.currentTaskDelivery.m2p009StartAllowed, false);

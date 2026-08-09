@@ -265,7 +265,7 @@ test('project status records M1 gate success while historical blocked handoff st
   assert.equal(projectStatus.execution.currentTask, 'M2-P008');
   assert.equal(projectStatus.execution.nextAllowedTask, 'M2-P008');
   assert.match(String(projectStatus.execution.activeTaskCount), /^(?:0|1)$/u);
-  assert.equal(projectStatus.execution.lastCompletedTask, 'M2-P007');
+  assert.equal(projectStatus.execution.lastCompletedTask, 'M2-P008');
   assert.equal(projectStatus.execution.lastPassedGate, 'M1-GATE');
   assert.equal(
     projectStatus.execution.prohibitedUntilGate.some((item) => /M2/u.test(item)),
