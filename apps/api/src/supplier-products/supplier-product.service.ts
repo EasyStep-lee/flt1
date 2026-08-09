@@ -73,12 +73,17 @@ const throwFailure = (kind: SupplierProductFailureKind): never => {
     Exclude<SupplierProductFailureKind, 'PRODUCT_APPROVAL_INCOMPLETE'>,
     readonly [number, ApiErrorCode, string]
   > = {
+    APPROVAL_NOT_FOUND: [404, 'APPROVAL_NOT_FOUND', 'Approval task was not found'],
+    APPROVAL_STATE_INVALID: [409, 'APPROVAL_STATE_INVALID', 'Approval state is invalid'],
+    APPROVAL_VERSION_CONFLICT: [409, 'APPROVAL_VERSION_CONFLICT', 'Approval version changed'],
+    AUDIT_REQUIRED: [503, 'AUDIT_REQUIRED', 'Audit write is required'],
     COMPANY_INVARIANT: [409, 'SINGLE_MERCHANT_VIOLATION', 'Single merchant invariant failed'],
     DUPLICATE: [409, 'SUPPLIER_PRODUCT_DUPLICATE', 'Supplier product already exists'],
     IDEMPOTENCY_CONFLICT: [409, 'IDEMPOTENCY_CONFLICT', 'Idempotency-Key conflicts'],
     NOT_FOUND: [404, 'SUPPLIER_PRODUCT_NOT_FOUND', 'Supplier product was not found'],
     STATE_INVALID: [409, 'STATE_TRANSITION_INVALID', 'Supplier product state is invalid'],
     SUPPLIER_INACTIVE: [403, 'SUPPLIER_INACTIVE', 'Supplier is not active'],
+    SELF_APPROVAL_FORBIDDEN: [403, 'SELF_APPROVAL_FORBIDDEN', 'Self approval is forbidden'],
     VERSION_CONFLICT: [409, 'VERSION_CONFLICT', 'Supplier product version changed'],
   };
   if (kind === 'PRODUCT_APPROVAL_INCOMPLETE') {

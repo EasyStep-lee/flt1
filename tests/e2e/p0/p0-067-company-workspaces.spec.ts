@@ -5,8 +5,8 @@ const companyOrigin = 'http://127.0.0.1:4321';
 const workspaces = [
   ['COMPANY_SUPER_ADMIN', 'PAGE-003', '/company-admin/workspaces/system', '超级管理员', '系统与账号'],
   ['COMPANY_SUPPLIER_OPS', 'PAGE-004', '/company-admin/workspaces/supplier-ops', '供应商运营', '供应商运营', '供应商入驻审核'],
-  ['COMPANY_PRODUCT_OPS', 'PAGE-005', '/company-admin/workspaces/product-ops', '商品与分类运营', '商品与分类'],
-  ['COMPANY_PRICE_REVIEW', 'PAGE-006', '/company-admin/workspaces/price-review', '采购/价格审核', '价格审核'],
+  ['COMPANY_PRODUCT_OPS', 'PAGE-005', '/company-admin/workspaces/product-ops', '商品与分类运营', '商品与分类', '商品资料审核'],
+  ['COMPANY_PRICE_REVIEW', 'PAGE-006', '/company-admin/workspaces/price-review', '采购/价格审核', '价格审核', '初始价格审核'],
   ['COMPANY_ORDER_SERVICE', 'PAGE-007', '/company-admin/workspaces/order-service', '订单客服', '订单客服'],
   ['COMPANY_WELFARE_CARD', 'PAGE-008', '/company-admin/workspaces/welfare-card', '福利卡运营', '福利卡运营'],
   ['COMPANY_FINANCE', 'PAGE-009', '/company-admin/workspaces/finance', '财务结算', '财务结算'],
@@ -47,6 +47,20 @@ test('NEG-M1-067-02 each company workspace renders only its own menu', async ({ 
       contentType: 'application/json',
       status: 200,
       body: JSON.stringify({ items: [], page: 1, pageSize: 20, total: 0 }),
+    });
+  });
+  await page.route('**/v1/company/product-material-reviews**', async (route) => {
+    await route.fulfill({
+      contentType: 'application/json',
+      status: 200,
+      body: JSON.stringify({ items: [], total: 0 }),
+    });
+  });
+  await page.route('**/v1/company/price-reviews**', async (route) => {
+    await route.fulfill({
+      contentType: 'application/json',
+      status: 200,
+      body: JSON.stringify({ items: [], total: 0 }),
     });
   });
 

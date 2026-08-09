@@ -8,11 +8,17 @@ import { COMPANY_LEGAL_NAME, PLATFORM_NAME } from '../merchant/single-merchant.s
 import type { JsonObject } from './supplier-product.policy.js';
 import type {
   CreateSupplierProductCommand,
+  DecideProductApprovalCommand,
+  InitialPriceReviewRecord,
   MaterializeApprovedProductCommand,
   MaterializedProductRecord,
   PatchSupplierProductCommand,
+  ProductApprovalDecisionRecord,
+  ProductMaterialReviewRecord,
   ProductMaterialApprovalRecord,
+  ProductPublicationCandidate,
   SellableProductSummary,
+  StageInitialPricesCommand,
   SubmitSupplierProductCommand,
   SupplierProductMutationResult,
   SupplierProductRecord,
@@ -20,6 +26,20 @@ import type {
 } from './supplier-product.repository.js';
 
 type TransactionClient = Prisma.TransactionClient;
+
+type ApprovalDecisionRollbackKind =
+  | 'APPROVAL_STATE_INVALID'
+  | 'APPROVAL_VERSION_CONFLICT'
+  | 'AUDIT_REQUIRED';
+
+class ApprovalDecisionRollback extends Error {
+  readonly kind: ApprovalDecisionRollbackKind;
+
+  constructor(kind: ApprovalDecisionRollbackKind) {
+    super(kind);
+    this.kind = kind;
+  }
+}
 
 const asInputJson = (value: unknown): Prisma.InputJsonValue => value as Prisma.InputJsonValue;
 const asJsonObject = (value: Prisma.JsonValue, field: string): JsonObject => {
@@ -354,7 +374,37 @@ export class PrismaSupplierProductRepository implements SupplierProductRepositor
           applicantFunctionalAccountId: command.functionalAccountId,
           supplierId: command.supplierId,
           assignedAccountTypeCode: 'COMPANY_PRODUCT_OPS',
-          requestSnapshot: asInputJson({ requestId: command.requestId }),
+          requestSnapshot: asInputJson({
+            requestId: command.requestId,
+            detailSnapshot: {
+              schemaVersion: '1.0',
+              name: current.name,
+              brand: current.brand,
+              attributes: current.attributes,
+              qualificationSnapshot: current.qualificationSnapshot,
+            },
+            afterSaleSnapshot: {
+              schemaVersion: '1.0',
+              policy: 'company-unified-after-sale',
+            },
+            deliveryRuleId: randomUUID(),
+            materialReviewSnapshot: {
+              name: current.name,
+              brand: current.brand,
+              categoryId: current.categoryId,
+              templateVersion: current.templateVersion,
+              attributes: current.attributes,
+              qualificationReferenceCount: qualification(current.qualificationSnapshot).references.length,
+              isRetailEnabled: current.isRetailEnabled,
+              isEnterpriseProcurementEnabled: current.isEnterpriseProcurementEnabled,
+              preparationMinutes: current.preparationMinutes,
+              skus: current.skus.map((sku) => ({
+                id: sku.id,
+                supplierSkuCode: sku.supplierSkuCode,
+                attributes: sku.attributes,
+              })),
+            },
+          }),
           version,
         },
       });
@@ -400,6 +450,444 @@ export class PrismaSupplierProductRepository implements SupplierProductRepositor
       await this.remember(database, scope, command.idempotencyKey, command.requestHash, result);
       return { kind: 'OK', value: result, replayed: false } as const;
     });
+  }
+
+  async stageInitialPrices(
+    command: StageInitialPricesCommand,
+  ): Promise<SupplierProductMutationResult<InitialPriceReviewRecord>> {
+    const scope = `STAGE_INITIAL_PRICES:${command.supplierProductId}`;
+    return this.prisma.$transaction(async (database) => {
+      const replay = await this.replay<InitialPriceReviewRecord>(
+        database,
+        scope,
+        command.idempotencyKey,
+        command.requestHash,
+      );
+      if (replay) return replay;
+      const product = await database.supplierProduct.findUnique({
+        where: { id: command.supplierProductId },
+        include: { skus: true },
+      });
+      if (!product) return { kind: 'NOT_FOUND' } as const;
+      if (product.status !== 'PENDING_MATERIAL_REVIEW') {
+        return { kind: 'STATE_INVALID' } as const;
+      }
+      const priceByCode = new Map(command.prices.map((price) => [price.supplierSkuCode, price]));
+      if (
+        command.prices.length !== product.skus.length ||
+        product.skus.some((sku) => {
+          const price = priceByCode.get(sku.supplierSkuCode);
+          return (
+            !price ||
+            ![
+              price.requestedSupplyPrice,
+              price.requestedRetailSalePrice,
+              price.requestedEnterpriseSalePrice,
+            ].every((value) => Number.isSafeInteger(value) && value >= 0)
+          );
+        })
+      ) {
+        return { kind: 'STATE_INVALID' } as const;
+      }
+      const duplicate = await database.approvalTask.findFirst({
+        where: {
+          approvalType: 'PRODUCT_INITIAL_PRICE',
+          objectType: 'SUPPLIER_PRODUCT',
+          objectId: product.id,
+          status: 'PENDING',
+        },
+        select: { id: true },
+      });
+      if (duplicate) return { kind: 'DUPLICATE' } as const;
+      const prices = product.skus.map((sku) => ({
+        id: sku.id,
+        ...priceByCode.get(sku.supplierSkuCode)!,
+      }));
+      const task = await database.approvalTask.create({
+        data: {
+          approvalType: 'PRODUCT_INITIAL_PRICE',
+          objectType: 'SUPPLIER_PRODUCT',
+          objectId: product.id,
+          applicantType: 'SUPPLIER_USER',
+          applicantId: command.applicantIdentityId,
+          applicantFunctionalAccountId: command.applicantFunctionalAccountId,
+          supplierId: product.supplierId,
+          assignedAccountTypeCode: 'COMPANY_PRICE_REVIEW',
+          requestSnapshot: asInputJson({ name: product.name, prices }),
+          version: 1,
+        },
+      });
+      await database.approvalTaskHistory.create({
+        data: {
+          approvalTaskId: task.id,
+          fromStatus: null,
+          toStatus: 'PENDING',
+          event: 'CREATE',
+          actorType: 'SUPPLIER_USER',
+          actorId: command.applicantIdentityId,
+          functionalAccountId: command.applicantFunctionalAccountId,
+          version: 1,
+        },
+      });
+      const value: InitialPriceReviewRecord = {
+        id: task.id,
+        approvalType: 'PRODUCT_INITIAL_PRICE',
+        supplierId: product.supplierId,
+        supplierProductId: product.id,
+        name: product.name,
+        skus: prices,
+        status: 'PENDING',
+        version: 1,
+        reviewOpinion: null,
+        createdAt: task.createdAt.toISOString(),
+        updatedAt: task.updatedAt.toISOString(),
+      };
+      await this.remember(
+        database,
+        scope,
+        command.idempotencyKey,
+        command.requestHash,
+        value,
+      );
+      return { kind: 'OK', value, replayed: false } as const;
+    });
+  }
+
+  async listMaterialReviews(
+    companyId: string,
+  ): Promise<readonly ProductMaterialReviewRecord[]> {
+    const supplierIds = (
+      await this.prisma.supplier.findMany({
+        where: { companyId },
+        select: { id: true },
+      })
+    ).map(({ id }) => id);
+    const tasks = await this.prisma.approvalTask.findMany({
+      where: {
+        approvalType: 'PRODUCT_MATERIAL',
+        objectType: 'SUPPLIER_PRODUCT',
+        assignedAccountTypeCode: 'COMPANY_PRODUCT_OPS',
+        supplierId: { in: supplierIds },
+      },
+      orderBy: [{ createdAt: 'desc' }, { id: 'asc' }],
+    });
+    return tasks.flatMap((task) => {
+      const snapshot = this.parseMaterialReviewSnapshot(task.requestSnapshot);
+      if (!snapshot || !task.supplierId || !['PENDING', 'APPROVED', 'REJECTED'].includes(task.status)) return [];
+      return [{
+        id: task.id,
+        approvalType: 'PRODUCT_MATERIAL' as const,
+        supplierId: task.supplierId,
+        supplierProductId: task.objectId,
+        ...snapshot,
+        status: task.status as ProductMaterialReviewRecord['status'],
+        version: task.version,
+        reviewOpinion: task.reviewOpinion,
+        createdAt: task.createdAt.toISOString(),
+        updatedAt: task.updatedAt.toISOString(),
+      }];
+    });
+  }
+
+  async listInitialPriceReviews(
+    companyId: string,
+  ): Promise<readonly InitialPriceReviewRecord[]> {
+    const supplierIds = (
+      await this.prisma.supplier.findMany({
+        where: { companyId },
+        select: { id: true },
+      })
+    ).map(({ id }) => id);
+    const tasks = await this.prisma.approvalTask.findMany({
+      where: {
+        approvalType: 'PRODUCT_INITIAL_PRICE',
+        objectType: 'SUPPLIER_PRODUCT',
+        assignedAccountTypeCode: 'COMPANY_PRICE_REVIEW',
+        supplierId: { in: supplierIds },
+      },
+      orderBy: [{ createdAt: 'desc' }, { id: 'asc' }],
+    });
+    const products = await this.prisma.supplierProduct.findMany({
+      where: { id: { in: tasks.map(({ objectId }) => objectId) }, supplier: { companyId } },
+      select: { id: true, name: true, supplierId: true },
+    });
+    const productById = new Map(products.map((product) => [product.id, product]));
+    return tasks.flatMap((task) => {
+      const snapshot = this.parseInitialPriceSnapshot(task.requestSnapshot);
+      const product = productById.get(task.objectId);
+      if (!product || !snapshot || !['PENDING', 'APPROVED', 'REJECTED'].includes(task.status)) return [];
+      return [{
+        id: task.id,
+        approvalType: 'PRODUCT_INITIAL_PRICE' as const,
+        supplierId: product.supplierId,
+        supplierProductId: product.id,
+        name: snapshot.name,
+        skus: snapshot.prices,
+        status: task.status as InitialPriceReviewRecord['status'],
+        version: task.version,
+        reviewOpinion: task.reviewOpinion,
+        createdAt: task.createdAt.toISOString(),
+        updatedAt: task.updatedAt.toISOString(),
+      }];
+    });
+  }
+
+  async decideProductApproval(
+    command: DecideProductApprovalCommand,
+  ): Promise<SupplierProductMutationResult<ProductApprovalDecisionRecord>> {
+    const scope = `PRODUCT_APPROVAL_DECISION:${command.taskId}`;
+    let result: SupplierProductMutationResult<ProductApprovalDecisionRecord>;
+    try {
+      result = await this.prisma.$transaction(async (database) => {
+        const replay = await this.replayApproval<ProductApprovalDecisionRecord>(
+          database,
+          scope,
+          command.idempotencyKey,
+          command.requestHash,
+        );
+        if (replay) return replay;
+        const task = await database.approvalTask.findUnique({ where: { id: command.taskId } });
+        if (!task || task.approvalType !== command.approvalType) {
+          return { kind: 'APPROVAL_NOT_FOUND' } as const;
+        }
+        const requiredAccountType =
+          command.approvalType === 'PRODUCT_MATERIAL'
+            ? 'COMPANY_PRODUCT_OPS'
+            : 'COMPANY_PRICE_REVIEW';
+        if (task.assignedAccountTypeCode !== requiredAccountType || !task.supplierId) {
+          return { kind: 'APPROVAL_NOT_FOUND' } as const;
+        }
+        const owner = await database.supplier.findFirst({
+          where: { id: task.supplierId, companyId: command.companyId },
+          select: { id: true },
+        });
+        if (!owner) return { kind: 'APPROVAL_NOT_FOUND' } as const;
+        if (task.version !== command.expectedVersion) {
+          return { kind: 'APPROVAL_VERSION_CONFLICT' } as const;
+        }
+        if (task.status !== 'PENDING') return { kind: 'APPROVAL_STATE_INVALID' } as const;
+        if (task.applicantId === command.actorIdentityId) {
+          return { kind: 'SELF_APPROVAL_FORBIDDEN' } as const;
+        }
+        const product = await database.supplierProduct.findUnique({
+          where: { id: task.objectId },
+          include: { skus: true },
+        });
+        if (!product) return { kind: 'APPROVAL_NOT_FOUND' } as const;
+        if (
+          (command.approvalType === 'PRODUCT_MATERIAL' &&
+            product.status !== 'PENDING_MATERIAL_REVIEW') ||
+          (command.approvalType === 'PRODUCT_INITIAL_PRICE' &&
+            !['PENDING_MATERIAL_REVIEW', 'MATERIAL_APPROVED'].includes(product.status))
+        ) {
+          return { kind: 'APPROVAL_STATE_INVALID' } as const;
+        }
+        const initialPriceSnapshot =
+          command.approvalType === 'PRODUCT_INITIAL_PRICE' && command.decision === 'APPROVE'
+            ? this.parseInitialPriceSnapshot(task.requestSnapshot)
+            : null;
+        if (
+          command.approvalType === 'PRODUCT_INITIAL_PRICE' &&
+          command.decision === 'APPROVE' &&
+          (!initialPriceSnapshot ||
+            initialPriceSnapshot.prices.length !== product.skus.length ||
+            initialPriceSnapshot.prices.some(
+              (price) =>
+                !product.skus.some(
+                  (sku) =>
+                    sku.id === price.id && sku.supplierSkuCode === price.supplierSkuCode,
+                ),
+            ))
+        ) {
+          return { kind: 'APPROVAL_STATE_INVALID' } as const;
+        }
+        const nextStatus = command.decision === 'APPROVE' ? 'APPROVED' : 'REJECTED';
+        const updateTask = await database.approvalTask.updateMany({
+          where: { id: task.id, status: 'PENDING', version: command.expectedVersion },
+          data: {
+            status: nextStatus,
+            reviewedByType: 'COMPANY_USER',
+            reviewedBy: command.actorIdentityId,
+            reviewerFunctionalAccountId: command.functionalAccountId,
+            reviewOpinion: command.opinion,
+            version: { increment: 1 },
+          },
+        });
+        if (updateTask.count !== 1) {
+          throw new ApprovalDecisionRollback('APPROVAL_VERSION_CONFLICT');
+        }
+
+        if (command.approvalType === 'PRODUCT_MATERIAL') {
+          const nextProductStatus =
+            command.decision === 'APPROVE' ? 'MATERIAL_APPROVED' : 'CORRECTION_REQUIRED';
+          const updateProduct = await database.supplierProduct.updateMany({
+            where: {
+              id: product.id,
+              status: 'PENDING_MATERIAL_REVIEW',
+              version: product.version,
+            },
+            data: { status: nextProductStatus, version: { increment: 1 } },
+          });
+          if (updateProduct.count !== 1) {
+            throw new ApprovalDecisionRollback('APPROVAL_VERSION_CONFLICT');
+          }
+          await database.supplierProductStatusHistory.create({
+            data: {
+              supplierProductId: product.id,
+              fromStatus: 'PENDING_MATERIAL_REVIEW',
+              toStatus: nextProductStatus,
+              event: command.decision === 'APPROVE' ? 'APPROVE_MATERIAL' : 'UPDATE',
+              actorIdentityId: command.actorIdentityId,
+              functionalAccountId: command.functionalAccountId,
+              version: product.version + 1,
+            },
+          });
+        } else if (initialPriceSnapshot) {
+          for (const price of initialPriceSnapshot.prices) {
+            const updated = await database.supplierProductSku.updateMany({
+              where: {
+                id: price.id,
+                supplierProductId: product.id,
+                supplierSkuCode: price.supplierSkuCode,
+              },
+              data: {
+                requestedSupplyPrice: price.requestedSupplyPrice,
+                requestedRetailSalePrice: price.requestedRetailSalePrice,
+                requestedEnterpriseSalePrice: price.requestedEnterpriseSalePrice,
+              },
+            });
+            if (updated.count !== 1) {
+              throw new ApprovalDecisionRollback('APPROVAL_STATE_INVALID');
+            }
+          }
+        }
+        await database.approvalTaskHistory.create({
+          data: {
+            approvalTaskId: task.id,
+            fromStatus: 'PENDING',
+            toStatus: nextStatus,
+            event: command.decision,
+            actorType: 'COMPANY_USER',
+            actorId: command.actorIdentityId,
+            functionalAccountId: command.functionalAccountId,
+            opinion: command.opinion,
+            version: task.version + 1,
+          },
+        });
+        try {
+          await database.auditLog.create({
+            data: {
+              actorType: 'COMPANY_USER',
+              actorId: command.actorIdentityId,
+              supplierId: task.supplierId,
+              functionalAccountId: command.functionalAccountId,
+              action:
+                command.approvalType === 'PRODUCT_MATERIAL'
+                  ? 'PRODUCT_MATERIAL_REVIEW_DECIDED'
+                  : 'PRODUCT_INITIAL_PRICE_REVIEW_DECIDED',
+              objectType: 'APPROVAL_TASK',
+              objectId: task.id,
+              beforeSnapshot: asInputJson({ status: task.status, version: task.version }),
+              afterSnapshot: asInputJson({
+                decision: command.decision,
+                status: nextStatus,
+                version: task.version + 1,
+              }),
+              requestId: command.requestId,
+              ip: command.ip,
+            },
+          });
+        } catch {
+          throw new ApprovalDecisionRollback('AUDIT_REQUIRED');
+        }
+        const value: ProductApprovalDecisionRecord = {
+          id: task.id,
+          approvalType: command.approvalType,
+          supplierProductId: product.id,
+          status: nextStatus,
+          version: task.version + 1,
+          reviewOpinion: command.opinion,
+        };
+        await this.rememberApproval(
+          database,
+          scope,
+          command.idempotencyKey,
+          command.requestHash,
+          value,
+        );
+        return { kind: 'OK', value, replayed: false } as const;
+      });
+    } catch (error) {
+      if (error instanceof ApprovalDecisionRollback) {
+        result = { kind: error.kind };
+      } else {
+        const replay = await this.replayApproval<ProductApprovalDecisionRecord>(
+          this.prisma,
+          scope,
+          command.idempotencyKey,
+          command.requestHash,
+        );
+        if (replay) return replay;
+        throw error;
+      }
+    }
+    if (result.kind === 'APPROVAL_VERSION_CONFLICT') {
+      const replay = await this.replayApproval<ProductApprovalDecisionRecord>(
+        this.prisma,
+        scope,
+        command.idempotencyKey,
+        command.requestHash,
+      );
+      if (replay) return replay;
+    }
+    return result;
+  }
+
+  async resolvePublicationCandidate(
+    supplierProductId: string,
+  ): Promise<ProductPublicationCandidate | null> {
+    const [product, tasks] = await Promise.all([
+      this.prisma.supplierProduct.findUnique({
+        where: { id: supplierProductId },
+        include: { skus: true },
+      }),
+      this.prisma.approvalTask.findMany({
+        where: {
+          objectType: 'SUPPLIER_PRODUCT',
+          objectId: supplierProductId,
+          approvalType: { in: ['PRODUCT_MATERIAL', 'PRODUCT_INITIAL_PRICE'] },
+          status: 'APPROVED',
+        },
+      }),
+    ]);
+    const material = tasks.find(({ approvalType }) => approvalType === 'PRODUCT_MATERIAL');
+    const price = tasks.find(({ approvalType }) => approvalType === 'PRODUCT_INITIAL_PRICE');
+    if (
+      !product ||
+      product.status !== 'MATERIAL_APPROVED' ||
+      !material ||
+      !price ||
+      product.skus.some(
+        (sku) =>
+          sku.requestedSupplyPrice === null ||
+          sku.requestedRetailSalePrice === null ||
+          sku.requestedEnterpriseSalePrice === null,
+      )
+    ) {
+      return null;
+    }
+    const snapshot = this.parseMaterialPublicationSnapshot(material.requestSnapshot);
+    if (!snapshot) return null;
+    return {
+      supplierProductId,
+      materialVersion: product.version,
+      priceVersion: price.version,
+      idempotencyKey: `approval-materialize:${supplierProductId}:${material.version}:${price.version}`,
+      requestHash: '',
+      detailSnapshot: snapshot.detailSnapshot,
+      afterSaleSnapshot: snapshot.afterSaleSnapshot,
+      deliveryRuleId: snapshot.deliveryRuleId,
+    };
   }
 
   async materializeApproved(
@@ -540,6 +1028,166 @@ export class PrismaSupplierProductRepository implements SupplierProductRepositor
           skuCount: product._count.skus,
         }
       : null;
+  }
+
+  private parseInitialPriceSnapshot(value: Prisma.JsonValue | null): {
+    readonly name: string;
+    readonly prices: InitialPriceReviewRecord['skus'];
+  } | null {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+    const source = value as Record<string, Prisma.JsonValue>;
+    const prices = source.prices;
+    if (typeof source.name !== 'string' || !Array.isArray(prices)) return null;
+    const parsed = prices.map((candidate) => {
+      if (!candidate || typeof candidate !== 'object' || Array.isArray(candidate)) return null;
+      const row = candidate as Record<string, Prisma.JsonValue>;
+      if (
+        typeof row.id !== 'string' ||
+        typeof row.supplierSkuCode !== 'string' ||
+        !Number.isSafeInteger(row.requestedSupplyPrice) ||
+        !Number.isSafeInteger(row.requestedRetailSalePrice) ||
+        !Number.isSafeInteger(row.requestedEnterpriseSalePrice) ||
+        Number(row.requestedSupplyPrice) < 0 ||
+        Number(row.requestedRetailSalePrice) < 0 ||
+        Number(row.requestedEnterpriseSalePrice) < 0
+      ) {
+        return null;
+      }
+      return {
+        id: row.id,
+        supplierSkuCode: row.supplierSkuCode,
+        requestedSupplyPrice: Number(row.requestedSupplyPrice),
+        requestedRetailSalePrice: Number(row.requestedRetailSalePrice),
+        requestedEnterpriseSalePrice: Number(row.requestedEnterpriseSalePrice),
+      };
+    });
+    if (parsed.some((row) => row === null)) return null;
+    return { name: source.name, prices: parsed as InitialPriceReviewRecord['skus'] };
+  }
+
+  private parseMaterialReviewSnapshot(
+    value: Prisma.JsonValue | null,
+  ): Omit<
+    ProductMaterialReviewRecord,
+    | 'approvalType'
+    | 'createdAt'
+    | 'id'
+    | 'reviewOpinion'
+    | 'status'
+    | 'supplierId'
+    | 'supplierProductId'
+    | 'updatedAt'
+    | 'version'
+  > | null {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+    const root = value as Record<string, Prisma.JsonValue>;
+    const candidate = root.materialReviewSnapshot;
+    if (!candidate || typeof candidate !== 'object' || Array.isArray(candidate)) return null;
+    const row = candidate as Record<string, Prisma.JsonValue>;
+    if (
+      typeof row.name !== 'string' ||
+      !(row.brand === null || typeof row.brand === 'string') ||
+      typeof row.categoryId !== 'string' ||
+      !Number.isSafeInteger(row.templateVersion) ||
+      !row.attributes ||
+      typeof row.attributes !== 'object' ||
+      Array.isArray(row.attributes) ||
+      !Number.isSafeInteger(row.qualificationReferenceCount) ||
+      typeof row.isRetailEnabled !== 'boolean' ||
+      typeof row.isEnterpriseProcurementEnabled !== 'boolean' ||
+      !Number.isSafeInteger(row.preparationMinutes) ||
+      !Array.isArray(row.skus)
+    ) {
+      return null;
+    }
+    const skus = row.skus.map((candidateSku) => {
+      if (!candidateSku || typeof candidateSku !== 'object' || Array.isArray(candidateSku)) return null;
+      const sku = candidateSku as Record<string, Prisma.JsonValue>;
+      if (
+        typeof sku.id !== 'string' ||
+        typeof sku.supplierSkuCode !== 'string' ||
+        !sku.attributes ||
+        typeof sku.attributes !== 'object' ||
+        Array.isArray(sku.attributes)
+      ) {
+        return null;
+      }
+      return {
+        id: sku.id,
+        supplierSkuCode: sku.supplierSkuCode,
+        attributes: structuredClone(sku.attributes) as JsonObject,
+      };
+    });
+    if (skus.some((sku) => sku === null)) return null;
+    return {
+      name: row.name,
+      brand: row.brand as string | null,
+      categoryId: row.categoryId,
+      templateVersion: Number(row.templateVersion),
+      attributes: structuredClone(row.attributes) as JsonObject,
+      qualificationReferenceCount: Number(row.qualificationReferenceCount),
+      isRetailEnabled: row.isRetailEnabled,
+      isEnterpriseProcurementEnabled: row.isEnterpriseProcurementEnabled,
+      preparationMinutes: Number(row.preparationMinutes),
+      skus: skus as ProductMaterialReviewRecord['skus'],
+    };
+  }
+
+  private parseMaterialPublicationSnapshot(value: Prisma.JsonValue | null): {
+    readonly detailSnapshot: JsonObject;
+    readonly afterSaleSnapshot: JsonObject;
+    readonly deliveryRuleId: string;
+  } | null {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+    const row = value as Record<string, Prisma.JsonValue>;
+    if (
+      typeof row.deliveryRuleId !== 'string' ||
+      !row.detailSnapshot ||
+      typeof row.detailSnapshot !== 'object' ||
+      Array.isArray(row.detailSnapshot) ||
+      !row.afterSaleSnapshot ||
+      typeof row.afterSaleSnapshot !== 'object' ||
+      Array.isArray(row.afterSaleSnapshot)
+    ) {
+      return null;
+    }
+    return {
+      detailSnapshot: structuredClone(row.detailSnapshot) as JsonObject,
+      afterSaleSnapshot: structuredClone(row.afterSaleSnapshot) as JsonObject,
+      deliveryRuleId: row.deliveryRuleId,
+    };
+  }
+
+  private async replayApproval<T>(
+    database: TransactionClient | PrismaService,
+    scope: string,
+    idempotencyKey: string,
+    requestHash: string,
+  ): Promise<SupplierProductMutationResult<T> | null> {
+    const command = await database.approvalTaskCommand.findUnique({
+      where: { scope_idempotencyKey: { scope, idempotencyKey } },
+      select: { requestHash: true, responseSnapshot: true },
+    });
+    if (!command) return null;
+    if (command.requestHash !== requestHash) return { kind: 'IDEMPOTENCY_CONFLICT' };
+    return { kind: 'OK', value: parseStored<T>(command.responseSnapshot), replayed: true };
+  }
+
+  private async rememberApproval(
+    database: TransactionClient,
+    scope: string,
+    idempotencyKey: string,
+    requestHash: string,
+    value: unknown,
+  ): Promise<void> {
+    await database.approvalTaskCommand.create({
+      data: {
+        scope,
+        idempotencyKey,
+        requestHash,
+        responseSnapshot: asInputJson(value),
+      },
+    });
   }
 
   private async replay<T>(

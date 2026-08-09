@@ -480,6 +480,26 @@ body {
   text-align: center;
 }
 
+.product-approval-page .ant-alert {
+  margin-bottom: 16px;
+}
+
+.price-review-row {
+  display: grid;
+  grid-template-columns: minmax(150px, 1.3fr) repeat(3, minmax(110px, 1fr));
+  gap: 12px;
+  align-items: center;
+  width: min(720px, 100%);
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f5f9f8;
+}
+
+.price-review-row span {
+  color: #425b60;
+  font-variant-numeric: tabular-nums;
+}
+
 @media (max-width: 850px) {
   .admin-shell {
     grid-template-columns: 1fr;
@@ -543,5 +563,11 @@ body {
 
   .selection-hero h1.ant-typography {
     font-size: 36px;
+  }
+}
+
+@media (max-width: 720px) {
+  .price-review-row {
+    grid-template-columns: 1fr;
   }
 }

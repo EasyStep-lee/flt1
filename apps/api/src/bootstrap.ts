@@ -11,6 +11,7 @@ import type {
   CompanySecondVerifier,
 } from './company-auth/company-auth.security.js';
 import type { CompanyFunctionalAccountRepository } from './company-functional-accounts/company-functional-account.repository.js';
+import type { CompanyProductApprovalActorResolver } from './company-product-approvals/company-product-approval.actor.js';
 
 import { AppModule } from './app.module.js';
 import {
@@ -66,6 +67,7 @@ export interface CreateApplicationOptions {
   readonly supplierSecondVerifier?: SupplierSecondVerifier;
   readonly supplierProductRepository?: SupplierProductRepository;
   readonly supplierProductActorResolver?: SupplierProductActorResolver;
+  readonly companyProductApprovalActorResolver?: CompanyProductApprovalActorResolver;
   readonly logger?: LoggerService | false;
 }
 
@@ -138,6 +140,12 @@ export const createApplication = async (
       : {}),
     ...(options.supplierProductActorResolver
       ? { supplierProductActorResolver: options.supplierProductActorResolver }
+      : {}),
+    ...(options.companyProductApprovalActorResolver
+      ? {
+          companyProductApprovalActorResolver:
+            options.companyProductApprovalActorResolver,
+        }
       : {}),
   };
   const logger = options.logger === false ? false : options.logger ?? new SafeJsonLogger();

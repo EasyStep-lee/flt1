@@ -27,6 +27,10 @@ import {
   type CompanyWorkspace,
 } from './company-workspace-pages.js';
 import { companySessionBoundary } from './session-boundary.js';
+import {
+  CompanyInitialPriceReviewPage,
+  CompanyProductMaterialReviewPage,
+} from './company-product-approval-pages.js';
 
 type SupplierRow = components['schemas']['SupplierResponseDto'];
 type SupplierStatus = SupplierRow['status'];
@@ -745,6 +749,10 @@ export function CompanyAdminShell() {
             (workspace) => <CompanySupplierOpsPage workspace={workspace} />
           ) : currentPath === '/company-admin/workspaces/audit' ? (
             (workspace) => <CompanyAuditPage workspace={workspace} />
+          ) : currentPath === '/company-admin/workspaces/product-ops' ? (
+            (workspace) => <CompanyProductMaterialReviewPage workspace={workspace} />
+          ) : currentPath === '/company-admin/workspaces/price-review' ? (
+            (workspace) => <CompanyInitialPriceReviewPage workspace={workspace} />
           ) : undefined
         }
         route={currentPath}
