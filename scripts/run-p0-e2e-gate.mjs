@@ -189,6 +189,7 @@ const run = async () => {
     '@fulishe/portal-web',
     '@fulishe/supplier-portal',
     '@fulishe/company-admin',
+    '@fulishe/user-miniapp',
   ];
   for (const application of applicationBuilds) {
     const build = spawnSync(

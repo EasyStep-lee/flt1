@@ -102,7 +102,7 @@ test('NEG-M1-047-02 OpenAPI generation is byte-stable and ignores runtime infras
   assert.equal(firstTypes.includes(Buffer.from('\r\n')), false, 'types must use LF');
 });
 
-test('generated contract exposes foundation, identity, onboarding and supplier product APIs', () => {
+test('generated contract exposes foundation, identity, onboarding and catalog APIs', () => {
   const generated = run(pnpm, ['openapi:generate']);
   assertSuccess(generated, 'openapi:generate');
 
@@ -115,6 +115,7 @@ test('generated contract exposes foundation, identity, onboarding and supplier p
     '/v1/audit/sensitive-export-approvals',
     '/v1/audit/sensitive-export-approvals/{taskId}/claim',
     '/v1/audit/sensitive-export-approvals/{taskId}/decision',
+    '/v1/catalog/suppliers/{supplierId}/products',
     '/v1/company-auth/login',
     '/v1/company-auth/workspace/current',
     '/v1/company-auth/workspace/page',
@@ -145,6 +146,10 @@ test('generated contract exposes foundation, identity, onboarding and supplier p
   assert.equal(
     spec.paths['/v1/public/merchant-profile'].get.operationId,
     'publicMerchant.getProfile',
+  );
+  assert.equal(
+    spec.paths['/v1/catalog/suppliers/{supplierId}/products'].get.operationId,
+    'catalog.listSupplierProducts',
   );
   assert.equal(
     spec.paths['/v1/company-auth/workspace/current'].get.operationId,
@@ -298,6 +303,8 @@ test('generated contract exposes foundation, identity, onboarding and supplier p
       'PublicMerchantProfileQuery',
       'PublicMerchantProfileResponse',
       'PublicMerchantSubjectsDto',
+      'PublicProductCardResponseDto',
+      'PublicProductPageResponseDto',
       'SelectWorkspaceRequestDto',
       'SensitiveApprovalPageResponseDto',
       'SensitiveApprovalTaskResponseDto',
@@ -311,6 +318,7 @@ test('generated contract exposes foundation, identity, onboarding and supplier p
       'SupplierPageResponseDto',
       'SupplierProductDraftRequestDto',
       'SupplierProductPatchRequestDto',
+      'SupplierProductQueryDto',
       'SupplierProductResponseDto',
       'SupplierProductSkuDraftRequestDto',
       'SupplierProductSkuResponseDto',
@@ -355,6 +363,7 @@ test('generated contract exposes foundation, identity, onboarding and supplier p
   assert.match(generatedTypes, /export interface paths/u);
   assert.match(generatedTypes, /"health\.getLiveness"/u);
   assert.match(generatedTypes, /"publicMerchant\.getProfile"/u);
+  assert.match(generatedTypes, /"catalog\.listSupplierProducts"/u);
   assert.match(generatedTypes, /"supplierProducts\.create"/u);
   assert.match(generatedTypes, /"supplierProducts\.submitMaterial"/u);
   assert.match(generatedTypes, /"supplierPricing\.listInitialPricingProducts"/u);

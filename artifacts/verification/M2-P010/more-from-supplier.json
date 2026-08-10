@@ -1,0 +1,92 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "M2-P010",
+  "p0": [
+    "P0-010"
+  ],
+  "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+  "status": "LOCAL_PASS",
+  "branch": "codex/m2-more-from-supplier",
+  "baseCommit": "fb242c025673e937f63850f0677d7b0ffa61cdf4",
+  "implementationCommit": "6b380f7f6c408f5570cc0ec0a563dcf0be927110",
+  "scope": {
+    "goal": "按当前商品supplierId筛选同一供货来源的公司在售零售商品，保持公司统一销售、收款与结账主体",
+    "nonGoals": [
+      "P0-089用户小程序完整商品入口与真机验收",
+      "供应商店铺、装修、独立购物车、优惠券、收款或结算",
+      "InventoryBalance与P0-063",
+      "数据库迁移",
+      "M2-P011及后续切片"
+    ]
+  },
+  "redEvidence": [
+    {
+      "test": "apps/api/test/supertest/public-catalog-api.test.mjs",
+      "result": "FAIL_6_OF_6",
+      "cause": "GET /v1/catalog/suppliers/{supplierId}/products尚未注册并返回404"
+    },
+    {
+      "test": "apps/user-miniapp/test/supplier-products-build.test.mjs",
+      "result": "FAIL_2_OF_2",
+      "cause": "PAGE-054构建产物不存在并触发ENOENT"
+    }
+  ],
+  "focusedGreen": {
+    "api": "PASS_6_OF_6",
+    "repositoryAndContract": "PASS_3_OF_3",
+    "miniappBuildRuntime": "PASS_3_OF_3",
+    "p0Playwright": "PASS_1_OF_1",
+    "behaviors": [
+      "精确supplierId范围与当前商品排除",
+      "仅ACTIVE供应商、公司、零售Product和ACTIVE SKU",
+      "供应商范围逃逸与非在售候选被拒绝",
+      "响应不含供应价、结算、私有字段或店铺语义",
+      "用户小程序成功、空态、离线错误与重试"
+    ]
+  },
+  "fullVerification": {
+    "status": "PASS_17_OF_17",
+    "command": "pnpm verify",
+    "commit": "6b380f7f6c408f5570cc0ec0a563dcf0be927110",
+    "startedAt": "2026-08-10T04:38:33.633Z",
+    "endedAt": "2026-08-10T04:50:34.778Z",
+    "report": "artifacts/test-results/verification/pnpm-verify.json",
+    "p0E2e": "PASS_33_OF_33",
+    "prismaValidate": "PASS",
+    "migrationIntegrity": "PASS_13_PUBLISHED_13_CURRENT",
+    "migrationRehearsal": "PASS_EMPTY_2_UPGRADE_2_RESTORE_2",
+    "openApiGenerateDiffCheckBreaking": "PASS",
+    "build": "PASS",
+    "trackedSecretFilesChecked": 596
+  },
+  "dataAndMigration": {
+    "newModels": [],
+    "newFields": [],
+    "newMigrations": [],
+    "rollback": "回退本分支P010应用与契约提交；本切片无迁移和数据清理"
+  },
+  "environmentBoundary": {
+    "local": "LOCAL_PASS",
+    "ci": "NOT_EXECUTED",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_EXECUTED",
+    "production": "NOT_EXECUTED",
+    "productionRequirement": "USER_MINIAPP_API_BASE_URL必须为HTTPS，且域名需加入微信小程序request合法域名"
+  },
+  "github": {
+    "repository": "EasyStep-lee/flt1",
+    "issue": 45,
+    "pullRequest": null,
+    "exactHeadCi": "NOT_EXECUTED",
+    "review": "NOT_EXECUTED",
+    "merge": "NOT_EXECUTED",
+    "mainPostMergeCi": "NOT_EXECUTED"
+  },
+  "risks": [
+    "P0-010只证明同源在售筛选与统一主体，不等于P0-089完整用户商品浏览闭环",
+    "本地Node VM和Chromium不能替代微信开发者工具或真机网络、域名与导航验收",
+    "未来价格与库存切片必须继续保持供应价白名单和唯一库存真源边界"
+  ],
+  "nextAllowedTask": "M2-P010_DRAFT_PR_GATE_ONLY",
+  "m2p011StartAllowed": false
+}

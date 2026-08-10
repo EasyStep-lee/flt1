@@ -19,6 +19,11 @@ import {
 } from '../company-product-approvals/company-product-approval.actor.js';
 import { CompanyProductApprovalService } from '../company-product-approvals/company-product-approval.service.js';
 import {
+  PUBLIC_CATALOG_REPOSITORY,
+  type PublicCatalogRepository,
+} from '../catalog/public-catalog.repository.js';
+import { PublicCatalogService } from '../catalog/public-catalog.service.js';
+import {
   COMPANY_AUTH_REPOSITORY,
   type CompanyAuthRepository,
 } from '../company-auth/company-auth.repository.js';
@@ -300,6 +305,7 @@ type JsonValue =
     SupplierProductService,
     SupplierPricingService,
     CompanyProductApprovalService,
+    PublicCatalogService,
     DenyCompanyProductApprovalActorResolver,
     DenySupplierProductActorResolver,
     DenySupplierPricingActorResolver,
@@ -342,6 +348,13 @@ type JsonValue =
     {
       provide: COMPANY_PRODUCT_APPROVAL_ACTOR_RESOLVER,
       useExisting: DenyCompanyProductApprovalActorResolver,
+    },
+    {
+      provide: PUBLIC_CATALOG_REPOSITORY,
+      useValue: {
+        isActiveSupplierSource: async () => false,
+        findSellableRetailProducts: async () => ({ items: [], total: 0 }),
+      } satisfies PublicCatalogRepository,
     },
   ],
 })

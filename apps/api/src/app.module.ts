@@ -13,6 +13,12 @@ import { AuditLogService } from './audit/audit-log.service.js';
 import { AuditSessionActorResolver } from './audit/audit-session-actor.resolver.js';
 import { PrismaAuditLogRepository } from './audit/prisma-audit-log.repository.js';
 import { CompanyAuthService } from './company-auth/company-auth.service.js';
+import { PrismaPublicCatalogRepository } from './catalog/prisma-public-catalog.repository.js';
+import {
+  PUBLIC_CATALOG_REPOSITORY,
+  type PublicCatalogRepository,
+} from './catalog/public-catalog.repository.js';
+import { PublicCatalogService } from './catalog/public-catalog.service.js';
 import {
   COMPANY_PRODUCT_APPROVAL_ACTOR_RESOLVER,
   DenyCompanyProductApprovalActorResolver,
@@ -165,6 +171,7 @@ export interface AppModuleOptions {
   readonly supplierProductActorResolver?: SupplierProductActorResolver;
   readonly supplierPricingActorResolver?: SupplierPricingActorResolver;
   readonly companyProductApprovalActorResolver?: CompanyProductApprovalActorResolver;
+  readonly catalogRepository?: PublicCatalogRepository;
 }
 
 @Module({})
@@ -222,6 +229,8 @@ export class AppModule {
       DenyCompanyProductApprovalActorResolver,
       CompanyProductApprovalSessionActorResolver,
       CompanyProductApprovalService,
+      PrismaPublicCatalogRepository,
+      PublicCatalogService,
       options.merchantRepository
         ? {
             provide: SINGLE_MERCHANT_REPOSITORY,
@@ -392,6 +401,15 @@ export class AppModule {
         : {
             provide: COMPANY_PRODUCT_APPROVAL_ACTOR_RESOLVER,
             useExisting: CompanyProductApprovalSessionActorResolver,
+          },
+      options.catalogRepository
+        ? {
+            provide: PUBLIC_CATALOG_REPOSITORY,
+            useValue: options.catalogRepository,
+          }
+        : {
+            provide: PUBLIC_CATALOG_REPOSITORY,
+            useExisting: PrismaPublicCatalogRepository,
           },
     ];
 

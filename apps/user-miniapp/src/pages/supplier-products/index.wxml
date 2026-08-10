@@ -1,0 +1,25 @@
+<view class="page" data-page-id="PAGE-054" data-page-state="{{state}}">
+  <view class="source-card">
+    <view class="source-title">{{sourceLabel}}</view>
+    <view class="source-note">由{{sellerName}}统一销售、结账与售后</view>
+  </view>
+
+  <view wx:if="{{state === 'loading'}}" class="state-card">正在加载更多商品…</view>
+  <view wx:elif="{{state === 'empty'}}" class="state-card">
+    <view class="state-title">暂无更多商品</view>
+    <view class="state-note">当前供应来源没有其他符合上架条件的商品</view>
+  </view>
+  <view wx:elif="{{state === 'error'}}" class="state-card">
+    <view class="state-title">{{errorMessage}}</view>
+    <button class="retry-button" bindtap="retry">重新加载</button>
+  </view>
+  <view wx:else class="product-grid">
+    <view wx:for="{{items}}" wx:key="productId" class="product-card">
+      <view class="product-name">{{item.name}}</view>
+      <view class="product-meta">{{item.activeSkuCount}} 个可选规格</view>
+      <view class="product-price">{{item.priceLabel}}</view>
+    </view>
+  </view>
+
+  <view class="boundary-note">供应来源仅用于筛选；商品仍属于公司统一货架</view>
+</view>

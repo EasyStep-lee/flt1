@@ -1571,6 +1571,86 @@
         ],
         "type": "object"
       },
+      "PublicProductCardResponseDto": {
+        "properties": {
+          "activeSkuCount": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "name": {
+            "maxLength": 200,
+            "type": "string"
+          },
+          "productId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "retailSalePrice": {
+            "description": "Minimum active SKU retail price in integer cents",
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "productId",
+          "name",
+          "retailSalePrice",
+          "activeSkuCount"
+        ],
+        "type": "object"
+      },
+      "PublicProductPageResponseDto": {
+        "properties": {
+          "checkoutMode": {
+            "enum": [
+              "COMPANY_UNIFIED"
+            ],
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PublicProductCardResponseDto"
+            },
+            "type": "array"
+          },
+          "page": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "pageSize": {
+            "maximum": 50,
+            "minimum": 1,
+            "type": "number"
+          },
+          "sellerName": {
+            "example": "江苏福礼团供应链科技有限公司",
+            "type": "string"
+          },
+          "sourceLabel": {
+            "example": "该供应来源的更多商品",
+            "type": "string"
+          },
+          "supplierId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "total": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "supplierId",
+          "sourceLabel",
+          "sellerName",
+          "checkoutMode",
+          "page",
+          "pageSize",
+          "total",
+          "items"
+        ],
+        "type": "object"
+      },
       "SelectWorkspaceRequestDto": {
         "properties": {
           "secondVerificationCode": {
@@ -2039,6 +2119,27 @@
         "required": [
           "version"
         ],
+        "type": "object"
+      },
+      "SupplierProductQueryDto": {
+        "properties": {
+          "excludeProductId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "page": {
+            "default": 1,
+            "maximum": 10000,
+            "minimum": 1,
+            "type": "number"
+          },
+          "pageSize": {
+            "default": 20,
+            "maximum": 50,
+            "minimum": 1,
+            "type": "number"
+          }
+        },
         "type": "object"
       },
       "SupplierProductResponseDto": {
@@ -3588,6 +3689,88 @@
         "summary": "Approve or reject after second verification",
         "tags": [
           "sensitive-approval"
+        ]
+      }
+    },
+    "/v1/catalog/suppliers/{supplierId}/products": {
+      "get": {
+        "operationId": "catalog.listSupplierProducts",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "supplierId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicProductPageResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "List same-source products from the unified company shelf",
+        "tags": [
+          "public-catalog"
         ]
       }
     },

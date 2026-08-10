@@ -1,0 +1,91 @@
+.page {
+  min-height: 100vh;
+  padding: 24rpx;
+  background: #fff8e8;
+  color: #2b2118;
+  box-sizing: border-box;
+}
+
+.source-card,
+.state-card,
+.product-card,
+.boundary-note {
+  border-radius: 20rpx;
+  background: #ffffff;
+  box-shadow: 0 8rpx 24rpx rgba(75, 49, 18, 0.08);
+}
+
+.source-card {
+  padding: 28rpx;
+  border-left: 8rpx solid #e94f37;
+}
+
+.source-title,
+.state-title,
+.product-name {
+  font-weight: 700;
+}
+
+.source-title {
+  font-size: 36rpx;
+}
+
+.source-note,
+.state-note,
+.product-meta,
+.boundary-note {
+  color: #766454;
+  font-size: 24rpx;
+}
+
+.source-note,
+.state-note {
+  margin-top: 12rpx;
+}
+
+.state-card {
+  margin-top: 24rpx;
+  padding: 72rpx 28rpx;
+  text-align: center;
+}
+
+.retry-button {
+  width: 240rpx;
+  margin-top: 24rpx;
+  background: #ffcc33;
+  color: #2b2118;
+  font-weight: 700;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20rpx;
+  margin-top: 24rpx;
+}
+
+.product-card {
+  padding: 24rpx;
+}
+
+.product-name {
+  min-height: 80rpx;
+  font-size: 30rpx;
+}
+
+.product-meta {
+  margin-top: 12rpx;
+}
+
+.product-price {
+  margin-top: 18rpx;
+  color: #e94f37;
+  font-size: 34rpx;
+  font-weight: 800;
+}
+
+.boundary-note {
+  margin-top: 24rpx;
+  padding: 20rpx 24rpx;
+  text-align: center;
+}
