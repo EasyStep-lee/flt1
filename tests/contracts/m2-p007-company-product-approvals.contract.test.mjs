@@ -63,7 +63,7 @@ test('M2-P007 retains evidence while M2-P009 reaches local pass', async () => {
   assert.equal(state.execution.currentTask, 'M2-P009');
   assert.equal(state.execution.nextAllowedTask, 'M2-P009');
   assert.equal(state.execution.lastCompletedTask, 'M2-P009');
-  assert.ok([0, 1].includes(state.execution.activeTaskCount));
+  assert.equal(state.execution.activeTaskCount, 0);
   assert.equal(state.github.currentTaskDelivery.pullRequest, null);
   assert.equal(state.github.currentTaskDelivery.pullRequestState, 'NOT_CREATED');
   assert.equal(state.github.currentTaskDelivery.exactHeadCi, 'NOT_EXECUTED');

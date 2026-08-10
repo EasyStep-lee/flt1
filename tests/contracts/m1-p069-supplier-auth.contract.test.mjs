@@ -67,7 +67,7 @@ test('M1-P069 remains recorded after its exact-head merge and P070 takeover', as
 
   assert.equal(state.execution.currentTask, 'M2-P009');
   assert.equal(state.execution.nextAllowedTask, 'M2-P009');
-  assert.equal(state.execution.lastCompletedTask, 'M2-P008');
+  assert.equal(state.execution.lastCompletedTask, 'M2-P009');
   assert.equal(state.github.currentTaskDelivery.taskId, 'M2-P009');
   assert.equal(state.github.currentTaskDelivery.issue, 43);
   assert.equal(state.github.previousTaskDelivery.taskId, 'M2-P008');

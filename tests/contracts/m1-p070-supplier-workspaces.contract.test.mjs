@@ -81,7 +81,7 @@ test('M1-P070 records eight isolated supplier workspaces at the local evidence b
 
   assert.equal(state.execution.currentTask, 'M2-P009');
   assert.equal(state.execution.nextAllowedTask, 'M2-P009');
-  assert.equal(state.execution.lastCompletedTask, 'M2-P008');
+  assert.equal(state.execution.lastCompletedTask, 'M2-P009');
   assert.equal(state.github.currentTaskDelivery.taskId, 'M2-P009');
   assert.equal(state.github.currentTaskDelivery.issue, 43);
   assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2-P009.*M2-P010/u);

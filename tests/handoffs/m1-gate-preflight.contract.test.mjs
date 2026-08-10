@@ -167,7 +167,7 @@ test('M1 gate preflight binds all technical evidence without bypassing EXT-005',
   assert.equal(evidence.decision.nextAllowedTask, 'M1-GATE');
 });
 
-test('M1 ledgers record the exact-head gate and unlock only the M2 contract slice', async () => {
+test('M1 ledgers retain the exact-head gate while M2 advances one slice at a time', async () => {
   const [tasks, p0Rows, stageRows, externalRows] = await Promise.all([
     readCsv(taskLedgerPath),
     readCsv(p0LedgerPath),
@@ -238,8 +238,8 @@ test('M1 ledgers record the exact-head gate and unlock only the M2 contract slic
   assert.equal(m2ThirdSlice.Status, 'DONE');
   assert.equal(m2ThirdSlice.EvidenceStatus, 'CI_PASS');
   assert.equal(m2ThirdSlice.CI, 'CI_PASS');
-  assert.equal(m2CurrentSlice.Status, 'IN_PROGRESS');
-  assert.equal(m2CurrentSlice.EvidenceStatus, 'NOT_EXECUTED');
+  assert.equal(m2CurrentSlice.Status, 'DONE');
+  assert.equal(m2CurrentSlice.EvidenceStatus, 'LOCAL_PASS');
   assert.equal(m2CurrentSlice.CI, 'NOT_EXECUTED');
 
   const ext005 = externalRows.find(
@@ -268,8 +268,8 @@ test('project status records M1 gate success while historical blocked handoff st
   assert.equal(projectStatus.execution.currentStage, 'M2');
   assert.equal(projectStatus.execution.currentTask, 'M2-P009');
   assert.equal(projectStatus.execution.nextAllowedTask, 'M2-P009');
-  assert.match(String(projectStatus.execution.activeTaskCount), /^(?:0|1)$/u);
-  assert.equal(projectStatus.execution.lastCompletedTask, 'M2-P008');
+  assert.equal(projectStatus.execution.activeTaskCount, 0);
+  assert.equal(projectStatus.execution.lastCompletedTask, 'M2-P009');
   assert.equal(projectStatus.execution.lastPassedGate, 'M1-GATE');
   assert.equal(
     projectStatus.execution.prohibitedUntilGate.some((item) => /M2/u.test(item)),
@@ -286,16 +286,13 @@ test('project status records M1 gate success while historical blocked handoff st
   assert.equal(projectStatus.github.latestCi.headSha, m2p008Merge);
   assert.equal(projectStatus.github.currentTaskDelivery.taskId, 'M2-P009');
   assert.equal(projectStatus.github.currentTaskDelivery.issue, 43);
-  assert.match(
-    projectStatus.github.currentTaskDelivery.status,
-    /^(?:IN_PROGRESS|LOCAL_PASS)$/u,
-  );
+  assert.equal(projectStatus.github.currentTaskDelivery.status, 'LOCAL_PASS');
   assert.equal(projectStatus.github.currentTaskDelivery.exactHeadCi, 'NOT_EXECUTED');
   assert.equal(projectStatus.github.currentTaskDelivery.m2p010StartAllowed, false);
   assert.equal(projectStatus.github.previousTaskDelivery.taskId, 'M2-P008');
   assert.equal(projectStatus.github.previousTaskDelivery.pullRequest, 42);
   assert.equal(projectStatus.github.previousTaskDelivery.status, 'CI_PASS');
-  assert.match(projectStatus.evidence.local, /^(?:NOT_EXECUTED|LOCAL_PASS)$/u);
+  assert.equal(projectStatus.evidence.local, 'LOCAL_PASS');
   assert.equal(projectStatus.evidence.ci, 'NOT_EXECUTED');
   assert.equal(projectStatus.evidence.staging, 'NOT_EXECUTED');
   assert.equal(

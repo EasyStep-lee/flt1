@@ -75,7 +75,7 @@ test('M1-P067 remains bound to its merged evidence after P070 starts', async () 
 
   assert.equal(state.execution.currentTask, 'M2-P009');
   assert.equal(state.execution.nextAllowedTask, 'M2-P009');
-  assert.ok([0, 1].includes(state.execution.activeTaskCount));
+  assert.equal(state.execution.activeTaskCount, 0);
   assert.equal(state.github.currentTaskDelivery.taskId, 'M2-P009');
   assert.equal(state.github.currentTaskDelivery.issue, 43);
   assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2-P009.*M2-P010/u);
