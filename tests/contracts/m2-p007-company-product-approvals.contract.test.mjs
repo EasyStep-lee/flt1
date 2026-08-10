@@ -60,19 +60,20 @@ test('M2-P007 retains local evidence after exact-head CI, merge and M2-P008 Draf
       read('docs', 'handoffs', '2026-08-09-M2-P007-company-product-approvals.md'),
     ]);
 
-  assert.equal(state.execution.currentTask, 'M2-P008');
-  assert.equal(state.execution.nextAllowedTask, 'M2-P008');
+  assert.equal(state.execution.currentTask, 'M2-P009');
+  assert.equal(state.execution.nextAllowedTask, 'M2-P009');
   assert.equal(state.execution.lastCompletedTask, 'M2-P008');
   assert.ok([0, 1].includes(state.execution.activeTaskCount));
-  assert.equal(state.github.currentTaskDelivery.pullRequest, 42);
-  assert.equal(state.github.currentTaskDelivery.pullRequestState, 'DRAFT');
+  assert.equal(state.github.currentTaskDelivery.pullRequest, null);
+  assert.equal(state.github.currentTaskDelivery.pullRequestState, 'NOT_CREATED');
   assert.equal(state.github.currentTaskDelivery.exactHeadCi, 'NOT_EXECUTED');
   assert.equal(state.github.currentTaskDelivery.merge, 'NOT_EXECUTED');
-  assert.equal(state.github.currentTaskDelivery.m2p009StartAllowed, false);
+  assert.equal(state.github.currentTaskDelivery.m2p010StartAllowed, false);
   assert.match(state.evidence.local, /^(?:NOT_EXECUTED|LOCAL_PASS)$/u);
   assert.equal(state.evidence.ci, 'NOT_EXECUTED');
   assert.match(taskLedger, /M2-P007[^\r\n]*DONE[^\r\n]*CI_PASS/u);
-  assert.match(taskLedger, /M2-P008[^\r\n]*(?:IN_PROGRESS|DONE)[^\r\n]*(?:NOT_EXECUTED|LOCAL_PASS)/u);
+  assert.match(taskLedger, /M2-P008[^\r\n]*DONE[^\r\n]*CI_PASS/u);
+  assert.match(taskLedger, /M2-P009[^\r\n]*IN_PROGRESS[^\r\n]*NOT_EXECUTED/u);
   assert.match(p0Ledger, /P0-007[^\r\n]*CI_PASS/u);
   assert.match(apiLedger, /API-025[^\r\n]*GENERATED[^\r\n]*IMPLEMENTED/u);
   assert.match(apiLedger, /API-026[^\r\n]*GENERATED[^\r\n]*IMPLEMENTED/u);

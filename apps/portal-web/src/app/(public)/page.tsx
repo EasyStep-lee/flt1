@@ -58,6 +58,54 @@ export default function PublicPortalShell() {
           ))}
         </div>
       </section>
+      <section
+        data-p0-id="P0-009"
+        style={{
+          background: '#fff9ed',
+          border: '1px solid #f0d9aa',
+          borderRadius: 14,
+          marginTop: 24,
+          padding: 20,
+        }}
+      >
+        <h2 style={{ color: '#6f3f15', margin: '0 0 8px' }}>
+          供应来源不是店铺
+        </h2>
+        <p style={{ color: '#6f5a42', lineHeight: 1.7, margin: '0 0 16px' }}>
+          供应商负责供货，商品展示、客户结账与售后服务均由福礼团统一组织。
+        </p>
+        <div
+          style={{
+            display: 'grid',
+            gap: 12,
+            gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))',
+          }}
+        >
+          {[
+            ['company-catalog', '公司统一商品货架', '跨供应来源商品统一展示'],
+            ['company-checkout', '公司统一结账', '客户只向公司提交主订单'],
+            ['company-service', '公司统一服务', '开票、退款与售后均由公司承担'],
+          ].map(([capability, title, description]) => (
+            <article
+              data-capability={capability}
+              key={capability}
+              style={{
+                background: '#ffffff',
+                borderLeft: '4px solid #d48932',
+                borderRadius: 10,
+                padding: '14px 16px',
+              }}
+            >
+              <strong
+                style={{ color: '#9c571a', display: 'block', marginBottom: 8 }}
+              >
+                {title}
+              </strong>
+              <span>{description}</span>
+            </article>
+          ))}
+        </div>
+      </section>
     </ShellFrame>
   );
 }

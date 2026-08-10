@@ -7,6 +7,10 @@ import {
 
 import { SafeApiError, type ApiErrorCode } from '../http/api-error.js';
 import {
+  NoSupplierStorefrontCapabilityError,
+  assertCustomerCatalogPayloadAllowed,
+} from '../governance/no-supplier-storefront.policy.js';
+import {
   SINGLE_MERCHANT_REPOSITORY,
   type SingleMerchantRepository,
 } from './single-merchant.repository.js';
@@ -15,6 +19,7 @@ export { COMPANY_LEGAL_NAME, PLATFORM_NAME } from '@fulishe/contracts';
 
 export type SingleMerchantPolicyErrorCode = Extract<
   ApiErrorCode,
+  | 'FORBIDDEN_CAPABILITY'
   | 'PAYEE_FORBIDDEN'
   | 'SELLER_IDENTITY_FORBIDDEN'
   | 'SINGLE_MERCHANT_VIOLATION'
@@ -44,6 +49,18 @@ const payeeOverrideKeys = new Set([
 const allowedKeys = new Set(['context']);
 
 const validateRequest = (input: Readonly<Record<string, unknown>>): void => {
+  try {
+    assertCustomerCatalogPayloadAllowed(input);
+  } catch (error) {
+    if (error instanceof NoSupplierStorefrontCapabilityError) {
+      throw new SingleMerchantPolicyError(
+        400,
+        'FORBIDDEN_CAPABILITY',
+        'Supplier storefront commerce is not supported',
+      );
+    }
+    throw error;
+  }
   const keys = Object.keys(input);
   if (keys.some((key) => sellerOverrideKeys.has(key))) {
     throw new SingleMerchantPolicyError(
@@ -96,7 +113,7 @@ export class SingleMerchantService {
       );
     }
 
-    return {
+    const profile: PublicMerchantProfile = {
       platformName: PLATFORM_NAME,
       legalName: COMPANY_LEGAL_NAME,
       subjects: {
@@ -105,5 +122,7 @@ export class SingleMerchantService {
         refundOperator: COMPANY_LEGAL_NAME,
       },
     };
+    assertCustomerCatalogPayloadAllowed(profile);
+    return profile;
   }
 }
