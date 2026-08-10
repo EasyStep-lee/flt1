@@ -121,4 +121,3 @@ export const requireCategoryId = (value: unknown): string =>
   requireSupplierProductId(value, 'categoryId');
 export const requireCategoryIdempotencyKey = requireIdempotencyKey;
 export const requireCategoryVersion = requireVersion;
-

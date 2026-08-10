@@ -38,7 +38,6 @@ test('API-016/API-017 expose role-scoped category DTO whitelists and management 
     /companyId|functionalAccountId|identityId|approvedSupplyPrice|supplyPrice|settlement|margin/iu,
   );
 });
-
 test('category management remains private/no-store and supplier assignment is not a public mutation', () => {
   for (const operation of [
     openApi.paths['/v1/company/categories'].get,
@@ -51,4 +50,3 @@ test('category management remains private/no-store and supplier assignment is no
   assert.equal(openApi.paths['/v1/supplier/categories'], undefined);
   assert.equal(openApi.paths['/v1/public/categories'], undefined);
 });
-

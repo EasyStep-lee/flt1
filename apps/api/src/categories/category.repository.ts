@@ -98,4 +98,3 @@ export interface InMemoryCategoryRepositoryOptions {
 }
 
 export type CategoryAuditCommand = AppendAuditLogCommand;
-

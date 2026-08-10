@@ -7,7 +7,6 @@ export class CategoryCreateRequestDto {
   @ApiProperty({ enum: [1, 2, 3], type: Number }) readonly level!: 1 | 2 | 3;
   @ApiProperty({ type: Number }) readonly sortWeight!: number;
 }
-
 export class CategoryPatchRequestDto {
   @ApiProperty({ minimum: 0, type: Number }) readonly version!: number;
   @ApiPropertyOptional({ format: 'uuid', nullable: true, type: String })
@@ -47,4 +46,3 @@ export class CategoryDeleteResponseDto {
   @ApiProperty({ enum: [true], type: Boolean }) readonly deleted!: true;
   @ApiProperty({ minimum: 1, type: Number }) readonly version!: number;
 }
-

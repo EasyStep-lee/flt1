@@ -30,4 +30,3 @@ test('M2-P011 migration creates a three-level company category with append-only 
   assert.match(migration, /CREATE TRIGGER `category_history_immutable_delete`/u);
   assert.doesNotMatch(migration, /category_template/iu);
 });
-

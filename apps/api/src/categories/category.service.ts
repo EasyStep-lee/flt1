@@ -29,7 +29,6 @@ export interface CategoryMutationResponse<T> {
   readonly body: T;
   readonly replayed: boolean;
 }
-
 const publicRecord = (value: CategoryRecord): Omit<CategoryRecord, 'companyId'> => ({
   id: value.id,
   parentId: value.parentId,
@@ -180,4 +179,3 @@ export class CategoryService {
     if (result.kind !== 'OK') throwFailure(result.kind);
   }
 }
-

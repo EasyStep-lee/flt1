@@ -177,4 +177,3 @@ export class CategoryController {
     return result.body;
   }
 }
-
