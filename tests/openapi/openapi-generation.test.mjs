@@ -120,6 +120,8 @@ test('generated contract exposes foundation, identity, onboarding and catalog AP
     '/v1/company-auth/workspace/current',
     '/v1/company-auth/workspace/page',
     '/v1/company-auth/workspaces/{accountId}/select',
+    '/v1/company/categories',
+    '/v1/company/categories/{categoryId}',
     '/v1/company/price-reviews',
     '/v1/company/price-reviews/{taskId}/decision',
     '/v1/company/product-material-reviews',
@@ -158,6 +160,14 @@ test('generated contract exposes foundation, identity, onboarding and catalog AP
   assert.equal(
     spec.paths['/v1/company-auth/workspace/page'].get.operationId,
     'companyauth.workspacePage',
+  );
+  assert.equal(
+    spec.paths['/v1/company/categories'].get.operationId,
+    'companyCategories.list',
+  );
+  assert.equal(
+    spec.paths['/v1/company/categories'].post.operationId,
+    'companyCategories.create',
   );
   assert.equal(
     spec.paths['/v1/company/suppliers'].get.operationId,
@@ -267,6 +277,12 @@ test('generated contract exposes foundation, identity, onboarding and catalog AP
       'AuditEventPageResponseDto',
       'AuditEventResponseDto',
       'AuditQueryDto',
+      'CategoryCreateRequestDto',
+      'CategoryDeleteResponseDto',
+      'CategoryPatchRequestDto',
+      'CategoryResponseDto',
+      'CategoryTreeNodeDto',
+      'CategoryTreeResponseDto',
       'ClaimSensitiveApprovalRequestDto',
       'CompanyLoginRequestDto',
       'CompanyWorkspaceMenuItemDto',
