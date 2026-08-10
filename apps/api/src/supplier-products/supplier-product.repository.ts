@@ -254,6 +254,16 @@ export type SupplierProductMutationResult<T> =
   | { readonly kind: SupplierProductFailureKind };
 
 export interface SupplierProductRepository {
+  replayMutation<T>(
+    scope: string,
+    idempotencyKey: string,
+    requestHash: string,
+  ): Promise<SupplierProductMutationResult<T> | null>;
+  categoryIsReferenced(categoryId: string): Promise<boolean>;
+  findCategoryAssignment(
+    supplierProductId: string,
+    supplierId?: string,
+  ): Promise<{ readonly categoryId: string; readonly supplierId: string } | null>;
   createDraft(
     command: CreateSupplierProductCommand,
   ): Promise<SupplierProductMutationResult<SupplierProductRecord>>;

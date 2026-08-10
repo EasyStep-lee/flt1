@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { SafeApiError, type ApiErrorCode } from '../http/api-error.js';
+import { CategoryService } from '../categories/category.service.js';
 import type { SupplierProductActor } from './supplier-product.actor.js';
 import {
   normalizeSupplierProductDraft,
@@ -16,10 +17,17 @@ import {
 import {
   SUPPLIER_PRODUCT_REPOSITORY,
   type MaterializeApprovedProductCommand,
+  type MaterializedProductRecord,
+  type ProductMaterialApprovalRecord,
   type SupplierProductFailureKind,
   type SupplierProductRecord,
   type SupplierProductRepository,
 } from './supplier-product.repository.js';
+
+type SupplierProductSubmitResult = {
+  readonly supplierProduct: SupplierProductRecord;
+  readonly approvalTask: ProductMaterialApprovalRecord;
+};
 
 export interface SupplierProductResponse {
   readonly id: string;
@@ -127,6 +135,7 @@ export class SupplierProductService {
   constructor(
     @Inject(SUPPLIER_PRODUCT_REPOSITORY)
     private readonly repository: SupplierProductRepository,
+    @Inject(CategoryService) private readonly categories: CategoryService,
   ) {}
 
   async createDraft(
@@ -136,13 +145,24 @@ export class SupplierProductService {
   ): Promise<SupplierProductMutationResponse<SupplierProductResponse>> {
     const input = normalizeSupplierProductDraft(body);
     const idempotencyKey = requireIdempotencyKey(idempotencyKeyValue);
+    const hash = requestHash(input);
+    const replay = await this.repository.replayMutation<SupplierProductRecord>(
+      `CREATE:${actor.supplierId}`,
+      idempotencyKey,
+      hash,
+    );
+    if (replay?.kind === 'OK') {
+      return { body: toResponse(replay.value), replayed: true };
+    }
+    if (replay) return throwFailure(replay.kind);
+    await this.categories.validateSupplierAssignment(actor.supplierId, input.categoryId);
     const result = await this.repository.createDraft({
       ...input,
       supplierId: actor.supplierId,
       actorIdentityId: actor.identityId,
       functionalAccountId: actor.functionalAccountId,
       idempotencyKey,
-      requestHash: requestHash(input),
+      requestHash: hash,
     });
     if (result.kind === 'OK') {
       return { body: toResponse(result.value), replayed: result.replayed };
@@ -165,6 +185,19 @@ export class SupplierProductService {
     const patch = normalizeSupplierProductPatch(patchBody);
     const expectedVersion = requireVersion(version);
     const idempotencyKey = requireIdempotencyKey(idempotencyKeyValue);
+    const hash = requestHash({ expectedVersion, patch });
+    const replay = await this.repository.replayMutation<SupplierProductRecord>(
+      `PATCH:${actor.supplierId}:${supplierProductId}`,
+      idempotencyKey,
+      hash,
+    );
+    if (replay?.kind === 'OK') {
+      return { body: toResponse(replay.value), replayed: true };
+    }
+    if (replay) return throwFailure(replay.kind);
+    if (patch.categoryId) {
+      await this.categories.validateSupplierAssignment(actor.supplierId, patch.categoryId);
+    }
     const result = await this.repository.patchDraft({
       supplierId: actor.supplierId,
       supplierProductId,
@@ -172,7 +205,7 @@ export class SupplierProductService {
       actorIdentityId: actor.identityId,
       functionalAccountId: actor.functionalAccountId,
       idempotencyKey,
-      requestHash: requestHash({ expectedVersion, patch }),
+      requestHash: hash,
       patch,
     });
     if (result.kind === 'OK') {
@@ -209,6 +242,26 @@ export class SupplierProductService {
     const expectedVersion = requireVersion(body.version);
     const requestId = requireRequestId(body.requestId);
     const idempotencyKey = requireIdempotencyKey(idempotencyKeyValue);
+    const hash = requestHash({ expectedVersion, requestId });
+    const replay = await this.repository.replayMutation<SupplierProductSubmitResult>(
+      `SUBMIT:${actor.supplierId}:${supplierProductId}`,
+      idempotencyKey,
+      hash,
+    );
+    if (replay?.kind === 'OK') {
+      return { body: { ...replay.value.approvalTask }, replayed: true };
+    }
+    if (replay) return throwFailure(replay.kind);
+    const categoryAssignment = await this.repository.findCategoryAssignment(
+      supplierProductId,
+      actor.supplierId,
+    );
+    if (categoryAssignment) {
+      await this.categories.validateSupplierAssignment(
+        categoryAssignment.supplierId,
+        categoryAssignment.categoryId,
+      );
+    }
     const result = await this.repository.submitMaterial({
       supplierId: actor.supplierId,
       supplierProductId,
@@ -217,7 +270,7 @@ export class SupplierProductService {
       actorIdentityId: actor.identityId,
       functionalAccountId: actor.functionalAccountId,
       idempotencyKey,
-      requestHash: requestHash({ expectedVersion, requestId }),
+      requestHash: hash,
     });
     if (result.kind === 'OK') {
       return { body: { ...result.value.approvalTask }, replayed: result.replayed };
@@ -255,6 +308,24 @@ export class SupplierProductService {
         deliveryRuleId: command.deliveryRuleId,
       }),
     };
+    const replay = await this.repository.replayMutation<MaterializedProductRecord>(
+      `MATERIALIZE:${command.supplierProductId}`,
+      command.idempotencyKey,
+      persistedCommand.requestHash,
+    );
+    if (replay?.kind === 'OK') {
+      return { kind: 'OK', ...replay.value, replayed: true };
+    }
+    if (replay) return throwFailure(replay.kind);
+    const categoryAssignment = await this.repository.findCategoryAssignment(
+      command.supplierProductId,
+    );
+    if (categoryAssignment) {
+      await this.categories.validateSupplierAssignment(
+        categoryAssignment.supplierId,
+        categoryAssignment.categoryId,
+      );
+    }
     const result = await this.repository.materializeApproved(persistedCommand);
     if (result.kind === 'OK') {
       return { kind: 'OK', ...result.value, replayed: result.replayed };

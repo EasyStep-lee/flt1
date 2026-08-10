@@ -19,6 +19,12 @@ import {
   type PublicCatalogRepository,
 } from './catalog/public-catalog.repository.js';
 import { PublicCatalogService } from './catalog/public-catalog.service.js';
+import { CategoryService } from './categories/category.service.js';
+import { PrismaCategoryRepository } from './categories/prisma-category.repository.js';
+import {
+  CATEGORY_REPOSITORY,
+  type CategoryRepository,
+} from './categories/category.repository.js';
 import {
   COMPANY_PRODUCT_APPROVAL_ACTOR_RESOLVER,
   DenyCompanyProductApprovalActorResolver,
@@ -172,6 +178,7 @@ export interface AppModuleOptions {
   readonly supplierPricingActorResolver?: SupplierPricingActorResolver;
   readonly companyProductApprovalActorResolver?: CompanyProductApprovalActorResolver;
   readonly catalogRepository?: PublicCatalogRepository;
+  readonly categoryRepository?: CategoryRepository;
 }
 
 @Module({})
@@ -231,6 +238,8 @@ export class AppModule {
       CompanyProductApprovalService,
       PrismaPublicCatalogRepository,
       PublicCatalogService,
+      PrismaCategoryRepository,
+      CategoryService,
       options.merchantRepository
         ? {
             provide: SINGLE_MERCHANT_REPOSITORY,
@@ -410,6 +419,15 @@ export class AppModule {
         : {
             provide: PUBLIC_CATALOG_REPOSITORY,
             useExisting: PrismaPublicCatalogRepository,
+          },
+      options.categoryRepository
+        ? {
+            provide: CATEGORY_REPOSITORY,
+            useValue: options.categoryRepository,
+          }
+        : {
+            provide: CATEGORY_REPOSITORY,
+            useExisting: PrismaCategoryRepository,
           },
     ];
 

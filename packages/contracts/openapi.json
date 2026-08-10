@@ -47,6 +47,13 @@
               "APPROVAL_STATE_INVALID",
               "IDEMPOTENCY_KEY_CONFLICT",
               "IDEMPOTENCY_KEY_REQUIRED",
+              "CATEGORY_DISABLED",
+              "CATEGORY_DUPLICATE",
+              "CATEGORY_LEVEL_INVALID",
+              "CATEGORY_NOT_FOUND",
+              "CATEGORY_NOT_LEAF",
+              "CATEGORY_PARENT_INVALID",
+              "CATEGORY_REFERENCED",
               "CATEGORY_TEMPLATE_INVALID",
               "PRICE_FIELD_FORBIDDEN",
               "PRICE_INVALID",
@@ -265,6 +272,216 @@
             "type": "number"
           }
         },
+        "type": "object"
+      },
+      "CategoryCreateRequestDto": {
+        "properties": {
+          "level": {
+            "enum": [
+              1,
+              2,
+              3
+            ],
+            "type": "number"
+          },
+          "name": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string"
+          },
+          "parentId": {
+            "format": "uuid",
+            "nullable": true,
+            "type": "string"
+          },
+          "sortWeight": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "parentId",
+          "name",
+          "level",
+          "sortWeight"
+        ],
+        "type": "object"
+      },
+      "CategoryDeleteResponseDto": {
+        "properties": {
+          "deleted": {
+            "enum": [
+              true
+            ],
+            "type": "boolean"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 1,
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "deleted",
+          "version"
+        ],
+        "type": "object"
+      },
+      "CategoryPatchRequestDto": {
+        "properties": {
+          "name": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string"
+          },
+          "parentId": {
+            "format": "uuid",
+            "nullable": true,
+            "type": "string"
+          },
+          "sortWeight": {
+            "type": "number"
+          },
+          "status": {
+            "enum": [
+              "ENABLED",
+              "DISABLED"
+            ],
+            "type": "string"
+          },
+          "version": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "version"
+        ],
+        "type": "object"
+      },
+      "CategoryResponseDto": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "level": {
+            "enum": [
+              1,
+              2,
+              3
+            ],
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "parentId": {
+            "format": "uuid",
+            "nullable": true,
+            "type": "string"
+          },
+          "sortWeight": {
+            "type": "number"
+          },
+          "status": {
+            "enum": [
+              "ENABLED",
+              "DISABLED"
+            ],
+            "type": "string"
+          },
+          "version": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "parentId",
+          "name",
+          "level",
+          "sortWeight",
+          "status",
+          "version"
+        ],
+        "type": "object"
+      },
+      "CategoryTreeNodeDto": {
+        "properties": {
+          "children": {
+            "items": {
+              "$ref": "#/components/schemas/CategoryTreeNodeDto"
+            },
+            "type": "array"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "level": {
+            "enum": [
+              1,
+              2,
+              3
+            ],
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "parentId": {
+            "format": "uuid",
+            "nullable": true,
+            "type": "string"
+          },
+          "sortWeight": {
+            "type": "number"
+          },
+          "status": {
+            "enum": [
+              "ENABLED",
+              "DISABLED"
+            ],
+            "type": "string"
+          },
+          "version": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "parentId",
+          "name",
+          "level",
+          "sortWeight",
+          "status",
+          "version",
+          "children"
+        ],
+        "type": "object"
+      },
+      "CategoryTreeResponseDto": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CategoryTreeNodeDto"
+            },
+            "type": "array"
+          },
+          "total": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ],
         "type": "object"
       },
       "ClaimSensitiveApprovalRequestDto": {
@@ -4021,6 +4238,327 @@
         "x-fulishe-request-dto": "SelectWorkspaceRequestDto",
         "x-fulishe-response-dto": "SessionResponseDto",
         "x-fulishe-response-policy": "NEVER_RETURN_INTERNAL_PRICING"
+      }
+    },
+    "/v1/company/categories": {
+      "get": {
+        "operationId": "companyCategories.list",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "enum": [
+                "ENABLED",
+                "DISABLED"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryTreeResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "List the role-scoped category tree",
+        "tags": [
+          "company-categories"
+        ]
+      },
+      "post": {
+        "operationId": "companyCategories.create",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategoryCreateRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Create a category under the fixed company session",
+        "tags": [
+          "company-categories"
+        ]
+      }
+    },
+    "/v1/company/categories/{categoryId}": {
+      "delete": {
+        "operationId": "companyCategories.delete",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "version",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "number"
+            }
+          },
+          {
+            "in": "path",
+            "name": "categoryId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryDeleteResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Delete only an unreferenced leaf category",
+        "tags": [
+          "company-categories"
+        ]
+      },
+      "patch": {
+        "operationId": "companyCategories.patch",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "categoryId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategoryPatchRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Move, sort, rename or enable/disable a category",
+        "tags": [
+          "company-categories"
+        ]
       }
     },
     "/v1/company/price-reviews": {
