@@ -242,9 +242,9 @@ test('M1 ledgers retain the exact-head gate while M2 advances one slice at a tim
   assert.equal(m2CompletedSlice.Status, 'DONE');
   assert.equal(m2CompletedSlice.EvidenceStatus, 'CI_PASS');
   assert.equal(m2CompletedSlice.CI, 'CI_PASS');
-  assert.ok(['IN_PROGRESS', 'DONE'].includes(m2CurrentSlice.Status));
-  assert.ok(['NOT_EXECUTED', 'LOCAL_PASS'].includes(m2CurrentSlice.EvidenceStatus));
-  assert.equal(m2CurrentSlice.CI, '');
+  assert.equal(m2CurrentSlice.Status, 'DONE');
+  assert.equal(m2CurrentSlice.EvidenceStatus, 'LOCAL_PASS');
+  assert.equal(m2CurrentSlice.CI, 'NOT_EXECUTED');
 
   const ext005 = externalRows.find(
     ({ DependencyID }) => DependencyID === 'EXT-005',
