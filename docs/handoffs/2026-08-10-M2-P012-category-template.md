@@ -46,6 +46,8 @@
 | 实现提交全量门禁 | `pnpm verify` 17/17，提交 `dcc4c133…` | PASS |
 | 证据提交全量门禁 | 历史交接契约仍把当前任务固定为 P011，且工作簿 manifest 为旧哈希 | FAIL，仅迁移当前状态断言并同步制品哈希 |
 | 交接 focused 重测 | 23/23；相关 ESLint 通过 | PASS |
+| 第二次证据 head 全量门禁 | 15 个旧切片契约仍把全局当前任务/前序交付固定为 P011/P010 | FAIL，仅迁移全局状态断言 |
+| 全契约 focused 重测 | 58/58；相关 ESLint 通过 | PASS |
 | 迁移演练 | empty=2、upgrade=2、restore=2、product=15、cleanup=PASS；模板约束探针通过 | PASS |
 
 全量报告为 `artifacts/test-results/verification/pnpm-verify.json`，开始 `2026-08-10T10:52:32.090Z`，结束 `2026-08-10T11:06:56.809Z`。切片证据为 `artifacts/verification/M2-P012/category-template.json`。

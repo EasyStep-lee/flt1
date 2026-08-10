@@ -73,6 +73,13 @@
       "endedAt": "2026-08-10T11:23:07.983Z",
       "cause": "M1历史交接契约把当前任务硬编码为M2-P011且把P011固定为LOCAL_PASS；工作簿制品清单仍引用更新前哈希",
       "resolution": "保持历史M1交接结论不变，仅让当前状态断言验证P011 CI_PASS、P012 LOCAL_PASS和P013锁定，并同步当前工作簿SHA-256；focused交接测试23/23通过"
+    },
+    {
+      "commit": "b4a1fd7ba9116906787888879519286b542161d2",
+      "status": "FAIL_REGRESSION_CURRENT_TASK_ASSERTIONS",
+      "command": "pnpm verify",
+      "cause": "十五个旧切片契约仍把全局currentTask和前序交付固定为M2-P011/M2-P010",
+      "resolution": "保留所有旧切片业务断言，仅迁移全局状态断言为P011 CI_PASS、P012 LOCAL_PASS、Draft PR #50和P013锁定；完整契约集58/58及相关ESLint通过"
     }
   ],
   "dataAndMigration": {

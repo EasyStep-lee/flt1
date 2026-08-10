@@ -65,17 +65,17 @@ test('M1-P069 remains recorded after its exact-head merge and P070 takeover', as
     '20260807010000_supplier_auth_sessions',
   ]);
 
-  assert.equal(state.execution.currentTask, 'M2-P011');
-  assert.equal(state.execution.nextAllowedTask, 'M2-P011');
-  assert.ok(['M2-P010', 'M2-P011'].includes(state.execution.lastCompletedTask));
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M2-P011');
-  assert.equal(state.github.currentTaskDelivery.issue, 47);
-  assert.equal(state.github.previousTaskDelivery.taskId, 'M2-P010');
+  assert.equal(state.execution.currentTask, 'M2-P012');
+  assert.equal(state.execution.nextAllowedTask, 'M2-P012');
+  assert.equal(state.execution.lastCompletedTask, 'M2-P012');
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M2-P012');
+  assert.equal(state.github.currentTaskDelivery.issue, 49);
+  assert.equal(state.github.previousTaskDelivery.taskId, 'M2-P011');
   assert.equal(
     state.github.previousTaskDelivery.exactHead,
-      '08745d1d1f2ecb41acbfc4d21104c13daa570146',
+      'abb82b1be670ab145f719d8682b59ba23ffcfe7d',
   );
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2-P011.*M2-P012/u);
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2-P012.*M2-P013/u);
 
   assert.match(tasks, /M1-P068[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(tasks, /M1-P069[^\r\n]*DONE[^\r\n]*CI_PASS/u);
