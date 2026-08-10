@@ -48,7 +48,7 @@ test('M2-P007 OpenAPI keeps material and initial-price review DTOs and roles sep
   );
 });
 
-test('M2-P007 retains evidence while M2-P010 advances locally', async () => {
+test('M2-P007 retains evidence while M2-P011 advances locally', async () => {
   const [state, taskLedger, p0Ledger, apiLedger, pageLedger, evidence, handoff] =
     await Promise.all([
       readFile(path.join(pack, '16-项目状态.json'), 'utf8').then(JSON.parse),
@@ -60,15 +60,15 @@ test('M2-P007 retains evidence while M2-P010 advances locally', async () => {
       read('docs', 'handoffs', '2026-08-09-M2-P007-company-product-approvals.md'),
     ]);
 
-  assert.equal(state.execution.currentTask, 'M2-P010');
-  assert.equal(state.execution.nextAllowedTask, 'M2-P010');
-  assert.ok(['M2-P009', 'M2-P010'].includes(state.execution.lastCompletedTask));
+  assert.equal(state.execution.currentTask, 'M2-P011');
+  assert.equal(state.execution.nextAllowedTask, 'M2-P011');
+  assert.ok(['M2-P010', 'M2-P011'].includes(state.execution.lastCompletedTask));
   assert.ok([0, 1].includes(state.execution.activeTaskCount));
   assert.equal(state.github.currentTaskDelivery.pullRequest, null);
   assert.equal(state.github.currentTaskDelivery.pullRequestState, 'NOT_CREATED');
   assert.equal(state.github.currentTaskDelivery.exactHeadCi, 'NOT_EXECUTED');
   assert.equal(state.github.currentTaskDelivery.merge, 'NOT_EXECUTED');
-  assert.equal(state.github.currentTaskDelivery.m2p011StartAllowed, false);
+  assert.equal(state.github.currentTaskDelivery.m2p012StartAllowed, false);
   assert.match(state.evidence.local, /^(?:NOT_EXECUTED|LOCAL_PASS)$/u);
   assert.equal(state.evidence.ci, 'NOT_EXECUTED');
   assert.match(taskLedger, /M2-P007[^\r\n]*DONE[^\r\n]*CI_PASS/u);
@@ -76,12 +76,12 @@ test('M2-P007 retains evidence while M2-P010 advances locally', async () => {
   assert.match(taskLedger, /M2-P009[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(
     taskLedger,
-    /M2-P010[^\r\n]*(?:IN_PROGRESS|DONE)[^\r\n]*(?:NOT_EXECUTED|LOCAL_PASS)/u,
+    /M2-P011[^\r\n]*(?:IN_PROGRESS|DONE)[^\r\n]*(?:NOT_EXECUTED|LOCAL_PASS)/u,
   );
   assert.match(p0Ledger, /P0-007[^\r\n]*CI_PASS/u);
   assert.match(apiLedger, /API-025[^\r\n]*GENERATED[^\r\n]*IMPLEMENTED/u);
   assert.match(apiLedger, /API-026[^\r\n]*GENERATED[^\r\n]*IMPLEMENTED/u);
-  assert.match(pageLedger, /PAGE-005[^\r\n]*P0-007_LOCAL_PASS/u);
+  assert.match(pageLedger, /PAGE-005[^\r\n]*P0-007_CI_PASS/u);
   assert.match(pageLedger, /PAGE-006[^\r\n]*P0-007_LOCAL_PASS/u);
   assert.equal(evidence.status, 'LOCAL_PASS');
   assert.equal(evidence.environment.ci, 'NOT_EXECUTED');
