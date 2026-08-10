@@ -1,0 +1,129 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "M2-P011",
+  "p0": [
+    "P0-011"
+  ],
+  "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+  "status": "LOCAL_PASS",
+  "branch": "codex/m2-category-tree",
+  "baseCommit": "d1c34e7a9d28199ad8e579342300a80c047e7bd3",
+  "implementationCommit": "0883c1c28b3445f9ed12c6178c23b88247fd3a58",
+  "scope": {
+    "goal": "建立公司范围严格三级分类树，并让供应商商品创建、修改、提交和公司双审物化统一校验同公司启用末级分类",
+    "nonGoals": [
+      "CategoryTemplate及P0-012",
+      "正式生产分类数据导入与业务确认",
+      "用户小程序分类搜索及P0-087",
+      "价格、库存、交易、配送以及M2-P012后续切片"
+    ]
+  },
+  "redEvidence": [
+    {
+      "test": "apps/api/test/supertest/categories-api.test.mjs",
+      "result": "FAIL_5_OF_5",
+      "cause": "dist/categories/in-memory-category.repository.js尚不存在，分类运行时模块未实现"
+    }
+  ],
+  "focusedGreen": {
+    "categoryApi": "PASS_5_OF_5",
+    "relatedSupplierProductApis": "PASS_24_OF_24",
+    "contractAndMigration": "PASS_3_OF_3",
+    "p0Playwright": "PASS_2_OF_2",
+    "openApiInventory": "PASS_4_OF_4",
+    "behaviors": [
+      "仅COMPANY_PRODUCT_OPS固定职能和当前公司数据域可访问",
+      "严格1至3级父子关系、无循环、同父重名拒绝并确定性排序",
+      "创建、移动、排序、启停和删除使用乐观版本、幂等键和追加历史",
+      "有子节点或被SupplierProduct/Product引用的分类禁止物理删除",
+      "供应商商品创建、修改、提交与公司物化统一复核同公司启用末级分类",
+      "成功命令在分类后续停用后仍可幂等重放，不重复写历史",
+      "PAGE-005覆盖成功、空态、加载、无权、离线、错误与重试",
+      "分类DTO和页面不返回供应价、companyId或functionalAccountId"
+    ]
+  },
+  "verificationAttempts": [
+    {
+      "commit": "58d39097565e2fea5eba8d4ef3c6e842ebee4891",
+      "status": "FAIL",
+      "cause": "OpenAPI确定性清单测试未登记两个分类路径及六个Category DTO schema",
+      "resolution": "更新精确路径/schema清单；未降低断言或跳过门禁"
+    },
+    {
+      "commit": "0883c1c28b3445f9ed12c6178c23b88247fd3a58",
+      "status": "PASS_17_OF_17",
+      "command": "pnpm verify",
+      "startedAt": "2026-08-10T06:56:26.970Z",
+      "endedAt": "2026-08-10T07:09:52.213Z",
+      "report": "artifacts/test-results/verification/pnpm-verify.json",
+      "openApiGenerateDiffCheckBreaking": "PASS",
+      "prismaValidate": "PASS",
+      "migrationIntegrity": "PASS",
+      "migrationRehearsal": "PASS_EMPTY_2_UPGRADE_2_RESTORE_2_PRODUCT_14_CLEANUP",
+      "build": "PASS",
+      "secretsScan": "PASS"
+    }
+  ],
+  "dataAndMigration": {
+    "migration": "packages/db/prisma/migrations/20260810062000_m2_category_tree/migration.sql",
+    "newModels": [
+      "Category",
+      "CategoryHistory",
+      "CategoryCommand"
+    ],
+    "constraints": [
+      "companyId+parentScopeKey+name unique",
+      "categoryId+version history unique",
+      "scope+idempotencyKey command unique",
+      "database triggers enforce parent level and prevent referenced deletion",
+      "category_history update/delete rejected"
+    ],
+    "backfill": "NONE_NEW_STAGE_NO_FORMAL_CATEGORY_DATA",
+    "rollback": "回退应用提交；若迁移已在共享环境应用，不修改已发布迁移，保留兼容schema并用后续向前修复迁移处理"
+  },
+  "contractsAndPage": {
+    "apis": [
+      "GET /v1/company/categories",
+      "POST /v1/company/categories",
+      "PATCH /v1/company/categories/{categoryId}",
+      "DELETE /v1/company/categories/{categoryId}"
+    ],
+    "page": "PAGE-005 /company-admin/workspaces/product-ops",
+    "openApi": "packages/contracts/openapi.json",
+    "generatedTypes": "packages/contracts/types.ts"
+  },
+  "environmentBoundary": {
+    "local": "LOCAL_PASS",
+    "ci": "NOT_EXECUTED",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_APPLICABLE_FOR_THIS_SLICE",
+    "production": "NOT_EXECUTED",
+    "formalTaxonomy": "BLOCKED_EXTERNAL_AUTHORIZED_PRODUCT_OPERATIONS_CONFIRMATION"
+  },
+  "github": {
+    "repository": "EasyStep-lee/flt1",
+    "issue": 47,
+    "pullRequest": null,
+    "exactHeadCi": "NOT_EXECUTED",
+    "review": "NOT_EXECUTED",
+    "merge": "NOT_EXECUTED",
+    "mainPostMergeCi": "NOT_EXECUTED",
+    "previousSlice": {
+      "taskId": "M2-P010",
+      "pullRequest": 46,
+      "exactHead": "08745d1d1f2ecb41acbfc4d21104c13daa570146",
+      "pullRequestCiRun": 31358378754,
+      "mergeCommit": "d1c34e7a9d28199ad8e579342300a80c047e7bd3",
+      "mainCiRun": 31359557525,
+      "status": "CI_PASS"
+    }
+  },
+  "risks": [
+    "CategoryTemplate未实现，不能把P0-011证据扩展为P0-012或模板化详情完成",
+    "正式分类名称和结构需要授权商品运营确认，本地自动化使用测试数据不能替代生产分类验收",
+    "共享环境一旦应用迁移只能向前修复，回退应用时需保留兼容schema",
+    "当前仅本地Node/Prisma/MySQL/Chromium证据，不能升级为CI、staging或production"
+  ],
+  "nextAllowedTask": "M2-P011_DRAFT_PR_GATE_ONLY",
+  "m2p012StartAllowed": false
+}

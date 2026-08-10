@@ -108,6 +108,20 @@ enum SkuStatus {
   ARCHIVED
 }
 
+enum CategoryStatus {
+  ENABLED
+  DISABLED
+}
+
+enum CategoryHistoryEvent {
+  CREATE
+  UPDATE
+  MOVE
+  ENABLE
+  DISABLE
+  DELETE
+}
+
 enum SupplierStatusEvent {
   REGISTER
   SUBMIT
@@ -230,6 +244,7 @@ model Company {
   users              CompanyUser[]
   functionalAccounts FunctionalAccount[]
   products           Product[]
+  categories         Category[]
 
   @@map("company")
 }
@@ -580,6 +595,58 @@ model SupplierOnboardingCommand {
 
   @@unique([scope, idempotencyKey], map: "supplier_onboarding_command_scope_key")
   @@map("supplier_onboarding_command")
+}
+
+model Category {
+  id             String         @id @default(uuid()) @db.Char(36)
+  companyId      String         @map("company_id") @db.Char(36)
+  parentId       String?        @map("parent_id") @db.Char(36)
+  parentScopeKey String         @map("parent_scope_key") @db.Char(36)
+  name           String         @db.VarChar(100)
+  level          Int
+  sortWeight     Int            @map("sort_weight")
+  status         CategoryStatus @default(ENABLED)
+  version        Int            @default(0)
+  createdAt      DateTime       @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt      DateTime       @updatedAt @map("updated_at") @db.DateTime(3)
+  company        Company        @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  parent         Category?      @relation("CategoryTree", fields: [parentId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  children       Category[]     @relation("CategoryTree")
+
+  @@unique([companyId, parentScopeKey, name], map: "category_company_parent_name_key")
+  @@index([companyId, level, status, sortWeight], map: "category_company_level_status_sort_idx")
+  @@index([parentId, sortWeight], map: "category_parent_sort_idx")
+  @@map("category")
+}
+
+model CategoryHistory {
+  id                  String               @id @default(uuid()) @db.Char(36)
+  categoryId          String               @map("category_id") @db.Char(36)
+  companyId           String               @map("company_id") @db.Char(36)
+  event               CategoryHistoryEvent
+  version             Int
+  snapshot            Json
+  actorIdentityId     String               @map("actor_identity_id") @db.Char(36)
+  functionalAccountId String               @map("functional_account_id") @db.Char(36)
+  requestId           String               @map("request_id") @db.Char(36)
+  occurredAt          DateTime             @default(now()) @map("occurred_at") @db.DateTime(3)
+
+  @@unique([categoryId, version], map: "category_history_category_version_key")
+  @@index([companyId, occurredAt], map: "category_history_company_time_idx")
+  @@index([requestId], map: "category_history_request_id_idx")
+  @@map("category_history")
+}
+
+model CategoryCommand {
+  id               String   @id @default(uuid()) @db.Char(36)
+  scope            String   @db.VarChar(160)
+  idempotencyKey   String   @map("idempotency_key") @db.VarChar(128)
+  requestHash      String   @map("request_hash") @db.Char(64)
+  responseSnapshot Json     @map("response_snapshot")
+  createdAt        DateTime @default(now()) @map("created_at") @db.DateTime(3)
+
+  @@unique([scope, idempotencyKey], map: "category_command_scope_key")
+  @@map("category_command")
 }
 
 model SupplierProduct {

@@ -4,6 +4,7 @@ import request from 'supertest';
 import { describe, expect, it } from 'vitest';
 
 import { InMemoryAuditLogRepository } from '../../dist/audit/in-memory-audit-log.repository.js';
+import { InMemoryCategoryRepository } from '../../dist/categories/in-memory-category.repository.js';
 import { createApplication } from '../../dist/bootstrap.js';
 import { loadRuntimeConfig } from '../../dist/config/runtime-config.js';
 import { InMemorySupplierProductRepository } from '../../dist/supplier-products/in-memory-supplier-product.repository.js';
@@ -86,6 +87,14 @@ const createFixture = async ({ auditFail = false, safeDefault = false } = {}) =>
     companies: [company],
     suppliers: [supplier, supplierB],
   });
+  const categories = new InMemoryCategoryRepository({
+    auditLogRepository: audit,
+    companies: [company],
+    suppliers: [supplier, supplierB],
+  });
+  const root = await categories.seedForTest({ companyId: company.id, parentId: null, name: '食品', level: 1, sortWeight: 1 });
+  const middle = await categories.seedForTest({ companyId: company.id, parentId: root.id, name: '粮油', level: 2, sortWeight: 1 });
+  await categories.seedForTest({ id: draftBody.categoryId, companyId: company.id, parentId: middle.id, name: '大米', level: 3, sortWeight: 1 });
   const productActor = {
     role: 'SUPPLIER_PRODUCT',
     supplierId: supplier.id,
@@ -109,6 +118,7 @@ const createFixture = async ({ auditFail = false, safeDefault = false } = {}) =>
     config: config(),
     probes: probes(),
     auditLogRepository: audit,
+    categoryRepository: categories,
     supplierProductRepository: repository,
     supplierProductActorResolver: { resolve: async () => ({ ...productActor }) },
     ...(safeDefault

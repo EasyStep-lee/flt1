@@ -1,5 +1,6 @@
 import { AuditLogController } from '../audit/audit-log.controller.js';
 import { PublicCatalogController } from '../catalog/public-catalog.controller.js';
+import { CategoryController } from '../categories/category.controller.js';
 import { CompanyAuthController } from '../company-auth/company-auth.controller.js';
 import {
   CompanyInitialPriceReviewController,
@@ -21,6 +22,7 @@ import { SupplierPricingController } from '../supplier-pricing/supplier-pricing.
 export const OPENAPI_CONTROLLERS = Object.freeze([
   AuditLogController,
   PublicCatalogController,
+  CategoryController,
   CompanyAuthController,
   CompanyProductMaterialReviewController,
   CompanyInitialPriceReviewController,

@@ -23,6 +23,11 @@ import {
   type PublicCatalogRepository,
 } from '../catalog/public-catalog.repository.js';
 import { PublicCatalogService } from '../catalog/public-catalog.service.js';
+import { CategoryService } from '../categories/category.service.js';
+import {
+  CATEGORY_REPOSITORY,
+  type CategoryRepository,
+} from '../categories/category.repository.js';
 import {
   COMPANY_AUTH_REPOSITORY,
   type CompanyAuthRepository,
@@ -306,12 +311,16 @@ type JsonValue =
     SupplierPricingService,
     CompanyProductApprovalService,
     PublicCatalogService,
+    CategoryService,
     DenyCompanyProductApprovalActorResolver,
     DenySupplierProductActorResolver,
     DenySupplierPricingActorResolver,
     {
       provide: SUPPLIER_PRODUCT_REPOSITORY,
       useValue: {
+        replayMutation: async () => null,
+        categoryIsReferenced: async () => false,
+        findCategoryAssignment: async () => null,
         createDraft: async () => {
           throw new Error('OPENAPI_GENERATION_ONLY');
         },
@@ -336,6 +345,22 @@ type JsonValue =
         },
         findSellableProductBySupplierProductId: async () => null,
       } satisfies SupplierProductRepository,
+    },
+    {
+      provide: CATEGORY_REPOSITORY,
+      useValue: {
+        list: async () => [],
+        create: async () => {
+          throw new Error('OPENAPI_GENERATION_ONLY');
+        },
+        patch: async () => {
+          throw new Error('OPENAPI_GENERATION_ONLY');
+        },
+        delete: async () => {
+          throw new Error('OPENAPI_GENERATION_ONLY');
+        },
+        validateSupplierAssignment: async () => ({ kind: 'CATEGORY_NOT_FOUND' }),
+      } satisfies CategoryRepository,
     },
     {
       provide: SUPPLIER_PRODUCT_ACTOR_RESOLVER,

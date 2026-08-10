@@ -110,10 +110,36 @@ export class InMemorySupplierProductRepository implements SupplierProductReposit
     this.suppliers = clone(options.suppliers);
   }
 
+  replayMutation<T>(
+    scope: string,
+    idempotencyKey: string,
+    requestHash: string,
+  ): Promise<SupplierProductMutationResult<T> | null> {
+    return Promise.resolve(this.replay<T>(scope, { idempotencyKey, requestHash }));
+  }
+
+  categoryIsReferenced(categoryId: string): Promise<boolean> {
+    return Promise.resolve(
+      [...this.supplierProducts.values()].some((product) => product.categoryId === categoryId),
+    );
+  }
+
+  findCategoryAssignment(
+    supplierProductId: string,
+    supplierId?: string,
+  ): Promise<{ readonly categoryId: string; readonly supplierId: string } | null> {
+    const value = this.supplierProducts.get(supplierProductId);
+    if (!value || (supplierId !== undefined && value.supplierId !== supplierId)) {
+      return Promise.resolve(null);
+    }
+    return Promise.resolve({ categoryId: value.categoryId, supplierId: value.supplierId });
+  }
+
   async createDraft(
     command: CreateSupplierProductCommand,
   ): Promise<SupplierProductMutationResult<SupplierProductRecord>> {
-    const replay = this.replay<SupplierProductRecord>('CREATE', command);
+    const scope = `CREATE:${command.supplierId}`;
+    const replay = this.replay<SupplierProductRecord>(scope, command);
     if (replay) return replay;
     if (!this.singleMerchantIsActive()) return { kind: 'COMPANY_INVARIANT' };
     if (!this.isActiveSupplier(command.supplierId)) return { kind: 'SUPPLIER_INACTIVE' };
@@ -161,14 +187,15 @@ export class InMemorySupplierProductRepository implements SupplierProductReposit
       ),
     };
     this.supplierProducts.set(value.id, value);
-    this.remember('CREATE', command, value);
+    this.remember(scope, command, value);
     return { kind: 'OK', value: clone(value), replayed: false };
   }
 
   async patchDraft(
     command: PatchSupplierProductCommand,
   ): Promise<SupplierProductMutationResult<SupplierProductRecord>> {
-    const replay = this.replay<SupplierProductRecord>('PATCH', command);
+    const scope = `PATCH:${command.supplierId}:${command.supplierProductId}`;
+    const replay = this.replay<SupplierProductRecord>(scope, command);
     if (replay) return replay;
     const existing = this.findOwned(command.supplierProductId, command.supplierId);
     if (!existing) return { kind: 'NOT_FOUND' };
@@ -216,7 +243,7 @@ export class InMemorySupplierProductRepository implements SupplierProductReposit
       version: existing.version + 1,
     };
     this.supplierProducts.set(existing.id, patched);
-    this.remember('PATCH', command, patched);
+    this.remember(scope, command, patched);
     return { kind: 'OK', value: clone(patched), replayed: false };
   }
 
@@ -228,10 +255,11 @@ export class InMemorySupplierProductRepository implements SupplierProductReposit
       readonly approvalTask: ProductMaterialApprovalRecord;
     }>
   > {
+    const scope = `SUBMIT:${command.supplierId}:${command.supplierProductId}`;
     const replay = this.replay<{
       readonly supplierProduct: SupplierProductRecord;
       readonly approvalTask: ProductMaterialApprovalRecord;
-    }>('SUBMIT', command);
+    }>(scope, command);
     if (replay) return replay;
     const existing = this.findOwned(command.supplierProductId, command.supplierId);
     if (!existing) return { kind: 'NOT_FOUND' };
@@ -300,7 +328,7 @@ export class InMemorySupplierProductRepository implements SupplierProductReposit
     };
     this.supplierProducts.set(existing.id, supplierProduct);
     this.approvalTasks.set(approvalTask.id, approvalTask);
-    this.remember('SUBMIT', command, value);
+    this.remember(scope, command, value);
     return { kind: 'OK', value: clone(value), replayed: false };
   }
 
@@ -558,11 +586,12 @@ export class InMemorySupplierProductRepository implements SupplierProductReposit
   async materializeApproved(
     command: MaterializeApprovedProductCommand,
   ): Promise<SupplierProductMutationResult<MaterializedProductRecord>> {
-    const replay = this.replay<MaterializedProductRecord>('MATERIALIZE', command);
+    const scope = `MATERIALIZE:${command.supplierProductId}`;
+    const replay = this.replay<MaterializedProductRecord>(scope, command);
     if (replay) return replay;
     const existingProduct = this.products.get(command.supplierProductId);
     if (existingProduct) {
-      this.remember('MATERIALIZE', command, existingProduct);
+      this.remember(scope, command, existingProduct);
       return { kind: 'OK', value: clone(existingProduct), replayed: true };
     }
     const supplierProduct = this.supplierProducts.get(command.supplierProductId);
@@ -593,7 +622,7 @@ export class InMemorySupplierProductRepository implements SupplierProductReposit
       version: supplierProduct.version + 1,
       skus: supplierProduct.skus.map((sku) => ({ ...sku, status: 'ACTIVE' })),
     });
-    this.remember('MATERIALIZE', command, value);
+    this.remember(scope, command, value);
     return { kind: 'OK', value: clone(value), replayed: false };
   }
 

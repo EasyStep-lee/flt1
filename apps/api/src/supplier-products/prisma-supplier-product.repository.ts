@@ -130,6 +130,38 @@ const parseStored = <T>(value: Prisma.JsonValue): T => structuredClone(value) as
 export class PrismaSupplierProductRepository implements SupplierProductRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
+  replayMutation<T>(
+    scope: string,
+    idempotencyKey: string,
+    requestHash: string,
+  ): Promise<SupplierProductMutationResult<T> | null> {
+    return this.replay<T>(this.prisma, scope, idempotencyKey, requestHash);
+  }
+
+  async categoryIsReferenced(categoryId: string): Promise<boolean> {
+    const [supplierProduct, product] = await Promise.all([
+      this.prisma.supplierProduct.findFirst({
+        where: { categoryId },
+        select: { id: true },
+      }),
+      this.prisma.product.findFirst({ where: { categoryId }, select: { id: true } }),
+    ]);
+    return Boolean(supplierProduct || product);
+  }
+
+  async findCategoryAssignment(
+    supplierProductId: string,
+    supplierId?: string,
+  ): Promise<{ readonly categoryId: string; readonly supplierId: string } | null> {
+    return this.prisma.supplierProduct.findFirst({
+      where: {
+        id: supplierProductId,
+        ...(supplierId === undefined ? {} : { supplierId }),
+      },
+      select: { categoryId: true, supplierId: true },
+    });
+  }
+
   async createDraft(
     command: CreateSupplierProductCommand,
   ): Promise<SupplierProductMutationResult<SupplierProductRecord>> {

@@ -178,15 +178,15 @@ test('M1-P003 retains its local evidence after PR and main CI closure', async ()
 
   assert.equal(state.execution.currentStage, 'M2');
   assert.equal(state.execution.currentTask, state.execution.nextAllowedTask);
-  assert.equal(state.execution.currentTask, 'M2-P010');
+  assert.equal(state.execution.currentTask, 'M2-P011');
   assert.equal(state.execution.activeTaskCount, active.length);
-  assert.ok(['M2-P009', 'M2-P010'].includes(state.execution.lastCompletedTask));
+  assert.ok(['M2-P010', 'M2-P011'].includes(state.execution.lastCompletedTask));
   assert.equal(state.execution.lastPassedGate, 'M1-GATE');
   assert.equal(state.github.repository, 'EasyStep-lee/flt1');
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M2-P010');
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M2-P011');
   assert.match(state.github.currentTaskDelivery.status, /^(?:IN_PROGRESS|LOCAL_PASS)$/u);
-  assert.equal(state.github.previousTaskDelivery.taskId, 'M2-P009');
-  assert.equal(state.github.previousTaskDelivery.pullRequest, 44);
+  assert.equal(state.github.previousTaskDelivery.taskId, 'M2-P010');
+  assert.equal(state.github.previousTaskDelivery.pullRequest, 46);
   assert.match(m2p008?.Status, /^(?:IN_PROGRESS|DONE)$/u);
   assert.match(state.evidence.local, /^(?:NOT_EXECUTED|LOCAL_PASS)$/u);
   assert.equal(state.evidence.ci, 'NOT_EXECUTED');
