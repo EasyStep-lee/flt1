@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 
 import { InMemoryAuditLogRepository } from '../../dist/audit/in-memory-audit-log.repository.js';
 import { InMemoryCategoryRepository } from '../../dist/categories/in-memory-category.repository.js';
+import { InMemoryCategoryTemplateRepository } from '../../dist/category-templates/in-memory-category-template.repository.js';
 import { createApplication } from '../../dist/bootstrap.js';
 import { loadRuntimeConfig } from '../../dist/config/runtime-config.js';
 import { InMemorySupplierProductRepository } from '../../dist/supplier-products/in-memory-supplier-product.repository.js';
@@ -94,7 +95,9 @@ const createFixture = async ({ auditFail = false, safeDefault = false } = {}) =>
   });
   const root = await categories.seedForTest({ companyId: company.id, parentId: null, name: '食品', level: 1, sortWeight: 1 });
   const middle = await categories.seedForTest({ companyId: company.id, parentId: root.id, name: '粮油', level: 2, sortWeight: 1 });
-  await categories.seedForTest({ id: draftBody.categoryId, companyId: company.id, parentId: middle.id, name: '大米', level: 3, sortWeight: 1 });
+  const leaf = await categories.seedForTest({ id: draftBody.categoryId, companyId: company.id, parentId: middle.id, name: '大米', level: 3, sortWeight: 1 });
+  const templates = new InMemoryCategoryTemplateRepository({ auditLogRepository: audit, categoryRepository: categories });
+  await templates.seedPublishedForTest({ companyId: company.id, categoryId: leaf.id });
   const productActor = {
     role: 'SUPPLIER_PRODUCT',
     supplierId: supplier.id,
@@ -119,6 +122,7 @@ const createFixture = async ({ auditFail = false, safeDefault = false } = {}) =>
     probes: probes(),
     auditLogRepository: audit,
     categoryRepository: categories,
+    categoryTemplateRepository: templates,
     supplierProductRepository: repository,
     supplierProductActorResolver: { resolve: async () => ({ ...productActor }) },
     ...(safeDefault

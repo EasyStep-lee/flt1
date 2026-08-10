@@ -4,6 +4,7 @@ import request from 'supertest';
 import { createApplication } from '../../dist/bootstrap.js';
 import { InMemoryAuditLogRepository } from '../../dist/audit/in-memory-audit-log.repository.js';
 import { InMemoryCategoryRepository } from '../../dist/categories/in-memory-category.repository.js';
+import { InMemoryCategoryTemplateRepository } from '../../dist/category-templates/in-memory-category-template.repository.js';
 import { loadRuntimeConfig } from '../../dist/config/runtime-config.js';
 import { InMemorySupplierProductRepository } from '../../dist/supplier-products/in-memory-supplier-product.repository.js';
 import { SupplierProductService } from '../../dist/supplier-products/supplier-product.service.js';
@@ -93,7 +94,7 @@ const createFixture = async ({ safeDefault = false } = {}) => {
     level: 2,
     sortWeight: 1,
   });
-  await categories.seedForTest({
+  const leaf = await categories.seedForTest({
     id: categoryId,
     companyId: company.id,
     parentId: middle.id,
@@ -101,6 +102,11 @@ const createFixture = async ({ safeDefault = false } = {}) => {
     level: 3,
     sortWeight: 1,
   });
+  const templates = new InMemoryCategoryTemplateRepository({
+    auditLogRepository: audit,
+    categoryRepository: categories,
+  });
+  await templates.seedPublishedForTest({ companyId: company.id, categoryId: leaf.id });
   const repository = new InMemorySupplierProductRepository({
     companies: [company],
     suppliers: [supplierA, supplierB],
@@ -111,6 +117,7 @@ const createFixture = async ({ safeDefault = false } = {}) => {
     probes: probes(),
     auditLogRepository: audit,
     categoryRepository: categories,
+    categoryTemplateRepository: templates,
     supplierProductRepository: repository,
     ...(safeDefault
       ? {}

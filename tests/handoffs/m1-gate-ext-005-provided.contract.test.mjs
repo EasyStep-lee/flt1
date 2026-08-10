@@ -134,21 +134,22 @@ test('historical EXT-005 evidence stays locked while current state advances only
   const m2p009 = tasks.find(({ TaskID }) => TaskID === 'M2-P009');
   const m2p010 = tasks.find(({ TaskID }) => TaskID === 'M2-P010');
   const m2p011 = tasks.find(({ TaskID }) => TaskID === 'M2-P011');
+  const m2p012 = tasks.find(({ TaskID }) => TaskID === 'M2-P012');
 
   assert.equal(projectStatus.execution.status, 'M2_IN_PROGRESS');
-  assert.equal(projectStatus.execution.currentTask, 'M2-P011');
-  assert.equal(projectStatus.execution.nextAllowedTask, 'M2-P011');
+  assert.equal(projectStatus.execution.currentTask, 'M2-P012');
+  assert.equal(projectStatus.execution.nextAllowedTask, 'M2-P012');
   assert.equal(
     projectStatus.execution.activeTaskCount,
-    m2p011.Status === 'IN_PROGRESS' ? 1 : 0,
+    m2p012.Status === 'IN_PROGRESS' ? 1 : 0,
   );
   assert.equal(projectStatus.execution.lastPassedGate, 'M1-GATE');
-  assert.equal(projectStatus.github.currentTaskDelivery.taskId, 'M2-P011');
-  assert.equal(projectStatus.github.currentTaskDelivery.issue, 47);
-  assert.equal(projectStatus.github.currentTaskDelivery.exactHeadCi, 'NOT_EXECUTED');
-  assert.equal(projectStatus.github.currentTaskDelivery.m2p012StartAllowed, false);
-  assert.equal(projectStatus.github.previousTaskDelivery.taskId, 'M2-P010');
-  assert.equal(projectStatus.github.previousTaskDelivery.pullRequest, 46);
+  assert.equal(projectStatus.github.currentTaskDelivery.taskId, 'M2-P012');
+  assert.equal(projectStatus.github.currentTaskDelivery.issue, 49);
+  assert.equal(projectStatus.github.currentTaskDelivery.exactHeadCi, 'NOT_EXECUTED_FINAL_HEAD');
+  assert.equal(projectStatus.github.currentTaskDelivery.m2p013StartAllowed, false);
+  assert.equal(projectStatus.github.previousTaskDelivery.taskId, 'M2-P011');
+  assert.equal(projectStatus.github.previousTaskDelivery.pullRequest, 48);
   assert.equal(projectStatus.github.previousTaskDelivery.status, 'CI_PASS');
 
   assert.equal(m1Gate.Status, 'DONE');
@@ -174,8 +175,12 @@ test('historical EXT-005 evidence stays locked while current state advances only
   assert.equal(m2p009.CI, 'CI_PASS');
   assert.equal(m2p010.Status, 'DONE');
   assert.equal(m2p010.EvidenceStatus, 'CI_PASS');
-  assert.ok(['IN_PROGRESS', 'DONE'].includes(m2p011.Status));
-  assert.ok(['NOT_EXECUTED', 'LOCAL_PASS'].includes(m2p011.EvidenceStatus));
+  assert.equal(m2p011.Status, 'DONE');
+  assert.equal(m2p011.EvidenceStatus, 'CI_PASS');
+  assert.equal(m2p011.CI, 'CI_PASS');
+  assert.equal(m2p012.Status, 'DONE');
+  assert.equal(m2p012.EvidenceStatus, 'LOCAL_PASS');
+  assert.equal(m2p012.CI, 'NOT_EXECUTED');
 
   assert.equal(evidence.schemaVersion, '1.0.0');
   assert.equal(evidence.taskId, 'M1-GATE-EXT005-PROVIDED');

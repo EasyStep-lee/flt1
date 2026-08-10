@@ -223,6 +223,58 @@ export interface paths {
         patch: operations["companyCategories.patch"];
         trace?: never;
     };
+    "/v1/company/categories/{categoryId}/template-versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List immutable template versions for one company leaf category */
+        get: operations["companyCategoryTemplates.list"];
+        put?: never;
+        /** Create the next category template draft version */
+        post: operations["companyCategoryTemplates.createDraft"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/company/category-template-versions/{templateId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Edit only a category template draft with optimistic locking */
+        patch: operations["companyCategoryTemplates.patchDraft"];
+        trace?: never;
+    };
+    "/v1/company/category-template-versions/{templateId}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Publish a draft and atomically retire the prior active version */
+        post: operations["companyCategoryTemplates.publish"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/company/price-reviews": {
         parameters: {
             query?: never;
@@ -574,7 +626,7 @@ export interface components {
              * @example RESOURCE_NOT_FOUND
              * @enum {string}
              */
-            code: "ACCESS_DENIED" | "AUTHENTICATION_REQUIRED" | "INTERNAL_ERROR" | "REQUEST_INVALID" | "RESOURCE_NOT_FOUND" | "SERVICE_UNAVAILABLE" | "FORBIDDEN_CAPABILITY" | "PAYEE_FORBIDDEN" | "SELLER_IDENTITY_FORBIDDEN" | "SINGLE_MERCHANT_VIOLATION" | "ACTOR_SPOOFED" | "ACCOUNT_TYPE_INVALID" | "APPROVAL_VERSION_CONFLICT" | "DATA_SCOPE_FORBIDDEN" | "FIELD_FORBIDDEN" | "IDEMPOTENCY_CONFLICT" | "SECOND_VERIFICATION_REQUIRED" | "STATE_TRANSITION_INVALID" | "SUPPLIER_DUPLICATE" | "SUPPLIER_SCOPE_FORBIDDEN" | "VALIDATION_FAILED" | "VERSION_CONFLICT" | "WORKSPACE_FORBIDDEN" | "ACCOUNT_SUSPENDED" | "AUTH_INVALID" | "AUTH_SESSION_REVOKED" | "RATE_LIMITED" | "SUPPLIER_NOT_ACTIVE" | "WORKSPACE_MENU_VIOLATION" | "WORKSPACE_MODULE_NOT_FOUND" | "WORKSPACE_SELECTION_REQUIRED" | "WORKSPACE_SESSION_CONFLICT" | "AUDIT_IMMUTABLE" | "AUDIT_REQUIRED" | "EXPORT_APPROVAL_REQUIRED" | "REQUEST_ID_REQUIRED" | "SAME_NATURAL_PERSON_REVIEW" | "SECOND_REVIEW_REQUIRED" | "APPROVAL_NOT_FOUND" | "APPROVAL_STATE_INVALID" | "IDEMPOTENCY_KEY_CONFLICT" | "IDEMPOTENCY_KEY_REQUIRED" | "CATEGORY_DISABLED" | "CATEGORY_DUPLICATE" | "CATEGORY_LEVEL_INVALID" | "CATEGORY_NOT_FOUND" | "CATEGORY_NOT_LEAF" | "CATEGORY_PARENT_INVALID" | "CATEGORY_REFERENCED" | "CATEGORY_TEMPLATE_INVALID" | "PRICE_FIELD_FORBIDDEN" | "PRICE_INVALID" | "INITIAL_PRICE_REVIEW_PENDING" | "INITIAL_PRICE_STATE_INVALID" | "PRODUCT_APPROVAL_INCOMPLETE" | "PRODUCT_NOT_SALEABLE" | "SUPPLIER_INACTIVE" | "SUPPLIER_PRODUCT_DUPLICATE" | "SUPPLIER_PRODUCT_NOT_FOUND" | "SUPPLIER_SKU_DUPLICATE" | "SELF_APPROVAL_FORBIDDEN";
+            code: "ACCESS_DENIED" | "AUTHENTICATION_REQUIRED" | "INTERNAL_ERROR" | "REQUEST_INVALID" | "RESOURCE_NOT_FOUND" | "SERVICE_UNAVAILABLE" | "FORBIDDEN_CAPABILITY" | "PAYEE_FORBIDDEN" | "SELLER_IDENTITY_FORBIDDEN" | "SINGLE_MERCHANT_VIOLATION" | "ACTOR_SPOOFED" | "ACCOUNT_TYPE_INVALID" | "APPROVAL_VERSION_CONFLICT" | "DATA_SCOPE_FORBIDDEN" | "FIELD_FORBIDDEN" | "IDEMPOTENCY_CONFLICT" | "SECOND_VERIFICATION_REQUIRED" | "STATE_TRANSITION_INVALID" | "SUPPLIER_DUPLICATE" | "SUPPLIER_SCOPE_FORBIDDEN" | "VALIDATION_FAILED" | "VERSION_CONFLICT" | "WORKSPACE_FORBIDDEN" | "ACCOUNT_SUSPENDED" | "AUTH_INVALID" | "AUTH_SESSION_REVOKED" | "RATE_LIMITED" | "SUPPLIER_NOT_ACTIVE" | "WORKSPACE_MENU_VIOLATION" | "WORKSPACE_MODULE_NOT_FOUND" | "WORKSPACE_SELECTION_REQUIRED" | "WORKSPACE_SESSION_CONFLICT" | "AUDIT_IMMUTABLE" | "AUDIT_REQUIRED" | "EXPORT_APPROVAL_REQUIRED" | "REQUEST_ID_REQUIRED" | "SAME_NATURAL_PERSON_REVIEW" | "SECOND_REVIEW_REQUIRED" | "APPROVAL_NOT_FOUND" | "APPROVAL_STATE_INVALID" | "IDEMPOTENCY_KEY_CONFLICT" | "IDEMPOTENCY_KEY_REQUIRED" | "CATEGORY_DISABLED" | "CATEGORY_DUPLICATE" | "CATEGORY_LEVEL_INVALID" | "CATEGORY_NOT_FOUND" | "CATEGORY_NOT_LEAF" | "CATEGORY_PARENT_INVALID" | "CATEGORY_REFERENCED" | "CATEGORY_TEMPLATE_INVALID" | "PRICE_FIELD_FORBIDDEN" | "PRICE_INVALID" | "INITIAL_PRICE_REVIEW_PENDING" | "INITIAL_PRICE_STATE_INVALID" | "PRODUCT_APPROVAL_INCOMPLETE" | "PRODUCT_NOT_SALEABLE" | "SUPPLIER_INACTIVE" | "SUPPLIER_PRODUCT_DUPLICATE" | "SUPPLIER_PRODUCT_NOT_FOUND" | "SUPPLIER_SKU_DUPLICATE" | "SELF_APPROVAL_FORBIDDEN" | "TEMPLATE_DRAFT_EXISTS" | "TEMPLATE_IMMUTABLE" | "TEMPLATE_NOT_FOUND" | "TEMPLATE_SCHEMA_INVALID" | "TEMPLATE_VERSION_INACTIVE";
             /** @example Resource was not found */
             message: string;
             /** @example /missing */
@@ -672,6 +724,59 @@ export interface components {
             sortWeight: number;
             /** @enum {string} */
             status: "ENABLED" | "DISABLED";
+            version: number;
+        };
+        CategoryTemplateCreateRequestDto: {
+            afterSaleRules: components["schemas"]["TemplateAfterSaleRulesDto"];
+            detailModules: components["schemas"]["TemplateDetailModulesDto"];
+            fieldSchema: components["schemas"]["TemplateFieldSchemaDto"];
+            qualificationRules: components["schemas"]["TemplateQualificationRulesDto"];
+            skuDimensions: components["schemas"]["TemplateSkuDimensionsDto"];
+        };
+        CategoryTemplateDefinitionDto: {
+            afterSaleRules: components["schemas"]["TemplateAfterSaleRulesDto"];
+            detailModules: components["schemas"]["TemplateDetailModulesDto"];
+            fieldSchema: components["schemas"]["TemplateFieldSchemaDto"];
+            qualificationRules: components["schemas"]["TemplateQualificationRulesDto"];
+            skuDimensions: components["schemas"]["TemplateSkuDimensionsDto"];
+        };
+        CategoryTemplateListResponseDto: {
+            activeVersion: number | null;
+            /** Format: uuid */
+            categoryId: string;
+            items: components["schemas"]["CategoryTemplateResponseDto"][];
+            total: number;
+        };
+        CategoryTemplatePatchRequestDto: {
+            afterSaleRules: components["schemas"]["TemplateAfterSaleRulesDto"];
+            detailModules: components["schemas"]["TemplateDetailModulesDto"];
+            fieldSchema: components["schemas"]["TemplateFieldSchemaDto"];
+            qualificationRules: components["schemas"]["TemplateQualificationRulesDto"];
+            revision: number;
+            skuDimensions: components["schemas"]["TemplateSkuDimensionsDto"];
+        };
+        CategoryTemplatePublishRequestDto: {
+            revision: number;
+        };
+        CategoryTemplateResponseDto: {
+            afterSaleRules: components["schemas"]["TemplateAfterSaleRulesDto"];
+            /** Format: uuid */
+            categoryId: string;
+            /** Format: date-time */
+            createdAt: string;
+            detailModules: components["schemas"]["TemplateDetailModulesDto"];
+            fieldSchema: components["schemas"]["TemplateFieldSchemaDto"];
+            /** Format: uuid */
+            id: string;
+            /** Format: date-time */
+            publishedAt: string | null;
+            qualificationRules: components["schemas"]["TemplateQualificationRulesDto"];
+            /** Format: date-time */
+            retiredAt: string | null;
+            revision: number;
+            skuDimensions: components["schemas"]["TemplateSkuDimensionsDto"];
+            /** @enum {string} */
+            status: "DRAFT" | "PUBLISHED" | "RETIRED";
             version: number;
         };
         CategoryTreeNodeDto: {
@@ -1428,6 +1533,65 @@ export interface components {
             pageId: "PAGE-016" | "PAGE-017" | "PAGE-018" | "PAGE-019" | "PAGE-020" | "PAGE-021" | "PAGE-022" | "PAGE-023";
             workspaceRoute: string;
         };
+        TemplateAfterSaleRulesDto: {
+            evidenceRequirements: string[];
+            notice: string;
+            /** @enum {string} */
+            returnPolicy: "CATEGORY_RESTRICTED" | "COMPANY_STANDARD" | "NON_RETURNABLE";
+        };
+        TemplateDetailModuleDto: {
+            key: string;
+            /** @enum {string} */
+            kind: "AFTER_SALE" | "FIELDS" | "NOTICE" | "QUALIFICATIONS";
+            sortWeight: number;
+            title: string;
+        };
+        TemplateDetailModulesDto: {
+            modules: components["schemas"]["TemplateDetailModuleDto"][];
+        };
+        TemplateFieldDefinitionDto: {
+            detailModuleKey: string;
+            enumValues: string[];
+            key: string;
+            label: string;
+            required: boolean;
+            searchable: boolean;
+            specification: boolean;
+            /** @enum {string} */
+            type: "BOOLEAN" | "DATE" | "DECIMAL" | "ENUM" | "INTEGER" | "RICH_TEXT" | "TEXT";
+            unit: string | null;
+            validation: components["schemas"]["TemplateValidationRuleDto"];
+        };
+        TemplateFieldSchemaDto: {
+            fields: components["schemas"]["TemplateFieldDefinitionDto"][];
+            /** @enum {string} */
+            schemaVersion: "1.0";
+        };
+        TemplateQualificationRuleDto: {
+            expiryRequired: boolean;
+            key: string;
+            label: string;
+            objectTypes: ("IMAGE" | "PDF")[];
+            required: boolean;
+        };
+        TemplateQualificationRulesDto: {
+            rules: components["schemas"]["TemplateQualificationRuleDto"][];
+        };
+        TemplateSkuDimensionDto: {
+            fieldKey: string;
+            key: string;
+            label: string;
+        };
+        TemplateSkuDimensionsDto: {
+            dimensions: components["schemas"]["TemplateSkuDimensionDto"][];
+        };
+        TemplateValidationRuleDto: {
+            max: number | null;
+            maxLength: number | null;
+            min: number | null;
+            minLength: number | null;
+            pattern: string | null;
+        };
         WorkspaceChoiceDto: {
             /** Format: uuid */
             accountId: string;
@@ -2146,6 +2310,252 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CategoryResponseDto"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
+    "companyCategoryTemplates.list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                categoryId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryTemplateListResponseDto"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
+    "companyCategoryTemplates.createDraft": {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                categoryId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CategoryTemplateCreateRequestDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryTemplateResponseDto"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
+    "companyCategoryTemplates.patchDraft": {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                templateId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CategoryTemplatePatchRequestDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryTemplateResponseDto"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
+    "companyCategoryTemplates.publish": {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                templateId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CategoryTemplatePublishRequestDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryTemplateResponseDto"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
                 };
             };
             403: {

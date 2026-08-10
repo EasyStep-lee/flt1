@@ -6,6 +6,7 @@ import request from 'supertest';
 import { InMemoryAuditLogRepository } from '../../dist/audit/in-memory-audit-log.repository.js';
 import { createApplication } from '../../dist/bootstrap.js';
 import { InMemoryCategoryRepository } from '../../dist/categories/in-memory-category.repository.js';
+import { InMemoryCategoryTemplateRepository } from '../../dist/category-templates/in-memory-category-template.repository.js';
 import { loadRuntimeConfig } from '../../dist/config/runtime-config.js';
 import { InMemorySupplierProductRepository } from '../../dist/supplier-products/in-memory-supplier-product.repository.js';
 
@@ -77,6 +78,10 @@ const createFixture = async ({ auditFail = false, safeDefault = false } = {}) =>
     companies: [company],
     suppliers: [supplier],
   });
+  const templates = new InMemoryCategoryTemplateRepository({
+    auditLogRepository: audit,
+    categoryRepository: categories,
+  });
   const actor = {
     accountTypeCode: 'COMPANY_PRODUCT_OPS',
     companyId: company.id,
@@ -89,6 +94,7 @@ const createFixture = async ({ auditFail = false, safeDefault = false } = {}) =>
     probes: probes(),
     auditLogRepository: audit,
     categoryRepository: categories,
+    categoryTemplateRepository: templates,
     supplierProductRepository: products,
     supplierProductActorResolver: {
       resolve: async () => ({
@@ -104,7 +110,7 @@ const createFixture = async ({ auditFail = false, safeDefault = false } = {}) =>
     logger: false,
   });
   await app.init();
-  return { actor, app, audit, categories, products };
+  return { actor, app, audit, categories, products, templates };
 };
 
 const createCategory = (fixture, body, key = randomUUID()) =>
@@ -140,6 +146,12 @@ const createTree = async (fixture) => {
     level: 3,
     sortWeight: 5,
   });
+  if (leaf.status === 201) {
+    await fixture.templates.seedPublishedForTest({
+      companyId: company.id,
+      categoryId: leaf.body.id,
+    });
+  }
   expect(leaf.status).toBe(201);
   return { leaf: leaf.body, middle: middle.body, root: root.body };
 };

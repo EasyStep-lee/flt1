@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { SafeApiError, type ApiErrorCode } from '../http/api-error.js';
 import { CategoryService } from '../categories/category.service.js';
+import { CategoryTemplateService } from '../category-templates/category-template.service.js';
 import type { SupplierProductActor } from './supplier-product.actor.js';
 import {
   normalizeSupplierProductDraft,
@@ -136,6 +137,7 @@ export class SupplierProductService {
     @Inject(SUPPLIER_PRODUCT_REPOSITORY)
     private readonly repository: SupplierProductRepository,
     @Inject(CategoryService) private readonly categories: CategoryService,
+    @Inject(CategoryTemplateService) private readonly categoryTemplates: CategoryTemplateService,
   ) {}
 
   async createDraft(
@@ -155,7 +157,15 @@ export class SupplierProductService {
       return { body: toResponse(replay.value), replayed: true };
     }
     if (replay) return throwFailure(replay.kind);
-    await this.categories.validateSupplierAssignment(actor.supplierId, input.categoryId);
+    const category = await this.categories.validateSupplierAssignment(
+      actor.supplierId,
+      input.categoryId,
+    );
+    await this.categoryTemplates.validateAssignment(
+      category.companyId,
+      input.categoryId,
+      input.templateVersion,
+    );
     const result = await this.repository.createDraft({
       ...input,
       supplierId: actor.supplierId,
@@ -195,8 +205,19 @@ export class SupplierProductService {
       return { body: toResponse(replay.value), replayed: true };
     }
     if (replay) return throwFailure(replay.kind);
-    if (patch.categoryId) {
-      await this.categories.validateSupplierAssignment(actor.supplierId, patch.categoryId);
+    const assignment = await this.repository.findCategoryAssignment(
+      supplierProductId,
+      actor.supplierId,
+    );
+    if (assignment) {
+      const categoryId = patch.categoryId ?? assignment.categoryId;
+      const templateVersion = patch.templateVersion ?? assignment.templateVersion;
+      const category = await this.categories.validateSupplierAssignment(actor.supplierId, categoryId);
+      await this.categoryTemplates.validateAssignment(
+        category.companyId,
+        categoryId,
+        templateVersion,
+      );
     }
     const result = await this.repository.patchDraft({
       supplierId: actor.supplierId,
@@ -257,9 +278,14 @@ export class SupplierProductService {
       actor.supplierId,
     );
     if (categoryAssignment) {
-      await this.categories.validateSupplierAssignment(
+      const category = await this.categories.validateSupplierAssignment(
         categoryAssignment.supplierId,
         categoryAssignment.categoryId,
+      );
+      await this.categoryTemplates.validateAssignment(
+        category.companyId,
+        categoryAssignment.categoryId,
+        categoryAssignment.templateVersion,
       );
     }
     const result = await this.repository.submitMaterial({
@@ -321,9 +347,14 @@ export class SupplierProductService {
       command.supplierProductId,
     );
     if (categoryAssignment) {
-      await this.categories.validateSupplierAssignment(
+      const category = await this.categories.validateSupplierAssignment(
         categoryAssignment.supplierId,
         categoryAssignment.categoryId,
+      );
+      await this.categoryTemplates.validateAssignment(
+        category.companyId,
+        categoryAssignment.categoryId,
+        categoryAssignment.templateVersion,
       );
     }
     const result = await this.repository.materializeApproved(persistedCommand);

@@ -320,6 +320,7 @@ test('machine control preserves the M2 freeze while later slices advance one gat
   const m2p009 = tasks.find(({ TaskID }) => TaskID === 'M2-P009');
   const m2p010 = tasks.find(({ TaskID }) => TaskID === 'M2-P010');
   const m2p011 = tasks.find(({ TaskID }) => TaskID === 'M2-P011');
+  const m2p012 = tasks.find(({ TaskID }) => TaskID === 'M2-P012');
   const laterM2Tasks = tasks.filter(
     ({ Stage, TaskID }) =>
       Stage === 'M2' &&
@@ -331,6 +332,7 @@ test('machine control preserves the M2 freeze while later slices advance one gat
         'M2-P009',
         'M2-P010',
         'M2-P011',
+        'M2-P012',
       ].includes(
         TaskID,
       ),
@@ -367,10 +369,16 @@ test('machine control preserves the M2 freeze while later slices advance one gat
   assert.equal(m2p010.EvidenceStatus, 'CI_PASS');
   assert.equal(m2p010.GitHubIssue, 'https://github.com/EasyStep-lee/flt1/issues/45');
   assert.equal(m2p010.Branch, 'codex/m2-more-from-supplier');
-  assert.ok(['IN_PROGRESS', 'DONE'].includes(m2p011.Status));
-  assert.ok(['NOT_EXECUTED', 'LOCAL_PASS'].includes(m2p011.EvidenceStatus));
+  assert.equal(m2p011.Status, 'DONE');
+  assert.equal(m2p011.EvidenceStatus, 'CI_PASS');
   assert.equal(m2p011.GitHubIssue, 'https://github.com/EasyStep-lee/flt1/issues/47');
   assert.equal(m2p011.Branch, 'codex/m2-category-tree');
+  assert.equal(m2p011.CI, 'CI_PASS');
+  assert.equal(m2p012.Status, 'DONE');
+  assert.equal(m2p012.EvidenceStatus, 'LOCAL_PASS');
+  assert.equal(m2p012.GitHubIssue, 'https://github.com/EasyStep-lee/flt1/issues/49');
+  assert.equal(m2p012.Branch, 'codex/m2-category-template');
+  assert.equal(m2p012.CI, 'NOT_EXECUTED');
   assert.equal(laterM2Tasks.every(({ Status }) => Status === 'NOT_STARTED'), true);
 
   const m1Stage = stages.find(({ Stage }) => Stage === 'M1');
@@ -384,12 +392,10 @@ test('machine control preserves the M2 freeze while later slices advance one gat
 
   assert.equal(projectStatus.execution.status, 'M2_IN_PROGRESS');
   assert.equal(projectStatus.execution.currentStage, 'M2');
-  assert.equal(projectStatus.execution.currentTask, 'M2-P011');
-  assert.equal(projectStatus.execution.nextAllowedTask, 'M2-P011');
+  assert.equal(projectStatus.execution.currentTask, 'M2-P012');
+  assert.equal(projectStatus.execution.nextAllowedTask, 'M2-P012');
   assert.ok([0, 1].includes(projectStatus.execution.activeTaskCount));
-  assert.ok(
-    ['M2-P010', 'M2-P011'].includes(projectStatus.execution.lastCompletedTask),
-  );
+  assert.equal(projectStatus.execution.lastCompletedTask, 'M2-P012');
   assert.equal(projectStatus.execution.lastPassedGate, 'M1-GATE');
   assert.ok(['NOT_EXECUTED', 'LOCAL_PASS'].includes(projectStatus.evidence.local));
   assert.equal(projectStatus.evidence.ci, 'NOT_EXECUTED');
