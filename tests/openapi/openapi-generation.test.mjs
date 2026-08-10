@@ -132,6 +132,8 @@ test('generated contract exposes foundation, identity, onboarding and supplier p
     '/v1/supplier-auth/workspaces/{accountId}/select',
     '/v1/supplier/me',
     '/v1/supplier/me/submit-review',
+    '/v1/supplier/pricing/products',
+    '/v1/supplier/pricing/products/{supplierProductId}/initial-prices',
     '/v1/supplier/products',
     '/v1/supplier/products/{supplierProductId}',
     '/v1/supplier/products/{supplierProductId}/submit-material',
@@ -187,6 +189,34 @@ test('generated contract exposes foundation, identity, onboarding and supplier p
   assert.equal(
     spec.paths['/v1/supplier-auth/workspace/page'].get.operationId,
     'supplierauth.workspacePage',
+  );
+  assert.equal(
+    spec.paths['/v1/supplier/pricing/products'].get.operationId,
+    'supplierPricing.listInitialPricingProducts',
+  );
+  assert.equal(
+    spec.paths['/v1/supplier/pricing/products/{supplierProductId}/initial-prices']
+      .put.operationId,
+    'supplierPricing.submitInitialPrices',
+  );
+  assert.deepEqual(
+    spec.components.schemas.InitialPricesRequestDto.required,
+    ['requestId', 'prices'],
+  );
+  assert.deepEqual(
+    spec.components.schemas.InitialPriceRowRequestDto.required,
+    [
+      'supplierSkuCode',
+      'requestedSupplyPrice',
+      'requestedRetailSalePrice',
+      'requestedEnterpriseSalePrice',
+    ],
+  );
+  assert.equal(
+    JSON.stringify(spec.components.schemas.SupplierInitialPricingPageDto).includes(
+      'supplierId',
+    ),
+    false,
   );
   assert.equal(
     spec.paths['/v1/supplier/products'].post.operationId,
@@ -255,6 +285,10 @@ test('generated contract exposes foundation, identity, onboarding and supplier p
       'InitialPriceReviewDto',
       'InitialPriceReviewPageDto',
       'InitialPriceReviewSkuDto',
+      'InitialPriceReviewSummaryDto',
+      'InitialPriceRowRequestDto',
+      'InitialPricesRequestDto',
+      'InitialPricesResponseDto',
       'ProductApprovalDecisionRequestDto',
       'ProductApprovalDecisionResponseDto',
       'ProductMaterialApprovalResponseDto',
@@ -270,6 +304,9 @@ test('generated contract exposes foundation, identity, onboarding and supplier p
       'SessionResponseDto',
       'SubmitProductMaterialRequestDto',
       'SubmitReviewRequestDto',
+      'SupplierInitialPriceSkuDto',
+      'SupplierInitialPricingPageDto',
+      'SupplierInitialPricingProductDto',
       'SupplierLoginRequestDto',
       'SupplierPageResponseDto',
       'SupplierProductDraftRequestDto',
@@ -320,6 +357,8 @@ test('generated contract exposes foundation, identity, onboarding and supplier p
   assert.match(generatedTypes, /"publicMerchant\.getProfile"/u);
   assert.match(generatedTypes, /"supplierProducts\.create"/u);
   assert.match(generatedTypes, /"supplierProducts\.submitMaterial"/u);
+  assert.match(generatedTypes, /"supplierPricing\.listInitialPricingProducts"/u);
+  assert.match(generatedTypes, /"supplierPricing\.submitInitialPrices"/u);
   assert.match(generatedTypes, /"supplierRegistration\.create"/u);
   assert.match(generatedTypes, /"supplierOnboarding\.submitOwnProfile"/u);
   assert.match(generatedTypes, /"companySupplierOnboarding\.review"/u);

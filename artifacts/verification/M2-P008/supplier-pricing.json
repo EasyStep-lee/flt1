@@ -1,0 +1,94 @@
+{
+  "schemaVersion": "1.0",
+  "taskId": "M2-P008",
+  "p0Ids": ["P0-008"],
+  "status": "LOCAL_PASS",
+  "verifiedAt": "2026-08-09T10:00:58-04:00",
+  "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+  "baseCommit": "15a10daae913e2dae8c97f3a47d92ef1497a3c1e",
+  "branch": "codex/m2-supplier-pricing",
+  "verifiedImplementationCommit": "0e24a1d7f3cd49388a52faf09d1242e2e8dab483",
+  "redEvidence": {
+    "command": "pnpm exec vitest run --config ./vitest.config.ts --project api-contract apps/api/test/supertest/supplier-pricing-api.test.mjs",
+    "exitCode": 1,
+    "result": "API-022 PUT initial-prices returned 404 before the supplier pricing route existed"
+  },
+  "hardeningRedEvidence": {
+    "command": "pnpm exec playwright test --config=playwright.p0.config.ts tests/e2e/p0/p0-008-supplier-pricing.spec.ts",
+    "exitCode": 1,
+    "result": "NEG-M2-008-06 proved a second product remained enabled and could overwrite the single unknown-result request before recovery"
+  },
+  "greenEvidence": {
+    "api": {
+      "command": "pnpm exec vitest run --config ./vitest.config.ts --project api-contract apps/api/test/supertest/supplier-pricing-api.test.mjs apps/api/test/supertest/company-product-approvals-api.test.mjs",
+      "exitCode": 0,
+      "result": "14/14 passed; M2-P008 8/8"
+    },
+    "page": {
+      "command": "pnpm exec playwright test tests/e2e/p0/p0-008-supplier-pricing.spec.ts --config playwright.p0.config.ts",
+      "exitCode": 0,
+      "result": "4/4 passed; unknown-result recovery blocks other product submissions until the exact request is recovered"
+    },
+    "openapi": {
+      "command": "pnpm openapi:generate && pnpm openapi:check",
+      "exitCode": 0,
+      "result": "deterministic generated artifacts are byte-identical"
+    },
+    "fullVerification": {
+      "command": "pnpm verify",
+      "exitCode": 0,
+      "result": "PNPM_VERIFY_OK:steps=17:base=HEAD",
+      "startedAt": "2026-08-09T13:51:09.645Z",
+      "endedAt": "2026-08-09T14:00:58.525Z",
+      "report": "artifacts/test-results/verification/pnpm-verify.json",
+      "p0E2e": "31/31 passed",
+      "migrationRehearsal": "PRISMA_MIGRATION_REHEARSAL_OK:empty=2:upgrade=2:restore=2:product=13:cleanup=PASS",
+      "trackedSecretScan": "573 files passed"
+    }
+  },
+  "invariants": {
+    "supplierOwnership": "SERVER_SESSION_DERIVED",
+    "functionalRole": "SUPPLIER_PRICING_ONLY",
+    "productPagePricing": "NEVER_LOADED_OR_RENDERED",
+    "moneyStorage": "NONNEGATIVE_SAFE_INTEGER_CENTS",
+    "skuSet": "EXACT_COMPLETE_SET_REQUIRED",
+    "clientOwnershipFields": "REJECTED_RECURSIVELY",
+    "concurrentReplay": "SAME_KEY_RETURNS_IDENTICAL_RESULT",
+    "unknownResultIsolation": "OTHER_PRODUCT_SUBMISSIONS_BLOCKED_UNTIL_EXACT_REQUEST_RECOVERY",
+    "differentPayloadSameKey": "IDEMPOTENCY_CONFLICT",
+    "pendingSecondSubmission": "INITIAL_PRICE_REVIEW_PENDING",
+    "auditFailure": "AUDIT_REQUIRED_FULL_ROLLBACK",
+    "companySilentPriceRewrite": "FORBIDDEN",
+    "historicalSnapshot": "IMMUTABLE_APPEND_ONLY",
+    "supplyPriceCustomerExposure": "NONE"
+  },
+  "dataAndMigration": {
+    "newMigration": false,
+    "reusedSchema": "M2-P007 ApprovalTask/ApprovalTaskHistory/ApprovalCommand",
+    "transaction": "row lock plus approval snapshot, history, audit and idempotency response",
+    "rollback": "application commits can be reverted; published migrations remain immutable and require forward repair"
+  },
+  "environment": {
+    "local": "LOCAL_PASS",
+    "ci": "NOT_EXECUTED",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_REQUIRED_M2_P008_PC_BROWSER_ONLY",
+    "production": "NOT_EXECUTED"
+  },
+  "github": {
+    "repository": "EasyStep-lee/flt1",
+    "issue": 41,
+    "branch": "codex/m2-supplier-pricing",
+    "pullRequest": 42,
+    "draft": true,
+    "exactHeadCi": "NOT_EXECUTED_AFTER_HEAD_CHANGE",
+    "unresolvedComments": 0,
+    "merge": "NOT_EXECUTED"
+  },
+  "risks": [
+    "supplier portal bundle remains above the Vite 500 kB warning threshold",
+    "Ant Design deprecated Spin.tip and Card.bordered warnings remain outside this slice",
+    "in-memory API tests verify recovery behavior while real MySQL evidence is limited to the full migration chain rehearsal"
+  ],
+  "nextGate": "Push the hardened PR #42 head and obtain exact-head CI; human merge authorization, merge, and post-merge main CI are required before M2-P009"
+}

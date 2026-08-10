@@ -115,16 +115,40 @@ export interface InitialPriceReviewRecord {
 }
 
 export interface StageInitialPricesCommand {
+  readonly supplierId: string;
   readonly supplierProductId: string;
   readonly applicantIdentityId: string;
   readonly applicantFunctionalAccountId: string;
   readonly idempotencyKey: string;
   readonly requestHash: string;
+  readonly requestId: string;
+  readonly ip: string | null;
   readonly prices: readonly {
     readonly supplierSkuCode: string;
     readonly requestedSupplyPrice: number;
     readonly requestedRetailSalePrice: number;
     readonly requestedEnterpriseSalePrice: number;
+  }[];
+}
+
+export interface SupplierInitialPricingProductRecord {
+  readonly supplierProductId: string;
+  readonly name: string;
+  readonly status: SupplierProductStatus;
+  readonly version: number;
+  readonly initialPriceEditable: boolean;
+  readonly latestReview: {
+    readonly id: string;
+    readonly status: ProductApprovalStatus;
+    readonly version: number;
+    readonly submittedAt: string;
+  } | null;
+  readonly skus: readonly {
+    readonly id: string;
+    readonly supplierSkuCode: string;
+    readonly requestedSupplyPrice: number | null;
+    readonly requestedRetailSalePrice: number | null;
+    readonly requestedEnterpriseSalePrice: number | null;
   }[];
 }
 
@@ -218,6 +242,7 @@ export type SupplierProductFailureKind =
   | 'DUPLICATE'
   | 'IDEMPOTENCY_CONFLICT'
   | 'NOT_FOUND'
+  | 'PRICE_INVALID'
   | 'PRODUCT_APPROVAL_INCOMPLETE'
   | 'STATE_INVALID'
   | 'SUPPLIER_INACTIVE'
@@ -246,6 +271,9 @@ export interface SupplierProductRepository {
   stageInitialPrices(
     command: StageInitialPricesCommand,
   ): Promise<SupplierProductMutationResult<InitialPriceReviewRecord>>;
+  listSupplierInitialPricingProducts(
+    supplierId: string,
+  ): Promise<readonly SupplierInitialPricingProductRecord[]>;
   listMaterialReviews(companyId: string): Promise<readonly ProductMaterialReviewRecord[]>;
   listInitialPriceReviews(companyId: string): Promise<readonly InitialPriceReviewRecord[]>;
   decideProductApproval(

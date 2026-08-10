@@ -22,6 +22,7 @@ import type {
   SupplierProductRepository,
   SupplierProductSkuRecord,
   SupplierProductSupplierRecord,
+  SupplierInitialPricingProductRecord,
 } from './supplier-product.repository.js';
 
 interface StoredCommand<T> {
@@ -84,6 +85,12 @@ interface PendingDecision {
   readonly result: Promise<SupplierProductMutationResult<ProductApprovalDecisionRecord>>;
 }
 
+interface PendingInitialPrices {
+  readonly idempotencyKey: string;
+  readonly requestHash: string;
+  readonly result: Promise<SupplierProductMutationResult<InitialPriceReviewRecord>>;
+}
+
 const clone = <T>(value: T): T => structuredClone(value);
 
 export class InMemorySupplierProductRepository implements SupplierProductRepository {
@@ -95,6 +102,7 @@ export class InMemorySupplierProductRepository implements SupplierProductReposit
   private readonly products = new Map<string, MaterializedProductRecord>();
   private readonly commands = new Map<string, StoredCommand<unknown>>();
   private readonly pendingDecisions = new Map<string, PendingDecision>();
+  private readonly pendingInitialPrices = new Map<string, PendingInitialPrices>();
 
   constructor(options: InMemorySupplierProductOptions) {
     this.auditLogRepository = options.auditLogRepository;
@@ -166,7 +174,7 @@ export class InMemorySupplierProductRepository implements SupplierProductReposit
     if (!existing) return { kind: 'NOT_FOUND' };
     if (existing.version !== command.expectedVersion) return { kind: 'VERSION_CONFLICT' };
     if (!['DRAFT', 'CORRECTION_REQUIRED'].includes(existing.status)) {
-      return { kind: 'STATE_INVALID' };
+      return { kind: 'PRICE_INVALID' };
     }
     const duplicateName = [...this.supplierProducts.values()].some(
       ({ id, supplierId, name }) =>
@@ -229,7 +237,7 @@ export class InMemorySupplierProductRepository implements SupplierProductReposit
     if (!existing) return { kind: 'NOT_FOUND' };
     if (existing.version !== command.expectedVersion) return { kind: 'VERSION_CONFLICT' };
     if (!['DRAFT', 'CORRECTION_REQUIRED'].includes(existing.status)) {
-      return { kind: 'STATE_INVALID' };
+      return { kind: 'PRICE_INVALID' };
     }
 
     const supplierProduct: SupplierProductRecord = {
@@ -299,26 +307,125 @@ export class InMemorySupplierProductRepository implements SupplierProductReposit
   async stageInitialPrices(
     command: StageInitialPricesCommand,
   ): Promise<SupplierProductMutationResult<InitialPriceReviewRecord>> {
-    const replay = this.replay<InitialPriceReviewRecord>('STAGE_INITIAL_PRICES', command);
+    const action = `STAGE_INITIAL_PRICES:${command.supplierProductId}`;
+    const replay = this.replay<InitialPriceReviewRecord>(action, command);
     if (replay) return replay;
+    const pending = this.pendingInitialPrices.get(command.supplierProductId);
+    if (pending) {
+      if (
+        pending.idempotencyKey === command.idempotencyKey &&
+        pending.requestHash !== command.requestHash
+      ) {
+        return { kind: 'IDEMPOTENCY_CONFLICT' };
+      }
+      const result = await pending.result;
+      if (
+        pending.idempotencyKey === command.idempotencyKey &&
+        result.kind === 'OK'
+      ) {
+        return { ...clone(result), replayed: true };
+      }
+      return this.stageInitialPrices(command);
+    }
+    const result = this.stageInitialPricesOnce(command, action);
+    this.pendingInitialPrices.set(command.supplierProductId, {
+      idempotencyKey: command.idempotencyKey,
+      requestHash: command.requestHash,
+      result,
+    });
+    try {
+      return await result;
+    } finally {
+      this.pendingInitialPrices.delete(command.supplierProductId);
+    }
+  }
+
+  async listSupplierInitialPricingProducts(
+    supplierId: string,
+  ): Promise<readonly SupplierInitialPricingProductRecord[]> {
+    return [...this.supplierProducts.values()]
+      .filter((product) => product.supplierId === supplierId)
+      .sort((left, right) => left.name.localeCompare(right.name, 'zh-CN'))
+      .map((product) => {
+        const latest = [...this.approvalTasks.values()]
+          .filter(
+            (task): task is StoredPriceApproval =>
+              task.approvalType === 'PRODUCT_INITIAL_PRICE' &&
+              task.supplierProductId === product.id,
+          )
+          .sort((left, right) => right.createdAt.localeCompare(left.createdAt))[0];
+        const latestByCode = new Map(
+          latest?.skus.map((price) => [price.supplierSkuCode, price]) ?? [],
+        );
+        const hasPending = latest?.status === 'PENDING';
+        return {
+          supplierProductId: product.id,
+          name: product.name,
+          status: product.status,
+          version: product.version,
+          initialPriceEditable:
+            ['PENDING_MATERIAL_REVIEW', 'MATERIAL_APPROVED'].includes(product.status) &&
+            !hasPending,
+          latestReview: latest
+            ? {
+                id: latest.id,
+                status: latest.status,
+                version: latest.version,
+                submittedAt: latest.createdAt,
+              }
+            : null,
+          skus: product.skus.map((sku) => {
+            const submitted = latestByCode.get(sku.supplierSkuCode);
+            return {
+              id: sku.id,
+              supplierSkuCode: sku.supplierSkuCode,
+              requestedSupplyPrice:
+                submitted?.requestedSupplyPrice ?? sku.requestedSupplyPrice,
+              requestedRetailSalePrice:
+                submitted?.requestedRetailSalePrice ?? sku.requestedRetailSalePrice,
+              requestedEnterpriseSalePrice:
+                submitted?.requestedEnterpriseSalePrice ??
+                sku.requestedEnterpriseSalePrice,
+            };
+          }),
+        };
+      });
+  }
+
+  private async stageInitialPricesOnce(
+    command: StageInitialPricesCommand,
+    action: string,
+  ): Promise<SupplierProductMutationResult<InitialPriceReviewRecord>> {
     const supplierProduct = this.supplierProducts.get(command.supplierProductId);
-    if (!supplierProduct) return { kind: 'NOT_FOUND' };
-    if (supplierProduct.status !== 'PENDING_MATERIAL_REVIEW') {
-      return { kind: 'STATE_INVALID' };
+    if (!supplierProduct || supplierProduct.supplierId !== command.supplierId) {
+      return { kind: 'NOT_FOUND' };
     }
     if (
-      command.prices.length !== supplierProduct.skus.length ||
-      command.prices.some(
-        (price) =>
-          !supplierProduct.skus.some(
-            ({ supplierSkuCode }) => supplierSkuCode === price.supplierSkuCode,
-          ) ||
-          ![price.requestedSupplyPrice, price.requestedRetailSalePrice, price.requestedEnterpriseSalePrice].every(
-            (value) => Number.isSafeInteger(value) && value >= 0,
-          ),
+      !['PENDING_MATERIAL_REVIEW', 'MATERIAL_APPROVED'].includes(
+        supplierProduct.status,
       )
     ) {
       return { kind: 'STATE_INVALID' };
+    }
+    const priceCodes = command.prices.map(({ supplierSkuCode }) => supplierSkuCode);
+    if (
+      command.prices.length !== supplierProduct.skus.length ||
+      new Set(priceCodes).size !== priceCodes.length ||
+      supplierProduct.skus.some((sku) => {
+        const price = command.prices.find(
+          ({ supplierSkuCode }) => supplierSkuCode === sku.supplierSkuCode,
+        );
+        return (
+          !price ||
+          ![
+            price.requestedSupplyPrice,
+            price.requestedRetailSalePrice,
+            price.requestedEnterpriseSalePrice,
+          ].every((value) => Number.isSafeInteger(value) && value >= 0)
+        );
+      })
+    ) {
+      return { kind: 'PRICE_INVALID' };
     }
     const existing = [...this.approvalTasks.values()].find(
       (task) =>
@@ -347,8 +454,26 @@ export class InMemorySupplierProductRepository implements SupplierProductReposit
       createdAt: now,
       updatedAt: now,
     };
+    try {
+      if (!this.auditLogRepository) throw new Error('AUDIT_REPOSITORY_UNAVAILABLE');
+      await this.auditLogRepository.append({
+        actorType: 'SUPPLIER_USER',
+        actorId: command.applicantIdentityId,
+        functionalAccountId: command.applicantFunctionalAccountId,
+        supplierId: command.supplierId,
+        action: 'PRODUCT_INITIAL_PRICES_SUBMITTED',
+        objectType: 'APPROVAL_TASK',
+        objectId: value.id,
+        beforeSnapshot: null,
+        afterSnapshot: { status: 'PENDING', version: 1 },
+        requestId: command.requestId,
+        ip: command.ip,
+      });
+    } catch {
+      return { kind: 'AUDIT_REQUIRED' };
+    }
     this.approvalTasks.set(value.id, value);
-    this.remember('STAGE_INITIAL_PRICES', command, value);
+    this.remember(action, command, value);
     return { kind: 'OK', value: clone(value), replayed: false };
   }
 

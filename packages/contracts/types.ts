@@ -392,6 +392,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/supplier/pricing/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List current-supplier products and initial pricing review state */
+        get: operations["supplierPricing.listInitialPricingProducts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/supplier/pricing/products/{supplierProductId}/initial-prices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Freeze and submit current-supplier initial three-price values */
+        put: operations["supplierPricing.submitInitialPrices"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/supplier/products": {
         parameters: {
             query?: never;
@@ -487,7 +521,7 @@ export interface components {
              * @example RESOURCE_NOT_FOUND
              * @enum {string}
              */
-            code: "ACCESS_DENIED" | "AUTHENTICATION_REQUIRED" | "INTERNAL_ERROR" | "REQUEST_INVALID" | "RESOURCE_NOT_FOUND" | "SERVICE_UNAVAILABLE" | "PAYEE_FORBIDDEN" | "SELLER_IDENTITY_FORBIDDEN" | "SINGLE_MERCHANT_VIOLATION" | "ACTOR_SPOOFED" | "ACCOUNT_TYPE_INVALID" | "APPROVAL_VERSION_CONFLICT" | "DATA_SCOPE_FORBIDDEN" | "FIELD_FORBIDDEN" | "IDEMPOTENCY_CONFLICT" | "SECOND_VERIFICATION_REQUIRED" | "STATE_TRANSITION_INVALID" | "SUPPLIER_DUPLICATE" | "SUPPLIER_SCOPE_FORBIDDEN" | "VALIDATION_FAILED" | "VERSION_CONFLICT" | "WORKSPACE_FORBIDDEN" | "ACCOUNT_SUSPENDED" | "AUTH_INVALID" | "AUTH_SESSION_REVOKED" | "RATE_LIMITED" | "SUPPLIER_NOT_ACTIVE" | "WORKSPACE_MENU_VIOLATION" | "WORKSPACE_MODULE_NOT_FOUND" | "WORKSPACE_SELECTION_REQUIRED" | "WORKSPACE_SESSION_CONFLICT" | "AUDIT_IMMUTABLE" | "AUDIT_REQUIRED" | "EXPORT_APPROVAL_REQUIRED" | "REQUEST_ID_REQUIRED" | "SAME_NATURAL_PERSON_REVIEW" | "SECOND_REVIEW_REQUIRED" | "APPROVAL_NOT_FOUND" | "APPROVAL_STATE_INVALID" | "IDEMPOTENCY_KEY_CONFLICT" | "IDEMPOTENCY_KEY_REQUIRED" | "CATEGORY_TEMPLATE_INVALID" | "PRICE_FIELD_FORBIDDEN" | "PRODUCT_APPROVAL_INCOMPLETE" | "PRODUCT_NOT_SALEABLE" | "SUPPLIER_INACTIVE" | "SUPPLIER_PRODUCT_DUPLICATE" | "SUPPLIER_PRODUCT_NOT_FOUND" | "SUPPLIER_SKU_DUPLICATE" | "SELF_APPROVAL_FORBIDDEN";
+            code: "ACCESS_DENIED" | "AUTHENTICATION_REQUIRED" | "INTERNAL_ERROR" | "REQUEST_INVALID" | "RESOURCE_NOT_FOUND" | "SERVICE_UNAVAILABLE" | "PAYEE_FORBIDDEN" | "SELLER_IDENTITY_FORBIDDEN" | "SINGLE_MERCHANT_VIOLATION" | "ACTOR_SPOOFED" | "ACCOUNT_TYPE_INVALID" | "APPROVAL_VERSION_CONFLICT" | "DATA_SCOPE_FORBIDDEN" | "FIELD_FORBIDDEN" | "IDEMPOTENCY_CONFLICT" | "SECOND_VERIFICATION_REQUIRED" | "STATE_TRANSITION_INVALID" | "SUPPLIER_DUPLICATE" | "SUPPLIER_SCOPE_FORBIDDEN" | "VALIDATION_FAILED" | "VERSION_CONFLICT" | "WORKSPACE_FORBIDDEN" | "ACCOUNT_SUSPENDED" | "AUTH_INVALID" | "AUTH_SESSION_REVOKED" | "RATE_LIMITED" | "SUPPLIER_NOT_ACTIVE" | "WORKSPACE_MENU_VIOLATION" | "WORKSPACE_MODULE_NOT_FOUND" | "WORKSPACE_SELECTION_REQUIRED" | "WORKSPACE_SESSION_CONFLICT" | "AUDIT_IMMUTABLE" | "AUDIT_REQUIRED" | "EXPORT_APPROVAL_REQUIRED" | "REQUEST_ID_REQUIRED" | "SAME_NATURAL_PERSON_REVIEW" | "SECOND_REVIEW_REQUIRED" | "APPROVAL_NOT_FOUND" | "APPROVAL_STATE_INVALID" | "IDEMPOTENCY_KEY_CONFLICT" | "IDEMPOTENCY_KEY_REQUIRED" | "CATEGORY_TEMPLATE_INVALID" | "PRICE_FIELD_FORBIDDEN" | "PRICE_INVALID" | "INITIAL_PRICE_REVIEW_PENDING" | "INITIAL_PRICE_STATE_INVALID" | "PRODUCT_APPROVAL_INCOMPLETE" | "PRODUCT_NOT_SALEABLE" | "SUPPLIER_INACTIVE" | "SUPPLIER_PRODUCT_DUPLICATE" | "SUPPLIER_PRODUCT_NOT_FOUND" | "SUPPLIER_SKU_DUPLICATE" | "SELF_APPROVAL_FORBIDDEN";
             /** @example Resource was not found */
             message: string;
             /** @example /missing */
@@ -762,6 +796,36 @@ export interface components {
             requestedSupplyPrice: number;
             supplierSkuCode: string;
         };
+        InitialPriceReviewSummaryDto: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            status: "PENDING" | "APPROVED" | "REJECTED";
+            /** Format: date-time */
+            submittedAt: string;
+            version: number;
+        };
+        InitialPriceRowRequestDto: {
+            requestedEnterpriseSalePrice: number;
+            requestedRetailSalePrice: number;
+            requestedSupplyPrice: number;
+            supplierSkuCode: string;
+        };
+        InitialPricesRequestDto: {
+            prices: components["schemas"]["InitialPriceRowRequestDto"][];
+            /** Format: uuid */
+            requestId: string;
+        };
+        InitialPricesResponseDto: {
+            /** Format: uuid */
+            id: string;
+            prices: components["schemas"]["InitialPriceRowRequestDto"][];
+            /** @enum {string} */
+            status: "PENDING";
+            /** Format: uuid */
+            supplierProductId: string;
+            version: number;
+        };
         ProductApprovalDecisionRequestDto: {
             /** @enum {string} */
             decision: "APPROVE" | "REJECT";
@@ -908,6 +972,29 @@ export interface components {
         SubmitReviewRequestDto: {
             /** Format: uuid */
             requestId: string;
+            version: number;
+        };
+        SupplierInitialPriceSkuDto: {
+            /** Format: uuid */
+            id: string;
+            requestedEnterpriseSalePrice: number | null;
+            requestedRetailSalePrice: number | null;
+            requestedSupplyPrice: number | null;
+            supplierSkuCode: string;
+        };
+        SupplierInitialPricingPageDto: {
+            items: components["schemas"]["SupplierInitialPricingProductDto"][];
+            total: number;
+        };
+        SupplierInitialPricingProductDto: {
+            initialPriceEditable: boolean;
+            latestReview: components["schemas"]["InitialPriceReviewSummaryDto"] | null;
+            name: string;
+            skus: components["schemas"]["SupplierInitialPriceSkuDto"][];
+            /** @enum {string} */
+            status: "DRAFT" | "PENDING_MATERIAL_REVIEW" | "CORRECTION_REQUIRED" | "MATERIAL_APPROVED" | "ACTIVE" | "OFF_SHELF" | "REJECTED" | "ARCHIVED";
+            /** Format: uuid */
+            supplierProductId: string;
             version: number;
         };
         SupplierLoginRequestDto: {
@@ -2379,6 +2466,108 @@ export interface operations {
                 };
             };
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
+    "supplierPricing.listInitialPricingProducts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierInitialPricingPageDto"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
+    "supplierPricing.submitInitialPrices": {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                supplierProductId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InitialPricesRequestDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InitialPricesResponseDto"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };

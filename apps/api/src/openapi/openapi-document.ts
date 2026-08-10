@@ -107,6 +107,11 @@ import {
   type SupplierProductRepository,
 } from '../supplier-products/supplier-product.repository.js';
 import { SupplierProductService } from '../supplier-products/supplier-product.service.js';
+import {
+  DenySupplierPricingActorResolver,
+  SUPPLIER_PRICING_ACTOR_RESOLVER,
+} from '../supplier-pricing/supplier-pricing.actor.js';
+import { SupplierPricingService } from '../supplier-pricing/supplier-pricing.service.js';
 import { OPENAPI_CONTROLLERS } from './openapi-controller.registry.js';
 import {
   applyM1OpenApiContracts,
@@ -293,9 +298,11 @@ type JsonValue =
       useExisting: LoggingFunctionalAccountAuditSink,
     },
     SupplierProductService,
+    SupplierPricingService,
     CompanyProductApprovalService,
     DenyCompanyProductApprovalActorResolver,
     DenySupplierProductActorResolver,
+    DenySupplierPricingActorResolver,
     {
       provide: SUPPLIER_PRODUCT_REPOSITORY,
       useValue: {
@@ -311,6 +318,7 @@ type JsonValue =
         stageInitialPrices: async () => {
           throw new Error('OPENAPI_GENERATION_ONLY');
         },
+        listSupplierInitialPricingProducts: async () => [],
         listMaterialReviews: async () => [],
         listInitialPriceReviews: async () => [],
         decideProductApproval: async () => {
@@ -326,6 +334,10 @@ type JsonValue =
     {
       provide: SUPPLIER_PRODUCT_ACTOR_RESOLVER,
       useExisting: DenySupplierProductActorResolver,
+    },
+    {
+      provide: SUPPLIER_PRICING_ACTOR_RESOLVER,
+      useExisting: DenySupplierPricingActorResolver,
     },
     {
       provide: COMPANY_PRODUCT_APPROVAL_ACTOR_RESOLVER,

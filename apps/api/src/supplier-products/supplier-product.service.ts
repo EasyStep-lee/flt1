@@ -81,6 +81,7 @@ const throwFailure = (kind: SupplierProductFailureKind): never => {
     DUPLICATE: [409, 'SUPPLIER_PRODUCT_DUPLICATE', 'Supplier product already exists'],
     IDEMPOTENCY_CONFLICT: [409, 'IDEMPOTENCY_CONFLICT', 'Idempotency-Key conflicts'],
     NOT_FOUND: [404, 'SUPPLIER_PRODUCT_NOT_FOUND', 'Supplier product was not found'],
+    PRICE_INVALID: [422, 'PRICE_INVALID', 'Price input is invalid'],
     STATE_INVALID: [409, 'STATE_TRANSITION_INVALID', 'Supplier product state is invalid'],
     SUPPLIER_INACTIVE: [403, 'SUPPLIER_INACTIVE', 'Supplier is not active'],
     SELF_APPROVAL_FORBIDDEN: [403, 'SELF_APPROVAL_FORBIDDEN', 'Self approval is forbidden'],

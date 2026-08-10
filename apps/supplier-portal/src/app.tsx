@@ -30,6 +30,7 @@ import {
   type SupplierWorkspace,
 } from './supplier-workspace-pages.js';
 import { SupplierProductsPage } from './supplier-products-page.js';
+import { SupplierPricingPage } from './supplier-pricing-page.js';
 
 type RegistrationResponse = components['schemas']['SupplierRegistrationResponseDto'];
 type SupplierStatus = RegistrationResponse['status'];
@@ -623,6 +624,8 @@ export function SupplierPortalShell() {
             ? (workspace) => <SupplierAuditPage workspace={workspace} />
             : currentPath === '/supplier/workspaces/products'
               ? (workspace) => <SupplierProductsPage workspace={workspace} />
+              : currentPath === '/supplier/workspaces/pricing'
+                ? (workspace) => <SupplierPricingPage workspace={workspace} />
               : undefined
         }
         route={currentPath}

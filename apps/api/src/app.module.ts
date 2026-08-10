@@ -132,6 +132,13 @@ import {
 } from './supplier-products/supplier-product.repository.js';
 import { SupplierProductService } from './supplier-products/supplier-product.service.js';
 import { SupplierProductSessionActorResolver } from './supplier-products/supplier-product-session-actor.resolver.js';
+import {
+  DenySupplierPricingActorResolver,
+  SUPPLIER_PRICING_ACTOR_RESOLVER,
+  type SupplierPricingActorResolver,
+} from './supplier-pricing/supplier-pricing.actor.js';
+import { SupplierPricingService } from './supplier-pricing/supplier-pricing.service.js';
+import { SupplierPricingSessionActorResolver } from './supplier-pricing/supplier-pricing-session-actor.resolver.js';
 
 export interface AppModuleOptions {
   readonly config: RuntimeConfig;
@@ -156,6 +163,7 @@ export interface AppModuleOptions {
   readonly supplierSecondVerifier?: SupplierSecondVerifier;
   readonly supplierProductRepository?: SupplierProductRepository;
   readonly supplierProductActorResolver?: SupplierProductActorResolver;
+  readonly supplierPricingActorResolver?: SupplierPricingActorResolver;
   readonly companyProductApprovalActorResolver?: CompanyProductApprovalActorResolver;
 }
 
@@ -208,6 +216,9 @@ export class AppModule {
       DenySupplierProductActorResolver,
       SupplierProductSessionActorResolver,
       SupplierProductService,
+      DenySupplierPricingActorResolver,
+      SupplierPricingSessionActorResolver,
+      SupplierPricingService,
       DenyCompanyProductApprovalActorResolver,
       CompanyProductApprovalSessionActorResolver,
       CompanyProductApprovalService,
@@ -363,6 +374,15 @@ export class AppModule {
         : {
             provide: SUPPLIER_PRODUCT_ACTOR_RESOLVER,
             useExisting: SupplierProductSessionActorResolver,
+          },
+      options.supplierPricingActorResolver
+        ? {
+            provide: SUPPLIER_PRICING_ACTOR_RESOLVER,
+            useValue: options.supplierPricingActorResolver,
+          }
+        : {
+            provide: SUPPLIER_PRICING_ACTOR_RESOLVER,
+            useExisting: SupplierPricingSessionActorResolver,
           },
       options.companyProductApprovalActorResolver
         ? {

@@ -359,6 +359,30 @@ body {
   background: #f4f8f7;
 }
 
+.supplier-pricing-editor {
+  display: grid;
+  gap: 18px;
+  padding: 0 clamp(22px, 5vw, 72px) 64px;
+  background: #f4f8f7;
+}
+
+.supplier-pricing-editor > .ant-card,
+.supplier-pricing-editor > .ant-space > .ant-space-item > .ant-card {
+  border: 1px solid #dcecea;
+  border-radius: 18px;
+  box-shadow: 0 18px 48px rgba(21, 72, 76, 0.08);
+}
+
+.supplier-pricing-actions {
+  align-items: flex-end;
+  width: 100%;
+  margin-top: 18px;
+}
+
+.supplier-pricing-actions .ant-alert {
+  width: 100%;
+}
+
 .supplier-product-heading {
   display: flex;
   align-items: flex-start;

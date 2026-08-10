@@ -48,6 +48,9 @@
               "IDEMPOTENCY_KEY_REQUIRED",
               "CATEGORY_TEMPLATE_INVALID",
               "PRICE_FIELD_FORBIDDEN",
+              "PRICE_INVALID",
+              "INITIAL_PRICE_REVIEW_PENDING",
+              "INITIAL_PRICE_STATE_INVALID",
               "PRODUCT_APPROVAL_INCOMPLETE",
               "PRODUCT_NOT_SALEABLE",
               "SUPPLIER_INACTIVE",
@@ -1119,6 +1122,119 @@
         ],
         "type": "object"
       },
+      "InitialPriceReviewSummaryDto": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "PENDING",
+              "APPROVED",
+              "REJECTED"
+            ],
+            "type": "string"
+          },
+          "submittedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 1,
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "version",
+          "submittedAt"
+        ],
+        "type": "object"
+      },
+      "InitialPriceRowRequestDto": {
+        "properties": {
+          "requestedEnterpriseSalePrice": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "requestedRetailSalePrice": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "requestedSupplyPrice": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "supplierSkuCode": {
+            "maxLength": 64,
+            "type": "string"
+          }
+        },
+        "required": [
+          "supplierSkuCode",
+          "requestedSupplyPrice",
+          "requestedRetailSalePrice",
+          "requestedEnterpriseSalePrice"
+        ],
+        "type": "object"
+      },
+      "InitialPricesRequestDto": {
+        "properties": {
+          "prices": {
+            "items": {
+              "$ref": "#/components/schemas/InitialPriceRowRequestDto"
+            },
+            "type": "array"
+          },
+          "requestId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "requestId",
+          "prices"
+        ],
+        "type": "object"
+      },
+      "InitialPricesResponseDto": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "prices": {
+            "items": {
+              "$ref": "#/components/schemas/InitialPriceRowRequestDto"
+            },
+            "type": "array"
+          },
+          "status": {
+            "enum": [
+              "PENDING"
+            ],
+            "type": "string"
+          },
+          "supplierProductId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 1,
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "supplierProductId",
+          "status",
+          "version",
+          "prices"
+        ],
+        "type": "object"
+      },
       "ProductApprovalDecisionRequestDto": {
         "properties": {
           "decision": {
@@ -1616,6 +1732,116 @@
         "required": [
           "version",
           "requestId"
+        ],
+        "type": "object"
+      },
+      "SupplierInitialPriceSkuDto": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "requestedEnterpriseSalePrice": {
+            "minimum": 0,
+            "nullable": true,
+            "type": "number"
+          },
+          "requestedRetailSalePrice": {
+            "minimum": 0,
+            "nullable": true,
+            "type": "number"
+          },
+          "requestedSupplyPrice": {
+            "minimum": 0,
+            "nullable": true,
+            "type": "number"
+          },
+          "supplierSkuCode": {
+            "maxLength": 64,
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "supplierSkuCode",
+          "requestedSupplyPrice",
+          "requestedRetailSalePrice",
+          "requestedEnterpriseSalePrice"
+        ],
+        "type": "object"
+      },
+      "SupplierInitialPricingPageDto": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SupplierInitialPricingProductDto"
+            },
+            "type": "array"
+          },
+          "total": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ],
+        "type": "object"
+      },
+      "SupplierInitialPricingProductDto": {
+        "properties": {
+          "initialPriceEditable": {
+            "type": "boolean"
+          },
+          "latestReview": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/InitialPriceReviewSummaryDto"
+              }
+            ],
+            "nullable": true,
+            "type": "object"
+          },
+          "name": {
+            "type": "string"
+          },
+          "skus": {
+            "items": {
+              "$ref": "#/components/schemas/SupplierInitialPriceSkuDto"
+            },
+            "type": "array"
+          },
+          "status": {
+            "enum": [
+              "DRAFT",
+              "PENDING_MATERIAL_REVIEW",
+              "CORRECTION_REQUIRED",
+              "MATERIAL_APPROVED",
+              "ACTIVE",
+              "OFF_SHELF",
+              "REJECTED",
+              "ARCHIVED"
+            ],
+            "type": "string"
+          },
+          "supplierProductId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "supplierProductId",
+          "name",
+          "status",
+          "version",
+          "initialPriceEditable",
+          "latestReview",
+          "skus"
         ],
         "type": "object"
       },
@@ -4760,6 +4986,148 @@
         "x-fulishe-request-dto": "SubmitReviewRequestDto",
         "x-fulishe-response-dto": "ApprovalTaskResponseDto",
         "x-fulishe-response-policy": "NEVER_RETURN_INTERNAL_PRICING"
+      }
+    },
+    "/v1/supplier/pricing/products": {
+      "get": {
+        "operationId": "supplierPricing.listInitialPricingProducts",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupplierInitialPricingPageDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "List current-supplier products and initial pricing review state",
+        "tags": [
+          "supplier-pricing"
+        ]
+      }
+    },
+    "/v1/supplier/pricing/products/{supplierProductId}/initial-prices": {
+      "put": {
+        "operationId": "supplierPricing.submitInitialPrices",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "supplierProductId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InitialPricesRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InitialPricesResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Freeze and submit current-supplier initial three-price values",
+        "tags": [
+          "supplier-pricing"
+        ]
       }
     },
     "/v1/supplier/products": {
