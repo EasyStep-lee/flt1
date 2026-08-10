@@ -10,10 +10,23 @@ const outputRoot = path.join(packageRoot, 'dist');
 
 await rm(outputRoot, { force: true, recursive: true });
 await mkdir(outputRoot, { recursive: true });
+const apiBaseUrl = process.env.USER_MINIAPP_API_BASE_URL ?? 'http://127.0.0.1:3000';
+const parsedApiBaseUrl = new URL(apiBaseUrl);
+if (!['http:', 'https:'].includes(parsedApiBaseUrl.protocol)) {
+  throw new Error('USER_MINIAPP_API_BASE_URL_PROTOCOL_INVALID');
+}
+
 await build({
   bundle: true,
+  define: {
+    __FULISHE_API_BASE_URL__: JSON.stringify(apiBaseUrl),
+  },
   entryNames: '[dir]/[name]',
-  entryPoints: [path.join(sourceRoot, 'app.ts'), path.join(sourceRoot, 'pages/shell/index.ts')],
+  entryPoints: [
+    path.join(sourceRoot, 'app.ts'),
+    path.join(sourceRoot, 'pages/shell/index.ts'),
+    path.join(sourceRoot, 'pages/supplier-products/index.ts'),
+  ],
   format: 'iife',
   logLevel: 'info',
   outbase: sourceRoot,
@@ -29,6 +42,9 @@ for (const relativePath of [
   'pages/shell/index.json',
   'pages/shell/index.wxml',
   'pages/shell/index.wxss',
+  'pages/supplier-products/index.json',
+  'pages/supplier-products/index.wxml',
+  'pages/supplier-products/index.wxss',
 ]) {
   const destination = path.join(outputRoot, relativePath);
   await mkdir(path.dirname(destination), { recursive: true });

@@ -102,6 +102,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/catalog/suppliers/{supplierId}/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List same-source products from the unified company shelf */
+        get: operations["catalog.listSupplierProducts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/company-auth/login": {
         parameters: {
             query?: never;
@@ -928,6 +945,28 @@ export interface components {
             /** @example 江苏福礼团供应链科技有限公司 */
             seller: string;
         };
+        PublicProductCardResponseDto: {
+            activeSkuCount: number;
+            name: string;
+            /** Format: uuid */
+            productId: string;
+            /** @description Minimum active SKU retail price in integer cents */
+            retailSalePrice: number;
+        };
+        PublicProductPageResponseDto: {
+            /** @enum {string} */
+            checkoutMode: "COMPANY_UNIFIED";
+            items: components["schemas"]["PublicProductCardResponseDto"][];
+            page: number;
+            pageSize: number;
+            /** @example 江苏福礼团供应链科技有限公司 */
+            sellerName: string;
+            /** @example 该供应来源的更多商品 */
+            sourceLabel: string;
+            /** Format: uuid */
+            supplierId: string;
+            total: number;
+        };
         SelectWorkspaceRequestDto: {
             secondVerificationCode?: string;
             selectionNonce: string;
@@ -1045,6 +1084,14 @@ export interface components {
             skus?: components["schemas"]["SupplierProductSkuDraftRequestDto"][];
             templateVersion?: number;
             version: number;
+        };
+        SupplierProductQueryDto: {
+            /** Format: uuid */
+            excludeProductId?: string;
+            /** @default 1 */
+            page: number;
+            /** @default 20 */
+            pageSize: number;
         };
         SupplierProductResponseDto: {
             attributes: {
@@ -1621,6 +1668,67 @@ export interface operations {
             };
             /** @description SECOND_REVIEW_REQUIRED */
             428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
+    "catalog.listSupplierProducts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                supplierId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicProductPageResponseDto"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };
