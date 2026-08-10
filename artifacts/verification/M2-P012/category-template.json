@@ -26,9 +26,9 @@
     }
   ],
   "focusedGreen": {
-    "categoryTemplateApi": "PASS_5_OF_5",
+    "categoryTemplateApi": "PASS_6_OF_6",
     "relatedCatalogApis": "PASS_29_OF_29",
-    "allSupertest": "PASS_136_OF_136",
+    "allSupertest": "PASS_137_OF_137",
     "contractAndMigration": "PASS_4_OF_4",
     "p0Playwright": "PASS_2_OF_2",
     "behaviors": [
@@ -80,6 +80,36 @@
       "command": "pnpm verify",
       "cause": "十五个旧切片契约仍把全局currentTask和前序交付固定为M2-P011/M2-P010",
       "resolution": "保留所有旧切片业务断言，仅迁移全局状态断言为P011 CI_PASS、P012 LOCAL_PASS、Draft PR #50和P013锁定；完整契约集58/58及相关ESLint通过"
+    },
+    {
+      "commit": "888b92cb3ed3d14fd3a44771897e694f986b8f2c",
+      "status": "PASS_17_OF_17",
+      "command": "pnpm verify",
+      "startedAt": "2026-08-10T11:56:06Z",
+      "endedAt": "2026-08-10T12:06:43Z",
+      "p0E2E": "PASS_37_OF_37",
+      "secretsScan": "PASS_630_TRACKED_FILES"
+    },
+    {
+      "commit": "888b92cb3ed3d14fd3a44771897e694f986b8f2c",
+      "status": "CI_FAIL_FLAKY_HTTP_TEST_ISOLATION",
+      "run": 31386519633,
+      "job": 93448057554,
+      "cause": "完整API套件135/136通过；NEG-M2-012-03/05在同一测试内关闭第一个Nest应用并启动第二个审计失败fixture时，Linux runner收到read ECONNRESET，未形成预期的结构化503响应",
+      "resolution": "不接受ECONNRESET且不修改领域行为；把并发发布和审计失败回滚拆为两个独立测试生命周期，保留503/AUDIT_REQUIRED及模板和历史零写入断言",
+      "localFixValidation": "CI环境变量下单文件连续20次PASS_120_OF_120；完整Supertest PASS_23_FILES_137_OF_137"
+    },
+    {
+      "commit": "888b92cb3ed3d14fd3a44771897e694f986b8f2c+CI_FIX_WORKTREE",
+      "status": "PASS_17_OF_17",
+      "command": "pnpm verify",
+      "startedAt": "2026-08-10T12:27:49.827Z",
+      "endedAt": "2026-08-10T12:38:28.256Z",
+      "report": "artifacts/test-results/verification/pnpm-verify.json",
+      "api": "PASS_23_FILES_137_OF_137",
+      "p0E2E": "PASS_37_OF_37",
+      "migrationRehearsal": "PASS_EMPTY_2_UPGRADE_2_RESTORE_2_PRODUCT_15_CLEANUP",
+      "secretsScan": "PASS_630_TRACKED_FILES"
     }
   ],
   "dataAndMigration": {
@@ -114,7 +144,7 @@
   },
   "environmentBoundary": {
     "local": "LOCAL_PASS",
-    "ci": "NOT_EXECUTED_FINAL_HEAD",
+    "ci": "FAIL_AT_888B92C_FIX_PENDING_EXACT_HEAD_CI",
     "staging": "NOT_EXECUTED",
     "device": "NOT_APPLICABLE_FOR_THIS_SLICE",
     "production": "NOT_EXECUTED",
@@ -125,7 +155,7 @@
     "issue": 49,
     "pullRequest": 50,
     "pullRequestState": "DRAFT",
-    "exactHeadCi": "NOT_EXECUTED_FINAL_HEAD",
+    "exactHeadCi": "FAIL_RUN_31386519633_AT_888B92C_FIX_PENDING_NEW_HEAD",
     "review": "NOT_EXECUTED",
     "merge": "NOT_EXECUTED",
     "mainPostMergeCi": "NOT_EXECUTED",

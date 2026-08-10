@@ -2,7 +2,7 @@
 
 ## 结论与边界
 
-- 结论：`LOCAL_PASS`；Draft PR 最终 head CI、人工合并、合并后 `main` CI、staging 和 production 均为 `NOT_EXECUTED`。
+- 结论：`LOCAL_PASS`；Draft PR #50 的 pre-fix head `888b92c…` CI 因测试 HTTP 生命周期竞态失败，修复 head CI 待执行；人工合并、合并后 `main` CI、staging 和 production 均为 `NOT_EXECUTED`。
 - 方案 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`。
 - 仓库：`EasyStep-lee/flt1`；基线 `main@49b59ea102b653bfb979877539b9fb8f1e8b5afc`；分支 `codex/m2-category-template`；实现与本地验证提交 `dcc4c133ede9f1e28880fc70394c2e55715a10d8`；Issue [#49](https://github.com/EasyStep-lee/flt1/issues/49)；Draft PR [#50](https://github.com/EasyStep-lee/flt1/pull/50)。
 - 唯一范围：`P0-012`，末级分类的通用模板版本、字段/SKU/资质/详情/售后规则结构、发布与历史，以及供应商商品到公司物化全链路的当前发布版本复核。
@@ -36,9 +36,9 @@
 | 证据 | 实际结果 | 状态 |
 | --- | --- | --- |
 | RED API | 因 `dist/category-templates/in-memory-category-template.repository.js` 不存在而在导入时失败 | 已确认 |
-| 模板 API focused | 5/5 | PASS |
+| 模板 API focused | 6/6 | PASS |
 | 分类、商品、价格与双审核相关 API | 29/29 | PASS |
-| 全量 Supertest | 23 文件，136/136 | PASS |
+| 全量 Supertest | 23 文件，137/137 | PASS |
 | 契约与迁移 focused | 4/4 | PASS |
 | PAGE-005 P0 Playwright | 2/2 | PASS |
 | 第一次 P0 E2E | 1/2；状态文本断言误匹配说明段落 | FAIL，改为精确状态文本后重跑 |
@@ -49,8 +49,12 @@
 | 第二次证据 head 全量门禁 | 15 个旧切片契约仍把全局当前任务/前序交付固定为 P011/P010 | FAIL，仅迁移全局状态断言 |
 | 全契约 focused 重测 | 58/58；相关 ESLint 通过 | PASS |
 | 迁移演练 | empty=2、upgrade=2、restore=2、product=15、cleanup=PASS；模板约束探针通过 | PASS |
+| 最终本地全量门禁 | `pnpm verify` 17/17，基于 `888b92c…` 的 CI 修复工作树，API 137/137，P0 E2E 37/37，秘密扫描 630 个跟踪文件 | PASS |
+| Draft PR pre-fix CI | Actions run [31386519633](https://github.com/EasyStep-lee/flt1/actions/runs/31386519633)；API 135/136，通过项外仅组合测试第二个临时服务请求出现 `read ECONNRESET` | FAIL |
+| CI 隔离修复 focused 压测 | `CI=true/NODE_ENV=test/TZ=Asia/Shanghai`；拆分后单文件连续 20 次，120/120 | PASS |
+| CI 隔离修复全量 Supertest | 23 文件，137/137；仍严格断言 `503/AUDIT_REQUIRED` 和模板/历史零写入 | PASS |
 
-全量报告为 `artifacts/test-results/verification/pnpm-verify.json`，开始 `2026-08-10T10:52:32.090Z`，结束 `2026-08-10T11:06:56.809Z`。切片证据为 `artifacts/verification/M2-P012/category-template.json`。
+最终全量报告为 `artifacts/test-results/verification/pnpm-verify.json`，开始 `2026-08-10T12:27:49.827Z`，结束 `2026-08-10T12:38:28.256Z`。切片证据为 `artifacts/verification/M2-P012/category-template.json`。
 
 ## 环境、风险与回滚
 
@@ -61,6 +65,7 @@
 
 ## GitHub 门禁与下一步
 
-- Draft PR #50 已创建；本交接提交尚未形成 Draft PR 最终 head，因此精确 head Actions、评论、review、merge 与合并后 main CI 均保持 `NOT_EXECUTED`。
-- 下一动作仅为提交证据收尾、推送 `codex/m2-category-template`，读取 Draft PR 最终 head 的 Actions 与未解决评论。
+- Draft PR #50 的 pre-fix head `888b92cb3ed3d14fd3a44771897e694f986b8f2c` 对应 Actions run 31386519633 为 `FAIL`；失败根因限定为同一测试内连续关闭/创建 Nest 临时 HTTP 服务时的 Linux runner 连接重置，领域实现及其余 135 项 API 行为均未失败。
+- 修复仅拆分 `NEG-M2-012-03` 并发发布与 `NEG-M2-012-05` 审计回滚的应用生命周期；不降低断言，不把连接重置视为可接受，不修改模板状态机/API/数据模型。
+- 下一动作仅为提交、推送修复 head，读取其 Actions、评论、review 和 merge 状态。
 - 未经用户对届时精确 head 的明确授权，不得转 Ready 或合并；合并后 `main` CI 成功前不得开始 M2-P013。

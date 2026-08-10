@@ -378,7 +378,7 @@ describe('P0-012 versioned category templates', () => {
     }
   });
 
-  it('NEG-M2-012-03/05 rejects stale or published edits and rolls back mandatory audit failures', async () => {
+  it('NEG-M2-012-03 rejects stale or published edits under concurrent publish attempts', async () => {
     const fixture = await createFixture();
     try {
       const created = await createTemplate(fixture, fixture.leaf.id);
@@ -408,7 +408,9 @@ describe('P0-012 versioned category templates', () => {
     } finally {
       await fixture.app.close();
     }
+  });
 
+  it('NEG-M2-012-05 returns structured 503 and rolls back mandatory audit failures', async () => {
     const failed = await createFixture({ auditFail: true });
     try {
       const response = await createTemplate(failed, failed.leaf.id);
