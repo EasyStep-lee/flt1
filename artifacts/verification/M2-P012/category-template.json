@@ -1,0 +1,134 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "M2-P012",
+  "p0": [
+    "P0-012"
+  ],
+  "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+  "status": "LOCAL_PASS",
+  "branch": "codex/m2-category-template",
+  "baseCommit": "49b59ea102b653bfb979877539b9fb8f1e8b5afc",
+  "implementationCommit": "dcc4c133ede9f1e28880fc70394c2e55715a10d8",
+  "scope": {
+    "goal": "建立末级分类的通用模板版本、发布和商品绑定契约，由模板决定必填字段、SKU维度、资质、详情模块与售后提示",
+    "nonGoals": [
+      "P0-013至P0-017的食品、生鲜、服饰、数码和礼盒正式模板内容",
+      "P0-018强监管品类开关和业务资质确认",
+      "正式生产分类模板数据导入",
+      "价格、库存扣减、交易、配送及M2-P013后续切片"
+    ]
+  },
+  "redEvidence": [
+    {
+      "test": "apps/api/test/supertest/category-templates-api.test.mjs",
+      "result": "FAIL_IMPORT_BEFORE_TEST_EXECUTION",
+      "cause": "dist/category-templates/in-memory-category-template.repository.js尚不存在，模板运行时模块未实现"
+    }
+  ],
+  "focusedGreen": {
+    "categoryTemplateApi": "PASS_5_OF_5",
+    "relatedCatalogApis": "PASS_29_OF_29",
+    "allSupertest": "PASS_136_OF_136",
+    "contractAndMigration": "PASS_4_OF_4",
+    "p0Playwright": "PASS_2_OF_2",
+    "behaviors": [
+      "仅COMPANY_PRODUCT_OPS固定职能和当前公司数据域可访问",
+      "仅同公司启用末级分类可创建和发布模板",
+      "同一末级分类最多一个DRAFT和一个当前PUBLISHED版本",
+      "发布新版本原子退役旧版本，PUBLISHED和RETIRED定义不可修改",
+      "重复字段或模块键、危险内容和断开引用被确定性拒绝",
+      "SupplierProduct创建、改类/模板、提交和公司物化统一复核当前发布版本",
+      "旧revision、幂等冲突和强制审计失败不产生部分版本或历史",
+      "PAGE-005覆盖成功、空态、加载、无权、离线、未知结果与重试",
+      "模板DTO和页面不返回供应价、companyId或functionalAccountId"
+    ]
+  },
+  "verificationAttempts": [
+    {
+      "commit": "49b59ea102b653bfb979877539b9fb8f1e8b5afc",
+      "status": "FAIL_BEFORE_IMPLEMENTATION_COMMIT",
+      "cause": "新生成OpenAPI和types尚未成为HEAD基线，openapi-diff按设计拒绝未提交生成物",
+      "resolution": "精确暂存P012实现并创建原子提交dcc4c133；未跳过OpenAPI门禁"
+    },
+    {
+      "commit": "dcc4c133ede9f1e28880fc70394c2e55715a10d8",
+      "status": "PASS_17_OF_17",
+      "command": "pnpm verify",
+      "startedAt": "2026-08-10T10:52:32.090Z",
+      "endedAt": "2026-08-10T11:06:56.809Z",
+      "report": "artifacts/test-results/verification/pnpm-verify.json",
+      "openApiGenerateDiffCheckBreaking": "PASS",
+      "prismaValidate": "PASS",
+      "migrationIntegrity": "PASS_15_OF_15",
+      "migrationRehearsal": "PASS_EMPTY_2_UPGRADE_2_RESTORE_2_PRODUCT_15_CLEANUP",
+      "p0E2E": "PASS_37_OF_37",
+      "build": "PASS",
+      "secretsScan": "PASS_628_TRACKED_FILES"
+    }
+  ],
+  "dataAndMigration": {
+    "migration": "packages/db/prisma/migrations/20260810094000_m2_category_templates/migration.sql",
+    "newModels": [
+      "CategoryTemplate",
+      "CategoryTemplateHistory",
+      "CategoryTemplateCommand"
+    ],
+    "constraints": [
+      "categoryId+version unique",
+      "categoryId+draftSlot unique with NULL for non-draft",
+      "categoryId+activeSlot unique with NULL for non-published",
+      "scope+idempotencyKey command unique",
+      "SupplierProduct/Product categoryId+templateVersion composite foreign keys",
+      "database triggers require enabled leaf category and protect published/retired definitions",
+      "category_template_history update/delete rejected"
+    ],
+    "backfill": "NONE_NEW_STAGE_NO_FORMAL_CATEGORY_TEMPLATE_DATA",
+    "rollback": "回退应用提交；若迁移已在共享环境应用，不修改已发布迁移，保留兼容schema并用后续向前修复迁移处理"
+  },
+  "contractsAndPage": {
+    "apis": [
+      "GET /v1/company/categories/{categoryId}/template-versions",
+      "POST /v1/company/categories/{categoryId}/template-versions",
+      "PATCH /v1/company/category-template-versions/{templateId}",
+      "POST /v1/company/category-template-versions/{templateId}/publish"
+    ],
+    "page": "PAGE-005 /company-admin/workspaces/product-ops",
+    "openApi": "packages/contracts/openapi.json",
+    "generatedTypes": "packages/contracts/types.ts"
+  },
+  "environmentBoundary": {
+    "local": "LOCAL_PASS",
+    "ci": "NOT_EXECUTED_FINAL_HEAD",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_APPLICABLE_FOR_THIS_SLICE",
+    "production": "NOT_EXECUTED",
+    "formalTemplates": "BLOCKED_EXTERNAL_EXT_007_AUTHORIZED_PRODUCT_AND_COMPLIANCE_CONFIRMATION"
+  },
+  "github": {
+    "repository": "EasyStep-lee/flt1",
+    "issue": 49,
+    "pullRequest": 50,
+    "pullRequestState": "DRAFT",
+    "exactHeadCi": "NOT_EXECUTED_FINAL_HEAD",
+    "review": "NOT_EXECUTED",
+    "merge": "NOT_EXECUTED",
+    "mainPostMergeCi": "NOT_EXECUTED",
+    "previousSlice": {
+      "taskId": "M2-P011",
+      "pullRequest": 48,
+      "exactHead": "abb82b1be670ab145f719d8682b59ba23ffcfe7d",
+      "pullRequestCiRun": 31372338118,
+      "mergeCommit": "49b59ea102b653bfb979877539b9fb8f1e8b5afc",
+      "mainCiRun": 31375326708,
+      "status": "CI_PASS"
+    }
+  },
+  "risks": [
+    "通用模板引擎已完成但正式五类模板内容未实现，不能扩展为P0-013至P0-017完成",
+    "正式模板字段、资质和售后规则需要授权商品运营及合规确认，本地自动化数据不能替代生产验收",
+    "共享环境一旦应用迁移只能向前修复，回退应用时需保留兼容schema",
+    "当前仅本地Node/Prisma/MySQL/Chromium证据，不能升级为CI、staging或production"
+  ],
+  "nextAllowedTask": "M2-P012_DRAFT_PR_GATE_ONLY",
+  "m2p013StartAllowed": false
+}
