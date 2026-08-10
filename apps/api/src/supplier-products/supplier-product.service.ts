@@ -3,6 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { SafeApiError, type ApiErrorCode } from '../http/api-error.js';
 import { CategoryService } from '../categories/category.service.js';
 import { CategoryTemplateService } from '../category-templates/category-template.service.js';
+import { validateSupplierProductTemplateContent } from '../category-templates/food-template.policy.js';
 import type { SupplierProductActor } from './supplier-product.actor.js';
 import {
   normalizeSupplierProductDraft,
@@ -161,11 +162,12 @@ export class SupplierProductService {
       actor.supplierId,
       input.categoryId,
     );
-    await this.categoryTemplates.validateAssignment(
+    const template = await this.categoryTemplates.validateAssignment(
       category.companyId,
       input.categoryId,
       input.templateVersion,
     );
+    validateSupplierProductTemplateContent(template, input);
     const result = await this.repository.createDraft({
       ...input,
       supplierId: actor.supplierId,
@@ -205,19 +207,23 @@ export class SupplierProductService {
       return { body: toResponse(replay.value), replayed: true };
     }
     if (replay) return throwFailure(replay.kind);
-    const assignment = await this.repository.findCategoryAssignment(
+    const currentProduct = await this.repository.findOwnedProduct(
       supplierProductId,
       actor.supplierId,
     );
-    if (assignment) {
-      const categoryId = patch.categoryId ?? assignment.categoryId;
-      const templateVersion = patch.templateVersion ?? assignment.templateVersion;
+    if (currentProduct) {
+      const categoryId = patch.categoryId ?? currentProduct.categoryId;
+      const templateVersion = patch.templateVersion ?? currentProduct.templateVersion;
       const category = await this.categories.validateSupplierAssignment(actor.supplierId, categoryId);
-      await this.categoryTemplates.validateAssignment(
+      const template = await this.categoryTemplates.validateAssignment(
         category.companyId,
         categoryId,
         templateVersion,
       );
+      validateSupplierProductTemplateContent(template, {
+        attributes: patch.attributes ?? currentProduct.attributes,
+        skus: (patch.skus ?? currentProduct.skus).map(({ attributes }) => ({ attributes })),
+      });
     }
     const result = await this.repository.patchDraft({
       supplierId: actor.supplierId,
@@ -282,11 +288,16 @@ export class SupplierProductService {
         categoryAssignment.supplierId,
         categoryAssignment.categoryId,
       );
-      await this.categoryTemplates.validateAssignment(
+      const template = await this.categoryTemplates.validateAssignment(
         category.companyId,
         categoryAssignment.categoryId,
         categoryAssignment.templateVersion,
       );
+      const product = await this.repository.findOwnedProduct(
+        supplierProductId,
+        actor.supplierId,
+      );
+      if (product) validateSupplierProductTemplateContent(template, product);
     }
     const result = await this.repository.submitMaterial({
       supplierId: actor.supplierId,

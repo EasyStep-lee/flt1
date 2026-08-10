@@ -1,3 +1,5 @@
+import type { CategoryTemplateDefinition } from '../category-templates/category-template.policy.js';
+
 export const PUBLIC_CATALOG_REPOSITORY = Symbol('PUBLIC_CATALOG_REPOSITORY');
 
 export interface PublicCatalogProductRecord {
@@ -14,6 +16,24 @@ export interface PublicCatalogPageRecord {
   readonly items: readonly PublicCatalogProductRecord[];
 }
 
+export interface PublicCatalogProductDetailRecord {
+  readonly productId: string;
+  readonly supplierId: string;
+  readonly categoryId: string;
+  readonly templateVersion: number;
+  readonly name: string;
+  readonly saleStatus: 'ACTIVE' | 'OFF_SHELF' | 'ARCHIVED';
+  readonly isRetailEnabled: boolean;
+  readonly detailSnapshot: Readonly<Record<string, unknown>>;
+  readonly template: CategoryTemplateDefinition;
+  readonly skus: readonly {
+    readonly skuId: string;
+    readonly status: 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
+    readonly retailSalePrice: number;
+    readonly attributes: Readonly<Record<string, unknown>>;
+  }[];
+}
+
 export interface FindPublicCatalogProductsInput {
   readonly supplierId: string;
   readonly excludeProductId?: string;
@@ -23,6 +43,7 @@ export interface FindPublicCatalogProductsInput {
 
 export interface PublicCatalogRepository {
   isActiveSupplierSource(supplierId: string): Promise<boolean>;
+  findSellableProductDetail(productId: string): Promise<PublicCatalogProductDetailRecord | null>;
   findSellableRetailProducts(
     input: FindPublicCatalogProductsInput,
   ): Promise<PublicCatalogPageRecord>;

@@ -115,6 +115,7 @@ test('generated contract exposes foundation, identity, onboarding and catalog AP
     '/v1/audit/sensitive-export-approvals',
     '/v1/audit/sensitive-export-approvals/{taskId}/claim',
     '/v1/audit/sensitive-export-approvals/{taskId}/decision',
+    '/v1/catalog/products/{productId}',
     '/v1/catalog/suppliers/{supplierId}/products',
     '/v1/company-auth/login',
     '/v1/company-auth/workspace/current',
@@ -151,6 +152,10 @@ test('generated contract exposes foundation, identity, onboarding and catalog AP
   assert.equal(
     spec.paths['/v1/public/merchant-profile'].get.operationId,
     'publicMerchant.getProfile',
+  );
+  assert.equal(
+    spec.paths['/v1/catalog/products/{productId}'].get.operationId,
+    'catalog.getProductDetail',
   );
   assert.equal(
     spec.paths['/v1/catalog/suppliers/{supplierId}/products'].get.operationId,
@@ -325,6 +330,10 @@ test('generated contract exposes foundation, identity, onboarding and catalog AP
       'ProductMaterialReviewDto',
       'ProductMaterialReviewPageDto',
       'ProductMaterialReviewSkuDto',
+      'PublicFoodDetailFieldResponseDto',
+      'PublicFoodDetailModuleResponseDto',
+      'PublicFoodProductDetailResponseDto',
+      'PublicFoodSkuResponseDto',
       'PublicMerchantProfileQuery',
       'PublicMerchantProfileResponse',
       'PublicMerchantSubjectsDto',

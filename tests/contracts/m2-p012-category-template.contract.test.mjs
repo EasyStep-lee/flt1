@@ -25,9 +25,10 @@ test('API-018 exposes private versioned category-template DTO whitelists and ope
       'categoryId',
       'createdAt',
       'detailModules',
-      'fieldSchema',
-      'id',
-      'publishedAt',
+    'fieldSchema',
+    'id',
+    'profile',
+    'publishedAt',
       'qualificationRules',
       'retiredAt',
       'revision',
@@ -38,7 +39,7 @@ test('API-018 exposes private versioned category-template DTO whitelists and ope
   );
   assert.deepEqual(
     Object.keys(openApi.components.schemas.CategoryTemplateCreateRequestDto.properties).sort(),
-    ['afterSaleRules', 'detailModules', 'fieldSchema', 'qualificationRules', 'skuDimensions'],
+    ['afterSaleRules', 'detailModules', 'fieldSchema', 'profile', 'qualificationRules', 'skuDimensions'],
   );
   const templateSchemas = Object.fromEntries(
     Object.entries(openApi.components.schemas).filter(([name]) =>

@@ -260,6 +260,10 @@ export interface SupplierProductRepository {
     requestHash: string,
   ): Promise<SupplierProductMutationResult<T> | null>;
   categoryIsReferenced(categoryId: string): Promise<boolean>;
+  findOwnedProduct(
+    supplierProductId: string,
+    supplierId: string,
+  ): Promise<SupplierProductRecord | null>;
   findCategoryAssignment(
     supplierProductId: string,
     supplierId?: string,

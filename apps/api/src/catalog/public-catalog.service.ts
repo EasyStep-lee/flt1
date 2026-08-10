@@ -10,6 +10,10 @@ import {
   PUBLIC_CATALOG_REPOSITORY,
   type PublicCatalogRepository,
 } from './public-catalog.repository.js';
+import {
+  buildFoodProductDetailResponse,
+  type PublicFoodProductDetailResponse,
+} from './food-product-detail.policy.js';
 
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu;
@@ -67,6 +71,17 @@ export class PublicCatalogService {
     @Inject(PUBLIC_CATALOG_REPOSITORY)
     private readonly repository: PublicCatalogRepository,
   ) {}
+
+  async getProductDetail(productIdValue: unknown): Promise<PublicFoodProductDetailResponse> {
+    const productId = requireUuid(productIdValue, 'productId');
+    const source = await this.repository.findSellableProductDetail(productId);
+    if (!source) {
+      throw new SafeApiError(404, 'PRODUCT_NOT_FOUND', 'Product was not found');
+    }
+    const response = buildFoodProductDetailResponse(source);
+    assertCustomerCatalogPayloadAllowed(response);
+    return response;
+  }
 
   async listSupplierProducts(
     supplierIdValue: unknown,

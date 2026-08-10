@@ -673,6 +673,7 @@ model CategoryTemplate {
   status             CategoryTemplateStatus @default(DRAFT)
   draftSlot          Int?                   @map("draft_slot")
   activeSlot         Int?                   @map("active_slot")
+  profile            String                 @default("GENERIC") @db.VarChar(32)
   fieldSchema        Json                   @map("field_schema")
   skuDimensions      Json                   @map("sku_dimensions")
   qualificationRules Json                   @map("qualification_rules")

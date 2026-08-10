@@ -32,6 +32,7 @@ const toResponse = (value: CategoryTemplateRecord): CategoryTemplateResponse => 
   version: value.version,
   revision: value.revision,
   status: value.status,
+  profile: value.profile,
   fieldSchema: structuredClone(value.fieldSchema),
   skuDimensions: structuredClone(value.skuDimensions),
   qualificationRules: structuredClone(value.qualificationRules),
@@ -171,9 +172,14 @@ export class CategoryTemplateService {
     return { body: toResponse(result.value), replayed: result.replayed };
   }
 
-  async validateAssignment(companyId: string, categoryId: string, version: number): Promise<void> {
+  async validateAssignment(
+    companyId: string,
+    categoryId: string,
+    version: number,
+  ): Promise<CategoryTemplateRecord> {
     const result = await this.repository.validateCurrent(companyId, categoryId, version);
-    if (result.kind !== 'OK') throwFailure(result.kind);
+    if (result.kind !== 'OK') return throwFailure(result.kind);
+    return result.value;
   }
 
   categoryIsReferenced(categoryId: string): Promise<boolean> {

@@ -1,0 +1,102 @@
+.page {
+  min-height: 100vh;
+  padding: 24rpx;
+  box-sizing: border-box;
+  background: #fff8e8;
+  color: #2b2118;
+}
+
+.hero-card,
+.sku-card,
+.detail-card,
+.state-card {
+  margin-bottom: 20rpx;
+  padding: 28rpx;
+  border-radius: 22rpx;
+  background: #fff;
+  box-shadow: 0 8rpx 24rpx rgba(75, 49, 18, 0.08);
+}
+
+.hero-card {
+  border-top: 10rpx solid #ffcc33;
+}
+
+.eyebrow,
+.field-label,
+.brand,
+.seller {
+  color: #796653;
+  font-size: 24rpx;
+}
+
+.product-name {
+  margin-top: 10rpx;
+  font-size: 40rpx;
+  font-weight: 800;
+}
+
+.brand,
+.seller {
+  margin-top: 10rpx;
+}
+
+.price,
+.sku-price {
+  color: #e94f37;
+  font-weight: 800;
+}
+
+.price {
+  margin-top: 22rpx;
+  font-size: 42rpx;
+}
+
+.section-title,
+.state-title {
+  font-size: 30rpx;
+  font-weight: 800;
+}
+
+.sku-row,
+.field-row {
+  display: flex;
+  gap: 24rpx;
+  justify-content: space-between;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #f1e7d7;
+  margin-top: 20rpx;
+}
+
+.sku-spec,
+.field-value {
+  flex: 1;
+  line-height: 1.55;
+}
+
+.field-label {
+  width: 150rpx;
+}
+
+.warning-card {
+  border-left: 8rpx solid #e94f37;
+  background: #fff5f1;
+}
+
+.warning-text {
+  margin-top: 16rpx;
+  color: #8a2f22;
+  line-height: 1.65;
+}
+
+.state-card {
+  margin-top: 180rpx;
+  text-align: center;
+}
+
+.retry-button {
+  width: 240rpx;
+  margin-top: 24rpx;
+  background: #ffcc33;
+  color: #2b2118;
+  font-weight: 700;
+}

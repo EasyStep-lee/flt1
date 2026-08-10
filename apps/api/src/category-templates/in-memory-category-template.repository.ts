@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 
 import type { CategoryTemplateDefinition } from './category-template.policy.js';
+import { assertFoodTemplateDefinition } from './food-template.policy.js';
 import type {
   CategoryTemplateListResult,
   CategoryTemplateMutationResult,
@@ -170,6 +171,7 @@ export class InMemoryCategoryTemplateRepository implements CategoryTemplateRepos
       version,
       revision: 0,
       status: 'DRAFT',
+      profile: command.profile,
       fieldSchema: clone(command.fieldSchema),
       skuDimensions: clone(command.skuDimensions),
       qualificationRules: clone(command.qualificationRules),
@@ -228,6 +230,7 @@ export class InMemoryCategoryTemplateRepository implements CategoryTemplateRepos
     if (existing.status !== 'DRAFT') return { kind: 'TEMPLATE_IMMUTABLE' };
     const target = await this.validateTarget(command.companyId, existing.categoryId);
     if (target) return { kind: target };
+    assertFoodTemplateDefinition(existing);
     const current = [...this.templates.values()].find(
       (template) =>
         template.companyId === command.companyId &&
@@ -351,6 +354,7 @@ export class InMemoryCategoryTemplateRepository implements CategoryTemplateRepos
 }
 
 export const defaultTemplateDefinition = (): CategoryTemplateDefinition => ({
+  profile: 'GENERIC',
   fieldSchema: {
     schemaVersion: '1.0',
     fields: [

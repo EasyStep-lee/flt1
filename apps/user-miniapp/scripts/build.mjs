@@ -25,6 +25,7 @@ await build({
   entryPoints: [
     path.join(sourceRoot, 'app.ts'),
     path.join(sourceRoot, 'pages/shell/index.ts'),
+    path.join(sourceRoot, 'pages/product-detail/index.ts'),
     path.join(sourceRoot, 'pages/supplier-products/index.ts'),
   ],
   format: 'iife',
@@ -42,6 +43,9 @@ for (const relativePath of [
   'pages/shell/index.json',
   'pages/shell/index.wxml',
   'pages/shell/index.wxss',
+  'pages/product-detail/index.json',
+  'pages/product-detail/index.wxml',
+  'pages/product-detail/index.wxss',
   'pages/supplier-products/index.json',
   'pages/supplier-products/index.wxml',
   'pages/supplier-products/index.wxss',
