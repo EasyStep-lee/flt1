@@ -109,19 +109,41 @@ test('portal route groups freeze public ISR and private no-store/noindex boundar
   assert.doesNotMatch(sitemap, /\/enterprise\/workspace/u);
 });
 
-test('native mini-program shells have separate developer-tool roots and one shell page only', () => {
+test('native mini-programs keep separate roots and retain their independent shell entry', () => {
   for (const appName of ['user-miniapp', 'runner-miniapp']) {
     const project = readJson('apps', appName, 'project.config.json');
     const app = readJson('apps', appName, 'src', 'app.json');
     assert.equal(project.miniprogramRoot, 'dist/');
     assert.equal(project.appid, 'touristappid');
-    assert.deepEqual(app.pages, ['pages/shell/index']);
+    assert.equal(app.pages[0], 'pages/shell/index');
     for (const extension of ['ts', 'json', 'wxml', 'wxss']) {
       assert.ok(
         existsSync(fromRoot('apps', appName, 'src', 'pages', 'shell', `index.${extension}`)),
         `${appName}:SHELL_PAGE_${extension.toUpperCase()}`,
       );
     }
+  }
+  const userApp = readJson('apps', 'user-miniapp', 'src', 'app.json');
+  const runnerApp = readJson('apps', 'runner-miniapp', 'src', 'app.json');
+  assert.deepEqual(userApp.pages, [
+    'pages/shell/index',
+    'pages/supplier-products/index',
+  ]);
+  assert.deepEqual(runnerApp.pages, ['pages/shell/index']);
+  for (const extension of ['ts', 'json', 'wxml', 'wxss']) {
+    assert.ok(
+      existsSync(
+        fromRoot(
+          'apps',
+          'user-miniapp',
+          'src',
+          'pages',
+          'supplier-products',
+          `index.${extension}`,
+        ),
+      ),
+      `user-miniapp:PAGE_054_${extension.toUpperCase()}`,
+    );
   }
 });
 
