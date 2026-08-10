@@ -1,0 +1,124 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "M2-P013",
+  "p0": [
+    "P0-013"
+  ],
+  "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+  "status": "LOCAL_PASS",
+  "branch": "codex/m2-food-detail",
+  "baseCommit": "9a85a641624951310a984fc844562265db20cb82",
+  "implementationCommit": "989481ace2454583a3f0299dcd8606562c1c5769",
+  "scope": {
+    "goal": "以不可变FOOD模板驱动食品六项详情、三项SKU规格、固定食品提示、公开DTO白名单和用户小程序食品详情区块",
+    "nonGoals": [
+      "P0-014至P0-017生鲜、服饰、数码和礼盒模板",
+      "P0-018强监管开关",
+      "P0-021与P0-088完整通用商品详情和交易交互",
+      "正式生产食品模板和商品数据导入",
+      "支付、库存扣减、配送和M2-P014后续切片"
+    ]
+  },
+  "redEvidence": [
+    {
+      "test": "apps/api/test/unit/food-detail-policy.test.mjs",
+      "result": "FAIL_ERR_MODULE_NOT_FOUND",
+      "cause": "dist/category-templates/food-template.policy.js尚不存在，食品模板运行时规则未实现"
+    }
+  ],
+  "focusedGreen": {
+    "policyUnit": "PASS_3_OF_3",
+    "categoryAndPublicDetailApi": "PASS_11_OF_11",
+    "allSupertest": "PASS_24_FILES_142_OF_142",
+    "userMiniapp": "PASS_7_OF_7",
+    "contractAndMigration": "PASS_8_OF_8",
+    "p0Playwright": "PASS_1_OF_1",
+    "prismaValidate": "PASS",
+    "migrationRehearsal": "PASS_EMPTY_2_UPGRADE_2_RESTORE_2_PRODUCT_16_CLEANUP",
+    "behaviors": [
+      "FOOD模板固定六个商品字段、三个SKU维度和五个详情模块",
+      "供应商创建、修改和提交时按精确已发布模板版本校验必填纯文本和白名单",
+      "供应商不得新增、替换或通过HTML/CSS隐藏固定食品提示",
+      "已发布模板的profile和JSON定义均由数据库触发器保护不可覆盖",
+      "公开详情仅返回在售零售SKU、整数分零售价、六项食品字段和三项规格",
+      "公开DTO不返回供应价、资质私有引用、companyId、functionalAccountId或内部审核快照",
+      "对客销售主体固定为江苏福礼团供应链科技有限公司并统一结账",
+      "原生用户小程序仅通过miniapp-kit生成契约请求，并提供加载、错误和重试状态"
+    ]
+  },
+  "verificationAttempts": [
+    {
+      "commit": "9a85a641624951310a984fc844562265db20cb82",
+      "status": "RED_CONFIRMED",
+      "command": "pnpm --filter @fulishe/api build && node --test apps/api/test/unit/food-detail-policy.test.mjs",
+      "cause": "食品策略模块未实现"
+    },
+    {
+      "commit": "989481ace2454583a3f0299dcd8606562c1c5769",
+      "status": "PASS_RELATED_GATES",
+      "commands": [
+        "pnpm lint",
+        "pnpm typecheck",
+        "pnpm test:api:supertest",
+        "pnpm prisma:validate",
+        "pnpm prisma:migrate:dry-run",
+        "pnpm openapi:generate && pnpm openapi:check",
+        "pnpm exec playwright test --config playwright.p0.config.ts tests/e2e/p0/p0-013-food-detail.spec.ts"
+      ]
+    },
+    {
+      "commit": "PENDING_EVIDENCE_COMMIT",
+      "status": "NOT_EXECUTED_FINAL_FULL_GATE",
+      "command": "pnpm verify",
+      "note": "先提交当前实现和证据基线，再按HEAD运行完整17步门禁；未执行前不升级CI证据"
+    }
+  ],
+  "dataAndMigration": {
+    "migration": "packages/db/prisma/migrations/20260810110000_m2_food_template_profile/migration.sql",
+    "change": "CategoryTemplate增加GENERIC|FOOD profile；既有行默认回填GENERIC；已发布profile与模板JSON共同不可变",
+    "backfill": "EXISTING_TEMPLATES_TO_GENERIC_ONLY_NO_FORMAL_FOOD_DATA",
+    "rollback": "回退应用提交；共享环境若已应用迁移则不改写已发布SQL，保留兼容列并以前向修复处理"
+  },
+  "contractsAndPages": {
+    "api": "GET /v1/catalog/products/{productId}",
+    "companyPage": "PAGE-005 /company-admin/workspaces/product-ops",
+    "consumerPage": "PAGE-053 /pages/product-detail/index P0-013子集",
+    "openApi": "packages/contracts/openapi.json",
+    "generatedTypes": "packages/contracts/types.ts",
+    "miniappContract": "packages/contracts/src/miniapp-contracts.ts"
+  },
+  "environmentBoundary": {
+    "local": "LOCAL_PASS",
+    "ci": "NOT_EXECUTED_NO_PR",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_EXECUTED",
+    "production": "NOT_EXECUTED",
+    "formalFoodData": "BLOCKED_EXTERNAL_EXT_007_AUTHORIZED_PRODUCT_AND_COMPLIANCE_CONFIRMATION"
+  },
+  "github": {
+    "repository": "EasyStep-lee/flt1",
+    "issue": 51,
+    "pullRequest": null,
+    "pullRequestState": "NOT_CREATED",
+    "exactHeadCi": "NOT_EXECUTED_NO_PR",
+    "review": "NOT_EXECUTED",
+    "merge": "NOT_EXECUTED",
+    "mainPostMergeCi": "NOT_EXECUTED",
+    "previousSlice": {
+      "taskId": "M2-P012",
+      "pullRequest": 50,
+      "exactHead": "4faae84321583c28abc7532f1093c7c2bbc95de1",
+      "mergeCommit": "9a85a641624951310a984fc844562265db20cb82",
+      "mainCiRun": 31398383884,
+      "status": "CI_PASS"
+    }
+  },
+  "risks": [
+    "正式食品模板字段、资质和售后口径仍需EXT-007授权商品运营及合规确认",
+    "P013页面只完成食品详情子集，不能宣称P0-021或P0-088完整商品详情完成",
+    "公开详情使用短期公共缓存；上架和价格变更后的更严格失效策略属于后续商品价格切片",
+    "当前证据仅来自本地Node、MySQL 8和Chromium，不能升级为CI、staging、device或production"
+  ],
+  "nextAllowedTask": "M2-P013_DRAFT_PR_GATE_ONLY",
+  "m2p014StartAllowed": false
+}
