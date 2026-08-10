@@ -44,6 +44,8 @@
 | 第一次 P0 E2E | 1/2；状态文本断言误匹配说明段落 | FAIL，改为精确状态文本后重跑 |
 | 第一次全量门禁 | 未提交的生成 OpenAPI 不等于 `HEAD`，`openapi-diff` 按设计失败 | FAIL，创建原子实现提交后完整重跑 |
 | 实现提交全量门禁 | `pnpm verify` 17/17，提交 `dcc4c133…` | PASS |
+| 证据提交全量门禁 | 历史交接契约仍把当前任务固定为 P011，且工作簿 manifest 为旧哈希 | FAIL，仅迁移当前状态断言并同步制品哈希 |
+| 交接 focused 重测 | 23/23；相关 ESLint 通过 | PASS |
 | 迁移演练 | empty=2、upgrade=2、restore=2、product=15、cleanup=PASS；模板约束探针通过 | PASS |
 
 全量报告为 `artifacts/test-results/verification/pnpm-verify.json`，开始 `2026-08-10T10:52:32.090Z`，结束 `2026-08-10T11:06:56.809Z`。切片证据为 `artifacts/verification/M2-P012/category-template.json`。

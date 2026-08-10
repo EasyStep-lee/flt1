@@ -64,6 +64,15 @@
       "p0E2E": "PASS_37_OF_37",
       "build": "PASS",
       "secretsScan": "PASS_628_TRACKED_FILES"
+    },
+    {
+      "commit": "67ec60945b485f10c271e03f45a70e57f4511e10",
+      "status": "FAIL_REGRESSION_EVIDENCE_CONTRACT",
+      "command": "pnpm verify",
+      "startedAt": "2026-08-10T11:17:59.029Z",
+      "endedAt": "2026-08-10T11:23:07.983Z",
+      "cause": "M1历史交接契约把当前任务硬编码为M2-P011且把P011固定为LOCAL_PASS；工作簿制品清单仍引用更新前哈希",
+      "resolution": "保持历史M1交接结论不变，仅让当前状态断言验证P011 CI_PASS、P012 LOCAL_PASS和P013锁定，并同步当前工作簿SHA-256；focused交接测试23/23通过"
     }
   ],
   "dataAndMigration": {
