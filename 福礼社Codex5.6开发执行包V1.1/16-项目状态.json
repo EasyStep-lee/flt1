@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-10T12:38:44-04:00",
+  "updatedAt": "2026-08-10T13:03:07-04:00",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -18,7 +18,7 @@
     "nextAllowedTask": "M2-P013",
     "activeTaskCount": 0,
     "lastCompletedTask": "M2-P013",
-    "lastCompletedCommit": "989481ace2454583a3f0299dcd8606562c1c5769",
+    "lastCompletedCommit": "3d7bad6a098f4d3421bc7aae310ad0e0f9cb75b7",
     "lastPassedGate": "M1-GATE",
     "prohibitedUntilGate": [
       "M2-P013 Draft PR最终head CI、人工合并及合并后main CI完成前不得开始M2-P014",
@@ -103,7 +103,7 @@
       "mainPostMergeCiRun": 31398383884,
       "status": "CI_PASS"
     },
-    "note": "M2-P012最终head 4faae843的PR #50 CI run 31390883983通过，按人工授权合并为main@9a85a641且main CI run 31398383884通过；M2-P013已在Issue #51和codex/m2-food-detail完成RED→GREEN、focused/API/P0与MySQL迁移演练，本地实现提交为989481a；Draft PR最终head CI、人工合并及合并后main CI前P014保持锁定。"
+    "note": "M2-P012最终head 4faae843的PR #50 CI run 31390883983通过，按人工授权合并为main@9a85a641且main CI run 31398383884通过；M2-P013已在Issue #51和codex/m2-food-detail完成RED→GREEN、focused/API/P0、MySQL迁移演练及pnpm verify 17/17，本地证据head为3d7bad6；Draft PR最终head CI、人工合并及合并后main CI前P014保持锁定。"
   },
   "evidence": {
     "local": "LOCAL_PASS",

@@ -67,10 +67,19 @@
       ]
     },
     {
-      "commit": "PENDING_EVIDENCE_COMMIT",
-      "status": "NOT_EXECUTED_FINAL_FULL_GATE",
+      "commit": "3d7bad6a098f4d3421bc7aae310ad0e0f9cb75b7",
+      "status": "PASS_17_OF_17",
       "command": "pnpm verify",
-      "note": "先提交当前实现和证据基线，再按HEAD运行完整17步门禁；未执行前不升级CI证据"
+      "startedAt": "2026-08-10T16:52:16.489Z",
+      "endedAt": "2026-08-10T17:03:07.396Z",
+      "report": "artifacts/test-results/verification/pnpm-verify.json",
+      "openApiGenerateDiffCheckBreaking": "PASS",
+      "api": "PASS_24_FILES_142_OF_142",
+      "p0E2E": "PASS_38_OF_38",
+      "migrationIntegrity": "PASS_16_OF_16",
+      "migrationRehearsal": "PASS_EMPTY_2_UPGRADE_2_RESTORE_2_PRODUCT_16_CLEANUP",
+      "build": "PASS",
+      "secretsScan": "PASS_646_TRACKED_FILES"
     }
   ],
   "dataAndMigration": {
