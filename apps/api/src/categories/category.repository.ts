@@ -82,6 +82,8 @@ export type CategoryAssignmentResult =
 
 export interface CategoryRepository {
   list(companyId: string, status?: CategoryStatus): Promise<readonly CategoryRecord[]>;
+  findForCompany(companyId: string, categoryId: string): Promise<CategoryRecord | null>;
+  hasChildren(companyId: string, categoryId: string): Promise<boolean>;
   create(command: CreateCategoryCommand): Promise<CategoryMutationResult<CategoryRecord>>;
   patch(command: PatchCategoryCommand): Promise<CategoryMutationResult<CategoryRecord>>;
   delete(command: DeleteCategoryCommand): Promise<CategoryMutationResult<DeletedCategoryRecord>>;

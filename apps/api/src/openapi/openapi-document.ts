@@ -28,6 +28,11 @@ import {
   CATEGORY_REPOSITORY,
   type CategoryRepository,
 } from '../categories/category.repository.js';
+import { CategoryTemplateService } from '../category-templates/category-template.service.js';
+import {
+  CATEGORY_TEMPLATE_REPOSITORY,
+  type CategoryTemplateRepository,
+} from '../category-templates/category-template.repository.js';
 import {
   COMPANY_AUTH_REPOSITORY,
   type CompanyAuthRepository,
@@ -312,6 +317,7 @@ type JsonValue =
     CompanyProductApprovalService,
     PublicCatalogService,
     CategoryService,
+    CategoryTemplateService,
     DenyCompanyProductApprovalActorResolver,
     DenySupplierProductActorResolver,
     DenySupplierPricingActorResolver,
@@ -350,6 +356,8 @@ type JsonValue =
       provide: CATEGORY_REPOSITORY,
       useValue: {
         list: async () => [],
+        findForCompany: async () => null,
+        hasChildren: async () => false,
         create: async () => {
           throw new Error('OPENAPI_GENERATION_ONLY');
         },
@@ -361,6 +369,23 @@ type JsonValue =
         },
         validateSupplierAssignment: async () => ({ kind: 'CATEGORY_NOT_FOUND' }),
       } satisfies CategoryRepository,
+    },
+    {
+      provide: CATEGORY_TEMPLATE_REPOSITORY,
+      useValue: {
+        list: async () => ({ kind: 'CATEGORY_NOT_FOUND' }),
+        createDraft: async () => {
+          throw new Error('OPENAPI_GENERATION_ONLY');
+        },
+        patchDraft: async () => {
+          throw new Error('OPENAPI_GENERATION_ONLY');
+        },
+        publish: async () => {
+          throw new Error('OPENAPI_GENERATION_ONLY');
+        },
+        validateCurrent: async () => ({ kind: 'TEMPLATE_VERSION_INACTIVE' }),
+        categoryIsReferenced: async () => false,
+      } satisfies CategoryTemplateRepository,
     },
     {
       provide: SUPPLIER_PRODUCT_ACTOR_RESOLVER,

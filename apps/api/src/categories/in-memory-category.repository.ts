@@ -47,6 +47,19 @@ export class InMemoryCategoryRepository implements CategoryRepository {
     );
   }
 
+  findForCompany(companyId: string, categoryId: string): Promise<CategoryRecord | null> {
+    const value = this.categories.get(categoryId);
+    return Promise.resolve(value?.companyId === companyId ? clone(value) : null);
+  }
+
+  hasChildren(companyId: string, categoryId: string): Promise<boolean> {
+    return Promise.resolve(
+      [...this.categories.values()].some(
+        (category) => category.companyId === companyId && category.parentId === categoryId,
+      ),
+    );
+  }
+
   create(command: CreateCategoryCommand): Promise<CategoryMutationResult<CategoryRecord>> {
     return this.serialize(() => this.createOnce(command));
   }
@@ -114,8 +127,7 @@ export class InMemoryCategoryRepository implements CategoryRepository {
   }
 
   findById(companyId: string, categoryId: string): Promise<CategoryRecord | null> {
-    const value = this.categories.get(categoryId);
-    return Promise.resolve(value?.companyId === companyId ? clone(value) : null);
+    return this.findForCompany(companyId, categoryId);
   }
 
   private async createOnce(

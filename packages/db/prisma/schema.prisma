@@ -122,6 +122,19 @@ enum CategoryHistoryEvent {
   DELETE
 }
 
+enum CategoryTemplateStatus {
+  DRAFT
+  PUBLISHED
+  RETIRED
+}
+
+enum CategoryTemplateHistoryEvent {
+  CREATE
+  UPDATE
+  PUBLISH
+  RETIRE
+}
+
 enum SupplierStatusEvent {
   REGISTER
   SUBMIT
@@ -245,6 +258,7 @@ model Company {
   functionalAccounts FunctionalAccount[]
   products           Product[]
   categories         Category[]
+  categoryTemplates  CategoryTemplate[]
 
   @@map("company")
 }
@@ -612,6 +626,7 @@ model Category {
   company        Company        @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   parent         Category?      @relation("CategoryTree", fields: [parentId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   children       Category[]     @relation("CategoryTree")
+  templates      CategoryTemplate[]
 
   @@unique([companyId, parentScopeKey, name], map: "category_company_parent_name_key")
   @@index([companyId, level, status, sortWeight], map: "category_company_level_status_sort_idx")
@@ -649,6 +664,67 @@ model CategoryCommand {
   @@map("category_command")
 }
 
+model CategoryTemplate {
+  id                 String                 @id @default(uuid()) @db.Char(36)
+  companyId          String                 @map("company_id") @db.Char(36)
+  categoryId         String                 @map("category_id") @db.Char(36)
+  version            Int
+  revision           Int                    @default(0)
+  status             CategoryTemplateStatus @default(DRAFT)
+  draftSlot          Int?                   @map("draft_slot")
+  activeSlot         Int?                   @map("active_slot")
+  fieldSchema        Json                   @map("field_schema")
+  skuDimensions      Json                   @map("sku_dimensions")
+  qualificationRules Json                   @map("qualification_rules")
+  detailModules      Json                   @map("detail_modules")
+  afterSaleRules     Json                   @map("after_sale_rules")
+  createdAt          DateTime               @default(now()) @map("created_at") @db.DateTime(3)
+  publishedAt        DateTime?              @map("published_at") @db.DateTime(3)
+  retiredAt          DateTime?              @map("retired_at") @db.DateTime(3)
+  company            Company                @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  category           Category               @relation(fields: [categoryId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  supplierProducts   SupplierProduct[]
+  products           Product[]
+
+  @@unique([categoryId, version], map: "category_template_category_version_key")
+  @@unique([categoryId, draftSlot], map: "category_template_category_draft_key")
+  @@unique([categoryId, activeSlot], map: "category_template_category_active_key")
+  @@index([companyId, status], map: "category_template_company_status_idx")
+  @@map("category_template")
+}
+
+model CategoryTemplateHistory {
+  id                  String                       @id @default(uuid()) @db.Char(36)
+  templateId          String                       @map("template_id") @db.Char(36)
+  categoryId          String                       @map("category_id") @db.Char(36)
+  companyId           String                       @map("company_id") @db.Char(36)
+  event               CategoryTemplateHistoryEvent
+  revision            Int
+  snapshot            Json
+  actorIdentityId     String                       @map("actor_identity_id") @db.Char(36)
+  functionalAccountId String                       @map("functional_account_id") @db.Char(36)
+  requestId           String                       @map("request_id") @db.Char(36)
+  occurredAt          DateTime                     @default(now()) @map("occurred_at") @db.DateTime(3)
+
+  @@unique([templateId, revision, event], map: "category_template_history_template_revision_event_key")
+  @@index([categoryId, occurredAt], map: "category_template_history_category_time_idx")
+  @@index([companyId, occurredAt], map: "category_template_history_company_time_idx")
+  @@index([requestId], map: "category_template_history_request_id_idx")
+  @@map("category_template_history")
+}
+
+model CategoryTemplateCommand {
+  id               String   @id @default(uuid()) @db.Char(36)
+  scope            String   @db.VarChar(180)
+  idempotencyKey   String   @map("idempotency_key") @db.VarChar(128)
+  requestHash      String   @map("request_hash") @db.Char(64)
+  responseSnapshot Json     @map("response_snapshot")
+  createdAt        DateTime @default(now()) @map("created_at") @db.DateTime(3)
+
+  @@unique([scope, idempotencyKey], map: "category_template_command_scope_key")
+  @@map("category_template_command")
+}
+
 model SupplierProduct {
   id                             String                         @id @default(uuid()) @db.Char(36)
   supplierId                     String                         @map("supplier_id") @db.Char(36)
@@ -669,6 +745,7 @@ model SupplierProduct {
   createdAt                      DateTime                       @default(now()) @map("created_at") @db.DateTime(3)
   updatedAt                      DateTime                       @updatedAt @map("updated_at") @db.DateTime(3)
   supplier                       Supplier                       @relation(fields: [supplierId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  template                       CategoryTemplate                @relation(fields: [categoryId, templateVersion], references: [categoryId, version], onDelete: Restrict, onUpdate: Cascade, map: "supplier_product_category_template_fkey")
   skus                           SupplierProductSku[]
   statusHistory                  SupplierProductStatusHistory[]
   product                        Product?
@@ -748,6 +825,7 @@ model Product {
   company                        Company           @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   supplier                       Supplier          @relation(fields: [supplierId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   supplierProduct                SupplierProduct   @relation(fields: [supplierProductId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  template                       CategoryTemplate  @relation(fields: [categoryId, templateVersion], references: [categoryId, version], onDelete: Restrict, onUpdate: Cascade, map: "product_category_template_fkey")
   skus                           Sku[]
 
   @@index([companyId, saleStatus], map: "product_company_status_idx")

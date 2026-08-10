@@ -53,6 +53,21 @@ export class PrismaCategoryRepository implements CategoryRepository {
     return values.map(toRecord);
   }
 
+  async findForCompany(companyId: string, categoryId: string): Promise<CategoryRecord | null> {
+    const value = await this.prisma.category.findFirst({
+      where: { id: categoryId, companyId },
+    });
+    return value ? toRecord(value) : null;
+  }
+
+  async hasChildren(companyId: string, categoryId: string): Promise<boolean> {
+    const value = await this.prisma.category.findFirst({
+      where: { companyId, parentId: categoryId },
+      select: { id: true },
+    });
+    return Boolean(value);
+  }
+
   create(command: CreateCategoryCommand): Promise<CategoryMutationResult<CategoryRecord>> {
     const scope = `CREATE:${command.companyId}`;
     return this.mutate(scope, command, async (tx) => {

@@ -152,13 +152,17 @@ export class PrismaSupplierProductRepository implements SupplierProductRepositor
   async findCategoryAssignment(
     supplierProductId: string,
     supplierId?: string,
-  ): Promise<{ readonly categoryId: string; readonly supplierId: string } | null> {
+  ): Promise<{
+    readonly categoryId: string;
+    readonly supplierId: string;
+    readonly templateVersion: number;
+  } | null> {
     return this.prisma.supplierProduct.findFirst({
       where: {
         id: supplierProductId,
         ...(supplierId === undefined ? {} : { supplierId }),
       },
-      select: { categoryId: true, supplierId: true },
+      select: { categoryId: true, supplierId: true, templateVersion: true },
     });
   }
 

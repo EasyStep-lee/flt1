@@ -14,6 +14,7 @@ import type { CompanyFunctionalAccountRepository } from './company-functional-ac
 import type { CompanyProductApprovalActorResolver } from './company-product-approvals/company-product-approval.actor.js';
 import type { PublicCatalogRepository } from './catalog/public-catalog.repository.js';
 import type { CategoryRepository } from './categories/category.repository.js';
+import type { CategoryTemplateRepository } from './category-templates/category-template.repository.js';
 
 import { AppModule } from './app.module.js';
 import {
@@ -74,6 +75,7 @@ export interface CreateApplicationOptions {
   readonly companyProductApprovalActorResolver?: CompanyProductApprovalActorResolver;
   readonly catalogRepository?: PublicCatalogRepository;
   readonly categoryRepository?: CategoryRepository;
+  readonly categoryTemplateRepository?: CategoryTemplateRepository;
   readonly logger?: LoggerService | false;
 }
 
@@ -161,6 +163,9 @@ export const createApplication = async (
       : {}),
     ...(options.categoryRepository
       ? { categoryRepository: options.categoryRepository }
+      : {}),
+    ...(options.categoryTemplateRepository
+      ? { categoryTemplateRepository: options.categoryTemplateRepository }
       : {}),
   };
   const logger = options.logger === false ? false : options.logger ?? new SafeJsonLogger();

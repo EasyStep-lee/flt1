@@ -263,7 +263,11 @@ export interface SupplierProductRepository {
   findCategoryAssignment(
     supplierProductId: string,
     supplierId?: string,
-  ): Promise<{ readonly categoryId: string; readonly supplierId: string } | null>;
+  ): Promise<{
+    readonly categoryId: string;
+    readonly supplierId: string;
+    readonly templateVersion: number;
+  } | null>;
   createDraft(
     command: CreateSupplierProductCommand,
   ): Promise<SupplierProductMutationResult<SupplierProductRecord>>;

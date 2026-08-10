@@ -1,5 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 
+import {
+  CATEGORY_TEMPLATE_REPOSITORY,
+  type CategoryTemplateRepository,
+} from '../category-templates/category-template.repository.js';
 import type { CompanyProductApprovalActor } from '../company-product-approvals/company-product-approval.actor.js';
 import { SafeApiError, type ApiErrorCode } from '../http/api-error.js';
 import {
@@ -66,6 +70,8 @@ const unwrap = <T>(result: CategoryMutationResult<T>): { value: T; replayed: boo
 export class CategoryService {
   constructor(
     @Inject(CATEGORY_REPOSITORY) private readonly repository: CategoryRepository,
+    @Inject(CATEGORY_TEMPLATE_REPOSITORY)
+    private readonly templates: CategoryTemplateRepository,
     @Inject(SUPPLIER_PRODUCT_REPOSITORY)
     private readonly supplierProducts: SupplierProductRepository,
   ) {}
@@ -156,7 +162,9 @@ export class CategoryService {
     const categoryId = requireCategoryId(categoryIdValue);
     const expectedVersion = requireCategoryVersion(versionValue);
     const idempotencyKey = requireCategoryIdempotencyKey(idempotencyKeyValue);
-    const externallyReferenced = await this.supplierProducts.categoryIsReferenced(categoryId);
+    const externallyReferenced =
+      (await this.supplierProducts.categoryIsReferenced(categoryId)) ||
+      (await this.templates.categoryIsReferenced(categoryId));
     const result = unwrap(
       await this.repository.delete({
         categoryId,
@@ -174,8 +182,12 @@ export class CategoryService {
     return { body: result.value, replayed: result.replayed };
   }
 
-  async validateSupplierAssignment(supplierId: string, categoryId: string): Promise<void> {
+  async validateSupplierAssignment(
+    supplierId: string,
+    categoryId: string,
+  ): Promise<CategoryRecord> {
     const result = await this.repository.validateSupplierAssignment(supplierId, categoryId);
-    if (result.kind !== 'OK') throwFailure(result.kind);
+    if (result.kind === 'OK') return result.value;
+    return throwFailure(result.kind);
   }
 }

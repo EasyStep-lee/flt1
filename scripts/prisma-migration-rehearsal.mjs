@@ -718,6 +718,61 @@ try {
     'SINGLE_MERCHANT_FIXED_NAME_NOT_ENFORCED',
     [temporaryWechatPayConfigRef],
   );
+  const categoryRootId = '01000000-0000-4000-8000-000000000012';
+  const categoryMiddleId = '02000000-0000-4000-8000-000000000012';
+  const categoryLeafId = '03000000-0000-4000-8000-000000000012';
+  const templateV1Id = '04000000-0000-4000-8000-000000000012';
+  const templateV2Id = '05000000-0000-4000-8000-000000000012';
+  const templateDuplicateId = '06000000-0000-4000-8000-000000000012';
+  const templateHistoryId = '07000000-0000-4000-8000-000000000012';
+  const templateJsonColumns = `JSON_OBJECT('schemaVersion', '1.0', 'fields', JSON_ARRAY(JSON_OBJECT('key', 'description'))), JSON_OBJECT('dimensions', JSON_ARRAY()), JSON_OBJECT('rules', JSON_ARRAY()), JSON_OBJECT('modules', JSON_ARRAY(JSON_OBJECT('key', 'base'))), JSON_OBJECT('returnPolicy', 'COMPANY_STANDARD')`;
+  runRootMysql(
+    `INSERT INTO \`category\` (\`id\`, \`company_id\`, \`parent_id\`, \`parent_scope_key\`, \`name\`, \`level\`, \`sort_weight\`, \`status\`, \`updated_at\`) VALUES
+('${categoryRootId}', '${canonicalCompanyId}', NULL, '00000000-0000-0000-0000-000000000000', '迁移演练一级', 1, 10, 'ENABLED', CURRENT_TIMESTAMP(3)),
+('${categoryMiddleId}', '${canonicalCompanyId}', '${categoryRootId}', '${categoryRootId}', '迁移演练二级', 2, 10, 'ENABLED', CURRENT_TIMESTAMP(3)),
+('${categoryLeafId}', '${canonicalCompanyId}', '${categoryMiddleId}', '${categoryMiddleId}', '迁移演练末级', 3, 10, 'ENABLED', CURRENT_TIMESTAMP(3));
+INSERT INTO \`category_template\` (\`id\`, \`company_id\`, \`category_id\`, \`version\`, \`revision\`, \`status\`, \`draft_slot\`, \`field_schema\`, \`sku_dimensions\`, \`qualification_rules\`, \`detail_modules\`, \`after_sale_rules\`) VALUES ('${templateV1Id}', '${canonicalCompanyId}', '${categoryLeafId}', 1, 0, 'DRAFT', 1, ${templateJsonColumns});
+`,
+    databaseNames.product,
+  );
+  expectRootMysqlFailure(
+    `INSERT INTO \`category_template\` (\`id\`, \`company_id\`, \`category_id\`, \`version\`, \`revision\`, \`status\`, \`draft_slot\`, \`field_schema\`, \`sku_dimensions\`, \`qualification_rules\`, \`detail_modules\`, \`after_sale_rules\`) VALUES ('${templateDuplicateId}', '${canonicalCompanyId}', '${categoryLeafId}', 2, 0, 'DRAFT', 1, ${templateJsonColumns});\n`,
+    databaseNames.product,
+    'SECOND_CATEGORY_TEMPLATE_DRAFT_ACCEPTED',
+  );
+  expectRootMysqlFailure(
+    `INSERT INTO \`category_template\` (\`id\`, \`company_id\`, \`category_id\`, \`version\`, \`revision\`, \`status\`, \`draft_slot\`, \`field_schema\`, \`sku_dimensions\`, \`qualification_rules\`, \`detail_modules\`, \`after_sale_rules\`) VALUES ('${templateDuplicateId}', '${canonicalCompanyId}', '${categoryMiddleId}', 1, 0, 'DRAFT', 1, ${templateJsonColumns});\n`,
+    databaseNames.product,
+    'NON_LEAF_CATEGORY_TEMPLATE_ACCEPTED',
+  );
+  runRootMysql(
+    `UPDATE \`category_template\` SET \`status\` = 'PUBLISHED', \`draft_slot\` = NULL, \`active_slot\` = 1, \`published_at\` = CURRENT_TIMESTAMP(3), \`revision\` = 1 WHERE \`id\` = '${templateV1Id}';
+INSERT INTO \`category_template\` (\`id\`, \`company_id\`, \`category_id\`, \`version\`, \`revision\`, \`status\`, \`draft_slot\`, \`field_schema\`, \`sku_dimensions\`, \`qualification_rules\`, \`detail_modules\`, \`after_sale_rules\`) VALUES ('${templateV2Id}', '${canonicalCompanyId}', '${categoryLeafId}', 2, 0, 'DRAFT', 1, ${templateJsonColumns});
+`,
+    databaseNames.product,
+  );
+  expectRootMysqlFailure(
+    `UPDATE \`category_template\` SET \`field_schema\` = JSON_OBJECT('tampered', true) WHERE \`id\` = '${templateV1Id}';\n`,
+    databaseNames.product,
+    'PUBLISHED_CATEGORY_TEMPLATE_MUTATED',
+  );
+  runRootMysql(
+    `UPDATE \`category_template\` SET \`status\` = 'RETIRED', \`active_slot\` = NULL, \`retired_at\` = CURRENT_TIMESTAMP(3), \`revision\` = 2 WHERE \`id\` = '${templateV1Id}';
+UPDATE \`category_template\` SET \`status\` = 'PUBLISHED', \`draft_slot\` = NULL, \`active_slot\` = 1, \`published_at\` = CURRENT_TIMESTAMP(3), \`revision\` = 1 WHERE \`id\` = '${templateV2Id}';
+INSERT INTO \`category_template_history\` (\`id\`, \`template_id\`, \`category_id\`, \`company_id\`, \`event\`, \`revision\`, \`snapshot\`, \`actor_identity_id\`, \`functional_account_id\`, \`request_id\`) VALUES ('${templateHistoryId}', '${templateV2Id}', '${categoryLeafId}', '${canonicalCompanyId}', 'PUBLISH', 1, JSON_OBJECT('status', 'PUBLISHED', 'version', 2), '08000000-0000-4000-8000-000000000012', '09000000-0000-4000-8000-000000000012', '0a000000-0000-4000-8000-000000000012');
+`,
+    databaseNames.product,
+  );
+  expectRootMysqlFailure(
+    `UPDATE \`category_template_history\` SET \`event\` = 'UPDATE' WHERE \`id\` = '${templateHistoryId}';\n`,
+    databaseNames.product,
+    'CATEGORY_TEMPLATE_HISTORY_UPDATE_ACCEPTED',
+  );
+  expectRootMysqlFailure(
+    `DELETE FROM \`category_template_history\` WHERE \`id\` = '${templateHistoryId}';\n`,
+    databaseNames.product,
+    'CATEGORY_TEMPLATE_HISTORY_DELETE_ACCEPTED',
+  );
   const canonicalSupplierId = '10000000-0000-4000-8000-000000000001';
   const duplicateSupplierId = '10000000-0000-4000-8000-000000000002';
   const applicantIdentityId = '20000000-0000-4000-8000-000000000001';

@@ -127,12 +127,20 @@ export class InMemorySupplierProductRepository implements SupplierProductReposit
   findCategoryAssignment(
     supplierProductId: string,
     supplierId?: string,
-  ): Promise<{ readonly categoryId: string; readonly supplierId: string } | null> {
+  ): Promise<{
+    readonly categoryId: string;
+    readonly supplierId: string;
+    readonly templateVersion: number;
+  } | null> {
     const value = this.supplierProducts.get(supplierProductId);
     if (!value || (supplierId !== undefined && value.supplierId !== supplierId)) {
       return Promise.resolve(null);
     }
-    return Promise.resolve({ categoryId: value.categoryId, supplierId: value.supplierId });
+    return Promise.resolve({
+      categoryId: value.categoryId,
+      supplierId: value.supplierId,
+      templateVersion: value.templateVersion,
+    });
   }
 
   async createDraft(
