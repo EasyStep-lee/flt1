@@ -10,6 +10,7 @@ export const FOUNDATION_ERROR_CODES = Object.freeze([
 export type FoundationErrorCode = (typeof FOUNDATION_ERROR_CODES)[number];
 
 export const SINGLE_MERCHANT_ERROR_CODES = Object.freeze([
+  'FORBIDDEN_CAPABILITY',
   'PAYEE_FORBIDDEN',
   'SELLER_IDENTITY_FORBIDDEN',
   'SINGLE_MERCHANT_VIOLATION',

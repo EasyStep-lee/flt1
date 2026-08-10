@@ -135,15 +135,15 @@ test('M2-P006 and M2-P007 retain merged-main evidence after M2-P008 starts local
   assert.equal(m2.Status, 'IN_PROGRESS');
   assert.equal(m2.EvidenceStatus, 'LOCAL_PASS');
 
-  assert.equal(projectStatus.execution.currentTask, 'M2-P008');
-  assert.equal(projectStatus.execution.nextAllowedTask, 'M2-P008');
-  assert.equal(projectStatus.execution.lastCompletedTask, 'M2-P008');
-  assert.equal(projectStatus.github.currentTaskDelivery.taskId, 'M2-P008');
-  assert.equal(projectStatus.github.currentTaskDelivery.pullRequest, 42);
-  assert.equal(projectStatus.github.currentTaskDelivery.pullRequestState, 'DRAFT');
+  assert.equal(projectStatus.execution.currentTask, 'M2-P009');
+  assert.equal(projectStatus.execution.nextAllowedTask, 'M2-P009');
+  assert.equal(projectStatus.execution.lastCompletedTask, 'M2-P009');
+  assert.equal(projectStatus.github.currentTaskDelivery.taskId, 'M2-P009');
+  assert.equal(projectStatus.github.currentTaskDelivery.pullRequest, null);
+  assert.equal(projectStatus.github.currentTaskDelivery.pullRequestState, 'NOT_CREATED');
   assert.equal(projectStatus.github.currentTaskDelivery.exactHeadCi, 'NOT_EXECUTED');
   assert.equal(projectStatus.github.currentTaskDelivery.merge, 'NOT_EXECUTED');
-  assert.equal(projectStatus.github.currentTaskDelivery.m2p009StartAllowed, false);
+  assert.equal(projectStatus.github.currentTaskDelivery.m2p010StartAllowed, false);
   assert.equal(projectStatus.evidence.ci, 'NOT_EXECUTED');
 
   for (const evidence of [contract, handoff]) {

@@ -11,6 +11,7 @@
               "REQUEST_INVALID",
               "RESOURCE_NOT_FOUND",
               "SERVICE_UNAVAILABLE",
+              "FORBIDDEN_CAPABILITY",
               "PAYEE_FORBIDDEN",
               "SELLER_IDENTITY_FORBIDDEN",
               "SINGLE_MERCHANT_VIOLATION",

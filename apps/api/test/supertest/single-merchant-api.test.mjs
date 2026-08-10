@@ -113,4 +113,54 @@ describe('P0-001 public merchant profile API', () => {
       await app.close();
     }
   });
+
+  it('NEG-M2-009-01 rejects a supplier storefront selector', async () => {
+    const app = await createTestApplication();
+    try {
+      const response = await request(app.getHttpServer())
+        .get('/v1/public/merchant-profile?storefrontId=supplier-storefront')
+        .set('x-request-id', 'neg-m2-009-01')
+        .expect(400);
+      expect(response.body).toMatchObject({
+        code: 'FORBIDDEN_CAPABILITY',
+        requestId: 'neg-m2-009-01',
+      });
+    } finally {
+      await app.close();
+    }
+  });
+
+  it('NEG-M2-009-02 rejects a supplier payment account selector', async () => {
+    const app = await createTestApplication();
+    try {
+      const response = await request(app.getHttpServer())
+        .get(
+          '/v1/public/merchant-profile?supplierPaymentAccountId=supplier-payment-account',
+        )
+        .set('x-request-id', 'neg-m2-009-02')
+        .expect(400);
+      expect(response.body).toMatchObject({
+        code: 'FORBIDDEN_CAPABILITY',
+        requestId: 'neg-m2-009-02',
+      });
+    } finally {
+      await app.close();
+    }
+  });
+
+  it('NEG-M2-009-03 rejects supplier-store cart ownership', async () => {
+    const app = await createTestApplication();
+    try {
+      const response = await request(app.getHttpServer())
+        .get('/v1/public/merchant-profile?storeCartId=supplier-store-cart')
+        .set('x-request-id', 'neg-m2-009-03')
+        .expect(400);
+      expect(response.body).toMatchObject({
+        code: 'FORBIDDEN_CAPABILITY',
+        requestId: 'neg-m2-009-03',
+      });
+    } finally {
+      await app.close();
+    }
+  });
 });
