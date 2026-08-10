@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-09T21:38:21-04:00",
+  "updatedAt": "2026-08-09T22:25:49-04:00",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -16,12 +16,12 @@
     "currentStage": "M2",
     "currentTask": "M2-P009",
     "nextAllowedTask": "M2-P009",
-    "activeTaskCount": 1,
-    "lastCompletedTask": "M2-P008",
-    "lastCompletedCommit": "23397b8eac5dff197d6ba7c9e4afc9f77e2287e3",
+    "activeTaskCount": 0,
+    "lastCompletedTask": "M2-P009",
+    "lastCompletedCommit": "834d0dc9ae75908f261122e3c83f7da168642bec",
     "lastPassedGate": "M1-GATE",
     "prohibitedUntilGate": [
-      "M2-P009完整pnpm verify、Draft PR精确head CI、人工合并及合并后main CI完成前不得开始M2-P010",
+      "M2-P009 Draft PR精确head CI、人工合并及合并后main CI完成前不得开始M2-P010",
       "M2-P010及以后的M2业务切片必须继续按任务依赖逐项解锁"
     ],
     "persistentRestrictions": [
@@ -83,9 +83,9 @@
       "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/43",
       "branch": "codex/m2-no-supplier-storefront",
       "baseCommit": "590a7708439afe40d4b2259fd346a9638bdbaf6f",
-      "implementationCommit": null,
-      "status": "IN_PROGRESS",
-      "technicalConclusion": "FOCUSED_GREEN_FULL_GATE_PENDING",
+      "implementationCommit": "834d0dc9ae75908f261122e3c83f7da168642bec",
+      "status": "LOCAL_PASS",
+      "technicalConclusion": "LOCAL_PASS_PR_GATE_PENDING",
       "blockingExternalItem": null,
       "pullRequest": null,
       "pullRequestState": "NOT_CREATED",
@@ -103,10 +103,10 @@
       "mainPostMergeCiRun": 31346326144,
       "status": "CI_PASS"
     },
-    "note": "M2-P008已按精确head授权合并且main@590a770 CI通过；M2-P009三项冻结负例先RED且focused GREEN，完整pnpm verify及Draft PR待执行，M2-P010保持锁定。"
+    "note": "M2-P008已按精确head授权合并且main@590a770 CI通过；M2-P009三项冻结负例先RED，focused与pnpm verify 17/17在实现提交834d0dc上LOCAL_PASS，Draft PR精确head CI、人工合并及合并后main CI待执行，M2-P010保持锁定。"
   },
   "evidence": {
-    "local": "NOT_EXECUTED",
+    "local": "LOCAL_PASS",
     "ci": "NOT_EXECUTED",
     "staging": "NOT_EXECUTED",
     "device": "NOT_REQUIRED_M2_P009_PC_BROWSER_AND_POLICY_ONLY",

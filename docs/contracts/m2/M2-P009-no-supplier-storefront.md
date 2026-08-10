@@ -30,4 +30,4 @@
 | NEG-M2-009-03 | `SUPPLIER_STORE_CART` | 检查器缺失，API 仅返回 `REQUEST_INVALID` | 公开 DTO 与请求均拒绝店铺购物车/优惠券归属 |
 
 - focused GREEN：策略单测 4/4、仓库契约 4/4、API 7/7、门户 Playwright 1/1；确定性 OpenAPI 生成/检查和仓库策略扫描通过。
-- 当前证据仍不高于 `NOT_EXECUTED`，直到当前最终提交完成 `pnpm verify`；Draft PR 精确 head CI、人工合并和合并后 `main` CI 为后续独立门禁。
+- 当前实现提交已完成 `pnpm verify`，因此证据为 `LOCAL_PASS`；Draft PR 精确 head CI、人工合并和合并后 `main` CI 仍是后续独立门禁。

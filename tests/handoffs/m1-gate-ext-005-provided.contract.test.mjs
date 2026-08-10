@@ -167,8 +167,8 @@ test('historical EXT-005 evidence stays locked while current state advances only
   assert.equal(m2p008.Status, 'DONE');
   assert.equal(m2p008.EvidenceStatus, 'CI_PASS');
   assert.equal(m2p008.CI, 'CI_PASS');
-  assert.equal(m2p009.Status, 'IN_PROGRESS');
-  assert.equal(m2p009.EvidenceStatus, 'NOT_EXECUTED');
+  assert.equal(m2p009.Status, 'DONE');
+  assert.equal(m2p009.EvidenceStatus, 'LOCAL_PASS');
   assert.equal(m2p009.CI, 'NOT_EXECUTED');
 
   assert.equal(evidence.schemaVersion, '1.0.0');

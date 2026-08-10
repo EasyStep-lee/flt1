@@ -1,0 +1,98 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "M2-P009",
+  "p0": [
+    "P0-009"
+  ],
+  "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+  "status": "LOCAL_PASS",
+  "branch": "codex/m2-no-supplier-storefront",
+  "baseCommit": "590a7708439afe40d4b2259fd346a9638bdbaf6f",
+  "implementationCommit": "834d0dc9ae75908f261122e3c83f7da168642bec",
+  "scope": {
+    "goal": "公开客户侧不存在供应商店铺、供应商直接收款和店铺购物车或优惠券能力",
+    "nonGoals": [
+      "P0-010看他还卖什么",
+      "分类模板、库存、货架、购物车、优惠券、订单、支付或结算",
+      "数据库迁移"
+    ]
+  },
+  "redEvidence": [
+    {
+      "test": "apps/api/test/unit/no-supplier-storefront-policy.test.mjs",
+      "result": "FAIL_MODULE_NOT_FOUND",
+      "cause": "运行时边界策略尚不存在"
+    },
+    {
+      "test": "tests/contracts/m2-p009-no-supplier-storefront.contract.test.mjs",
+      "result": "FAIL_MODULE_NOT_FOUND",
+      "cause": "仓库边界检查器尚不存在"
+    },
+    {
+      "test": "apps/api/test/supertest/single-merchant-api.test.mjs",
+      "result": "FAIL_3_OF_7",
+      "cause": "三类越界输入返回REQUEST_INVALID而非FORBIDDEN_CAPABILITY"
+    },
+    {
+      "test": "tests/e2e/p0/p0-009-no-supplier-storefront.spec.ts",
+      "result": "FAIL_1_OF_1",
+      "cause": "门户缺少P0-009责任边界区"
+    }
+  ],
+  "focusedGreen": {
+    "runtimePolicy": "PASS_4_OF_4",
+    "repositoryContract": "PASS_4_OF_4",
+    "api": "PASS_7_OF_7",
+    "portalPlaywright": "PASS_1_OF_1",
+    "repositoryScan": {
+      "status": "PASS",
+      "schemaFiles": 1,
+      "migrationFiles": 13,
+      "openApiPaths": 30,
+      "applicationRouteFiles": 164
+    }
+  },
+  "fullVerification": {
+    "status": "PASS_17_OF_17",
+    "command": "pnpm verify",
+    "commit": "834d0dc9ae75908f261122e3c83f7da168642bec",
+    "startedAt": "2026-08-10T02:13:25.521Z",
+    "endedAt": "2026-08-10T02:25:49.159Z",
+    "report": "artifacts/test-results/verification/pnpm-verify.json",
+    "p0E2e": "PASS_32_OF_32",
+    "prismaValidate": "PASS",
+    "migrationIntegrity": "PASS",
+    "migrationRehearsal": "PASS",
+    "openApiGenerateDiffCheckBreaking": "PASS",
+    "build": "PASS",
+    "trackedSecretFilesChecked": 579
+  },
+  "dataAndMigration": {
+    "newModels": [],
+    "newFields": [],
+    "newMigrations": [],
+    "rollback": "回退应用提交834d0dc；本切片无迁移和数据清理"
+  },
+  "evidenceBoundary": {
+    "local": "LOCAL_PASS",
+    "ci": "NOT_EXECUTED",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_REQUIRED_M2_P009_PC_BROWSER_AND_POLICY_ONLY",
+    "production": "NOT_EXECUTED"
+  },
+  "github": {
+    "repository": "EasyStep-lee/flt1",
+    "issue": 43,
+    "pullRequest": null,
+    "exactHeadCi": "NOT_EXECUTED",
+    "merge": "NOT_EXECUTED",
+    "mainPostMergeCi": "NOT_EXECUTED"
+  },
+  "risks": [
+    "仓库扫描器只承担结构门禁，运行时API策略与行为测试仍是主要安全证据",
+    "未来新增公开目录或DTO必须继续通过同一检查器；供应商后台供货职能不应被误判为店铺",
+    "非阻塞构建警告包括既有大chunk及Ant Design弃用提示"
+  ],
+  "nextAllowedTask": "M2-P009_PR_GATE_ONLY",
+  "m2p010StartAllowed": false
+}
