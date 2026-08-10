@@ -229,7 +229,7 @@ const createFixture = async ({ auditFail = false, safeDefault = false } = {}) =>
       : { companyProductApprovalActorResolver: { resolve: async () => ({ ...actor }) } }),
     logger: false,
   });
-  await app.init();
+  await app.listen(0, '127.0.0.1');
   return {
     app,
     audit,

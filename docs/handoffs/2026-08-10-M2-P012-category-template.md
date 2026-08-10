@@ -2,7 +2,7 @@
 
 ## 结论与边界
 
-- 结论：`LOCAL_PASS`；Draft PR #50 的 pre-fix head `888b92c…` CI 因测试 HTTP 生命周期竞态失败，修复 head CI 待执行；人工合并、合并后 `main` CI、staging 和 production 均为 `NOT_EXECUTED`。
+- 结论：`LOCAL_PASS`；Draft PR #50 的 head `aed91d7…` CI 已证明并发 Supertest 自动绑定未监听 server 的跨平台竞态，显式监听修复 head CI 待执行；人工合并、合并后 `main` CI、staging 和 production 均为 `NOT_EXECUTED`。
 - 方案 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`。
 - 仓库：`EasyStep-lee/flt1`；基线 `main@49b59ea102b653bfb979877539b9fb8f1e8b5afc`；分支 `codex/m2-category-template`；实现与本地验证提交 `dcc4c133ede9f1e28880fc70394c2e55715a10d8`；Issue [#49](https://github.com/EasyStep-lee/flt1/issues/49)；Draft PR [#50](https://github.com/EasyStep-lee/flt1/pull/50)。
 - 唯一范围：`P0-012`，末级分类的通用模板版本、字段/SKU/资质/详情/售后规则结构、发布与历史，以及供应商商品到公司物化全链路的当前发布版本复核。
@@ -53,8 +53,10 @@
 | Draft PR pre-fix CI | Actions run [31386519633](https://github.com/EasyStep-lee/flt1/actions/runs/31386519633)；API 135/136，通过项外仅组合测试第二个临时服务请求出现 `read ECONNRESET` | FAIL |
 | CI 隔离修复 focused 压测 | `CI=true/NODE_ENV=test/TZ=Asia/Shanghai`；拆分后单文件连续 20 次，120/120 | PASS |
 | CI 隔离修复全量 Supertest | 23 文件，137/137；仍严格断言 `503/AUDIT_REQUIRED` 和模板/历史零写入 | PASS |
+| Draft PR 隔离修复 CI | Actions run [31389213740](https://github.com/EasyStep-lee/flt1/actions/runs/31389213740)；审计失败用例通过，并发发布用例仍出现 `read ECONNRESET` | FAIL，根因收敛到未监听 server 的并发自动绑定 |
+| 显式监听修复 focused 压测 | `CI=true/NODE_ENV=test/TZ=Asia/Shanghai`；单文件连续 20 次，120/120；完整 Supertest 23 文件、137/137 | PASS |
 
-最终全量报告为 `artifacts/test-results/verification/pnpm-verify.json`，开始 `2026-08-10T12:27:49.827Z`，结束 `2026-08-10T12:38:28.256Z`。切片证据为 `artifacts/verification/M2-P012/category-template.json`。
+显式监听修复后的最终全量报告为 `artifacts/test-results/verification/pnpm-verify.json`，开始 `2026-08-10T12:50:40.292Z`，结束 `2026-08-10T13:01:17.526Z`，17/17 通过。切片证据为 `artifacts/verification/M2-P012/category-template.json`。
 
 ## 环境、风险与回滚
 
@@ -65,7 +67,7 @@
 
 ## GitHub 门禁与下一步
 
-- Draft PR #50 的 pre-fix head `888b92cb3ed3d14fd3a44771897e694f986b8f2c` 对应 Actions run 31386519633 为 `FAIL`；失败根因限定为同一测试内连续关闭/创建 Nest 临时 HTTP 服务时的 Linux runner 连接重置，领域实现及其余 135 项 API 行为均未失败。
-- 修复仅拆分 `NEG-M2-012-03` 并发发布与 `NEG-M2-012-05` 审计回滚的应用生命周期；不降低断言，不把连接重置视为可接受，不修改模板状态机/API/数据模型。
+- Draft PR #50 的 head `aed91d77e2c8655bf7ff30e697edf37f6d7b2e75` 对应 Actions run 31389213740 为 `FAIL`；拆分后 `NEG-M2-012-05` 已通过，而 `NEG-M2-012-03` 的四个并发请求在 Linux runner 上仍有一个连接重置，证明问题不是审计业务异常，而是 Supertest 对未监听 server 的并发自动绑定竞态。
+- 修复让 fixture 在请求前通过 `app.listen(0, '127.0.0.1')` 完成一次随机本地端口监听，所有并发请求复用该 server；继续拆分审计回滚生命周期，不降低断言，不把连接重置视为可接受，不修改模板状态机/API/数据模型。
 - 下一动作仅为提交、推送修复 head，读取其 Actions、评论、review 和 merge 状态。
 - 未经用户对届时精确 head 的明确授权，不得转 Ready 或合并；合并后 `main` CI 成功前不得开始 M2-P013。

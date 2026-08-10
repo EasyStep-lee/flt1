@@ -95,8 +95,8 @@
       "status": "CI_FAIL_FLAKY_HTTP_TEST_ISOLATION",
       "run": 31386519633,
       "job": 93448057554,
-      "cause": "完整API套件135/136通过；NEG-M2-012-03/05在同一测试内关闭第一个Nest应用并启动第二个审计失败fixture时，Linux runner收到read ECONNRESET，未形成预期的结构化503响应",
-      "resolution": "不接受ECONNRESET且不修改领域行为；把并发发布和审计失败回滚拆为两个独立测试生命周期，保留503/AUDIT_REQUIRED及模板和历史零写入断言",
+      "cause": "完整API套件135/136通过；组合用例收到read ECONNRESET，首次日志无法区分并发发布请求与随后审计失败fixture的具体socket来源",
+      "resolution": "不接受ECONNRESET且不修改领域行为；先把并发发布和审计失败回滚拆为两个独立测试生命周期，保留503/AUDIT_REQUIRED及模板和历史零写入断言",
       "localFixValidation": "CI环境变量下单文件连续20次PASS_120_OF_120；完整Supertest PASS_23_FILES_137_OF_137"
     },
     {
@@ -105,6 +105,27 @@
       "command": "pnpm verify",
       "startedAt": "2026-08-10T12:27:49.827Z",
       "endedAt": "2026-08-10T12:38:28.256Z",
+      "report": "artifacts/test-results/verification/pnpm-verify.json",
+      "api": "PASS_23_FILES_137_OF_137",
+      "p0E2E": "PASS_37_OF_37",
+      "migrationRehearsal": "PASS_EMPTY_2_UPGRADE_2_RESTORE_2_PRODUCT_15_CLEANUP",
+      "secretsScan": "PASS_630_TRACKED_FILES"
+    },
+    {
+      "commit": "aed91d77e2c8655bf7ff30e697edf37f6d7b2e75",
+      "status": "CI_FAIL_CONCURRENT_SUPERTEST_AUTOBIND",
+      "run": 31389213740,
+      "job": 93456656217,
+      "cause": "拆分后审计失败回滚用例通过，NEG-M2-012-03的四个并发发布请求仍出现read ECONNRESET；fixture仅app.init导致Supertest对同一未监听HTTP server并发自动绑定",
+      "resolution": "fixture在任何请求前通过app.listen(0, 127.0.0.1)完成一次随机本地端口监听，所有并发请求复用同一已监听server，app.close继续负责确定性释放",
+      "localFixValidation": "CI环境变量下单文件连续20次PASS_120_OF_120；完整Supertest PASS_23_FILES_137_OF_137"
+    },
+    {
+      "commit": "aed91d77e2c8655bf7ff30e697edf37f6d7b2e75+LISTENER_FIX_WORKTREE",
+      "status": "PASS_17_OF_17",
+      "command": "pnpm verify",
+      "startedAt": "2026-08-10T12:50:40.292Z",
+      "endedAt": "2026-08-10T13:01:17.526Z",
       "report": "artifacts/test-results/verification/pnpm-verify.json",
       "api": "PASS_23_FILES_137_OF_137",
       "p0E2E": "PASS_37_OF_37",
@@ -144,7 +165,7 @@
   },
   "environmentBoundary": {
     "local": "LOCAL_PASS",
-    "ci": "FAIL_AT_888B92C_FIX_PENDING_EXACT_HEAD_CI",
+    "ci": "FAIL_AT_AED91D7_LISTENER_FIX_PENDING_EXACT_HEAD_CI",
     "staging": "NOT_EXECUTED",
     "device": "NOT_APPLICABLE_FOR_THIS_SLICE",
     "production": "NOT_EXECUTED",
@@ -155,7 +176,7 @@
     "issue": 49,
     "pullRequest": 50,
     "pullRequestState": "DRAFT",
-    "exactHeadCi": "FAIL_RUN_31386519633_AT_888B92C_FIX_PENDING_NEW_HEAD",
+    "exactHeadCi": "FAIL_RUN_31389213740_AT_AED91D7_LISTENER_FIX_PENDING_NEW_HEAD",
     "review": "NOT_EXECUTED",
     "merge": "NOT_EXECUTED",
     "mainPostMergeCi": "NOT_EXECUTED",
