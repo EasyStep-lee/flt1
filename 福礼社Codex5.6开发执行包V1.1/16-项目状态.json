@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-11T04:41:37-04:00",
+  "updatedAt": "2026-08-11T05:41:11-04:00",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -21,7 +21,7 @@
     "lastCompletedCommit": "371d99dc668cf021583fb43f86750cb4630573b7",
     "lastPassedGate": "M1-GATE",
     "prohibitedUntilGate": [
-      "M2-P017 Draft PR精确head CI、人工合并及合并后main CI完成前不得开始M2-P018",
+      "M2-P017证据同步最终head CI、自评、人工合并及合并后main CI完成前不得开始M2-P018",
       "M2-P018及以后的M2业务切片必须继续按任务依赖逐项解锁"
     ],
     "persistentRestrictions": [
@@ -39,9 +39,9 @@
     "authenticationConfirmed": true,
     "writeAllowed": true,
     "connectorAccessConfirmed": true,
-    "pullRequest": null,
-    "pullRequestUrl": null,
-    "pullRequestState": "NOT_CREATED",
+    "pullRequest": 60,
+    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/60",
+    "pullRequestState": "DRAFT",
     "pullRequestMerged": false,
     "mergeCommitSha": null,
     "mergedAt": null,
@@ -60,24 +60,24 @@
       "currentHeadReviewRequired": true,
       "authorizationExactHead": false
     },
-    "lastVerifiedPullRequestHead": null,
+    "lastVerifiedPullRequestHead": "25b4790d1c0b57a1fe8db6eb7324de6eac616f48",
     "pullRequestCi": {
-      "status": "NOT_EXECUTED",
-      "runId": null,
-      "jobId": null,
-      "runUrl": null,
-      "headSha": null,
-      "completedAt": null
+      "status": "CI_PASS",
+      "runId": 31477968596,
+      "jobId": 93736045316,
+      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31477968596",
+      "headSha": "25b4790d1c0b57a1fe8db6eb7324de6eac616f48",
+      "completedAt": "2026-08-11T09:38:44Z"
     },
     "latestCi": {
-      "scope": "PREVIOUS_SLICE_MAIN_POST_MERGE",
+      "scope": "CURRENT_TASK_PR_PRE_EVIDENCE_SYNC",
       "status": "CI_PASS",
-      "runId": 31472192291,
-      "jobId": 93717760889,
-      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31472192291",
-      "headSha": "371d99dc668cf021583fb43f86750cb4630573b7",
-      "event": "push",
-      "completedAt": "2026-08-11T08:19:14Z"
+      "runId": 31477968596,
+      "jobId": 93736045316,
+      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31477968596",
+      "headSha": "25b4790d1c0b57a1fe8db6eb7324de6eac616f48",
+      "event": "pull_request",
+      "completedAt": "2026-08-11T09:38:44Z"
     },
     "currentTaskDelivery": {
       "taskId": "M2-P017",
@@ -86,13 +86,14 @@
       "branch": "codex/m2-gift-box-detail",
       "baseCommit": "371d99dc668cf021583fb43f86750cb4630573b7",
       "implementationCommit": "42f3c152cf07c1a1b949fd6c4e689dd0ea4f34ea",
-      "status": "LOCAL_PASS",
-      "technicalConclusion": "LOCAL_PASS_FULL_VERIFY_PENDING_DRAFT_PR_AND_CI",
+      "deliveryHead": "25b4790d1c0b57a1fe8db6eb7324de6eac616f48",
+      "status": "CI_PASS",
+      "technicalConclusion": "CI_PASS_PENDING_EVIDENCE_SYNC_HEAD_AND_HUMAN_MERGE",
       "blockingExternalItem": null,
       "localFullVerify": "PASS_17_OF_17_CLEAN_HEAD_42F3C15",
-      "pullRequest": null,
-      "pullRequestState": "NOT_CREATED",
-      "exactHeadCi": "NOT_EXECUTED",
+      "pullRequest": 60,
+      "pullRequestState": "DRAFT",
+      "exactHeadCi": "CI_PASS_RUN_31477968596_JOB_93736045316_HEAD_25B4790",
       "review": "NOT_EXECUTED",
       "merge": "NOT_EXECUTED",
       "mainPostMergeCi": "NOT_EXECUTED",
@@ -106,11 +107,11 @@
       "mainPostMergeCiRun": 31472192291,
       "status": "CI_PASS"
     },
-    "note": "M2-P016 PR #58最终head 6ec6e8f的CI run 31471253414通过，按精确授权合并为main@371d99d且main CI run 31472192291通过；M2-P017已取得RED、focused GREEN和clean-head 42f3c15的pnpm verify 17/17，Issue #59与分支codex/m2-gift-box-detail已建立。Draft PR和精确head CI尚未执行，P018保持锁定。"
+    "note": "M2-P016 PR #58最终head 6ec6e8f的CI run 31471253414通过，按精确授权合并为main@371d99d且main CI run 31472192291通过；M2-P017已取得RED、focused GREEN和clean-head 42f3c15的pnpm verify 17/17。Draft PR #60首轮head 25b4790的CI run 31477968596通过；证据同步新head仍须重新验证并自评，未经精确head人工授权不得转Ready或合并，P018保持锁定。"
   },
   "evidence": {
     "local": "LOCAL_PASS",
-    "ci": "NOT_EXECUTED",
+    "ci": "CI_PASS",
     "staging": "NOT_EXECUTED",
     "device": "NOT_EXECUTED",
     "production": "NOT_EXECUTED"

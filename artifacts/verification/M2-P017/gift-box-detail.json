@@ -3,7 +3,7 @@
   "taskId": "M2-P017",
   "p0": ["P0-017"],
   "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
-  "status": "LOCAL_PASS",
+  "status": "CI_PASS",
   "branch": "codex/m2-gift-box-detail",
   "baseCommit": "371d99dc668cf021583fb43f86750cb4630573b7",
   "implementationCommit": "42f3c152cf07c1a1b949fd6c4e689dd0ea4f34ea",
@@ -108,7 +108,7 @@
   },
   "environmentBoundary": {
     "local": "LOCAL_PASS_FULL_VERIFY_17_OF_17",
-    "ci": "NOT_EXECUTED",
+    "ci": "CI_PASS_RUN_31477968596_HEAD_25B4790D1C0B57A1FE8DB6EB7324DE6EAC616F48",
     "staging": "NOT_EXECUTED",
     "device": "NOT_EXECUTED",
     "production": "NOT_EXECUTED",
@@ -117,12 +117,14 @@
   "github": {
     "repository": "EasyStep-lee/flt1",
     "issue": 59,
-    "pullRequest": null,
-    "pullRequestState": "NOT_CREATED",
-    "exactHead": null,
-    "exactHeadCi": "NOT_EXECUTED",
+    "pullRequest": 60,
+    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/60",
+    "pullRequestState": "DRAFT",
+    "exactHead": "25b4790d1c0b57a1fe8db6eb7324de6eac616f48",
+    "exactHeadCi": "CI_PASS_RUN_31477968596_JOB_93736045316",
     "review": "NOT_EXECUTED",
     "merge": "NOT_EXECUTED",
+    "evidenceSyncBoundary": "本文件所在证据同步提交将产生新head；该新head必须在GitHub实时复核CI，不能继承25b4790的运行结论",
     "previousSlice": {
       "taskId": "M2-P016",
       "pullRequest": 58,
@@ -136,8 +138,8 @@
     "正式礼盒字段、组合子项、最低有效期和售后口径仍需EXT-007授权商品运营及合规确认",
     "P017页面只完成礼盒详情子集，不能宣称P0-021或P0-088完整商品详情完成",
     "公开详情继续复用兼容响应类型名PublicFoodProductDetailResponseDto，后续通用化命名不得破坏现有契约",
-    "CI、staging、device和production尚未执行，不能升级证据等级"
+    "PR首轮精确head 25b4790的CI已通过；证据同步新head仍须实时复核，staging、device和production尚未执行"
   ],
-  "nextAllowedTask": "M2-P017_FULL_GATE_AND_DRAFT_PR",
+  "nextAllowedTask": "M2-P017_HUMAN_MERGE_GATE",
   "m2p018StartAllowed": false
 }

@@ -2,9 +2,9 @@
 
 ## 结论与边界
 
-- 当前结论：`LOCAL_PASS / IN_PROGRESS`。真实 RED、礼盒领域策略、focused API、小程序、契约、迁移契约、P017 Playwright 以及干净 head `42f3c152cf07c1a1b949fd6c4e689dd0ea4f34ea` 的完整 `pnpm verify` 17/17 已通过；Draft PR 和 CI 尚未执行，因此本切片未完成，也不得进入 P018。
+- 当前结论：`CI_PASS / BLOCKED_EXTERNAL_HUMAN_MERGE_GATE`。真实 RED、礼盒领域策略、focused API、小程序、契约、迁移契约、P017 Playwright、干净 head `42f3c152cf07c1a1b949fd6c4e689dd0ea4f34ea` 的完整 `pnpm verify` 17/17，以及 Draft PR #60 首轮精确 head `25b4790d1c0b57a1fe8db6eb7324de6eac616f48` 的 Actions 均已通过；证据同步会产生新 head，仍须复核其 CI，且未经人工精确 head 授权不得转 Ready 或合并，也不得进入 P018。
 - 方案 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`。
-- 仓库：`EasyStep-lee/flt1`；基线 `main@371d99dc668cf021583fb43f86750cb4630573b7`；分支 `codex/m2-gift-box-detail`；干净实现提交 `42f3c152cf07c1a1b949fd6c4e689dd0ea4f34ea`；Issue [#59](https://github.com/EasyStep-lee/flt1/issues/59)；PR 尚未创建。
+- 仓库：`EasyStep-lee/flt1`；基线 `main@371d99dc668cf021583fb43f86750cb4630573b7`；分支 `codex/m2-gift-box-detail`；干净实现提交 `42f3c152cf07c1a1b949fd6c4e689dd0ea4f34ea`；Issue [#59](https://github.com/EasyStep-lee/flt1/issues/59)；Draft PR [#60](https://github.com/EasyStep-lee/flt1/pull/60)。
 - 唯一范围：`P0-017` GIFT_BOX 模板、结构化组合子项与归属校验、公开详情 DTO 白名单、公司模板预置及用户小程序组合清单区块。
 - 明确未进入：`P0-018`、`P0-021`/`P0-088` 完整商品详情、正式数据、价格审批、交易、支付、库存扣减和配送。
 
@@ -71,6 +71,7 @@
 
 ## GitHub 门禁与唯一下一步
 
-- Issue #59 已创建；PR、CI、评论与人工合并均未执行。
-- 唯一下一步是提交本轮新鲜验证证据，创建 Draft PR 并等待最终精确 head CI。
+- Issue #59 与 Draft PR #60 已创建。首轮 PR head `25b4790d1c0b57a1fe8db6eb7324de6eac616f48` 对应 Actions run [31477968596](https://github.com/EasyStep-lee/flt1/actions/runs/31477968596)、job `93736045316`，于 `2026-08-11T09:38:44Z` 成功；当时 PR 可合并且无评论/评审。
+- 本次证据同步提交会产生不同于 `25b4790` 的最终 head，因此旧 run 只证明旧 head；最终 head 仍须重新通过 Actions，并以自评评论绑定该 head。
+- 唯一下一步是完成证据同步新 head 的 CI 和自评，然后停在人工合并门禁。
 - 未获用户对最终精确 head 的明确授权前，不转 Ready、不合并；合并后 `main` CI 成功前不得开始 M2-P018。
