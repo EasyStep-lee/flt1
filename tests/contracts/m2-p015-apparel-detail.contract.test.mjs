@@ -37,7 +37,7 @@ test('P0-015 adds only APPAREL to category-template profile contracts', () => {
   assert.doesNotMatch(JSON.stringify({ request, response }), /DIGITAL|GIFT_BOX/iu);
 });
 
-test('M2-P015 records apparel local evidence while P016 stays locked', async () => {
+test('M2-P015 records exact-head Draft PR CI evidence while P016 stays locked', async () => {
   const [state, evidence, taskLedger, p0Ledger, pageLedger, apiLedger, handoff] =
     await Promise.all([
       readFile(path.join(executionPack, '16-项目状态.json'), 'utf8').then(JSON.parse),
@@ -62,20 +62,21 @@ test('M2-P015 records apparel local evidence while P016 stays locked', async () 
   assert.equal(state.github.currentTaskDelivery.taskId, 'M2-P015');
   assert.equal(state.github.currentTaskDelivery.issue, 55);
   assert.equal(state.github.currentTaskDelivery.branch, 'codex/m2-apparel-detail');
-  assert.equal(state.github.currentTaskDelivery.exactHeadCi, 'NOT_EXECUTED_NO_PR');
+  assert.equal(state.github.currentTaskDelivery.exactHeadCi, 'CI_PASS');
   assert.equal(state.github.currentTaskDelivery.m2p016StartAllowed, false);
   assert.equal(state.github.previousTaskDelivery.taskId, 'M2-P014');
   assert.equal(state.github.previousTaskDelivery.pullRequest, 54);
   assert.equal(state.github.previousTaskDelivery.mainPostMergeCiRun, 31453656294);
   assert.equal(state.github.previousTaskDelivery.status, 'CI_PASS');
   assert.equal(evidence.taskId, 'M2-P015');
-  assert.equal(evidence.status, 'LOCAL_PASS');
-  assert.equal(evidence.environmentBoundary.ci, 'NOT_EXECUTED_NO_PR');
+  assert.equal(evidence.status, 'CI_PASS');
+  assert.equal(evidence.environmentBoundary.ci, 'CI_PASS_EXACT_HEAD_204A559');
+  assert.equal(evidence.ciVerification.runId, 31458022233);
   assert.equal(evidence.m2p016StartAllowed, false);
   assert.match(taskLedger, /M2-P014[^\r\n]*DONE[^\r\n]*CI_PASS/u);
-  assert.match(taskLedger, /M2-P015[^\r\n]*DONE[^\r\n]*LOCAL_PASS/u);
-  assert.match(p0Ledger, /P0-015[^\r\n]*LOCAL_PASS/u);
-  assert.match(pageLedger, /P0-015_LOCAL_PASS/u);
+  assert.match(taskLedger, /M2-P015[^\r\n]*DONE[^\r\n]*CI_PASS/u);
+  assert.match(p0Ledger, /P0-015[^\r\n]*CI_PASS/u);
+  assert.match(pageLedger, /P0-015_CI_PASS/u);
   assert.match(apiLedger, /API-030[^\r\n]*P0-015[^\r\n]*IMPLEMENTED/u);
   assert.match(handoff, /^# M2-P015 服饰详情交接/u);
   assert.match(handoff, /M2-P016/u);

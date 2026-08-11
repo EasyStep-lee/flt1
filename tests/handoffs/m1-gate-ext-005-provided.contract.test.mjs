@@ -149,7 +149,7 @@ test('historical EXT-005 evidence stays locked while current state advances only
   assert.equal(projectStatus.execution.lastPassedGate, 'M1-GATE');
   assert.equal(projectStatus.github.currentTaskDelivery.taskId, 'M2-P015');
   assert.equal(projectStatus.github.currentTaskDelivery.issue, 55);
-  assert.equal(projectStatus.github.currentTaskDelivery.exactHeadCi, 'NOT_EXECUTED_NO_PR');
+  assert.equal(projectStatus.github.currentTaskDelivery.exactHeadCi, 'CI_PASS');
   assert.equal(projectStatus.github.currentTaskDelivery.m2p016StartAllowed, false);
   assert.equal(projectStatus.github.previousTaskDelivery.taskId, 'M2-P014');
   assert.equal(projectStatus.github.previousTaskDelivery.pullRequest, 54);
@@ -191,8 +191,8 @@ test('historical EXT-005 evidence stays locked while current state advances only
   assert.equal(m2p014.EvidenceStatus, 'CI_PASS');
   assert.equal(m2p014.CI, 'CI_PASS');
   assert.equal(m2p015.Status, 'DONE');
-  assert.equal(m2p015.EvidenceStatus, 'LOCAL_PASS');
-  assert.equal(m2p015.CI, 'NOT_EXECUTED');
+  assert.equal(m2p015.EvidenceStatus, 'CI_PASS');
+  assert.equal(m2p015.CI, 'CI_PASS');
 
   assert.equal(evidence.schemaVersion, '1.0.0');
   assert.equal(evidence.taskId, 'M1-GATE-EXT005-PROVIDED');

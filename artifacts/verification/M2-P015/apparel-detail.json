@@ -5,7 +5,7 @@
     "P0-015"
   ],
   "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
-  "status": "LOCAL_PASS",
+  "status": "CI_PASS",
   "branch": "codex/m2-apparel-detail",
   "baseCommit": "f2d6c1c665774bc57149e6125da829d7b1fb9dd1",
   "implementationCommit": "d87fd3409978f79f9490752e0ce1ce44d25154eb",
@@ -70,6 +70,18 @@
       "secrets": "PASS_665_TRACKED_FILES"
     }
   },
+  "ciVerification": {
+    "status": "CI_PASS",
+    "pullRequest": 56,
+    "headSha": "204a559ab7fa8808f37e90280445f950d06b0e3e",
+    "runId": 31458022233,
+    "jobId": 93675740350,
+    "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31458022233",
+    "workflow": "ci / verify",
+    "environment": "GITHUB_ACTIONS_UBUNTU",
+    "result": "PASS_COMPLETE_PNPM_VERIFY_GATE",
+    "completedAt": "2026-08-11T04:26:26Z"
+  },
   "dataAndMigration": {
     "migration": "packages/db/prisma/migrations/20260810230500_m2_apparel_template_profile/migration.sql",
     "change": "CategoryTemplate profile CHECK以前向迁移从GENERIC|FOOD|FRESH扩展为GENERIC|FOOD|FRESH|APPAREL；已发布profile与模板JSON继续不可变",
@@ -86,7 +98,7 @@
   },
   "environmentBoundary": {
     "local": "LOCAL_PASS_WITH_FULL_GATE_BLOCKED_EXTERNAL",
-    "ci": "NOT_EXECUTED_NO_PR",
+    "ci": "CI_PASS_EXACT_HEAD_204A559",
     "staging": "NOT_EXECUTED",
     "device": "NOT_EXECUTED",
     "production": "NOT_EXECUTED",
@@ -95,9 +107,11 @@
   "github": {
     "repository": "EasyStep-lee/flt1",
     "issue": 55,
-    "pullRequest": null,
-    "pullRequestState": "NOT_CREATED",
-    "exactHeadCi": "NOT_EXECUTED_NO_PR",
+    "pullRequest": 56,
+    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/56",
+    "pullRequestState": "DRAFT",
+    "exactHead": "204a559ab7fa8808f37e90280445f950d06b0e3e",
+    "exactHeadCi": "CI_PASS_RUN_31458022233",
     "review": "NOT_EXECUTED",
     "merge": "NOT_EXECUTED",
     "mainPostMergeCi": "NOT_EXECUTED",
@@ -114,9 +128,9 @@
     "正式服饰模板字段、尺码表、洗护和试穿退换口径仍需EXT-007授权商品运营及合规确认",
     "P015页面只完成服饰详情子集，不能宣称P0-021或P0-088完整商品详情完成",
     "公开详情继续复用兼容响应类型名PublicFoodProductDetailResponseDto；后续通用化命名不得破坏现有契约",
-    "当前证据仅来自本地Node、MySQL 8和Chromium，不能升级为CI、staging、device或production",
-    "Windows企业应用控制阻止未签名turbo.exe；未修改或绕过安全策略，完整聚合门禁等待GitHub Ubuntu Actions复验"
+    "GitHub Ubuntu Actions已对204a559精确head完成完整pnpm verify；staging、device和production仍不得据此升级",
+    "Windows企业应用控制仍会阻止本机未签名turbo.exe；未修改或绕过安全策略，该本机环境边界由GitHub Ubuntu全量门禁补充验证"
   ],
-  "nextAllowedTask": "M2-P015_DRAFT_PR_GATE_ONLY",
+  "nextAllowedTask": "M2-P015_DRAFT_PR_REVIEW_AND_HUMAN_MERGE_GATE_ONLY",
   "m2p016StartAllowed": false
 }

@@ -66,7 +66,7 @@ test('M2-P014 historical evidence remains while P015 advances and P016 stays loc
   assert.equal(state.github.currentTaskDelivery.taskId, 'M2-P015');
   assert.equal(state.github.currentTaskDelivery.issue, 55);
   assert.equal(state.github.currentTaskDelivery.branch, 'codex/m2-apparel-detail');
-  assert.equal(state.github.currentTaskDelivery.exactHeadCi, 'NOT_EXECUTED_NO_PR');
+  assert.equal(state.github.currentTaskDelivery.exactHeadCi, 'CI_PASS');
   assert.equal(state.github.currentTaskDelivery.m2p016StartAllowed, false);
   assert.equal(state.github.previousTaskDelivery.taskId, 'M2-P014');
   assert.equal(state.github.previousTaskDelivery.pullRequest, 54);
@@ -77,7 +77,7 @@ test('M2-P014 historical evidence remains while P015 advances and P016 stays loc
   assert.equal(evidence.m2p015StartAllowed, false);
   assert.match(taskLedger, /M2-P013[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(taskLedger, /M2-P014[^\r\n]*DONE[^\r\n]*CI_PASS/u);
-  assert.match(taskLedger, /M2-P015[^\r\n]*DONE[^\r\n]*LOCAL_PASS/u);
+  assert.match(taskLedger, /M2-P015[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(p0Ledger, /P0-014[^\r\n]*CI_PASS/u);
   assert.match(pageLedger, /P0-014_CI_PASS/u);
   assert.match(apiLedger, /API-030[^\r\n]*P0-014[^\r\n]*IMPLEMENTED/u);

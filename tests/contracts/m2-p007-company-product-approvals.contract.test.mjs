@@ -48,7 +48,7 @@ test('M2-P007 OpenAPI keeps material and initial-price review DTOs and roles sep
   );
 });
 
-test('M2-P007 retains evidence while M2-P015 advances locally', async () => {
+test('M2-P007 retains evidence while M2-P015 advances through Draft PR CI', async () => {
   const [state, taskLedger, p0Ledger, apiLedger, pageLedger, evidence, handoff] =
     await Promise.all([
       readFile(path.join(pack, '16-项目状态.json'), 'utf8').then(JSON.parse),
@@ -64,13 +64,13 @@ test('M2-P007 retains evidence while M2-P015 advances locally', async () => {
   assert.equal(state.execution.nextAllowedTask, 'M2-P015');
   assert.equal(state.execution.lastCompletedTask, 'M2-P015');
   assert.ok([0, 1].includes(state.execution.activeTaskCount));
-  assert.equal(state.github.currentTaskDelivery.pullRequest, null);
-  assert.equal(state.github.currentTaskDelivery.pullRequestState, 'NOT_CREATED');
-  assert.equal(state.github.currentTaskDelivery.exactHeadCi, 'NOT_EXECUTED_NO_PR');
+  assert.equal(state.github.currentTaskDelivery.pullRequest, 56);
+  assert.equal(state.github.currentTaskDelivery.pullRequestState, 'DRAFT');
+  assert.equal(state.github.currentTaskDelivery.exactHeadCi, 'CI_PASS');
   assert.equal(state.github.currentTaskDelivery.merge, 'NOT_EXECUTED');
   assert.equal(state.github.currentTaskDelivery.m2p016StartAllowed, false);
   assert.match(state.evidence.local, /^(?:NOT_EXECUTED|LOCAL_PASS)$/u);
-  assert.equal(state.evidence.ci, 'NOT_EXECUTED');
+  assert.equal(state.evidence.ci, 'CI_PASS');
   assert.match(taskLedger, /M2-P007[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(taskLedger, /M2-P008[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(taskLedger, /M2-P009[^\r\n]*DONE[^\r\n]*CI_PASS/u);
@@ -80,7 +80,7 @@ test('M2-P007 retains evidence while M2-P015 advances locally', async () => {
   );
   assert.match(taskLedger, /M2-P013[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(taskLedger, /M2-P014[^\r\n]*DONE[^\r\n]*CI_PASS/u);
-  assert.match(taskLedger, /M2-P015[^\r\n]*DONE[^\r\n]*LOCAL_PASS/u);
+  assert.match(taskLedger, /M2-P015[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(p0Ledger, /P0-007[^\r\n]*CI_PASS/u);
   assert.match(apiLedger, /API-025[^\r\n]*GENERATED[^\r\n]*IMPLEMENTED/u);
   assert.match(apiLedger, /API-026[^\r\n]*GENERATED[^\r\n]*IMPLEMENTED/u);
