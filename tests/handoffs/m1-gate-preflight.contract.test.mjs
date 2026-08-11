@@ -38,6 +38,8 @@ const p072Head = 'efb50c01049686ce5acf8463342a53d4e572a7cd';
 const m1GateMerge = '162787ae1687116badf0972664005332220976f9';
 const m2p012Head = '4faae84321583c28abc7532f1093c7c2bbc95de1';
 const m2p012Merge = '9a85a641624951310a984fc844562265db20cb82';
+const m2p013Head = '22d42359eb6e5ecfaf978efea0c2964c84267d27';
+const m2p013Merge = '81e3808c7a40824999d1ea70dd9706024e979370';
 const m1P0Ids = [
   'P0-001',
   'P0-002',
@@ -226,8 +228,8 @@ test('M1 ledgers retain the exact-head gate while M2 advances one slice at a tim
   const m2SecondSlice = tasks.find(({ TaskID }) => TaskID === 'M2-P007');
   const m2ThirdSlice = tasks.find(({ TaskID }) => TaskID === 'M2-P008');
   const m2EarlierSlice = tasks.find(({ TaskID }) => TaskID === 'M2-P010');
-  const m2CompletedSlice = tasks.find(({ TaskID }) => TaskID === 'M2-P012');
-  const m2CurrentSlice = tasks.find(({ TaskID }) => TaskID === 'M2-P013');
+  const m2CompletedSlice = tasks.find(({ TaskID }) => TaskID === 'M2-P013');
+  const m2CurrentSlice = tasks.find(({ TaskID }) => TaskID === 'M2-P014');
   assert.equal(m2Contract.Status, 'DONE');
   assert.equal(m2Contract.EvidenceStatus, 'CI_PASS');
   assert.equal(m2Contract.CI, 'CI_PASS');
@@ -274,10 +276,10 @@ test('project status records M1 gate success while historical blocked handoff st
 
   assert.equal(projectStatus.execution.status, 'M2_IN_PROGRESS');
   assert.equal(projectStatus.execution.currentStage, 'M2');
-  assert.equal(projectStatus.execution.currentTask, 'M2-P013');
-  assert.equal(projectStatus.execution.nextAllowedTask, 'M2-P013');
+  assert.equal(projectStatus.execution.currentTask, 'M2-P014');
+  assert.equal(projectStatus.execution.nextAllowedTask, 'M2-P014');
   assert.ok([0, 1].includes(projectStatus.execution.activeTaskCount));
-  assert.equal(projectStatus.execution.lastCompletedTask, 'M2-P013');
+  assert.equal(projectStatus.execution.lastCompletedTask, 'M2-P014');
   assert.equal(projectStatus.execution.lastPassedGate, 'M1-GATE');
   assert.equal(
     projectStatus.execution.prohibitedUntilGate.some((item) => /M2/u.test(item)),
@@ -291,19 +293,19 @@ test('project status records M1 gate success while historical blocked handoff st
   assert.equal(projectStatus.github.pullRequestCi.headSha, null);
   assert.equal(projectStatus.github.latestCi.scope, 'PREVIOUS_SLICE_MAIN_POST_MERGE');
   assert.equal(projectStatus.github.latestCi.status, 'CI_PASS');
-  assert.equal(projectStatus.github.latestCi.headSha, m2p012Merge);
-  assert.equal(projectStatus.github.currentTaskDelivery.taskId, 'M2-P013');
-  assert.equal(projectStatus.github.currentTaskDelivery.issue, 51);
+  assert.equal(projectStatus.github.latestCi.headSha, m2p013Merge);
+  assert.equal(projectStatus.github.currentTaskDelivery.taskId, 'M2-P014');
+  assert.equal(projectStatus.github.currentTaskDelivery.issue, 53);
   assert.ok(
     ['IN_PROGRESS', 'LOCAL_PASS'].includes(
       projectStatus.github.currentTaskDelivery.status,
     ),
   );
   assert.equal(projectStatus.github.currentTaskDelivery.exactHeadCi, 'NOT_EXECUTED_NO_PR');
-  assert.equal(projectStatus.github.currentTaskDelivery.m2p014StartAllowed, false);
-  assert.equal(projectStatus.github.previousTaskDelivery.taskId, 'M2-P012');
-  assert.equal(projectStatus.github.previousTaskDelivery.pullRequest, 50);
-  assert.equal(projectStatus.github.previousTaskDelivery.exactHead, m2p012Head);
+  assert.equal(projectStatus.github.currentTaskDelivery.m2p015StartAllowed, false);
+  assert.equal(projectStatus.github.previousTaskDelivery.taskId, 'M2-P013');
+  assert.equal(projectStatus.github.previousTaskDelivery.pullRequest, 52);
+  assert.equal(projectStatus.github.previousTaskDelivery.exactHead, m2p013Head);
   assert.equal(projectStatus.github.previousTaskDelivery.status, 'CI_PASS');
   assert.ok(['NOT_EXECUTED', 'LOCAL_PASS'].includes(projectStatus.evidence.local));
   assert.equal(projectStatus.evidence.ci, 'NOT_EXECUTED');

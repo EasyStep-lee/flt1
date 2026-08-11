@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
+import path from 'node:path';
 import test from 'node:test';
+
+const repositoryRoot = path.resolve(import.meta.dirname, '..', '..');
+const executionPack = path.join(repositoryRoot, '福礼社Codex5.6开发执行包V1.1');
 
 const openApi = JSON.parse(
   await readFile(new URL('../../packages/contracts/openapi.json', import.meta.url), 'utf8'),
@@ -35,4 +39,47 @@ test('P0-014 adds only FRESH to category-template profile contracts', () => {
   assert.deepEqual(request.properties.profile.enum, ['FOOD', 'FRESH', 'GENERIC']);
   assert.deepEqual(response.properties.profile.enum, ['FOOD', 'FRESH', 'GENERIC']);
   assert.doesNotMatch(JSON.stringify({ request, response }), /APPAREL|DIGITAL|GIFT_BOX/iu);
+});
+
+test('M2-P014 records fresh local evidence while P015 stays locked', async () => {
+  const [state, evidence, taskLedger, p0Ledger, pageLedger, apiLedger, handoff] =
+    await Promise.all([
+      readFile(path.join(executionPack, '16-项目状态.json'), 'utf8').then(JSON.parse),
+      readFile(
+        path.join(repositoryRoot, 'artifacts', 'verification', 'M2-P014', 'fresh-detail.json'),
+        'utf8',
+      ).then(JSON.parse),
+      readFile(path.join(executionPack, '03-任务台账.csv'), 'utf8'),
+      readFile(path.join(executionPack, '04-P0-1至P0-119验收矩阵.csv'), 'utf8'),
+      readFile(path.join(executionPack, '08-页面路由接口P0映射.csv'), 'utf8'),
+      readFile(path.join(executionPack, '12-OpenAPI-DTO-错误码台账.csv'), 'utf8'),
+      readFile(
+        path.join(repositoryRoot, 'docs', 'handoffs', '2026-08-10-M2-P014-fresh-detail.md'),
+        'utf8',
+      ),
+    ]);
+
+  assert.equal(state.execution.currentTask, 'M2-P014');
+  assert.equal(state.execution.nextAllowedTask, 'M2-P014');
+  assert.equal(state.execution.lastCompletedTask, 'M2-P014');
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2-P014.*M2-P015/u);
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M2-P014');
+  assert.equal(state.github.currentTaskDelivery.issue, 53);
+  assert.equal(state.github.currentTaskDelivery.branch, 'codex/m2-fresh-detail');
+  assert.equal(state.github.currentTaskDelivery.exactHeadCi, 'NOT_EXECUTED_NO_PR');
+  assert.equal(state.github.currentTaskDelivery.m2p015StartAllowed, false);
+  assert.equal(state.github.previousTaskDelivery.taskId, 'M2-P013');
+  assert.equal(state.github.previousTaskDelivery.pullRequest, 52);
+  assert.equal(state.github.previousTaskDelivery.status, 'CI_PASS');
+  assert.equal(evidence.taskId, 'M2-P014');
+  assert.equal(evidence.status, 'LOCAL_PASS');
+  assert.equal(evidence.environmentBoundary.ci, 'NOT_EXECUTED_NO_PR');
+  assert.equal(evidence.m2p015StartAllowed, false);
+  assert.match(taskLedger, /M2-P013[^\r\n]*DONE[^\r\n]*CI_PASS/u);
+  assert.match(taskLedger, /M2-P014[^\r\n]*DONE[^\r\n]*LOCAL_PASS/u);
+  assert.match(p0Ledger, /P0-014[^\r\n]*LOCAL_PASS/u);
+  assert.match(pageLedger, /P0-014_LOCAL_PASS/u);
+  assert.match(apiLedger, /API-030[^\r\n]*P0-014[^\r\n]*IMPLEMENTED/u);
+  assert.match(handoff, /^# M2-P014 生鲜详情交接/u);
+  assert.match(handoff, /M2-P015/u);
 });

@@ -138,10 +138,10 @@ test('M1-P005 evidence and ledgers stop at the local verified boundary', async (
   );
   assert.equal(state.execution.currentStage, 'M2');
   assert.equal(state.execution.currentTask, state.execution.nextAllowedTask);
-  assert.equal(state.execution.lastCompletedTask, 'M2-P013');
-  assert.equal(state.execution.currentTask, 'M2-P013');
+  assert.equal(state.execution.lastCompletedTask, 'M2-P014');
+  assert.equal(state.execution.currentTask, 'M2-P014');
   assert.ok([0, 1].includes(state.execution.activeTaskCount));
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2-P013.*M2-P014/u);
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2-P014.*M2-P015/u);
   assert.match(taskLedger, /M1-P005[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(taskLedger, /M1-GATE[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(p0Ledger, /P0-005[^\r\n]*CI_PASS/u);

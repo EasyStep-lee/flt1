@@ -1,0 +1,106 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "M2-P014",
+  "p0": [
+    "P0-014"
+  ],
+  "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+  "status": "LOCAL_PASS",
+  "branch": "codex/m2-fresh-detail",
+  "baseCommit": "81e3808c7a40824999d1ea70dd9706024e979370",
+  "implementationCommit": "6653da31537e8daa76c4d15d07dcaeb9ed634680",
+  "scope": {
+    "goal": "以不可变FRESH模板驱动生鲜七项商品字段、三项SKU规格、温区和称重规则、公司售后规则、公开DTO白名单及用户小程序生鲜详情区块",
+    "nonGoals": [
+      "P0-015至P0-018服饰、数码、礼盒和强监管开关",
+      "P0-021与P0-088完整通用商品详情和交易交互",
+      "正式生产生鲜模板和商品数据导入",
+      "价格审批、库存扣减、交易、支付、配送和M2-P015后续切片"
+    ]
+  },
+  "redEvidence": [
+    {
+      "test": "apps/api/test/unit/fresh-detail-policy.test.mjs",
+      "result": "FAIL_ERR_MODULE_NOT_FOUND",
+      "cause": "dist/category-templates/fresh-template.policy.js尚不存在，生鲜模板运行时规则未实现"
+    }
+  ],
+  "focusedGreen": {
+    "foodAndFreshPolicyUnit": "PASS_6_OF_6",
+    "categoryAndPublicDetailApi": "PASS_16_OF_16",
+    "allSupertest": "PASS_25_FILES_147_OF_147",
+    "userMiniapp": "PASS_8_OF_8",
+    "contractAndMigration": "PASS_8_OF_8",
+    "foodAndFreshP0Playwright": "PASS_2_OF_2",
+    "prismaValidate": "PASS",
+    "migrationRehearsal": "PASS_EMPTY_2_UPGRADE_2_RESTORE_2_PRODUCT_17_CLEANUP",
+    "openApiGenerateAndCheck": "PASS_BYTE_IDENTICAL",
+    "oasdiffBreaking": "PASS_0_ERRORS_405_WARNINGS",
+    "sensitiveFieldScan": "PASS_CUSTOMER_MINIAPP_SOURCE_AND_DIST",
+    "behaviors": [
+      "FRESH模板固定七个商品字段、三个SKU维度、五个详情模块和公司售后规则",
+      "温区只允许AMBIENT、CHILLED、FROZEN，称重只允许FIXED_WEIGHT、ACTUAL_WEIGHT",
+      "供应商创建、修改和提交时按精确已发布模板版本校验必填、日期、枚举、白名单和SKU",
+      "供应商不能新增、替换或通过嵌套字段覆盖公司售后规则",
+      "已发布模板的profile和JSON定义均由数据库触发器保护不可覆盖",
+      "公开详情只返回在售零售SKU、整数分零售价、生鲜白名单字段、规格和公司售后提示",
+      "公开DTO不返回供应价、资质私有引用、companyId、functionalAccountId、identityId或内部审批快照",
+      "对客销售、结账和售后主体固定为江苏福礼团供应链科技有限公司",
+      "原生用户小程序继续只经miniapp-kit生成契约请求，并保留加载、错误和重试状态"
+    ]
+  },
+  "fullVerification": {
+    "status": "NOT_EXECUTED_AFTER_EVIDENCE_SYNC",
+    "command": "pnpm verify",
+    "note": "先提交证据树后在该提交执行完整17步门禁；通过后再登记实际报告，当前不得提前宣称"
+  },
+  "dataAndMigration": {
+    "migration": "packages/db/prisma/migrations/20260810213000_m2_fresh_template_profile/migration.sql",
+    "change": "CategoryTemplate profile CHECK以前向迁移从GENERIC|FOOD扩展为GENERIC|FOOD|FRESH；已发布profile与模板JSON继续不可变",
+    "backfill": "NO_FORMAL_FRESH_DATA_AND_NO_HISTORY_REWRITE",
+    "rollback": "回退应用提交；共享环境若已应用迁移则不改写已发布SQL，保留兼容枚举并以前向修复处理"
+  },
+  "contractsAndPages": {
+    "api": "GET /v1/catalog/products/{productId}",
+    "companyPage": "PAGE-005 /company-admin/workspaces/product-ops",
+    "consumerPage": "PAGE-053 /pages/product-detail/index P0-014子集",
+    "openApi": "packages/contracts/openapi.json",
+    "generatedTypes": "packages/contracts/types.ts",
+    "miniappContract": "packages/contracts/src/miniapp-contracts.ts"
+  },
+  "environmentBoundary": {
+    "local": "LOCAL_PASS",
+    "ci": "NOT_EXECUTED_NO_PR",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_EXECUTED",
+    "production": "NOT_EXECUTED",
+    "formalFreshData": "BLOCKED_EXTERNAL_EXT_007_AUTHORIZED_PRODUCT_AND_COMPLIANCE_CONFIRMATION"
+  },
+  "github": {
+    "repository": "EasyStep-lee/flt1",
+    "issue": 53,
+    "pullRequest": null,
+    "pullRequestState": "NOT_CREATED",
+    "exactHeadCi": "NOT_EXECUTED_NO_PR",
+    "review": "NOT_EXECUTED",
+    "merge": "NOT_EXECUTED",
+    "mainPostMergeCi": "NOT_EXECUTED",
+    "previousSlice": {
+      "taskId": "M2-P013",
+      "pullRequest": 52,
+      "exactHead": "22d42359eb6e5ecfaf978efea0c2964c84267d27",
+      "mergeCommit": "81e3808c7a40824999d1ea70dd9706024e979370",
+      "mainCiRun": 31448561555,
+      "status": "CI_PASS"
+    }
+  },
+  "risks": [
+    "正式生鲜模板字段、售后口径和商品数据仍需EXT-007授权商品运营及合规确认",
+    "P014页面只完成生鲜详情子集，不能宣称P0-021或P0-088完整商品详情完成",
+    "公开详情复用兼容响应类型名PublicFoodProductDetailResponseDto；运行时profile白名单已扩展为FOOD|FRESH，后续通用化命名不得破坏现有契约",
+    "公开详情使用短期公共缓存；上架和价格变更后的更严格失效策略属于后续商品价格切片",
+    "当前证据仅来自本地Node、MySQL 8和Chromium，不能升级为CI、staging、device或production"
+  ],
+  "nextAllowedTask": "M2-P014_DRAFT_PR_GATE_ONLY",
+  "m2p015StartAllowed": false
+}
