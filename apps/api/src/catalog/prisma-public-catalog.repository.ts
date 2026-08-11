@@ -57,7 +57,8 @@ export class PrismaPublicCatalogRepository implements PublicCatalogRepository {
           product.template.profile === 'FOOD' ||
           product.template.profile === 'FRESH' ||
           product.template.profile === 'APPAREL' ||
-          product.template.profile === 'DIGITAL'
+          product.template.profile === 'DIGITAL' ||
+          product.template.profile === 'GIFT_BOX'
             ? product.template.profile
             : 'GENERIC',
         fieldSchema: asObject(product.template.fieldSchema),

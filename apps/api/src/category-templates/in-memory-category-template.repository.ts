@@ -5,6 +5,7 @@ import { assertDigitalTemplateDefinition } from './digital-template.policy.js';
 import type { CategoryTemplateDefinition } from './category-template.policy.js';
 import { assertFoodTemplateDefinition } from './food-template.policy.js';
 import { assertFreshTemplateDefinition } from './fresh-template.policy.js';
+import { assertGiftBoxTemplateDefinition } from './gift-box-template.policy.js';
 import type {
   CategoryTemplateListResult,
   CategoryTemplateMutationResult,
@@ -213,6 +214,8 @@ export class InMemoryCategoryTemplateRepository implements CategoryTemplateRepos
               ? 'APPAREL_HISTORY_REWRITE'
               : existing.profile === 'DIGITAL'
                 ? 'DIGITAL_HISTORY_REWRITE'
+                : existing.profile === 'GIFT_BOX'
+                  ? 'TEMPLATE_VERSION_IMMUTABLE'
                 : 'TEMPLATE_IMMUTABLE',
       };
     }
@@ -250,6 +253,8 @@ export class InMemoryCategoryTemplateRepository implements CategoryTemplateRepos
               ? 'APPAREL_HISTORY_REWRITE'
               : existing.profile === 'DIGITAL'
                 ? 'DIGITAL_HISTORY_REWRITE'
+                : existing.profile === 'GIFT_BOX'
+                  ? 'TEMPLATE_VERSION_IMMUTABLE'
                 : 'TEMPLATE_IMMUTABLE',
       };
     }
@@ -259,6 +264,7 @@ export class InMemoryCategoryTemplateRepository implements CategoryTemplateRepos
     assertFreshTemplateDefinition(existing);
     assertApparelTemplateDefinition(existing);
     assertDigitalTemplateDefinition(existing);
+    assertGiftBoxTemplateDefinition(existing);
     const current = [...this.templates.values()].find(
       (template) =>
         template.companyId === command.companyId &&

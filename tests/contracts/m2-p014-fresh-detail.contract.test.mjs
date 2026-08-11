@@ -19,7 +19,7 @@ test('P0-014 extends the existing public detail whitelist with FRESH without exp
   );
   const schema = openApi.components.schemas.PublicFoodProductDetailResponseDto;
   assert.deepEqual(Object.keys(schema.properties).sort(), [
-    'brand', 'categoryId', 'checkoutMode', 'detailModules', 'name', 'productId',
+    'brand', 'bundleItems', 'categoryId', 'checkoutMode', 'detailModules', 'name', 'productId',
     'retailSalePrice', 'sellerName', 'skus', 'supplierId', 'templateProfile', 'templateVersion',
   ]);
   assert.deepEqual(schema.properties.templateProfile.enum.slice(0, 3), ['FOOD', 'FRESH', 'APPAREL']);
@@ -40,7 +40,8 @@ test('P0-014 remains in category-template profile contracts after APPAREL is add
   assert.deepEqual(response.properties.profile.enum.slice(0, 3), ['FOOD', 'FRESH', 'APPAREL']);
   assert.equal(request.properties.profile.enum.at(-1), 'GENERIC');
   assert.equal(response.properties.profile.enum.at(-1), 'GENERIC');
-  assert.doesNotMatch(JSON.stringify({ request, response }), /GIFT_BOX/iu);
+  assert.ok(request.properties.profile.enum.includes('GIFT_BOX'));
+  assert.ok(response.properties.profile.enum.includes('GIFT_BOX'));
 });
 
 test('M2-P014 historical evidence remains while the current M2 slice advances', async () => {
