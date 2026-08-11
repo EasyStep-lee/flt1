@@ -80,7 +80,8 @@ export class PublicFoodProductDetailResponseDto {
   @ApiProperty({ format: 'uuid', type: String }) readonly supplierId!: string;
   @ApiProperty({ format: 'uuid', type: String }) readonly categoryId!: string;
   @ApiProperty({ minimum: 1, type: Number }) readonly templateVersion!: number;
-  @ApiProperty({ enum: ['FOOD', 'FRESH'] }) readonly templateProfile!: 'FOOD' | 'FRESH';
+  @ApiProperty({ enum: ['FOOD', 'FRESH', 'APPAREL'] })
+  readonly templateProfile!: 'FOOD' | 'FRESH' | 'APPAREL';
   @ApiProperty({ maxLength: 200, type: String }) readonly name!: string;
   @ApiProperty({ maxLength: 120, nullable: true, required: true, type: String })
   readonly brand!: string | null;

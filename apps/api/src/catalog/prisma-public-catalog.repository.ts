@@ -54,7 +54,9 @@ export class PrismaPublicCatalogRepository implements PublicCatalogRepository {
       detailSnapshot: asObject(product.detailSnapshot),
       template: normalizeCategoryTemplateDefinition({
         profile:
-          product.template.profile === 'FOOD' || product.template.profile === 'FRESH'
+          product.template.profile === 'FOOD' ||
+          product.template.profile === 'FRESH' ||
+          product.template.profile === 'APPAREL'
             ? product.template.profile
             : 'GENERIC',
         fieldSchema: asObject(product.template.fieldSchema),

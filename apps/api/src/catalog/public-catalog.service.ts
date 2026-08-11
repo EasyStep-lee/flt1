@@ -11,6 +11,10 @@ import {
   type PublicCatalogRepository,
 } from './public-catalog.repository.js';
 import {
+  buildApparelProductDetailResponse,
+  type PublicApparelProductDetailResponse,
+} from './apparel-product-detail.policy.js';
+import {
   buildFoodProductDetailResponse,
   type PublicFoodProductDetailResponse,
 } from './food-product-detail.policy.js';
@@ -42,7 +46,8 @@ export interface PublicCatalogPageResponse {
 
 export type PublicProductDetailResponse =
   | PublicFoodProductDetailResponse
-  | PublicFreshProductDetailResponse;
+  | PublicFreshProductDetailResponse
+  | PublicApparelProductDetailResponse;
 
 const requireUuid = (value: unknown, field: string): string => {
   if (typeof value !== 'string' || !uuidPattern.test(value)) {
@@ -91,13 +96,15 @@ export class PublicCatalogService {
         ? buildFoodProductDetailResponse(source)
         : source.template.profile === 'FRESH'
           ? buildFreshProductDetailResponse(source)
-          : (() => {
-              throw new SafeApiError(
-                409,
-                'PRODUCT_NOT_SALEABLE',
-                'Product detail template is not supported on the public shelf',
-              );
-            })();
+          : source.template.profile === 'APPAREL'
+            ? buildApparelProductDetailResponse(source)
+            : (() => {
+                throw new SafeApiError(
+                  409,
+                  'PRODUCT_NOT_SALEABLE',
+                  'Product detail template is not supported on the public shelf',
+                );
+              })();
     assertCustomerCatalogPayloadAllowed(response);
     return response;
   }

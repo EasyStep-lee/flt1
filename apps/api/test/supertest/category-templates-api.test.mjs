@@ -286,6 +286,87 @@ const freshProductBody = (categoryId, templateVersion, name = '生鲜模板商�
   }],
 });
 
+const apparelField = (
+  key,
+  label,
+  detailModuleKey,
+  { specification = false, type = 'TEXT' } = {},
+) => ({
+  key,
+  label,
+  type,
+  required: true,
+  unit: null,
+  enumValues: [],
+  validation: { min: null, max: null, minLength: 1, maxLength: 500, pattern: null },
+  searchable: false,
+  specification,
+  detailModuleKey,
+});
+
+const apparelTemplateBody = () => ({
+  profile: 'APPAREL',
+  fieldSchema: {
+    schemaVersion: '1.0',
+    fields: [
+      apparelField('fabric', '面料', 'materials'),
+      apparelField('lining', '里料', 'materials'),
+      apparelField('fit', '版型', 'size-assistant'),
+      apparelField('execution-standard', '执行标准', 'materials'),
+      apparelField('care-instructions', '洗护方式', 'care-instructions'),
+      apparelField('size-chart', '尺码表', 'size-assistant', { type: 'RICH_TEXT' }),
+      apparelField('color', '颜色', 'specifications', { specification: true }),
+      apparelField('size', '尺码', 'specifications', { specification: true }),
+    ],
+  },
+  skuDimensions: {
+    dimensions: [
+      { key: 'color', label: '颜色', fieldKey: 'color' },
+      { key: 'size', label: '尺码', fieldKey: 'size' },
+    ],
+  },
+  qualificationRules: { rules: [] },
+  detailModules: {
+    modules: [
+      { key: 'size-assistant', title: '尺码助手', kind: 'FIELDS', sortWeight: 10 },
+      { key: 'materials', title: '材质说明', kind: 'FIELDS', sortWeight: 20 },
+      { key: 'care-instructions', title: '洗护说明', kind: 'FIELDS', sortWeight: 30 },
+      { key: 'specifications', title: '颜色与尺码', kind: 'FIELDS', sortWeight: 40 },
+      { key: 'apparel-after-sales', title: '试穿与退换说明', kind: 'AFTER_SALE', sortWeight: 50 },
+    ],
+  },
+  afterSaleRules: {
+    returnPolicy: 'CATEGORY_RESTRICTED',
+    notice: '由江苏福礼团供应链科技有限公司统一受理；退换商品须保持未洗涤、未污损且不影响二次销售。',
+    evidenceRequirements: ['PACKAGE_PHOTO', 'PRODUCT_PHOTO'],
+  },
+});
+
+const apparelProductBody = (categoryId, templateVersion, name = '服饰模板商品') => ({
+  categoryId,
+  templateVersion,
+  name,
+  brand: '福礼团严选',
+  attributes: {
+    fabric: '棉 95%、氨纶 5%',
+    lining: '棉 100%',
+    fit: '常规版型',
+    'execution-standard': 'GB/T 2660-2017',
+    'care-instructions': '冷水轻柔洗涤，不可漂白，悬挂晾干',
+    'size-chart': 'M：胸围100cm/衣长68cm；L：胸围104cm/衣长70cm',
+  },
+  qualificationReferences: [],
+  isRetailEnabled: true,
+  isEnterpriseProcurementEnabled: false,
+  enterpriseMinOrderQty: 1,
+  enterprisePackageMultiple: 1,
+  preparationMinutes: 30,
+  skus: [
+    { supplierSkuCode: `${name}-RED-M`, attributes: { color: '暖红', size: 'M' }, initialStock: 10 },
+    { supplierSkuCode: `${name}-RED-L`, attributes: { color: '暖红', size: 'L' }, initialStock: 10 },
+  ],
+});
+
 const productBody = (categoryId, templateVersion, name = '模板绑定商品') => ({
   categoryId,
   templateVersion,
@@ -787,6 +868,62 @@ describe('P0-014 fresh template validation', () => {
         .post('/v1/supplier/products')
         .set('Idempotency-Key', 'fresh-complete-product')
         .send(freshProductBody(fixture.leaf.id, 1));
+      expect(accepted.status).toBe(201);
+      expect(accepted.body).toMatchObject({ templateVersion: 1, status: 'DRAFT' });
+    } finally {
+      await fixture.app.close();
+    }
+  });
+});
+
+describe('P0-015 apparel template validation', () => {
+  it('NEG-M2-015-01 rejects an incomplete APPAREL definition without persistence', async () => {
+    const fixture = await createFixture();
+    try {
+      const incomplete = apparelTemplateBody();
+      incomplete.fieldSchema.fields = incomplete.fieldSchema.fields.filter(
+        ({ key }) => key !== 'size-chart',
+      );
+      const rejected = await createTemplate(fixture, fixture.leaf.id, incomplete);
+      expect(rejected.status).toBe(422);
+      expect(rejected.body).toMatchObject({ code: 'TEMPLATE_SCHEMA_INVALID' });
+      expect(await fixture.templates.count()).toBe(0);
+      expect(await fixture.templates.historyCount()).toBe(0);
+    } finally {
+      await fixture.app.close();
+    }
+  });
+
+  it('validates unique color-size SKUs and returns the dedicated immutable-history error', async () => {
+    const fixture = await createFixture();
+    try {
+      const created = await createTemplate(fixture, fixture.leaf.id, apparelTemplateBody());
+      expect(created.status).toBe(201);
+      expect(created.body).toMatchObject({ profile: 'APPAREL', version: 1, status: 'DRAFT' });
+      const published = await publishTemplate(fixture, created.body.id, created.body.revision);
+      expect(published.status).toBe(200);
+
+      const rewrite = await patchTemplate(fixture, created.body.id, {
+        revision: published.body.revision,
+        ...apparelTemplateBody(),
+      });
+      expect(rewrite.status).toBe(409);
+      expect(rewrite.body).toMatchObject({ code: 'APPAREL_HISTORY_REWRITE' });
+
+      const duplicate = apparelProductBody(fixture.leaf.id, 1, '重复颜色尺码服饰');
+      duplicate.skus[1].attributes = { color: ' 暖红 ', size: 'ｍ' };
+      const duplicateResponse = await request(fixture.app.getHttpServer())
+        .post('/v1/supplier/products')
+        .set('Idempotency-Key', 'apparel-duplicate-color-size')
+        .send(duplicate);
+      expect(duplicateResponse.status).toBe(422);
+      expect(duplicateResponse.body).toMatchObject({ code: 'SKU_DIMENSION_DUPLICATE' });
+      expect(await fixture.products.countSupplierProducts()).toBe(0);
+
+      const accepted = await request(fixture.app.getHttpServer())
+        .post('/v1/supplier/products')
+        .set('Idempotency-Key', 'apparel-complete-product')
+        .send(apparelProductBody(fixture.leaf.id, 1));
       expect(accepted.status).toBe(201);
       expect(accepted.body).toMatchObject({ templateVersion: 1, status: 'DRAFT' });
     } finally {

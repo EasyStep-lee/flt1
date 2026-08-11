@@ -152,3 +152,50 @@ test('P0-014 renders FRESH traceability, weighing and company after-sales throug
   assert.match(runtime.definition.data.detailModules.at(-1).notice, /江苏福礼团/u);
   assert.match(runtime.requestedUrl(), new RegExp(`/v1/catalog/products/${productId}`, 'u'));
 });
+
+test('P0-015 renders APPAREL size, material, care and company return rules through miniapp-kit', async () => {
+  const apparelResponse = {
+    ...response(),
+    templateProfile: 'APPAREL',
+    name: '通勤棉衬衫',
+    retailSalePrice: 9900,
+    skus: [{
+      skuId: '33333333-3333-4333-8333-333333333333',
+      retailSalePrice: 9900,
+      specifications: [
+        { key: 'color', label: '颜色', value: '暖红' },
+        { key: 'size', label: '尺码', value: 'M' },
+      ],
+    }],
+    detailModules: [
+      {
+        key: 'size-assistant', title: '尺码助手', kind: 'FIELDS', notice: null,
+        fields: [
+          { key: 'fit', label: '版型', value: '常规版型' },
+          { key: 'size-chart', label: '尺码表', value: 'M：胸围100cm/衣长68cm' },
+        ],
+      },
+      {
+        key: 'materials', title: '材质说明', kind: 'FIELDS', notice: null,
+        fields: [{ key: 'fabric', label: '面料', value: '棉 95%、氨纶 5%' }],
+      },
+      {
+        key: 'care-instructions', title: '洗护说明', kind: 'FIELDS', notice: null,
+        fields: [{ key: 'care-instructions', label: '洗护方式', value: '冷水轻柔洗涤' }],
+      },
+      {
+        key: 'apparel-after-sales', title: '试穿与退换说明', kind: 'AFTER_SALE', fields: [],
+        notice: '由江苏福礼团供应链科技有限公司统一受理。',
+      },
+    ],
+  };
+  const runtime = loadBuiltPage(0, apparelResponse);
+  await runtime.definition.onLoad.call(runtime.definition, { productId });
+  assert.equal(runtime.definition.data.state, 'success');
+  assert.equal(runtime.definition.data.profileLabel, '服饰详情');
+  assert.equal(runtime.definition.data.priceLabel, '¥99.00');
+  assert.equal(runtime.definition.data.skus[0].specificationLabel, '颜色：暖红 · 尺码：M');
+  assert.match(runtime.definition.data.detailModules[0].fields[1].value, /胸围100cm/u);
+  assert.match(runtime.definition.data.detailModules.at(-1).notice, /江苏福礼团/u);
+  assert.match(runtime.requestedUrl(), new RegExp(`/v1/catalog/products/${productId}`, 'u'));
+});

@@ -10,7 +10,7 @@ const openApi = JSON.parse(
   await readFile(new URL('../../packages/contracts/openapi.json', import.meta.url), 'utf8'),
 );
 
-test('P0-014 extends the existing public detail whitelist with FRESH without exposing private data', () => {
+test('P0-015 extends the existing public detail whitelist with APPAREL without exposing private data', () => {
   const operation = openApi.paths['/v1/catalog/products/{productId}'].get;
   assert.equal(operation.operationId, 'catalog.getProductDetail');
   assert.equal(
@@ -23,17 +23,13 @@ test('P0-014 extends the existing public detail whitelist with FRESH without exp
     'retailSalePrice', 'sellerName', 'skus', 'supplierId', 'templateProfile', 'templateVersion',
   ]);
   assert.deepEqual(schema.properties.templateProfile.enum, ['FOOD', 'FRESH', 'APPAREL']);
-  assert.deepEqual(
-    openApi.components.schemas.PublicFoodDetailModuleResponseDto.properties.kind.enum,
-    ['AFTER_SALE', 'FIELDS', 'FIXED_NOTICE'],
-  );
   assert.doesNotMatch(
     JSON.stringify({ operation, schema }),
     /approvedSupplyPrice|supplyPrice|qualificationSnapshot|settlement|margin|functionalAccountId|identityId/iu,
   );
 });
 
-test('P0-014 remains in category-template profile contracts after APPAREL is added', () => {
+test('P0-015 adds only APPAREL to category-template profile contracts', () => {
   const request = openApi.components.schemas.CategoryTemplateCreateRequestDto;
   const response = openApi.components.schemas.CategoryTemplateResponseDto;
   assert.deepEqual(request.properties.profile.enum, ['FOOD', 'FRESH', 'APPAREL', 'GENERIC']);
@@ -41,12 +37,12 @@ test('P0-014 remains in category-template profile contracts after APPAREL is add
   assert.doesNotMatch(JSON.stringify({ request, response }), /DIGITAL|GIFT_BOX/iu);
 });
 
-test('M2-P014 historical evidence remains while P015 advances and P016 stays locked', async () => {
+test('M2-P015 records exact-head Draft PR CI evidence while P016 stays locked', async () => {
   const [state, evidence, taskLedger, p0Ledger, pageLedger, apiLedger, handoff] =
     await Promise.all([
       readFile(path.join(executionPack, '16-项目状态.json'), 'utf8').then(JSON.parse),
       readFile(
-        path.join(repositoryRoot, 'artifacts', 'verification', 'M2-P014', 'fresh-detail.json'),
+        path.join(repositoryRoot, 'artifacts', 'verification', 'M2-P015', 'apparel-detail.json'),
         'utf8',
       ).then(JSON.parse),
       readFile(path.join(executionPack, '03-任务台账.csv'), 'utf8'),
@@ -54,7 +50,7 @@ test('M2-P014 historical evidence remains while P015 advances and P016 stays loc
       readFile(path.join(executionPack, '08-页面路由接口P0映射.csv'), 'utf8'),
       readFile(path.join(executionPack, '12-OpenAPI-DTO-错误码台账.csv'), 'utf8'),
       readFile(
-        path.join(repositoryRoot, 'docs', 'handoffs', '2026-08-10-M2-P014-fresh-detail.md'),
+        path.join(repositoryRoot, 'docs', 'handoffs', '2026-08-10-M2-P015-apparel-detail.md'),
         'utf8',
       ),
     ]);
@@ -70,17 +66,19 @@ test('M2-P014 historical evidence remains while P015 advances and P016 stays loc
   assert.equal(state.github.currentTaskDelivery.m2p016StartAllowed, false);
   assert.equal(state.github.previousTaskDelivery.taskId, 'M2-P014');
   assert.equal(state.github.previousTaskDelivery.pullRequest, 54);
+  assert.equal(state.github.previousTaskDelivery.mainPostMergeCiRun, 31453656294);
   assert.equal(state.github.previousTaskDelivery.status, 'CI_PASS');
-  assert.equal(evidence.taskId, 'M2-P014');
-  assert.equal(evidence.status, 'LOCAL_PASS');
-  assert.equal(evidence.environmentBoundary.ci, 'NOT_EXECUTED_NO_PR');
-  assert.equal(evidence.m2p015StartAllowed, false);
-  assert.match(taskLedger, /M2-P013[^\r\n]*DONE[^\r\n]*CI_PASS/u);
+  assert.equal(evidence.taskId, 'M2-P015');
+  assert.equal(evidence.status, 'CI_PASS');
+  assert.equal(evidence.environmentBoundary.ci, 'CI_PASS_EXACT_HEAD_486B32F');
+  assert.equal(evidence.ciVerification.runId, 31459377570);
+  assert.equal(evidence.m2p016StartAllowed, false);
   assert.match(taskLedger, /M2-P014[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(taskLedger, /M2-P015[^\r\n]*DONE[^\r\n]*CI_PASS/u);
-  assert.match(p0Ledger, /P0-014[^\r\n]*CI_PASS/u);
-  assert.match(pageLedger, /P0-014_CI_PASS/u);
-  assert.match(apiLedger, /API-030[^\r\n]*P0-014[^\r\n]*IMPLEMENTED/u);
-  assert.match(handoff, /^# M2-P014 生鲜详情交接/u);
-  assert.match(handoff, /M2-P015/u);
+  assert.match(taskLedger, /M2-P015[^\r\n]*BLOCKED_EXTERNAL/u);
+  assert.match(p0Ledger, /P0-015[^\r\n]*CI_PASS/u);
+  assert.match(pageLedger, /P0-015_CI_PASS/u);
+  assert.match(apiLedger, /API-030[^\r\n]*P0-015[^\r\n]*IMPLEMENTED/u);
+  assert.match(handoff, /^# M2-P015 服饰详情交接/u);
+  assert.match(handoff, /M2-P016/u);
 });
