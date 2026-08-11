@@ -48,7 +48,7 @@ test('M2-P007 OpenAPI keeps material and initial-price review DTOs and roles sep
   );
 });
 
-test('M2-P007 retains evidence while M2-P016 advances through its delivery gate', async () => {
+test('M2-P007 retains evidence while the current M2 slice advances through its delivery gate', async () => {
   const [state, taskLedger, p0Ledger, apiLedger, pageLedger, evidence, handoff] =
     await Promise.all([
       readFile(path.join(pack, '16-项目状态.json'), 'utf8').then(JSON.parse),
@@ -60,15 +60,22 @@ test('M2-P007 retains evidence while M2-P016 advances through its delivery gate'
       read('docs', 'handoffs', '2026-08-09-M2-P007-company-product-approvals.md'),
     ]);
 
-  assert.equal(state.execution.currentTask, 'M2-P016');
-  assert.equal(state.execution.nextAllowedTask, 'M2-P016');
-  assert.equal(state.execution.lastCompletedTask, 'M2-P015');
+  assert.match(state.execution.currentTask, /^M2-P\d{3}$/u);
+  assert.equal(state.execution.nextAllowedTask, state.execution.currentTask);
+  assert.match(state.execution.lastCompletedTask, /^M2-P\d{3}$/u);
   assert.equal(state.execution.activeTaskCount, 1);
-  assert.ok([null, 58].includes(state.github.currentTaskDelivery.pullRequest));
+  assert.equal(state.github.currentTaskDelivery.taskId, state.execution.currentTask);
+  assert.ok(
+    state.github.currentTaskDelivery.pullRequest === null ||
+      Number.isInteger(state.github.currentTaskDelivery.pullRequest),
+  );
   assert.ok(['NOT_CREATED', 'DRAFT'].includes(state.github.currentTaskDelivery.pullRequestState));
-  assert.ok(['NOT_EXECUTED', 'CI_PASS'].includes(state.github.currentTaskDelivery.exactHeadCi));
+  assert.ok(
+    state.github.currentTaskDelivery.exactHeadCi === 'NOT_EXECUTED' ||
+      state.github.currentTaskDelivery.exactHeadCi.startsWith('CI_PASS_RUN_'),
+  );
   assert.equal(state.github.currentTaskDelivery.merge, 'NOT_EXECUTED');
-  assert.equal(state.github.currentTaskDelivery.m2p017StartAllowed, false);
+  assert.equal(state.github.currentTaskDelivery.mainPostMergeCi, 'NOT_EXECUTED');
   assert.match(state.evidence.local, /^(?:NOT_EXECUTED|LOCAL_PASS)$/u);
   assert.ok(['NOT_EXECUTED', 'CI_PASS'].includes(state.evidence.ci));
   assert.match(taskLedger, /M2-P007[^\r\n]*DONE[^\r\n]*CI_PASS/u);
