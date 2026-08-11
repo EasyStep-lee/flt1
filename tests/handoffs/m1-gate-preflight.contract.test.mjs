@@ -37,7 +37,6 @@ const candidateMain = '4ff02588379b1928448826d9f83b863c8c8b5bd8';
 const p072Head = 'efb50c01049686ce5acf8463342a53d4e572a7cd';
 const m1GateMerge = '162787ae1687116badf0972664005332220976f9';
 const m2p014Head = '9bbaa92e22d2c7055ffefbe089f92eaaf69cdabe';
-const m2p014Merge = 'f2d6c1c665774bc57149e6125da829d7b1fb9dd1';
 const m1P0Ids = [
   'P0-001',
   'P0-002',
