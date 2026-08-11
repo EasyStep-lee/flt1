@@ -196,6 +196,96 @@ const foodProductBody = (categoryId, templateVersion, name = '食品模板商品
   ],
 });
 
+const freshField = (
+  key,
+  label,
+  detailModuleKey,
+  { enumValues = [], specification = false, type = 'TEXT' } = {},
+) => ({
+  key,
+  label,
+  type,
+  required: true,
+  unit: null,
+  enumValues,
+  validation: { min: null, max: null, minLength: 1, maxLength: 500, pattern: null },
+  searchable: false,
+  specification,
+  detailModuleKey,
+});
+
+const freshTemplateBody = () => ({
+  profile: 'FRESH',
+  fieldSchema: {
+    schemaVersion: '1.0',
+    fields: [
+      freshField('variety', '品种', 'origin-traceability'),
+      freshField('grade', '等级', 'origin-traceability'),
+      freshField('origin', '产地', 'origin-traceability'),
+      freshField('harvest-slaughter-date', '采收/屠宰日期', 'freshness-storage', { type: 'DATE' }),
+      freshField('freshness-period', '保鲜期', 'freshness-storage'),
+      freshField('temperature-zone', '温区', 'freshness-storage', {
+        type: 'ENUM', enumValues: ['AMBIENT', 'CHILLED', 'FROZEN'],
+      }),
+      freshField('weighing-rule', '称重规则', 'weighing-difference', {
+        type: 'ENUM', enumValues: ['FIXED_WEIGHT', 'ACTUAL_WEIGHT'],
+      }),
+      freshField('weight-tier', '重量档', 'specifications', { specification: true }),
+      freshField('specification', '规格', 'specifications', { specification: true }),
+      freshField('processing-method', '处理方式', 'specifications', { specification: true }),
+    ],
+  },
+  skuDimensions: {
+    dimensions: [
+      { key: 'weight-tier', label: '重量档', fieldKey: 'weight-tier' },
+      { key: 'specification', label: '规格', fieldKey: 'specification' },
+      { key: 'processing-method', label: '处理方式', fieldKey: 'processing-method' },
+    ],
+  },
+  qualificationRules: { rules: [] },
+  detailModules: {
+    modules: [
+      { key: 'origin-traceability', title: '产地溯源', kind: 'FIELDS', sortWeight: 10 },
+      { key: 'freshness-storage', title: '保鲜与温区', kind: 'FIELDS', sortWeight: 20 },
+      { key: 'weighing-difference', title: '称重差异', kind: 'FIELDS', sortWeight: 30 },
+      { key: 'specifications', title: '规格参数', kind: 'FIELDS', sortWeight: 40 },
+      { key: 'fresh-after-sales', title: '生鲜售后规则', kind: 'AFTER_SALE', sortWeight: 50 },
+    ],
+  },
+  afterSaleRules: {
+    returnPolicy: 'CATEGORY_RESTRICTED',
+    notice: '由江苏福礼团供应链科技有限公司统一受理；称重差异按实际称重和已审核规则处理。',
+    evidenceRequirements: ['PACKAGE_PHOTO', 'WEIGHT_PHOTO'],
+  },
+});
+
+const freshProductBody = (categoryId, templateVersion, name = '生鲜模板商品') => ({
+  categoryId,
+  templateVersion,
+  name,
+  brand: null,
+  attributes: {
+    variety: '红颜草莓',
+    grade: '一级',
+    origin: '江苏连云港',
+    'harvest-slaughter-date': '2026-08-10',
+    'freshness-period': '0-4℃冷藏3天',
+    'temperature-zone': 'CHILLED',
+    'weighing-rule': 'ACTUAL_WEIGHT',
+  },
+  qualificationReferences: ['object://supplier-product/fresh-origin-001'],
+  isRetailEnabled: true,
+  isEnterpriseProcurementEnabled: false,
+  enterpriseMinOrderQty: 1,
+  enterprisePackageMultiple: 1,
+  preparationMinutes: 20,
+  skus: [{
+    supplierSkuCode: `${name}-SKU`,
+    attributes: { 'weight-tier': '500克档', specification: '篮装', 'processing-method': '原果' },
+    initialStock: 10,
+  }],
+});
+
 const productBody = (categoryId, templateVersion, name = '模板绑定商品') => ({
   categoryId,
   templateVersion,
@@ -632,6 +722,71 @@ describe('P0-013 food template validation', () => {
         .post('/v1/supplier/products')
         .set('Idempotency-Key', 'food-complete-product')
         .send(foodProductBody(fixture.leaf.id, 1));
+      expect(accepted.status).toBe(201);
+      expect(accepted.body).toMatchObject({ templateVersion: 1, status: 'DRAFT' });
+    } finally {
+      await fixture.app.close();
+    }
+  });
+});
+
+describe('P0-014 fresh template validation', () => {
+  it('NEG-M2-014-01 rejects an incomplete FRESH definition without persistence', async () => {
+    const fixture = await createFixture();
+    try {
+      const incomplete = freshTemplateBody();
+      incomplete.fieldSchema.fields = incomplete.fieldSchema.fields.filter(
+        ({ key }) => key !== 'origin',
+      );
+      const rejected = await createTemplate(fixture, fixture.leaf.id, incomplete);
+      expect(rejected.status).toBe(422);
+      expect(rejected.body).toMatchObject({ code: 'TEMPLATE_SCHEMA_INVALID' });
+      expect(await fixture.templates.count()).toBe(0);
+      expect(await fixture.templates.historyCount()).toBe(0);
+    } finally {
+      await fixture.app.close();
+    }
+  });
+
+  it('validates FRESH product fields and returns the dedicated immutable-history error', async () => {
+    const fixture = await createFixture();
+    try {
+      const created = await createTemplate(fixture, fixture.leaf.id, freshTemplateBody());
+      expect(created.status).toBe(201);
+      expect(created.body).toMatchObject({ profile: 'FRESH', version: 1, status: 'DRAFT' });
+      const published = await publishTemplate(fixture, created.body.id, created.body.revision);
+      expect(published.status).toBe(200);
+
+      const rewrite = await patchTemplate(fixture, created.body.id, {
+        revision: published.body.revision,
+        ...freshTemplateBody(),
+      });
+      expect(rewrite.status).toBe(409);
+      expect(rewrite.body).toMatchObject({ code: 'FRESH_HISTORY_REWRITE' });
+
+      const missing = freshProductBody(fixture.leaf.id, 1, '缺产地生鲜');
+      delete missing.attributes.origin;
+      const missingResponse = await request(fixture.app.getHttpServer())
+        .post('/v1/supplier/products')
+        .set('Idempotency-Key', 'fresh-missing-origin')
+        .send(missing);
+      expect(missingResponse.status).toBe(422);
+      expect(missingResponse.body).toMatchObject({ code: 'FRESH_REQUIRED_FIELD_MISSING' });
+
+      const invalid = freshProductBody(fixture.leaf.id, 1, '非法称重生鲜');
+      invalid.attributes['weighing-rule'] = 'SUPPLIER_FREE_TEXT';
+      const invalidResponse = await request(fixture.app.getHttpServer())
+        .post('/v1/supplier/products')
+        .set('Idempotency-Key', 'fresh-invalid-weighing-rule')
+        .send(invalid);
+      expect(invalidResponse.status).toBe(422);
+      expect(invalidResponse.body).toMatchObject({ code: 'FRESH_WEIGHT_RULE_INVALID' });
+      expect(await fixture.products.countSupplierProducts()).toBe(0);
+
+      const accepted = await request(fixture.app.getHttpServer())
+        .post('/v1/supplier/products')
+        .set('Idempotency-Key', 'fresh-complete-product')
+        .send(freshProductBody(fixture.leaf.id, 1));
       expect(accepted.status).toBe(201);
       expect(accepted.body).toMatchObject({ templateVersion: 1, status: 'DRAFT' });
     } finally {

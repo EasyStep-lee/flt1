@@ -59,8 +59,8 @@ export class PublicFoodDetailFieldResponseDto {
 export class PublicFoodDetailModuleResponseDto {
   @ApiProperty({ maxLength: 64, type: String }) readonly key!: string;
   @ApiProperty({ maxLength: 80, type: String }) readonly title!: string;
-  @ApiProperty({ enum: ['FIELDS', 'FIXED_NOTICE'] })
-  readonly kind!: 'FIELDS' | 'FIXED_NOTICE';
+  @ApiProperty({ enum: ['AFTER_SALE', 'FIELDS', 'FIXED_NOTICE'] })
+  readonly kind!: 'AFTER_SALE' | 'FIELDS' | 'FIXED_NOTICE';
   @ApiProperty({ type: [PublicFoodDetailFieldResponseDto] })
   readonly fields!: readonly PublicFoodDetailFieldResponseDto[];
   @ApiProperty({ maxLength: 500, nullable: true, required: true, type: String })
@@ -80,7 +80,7 @@ export class PublicFoodProductDetailResponseDto {
   @ApiProperty({ format: 'uuid', type: String }) readonly supplierId!: string;
   @ApiProperty({ format: 'uuid', type: String }) readonly categoryId!: string;
   @ApiProperty({ minimum: 1, type: Number }) readonly templateVersion!: number;
-  @ApiProperty({ enum: ['FOOD'] }) readonly templateProfile!: 'FOOD';
+  @ApiProperty({ enum: ['FOOD', 'FRESH'] }) readonly templateProfile!: 'FOOD' | 'FRESH';
   @ApiProperty({ maxLength: 200, type: String }) readonly name!: string;
   @ApiProperty({ maxLength: 120, nullable: true, required: true, type: String })
   readonly brand!: string | null;

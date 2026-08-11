@@ -45,7 +45,7 @@ export class PublicCatalogController {
   @Header('Cache-Control', 'public, max-age=30, stale-while-revalidate=30')
   @ApiOperation({
     operationId: 'catalog.getProductDetail',
-    summary: 'Get a sellable food product detail from the unified company shelf',
+    summary: 'Get a sellable template-driven product detail from the unified company shelf',
   })
   @ApiParam({ format: 'uuid', name: 'productId', type: String })
   @ApiOkResponse({ type: PublicFoodProductDetailResponseDto })

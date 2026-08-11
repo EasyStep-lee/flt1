@@ -89,8 +89,8 @@ export class TemplateAfterSaleRulesDto {
 }
 
 export class CategoryTemplateDefinitionDto {
-  @ApiPropertyOptional({ default: 'GENERIC', enum: ['FOOD', 'GENERIC'] })
-  readonly profile?: 'FOOD' | 'GENERIC';
+  @ApiPropertyOptional({ default: 'GENERIC', enum: ['FOOD', 'FRESH', 'GENERIC'] })
+  readonly profile?: 'FOOD' | 'FRESH' | 'GENERIC';
   @ApiProperty({ type: TemplateFieldSchemaDto }) readonly fieldSchema!: TemplateFieldSchemaDto;
   @ApiProperty({ type: TemplateSkuDimensionsDto })
   readonly skuDimensions!: TemplateSkuDimensionsDto;

@@ -49,6 +49,11 @@ const throwFailure = (kind: CategoryTemplateFailureKind): never => {
     CATEGORY_DISABLED: [422, 'CATEGORY_DISABLED', 'Category is disabled'],
     CATEGORY_NOT_FOUND: [404, 'CATEGORY_NOT_FOUND', 'Category was not found'],
     CATEGORY_NOT_LEAF: [422, 'CATEGORY_NOT_LEAF', 'Template must bind an enabled leaf category'],
+    FRESH_HISTORY_REWRITE: [
+      409,
+      'FRESH_HISTORY_REWRITE',
+      'Published fresh template versions are immutable',
+    ],
     IDEMPOTENCY_CONFLICT: [409, 'IDEMPOTENCY_CONFLICT', 'Idempotency-Key conflicts'],
     TEMPLATE_DRAFT_EXISTS: [409, 'TEMPLATE_DRAFT_EXISTS', 'A category template draft already exists'],
     TEMPLATE_IMMUTABLE: [409, 'TEMPLATE_IMMUTABLE', 'Published template versions are immutable'],

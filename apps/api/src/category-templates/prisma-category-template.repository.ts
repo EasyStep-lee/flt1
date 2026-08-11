@@ -6,6 +6,7 @@ import { Prisma } from '@fulishe/db';
 import { PrismaService } from '../infrastructure/prisma.service.js';
 import type { CategoryTemplateDefinition } from './category-template.policy.js';
 import { assertFoodTemplateDefinition } from './food-template.policy.js';
+import { assertFreshTemplateDefinition } from './fresh-template.policy.js';
 import type {
   CategoryTemplateListResult,
   CategoryTemplateMutationResult,
@@ -44,7 +45,8 @@ const toRecord = (value: StoredTemplate): CategoryTemplateRecord => ({
   version: value.version,
   revision: value.revision,
   status: value.status,
-  profile: value.profile === 'FOOD' ? 'FOOD' : 'GENERIC',
+  profile:
+    value.profile === 'FOOD' || value.profile === 'FRESH' ? value.profile : 'GENERIC',
   fieldSchema: structuredClone(value.fieldSchema) as CategoryTemplateDefinition['fieldSchema'],
   skuDimensions: structuredClone(value.skuDimensions) as CategoryTemplateDefinition['skuDimensions'],
   qualificationRules: structuredClone(
@@ -132,7 +134,9 @@ export class PrismaCategoryTemplateRepository implements CategoryTemplateReposit
       });
       if (!stored) return { kind: 'TEMPLATE_NOT_FOUND' };
       if (stored.revision !== command.expectedRevision) return { kind: 'VERSION_CONFLICT' };
-      if (stored.status !== 'DRAFT') return { kind: 'TEMPLATE_IMMUTABLE' };
+      if (stored.status !== 'DRAFT') {
+        return { kind: stored.profile === 'FRESH' ? 'FRESH_HISTORY_REWRITE' : 'TEMPLATE_IMMUTABLE' };
+      }
       const before = toRecord(stored);
       const updated = await tx.categoryTemplate.update({
         where: { id: stored.id },
@@ -164,8 +168,11 @@ export class PrismaCategoryTemplateRepository implements CategoryTemplateReposit
       if (!stored) return { kind: 'TEMPLATE_NOT_FOUND' };
       await tx.$queryRaw`SELECT id FROM category WHERE id = ${stored.categoryId} FOR UPDATE`;
       if (stored.revision !== command.expectedRevision) return { kind: 'VERSION_CONFLICT' };
-      if (stored.status !== 'DRAFT') return { kind: 'TEMPLATE_IMMUTABLE' };
+      if (stored.status !== 'DRAFT') {
+        return { kind: stored.profile === 'FRESH' ? 'FRESH_HISTORY_REWRITE' : 'TEMPLATE_IMMUTABLE' };
+      }
       assertFoodTemplateDefinition(toRecord(stored));
+      assertFreshTemplateDefinition(toRecord(stored));
       const invalidTarget = await this.invalidTarget(tx, command.companyId, stored.categoryId);
       if (invalidTarget) return { kind: invalidTarget };
       const current = await tx.categoryTemplate.findFirst({

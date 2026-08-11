@@ -4,6 +4,7 @@ import { SafeApiError, type ApiErrorCode } from '../http/api-error.js';
 import { CategoryService } from '../categories/category.service.js';
 import { CategoryTemplateService } from '../category-templates/category-template.service.js';
 import { validateSupplierProductTemplateContent } from '../category-templates/food-template.policy.js';
+import { validateFreshSupplierProductTemplateContent } from '../category-templates/fresh-template.policy.js';
 import type { SupplierProductActor } from './supplier-product.actor.js';
 import {
   normalizeSupplierProductDraft,
@@ -168,6 +169,7 @@ export class SupplierProductService {
       input.templateVersion,
     );
     validateSupplierProductTemplateContent(template, input);
+    validateFreshSupplierProductTemplateContent(template, input);
     const result = await this.repository.createDraft({
       ...input,
       supplierId: actor.supplierId,
@@ -221,6 +223,10 @@ export class SupplierProductService {
         templateVersion,
       );
       validateSupplierProductTemplateContent(template, {
+        attributes: patch.attributes ?? currentProduct.attributes,
+        skus: (patch.skus ?? currentProduct.skus).map(({ attributes }) => ({ attributes })),
+      });
+      validateFreshSupplierProductTemplateContent(template, {
         attributes: patch.attributes ?? currentProduct.attributes,
         skus: (patch.skus ?? currentProduct.skus).map(({ attributes }) => ({ attributes })),
       });
@@ -297,7 +303,10 @@ export class SupplierProductService {
         supplierProductId,
         actor.supplierId,
       );
-      if (product) validateSupplierProductTemplateContent(template, product);
+      if (product) {
+        validateSupplierProductTemplateContent(template, product);
+        validateFreshSupplierProductTemplateContent(template, product);
+      }
     }
     const result = await this.repository.submitMaterial({
       supplierId: actor.supplierId,
