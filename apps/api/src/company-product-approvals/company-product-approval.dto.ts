@@ -30,6 +30,8 @@ export class ProductMaterialReviewDto {
   @ApiProperty({ additionalProperties: true, type: Object })
   readonly attributes!: Record<string, unknown>;
   @ApiProperty({ minimum: 0, type: Number }) readonly qualificationReferenceCount!: number;
+  @ApiProperty({ format: 'date-time', nullable: true, required: true, type: String })
+  readonly qualificationValidUntil!: string | null;
   @ApiProperty({ type: Boolean }) readonly isRetailEnabled!: boolean;
   @ApiProperty({ type: Boolean }) readonly isEnterpriseProcurementEnabled!: boolean;
   @ApiProperty({ minimum: 0, type: Number }) readonly preparationMinutes!: number;

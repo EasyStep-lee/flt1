@@ -10,6 +10,7 @@ import {
 import { HealthController } from '../health/health.controller.js';
 import { SingleMerchantController } from '../merchant/single-merchant.controller.js';
 import { SensitiveApprovalController } from '../sensitive-approval/sensitive-approval.controller.js';
+import { RegulatedCategoryController } from '../regulated-categories/regulated-category.controller.js';
 import { SupplierAuthController } from '../supplier-auth/supplier-auth.controller.js';
 import { SupplierFunctionalAccountController } from '../supplier-functional-accounts/supplier-functional-account.controller.js';
 import {
@@ -23,6 +24,7 @@ import { SupplierPricingController } from '../supplier-pricing/supplier-pricing.
 export const OPENAPI_CONTROLLERS = Object.freeze([
   AuditLogController,
   PublicCatalogController,
+  RegulatedCategoryController,
   CategoryController,
   CategoryTemplateController,
   CompanyAuthController,

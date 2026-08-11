@@ -12,6 +12,7 @@ import {
 } from '../supplier-products/supplier-product.policy.js';
 
 export type CategoryTemplateStatus = 'DRAFT' | 'PUBLISHED' | 'RETIRED';
+export type CategoryRegulatoryMode = 'HIGH_RISK' | 'STANDARD';
 export type CategoryTemplateProfile =
   | 'APPAREL'
   | 'DIGITAL'
@@ -51,6 +52,7 @@ export interface TemplateFieldDefinition {
 }
 
 export interface CategoryTemplateDefinition {
+  readonly regulatoryMode: CategoryRegulatoryMode;
   readonly profile: CategoryTemplateProfile;
   readonly fieldSchema: {
     readonly schemaVersion: '1.0';
@@ -399,10 +401,12 @@ export const normalizeCategoryTemplateDefinition = (
     {
       ...candidate,
       profile: candidate.profile ?? 'GENERIC',
+      regulatoryMode: candidate.regulatoryMode ?? 'STANDARD',
     },
     'template',
     [
     'profile',
+    'regulatoryMode',
     'fieldSchema',
     'skuDimensions',
     'qualificationRules',
@@ -413,12 +417,16 @@ export const normalizeCategoryTemplateDefinition = (
   if (!['FOOD', 'FRESH', 'APPAREL', 'DIGITAL', 'GIFT_BOX', 'GENERIC'].includes(input.profile as string)) {
     return invalid('template.profile is invalid');
   }
+  if (!['HIGH_RISK', 'STANDARD'].includes(input.regulatoryMode as string)) {
+    return invalid('template.regulatoryMode is invalid');
+  }
   const detailModules = normalizeModules(input.detailModules);
   const fieldSchema = normalizeFields(
     input.fieldSchema,
     new Set(detailModules.modules.map(({ key: moduleKey }) => moduleKey)),
   );
   const definition: CategoryTemplateDefinition = {
+    regulatoryMode: input.regulatoryMode as CategoryRegulatoryMode,
     profile: input.profile as CategoryTemplateProfile,
     fieldSchema,
     skuDimensions: normalizeSkuDimensions(input.skuDimensions, fieldSchema.fields),

@@ -78,6 +78,8 @@
               "FRESH_REQUIRED_FIELD_MISSING",
               "FRESH_WEIGHT_RULE_INVALID",
               "REGULATORY_WARNING_REQUIRED",
+              "REGULATED_CATEGORY_DISABLED",
+              "QUALIFICATION_REQUIRED",
               "TEMPLATE_DATA_INVALID",
               "TEMPLATE_DRAFT_EXISTS",
               "TEMPLATE_IMMUTABLE",
@@ -455,6 +457,14 @@
           "qualificationRules": {
             "$ref": "#/components/schemas/TemplateQualificationRulesDto"
           },
+          "regulatoryMode": {
+            "default": "STANDARD",
+            "enum": [
+              "STANDARD",
+              "HIGH_RISK"
+            ],
+            "type": "string"
+          },
           "skuDimensions": {
             "$ref": "#/components/schemas/TemplateSkuDimensionsDto"
           }
@@ -493,6 +503,14 @@
           },
           "qualificationRules": {
             "$ref": "#/components/schemas/TemplateQualificationRulesDto"
+          },
+          "regulatoryMode": {
+            "default": "STANDARD",
+            "enum": [
+              "STANDARD",
+              "HIGH_RISK"
+            ],
+            "type": "string"
           },
           "skuDimensions": {
             "$ref": "#/components/schemas/TemplateSkuDimensionsDto"
@@ -562,6 +580,14 @@
           },
           "qualificationRules": {
             "$ref": "#/components/schemas/TemplateQualificationRulesDto"
+          },
+          "regulatoryMode": {
+            "default": "STANDARD",
+            "enum": [
+              "STANDARD",
+              "HIGH_RISK"
+            ],
+            "type": "string"
           },
           "revision": {
             "minimum": 0,
@@ -635,6 +661,14 @@
           },
           "qualificationRules": {
             "$ref": "#/components/schemas/TemplateQualificationRulesDto"
+          },
+          "regulatoryMode": {
+            "default": "STANDARD",
+            "enum": [
+              "STANDARD",
+              "HIGH_RISK"
+            ],
+            "type": "string"
           },
           "retiredAt": {
             "format": "date-time",
@@ -1898,6 +1932,11 @@
             "minimum": 0,
             "type": "number"
           },
+          "qualificationValidUntil": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
           "reviewOpinion": {
             "nullable": true,
             "type": "string"
@@ -1947,6 +1986,7 @@
           "templateVersion",
           "attributes",
           "qualificationReferenceCount",
+          "qualificationValidUntil",
           "isRetailEnabled",
           "isEnterpriseProcurementEnabled",
           "preparationMinutes",
@@ -2337,6 +2377,132 @@
         ],
         "type": "object"
       },
+      "RegulatedCategoryControlPageDto": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/RegulatedCategoryControlResponseDto"
+            },
+            "type": "array"
+          },
+          "total": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ],
+        "type": "object"
+      },
+      "RegulatedCategoryControlResponseDto": {
+        "properties": {
+          "categoryId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "companyQualificationReferenceCount": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "disabledAt": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "enabledAt": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "qualificationValidUntil": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "DISABLED",
+              "ENABLED"
+            ],
+            "type": "string"
+          },
+          "version": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "categoryId",
+          "status",
+          "companyQualificationReferenceCount",
+          "qualificationValidUntil",
+          "version"
+        ],
+        "type": "object"
+      },
+      "RegulatedCategoryDisableRequestDto": {
+        "properties": {
+          "reason": {
+            "maxLength": 500,
+            "minLength": 2,
+            "type": "string"
+          },
+          "secondVerificationCode": {
+            "maxLength": 64,
+            "minLength": 4,
+            "type": "string"
+          },
+          "version": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "version",
+          "reason",
+          "secondVerificationCode"
+        ],
+        "type": "object"
+      },
+      "RegulatedCategoryEnableRequestDto": {
+        "properties": {
+          "companyQualificationReferences": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 50,
+            "minItems": 1,
+            "type": "array"
+          },
+          "qualificationValidUntil": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "secondVerificationCode": {
+            "maxLength": 64,
+            "minLength": 4,
+            "type": "string"
+          },
+          "version": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "version",
+          "companyQualificationReferences",
+          "qualificationValidUntil",
+          "secondVerificationCode"
+        ],
+        "type": "object"
+      },
       "SelectWorkspaceRequestDto": {
         "properties": {
           "secondVerificationCode": {
@@ -2716,6 +2882,11 @@
             "maxItems": 50,
             "type": "array"
           },
+          "qualificationValidUntil": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
           "skus": {
             "items": {
               "$ref": "#/components/schemas/SupplierProductSkuDraftRequestDto"
@@ -2786,6 +2957,11 @@
             },
             "maxItems": 50,
             "type": "array"
+          },
+          "qualificationValidUntil": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
           },
           "skus": {
             "items": {
@@ -2873,6 +3049,11 @@
             "minimum": 0,
             "type": "number"
           },
+          "qualificationValidUntil": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
           "skus": {
             "items": {
               "$ref": "#/components/schemas/SupplierProductSkuResponseDto"
@@ -2909,6 +3090,7 @@
           "brand",
           "attributes",
           "qualificationReferenceCount",
+          "qualificationValidUntil",
           "isRetailEnabled",
           "isEnterpriseProcurementEnabled",
           "enterpriseMinOrderQty",
@@ -6030,6 +6212,258 @@
         "summary": "Approve or reject material without price visibility",
         "tags": [
           "company-product-material-reviews"
+        ]
+      }
+    },
+    "/v1/company/regulated-category-controls": {
+      "get": {
+        "operationId": "regulatedCategoryControls.list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegulatedCategoryControlPageDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "List company-scoped high-risk controls",
+        "tags": [
+          "company-regulated-category-controls"
+        ]
+      }
+    },
+    "/v1/company/regulated-category-controls/{categoryId}/disable": {
+      "post": {
+        "operationId": "regulatedCategoryControls.disable",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "categoryId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegulatedCategoryDisableRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegulatedCategoryControlResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "428": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Disable a high-risk category after second verification",
+        "tags": [
+          "company-regulated-category-controls"
+        ]
+      }
+    },
+    "/v1/company/regulated-category-controls/{categoryId}/enable": {
+      "post": {
+        "operationId": "regulatedCategoryControls.enable",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "categoryId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegulatedCategoryEnableRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegulatedCategoryControlResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "428": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Enable a high-risk category after second verification",
+        "tags": [
+          "company-regulated-category-controls"
         ]
       }
     },

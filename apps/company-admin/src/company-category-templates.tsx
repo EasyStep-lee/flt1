@@ -16,6 +16,7 @@ const flatten = (nodes: readonly CategoryNode[]): readonly CategoryNode[] =>
   nodes.flatMap((node) => [node, ...flatten(node.children)]);
 
 const defaultDefinition = (): TemplateDefinition => ({
+  regulatoryMode: 'STANDARD',
   profile: 'GENERIC',
   fieldSchema: {
     schemaVersion: '1.0',
@@ -65,6 +66,7 @@ const foodField = (
 });
 
 const foodDefinition = (): TemplateDefinition => ({
+  regulatoryMode: 'STANDARD',
   profile: 'FOOD',
   fieldSchema: {
     schemaVersion: '1.0',
@@ -137,6 +139,7 @@ const freshField = (
 });
 
 const freshDefinition = (): TemplateDefinition => ({
+  regulatoryMode: 'STANDARD',
   profile: 'FRESH',
   fieldSchema: {
     schemaVersion: '1.0',
@@ -205,6 +208,7 @@ const apparelField = (
 });
 
 const apparelDefinition = (): TemplateDefinition => ({
+  regulatoryMode: 'STANDARD',
   profile: 'APPAREL',
   fieldSchema: {
     schemaVersion: '1.0',
@@ -264,6 +268,7 @@ const digitalField = (
 });
 
 const digitalDefinition = (): TemplateDefinition => ({
+  regulatoryMode: 'STANDARD',
   profile: 'DIGITAL',
   fieldSchema: {
     schemaVersion: '1.0',
@@ -329,6 +334,7 @@ const giftBoxField = (
 });
 
 const giftBoxDefinition = (): TemplateDefinition => ({
+  regulatoryMode: 'STANDARD',
   profile: 'GIFT_BOX',
   fieldSchema: {
     schemaVersion: '1.0',
@@ -376,6 +382,7 @@ const messageFrom = (value: unknown, fallback: string): string => {
 };
 
 const definitionOf = (value: Template): TemplateDefinition => ({
+  regulatoryMode: value.regulatoryMode ?? 'STANDARD',
   profile: value.profile ?? 'GENERIC',
   fieldSchema: value.fieldSchema,
   skuDimensions: value.skuDimensions,

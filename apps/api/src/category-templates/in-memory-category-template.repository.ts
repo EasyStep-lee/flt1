@@ -175,6 +175,7 @@ export class InMemoryCategoryTemplateRepository implements CategoryTemplateRepos
       version,
       revision: 0,
       status: 'DRAFT',
+      regulatoryMode: command.regulatoryMode,
       profile: command.profile,
       fieldSchema: clone(command.fieldSchema),
       skuDimensions: clone(command.skuDimensions),
@@ -388,6 +389,7 @@ export class InMemoryCategoryTemplateRepository implements CategoryTemplateRepos
 }
 
 export const defaultTemplateDefinition = (): CategoryTemplateDefinition => ({
+  regulatoryMode: 'STANDARD',
   profile: 'GENERIC',
   fieldSchema: {
     schemaVersion: '1.0',

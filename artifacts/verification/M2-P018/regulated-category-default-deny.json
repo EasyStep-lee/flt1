@@ -1,0 +1,113 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "M2-P018",
+  "p0": ["P0-018"],
+  "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+  "status": "LOCAL_PASS",
+  "branch": "codex/m2-regulated-default-deny",
+  "baseCommit": "56bd581dc4ccd88ab2620445a417beec87c5c1ad",
+  "implementationCommit": null,
+  "scope": {
+    "goal": "未配置当前合规HIGH_RISK模板、公司显式启用、未过期公司资质和未过期商品资质时，强监管分类默认不可提交、不可审批物化且不可进入公开目录",
+    "nonGoals": [
+      "M2-P019上架商品分级调价",
+      "订单、支付、退款、库存预扣或配送",
+      "EXT-007正式分类、资质、售后或法务数据",
+      "staging、微信真机或production验收"
+    ]
+  },
+  "redEvidence": [{
+    "command": "pnpm exec vitest run --project api-contract apps/api/test/supertest/regulated-category-controls-api.test.mjs",
+    "result": "FAIL_3_OF_3",
+    "exitCode": 1,
+    "cause": "CategoryTemplate尚不接受HIGH_RISK regulatoryMode，创建模板返回422而测试期望201"
+  }],
+  "focusedGreen": {
+    "regulatedCategoryApi": "PASS_3_OF_3",
+    "contractsAndMigration": "PASS_3_OF_3",
+    "p0Playwright": "PASS_2_OF_2",
+    "relatedApiRegression": "PASS_27_OF_27",
+    "companyAdminNode": "PASS_2_OF_2",
+    "apiUnit": "PASS_56_OF_56",
+    "historicalContracts": "PASS_8_OF_8",
+    "apiBuild": "PASS",
+    "companyAdminBuild": "PASS_AFTER_STANDARD_PRESET_REPAIR",
+    "prismaValidate": "PASS",
+    "prismaMigrateDryRun": "PASS_EMPTY_2_UPGRADE_2_RESTORE_2_PRODUCT_21_CLEANUP",
+    "openApiGenerate": "PASS",
+    "behaviors": [
+      "CategoryTemplate regulatoryMode为STANDARD或HIGH_RISK且已发布版本不可改写",
+      "HIGH_RISK模板必须具备至少一项required+expiryRequired资质规则以及NOTICE和QUALIFICATIONS模块",
+      "无RegulatedCategoryControl记录等价DISABLED",
+      "启停固定COMPANY_PRODUCT_OPS会话并要求敏感操作二次验证",
+      "公司资质只接受受控对象引用；响应、历史和审计仅保留引用数和有效期摘要",
+      "启停命令按scope+Idempotency-Key重放；不同请求冲突；陈旧version拒绝且不追加历史",
+      "SupplierProduct提交和公司资料审批均重新校验控制状态、模板以及公司/商品资质有效期",
+      "Product物化固化商品资质有效期；公开目录查询对HIGH_RISK执行数据库层默认拒绝",
+      "停用后待审批商品立即不能通过；公开目录不返回供应价、资质对象引用或内部身份字段",
+      "P019与M3以后能力保持锁定"
+    ]
+  },
+  "fullVerification": {
+    "status": "PENDING_CLEAN_HEAD",
+    "preCommitAttempt": {
+      "result": "EXPECTED_FAIL_OPENAPI_DIFF",
+      "exitCode": 1,
+      "passedSteps": ["workspace", "lint", "openapi-generate"],
+      "cause": "确定性OpenAPI与生成类型是本切片未提交变更；openapi-diff按设计要求其与HEAD字节一致",
+      "next": "先提交原子实现，再在干净head重跑pnpm verify"
+    }
+  },
+  "dataAndMigration": {
+    "migration": "packages/db/prisma/migrations/20260811110000_m2_regulated_category_controls/migration.sql",
+    "change": "新增HIGH_RISK模式、公司控制/历史/幂等命令、SupplierProduct和Product资质有效期以及公开目录关联约束",
+    "backfill": "EXISTING_TEMPLATES_DEFAULT_STANDARD_NO_FORMAL_REGULATED_DATA",
+    "initialDryRun": "FAIL_SCHEMA_DRIFT_FOR_TWO_FOREIGN_KEY_NAMES_AND_UPDATED_AT_DEFAULT",
+    "repair": "迁移外键名与Prisma默认一致并移除updated_at数据库默认；原演练随后完整通过",
+    "rollback": "应用回退前停用所有强监管控制；已应用共享迁移不回改，保留历史并用后续前向迁移修复"
+  },
+  "contractsAndPages": {
+    "api": [
+      "GET /v1/company/regulated-category-controls",
+      "POST /v1/company/regulated-category-controls/{categoryId}/enable",
+      "POST /v1/company/regulated-category-controls/{categoryId}/disable"
+    ],
+    "companyPage": "PAGE-005 /company-admin/workspaces/product-ops 内PAGE-M2-018独立区块",
+    "openApi": "packages/contracts/openapi.json",
+    "generatedTypes": "packages/contracts/types.ts"
+  },
+  "environmentBoundary": {
+    "local": "LOCAL_PASS_FOCUSED",
+    "ci": "NOT_EXECUTED_CURRENT_TASK",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_EXECUTED",
+    "production": "NOT_EXECUTED",
+    "formalRegulatedData": "BLOCKED_EXTERNAL_EXT_007"
+  },
+  "github": {
+    "repository": "EasyStep-lee/flt1",
+    "issue": 61,
+    "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/61",
+    "pullRequest": null,
+    "pullRequestState": "NOT_CREATED",
+    "review": "NOT_EXECUTED",
+    "merge": "NOT_EXECUTED",
+    "previousSlice": {
+      "taskId": "M2-P017",
+      "pullRequest": 60,
+      "exactHead": "59b020e38d38dc2a8d5d1e1009a2fdc8c5558d30",
+      "pullRequestCiRun": 31479644045,
+      "mergeCommit": "56bd581dc4ccd88ab2620445a417beec87c5c1ad",
+      "mainCiRun": 31480997963,
+      "status": "CI_PASS"
+    }
+  },
+  "risks": [
+    "EXT-007正式分类、公司/商品资质有效期和售后法务口径仍需授权运营/合规确认",
+    "测试对象引用仅证明代码门禁，不代表正式资质资料",
+    "当前只完成P0-018，不得宣称P0-019或M2阶段完成",
+    "完整clean-head verify与PR精确head CI尚未执行"
+  ],
+  "nextAllowedTask": "M2-P018_CLEAN_HEAD_VERIFY",
+  "m2p019StartAllowed": false
+}

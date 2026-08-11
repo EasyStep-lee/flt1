@@ -44,6 +44,7 @@ export interface SupplierProductRecord {
     readonly schemaVersion: '1.0';
     readonly references: readonly string[];
   };
+  readonly qualificationValidUntil: string | null;
   readonly isRetailEnabled: boolean;
   readonly isEnterpriseProcurementEnabled: boolean;
   readonly enterpriseMinOrderQty: number;
@@ -79,6 +80,7 @@ export interface ProductMaterialReviewRecord {
   readonly templateVersion: number;
   readonly attributes: JsonObject;
   readonly qualificationReferenceCount: number;
+  readonly qualificationValidUntil: string | null;
   readonly isRetailEnabled: boolean;
   readonly isEnterpriseProcurementEnabled: boolean;
   readonly preparationMinutes: number;

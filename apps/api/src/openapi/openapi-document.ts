@@ -34,6 +34,11 @@ import {
   type CategoryTemplateRepository,
 } from '../category-templates/category-template.repository.js';
 import {
+  REGULATED_CATEGORY_REPOSITORY,
+  type RegulatedCategoryRepository,
+} from '../regulated-categories/regulated-category.repository.js';
+import { RegulatedCategoryService } from '../regulated-categories/regulated-category.service.js';
+import {
   COMPANY_AUTH_REPOSITORY,
   type CompanyAuthRepository,
 } from '../company-auth/company-auth.repository.js';
@@ -318,6 +323,7 @@ type JsonValue =
     PublicCatalogService,
     CategoryService,
     CategoryTemplateService,
+    RegulatedCategoryService,
     DenyCompanyProductApprovalActorResolver,
     DenySupplierProductActorResolver,
     DenySupplierPricingActorResolver,
@@ -387,6 +393,19 @@ type JsonValue =
         validateCurrent: async () => ({ kind: 'TEMPLATE_VERSION_INACTIVE' }),
         categoryIsReferenced: async () => false,
       } satisfies CategoryTemplateRepository,
+    },
+    {
+      provide: REGULATED_CATEGORY_REPOSITORY,
+      useValue: {
+        list: async () => [],
+        find: async () => null,
+        enable: async () => {
+          throw new Error('OPENAPI_GENERATION_ONLY');
+        },
+        disable: async () => {
+          throw new Error('OPENAPI_GENERATION_ONLY');
+        },
+      } satisfies RegulatedCategoryRepository,
     },
     {
       provide: SUPPLIER_PRODUCT_ACTOR_RESOLVER,

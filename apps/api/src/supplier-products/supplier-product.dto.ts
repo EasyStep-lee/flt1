@@ -32,6 +32,9 @@ export class SupplierProductDraftRequestDto {
   @ApiProperty({ items: { type: 'string' }, maxItems: 50, type: [String] })
   readonly qualificationReferences!: readonly string[];
 
+  @ApiPropertyOptional({ format: 'date-time', nullable: true, type: String })
+  readonly qualificationValidUntil?: string | null;
+
   @ApiProperty({ type: Boolean })
   readonly isRetailEnabled!: boolean;
 
@@ -72,6 +75,9 @@ export class SupplierProductPatchRequestDto {
 
   @ApiPropertyOptional({ items: { type: 'string' }, maxItems: 50, type: [String] })
   readonly qualificationReferences?: readonly string[];
+
+  @ApiPropertyOptional({ format: 'date-time', nullable: true, type: String })
+  readonly qualificationValidUntil?: string | null;
 
   @ApiPropertyOptional({ type: Boolean })
   readonly isRetailEnabled?: boolean;
@@ -130,6 +136,9 @@ export class SupplierProductResponseDto {
 
   @ApiProperty({ minimum: 0, type: Number })
   readonly qualificationReferenceCount!: number;
+
+  @ApiProperty({ format: 'date-time', nullable: true, required: true, type: String })
+  readonly qualificationValidUntil!: string | null;
 
   @ApiProperty({ type: Boolean })
   readonly isRetailEnabled!: boolean;

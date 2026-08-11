@@ -51,14 +51,27 @@ test('P0-010 Prisma query fixes supplier, company, sale status, retail channel a
     status: 'ACTIVE',
     company: { status: 'ACTIVE' },
   });
-  assert.deepEqual(captured.findMany.where, {
+  assert.deepEqual({ ...captured.findMany.where, OR: undefined }, {
     supplierId,
     saleStatus: 'ACTIVE',
     isRetailEnabled: true,
     company: { status: 'ACTIVE' },
     skus: { some: { status: 'ACTIVE' } },
     id: { not: excludedProductId },
+    OR: undefined,
   });
+  assert.deepEqual(captured.findMany.where.OR[0], {
+    template: { regulatoryMode: 'STANDARD' },
+  });
+  assert.equal(captured.findMany.where.OR[1].template.regulatoryMode, 'HIGH_RISK');
+  assert.ok(captured.findMany.where.OR[1].qualificationValidUntil.gt instanceof Date);
+  assert.equal(
+    captured.findMany.where.OR[1].category.regulatedControl.is.status,
+    'ENABLED',
+  );
+  assert.ok(
+    captured.findMany.where.OR[1].category.regulatedControl.is.companyQualificationValidUntil.gt instanceof Date,
+  );
   assert.equal(captured.findMany.skip, 20);
   assert.equal(captured.findMany.take, 20);
   assert.deepEqual(result, {

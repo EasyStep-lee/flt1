@@ -360,6 +360,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/company/regulated-category-controls": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List company-scoped high-risk controls */
+        get: operations["regulatedCategoryControls.list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/company/regulated-category-controls/{categoryId}/disable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Disable a high-risk category after second verification */
+        post: operations["regulatedCategoryControls.disable"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/company/regulated-category-controls/{categoryId}/enable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Enable a high-risk category after second verification */
+        post: operations["regulatedCategoryControls.enable"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/company/suppliers": {
         parameters: {
             query?: never;
@@ -643,7 +694,7 @@ export interface components {
              * @example RESOURCE_NOT_FOUND
              * @enum {string}
              */
-            code: "ACCESS_DENIED" | "AUTHENTICATION_REQUIRED" | "INTERNAL_ERROR" | "REQUEST_INVALID" | "RESOURCE_NOT_FOUND" | "SERVICE_UNAVAILABLE" | "FORBIDDEN_CAPABILITY" | "PAYEE_FORBIDDEN" | "SELLER_IDENTITY_FORBIDDEN" | "SINGLE_MERCHANT_VIOLATION" | "ACTOR_SPOOFED" | "ACCOUNT_TYPE_INVALID" | "APPROVAL_VERSION_CONFLICT" | "DATA_SCOPE_FORBIDDEN" | "FIELD_FORBIDDEN" | "IDEMPOTENCY_CONFLICT" | "SECOND_VERIFICATION_REQUIRED" | "STATE_TRANSITION_INVALID" | "SUPPLIER_DUPLICATE" | "SUPPLIER_SCOPE_FORBIDDEN" | "VALIDATION_FAILED" | "VERSION_CONFLICT" | "WORKSPACE_FORBIDDEN" | "ACCOUNT_SUSPENDED" | "AUTH_INVALID" | "AUTH_SESSION_REVOKED" | "RATE_LIMITED" | "SUPPLIER_NOT_ACTIVE" | "WORKSPACE_MENU_VIOLATION" | "WORKSPACE_MODULE_NOT_FOUND" | "WORKSPACE_SELECTION_REQUIRED" | "WORKSPACE_SESSION_CONFLICT" | "AUDIT_IMMUTABLE" | "AUDIT_REQUIRED" | "EXPORT_APPROVAL_REQUIRED" | "REQUEST_ID_REQUIRED" | "SAME_NATURAL_PERSON_REVIEW" | "SECOND_REVIEW_REQUIRED" | "APPROVAL_NOT_FOUND" | "APPROVAL_STATE_INVALID" | "IDEMPOTENCY_KEY_CONFLICT" | "IDEMPOTENCY_KEY_REQUIRED" | "APPAREL_HISTORY_REWRITE" | "APPAREL_REQUIRED_FIELD_MISSING" | "BUNDLE_SCHEMA_INVALID" | "DIGITAL_HISTORY_REWRITE" | "DIGITAL_MODEL_DUPLICATE" | "DIGITAL_REQUIRED_FIELD_MISSING" | "CATEGORY_DISABLED" | "CATEGORY_DUPLICATE" | "CATEGORY_LEVEL_INVALID" | "CATEGORY_NOT_FOUND" | "CATEGORY_NOT_LEAF" | "CATEGORY_PARENT_INVALID" | "CATEGORY_REFERENCED" | "CATEGORY_TEMPLATE_INVALID" | "PRICE_FIELD_FORBIDDEN" | "PRICE_INVALID" | "INITIAL_PRICE_REVIEW_PENDING" | "INITIAL_PRICE_STATE_INVALID" | "PRODUCT_APPROVAL_INCOMPLETE" | "PRODUCT_NOT_FOUND" | "PRODUCT_NOT_SALEABLE" | "SUPPLIER_INACTIVE" | "SUPPLIER_PRODUCT_DUPLICATE" | "SUPPLIER_PRODUCT_NOT_FOUND" | "SUPPLIER_SKU_DUPLICATE" | "SELF_APPROVAL_FORBIDDEN" | "SKU_DIMENSION_DUPLICATE" | "FRESH_HISTORY_REWRITE" | "FRESH_REQUIRED_FIELD_MISSING" | "FRESH_WEIGHT_RULE_INVALID" | "REGULATORY_WARNING_REQUIRED" | "TEMPLATE_DATA_INVALID" | "TEMPLATE_DRAFT_EXISTS" | "TEMPLATE_IMMUTABLE" | "TEMPLATE_NOT_FOUND" | "TEMPLATE_SCHEMA_INVALID" | "TEMPLATE_VERSION_INACTIVE" | "TEMPLATE_VERSION_IMMUTABLE";
+            code: "ACCESS_DENIED" | "AUTHENTICATION_REQUIRED" | "INTERNAL_ERROR" | "REQUEST_INVALID" | "RESOURCE_NOT_FOUND" | "SERVICE_UNAVAILABLE" | "FORBIDDEN_CAPABILITY" | "PAYEE_FORBIDDEN" | "SELLER_IDENTITY_FORBIDDEN" | "SINGLE_MERCHANT_VIOLATION" | "ACTOR_SPOOFED" | "ACCOUNT_TYPE_INVALID" | "APPROVAL_VERSION_CONFLICT" | "DATA_SCOPE_FORBIDDEN" | "FIELD_FORBIDDEN" | "IDEMPOTENCY_CONFLICT" | "SECOND_VERIFICATION_REQUIRED" | "STATE_TRANSITION_INVALID" | "SUPPLIER_DUPLICATE" | "SUPPLIER_SCOPE_FORBIDDEN" | "VALIDATION_FAILED" | "VERSION_CONFLICT" | "WORKSPACE_FORBIDDEN" | "ACCOUNT_SUSPENDED" | "AUTH_INVALID" | "AUTH_SESSION_REVOKED" | "RATE_LIMITED" | "SUPPLIER_NOT_ACTIVE" | "WORKSPACE_MENU_VIOLATION" | "WORKSPACE_MODULE_NOT_FOUND" | "WORKSPACE_SELECTION_REQUIRED" | "WORKSPACE_SESSION_CONFLICT" | "AUDIT_IMMUTABLE" | "AUDIT_REQUIRED" | "EXPORT_APPROVAL_REQUIRED" | "REQUEST_ID_REQUIRED" | "SAME_NATURAL_PERSON_REVIEW" | "SECOND_REVIEW_REQUIRED" | "APPROVAL_NOT_FOUND" | "APPROVAL_STATE_INVALID" | "IDEMPOTENCY_KEY_CONFLICT" | "IDEMPOTENCY_KEY_REQUIRED" | "APPAREL_HISTORY_REWRITE" | "APPAREL_REQUIRED_FIELD_MISSING" | "BUNDLE_SCHEMA_INVALID" | "DIGITAL_HISTORY_REWRITE" | "DIGITAL_MODEL_DUPLICATE" | "DIGITAL_REQUIRED_FIELD_MISSING" | "CATEGORY_DISABLED" | "CATEGORY_DUPLICATE" | "CATEGORY_LEVEL_INVALID" | "CATEGORY_NOT_FOUND" | "CATEGORY_NOT_LEAF" | "CATEGORY_PARENT_INVALID" | "CATEGORY_REFERENCED" | "CATEGORY_TEMPLATE_INVALID" | "PRICE_FIELD_FORBIDDEN" | "PRICE_INVALID" | "INITIAL_PRICE_REVIEW_PENDING" | "INITIAL_PRICE_STATE_INVALID" | "PRODUCT_APPROVAL_INCOMPLETE" | "PRODUCT_NOT_FOUND" | "PRODUCT_NOT_SALEABLE" | "SUPPLIER_INACTIVE" | "SUPPLIER_PRODUCT_DUPLICATE" | "SUPPLIER_PRODUCT_NOT_FOUND" | "SUPPLIER_SKU_DUPLICATE" | "SELF_APPROVAL_FORBIDDEN" | "SKU_DIMENSION_DUPLICATE" | "FRESH_HISTORY_REWRITE" | "FRESH_REQUIRED_FIELD_MISSING" | "FRESH_WEIGHT_RULE_INVALID" | "REGULATORY_WARNING_REQUIRED" | "REGULATED_CATEGORY_DISABLED" | "QUALIFICATION_REQUIRED" | "TEMPLATE_DATA_INVALID" | "TEMPLATE_DRAFT_EXISTS" | "TEMPLATE_IMMUTABLE" | "TEMPLATE_NOT_FOUND" | "TEMPLATE_SCHEMA_INVALID" | "TEMPLATE_VERSION_INACTIVE" | "TEMPLATE_VERSION_IMMUTABLE";
             /** @example Resource was not found */
             message: string;
             /** @example /missing */
@@ -753,6 +804,11 @@ export interface components {
              */
             profile: "FOOD" | "FRESH" | "APPAREL" | "DIGITAL" | "GIFT_BOX" | "GENERIC";
             qualificationRules: components["schemas"]["TemplateQualificationRulesDto"];
+            /**
+             * @default STANDARD
+             * @enum {string}
+             */
+            regulatoryMode: "STANDARD" | "HIGH_RISK";
             skuDimensions: components["schemas"]["TemplateSkuDimensionsDto"];
         };
         CategoryTemplateDefinitionDto: {
@@ -765,6 +821,11 @@ export interface components {
              */
             profile: "FOOD" | "FRESH" | "APPAREL" | "DIGITAL" | "GIFT_BOX" | "GENERIC";
             qualificationRules: components["schemas"]["TemplateQualificationRulesDto"];
+            /**
+             * @default STANDARD
+             * @enum {string}
+             */
+            regulatoryMode: "STANDARD" | "HIGH_RISK";
             skuDimensions: components["schemas"]["TemplateSkuDimensionsDto"];
         };
         CategoryTemplateListResponseDto: {
@@ -784,6 +845,11 @@ export interface components {
              */
             profile: "FOOD" | "FRESH" | "APPAREL" | "DIGITAL" | "GIFT_BOX" | "GENERIC";
             qualificationRules: components["schemas"]["TemplateQualificationRulesDto"];
+            /**
+             * @default STANDARD
+             * @enum {string}
+             */
+            regulatoryMode: "STANDARD" | "HIGH_RISK";
             revision: number;
             skuDimensions: components["schemas"]["TemplateSkuDimensionsDto"];
         };
@@ -808,6 +874,11 @@ export interface components {
             /** Format: date-time */
             publishedAt: string | null;
             qualificationRules: components["schemas"]["TemplateQualificationRulesDto"];
+            /**
+             * @default STANDARD
+             * @enum {string}
+             */
+            regulatoryMode: "STANDARD" | "HIGH_RISK";
             /** Format: date-time */
             retiredAt: string | null;
             revision: number;
@@ -1131,6 +1202,8 @@ export interface components {
             name: string;
             preparationMinutes: number;
             qualificationReferenceCount: number;
+            /** Format: date-time */
+            qualificationValidUntil: string | null;
             reviewOpinion?: string | null;
             skus: components["schemas"]["ProductMaterialReviewSkuDto"][];
             /** @enum {string} */
@@ -1248,6 +1321,38 @@ export interface components {
             supplierId: string;
             total: number;
         };
+        RegulatedCategoryControlPageDto: {
+            items: components["schemas"]["RegulatedCategoryControlResponseDto"][];
+            total: number;
+        };
+        RegulatedCategoryControlResponseDto: {
+            /** Format: uuid */
+            categoryId: string;
+            companyQualificationReferenceCount: number;
+            /** Format: date-time */
+            disabledAt?: string | null;
+            /** Format: date-time */
+            enabledAt?: string | null;
+            /** Format: uuid */
+            id: string;
+            /** Format: date-time */
+            qualificationValidUntil: string | null;
+            /** @enum {string} */
+            status: "DISABLED" | "ENABLED";
+            version: number;
+        };
+        RegulatedCategoryDisableRequestDto: {
+            reason: string;
+            secondVerificationCode: string;
+            version: number;
+        };
+        RegulatedCategoryEnableRequestDto: {
+            companyQualificationReferences: string[];
+            /** Format: date-time */
+            qualificationValidUntil: string;
+            secondVerificationCode: string;
+            version: number;
+        };
         SelectWorkspaceRequestDto: {
             secondVerificationCode?: string;
             selectionNonce: string;
@@ -1345,6 +1450,8 @@ export interface components {
             name: string;
             preparationMinutes: number;
             qualificationReferences: string[];
+            /** Format: date-time */
+            qualificationValidUntil?: string | null;
             skus: components["schemas"]["SupplierProductSkuDraftRequestDto"][];
             templateVersion: number;
         };
@@ -1362,6 +1469,8 @@ export interface components {
             name?: string;
             preparationMinutes?: number;
             qualificationReferences?: string[];
+            /** Format: date-time */
+            qualificationValidUntil?: string | null;
             skus?: components["schemas"]["SupplierProductSkuDraftRequestDto"][];
             templateVersion?: number;
             version: number;
@@ -1390,6 +1499,8 @@ export interface components {
             name: string;
             preparationMinutes: number;
             qualificationReferenceCount: number;
+            /** Format: date-time */
+            qualificationValidUntil: string | null;
             skus: components["schemas"]["SupplierProductSkuResponseDto"][];
             /** @enum {string} */
             status: "DRAFT" | "PENDING_MATERIAL_REVIEW" | "CORRECTION_REQUIRED" | "MATERIAL_APPROVED" | "ACTIVE" | "OFF_SHELF" | "REJECTED" | "ARCHIVED";
@@ -2909,6 +3020,183 @@ export interface operations {
                 };
             };
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
+    "regulatedCategoryControls.list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RegulatedCategoryControlPageDto"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
+    "regulatedCategoryControls.disable": {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                categoryId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RegulatedCategoryDisableRequestDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RegulatedCategoryControlResponseDto"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
+    "regulatedCategoryControls.enable": {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                categoryId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RegulatedCategoryEnableRequestDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RegulatedCategoryControlResponseDto"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            428: {
                 headers: {
                     [name: string]: unknown;
                 };

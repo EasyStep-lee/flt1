@@ -30,6 +30,7 @@ export interface SupplierProductDraftInput {
   readonly brand: string | null;
   readonly attributes: JsonObject;
   readonly qualificationReferences: readonly string[];
+  readonly qualificationValidUntil: string | null;
   readonly isRetailEnabled: boolean;
   readonly isEnterpriseProcurementEnabled: boolean;
   readonly enterpriseMinOrderQty: number;
@@ -163,6 +164,18 @@ const boolean = (value: unknown, field: string): boolean => {
   return value;
 };
 
+const nullableDateTime = (value: unknown, field: string): string | null => {
+  if (value === null || value === undefined || value === '') return null;
+  if (typeof value !== 'string') {
+    throw new SafeApiError(422, 'VALIDATION_FAILED', `${field} must be an ISO date-time`);
+  }
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    throw new SafeApiError(422, 'VALIDATION_FAILED', `${field} must be an ISO date-time`);
+  }
+  return parsed.toISOString();
+};
+
 export const normalizeSupplierProductDraft = (
   value: unknown,
 ): SupplierProductDraftInput => {
@@ -179,6 +192,7 @@ export const normalizeSupplierProductDraft = (
     'name',
     'preparationMinutes',
     'qualificationReferences',
+    'qualificationValidUntil',
     'skus',
     'templateVersion',
   ]);
@@ -260,6 +274,10 @@ export const normalizeSupplierProductDraft = (
     brand: text(input.brand, 'brand', 120, { nullable: true }),
     attributes: validateJsonValue(input.attributes, 'attributes'),
     qualificationReferences,
+    qualificationValidUntil: nullableDateTime(
+      input.qualificationValidUntil,
+      'qualificationValidUntil',
+    ),
     isRetailEnabled: boolean(input.isRetailEnabled, 'isRetailEnabled'),
     isEnterpriseProcurementEnabled,
     enterpriseMinOrderQty,
@@ -285,6 +303,7 @@ export const normalizeSupplierProductPatch = (
     'name',
     'preparationMinutes',
     'qualificationReferences',
+    'qualificationValidUntil',
     'skus',
     'templateVersion',
   ]);
@@ -322,6 +341,12 @@ export const normalizeSupplierProductPatch = (
       }
       return reference;
     });
+  }
+  if ('qualificationValidUntil' in input) {
+    patch.qualificationValidUntil = nullableDateTime(
+      input.qualificationValidUntil,
+      'qualificationValidUntil',
+    );
   }
   if ('isRetailEnabled' in input) {
     patch.isRetailEnabled = boolean(input.isRetailEnabled, 'isRetailEnabled');
