@@ -50,9 +50,28 @@
     ]
   },
   "fullVerification": {
-    "status": "NOT_EXECUTED_AFTER_EVIDENCE_SYNC",
+    "status": "PASS_17_OF_17",
     "command": "pnpm verify",
-    "note": "先提交证据树后在该提交执行完整17步门禁；通过后再登记实际报告，当前不得提前宣称"
+    "commit": "3a0f3fece98ede567afb0c1710e5c6c5ce0cd69c",
+    "startedAt": "2026-08-11T02:02:26.914Z",
+    "endedAt": "2026-08-11T02:13:36.457Z",
+    "report": "artifacts/test-results/verification/pnpm-verify.json",
+    "p0E2E": "PASS_39_OF_39",
+    "migrationIntegrity": "PASS_17_OF_17",
+    "migrationRehearsal": "PASS_EMPTY_2_UPGRADE_2_RESTORE_2_PRODUCT_17_CLEANUP",
+    "secretsScan": "PASS_657_TRACKED_FILES",
+    "attempts": [
+      {
+        "commit": "86f0fd9778e0912fa8ca7edd2a6c5c5f0642056c",
+        "status": "FAIL_LINT",
+        "cause": "m1-gate-preflight契约中两个P012历史常量在状态推进后未使用"
+      },
+      {
+        "commit": "3a0f3fece98ede567afb0c1710e5c6c5ce0cd69c",
+        "status": "PASS_17_OF_17",
+        "cause": null
+      }
+    ]
   },
   "dataAndMigration": {
     "migration": "packages/db/prisma/migrations/20260810213000_m2_fresh_template_profile/migration.sql",

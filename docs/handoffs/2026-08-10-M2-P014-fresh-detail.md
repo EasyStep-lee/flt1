@@ -2,7 +2,7 @@
 
 ## 结论与边界
 
-- 结论：`LOCAL_PASS`；行为 RED、最小实现、focused API/小程序/P0、全量 Supertest、Prisma 校验、真实 MySQL 迁移演练和 OpenAPI 确定性检查已通过。最终证据树上的完整 `pnpm verify`、Draft PR、PR CI、人工合并、合并后 `main` CI、staging、真机和 production 尚未执行。
+- 结论：`LOCAL_PASS`；行为 RED、最小实现、focused API/小程序/P0、全量 Supertest、Prisma 校验、真实 MySQL 迁移演练、OpenAPI 确定性检查及完整 `pnpm verify` 17/17 已通过。Draft PR、PR CI、人工合并、合并后 `main` CI、staging、真机和 production 尚未执行。
 - 方案 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`。
 - 仓库：`EasyStep-lee/flt1`；基线 `main@81e3808c7a40824999d1ea70dd9706024e979370`；分支 `codex/m2-fresh-detail`；实现提交 `6653da31537e8daa76c4d15d07dcaeb9ed634680`；Issue [#53](https://github.com/EasyStep-lee/flt1/issues/53)。
 - 唯一范围：`P0-014` 生鲜模板、供应商生鲜字段校验、公开生鲜详情 DTO 白名单、公司模板预置及用户小程序生鲜详情区块。
@@ -45,9 +45,10 @@
 | 迁移演练 | empty=2、upgrade=2、restore=2、product=17、cleanup=PASS | PASS |
 | OpenAPI 生成/一致性 | 字节一致 | PASS |
 | oasdiff breaking | 0 errors、405 warnings，退出码 0 | PASS_WITH_WARNINGS |
-| 完整门禁 | 最终证据提交后执行 `pnpm verify` | NOT_EXECUTED |
+| 完整门禁首次运行 | lint 拒绝两个未使用的 P012 历史常量 | FAIL（已修复） |
+| 完整门禁重跑 | `pnpm verify` 17/17；P0 E2E 39/39；迁移完整性 17/17；秘密扫描 657 个跟踪文件 | PASS |
 
-切片机器证据为 `artifacts/verification/M2-P014/fresh-detail.json`；聚合报告位置为 `artifacts/test-results/verification/pnpm-verify.json`，但必须以本切片最终证据提交的新鲜运行覆盖后才可登记通过。
+完整门禁基于 `3a0f3fece98ede567afb0c1710e5c6c5ce0cd69c`，开始 `2026-08-11T02:02:26.914Z`，结束 `2026-08-11T02:13:36.457Z`，退出码 0；聚合报告为 `artifacts/test-results/verification/pnpm-verify.json`，切片机器证据为 `artifacts/verification/M2-P014/fresh-detail.json`。
 
 ## 环境、风险与回滚
 
@@ -59,6 +60,6 @@
 
 ## GitHub 门禁与下一步
 
-- 当前尚未创建 PR；下一动作仅为提交最终证据、运行完整门禁、推送分支并创建 Draft PR。
+- 当前尚未创建 PR；下一动作仅为提交最终证据、推送分支并创建 Draft PR。
 - Draft PR 创建后读取精确 head 的 Actions、评论、review 和 merge 状态。
 - 未经用户对届时精确 head 的明确授权，不转 Ready、不合并；合并后 `main` CI 成功前不得开始 M2-P015。
