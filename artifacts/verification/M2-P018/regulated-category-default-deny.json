@@ -3,7 +3,7 @@
   "taskId": "M2-P018",
   "p0": ["P0-018"],
   "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
-  "status": "LOCAL_PASS",
+  "status": "CI_PASS",
   "branch": "codex/m2-regulated-default-deny",
   "baseCommit": "56bd581dc4ccd88ab2620445a417beec87c5c1ad",
   "implementationCommit": "b026a720e74df968c0ccf1e7a38975fe2bd2c281",
@@ -124,7 +124,7 @@
   },
   "environmentBoundary": {
     "local": "LOCAL_PASS_FULL_VERIFY_17_OF_17",
-    "ci": "NOT_EXECUTED_CURRENT_TASK",
+    "ci": "CI_PASS_RUN_31490934927_HEAD_A341C9164C7462457AA31ED509FE574EA77ED4F9",
     "staging": "NOT_EXECUTED",
     "device": "NOT_EXECUTED",
     "production": "NOT_EXECUTED",
@@ -134,10 +134,15 @@
     "repository": "EasyStep-lee/flt1",
     "issue": 61,
     "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/61",
-    "pullRequest": null,
-    "pullRequestState": "NOT_CREATED",
+    "pullRequest": 62,
+    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/62",
+    "pullRequestState": "DRAFT",
+    "exactHead": "a341c9164c7462457aa31ed509fe574ea77ed4f9",
+    "exactHeadCi": "CI_PASS_RUN_31490934927_JOB_93777025266",
+    "exactHeadCiCompletedAt": "2026-08-11T12:30:31Z",
     "review": "NOT_EXECUTED",
     "merge": "NOT_EXECUTED",
+    "evidenceSyncBoundary": "本文件所在证据同步提交将产生新head；该新head必须重新通过GitHub Actions并完成精确head自评，不能继承a341c91的运行结论",
     "previousSlice": {
       "taskId": "M2-P017",
       "pullRequest": 60,
@@ -152,8 +157,8 @@
     "EXT-007正式分类、公司/商品资质有效期和售后法务口径仍需授权运营/合规确认",
     "测试对象引用仅证明代码门禁，不代表正式资质资料",
     "当前只完成P0-018，不得宣称P0-019或M2阶段完成",
-    "干净head b026a72的完整verify已通过；PR精确head CI、自评和人工合并尚未执行"
+    "首轮PR精确head a341c91的CI已通过；证据同步新head、自评和人工合并尚未完成"
   ],
-  "nextAllowedTask": "M2-P018_DRAFT_PR_AND_EXACT_HEAD_CI",
+  "nextAllowedTask": "M2-P018_FINAL_EVIDENCE_HEAD_CI_AND_SELF_REVIEW",
   "m2p019StartAllowed": false
 }

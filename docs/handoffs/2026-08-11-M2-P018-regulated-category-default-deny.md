@@ -2,9 +2,9 @@
 
 ## 结论与边界
 
-- 当前结论：`LOCAL_PASS / IN_PROGRESS`。P018 已完成真实 RED、最小实现、focused API/契约/P0 E2E、OpenAPI、MySQL 迁移演练，并在干净 head `b026a720e74df968c0ccf1e7a38975fe2bd2c281` 完成完整 `pnpm verify` 17/17；Draft PR、精确 head CI、自评和人工合并仍待执行。
+- 当前结论：`CI_PASS / IN_PROGRESS`。P018 已完成真实 RED、最小实现、focused API/契约/P0 E2E、OpenAPI、MySQL 迁移演练、干净 head `b026a720e74df968c0ccf1e7a38975fe2bd2c281` 的完整 `pnpm verify` 17/17，以及 Draft PR #62 首轮精确 head `a341c9164c7462457aa31ed509fe574ea77ed4f9` 的 Actions；本次证据同步会产生新 head，仍须复核其 CI 和自评，且未经人工精确 head 授权不得转 Ready 或合并。
 - 方案 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`。
-- 仓库：`EasyStep-lee/flt1`；基线 `main@56bd581dc4ccd88ab2620445a417beec87c5c1ad`；分支 `codex/m2-regulated-default-deny`；Issue [#61](https://github.com/EasyStep-lee/flt1/issues/61)。
+- 仓库：`EasyStep-lee/flt1`；基线 `main@56bd581dc4ccd88ab2620445a417beec87c5c1ad`；分支 `codex/m2-regulated-default-deny`；Issue [#61](https://github.com/EasyStep-lee/flt1/issues/61)；Draft PR [#62](https://github.com/EasyStep-lee/flt1/pull/62)。
 - 唯一范围：`P0-018` 强监管模板、公司显式开关、资质有效期、商品提交/审批/公开目录默认拒绝、审计和公司商品运营独立区块。
 - 明确未进入：`P0-019`、订单、支付、退款、库存预扣、配送、正式资质录入、staging、真机和生产。
 
@@ -72,6 +72,6 @@
 
 ## GitHub 门禁与唯一下一步
 
-- P018 当前尚无 PR；首个实现提交为 `28d592f102c602dbcce00b335e70c16eec101dd3`，本地完整门禁通过提交为 `b026a720e74df968c0ccf1e7a38975fe2bd2c281`。
-- 唯一下一步是创建 Draft PR，读取精确 head Actions、未解决评论和合并状态并完成自评。
+- Draft PR #62 首轮 head `a341c9164c7462457aa31ed509fe574ea77ed4f9` 对应 Actions run [31490934927](https://github.com/EasyStep-lee/flt1/actions/runs/31490934927)、job `93777025266`，于 `2026-08-11T12:30:31Z` 成功；当时 PR 可合并且无评论、review 或 unresolved thread。
+- 本次证据同步提交会产生不同于 `a341c91` 的新 head；唯一下一步是让该新 head 重新通过 Actions，并以自评评论绑定最终 head 后停在人工合并门禁。
 - 未获用户对最终精确 head 的明确授权前，不转 Ready、不合并；合并后 main CI 成功前不得开始 M2-P019。

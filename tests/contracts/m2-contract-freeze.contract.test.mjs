@@ -418,10 +418,10 @@ test('machine control preserves the M2 freeze while later slices advance one gat
   assert.equal(m2p017.PullRequest, 'https://github.com/EasyStep-lee/flt1/pull/60');
   assert.equal(m2p017.CI, 'CI_PASS');
   assert.equal(m2p018.Status, 'IN_PROGRESS');
-  assert.equal(m2p018.EvidenceStatus, 'LOCAL_PASS');
+  assert.equal(m2p018.EvidenceStatus, 'CI_PASS');
   assert.equal(m2p018.GitHubIssue, 'https://github.com/EasyStep-lee/flt1/issues/61');
   assert.equal(m2p018.Branch, 'codex/m2-regulated-default-deny');
-  assert.equal(m2p018.CI, 'NOT_EXECUTED');
+  assert.equal(m2p018.CI, 'CI_PASS');
   assert.equal(laterM2Tasks.every(({ Status }) => Status === 'NOT_STARTED'), true);
 
   const m1Stage = stages.find(({ Stage }) => Stage === 'M1');

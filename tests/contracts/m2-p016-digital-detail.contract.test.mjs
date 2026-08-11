@@ -38,7 +38,7 @@ test('P0-016 retains DIGITAL in category-template profiles and safe errors', () 
   assert.match(JSON.stringify(openApi.components.schemas), /DIGITAL_HISTORY_REWRITE/u);
 });
 
-test('M2-P016 records its merged-main gate while P017 remains the only active slice', async () => {
+test('M2-P016 records its merged-main gate while P018 remains the only active slice', async () => {
   const [state, evidence, taskLedger, p0Ledger, pageLedger, apiLedger, handoff] =
     await Promise.all([
       readFile(path.join(executionPack, '16-项目状态.json'), 'utf8').then(JSON.parse),
@@ -63,9 +63,12 @@ test('M2-P016 records its merged-main gate while P017 remains the only active sl
   assert.equal(state.github.currentTaskDelivery.taskId, 'M2-P018');
   assert.equal(state.github.currentTaskDelivery.issue, 61);
   assert.equal(state.github.currentTaskDelivery.branch, 'codex/m2-regulated-default-deny');
-  assert.equal(state.github.currentTaskDelivery.exactHeadCi, 'NOT_EXECUTED');
-  assert.equal(state.github.currentTaskDelivery.pullRequest, null);
-  assert.equal(state.github.currentTaskDelivery.pullRequestState, 'NOT_CREATED');
+  assert.equal(
+    state.github.currentTaskDelivery.exactHeadCi,
+    'CI_PASS_RUN_31490934927_JOB_93777025266_HEAD_A341C91',
+  );
+  assert.equal(state.github.currentTaskDelivery.pullRequest, 62);
+  assert.equal(state.github.currentTaskDelivery.pullRequestState, 'DRAFT');
   assert.equal(state.github.currentTaskDelivery.merge, 'NOT_EXECUTED');
   assert.equal(state.github.currentTaskDelivery.mainPostMergeCi, 'NOT_EXECUTED');
   assert.equal(state.github.currentTaskDelivery.m2p019StartAllowed, false);
