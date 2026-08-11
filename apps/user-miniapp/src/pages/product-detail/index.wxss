@@ -71,6 +71,7 @@
 .field-value {
   flex: 1;
   line-height: 1.55;
+  white-space: pre-wrap;
 }
 
 .field-label {

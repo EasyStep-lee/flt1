@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 
+import { assertApparelTemplateDefinition } from './apparel-template.policy.js';
 import type { CategoryTemplateDefinition } from './category-template.policy.js';
 import { assertFoodTemplateDefinition } from './food-template.policy.js';
 import { assertFreshTemplateDefinition } from './fresh-template.policy.js';
@@ -203,7 +204,14 @@ export class InMemoryCategoryTemplateRepository implements CategoryTemplateRepos
     }
     if (existing.revision !== command.expectedRevision) return { kind: 'VERSION_CONFLICT' };
     if (existing.status !== 'DRAFT') {
-      return { kind: existing.profile === 'FRESH' ? 'FRESH_HISTORY_REWRITE' : 'TEMPLATE_IMMUTABLE' };
+      return {
+        kind:
+          existing.profile === 'FRESH'
+            ? 'FRESH_HISTORY_REWRITE'
+            : existing.profile === 'APPAREL'
+              ? 'APPAREL_HISTORY_REWRITE'
+              : 'TEMPLATE_IMMUTABLE',
+      };
     }
     const value: CategoryTemplateRecord = {
       ...existing,
@@ -231,12 +239,20 @@ export class InMemoryCategoryTemplateRepository implements CategoryTemplateRepos
     }
     if (existing.revision !== command.expectedRevision) return { kind: 'VERSION_CONFLICT' };
     if (existing.status !== 'DRAFT') {
-      return { kind: existing.profile === 'FRESH' ? 'FRESH_HISTORY_REWRITE' : 'TEMPLATE_IMMUTABLE' };
+      return {
+        kind:
+          existing.profile === 'FRESH'
+            ? 'FRESH_HISTORY_REWRITE'
+            : existing.profile === 'APPAREL'
+              ? 'APPAREL_HISTORY_REWRITE'
+              : 'TEMPLATE_IMMUTABLE',
+      };
     }
     const target = await this.validateTarget(command.companyId, existing.categoryId);
     if (target) return { kind: target };
     assertFoodTemplateDefinition(existing);
     assertFreshTemplateDefinition(existing);
+    assertApparelTemplateDefinition(existing);
     const current = [...this.templates.values()].find(
       (template) =>
         template.companyId === command.companyId &&

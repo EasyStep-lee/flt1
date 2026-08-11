@@ -81,7 +81,12 @@ const pageDefinition = {
         state: 'success',
         name: response.name,
         brand: response.brand ?? '品牌信息以商品包装为准',
-        profileLabel: response.templateProfile === 'FRESH' ? '生鲜详情' : '食品详情',
+        profileLabel:
+          response.templateProfile === 'FRESH'
+            ? '生鲜详情'
+            : response.templateProfile === 'APPAREL'
+              ? '服饰详情'
+              : '食品详情',
         sellerName: response.sellerName,
         priceLabel: priceLabel(response.retailSalePrice),
         checkoutLabel:
