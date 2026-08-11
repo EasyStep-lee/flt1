@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-11T10:58:20Z",
+  "updatedAt": "2026-08-11T12:14:04Z",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -21,7 +21,7 @@
     "lastCompletedCommit": "56bd581dc4ccd88ab2620445a417beec87c5c1ad",
     "lastPassedGate": "M1-GATE",
     "prohibitedUntilGate": [
-      "M2-P018完成完整pnpm verify、Draft PR精确head CI和自评后才可请求人工合并",
+      "M2-P018已完成本地完整pnpm verify；Draft PR精确head CI和自评后才可请求人工合并",
       "M2-P018人工合并及合并后main CI完成前不得开始M2-P019"
     ],
     "persistentRestrictions": [
@@ -85,12 +85,12 @@
       "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/61",
       "branch": "codex/m2-regulated-default-deny",
       "baseCommit": "56bd581dc4ccd88ab2620445a417beec87c5c1ad",
-      "implementationCommit": null,
-      "deliveryHead": null,
+      "implementationCommit": "b026a720e74df968c0ccf1e7a38975fe2bd2c281",
+      "deliveryHead": "b026a720e74df968c0ccf1e7a38975fe2bd2c281",
       "status": "LOCAL_PASS",
-      "technicalConclusion": "LOCAL_PASS_PENDING_FULL_VERIFY_AND_PR_CI",
+      "technicalConclusion": "LOCAL_PASS_FULL_VERIFY_PENDING_DRAFT_PR_AND_EXACT_HEAD_CI",
       "blockingExternalItem": "EXT-007_FORMAL_DATA_ONLY",
-      "localFullVerify": "NOT_EXECUTED",
+      "localFullVerify": "PASS_17_OF_17_HEAD_B026A72",
       "pullRequest": null,
       "pullRequestState": "NOT_CREATED",
       "exactHeadCi": "NOT_EXECUTED",
@@ -108,7 +108,7 @@
       "mainPostMergeCiRun": 31480997963,
       "status": "CI_PASS"
     },
-    "note": "M2-P017最终head 59b020e的PR CI通过，并按用户精确head授权合并为main@56bd581；合并后main CI run 31480997963通过。M2-P018已取得RED、focused GREEN、契约、P0 E2E和MySQL迁移演练证据；完整verify、Draft PR及精确head CI待执行，P019保持锁定。"
+    "note": "M2-P017最终head 59b020e的PR CI通过，并按用户精确head授权合并为main@56bd581；合并后main CI run 31480997963通过。M2-P018已在b026a72完成RED、focused GREEN及完整pnpm verify 17/17；Draft PR、精确head CI与自评待执行，P019保持锁定。"
   },
   "evidence": {
     "local": "LOCAL_PASS",

@@ -2,7 +2,7 @@
 
 ## 结论与边界
 
-- 当前结论：`LOCAL_PASS / IN_PROGRESS`。P018 已完成真实 RED、最小实现、focused API/契约/P0 E2E、构建、OpenAPI 生成和 MySQL 迁移演练；完整 `pnpm verify` 必须在首个实现提交后的干净 head 重跑。
+- 当前结论：`LOCAL_PASS / IN_PROGRESS`。P018 已完成真实 RED、最小实现、focused API/契约/P0 E2E、OpenAPI、MySQL 迁移演练，并在干净 head `b026a720e74df968c0ccf1e7a38975fe2bd2c281` 完成完整 `pnpm verify` 17/17；Draft PR、精确 head CI、自评和人工合并仍待执行。
 - 方案 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`。
 - 仓库：`EasyStep-lee/flt1`；基线 `main@56bd581dc4ccd88ab2620445a417beec87c5c1ad`；分支 `codex/m2-regulated-default-deny`；Issue [#61](https://github.com/EasyStep-lee/flt1/issues/61)。
 - 唯一范围：`P0-018` 强监管模板、公司显式开关、资质有效期、商品提交/审批/公开目录默认拒绝、审计和公司商品运营独立区块。
@@ -48,6 +48,15 @@
 | 迁移演练修复后 | empty=2、upgrade=2、restore=2、product=21、cleanup=PASS | PASS |
 | OpenAPI generate | 确定性生成 OpenAPI 与统一类型 | PASS |
 | `pnpm verify` 提交前运行 | workspace/lint/OpenAPI 生成通过；openapi-diff 因本切片尚未提交而按设计失败 | EXPECTED_FAIL_PRE_COMMIT |
+| 干净 head 第一次 | OpenAPI 冻结清单缺 3 条路径及 4 个 DTO schema | FAIL_CONFIRMED |
+| 干净 head 第二次 | P018 台账 CI 空值、项目 CI 使用非冻结状态词 | FAIL_CONFIRMED |
+| 干净 head 第三次 | 14 个历史契约仍将 P017 硬编码为当前任务 | FAIL_CONFIRMED |
+| 干净 head 第四次 | 供应商商品响应白名单缺少 `qualificationValidUntil: null` | FAIL_CONFIRMED |
+| 对应 focused 修复 | OpenAPI 17/17；交接 23/23；契约 74/74；供应商商品 API 5/5 | PASS |
+| 完整 `pnpm verify` 第五次 | `b026a72`，17/17，退出码 0，11:59:11Z—12:14:04Z | PASS |
+| P0 E2E 全量 | 44/44 | PASS |
+| 迁移完整性/演练 | published=21；empty=2、upgrade=2、restore=2、product=21、cleanup=PASS | PASS |
+| secrets scan | 706 个 tracked 文件 | PASS |
 
 ## 数据、迁移与回滚
 
@@ -63,6 +72,6 @@
 
 ## GitHub 门禁与唯一下一步
 
-- P018 当前尚无 PR；首个原子实现提交和干净 head 完整 `pnpm verify` 待执行。
-- 通过后创建 Draft PR，读取精确 head Actions、未解决评论和合并状态并完成自评。
+- P018 当前尚无 PR；首个实现提交为 `28d592f102c602dbcce00b335e70c16eec101dd3`，本地完整门禁通过提交为 `b026a720e74df968c0ccf1e7a38975fe2bd2c281`。
+- 唯一下一步是创建 Draft PR，读取精确 head Actions、未解决评论和合并状态并完成自评。
 - 未获用户对最终精确 head 的明确授权前，不转 Ready、不合并；合并后 main CI 成功前不得开始 M2-P019。
