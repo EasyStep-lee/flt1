@@ -5,6 +5,11 @@ import { CategoryService } from '../categories/category.service.js';
 import { CategoryTemplateService } from '../category-templates/category-template.service.js';
 import { validateApparelSupplierProductTemplateContent } from '../category-templates/apparel-template.policy.js';
 import { validateDigitalSupplierProductTemplateContent } from '../category-templates/digital-template.policy.js';
+import type { CategoryTemplateDefinition } from '../category-templates/category-template.policy.js';
+import {
+  assertGiftBoxChildReferencesOwned,
+  validateGiftBoxSupplierProductTemplateContent,
+} from '../category-templates/gift-box-template.policy.js';
 import { validateSupplierProductTemplateContent } from '../category-templates/food-template.policy.js';
 import { validateFreshSupplierProductTemplateContent } from '../category-templates/fresh-template.policy.js';
 import type { SupplierProductActor } from './supplier-product.actor.js';
@@ -144,6 +149,20 @@ export class SupplierProductService {
     @Inject(CategoryTemplateService) private readonly categoryTemplates: CategoryTemplateService,
   ) {}
 
+  private async validateGiftBoxReferences(
+    template: CategoryTemplateDefinition,
+    content: {
+      readonly attributes: Readonly<Record<string, unknown>>;
+      readonly skus: readonly { readonly attributes: Readonly<Record<string, unknown>> }[];
+    },
+    supplierId: string,
+  ): Promise<void> {
+    const references = validateGiftBoxSupplierProductTemplateContent(template, content);
+    await assertGiftBoxChildReferencesOwned(references, async (supplierProductId) =>
+      (await this.repository.findOwnedProduct(supplierProductId, supplierId)) !== null,
+    );
+  }
+
   async createDraft(
     actor: SupplierProductActor,
     body: unknown,
@@ -174,6 +193,7 @@ export class SupplierProductService {
     validateFreshSupplierProductTemplateContent(template, input);
     validateApparelSupplierProductTemplateContent(template, input);
     validateDigitalSupplierProductTemplateContent(template, input);
+    await this.validateGiftBoxReferences(template, input, actor.supplierId);
     const result = await this.repository.createDraft({
       ...input,
       supplierId: actor.supplierId,
@@ -242,6 +262,14 @@ export class SupplierProductService {
         attributes: patch.attributes ?? currentProduct.attributes,
         skus: (patch.skus ?? currentProduct.skus).map(({ attributes }) => ({ attributes })),
       });
+      await this.validateGiftBoxReferences(
+        template,
+        {
+          attributes: patch.attributes ?? currentProduct.attributes,
+          skus: (patch.skus ?? currentProduct.skus).map(({ attributes }) => ({ attributes })),
+        },
+        actor.supplierId,
+      );
     }
     const result = await this.repository.patchDraft({
       supplierId: actor.supplierId,
@@ -320,6 +348,7 @@ export class SupplierProductService {
         validateFreshSupplierProductTemplateContent(template, product);
         validateApparelSupplierProductTemplateContent(template, product);
         validateDigitalSupplierProductTemplateContent(template, product);
+        await this.validateGiftBoxReferences(template, product, actor.supplierId);
       }
     }
     const result = await this.repository.submitMaterial({

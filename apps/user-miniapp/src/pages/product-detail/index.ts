@@ -18,6 +18,13 @@ interface ProductDetailPageData {
     readonly fields: readonly { readonly key: string; readonly label: string; readonly value: string }[];
     readonly notice: string;
   }[];
+  bundleItems: readonly {
+    readonly key: string;
+    readonly name: string;
+    readonly quantityLabel: string;
+    readonly specification: string;
+    readonly minimumExpiryLabel: string;
+  }[];
   skus: readonly {
     readonly skuId: string;
     readonly priceLabel: string;
@@ -51,6 +58,7 @@ const pageDefinition = {
     priceLabel: '',
     checkoutLabel: '公司统一销售、结账与售后',
     detailModules: [] as ProductDetailPageData['detailModules'],
+    bundleItems: [] as ProductDetailPageData['bundleItems'],
     skus: [] as ProductDetailPageData['skus'],
     errorMessage: '',
   },
@@ -88,6 +96,8 @@ const pageDefinition = {
               ? '服饰详情'
               : response.templateProfile === 'DIGITAL'
                 ? '数码详情'
+                : response.templateProfile === 'GIFT_BOX'
+                  ? '礼盒详情'
                 : '食品详情',
         sellerName: response.sellerName,
         priceLabel: priceLabel(response.retailSalePrice),
@@ -102,6 +112,13 @@ const pageDefinition = {
           fields: module.fields,
           notice: module.notice ?? '',
         })),
+        bundleItems: (response.bundleItems ?? []).map((item, index) => ({
+          key: `${index}-${item.name}-${item.specification}`,
+          name: item.name,
+          quantityLabel: `× ${item.quantity}`,
+          specification: item.specification,
+          minimumExpiryLabel: `有效期下限 ${item.minimumExpiryDays} 天`,
+        })),
         skus: response.skus.map((sku) => ({
           skuId: sku.skuId,
           priceLabel: priceLabel(sku.retailSalePrice),
@@ -114,6 +131,7 @@ const pageDefinition = {
       this.setData({
         state: 'error',
         detailModules: [],
+        bundleItems: [],
         skus: [],
         errorMessage: '详情加载失败，请检查网络后重试',
       });

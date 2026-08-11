@@ -107,13 +107,13 @@ test('M1-P004 evidence and execution ledgers stay at the verified boundary', asy
     projectState.execution.nextAllowedTask,
   );
   assert.ok(
-    projectState.execution.lastCompletedTask === 'M2-P015',
+    projectState.execution.lastCompletedTask === 'M2-P016',
   );
-  assert.equal(projectState.execution.currentTask, 'M2-P016');
+  assert.equal(projectState.execution.currentTask, 'M2-P017');
   assert.equal(projectState.execution.activeTaskCount, 1);
   assert.match(
     projectState.execution.prohibitedUntilGate.join('\n'),
-    /M2-P016.*M2-P017/u,
+    /M2-P017.*M2-P018/u,
   );
   assert.match(taskLedger, /M1-P004[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(taskLedger, /M1-GATE[^\r\n]*DONE[^\r\n]*CI_PASS/u);

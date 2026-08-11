@@ -26,6 +26,10 @@ import {
   buildDigitalProductDetailResponse,
   type PublicDigitalProductDetailResponse,
 } from './digital-product-detail.policy.js';
+import {
+  buildGiftBoxProductDetailResponse,
+  type PublicGiftBoxProductDetailResponse,
+} from './gift-box-product-detail.policy.js';
 
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu;
@@ -52,7 +56,8 @@ export type PublicProductDetailResponse =
   | PublicFoodProductDetailResponse
   | PublicFreshProductDetailResponse
   | PublicApparelProductDetailResponse
-  | PublicDigitalProductDetailResponse;
+  | PublicDigitalProductDetailResponse
+  | PublicGiftBoxProductDetailResponse;
 
 const requireUuid = (value: unknown, field: string): string => {
   if (typeof value !== 'string' || !uuidPattern.test(value)) {
@@ -105,6 +110,8 @@ export class PublicCatalogService {
             ? buildApparelProductDetailResponse(source)
             : source.template.profile === 'DIGITAL'
               ? buildDigitalProductDetailResponse(source)
+              : source.template.profile === 'GIFT_BOX'
+                ? buildGiftBoxProductDetailResponse(source)
               : (() => {
                 throw new SafeApiError(
                   409,

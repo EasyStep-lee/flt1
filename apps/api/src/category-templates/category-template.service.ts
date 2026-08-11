@@ -73,6 +73,11 @@ const throwFailure = (kind: CategoryTemplateFailureKind): never => {
       'TEMPLATE_VERSION_INACTIVE',
       'Supplier product must use the current published template version',
     ],
+    TEMPLATE_VERSION_IMMUTABLE: [
+      409,
+      'TEMPLATE_VERSION_IMMUTABLE',
+      'Published gift-box template versions are immutable',
+    ],
     VERSION_CONFLICT: [409, 'VERSION_CONFLICT', 'Category template revision changed'],
   };
   const [status, code, message] = failures[kind];

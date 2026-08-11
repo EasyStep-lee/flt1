@@ -21,6 +21,18 @@
       </view>
     </view>
 
+    <view wx:if="{{bundleItems.length}}" class="detail-card bundle-card">
+      <view class="section-title">组合清单</view>
+      <view wx:for="{{bundleItems}}" wx:key="key" class="bundle-row">
+        <view class="bundle-heading">
+          <view class="bundle-name">{{item.name}}</view>
+          <view class="bundle-quantity">{{item.quantityLabel}}</view>
+        </view>
+        <view class="bundle-meta">规格：{{item.specification}}</view>
+        <view class="bundle-expiry">{{item.minimumExpiryLabel}}</view>
+      </view>
+    </view>
+
     <view wx:for="{{detailModules}}" wx:key="key" class="detail-card {{item.kind === 'FIELDS' ? '' : 'warning-card'}}">
       <view class="section-title">{{item.title}}</view>
       <view wx:for="{{item.fields}}" wx:for-item="field" wx:key="key" class="field-row">

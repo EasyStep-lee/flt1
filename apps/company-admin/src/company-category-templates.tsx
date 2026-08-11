@@ -307,6 +307,66 @@ const digitalDefinition = (): TemplateDefinition => ({
   },
 });
 
+const giftBoxField = (
+  key: string,
+  label: string,
+  detailModuleKey: string,
+  options: {
+    readonly specification?: boolean;
+    readonly type?: 'BUNDLE_ITEMS' | 'TEXT';
+  } = {},
+): TemplateDefinition['fieldSchema']['fields'][number] => ({
+  key,
+  label,
+  type: options.type ?? 'TEXT',
+  required: true,
+  unit: null,
+  enumValues: [],
+  validation: { min: null, max: null, minLength: 1, maxLength: 500, pattern: null },
+  searchable: false,
+  specification: options.specification ?? false,
+  detailModuleKey,
+});
+
+const giftBoxDefinition = (): TemplateDefinition => ({
+  profile: 'GIFT_BOX',
+  fieldSchema: {
+    schemaVersion: '1.0',
+    fields: [
+      giftBoxField('bundle-items', '组合清单', 'bundle-list', { type: 'BUNDLE_ITEMS' }),
+      giftBoxField('packaging', '包装说明', 'customization'),
+      giftBoxField('customization', '定制项', 'customization'),
+      giftBoxField('delivery-cycle', '交付周期', 'customization'),
+      giftBoxField('welfare-scenario', '福利场景', 'welfare-scenario'),
+      giftBoxField('package', '套餐', 'specifications', { specification: true }),
+      giftBoxField('tier', '档位', 'specifications', { specification: true }),
+      giftBoxField('custom-version', '定制版本', 'specifications', { specification: true }),
+    ],
+  },
+  skuDimensions: {
+    dimensions: [
+      { key: 'package', label: '套餐', fieldKey: 'package' },
+      { key: 'tier', label: '档位', fieldKey: 'tier' },
+      { key: 'custom-version', label: '定制版本', fieldKey: 'custom-version' },
+    ],
+  },
+  qualificationRules: { rules: [] },
+  detailModules: {
+    modules: [
+      { key: 'bundle-list', title: '组合清单', kind: 'FIELDS', sortWeight: 10 },
+      { key: 'welfare-scenario', title: '福利场景', kind: 'FIELDS', sortWeight: 20 },
+      { key: 'customization', title: '定制说明', kind: 'FIELDS', sortWeight: 30 },
+      { key: 'specifications', title: '套餐规格', kind: 'FIELDS', sortWeight: 40 },
+      { key: 'gift-box-after-sales', title: '统一售后口径', kind: 'AFTER_SALE', sortWeight: 50 },
+    ],
+  },
+  afterSaleRules: {
+    returnPolicy: 'COMPANY_STANDARD',
+    notice: '由江苏福礼团供应链科技有限公司统一受理礼盒售后。',
+    evidenceRequirements: ['PACKAGE_PHOTO', 'PRODUCT_PHOTO'],
+  },
+});
+
 const messageFrom = (value: unknown, fallback: string): string => {
   if (value && typeof value === 'object' && 'message' in value) {
     const message = (value as { readonly message?: unknown }).message;
@@ -545,6 +605,13 @@ export function CompanyCategoryTemplatePanel() {
           >
             新建数码模板草稿
           </Button>
+          <Button
+            disabled={!categoryId || Boolean(data?.items.some(({ status }) => status === 'DRAFT'))}
+            loading={submitting}
+            onClick={() => void createDraft(giftBoxDefinition())}
+          >
+            新建礼盒模板草稿
+          </Button>
         </Space>
       </div>
 
@@ -570,7 +637,7 @@ export function CompanyCategoryTemplatePanel() {
             { title: '版本', dataIndex: 'version', render: (value: number) => `V${value}` },
             { title: '修订', dataIndex: 'revision', render: (value: number) => `R${value}` },
             { title: '状态', dataIndex: 'status', render: (value: Template['status']) => <Tag color={value === 'PUBLISHED' ? 'success' : value === 'DRAFT' ? 'processing' : 'default'}>{value === 'PUBLISHED' ? '当前发布' : value === 'DRAFT' ? '草稿' : '已退役'}</Tag> },
-            { title: '类型', dataIndex: 'profile', render: (value: Template['profile']) => value === 'FOOD' ? <Tag color="gold">食品</Tag> : value === 'FRESH' ? <Tag color="green">生鲜</Tag> : value === 'APPAREL' ? <Tag color="magenta">服饰</Tag> : value === 'DIGITAL' ? <Tag color="blue">数码</Tag> : <Tag>通用</Tag> },
+            { title: '类型', dataIndex: 'profile', render: (value: Template['profile']) => value === 'FOOD' ? <Tag color="gold">食品</Tag> : value === 'FRESH' ? <Tag color="green">生鲜</Tag> : value === 'APPAREL' ? <Tag color="magenta">服饰</Tag> : value === 'DIGITAL' ? <Tag color="blue">数码</Tag> : value === 'GIFT_BOX' ? <Tag color="volcano">礼盒</Tag> : <Tag>通用</Tag> },
             { title: '字段/SKU 维度', key: 'shape', render: (_value, row) => `${row.fieldSchema.fields.length} / ${row.skuDimensions.dimensions.length}` },
             { title: '资质规则', key: 'qualification', render: (_value, row) => `${row.qualificationRules.rules.length} 项` },
             {

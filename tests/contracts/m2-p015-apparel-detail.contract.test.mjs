@@ -19,7 +19,7 @@ test('P0-015 extends the existing public detail whitelist with APPAREL without e
   );
   const schema = openApi.components.schemas.PublicFoodProductDetailResponseDto;
   assert.deepEqual(Object.keys(schema.properties).sort(), [
-    'brand', 'categoryId', 'checkoutMode', 'detailModules', 'name', 'productId',
+    'brand', 'bundleItems', 'categoryId', 'checkoutMode', 'detailModules', 'name', 'productId',
     'retailSalePrice', 'sellerName', 'skus', 'supplierId', 'templateProfile', 'templateVersion',
   ]);
   assert.deepEqual(schema.properties.templateProfile.enum.slice(0, 3), ['FOOD', 'FRESH', 'APPAREL']);
@@ -36,10 +36,11 @@ test('P0-015 keeps APPAREL in category-template profile contracts', () => {
   assert.deepEqual(response.properties.profile.enum.slice(0, 3), ['FOOD', 'FRESH', 'APPAREL']);
   assert.equal(request.properties.profile.enum.at(-1), 'GENERIC');
   assert.equal(response.properties.profile.enum.at(-1), 'GENERIC');
-  assert.doesNotMatch(JSON.stringify({ request, response }), /GIFT_BOX/iu);
+  assert.ok(request.properties.profile.enum.includes('GIFT_BOX'));
+  assert.ok(response.properties.profile.enum.includes('GIFT_BOX'));
 });
 
-test('M2-P015 records the merged-main gate that unlocked P016', async () => {
+test('M2-P015 remains closed after later M2 slices advance', async () => {
   const [state, evidence, taskLedger, p0Ledger, pageLedger, apiLedger, handoff] =
     await Promise.all([
       readFile(path.join(executionPack, '16-项目状态.json'), 'utf8').then(JSON.parse),
@@ -57,17 +58,17 @@ test('M2-P015 records the merged-main gate that unlocked P016', async () => {
       ),
     ]);
 
-  assert.equal(state.execution.currentTask, 'M2-P016');
-  assert.equal(state.execution.nextAllowedTask, 'M2-P016');
-  assert.equal(state.execution.lastCompletedTask, 'M2-P015');
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2-P016.*M2-P017/u);
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M2-P016');
-  assert.equal(state.github.currentTaskDelivery.issue, 57);
-  assert.equal(state.github.previousTaskDelivery.taskId, 'M2-P015');
-  assert.equal(state.github.previousTaskDelivery.pullRequest, 56);
-  assert.equal(state.github.previousTaskDelivery.exactHead, '7319f6f2fa13e490e46f262ba9aae7f0746016ad');
-  assert.equal(state.github.previousTaskDelivery.mergeCommit, 'dfd03e1b0ba554c56231e5c6b4c5515d15d772a6');
-  assert.equal(state.github.previousTaskDelivery.mainPostMergeCiRun, 31462310044);
+  assert.equal(state.execution.currentTask, 'M2-P017');
+  assert.equal(state.execution.nextAllowedTask, 'M2-P017');
+  assert.equal(state.execution.lastCompletedTask, 'M2-P016');
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2-P017.*M2-P018/u);
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M2-P017');
+  assert.equal(state.github.currentTaskDelivery.issue, 59);
+  assert.equal(state.github.previousTaskDelivery.taskId, 'M2-P016');
+  assert.equal(state.github.previousTaskDelivery.pullRequest, 58);
+  assert.equal(state.github.previousTaskDelivery.exactHead, '6ec6e8f3193c0cfdb19ebc481bbbd77f7201df4f');
+  assert.equal(state.github.previousTaskDelivery.mergeCommit, '371d99dc668cf021583fb43f86750cb4630573b7');
+  assert.equal(state.github.previousTaskDelivery.mainPostMergeCiRun, 31472192291);
   assert.equal(state.github.previousTaskDelivery.status, 'CI_PASS');
   assert.equal(evidence.taskId, 'M2-P015');
   assert.equal(evidence.status, 'CI_PASS');

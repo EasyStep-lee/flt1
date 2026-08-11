@@ -465,6 +465,75 @@ const digitalProductBody = (categoryId, templateVersion, name = '数码模板商
   ],
 });
 
+const giftBoxTemplateBody = () => ({
+  profile: 'GIFT_BOX',
+  fieldSchema: {
+    schemaVersion: '1.0',
+    fields: [
+      digitalField('bundle-items', '组合清单', 'bundle-list', { type: 'BUNDLE_ITEMS' }),
+      digitalField('packaging', '包装说明', 'customization'),
+      digitalField('customization', '定制项', 'customization'),
+      digitalField('delivery-cycle', '交付周期', 'customization'),
+      digitalField('welfare-scenario', '福利场景', 'welfare-scenario'),
+      digitalField('package', '套餐', 'specifications', { specification: true }),
+      digitalField('tier', '档位', 'specifications', { specification: true }),
+      digitalField('custom-version', '定制版本', 'specifications', { specification: true }),
+    ],
+  },
+  skuDimensions: {
+    dimensions: [
+      { key: 'package', label: '套餐', fieldKey: 'package' },
+      { key: 'tier', label: '档位', fieldKey: 'tier' },
+      { key: 'custom-version', label: '定制版本', fieldKey: 'custom-version' },
+    ],
+  },
+  qualificationRules: { rules: [] },
+  detailModules: {
+    modules: [
+      { key: 'bundle-list', title: '组合清单', kind: 'FIELDS', sortWeight: 10 },
+      { key: 'welfare-scenario', title: '福利场景', kind: 'FIELDS', sortWeight: 20 },
+      { key: 'customization', title: '定制说明', kind: 'FIELDS', sortWeight: 30 },
+      { key: 'specifications', title: '套餐规格', kind: 'FIELDS', sortWeight: 40 },
+      { key: 'gift-box-after-sales', title: '统一售后口径', kind: 'AFTER_SALE', sortWeight: 50 },
+    ],
+  },
+  afterSaleRules: {
+    returnPolicy: 'COMPANY_STANDARD',
+    notice: '由江苏福礼团供应链科技有限公司统一受理礼盒售后。',
+    evidenceRequirements: ['PACKAGE_PHOTO', 'PRODUCT_PHOTO'],
+  },
+});
+
+const giftBoxProductBody = (categoryId, templateVersion, name = '礼盒组合商品') => ({
+  categoryId,
+  templateVersion,
+  name,
+  brand: '福礼团',
+  attributes: {
+    'bundle-items': [
+      { name: '有机大米', quantity: 2, specification: '2.5kg/袋', minimumExpiryDays: 180 },
+      { name: '坚果组合', quantity: 1, specification: '750g/盒', minimumExpiryDays: 120 },
+    ],
+    packaging: '节庆礼盒与手提袋',
+    customization: '支持企业贺卡，不支持改写商品标签',
+    'delivery-cycle': '确认定制稿后 7 个工作日',
+    'welfare-scenario': '企业节日福利与员工慰问',
+  },
+  qualificationReferences: [],
+  isRetailEnabled: true,
+  isEnterpriseProcurementEnabled: true,
+  enterpriseMinOrderQty: 10,
+  enterprisePackageMultiple: 5,
+  preparationMinutes: 240,
+  skus: [
+    {
+      supplierSkuCode: `${name}-A`,
+      attributes: { package: '经典套餐', tier: 'A档', 'custom-version': '标准版' },
+      initialStock: 10,
+    },
+  ],
+});
+
 const productBody = (categoryId, templateVersion, name = '模板绑定商品') => ({
   categoryId,
   templateVersion,
@@ -1080,6 +1149,55 @@ describe('P0-016 digital template validation', () => {
         .send(digitalProductBody(fixture.leaf.id, 1));
       expect(accepted.status).toBe(201);
       expect(accepted.body).toMatchObject({ templateVersion: 1, status: 'DRAFT' });
+    } finally {
+      await fixture.app.close();
+    }
+  });
+});
+
+describe('P0-017 gift-box template and supplier scope validation', () => {
+  it('rejects incomplete and cross-supplier child items and preserves published history', async () => {
+    const fixture = await createFixture();
+    try {
+      const created = await createTemplate(fixture, fixture.leaf.id, giftBoxTemplateBody());
+      expect(created.status).toBe(201);
+      expect(created.body).toMatchObject({ profile: 'GIFT_BOX', version: 1, status: 'DRAFT' });
+      const published = await publishTemplate(fixture, created.body.id, created.body.revision);
+      expect(published.status).toBe(200);
+
+      const rewrite = await patchTemplate(fixture, created.body.id, {
+        revision: published.body.revision,
+        ...giftBoxTemplateBody(),
+      });
+      expect(rewrite.status).toBe(409);
+      expect(rewrite.body).toMatchObject({ code: 'TEMPLATE_VERSION_IMMUTABLE' });
+
+      const incomplete = giftBoxProductBody(fixture.leaf.id, 1, '缺少数量礼盒');
+      incomplete.attributes['bundle-items'][0].quantity = 0;
+      const incompleteResponse = await request(fixture.app.getHttpServer())
+        .post('/v1/supplier/products')
+        .set('Idempotency-Key', 'gift-box-missing-item-data')
+        .send(incomplete);
+      expect(incompleteResponse.status).toBe(422);
+      expect(incompleteResponse.body).toMatchObject({ code: 'BUNDLE_SCHEMA_INVALID' });
+
+      const crossSupplier = giftBoxProductBody(fixture.leaf.id, 1, '跨供应商引用礼盒');
+      crossSupplier.attributes['bundle-items'][0].supplierProductId =
+        '99999999-9999-4999-8999-999999999999';
+      const crossSupplierResponse = await request(fixture.app.getHttpServer())
+        .post('/v1/supplier/products')
+        .set('Idempotency-Key', 'gift-box-cross-supplier-child')
+        .send(crossSupplier);
+      expect(crossSupplierResponse.status).toBe(403);
+      expect(crossSupplierResponse.body).toMatchObject({ code: 'SUPPLIER_SCOPE_FORBIDDEN' });
+
+      const accepted = await request(fixture.app.getHttpServer())
+        .post('/v1/supplier/products')
+        .set('Idempotency-Key', 'gift-box-complete-product')
+        .send(giftBoxProductBody(fixture.leaf.id, 1));
+      expect(accepted.status).toBe(201);
+      expect(accepted.body).toMatchObject({ templateVersion: 1, status: 'DRAFT' });
+      expect(await fixture.products.countSupplierProducts()).toBe(1);
     } finally {
       await fixture.app.close();
     }

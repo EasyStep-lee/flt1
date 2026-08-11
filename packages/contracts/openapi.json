@@ -49,6 +49,7 @@
               "IDEMPOTENCY_KEY_REQUIRED",
               "APPAREL_HISTORY_REWRITE",
               "APPAREL_REQUIRED_FIELD_MISSING",
+              "BUNDLE_SCHEMA_INVALID",
               "DIGITAL_HISTORY_REWRITE",
               "DIGITAL_MODEL_DUPLICATE",
               "DIGITAL_REQUIRED_FIELD_MISSING",
@@ -82,7 +83,8 @@
               "TEMPLATE_IMMUTABLE",
               "TEMPLATE_NOT_FOUND",
               "TEMPLATE_SCHEMA_INVALID",
-              "TEMPLATE_VERSION_INACTIVE"
+              "TEMPLATE_VERSION_INACTIVE",
+              "TEMPLATE_VERSION_IMMUTABLE"
             ],
             "example": "RESOURCE_NOT_FOUND",
             "type": "string"
@@ -445,6 +447,7 @@
               "FRESH",
               "APPAREL",
               "DIGITAL",
+              "GIFT_BOX",
               "GENERIC"
             ],
             "type": "string"
@@ -483,6 +486,7 @@
               "FRESH",
               "APPAREL",
               "DIGITAL",
+              "GIFT_BOX",
               "GENERIC"
             ],
             "type": "string"
@@ -551,6 +555,7 @@
               "FRESH",
               "APPAREL",
               "DIGITAL",
+              "GIFT_BOX",
               "GENERIC"
             ],
             "type": "string"
@@ -618,6 +623,7 @@
               "FRESH",
               "APPAREL",
               "DIGITAL",
+              "GIFT_BOX",
               "GENERIC"
             ],
             "type": "string"
@@ -2060,6 +2066,12 @@
             "nullable": true,
             "type": "string"
           },
+          "bundleItems": {
+            "items": {
+              "$ref": "#/components/schemas/PublicGiftBoxItemResponseDto"
+            },
+            "type": "array"
+          },
           "categoryId": {
             "format": "uuid",
             "type": "string"
@@ -2108,7 +2120,8 @@
               "FOOD",
               "FRESH",
               "APPAREL",
-              "DIGITAL"
+              "DIGITAL",
+              "GIFT_BOX"
             ],
             "type": "string"
           },
@@ -2155,6 +2168,34 @@
           "skuId",
           "retailSalePrice",
           "specifications"
+        ],
+        "type": "object"
+      },
+      "PublicGiftBoxItemResponseDto": {
+        "properties": {
+          "minimumExpiryDays": {
+            "maximum": 3650,
+            "minimum": 1,
+            "type": "number"
+          },
+          "name": {
+            "maxLength": 200,
+            "type": "string"
+          },
+          "quantity": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "specification": {
+            "maxLength": 200,
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "quantity",
+          "specification",
+          "minimumExpiryDays"
         ],
         "type": "object"
       },
@@ -3883,6 +3924,7 @@
           "type": {
             "enum": [
               "BOOLEAN",
+              "BUNDLE_ITEMS",
               "DATE",
               "DECIMAL",
               "ENUM",

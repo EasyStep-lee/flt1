@@ -14,28 +14,31 @@ test('P0-016 extends the public detail whitelist with DIGITAL without exposing p
   assert.equal(operation.operationId, 'catalog.getProductDetail');
   const schema = openApi.components.schemas.PublicFoodProductDetailResponseDto;
   assert.deepEqual(Object.keys(schema.properties).sort(), [
-    'brand', 'categoryId', 'checkoutMode', 'detailModules', 'name', 'productId',
+    'brand', 'bundleItems', 'categoryId', 'checkoutMode', 'detailModules', 'name', 'productId',
     'retailSalePrice', 'sellerName', 'skus', 'supplierId', 'templateProfile', 'templateVersion',
   ]);
-  assert.deepEqual(schema.properties.templateProfile.enum, ['FOOD', 'FRESH', 'APPAREL', 'DIGITAL']);
+  assert.deepEqual(schema.properties.templateProfile.enum, [
+    'FOOD', 'FRESH', 'APPAREL', 'DIGITAL', 'GIFT_BOX',
+  ]);
   assert.doesNotMatch(
     JSON.stringify({ operation, schema }),
     /approvedSupplyPrice|supplyPrice|qualificationSnapshot|settlement|margin|functionalAccountId|identityId/iu,
   );
 });
 
-test('P0-016 adds only DIGITAL to category-template profiles and safe errors', () => {
+test('P0-016 retains DIGITAL in category-template profiles and safe errors', () => {
   const request = openApi.components.schemas.CategoryTemplateCreateRequestDto;
   const response = openApi.components.schemas.CategoryTemplateResponseDto;
-  assert.deepEqual(request.properties.profile.enum, ['FOOD', 'FRESH', 'APPAREL', 'DIGITAL', 'GENERIC']);
-  assert.deepEqual(response.properties.profile.enum, ['FOOD', 'FRESH', 'APPAREL', 'DIGITAL', 'GENERIC']);
-  assert.doesNotMatch(JSON.stringify({ request, response }), /GIFT_BOX/iu);
+  assert.deepEqual(request.properties.profile.enum, [
+    'FOOD', 'FRESH', 'APPAREL', 'DIGITAL', 'GIFT_BOX', 'GENERIC',
+  ]);
+  assert.deepEqual(response.properties.profile.enum, request.properties.profile.enum);
   assert.match(JSON.stringify(openApi.components.schemas), /DIGITAL_REQUIRED_FIELD_MISSING/u);
   assert.match(JSON.stringify(openApi.components.schemas), /DIGITAL_MODEL_DUPLICATE/u);
   assert.match(JSON.stringify(openApi.components.schemas), /DIGITAL_HISTORY_REWRITE/u);
 });
 
-test('M2-P016 records exact implementation-head CI while human merge and P017 remain locked', async () => {
+test('M2-P016 records its merged-main gate while P017 remains the only active slice', async () => {
   const [state, evidence, taskLedger, p0Ledger, pageLedger, apiLedger, handoff] =
     await Promise.all([
       readFile(path.join(executionPack, '16-项目状态.json'), 'utf8').then(JSON.parse),
@@ -53,39 +56,39 @@ test('M2-P016 records exact implementation-head CI while human merge and P017 re
       ),
     ]);
 
-  assert.equal(state.execution.currentTask, 'M2-P016');
-  assert.equal(state.execution.nextAllowedTask, 'M2-P016');
-  assert.equal(state.execution.lastCompletedTask, 'M2-P015');
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2-P016.*M2-P017/u);
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M2-P016');
-  assert.equal(state.github.currentTaskDelivery.issue, 57);
-  assert.equal(state.github.currentTaskDelivery.branch, 'codex/m2-digital-detail');
-  assert.equal(
+  assert.equal(state.execution.currentTask, 'M2-P017');
+  assert.equal(state.execution.nextAllowedTask, 'M2-P017');
+  assert.equal(state.execution.lastCompletedTask, 'M2-P016');
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2-P017.*M2-P018/u);
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M2-P017');
+  assert.equal(state.github.currentTaskDelivery.issue, 59);
+  assert.equal(state.github.currentTaskDelivery.branch, 'codex/m2-gift-box-detail');
+  assert.match(
     state.github.currentTaskDelivery.exactHeadCi,
-    'CI_PASS_RUN_31468592265_JOB_93706680485',
+    /^CI_PASS_RUN_31477968596_JOB_93736045316_HEAD_25B4790$/u,
   );
-  assert.equal(state.github.currentTaskDelivery.pullRequest, 58);
+  assert.equal(state.github.currentTaskDelivery.pullRequest, 60);
   assert.equal(state.github.currentTaskDelivery.pullRequestState, 'DRAFT');
   assert.equal(state.github.currentTaskDelivery.merge, 'NOT_EXECUTED');
   assert.equal(state.github.currentTaskDelivery.mainPostMergeCi, 'NOT_EXECUTED');
-  assert.equal(state.github.currentTaskDelivery.m2p017StartAllowed, false);
-  assert.equal(state.github.previousTaskDelivery.taskId, 'M2-P015');
-  assert.equal(state.github.previousTaskDelivery.pullRequest, 56);
-  assert.equal(state.github.previousTaskDelivery.mainPostMergeCiRun, 31462310044);
+  assert.equal(state.github.currentTaskDelivery.m2p018StartAllowed, false);
+  assert.equal(state.github.previousTaskDelivery.taskId, 'M2-P016');
+  assert.equal(state.github.previousTaskDelivery.pullRequest, 58);
+  assert.equal(state.github.previousTaskDelivery.mainPostMergeCiRun, 31472192291);
   assert.equal(state.github.previousTaskDelivery.status, 'CI_PASS');
   assert.equal(evidence.taskId, 'M2-P016');
   assert.equal(evidence.status, 'CI_PASS');
   assert.equal(evidence.environmentBoundary.ci, 'CI_PASS');
   assert.equal(evidence.github.issue, 57);
   assert.equal(evidence.github.pullRequest, 58);
-  assert.equal(evidence.github.pullRequestState, 'DRAFT');
-  assert.equal(evidence.github.exactHead, 'f76b2c0708bba03c3ce52d72b23b12d8206ed08d');
-  assert.equal(evidence.github.exactHeadCi, 'CI_PASS_RUN_31468592265_JOB_93706680485');
-  assert.equal(evidence.github.merge, 'NOT_EXECUTED');
-  assert.equal(evidence.github.mainPostMergeCi, 'NOT_EXECUTED');
-  assert.equal(evidence.m2p017StartAllowed, false);
+  assert.equal(evidence.github.pullRequestState, 'MERGED');
+  assert.equal(evidence.github.exactHead, '6ec6e8f3193c0cfdb19ebc481bbbd77f7201df4f');
+  assert.equal(evidence.github.exactHeadCi, 'CI_PASS_RUN_31471253414_JOB_93714854651');
+  assert.equal(evidence.github.merge, 'MERGED_AS_371d99dc668cf021583fb43f86750cb4630573b7');
+  assert.equal(evidence.github.mainPostMergeCi, 'CI_PASS_RUN_31472192291_JOB_93717760889');
+  assert.equal(evidence.m2p017StartAllowed, true);
   assert.match(taskLedger, /M2-P015[^\r\n]*DONE[^\r\n]*CI_PASS/u);
-  assert.match(taskLedger, /M2-P016[^\r\n]*IN_PROGRESS[^\r\n]*CI_PASS/u);
+  assert.match(taskLedger, /M2-P016[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(p0Ledger, /P0-016[^\r\n]*CI_PASS/u);
   assert.match(pageLedger, /P0-016_CI_PASS/u);
   assert.match(apiLedger, /API-030[^\r\n]*P0-016[^\r\n]*IMPLEMENTED/u);

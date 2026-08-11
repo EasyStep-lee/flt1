@@ -1,0 +1,145 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "M2-P017",
+  "p0": ["P0-017"],
+  "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+  "status": "CI_PASS",
+  "branch": "codex/m2-gift-box-detail",
+  "baseCommit": "371d99dc668cf021583fb43f86750cb4630573b7",
+  "implementationCommit": "42f3c152cf07c1a1b949fd6c4e689dd0ea4f34ea",
+  "scope": {
+    "goal": "以不可变GIFT_BOX模板驱动结构化组合子项快照，并在公开详情和用户小程序明确展示名称、数量、规格与最低有效期",
+    "nonGoals": [
+      "P0-018强监管品默认关闭",
+      "P0-021与P0-088完整通用商品详情和交易交互",
+      "正式生产礼盒模板、组合子项和售后数据导入",
+      "价格审批、库存扣减、交易、支付、配送和M2-P018后续切片"
+    ]
+  },
+  "redEvidence": [{
+    "test": "apps/api/test/unit/gift-box-detail-policy.test.mjs",
+    "result": "FAIL_ERR_MODULE_NOT_FOUND",
+    "exitCode": 1,
+    "cause": "dist/category-templates/gift-box-template.policy.js尚不存在，礼盒模板运行时规则未实现"
+  }],
+  "focusedGreen": {
+    "giftBoxPolicyUnit": "PASS_3_OF_3",
+    "categoryTemplateApi": "PASS_1_OF_1",
+    "giftBoxPublicDetailApi": "PASS_2_OF_2",
+    "allApi": "PASS_UNIT_56_AND_SUPERTEST_28_FILES_160_OF_160",
+    "userMiniapp": "PASS_11_OF_11",
+    "giftBoxContract": "PASS_3_OF_3",
+    "giftBoxMigrationContract": "PASS_2_OF_2",
+    "giftBoxP0Playwright": "PASS_1_OF_1_AFTER_COMPANY_ADMIN_REBUILD",
+    "typecheck": "PASS_13_OF_13_PACKAGES",
+    "openApiGenerate": "PASS",
+    "lintAndHistoricalContracts": "PASS_LINT_13_PACKAGES_AND_CONTRACTS_72_OF_72",
+    "behaviors": [
+      "GIFT_BOX模板固定结构化组合清单、包装、定制、交付周期、福利场景和套餐SKU维度",
+      "每个组合子项必须包含名称、正整数数量、规格和正整数最低有效期天数",
+      "可选supplierProductId只在供应商草稿域使用，服务端按会话supplierId校验归属",
+      "目标不存在与跨供应商引用对外统一返回SUPPLIER_SCOPE_FORBIDDEN",
+      "已发布GIFT_BOX模板的profile和JSON定义不可覆盖",
+      "公开详情只返回子项名称、数量、规格、最低有效期、在售零售价和公司统一结账标识",
+      "公开DTO不返回supplierProductId、供应价、私有资质、审批、结算或毛利字段",
+      "公开详情读取审核快照，子商品草稿后续变化不改写已发布礼盒响应",
+      "原生用户小程序继续只经miniapp-kit生成契约请求，并保留加载、错误和重试状态"
+    ]
+  },
+  "fullVerification": {
+    "status": "PASS_17_OF_17_CLEAN_HEAD",
+    "initialPnpmVerify": {
+      "result": "FAIL_REGRESSION_STRICT_OPENAPI_SCHEMA_INVENTORY",
+      "exitCode": 1,
+      "completedSteps": [
+        "workspace",
+        "lint",
+        "openapi-generate",
+        "openapi-diff",
+        "openapi-check",
+        "openapi-breaking",
+        "typecheck",
+        "unit"
+      ],
+      "cause": "PublicGiftBoxItemResponseDto已确定性生成，但严格OpenAPI schema清单未同步登记",
+      "repair": "只在严格清单中登记新增DTO，原focused OpenAPI测试4/4通过"
+    },
+    "cleanHeadVerify": {
+      "result": "PASS_17_OF_17_EXIT_0",
+      "commit": "42f3c152cf07c1a1b949fd6c4e689dd0ea4f34ea",
+      "baseRef": "HEAD",
+      "startedAt": "2026-08-11T09:07:36.713Z",
+      "endedAt": "2026-08-11T09:22:54.900Z",
+      "report": "artifacts/test-results/verification/pnpm-verify.json"
+    },
+    "splitGates": {
+      "lint": "PASS_13_PACKAGES",
+      "typecheck": "PASS_13_PACKAGES",
+      "test": "PASS_EXIT_0",
+      "testApi": "PASS_CONTRACT_3_OF_3_AND_SUPERTEST_28_FILES_160_OF_160",
+      "testE2eFoundation": "PASS_3_OF_3",
+      "testE2eP0": "PASS_42_OF_42",
+      "prismaValidate": "PASS",
+      "prismaMigrateDryRun": "PASS_EMPTY_2_UPGRADE_2_RESTORE_2_PRODUCT_20_CLEANUP",
+      "openApiCheck": "PASS_BYTE_IDENTICAL",
+      "openApiBreaking": "PASS_NO_CHANGES_AGAINST_HEAD",
+      "build": "PASS_13_PACKAGES",
+      "secretsScan": "PASS_690_TRACKED_FILES"
+    },
+    "initialPageFailure": {
+      "result": "FAIL_TIMEOUT_STALE_PREVIEW_BUILD",
+      "cause": "首次P017 Playwright运行复用了未包含礼盒预置按钮的旧company-admin构建产物",
+      "repair": "重建company-admin后原测试1/1通过，未降低断言"
+    }
+  },
+  "dataAndMigration": {
+    "migration": "packages/db/prisma/migrations/20260811090000_m2_gift_box_template_profile/migration.sql",
+    "change": "CategoryTemplate profile CHECK以前向迁移扩展GIFT_BOX；已发布profile与模板JSON继续不可变",
+    "backfill": "NO_FORMAL_GIFT_BOX_DATA_AND_NO_HISTORY_REWRITE",
+    "rollback": "回退应用提交；共享环境若已应用迁移则不改写已发布SQL，保留兼容枚举并以前向修复处理"
+  },
+  "contractsAndPages": {
+    "api": "GET /v1/catalog/products/{productId}",
+    "companyPage": "PAGE-005 /company-admin/workspaces/product-ops",
+    "consumerPage": "PAGE-053 /pages/product-detail/index P0-017子集",
+    "openApi": "packages/contracts/openapi.json",
+    "generatedTypes": "packages/contracts/types.ts",
+    "miniappContract": "packages/contracts/src/miniapp-contracts.ts"
+  },
+  "environmentBoundary": {
+    "local": "LOCAL_PASS_FULL_VERIFY_17_OF_17",
+    "ci": "CI_PASS_RUN_31477968596_HEAD_25B4790D1C0B57A1FE8DB6EB7324DE6EAC616F48",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_EXECUTED",
+    "production": "NOT_EXECUTED",
+    "formalGiftBoxData": "BLOCKED_EXTERNAL_EXT_007_AUTHORIZED_PRODUCT_AND_COMPLIANCE_CONFIRMATION"
+  },
+  "github": {
+    "repository": "EasyStep-lee/flt1",
+    "issue": 59,
+    "pullRequest": 60,
+    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/60",
+    "pullRequestState": "DRAFT",
+    "exactHead": "25b4790d1c0b57a1fe8db6eb7324de6eac616f48",
+    "exactHeadCi": "CI_PASS_RUN_31477968596_JOB_93736045316",
+    "review": "NOT_EXECUTED",
+    "merge": "NOT_EXECUTED",
+    "evidenceSyncBoundary": "本文件所在证据同步提交将产生新head；该新head必须在GitHub实时复核CI，不能继承25b4790的运行结论",
+    "previousSlice": {
+      "taskId": "M2-P016",
+      "pullRequest": 58,
+      "exactHead": "6ec6e8f3193c0cfdb19ebc481bbbd77f7201df4f",
+      "mergeCommit": "371d99dc668cf021583fb43f86750cb4630573b7",
+      "mainCiRun": 31472192291,
+      "status": "CI_PASS"
+    }
+  },
+  "risks": [
+    "正式礼盒字段、组合子项、最低有效期和售后口径仍需EXT-007授权商品运营及合规确认",
+    "P017页面只完成礼盒详情子集，不能宣称P0-021或P0-088完整商品详情完成",
+    "公开详情继续复用兼容响应类型名PublicFoodProductDetailResponseDto，后续通用化命名不得破坏现有契约",
+    "PR首轮精确head 25b4790的CI已通过；证据同步新head仍须实时复核，staging、device和production尚未执行"
+  ],
+  "nextAllowedTask": "M2-P017_HUMAN_MERGE_GATE",
+  "m2p018StartAllowed": false
+}

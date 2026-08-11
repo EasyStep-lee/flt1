@@ -3,6 +3,7 @@ import { assertApparelTemplateDefinition } from './apparel-template.policy.js';
 import { assertDigitalTemplateDefinition } from './digital-template.policy.js';
 import { assertFoodTemplateDefinition } from './food-template.policy.js';
 import { assertFreshTemplateDefinition } from './fresh-template.policy.js';
+import { assertGiftBoxTemplateDefinition } from './gift-box-template.policy.js';
 import {
   requestHash,
   requireIdempotencyKey,
@@ -11,9 +12,16 @@ import {
 } from '../supplier-products/supplier-product.policy.js';
 
 export type CategoryTemplateStatus = 'DRAFT' | 'PUBLISHED' | 'RETIRED';
-export type CategoryTemplateProfile = 'APPAREL' | 'DIGITAL' | 'FOOD' | 'FRESH' | 'GENERIC';
+export type CategoryTemplateProfile =
+  | 'APPAREL'
+  | 'DIGITAL'
+  | 'FOOD'
+  | 'FRESH'
+  | 'GENERIC'
+  | 'GIFT_BOX';
 export type TemplateFieldType =
   | 'BOOLEAN'
+  | 'BUNDLE_ITEMS'
   | 'DATE'
   | 'DECIMAL'
   | 'ENUM'
@@ -206,7 +214,7 @@ const normalizeFields = (
       'specification',
       'detailModuleKey',
     ]);
-    if (!['BOOLEAN', 'DATE', 'DECIMAL', 'ENUM', 'INTEGER', 'RICH_TEXT', 'TEXT'].includes(input.type as string)) {
+    if (!['BOOLEAN', 'BUNDLE_ITEMS', 'DATE', 'DECIMAL', 'ENUM', 'INTEGER', 'RICH_TEXT', 'TEXT'].includes(input.type as string)) {
       return invalid(`fieldSchema.fields[${index}].type is invalid`);
     }
     const type = input.type as TemplateFieldType;
@@ -402,7 +410,7 @@ export const normalizeCategoryTemplateDefinition = (
     'afterSaleRules',
     ],
   );
-  if (!['FOOD', 'FRESH', 'APPAREL', 'DIGITAL', 'GENERIC'].includes(input.profile as string)) {
+  if (!['FOOD', 'FRESH', 'APPAREL', 'DIGITAL', 'GIFT_BOX', 'GENERIC'].includes(input.profile as string)) {
     return invalid('template.profile is invalid');
   }
   const detailModules = normalizeModules(input.detailModules);
@@ -422,6 +430,7 @@ export const normalizeCategoryTemplateDefinition = (
   assertFreshTemplateDefinition(definition);
   assertApparelTemplateDefinition(definition);
   assertDigitalTemplateDefinition(definition);
+  assertGiftBoxTemplateDefinition(definition);
   return definition;
 };
 

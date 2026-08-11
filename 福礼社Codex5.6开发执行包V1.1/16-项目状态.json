@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-11T03:29:47-04:00",
+  "updatedAt": "2026-08-11T05:41:11-04:00",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -14,15 +14,15 @@
   "execution": {
     "status": "M2_IN_PROGRESS",
     "currentStage": "M2",
-    "currentTask": "M2-P016",
-    "nextAllowedTask": "M2-P016",
+    "currentTask": "M2-P017",
+    "nextAllowedTask": "M2-P017",
     "activeTaskCount": 1,
-    "lastCompletedTask": "M2-P015",
-    "lastCompletedCommit": "dfd03e1b0ba554c56231e5c6b4c5515d15d772a6",
+    "lastCompletedTask": "M2-P016",
+    "lastCompletedCommit": "371d99dc668cf021583fb43f86750cb4630573b7",
     "lastPassedGate": "M1-GATE",
     "prohibitedUntilGate": [
-      "M2-P016 Draft PR精确head CI、人工合并及合并后main CI完成前不得开始M2-P017",
-      "M2-P017及以后的M2业务切片必须继续按任务依赖逐项解锁"
+      "M2-P017证据同步最终head CI、自评、人工合并及合并后main CI完成前不得开始M2-P018",
+      "M2-P018及以后的M2业务切片必须继续按任务依赖逐项解锁"
     ],
     "persistentRestrictions": [
       "M2-GATE通过前M3及以后阶段保持LOCKED/NOT_STARTED",
@@ -39,8 +39,8 @@
     "authenticationConfirmed": true,
     "writeAllowed": true,
     "connectorAccessConfirmed": true,
-    "pullRequest": 58,
-    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/58",
+    "pullRequest": 60,
+    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/60",
     "pullRequestState": "DRAFT",
     "pullRequestMerged": false,
     "mergeCommitSha": null,
@@ -60,53 +60,54 @@
       "currentHeadReviewRequired": true,
       "authorizationExactHead": false
     },
-    "lastVerifiedPullRequestHead": "f76b2c0708bba03c3ce52d72b23b12d8206ed08d",
+    "lastVerifiedPullRequestHead": "25b4790d1c0b57a1fe8db6eb7324de6eac616f48",
     "pullRequestCi": {
       "status": "CI_PASS",
-      "runId": 31468592265,
-      "jobId": 93706680485,
-      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31468592265",
-      "headSha": "f76b2c0708bba03c3ce52d72b23b12d8206ed08d",
-      "completedAt": "2026-08-11T07:29:47Z"
+      "runId": 31477968596,
+      "jobId": 93736045316,
+      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31477968596",
+      "headSha": "25b4790d1c0b57a1fe8db6eb7324de6eac616f48",
+      "completedAt": "2026-08-11T09:38:44Z"
     },
     "latestCi": {
-      "scope": "PR_EXACT_IMPLEMENTATION_HEAD",
+      "scope": "CURRENT_TASK_PR_PRE_EVIDENCE_SYNC",
       "status": "CI_PASS",
-      "runId": 31468592265,
-      "jobId": 93706680485,
-      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31468592265",
-      "headSha": "f76b2c0708bba03c3ce52d72b23b12d8206ed08d",
+      "runId": 31477968596,
+      "jobId": 93736045316,
+      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31477968596",
+      "headSha": "25b4790d1c0b57a1fe8db6eb7324de6eac616f48",
       "event": "pull_request",
-      "completedAt": "2026-08-11T07:29:47Z"
+      "completedAt": "2026-08-11T09:38:44Z"
     },
     "currentTaskDelivery": {
-      "taskId": "M2-P016",
-      "issue": 57,
-      "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/57",
-      "branch": "codex/m2-digital-detail",
-      "baseCommit": "dfd03e1b0ba554c56231e5c6b4c5515d15d772a6",
-      "implementationCommit": "f76b2c0708bba03c3ce52d72b23b12d8206ed08d",
+      "taskId": "M2-P017",
+      "issue": 59,
+      "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/59",
+      "branch": "codex/m2-gift-box-detail",
+      "baseCommit": "371d99dc668cf021583fb43f86750cb4630573b7",
+      "implementationCommit": "42f3c152cf07c1a1b949fd6c4e689dd0ea4f34ea",
+      "deliveryHead": "25b4790d1c0b57a1fe8db6eb7324de6eac616f48",
       "status": "CI_PASS",
-      "technicalConclusion": "CI_PASS_PENDING_HUMAN_READY_AND_MERGE_GATE",
+      "technicalConclusion": "CI_PASS_PENDING_EVIDENCE_SYNC_HEAD_AND_HUMAN_MERGE",
       "blockingExternalItem": null,
-      "localFullVerify": "PASS_17_OF_17_AT_IMPLEMENTATION_HEAD",
-      "pullRequest": 58,
+      "localFullVerify": "PASS_17_OF_17_CLEAN_HEAD_42F3C15",
+      "pullRequest": 60,
       "pullRequestState": "DRAFT",
-      "exactHeadCi": "CI_PASS_RUN_31468592265_JOB_93706680485",
+      "exactHeadCi": "CI_PASS_RUN_31477968596_JOB_93736045316_HEAD_25B4790",
       "review": "NOT_EXECUTED",
       "merge": "NOT_EXECUTED",
       "mainPostMergeCi": "NOT_EXECUTED",
-      "m2p017StartAllowed": false
+      "m2p018StartAllowed": false
     },
     "previousTaskDelivery": {
-      "taskId": "M2-P015",
-      "pullRequest": 56,
-      "exactHead": "7319f6f2fa13e490e46f262ba9aae7f0746016ad",
-      "mergeCommit": "dfd03e1b0ba554c56231e5c6b4c5515d15d772a6",
-      "mainPostMergeCiRun": 31462310044,
+      "taskId": "M2-P016",
+      "pullRequest": 58,
+      "exactHead": "6ec6e8f3193c0cfdb19ebc481bbbd77f7201df4f",
+      "mergeCommit": "371d99dc668cf021583fb43f86750cb4630573b7",
+      "mainPostMergeCiRun": 31472192291,
       "status": "CI_PASS"
     },
-    "note": "M2-P015 PR #56最终head 7319f6f的CI run 31460861833通过，按精确授权合并为main@dfd03e1且main CI run 31462310044通过；M2-P016实现head f76b2c0的本地pnpm verify 17/17和Draft PR #58 Actions run 31468592265通过。证据同步提交仍须取得最终精确head CI；人工Ready/合并及main CI未执行，P017保持锁定。"
+    "note": "M2-P016 PR #58最终head 6ec6e8f的CI run 31471253414通过，按精确授权合并为main@371d99d且main CI run 31472192291通过；M2-P017已取得RED、focused GREEN和clean-head 42f3c15的pnpm verify 17/17。Draft PR #60首轮head 25b4790的CI run 31477968596通过；证据同步新head仍须重新验证并自评，未经精确head人工授权不得转Ready或合并，P018保持锁定。"
   },
   "evidence": {
     "local": "LOCAL_PASS",

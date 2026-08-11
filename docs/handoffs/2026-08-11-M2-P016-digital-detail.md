@@ -1,5 +1,12 @@
 # M2-P016 数码详情交接
 
+## 合并后门禁补记（2026-08-11）
+
+- 用户授权的 PR #58 精确最终 head `6ec6e8f3193c0cfdb19ebc481bbbd77f7201df4f` 与 GitHub 实际 head 一致；该 head 的 Actions run 31471253414 / job 93714854651 成功。
+- PR #58 已按授权转为 Ready 并合并为 `main@371d99dc668cf021583fb43f86750cb4630573b7`；Issue #57 已关闭。
+- 合并后 main Actions run 31472192291 / job 93717760889 成功，P016 已在 main 闭环并解锁唯一下一切片 M2-P017。
+- 以下内容保留合并前交接时点的历史证据；其中“未合并/P017锁定”不再代表当前状态。
+
 ## 结论与边界
 
 - 当前结论：`CI_PASS / BLOCKED_EXTERNAL_HUMAN_MERGE_GATE`；RED、数码领域策略、focused API/小程序/P0、完整 `pnpm test`、独立 API、41 项 P0 E2E、Prisma 校验、真实 MySQL 迁移演练、OpenAPI 兼容性、全构建和秘密扫描已有新鲜本地证据。干净实现提交 `f76b2c0708bba03c3ce52d72b23b12d8206ed08d` 的 `pnpm verify` 17/17 通过，Draft PR #58 的同一精确 head Actions run 31468592265 / job 93706680485 成功。人工 Ready/合并与合并后 main CI 尚未完成，因此不得进入 P017。

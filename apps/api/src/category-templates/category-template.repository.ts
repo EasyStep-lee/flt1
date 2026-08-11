@@ -59,6 +59,7 @@ export type CategoryTemplateFailureKind =
   | 'TEMPLATE_IMMUTABLE'
   | 'TEMPLATE_NOT_FOUND'
   | 'TEMPLATE_VERSION_INACTIVE'
+  | 'TEMPLATE_VERSION_IMMUTABLE'
   | 'VERSION_CONFLICT';
 
 export type CategoryTemplateMutationResult<T> =

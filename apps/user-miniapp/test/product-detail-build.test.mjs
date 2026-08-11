@@ -254,3 +254,49 @@ test('P0-016 renders DIGITAL models, parameters, energy, package and company war
   assert.match(runtime.definition.data.detailModules.at(-1).notice, /江苏福礼团/u);
   assert.match(runtime.requestedUrl(), new RegExp(`/v1/catalog/products/${productId}`, 'u'));
 });
+
+test('P0-017 renders GIFT_BOX child quantities, specifications and minimum expiry through miniapp-kit', async () => {
+  const giftBoxResponse = {
+    ...response(),
+    templateProfile: 'GIFT_BOX',
+    name: '员工关怀礼盒',
+    retailSalePrice: 26800,
+    bundleItems: [
+      { name: '有机大米', quantity: 2, specification: '2.5kg/袋', minimumExpiryDays: 180 },
+      { name: '坚果组合', quantity: 1, specification: '750g/盒', minimumExpiryDays: 120 },
+    ],
+    skus: [{
+      skuId: '33333333-3333-4333-8333-333333333333',
+      retailSalePrice: 26800,
+      specifications: [
+        { key: 'package', label: '套餐', value: '经典套餐' },
+        { key: 'tier', label: '档位', value: 'A档' },
+        { key: 'custom-version', label: '定制版本', value: '标准版' },
+      ],
+    }],
+    detailModules: [
+      {
+        key: 'welfare-scenario', title: '福利场景', kind: 'FIELDS', notice: null,
+        fields: [{ key: 'welfare-scenario', label: '福利场景', value: '企业节日福利' }],
+      },
+      {
+        key: 'gift-box-after-sales', title: '统一售后口径', kind: 'AFTER_SALE', fields: [],
+        notice: '由江苏福礼团供应链科技有限公司统一受理礼盒售后。',
+      },
+    ],
+  };
+  const runtime = loadBuiltPage(0, giftBoxResponse);
+  await runtime.definition.onLoad.call(runtime.definition, { productId });
+  assert.equal(runtime.definition.data.state, 'success');
+  assert.equal(runtime.definition.data.profileLabel, '礼盒详情');
+  assert.equal(runtime.definition.data.priceLabel, '¥268.00');
+  assert.equal(runtime.definition.data.bundleItems[0].quantityLabel, '× 2');
+  assert.equal(runtime.definition.data.bundleItems[0].specification, '2.5kg/袋');
+  assert.equal(runtime.definition.data.bundleItems[0].minimumExpiryLabel, '有效期下限 180 天');
+  assert.equal(
+    runtime.definition.data.skus[0].specificationLabel,
+    '套餐：经典套餐 · 档位：A档 · 定制版本：标准版',
+  );
+  assert.match(runtime.definition.data.detailModules.at(-1).notice, /江苏福礼团/u);
+  assert.match(runtime.requestedUrl(), new RegExp(`/v1/catalog/products/${productId}`, 'u'));
+});

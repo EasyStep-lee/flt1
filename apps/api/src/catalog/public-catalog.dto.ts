@@ -75,13 +75,21 @@ export class PublicFoodSkuResponseDto {
   readonly specifications!: readonly PublicFoodDetailFieldResponseDto[];
 }
 
+export class PublicGiftBoxItemResponseDto {
+  @ApiProperty({ maxLength: 200, type: String }) readonly name!: string;
+  @ApiProperty({ minimum: 1, type: Number }) readonly quantity!: number;
+  @ApiProperty({ maxLength: 200, type: String }) readonly specification!: string;
+  @ApiProperty({ maximum: 3650, minimum: 1, type: Number })
+  readonly minimumExpiryDays!: number;
+}
+
 export class PublicFoodProductDetailResponseDto {
   @ApiProperty({ format: 'uuid', type: String }) readonly productId!: string;
   @ApiProperty({ format: 'uuid', type: String }) readonly supplierId!: string;
   @ApiProperty({ format: 'uuid', type: String }) readonly categoryId!: string;
   @ApiProperty({ minimum: 1, type: Number }) readonly templateVersion!: number;
-  @ApiProperty({ enum: ['FOOD', 'FRESH', 'APPAREL', 'DIGITAL'] })
-  readonly templateProfile!: 'FOOD' | 'FRESH' | 'APPAREL' | 'DIGITAL';
+  @ApiProperty({ enum: ['FOOD', 'FRESH', 'APPAREL', 'DIGITAL', 'GIFT_BOX'] })
+  readonly templateProfile!: 'FOOD' | 'FRESH' | 'APPAREL' | 'DIGITAL' | 'GIFT_BOX';
   @ApiProperty({ maxLength: 200, type: String }) readonly name!: string;
   @ApiProperty({ maxLength: 120, nullable: true, required: true, type: String })
   readonly brand!: string | null;
@@ -94,4 +102,6 @@ export class PublicFoodProductDetailResponseDto {
   readonly skus!: readonly PublicFoodSkuResponseDto[];
   @ApiProperty({ type: [PublicFoodDetailModuleResponseDto] })
   readonly detailModules!: readonly PublicFoodDetailModuleResponseDto[];
+  @ApiPropertyOptional({ type: [PublicGiftBoxItemResponseDto] })
+  readonly bundleItems?: readonly PublicGiftBoxItemResponseDto[];
 }

@@ -16,9 +16,17 @@ export class TemplateFieldDefinitionDto {
   readonly key!: string;
   @ApiProperty({ maxLength: 80, type: String }) readonly label!: string;
   @ApiProperty({
-    enum: ['BOOLEAN', 'DATE', 'DECIMAL', 'ENUM', 'INTEGER', 'RICH_TEXT', 'TEXT'],
+    enum: ['BOOLEAN', 'BUNDLE_ITEMS', 'DATE', 'DECIMAL', 'ENUM', 'INTEGER', 'RICH_TEXT', 'TEXT'],
   })
-  readonly type!: 'BOOLEAN' | 'DATE' | 'DECIMAL' | 'ENUM' | 'INTEGER' | 'RICH_TEXT' | 'TEXT';
+  readonly type!:
+    | 'BOOLEAN'
+    | 'BUNDLE_ITEMS'
+    | 'DATE'
+    | 'DECIMAL'
+    | 'ENUM'
+    | 'INTEGER'
+    | 'RICH_TEXT'
+    | 'TEXT';
   @ApiProperty({ type: Boolean }) readonly required!: boolean;
   @ApiProperty({ maxLength: 32, nullable: true, required: true, type: String })
   readonly unit!: string | null;
@@ -89,8 +97,8 @@ export class TemplateAfterSaleRulesDto {
 }
 
 export class CategoryTemplateDefinitionDto {
-  @ApiPropertyOptional({ default: 'GENERIC', enum: ['FOOD', 'FRESH', 'APPAREL', 'DIGITAL', 'GENERIC'] })
-  readonly profile?: 'FOOD' | 'FRESH' | 'APPAREL' | 'DIGITAL' | 'GENERIC';
+  @ApiPropertyOptional({ default: 'GENERIC', enum: ['FOOD', 'FRESH', 'APPAREL', 'DIGITAL', 'GIFT_BOX', 'GENERIC'] })
+  readonly profile?: 'FOOD' | 'FRESH' | 'APPAREL' | 'DIGITAL' | 'GIFT_BOX' | 'GENERIC';
   @ApiProperty({ type: TemplateFieldSchemaDto }) readonly fieldSchema!: TemplateFieldSchemaDto;
   @ApiProperty({ type: TemplateSkuDimensionsDto })
   readonly skuDimensions!: TemplateSkuDimensionsDto;

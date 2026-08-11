@@ -110,12 +110,12 @@
     "repository": "EasyStep-lee/flt1",
     "issue": 57,
     "pullRequest": 58,
-    "pullRequestState": "DRAFT",
-    "exactHead": "f76b2c0708bba03c3ce52d72b23b12d8206ed08d",
-    "exactHeadCi": "CI_PASS_RUN_31468592265_JOB_93706680485",
-    "review": "NOT_EXECUTED",
-    "merge": "NOT_EXECUTED",
-    "mainPostMergeCi": "NOT_EXECUTED",
+    "pullRequestState": "MERGED",
+    "exactHead": "6ec6e8f3193c0cfdb19ebc481bbbd77f7201df4f",
+    "exactHeadCi": "CI_PASS_RUN_31471253414_JOB_93714854651",
+    "review": "AUTHORIZED_EXACT_HEAD_AND_MERGED",
+    "merge": "MERGED_AS_371d99dc668cf021583fb43f86750cb4630573b7",
+    "mainPostMergeCi": "CI_PASS_RUN_31472192291_JOB_93717760889",
     "previousSlice": {
       "taskId": "M2-P015",
       "pullRequest": 56,
@@ -131,6 +131,6 @@
     "公开详情继续复用兼容响应类型名PublicFoodProductDetailResponseDto；后续通用化命名不得破坏现有契约",
     "staging、device和production未执行，不能由本地测试升级证据等级"
   ],
-  "nextAllowedTask": "M2-P016_HUMAN_READY_AND_MERGE_GATE_ONLY",
-  "m2p017StartAllowed": false
+  "nextAllowedTask": "M2-P017",
+  "m2p017StartAllowed": true
 }

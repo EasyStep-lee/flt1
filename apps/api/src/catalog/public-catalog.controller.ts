@@ -19,6 +19,7 @@ import {
   PublicFoodDetailFieldResponseDto,
   PublicFoodDetailModuleResponseDto,
   PublicFoodSkuResponseDto,
+  PublicGiftBoxItemResponseDto,
   PublicProductPageResponseDto,
   SupplierProductQueryDto,
 } from './public-catalog.dto.js';
@@ -32,6 +33,7 @@ import { PublicCatalogService } from './public-catalog.service.js';
   PublicFoodDetailFieldResponseDto,
   PublicFoodDetailModuleResponseDto,
   PublicFoodSkuResponseDto,
+  PublicGiftBoxItemResponseDto,
   PublicProductPageResponseDto,
   SupplierProductQueryDto,
 )

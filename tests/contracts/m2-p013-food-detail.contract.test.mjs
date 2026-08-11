@@ -16,6 +16,7 @@ test('P0-013 exposes a public FOOD detail DTO whitelist with company-unified che
   const schema = openApi.components.schemas.PublicFoodProductDetailResponseDto;
   assert.deepEqual(Object.keys(schema.properties).sort(), [
     'brand',
+    'bundleItems',
     'categoryId',
     'checkoutMode',
     'detailModules',
@@ -43,5 +44,6 @@ test('P0-013 remains explicit when later product profiles are added', () => {
   assert.deepEqual(response.properties.profile.enum.slice(0, 3), ['FOOD', 'FRESH', 'APPAREL']);
   assert.equal(request.properties.profile.enum.at(-1), 'GENERIC');
   assert.equal(response.properties.profile.enum.at(-1), 'GENERIC');
-  assert.doesNotMatch(JSON.stringify({ request, response }), /GIFT_BOX/iu);
+  assert.ok(request.properties.profile.enum.includes('GIFT_BOX'));
+  assert.ok(response.properties.profile.enum.includes('GIFT_BOX'));
 });
