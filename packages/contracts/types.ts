@@ -109,7 +109,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get a sellable food product detail from the unified company shelf */
+        /** Get a sellable template-driven product detail from the unified company shelf */
         get: operations["catalog.getProductDetail"];
         put?: never;
         post?: never;
@@ -643,7 +643,7 @@ export interface components {
              * @example RESOURCE_NOT_FOUND
              * @enum {string}
              */
-            code: "ACCESS_DENIED" | "AUTHENTICATION_REQUIRED" | "INTERNAL_ERROR" | "REQUEST_INVALID" | "RESOURCE_NOT_FOUND" | "SERVICE_UNAVAILABLE" | "FORBIDDEN_CAPABILITY" | "PAYEE_FORBIDDEN" | "SELLER_IDENTITY_FORBIDDEN" | "SINGLE_MERCHANT_VIOLATION" | "ACTOR_SPOOFED" | "ACCOUNT_TYPE_INVALID" | "APPROVAL_VERSION_CONFLICT" | "DATA_SCOPE_FORBIDDEN" | "FIELD_FORBIDDEN" | "IDEMPOTENCY_CONFLICT" | "SECOND_VERIFICATION_REQUIRED" | "STATE_TRANSITION_INVALID" | "SUPPLIER_DUPLICATE" | "SUPPLIER_SCOPE_FORBIDDEN" | "VALIDATION_FAILED" | "VERSION_CONFLICT" | "WORKSPACE_FORBIDDEN" | "ACCOUNT_SUSPENDED" | "AUTH_INVALID" | "AUTH_SESSION_REVOKED" | "RATE_LIMITED" | "SUPPLIER_NOT_ACTIVE" | "WORKSPACE_MENU_VIOLATION" | "WORKSPACE_MODULE_NOT_FOUND" | "WORKSPACE_SELECTION_REQUIRED" | "WORKSPACE_SESSION_CONFLICT" | "AUDIT_IMMUTABLE" | "AUDIT_REQUIRED" | "EXPORT_APPROVAL_REQUIRED" | "REQUEST_ID_REQUIRED" | "SAME_NATURAL_PERSON_REVIEW" | "SECOND_REVIEW_REQUIRED" | "APPROVAL_NOT_FOUND" | "APPROVAL_STATE_INVALID" | "IDEMPOTENCY_KEY_CONFLICT" | "IDEMPOTENCY_KEY_REQUIRED" | "CATEGORY_DISABLED" | "CATEGORY_DUPLICATE" | "CATEGORY_LEVEL_INVALID" | "CATEGORY_NOT_FOUND" | "CATEGORY_NOT_LEAF" | "CATEGORY_PARENT_INVALID" | "CATEGORY_REFERENCED" | "CATEGORY_TEMPLATE_INVALID" | "PRICE_FIELD_FORBIDDEN" | "PRICE_INVALID" | "INITIAL_PRICE_REVIEW_PENDING" | "INITIAL_PRICE_STATE_INVALID" | "PRODUCT_APPROVAL_INCOMPLETE" | "PRODUCT_NOT_FOUND" | "PRODUCT_NOT_SALEABLE" | "SUPPLIER_INACTIVE" | "SUPPLIER_PRODUCT_DUPLICATE" | "SUPPLIER_PRODUCT_NOT_FOUND" | "SUPPLIER_SKU_DUPLICATE" | "SELF_APPROVAL_FORBIDDEN" | "REGULATORY_WARNING_REQUIRED" | "TEMPLATE_DATA_INVALID" | "TEMPLATE_DRAFT_EXISTS" | "TEMPLATE_IMMUTABLE" | "TEMPLATE_NOT_FOUND" | "TEMPLATE_SCHEMA_INVALID" | "TEMPLATE_VERSION_INACTIVE";
+            code: "ACCESS_DENIED" | "AUTHENTICATION_REQUIRED" | "INTERNAL_ERROR" | "REQUEST_INVALID" | "RESOURCE_NOT_FOUND" | "SERVICE_UNAVAILABLE" | "FORBIDDEN_CAPABILITY" | "PAYEE_FORBIDDEN" | "SELLER_IDENTITY_FORBIDDEN" | "SINGLE_MERCHANT_VIOLATION" | "ACTOR_SPOOFED" | "ACCOUNT_TYPE_INVALID" | "APPROVAL_VERSION_CONFLICT" | "DATA_SCOPE_FORBIDDEN" | "FIELD_FORBIDDEN" | "IDEMPOTENCY_CONFLICT" | "SECOND_VERIFICATION_REQUIRED" | "STATE_TRANSITION_INVALID" | "SUPPLIER_DUPLICATE" | "SUPPLIER_SCOPE_FORBIDDEN" | "VALIDATION_FAILED" | "VERSION_CONFLICT" | "WORKSPACE_FORBIDDEN" | "ACCOUNT_SUSPENDED" | "AUTH_INVALID" | "AUTH_SESSION_REVOKED" | "RATE_LIMITED" | "SUPPLIER_NOT_ACTIVE" | "WORKSPACE_MENU_VIOLATION" | "WORKSPACE_MODULE_NOT_FOUND" | "WORKSPACE_SELECTION_REQUIRED" | "WORKSPACE_SESSION_CONFLICT" | "AUDIT_IMMUTABLE" | "AUDIT_REQUIRED" | "EXPORT_APPROVAL_REQUIRED" | "REQUEST_ID_REQUIRED" | "SAME_NATURAL_PERSON_REVIEW" | "SECOND_REVIEW_REQUIRED" | "APPROVAL_NOT_FOUND" | "APPROVAL_STATE_INVALID" | "IDEMPOTENCY_KEY_CONFLICT" | "IDEMPOTENCY_KEY_REQUIRED" | "CATEGORY_DISABLED" | "CATEGORY_DUPLICATE" | "CATEGORY_LEVEL_INVALID" | "CATEGORY_NOT_FOUND" | "CATEGORY_NOT_LEAF" | "CATEGORY_PARENT_INVALID" | "CATEGORY_REFERENCED" | "CATEGORY_TEMPLATE_INVALID" | "PRICE_FIELD_FORBIDDEN" | "PRICE_INVALID" | "INITIAL_PRICE_REVIEW_PENDING" | "INITIAL_PRICE_STATE_INVALID" | "PRODUCT_APPROVAL_INCOMPLETE" | "PRODUCT_NOT_FOUND" | "PRODUCT_NOT_SALEABLE" | "SUPPLIER_INACTIVE" | "SUPPLIER_PRODUCT_DUPLICATE" | "SUPPLIER_PRODUCT_NOT_FOUND" | "SUPPLIER_SKU_DUPLICATE" | "SELF_APPROVAL_FORBIDDEN" | "FRESH_HISTORY_REWRITE" | "FRESH_REQUIRED_FIELD_MISSING" | "FRESH_WEIGHT_RULE_INVALID" | "REGULATORY_WARNING_REQUIRED" | "TEMPLATE_DATA_INVALID" | "TEMPLATE_DRAFT_EXISTS" | "TEMPLATE_IMMUTABLE" | "TEMPLATE_NOT_FOUND" | "TEMPLATE_SCHEMA_INVALID" | "TEMPLATE_VERSION_INACTIVE";
             /** @example Resource was not found */
             message: string;
             /** @example /missing */
@@ -751,7 +751,7 @@ export interface components {
              * @default GENERIC
              * @enum {string}
              */
-            profile: "FOOD" | "GENERIC";
+            profile: "FOOD" | "FRESH" | "GENERIC";
             qualificationRules: components["schemas"]["TemplateQualificationRulesDto"];
             skuDimensions: components["schemas"]["TemplateSkuDimensionsDto"];
         };
@@ -763,7 +763,7 @@ export interface components {
              * @default GENERIC
              * @enum {string}
              */
-            profile: "FOOD" | "GENERIC";
+            profile: "FOOD" | "FRESH" | "GENERIC";
             qualificationRules: components["schemas"]["TemplateQualificationRulesDto"];
             skuDimensions: components["schemas"]["TemplateSkuDimensionsDto"];
         };
@@ -782,7 +782,7 @@ export interface components {
              * @default GENERIC
              * @enum {string}
              */
-            profile: "FOOD" | "GENERIC";
+            profile: "FOOD" | "FRESH" | "GENERIC";
             qualificationRules: components["schemas"]["TemplateQualificationRulesDto"];
             revision: number;
             skuDimensions: components["schemas"]["TemplateSkuDimensionsDto"];
@@ -804,7 +804,7 @@ export interface components {
              * @default GENERIC
              * @enum {string}
              */
-            profile: "FOOD" | "GENERIC";
+            profile: "FOOD" | "FRESH" | "GENERIC";
             /** Format: date-time */
             publishedAt: string | null;
             qualificationRules: components["schemas"]["TemplateQualificationRulesDto"];
@@ -1165,7 +1165,7 @@ export interface components {
             fields: components["schemas"]["PublicFoodDetailFieldResponseDto"][];
             key: string;
             /** @enum {string} */
-            kind: "FIELDS" | "FIXED_NOTICE";
+            kind: "AFTER_SALE" | "FIELDS" | "FIXED_NOTICE";
             notice: string | null;
             title: string;
         };
@@ -1187,7 +1187,7 @@ export interface components {
             /** Format: uuid */
             supplierId: string;
             /** @enum {string} */
-            templateProfile: "FOOD";
+            templateProfile: "FOOD" | "FRESH";
             templateVersion: number;
         };
         PublicFoodSkuResponseDto: {

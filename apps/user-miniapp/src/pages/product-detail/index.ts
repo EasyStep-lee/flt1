@@ -7,13 +7,14 @@ interface ProductDetailPageData {
   productId: string;
   name: string;
   brand: string;
+  profileLabel: string;
   sellerName: string;
   priceLabel: string;
   checkoutLabel: string;
   detailModules: readonly {
     readonly key: string;
     readonly title: string;
-    readonly kind: 'FIELDS' | 'FIXED_NOTICE';
+    readonly kind: 'AFTER_SALE' | 'FIELDS' | 'FIXED_NOTICE';
     readonly fields: readonly { readonly key: string; readonly label: string; readonly value: string }[];
     readonly notice: string;
   }[];
@@ -45,6 +46,7 @@ const pageDefinition = {
     productId: '',
     name: '',
     brand: '',
+    profileLabel: '商品详情',
     sellerName: '江苏福礼团供应链科技有限公司',
     priceLabel: '',
     checkoutLabel: '公司统一销售、结账与售后',
@@ -79,6 +81,7 @@ const pageDefinition = {
         state: 'success',
         name: response.name,
         brand: response.brand ?? '品牌信息以商品包装为准',
+        profileLabel: response.templateProfile === 'FRESH' ? '生鲜详情' : '食品详情',
         sellerName: response.sellerName,
         priceLabel: priceLabel(response.retailSalePrice),
         checkoutLabel:

@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 
 import type { CategoryTemplateDefinition } from './category-template.policy.js';
 import { assertFoodTemplateDefinition } from './food-template.policy.js';
+import { assertFreshTemplateDefinition } from './fresh-template.policy.js';
 import type {
   CategoryTemplateListResult,
   CategoryTemplateMutationResult,
@@ -201,7 +202,9 @@ export class InMemoryCategoryTemplateRepository implements CategoryTemplateRepos
       return { kind: 'TEMPLATE_NOT_FOUND' };
     }
     if (existing.revision !== command.expectedRevision) return { kind: 'VERSION_CONFLICT' };
-    if (existing.status !== 'DRAFT') return { kind: 'TEMPLATE_IMMUTABLE' };
+    if (existing.status !== 'DRAFT') {
+      return { kind: existing.profile === 'FRESH' ? 'FRESH_HISTORY_REWRITE' : 'TEMPLATE_IMMUTABLE' };
+    }
     const value: CategoryTemplateRecord = {
       ...existing,
       ...clone(command.definition),
@@ -227,10 +230,13 @@ export class InMemoryCategoryTemplateRepository implements CategoryTemplateRepos
       return { kind: 'TEMPLATE_NOT_FOUND' };
     }
     if (existing.revision !== command.expectedRevision) return { kind: 'VERSION_CONFLICT' };
-    if (existing.status !== 'DRAFT') return { kind: 'TEMPLATE_IMMUTABLE' };
+    if (existing.status !== 'DRAFT') {
+      return { kind: existing.profile === 'FRESH' ? 'FRESH_HISTORY_REWRITE' : 'TEMPLATE_IMMUTABLE' };
+    }
     const target = await this.validateTarget(command.companyId, existing.categoryId);
     if (target) return { kind: target };
     assertFoodTemplateDefinition(existing);
+    assertFreshTemplateDefinition(existing);
     const current = [...this.templates.values()].find(
       (template) =>
         template.companyId === command.companyId &&

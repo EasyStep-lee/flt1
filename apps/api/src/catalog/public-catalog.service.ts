@@ -14,6 +14,10 @@ import {
   buildFoodProductDetailResponse,
   type PublicFoodProductDetailResponse,
 } from './food-product-detail.policy.js';
+import {
+  buildFreshProductDetailResponse,
+  type PublicFreshProductDetailResponse,
+} from './fresh-product-detail.policy.js';
 
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu;
@@ -35,6 +39,10 @@ export interface PublicCatalogPageResponse {
   readonly total: number;
   readonly items: readonly PublicCatalogProductResponse[];
 }
+
+export type PublicProductDetailResponse =
+  | PublicFoodProductDetailResponse
+  | PublicFreshProductDetailResponse;
 
 const requireUuid = (value: unknown, field: string): string => {
   if (typeof value !== 'string' || !uuidPattern.test(value)) {
@@ -72,13 +80,24 @@ export class PublicCatalogService {
     private readonly repository: PublicCatalogRepository,
   ) {}
 
-  async getProductDetail(productIdValue: unknown): Promise<PublicFoodProductDetailResponse> {
+  async getProductDetail(productIdValue: unknown): Promise<PublicProductDetailResponse> {
     const productId = requireUuid(productIdValue, 'productId');
     const source = await this.repository.findSellableProductDetail(productId);
     if (!source) {
       throw new SafeApiError(404, 'PRODUCT_NOT_FOUND', 'Product was not found');
     }
-    const response = buildFoodProductDetailResponse(source);
+    const response =
+      source.template.profile === 'FOOD'
+        ? buildFoodProductDetailResponse(source)
+        : source.template.profile === 'FRESH'
+          ? buildFreshProductDetailResponse(source)
+          : (() => {
+              throw new SafeApiError(
+                409,
+                'PRODUCT_NOT_SALEABLE',
+                'Product detail template is not supported on the public shelf',
+              );
+            })();
     assertCustomerCatalogPayloadAllowed(response);
     return response;
   }

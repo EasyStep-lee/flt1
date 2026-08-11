@@ -1,5 +1,6 @@
 import { SafeApiError } from '../http/api-error.js';
 import { assertFoodTemplateDefinition } from './food-template.policy.js';
+import { assertFreshTemplateDefinition } from './fresh-template.policy.js';
 import {
   requestHash,
   requireIdempotencyKey,
@@ -8,7 +9,7 @@ import {
 } from '../supplier-products/supplier-product.policy.js';
 
 export type CategoryTemplateStatus = 'DRAFT' | 'PUBLISHED' | 'RETIRED';
-export type CategoryTemplateProfile = 'FOOD' | 'GENERIC';
+export type CategoryTemplateProfile = 'FOOD' | 'FRESH' | 'GENERIC';
 export type TemplateFieldType =
   | 'BOOLEAN'
   | 'DATE'
@@ -399,7 +400,7 @@ export const normalizeCategoryTemplateDefinition = (
     'afterSaleRules',
     ],
   );
-  if (!['FOOD', 'GENERIC'].includes(input.profile as string)) {
+  if (!['FOOD', 'FRESH', 'GENERIC'].includes(input.profile as string)) {
     return invalid('template.profile is invalid');
   }
   const detailModules = normalizeModules(input.detailModules);
@@ -416,6 +417,7 @@ export const normalizeCategoryTemplateDefinition = (
     afterSaleRules: normalizeAfterSale(input.afterSaleRules),
   };
   assertFoodTemplateDefinition(definition);
+  assertFreshTemplateDefinition(definition);
   return definition;
 };
 

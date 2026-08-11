@@ -51,7 +51,7 @@ const response = () => ({
   ],
 });
 
-const loadBuiltPage = (failuresBeforeSuccess = 0) => {
+const loadBuiltPage = (failuresBeforeSuccess = 0, responseBody = response()) => {
   let definition;
   let requestedUrl;
   let attempts = 0;
@@ -70,7 +70,7 @@ const loadBuiltPage = (failuresBeforeSuccess = 0) => {
           options.fail();
           return;
         }
-        options.success({ data: response(), statusCode: 200 });
+        options.success({ data: responseBody, statusCode: 200 });
       },
     },
   });
@@ -110,4 +110,45 @@ test('P0-013 refuses an invalid product identifier before any request', async ()
   assert.equal(runtime.definition.data.state, 'error');
   assert.equal(runtime.definition.data.errorMessage, '商品参数无效');
   assert.equal(runtime.attempts(), 0);
+});
+
+test('P0-014 renders FRESH traceability, weighing and company after-sales through miniapp-kit', async () => {
+  const freshResponse = {
+    ...response(),
+    templateProfile: 'FRESH',
+    name: '红颜草莓',
+    brand: null,
+    retailSalePrice: 1990,
+    skus: [{
+      skuId: '33333333-3333-4333-8333-333333333333',
+      retailSalePrice: 1990,
+      specifications: [
+        { key: 'weight-tier', label: '重量档', value: '500克档' },
+        { key: 'specification', label: '规格', value: '篮装' },
+        { key: 'processing-method', label: '处理方式', value: '原果' },
+      ],
+    }],
+    detailModules: [
+      {
+        key: 'origin-traceability', title: '产地溯源', kind: 'FIELDS', notice: null,
+        fields: [{ key: 'origin', label: '产地', value: '江苏连云港' }],
+      },
+      {
+        key: 'weighing-difference', title: '称重差异', kind: 'FIELDS', notice: null,
+        fields: [{ key: 'weighing-rule', label: '称重规则', value: '按实际称重计价' }],
+      },
+      {
+        key: 'fresh-after-sales', title: '生鲜售后规则', kind: 'AFTER_SALE', fields: [],
+        notice: '由江苏福礼团供应链科技有限公司统一受理。',
+      },
+    ],
+  };
+  const runtime = loadBuiltPage(0, freshResponse);
+  await runtime.definition.onLoad.call(runtime.definition, { productId });
+  assert.equal(runtime.definition.data.state, 'success');
+  assert.equal(runtime.definition.data.profileLabel, '生鲜详情');
+  assert.equal(runtime.definition.data.priceLabel, '¥19.90');
+  assert.match(runtime.definition.data.skus[0].specificationLabel, /重量档：500克档/u);
+  assert.match(runtime.definition.data.detailModules.at(-1).notice, /江苏福礼团/u);
+  assert.match(runtime.requestedUrl(), new RegExp(`/v1/catalog/products/${productId}`, 'u'));
 });

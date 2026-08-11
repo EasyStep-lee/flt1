@@ -114,6 +114,75 @@ const foodDefinition = (): TemplateDefinition => ({
   },
 });
 
+const freshField = (
+  key: string,
+  label: string,
+  detailModuleKey: string,
+  options: {
+    readonly enumValues?: readonly string[];
+    readonly specification?: boolean;
+    readonly type?: 'DATE' | 'ENUM' | 'TEXT';
+  } = {},
+): TemplateDefinition['fieldSchema']['fields'][number] => ({
+  key,
+  label,
+  type: options.type ?? 'TEXT',
+  required: true,
+  unit: null,
+  enumValues: [...(options.enumValues ?? [])],
+  validation: { min: null, max: null, minLength: 1, maxLength: 500, pattern: null },
+  searchable: false,
+  specification: options.specification ?? false,
+  detailModuleKey,
+});
+
+const freshDefinition = (): TemplateDefinition => ({
+  profile: 'FRESH',
+  fieldSchema: {
+    schemaVersion: '1.0',
+    fields: [
+      freshField('variety', '品种', 'origin-traceability'),
+      freshField('grade', '等级', 'origin-traceability'),
+      freshField('origin', '产地', 'origin-traceability'),
+      freshField('harvest-slaughter-date', '采收/屠宰日期', 'freshness-storage', { type: 'DATE' }),
+      freshField('freshness-period', '保鲜期', 'freshness-storage'),
+      freshField('temperature-zone', '温区', 'freshness-storage', {
+        type: 'ENUM',
+        enumValues: ['AMBIENT', 'CHILLED', 'FROZEN'],
+      }),
+      freshField('weighing-rule', '称重规则', 'weighing-difference', {
+        type: 'ENUM',
+        enumValues: ['FIXED_WEIGHT', 'ACTUAL_WEIGHT'],
+      }),
+      freshField('weight-tier', '重量档', 'specifications', { specification: true }),
+      freshField('specification', '规格', 'specifications', { specification: true }),
+      freshField('processing-method', '处理方式', 'specifications', { specification: true }),
+    ],
+  },
+  skuDimensions: {
+    dimensions: [
+      { key: 'weight-tier', label: '重量档', fieldKey: 'weight-tier' },
+      { key: 'specification', label: '规格', fieldKey: 'specification' },
+      { key: 'processing-method', label: '处理方式', fieldKey: 'processing-method' },
+    ],
+  },
+  qualificationRules: { rules: [] },
+  detailModules: {
+    modules: [
+      { key: 'origin-traceability', title: '产地溯源', kind: 'FIELDS', sortWeight: 10 },
+      { key: 'freshness-storage', title: '保鲜与温区', kind: 'FIELDS', sortWeight: 20 },
+      { key: 'weighing-difference', title: '称重差异', kind: 'FIELDS', sortWeight: 30 },
+      { key: 'specifications', title: '规格参数', kind: 'FIELDS', sortWeight: 40 },
+      { key: 'fresh-after-sales', title: '生鲜售后规则', kind: 'AFTER_SALE', sortWeight: 50 },
+    ],
+  },
+  afterSaleRules: {
+    returnPolicy: 'CATEGORY_RESTRICTED',
+    notice: '由江苏福礼团供应链科技有限公司统一受理；称重差异按实际称重和已审核规则处理。',
+    evidenceRequirements: ['PACKAGE_PHOTO', 'WEIGHT_PHOTO'],
+  },
+});
+
 const messageFrom = (value: unknown, fallback: string): string => {
   if (value && typeof value === 'object' && 'message' in value) {
     const message = (value as { readonly message?: unknown }).message;
@@ -331,6 +400,13 @@ export function CompanyCategoryTemplatePanel() {
           >
             新建食品模板草稿
           </Button>
+          <Button
+            disabled={!categoryId || Boolean(data?.items.some(({ status }) => status === 'DRAFT'))}
+            loading={submitting}
+            onClick={() => void createDraft(freshDefinition())}
+          >
+            新建生鲜模板草稿
+          </Button>
         </Space>
       </div>
 
@@ -356,7 +432,7 @@ export function CompanyCategoryTemplatePanel() {
             { title: '版本', dataIndex: 'version', render: (value: number) => `V${value}` },
             { title: '修订', dataIndex: 'revision', render: (value: number) => `R${value}` },
             { title: '状态', dataIndex: 'status', render: (value: Template['status']) => <Tag color={value === 'PUBLISHED' ? 'success' : value === 'DRAFT' ? 'processing' : 'default'}>{value === 'PUBLISHED' ? '当前发布' : value === 'DRAFT' ? '草稿' : '已退役'}</Tag> },
-            { title: '类型', dataIndex: 'profile', render: (value: Template['profile']) => value === 'FOOD' ? <Tag color="gold">食品</Tag> : <Tag>通用</Tag> },
+            { title: '类型', dataIndex: 'profile', render: (value: Template['profile']) => value === 'FOOD' ? <Tag color="gold">食品</Tag> : value === 'FRESH' ? <Tag color="green">生鲜</Tag> : <Tag>通用</Tag> },
             { title: '字段/SKU 维度', key: 'shape', render: (_value, row) => `${row.fieldSchema.fields.length} / ${row.skuDimensions.dimensions.length}` },
             { title: '资质规则', key: 'qualification', render: (_value, row) => `${row.qualificationRules.rules.length} 项` },
             {
