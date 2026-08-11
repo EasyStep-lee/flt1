@@ -48,6 +48,7 @@ export interface PublishCategoryTemplateCommand extends CategoryTemplateCommandC
 
 export type CategoryTemplateFailureKind =
   | 'APPAREL_HISTORY_REWRITE'
+  | 'DIGITAL_HISTORY_REWRITE'
   | 'AUDIT_REQUIRED'
   | 'CATEGORY_DISABLED'
   | 'CATEGORY_NOT_FOUND'

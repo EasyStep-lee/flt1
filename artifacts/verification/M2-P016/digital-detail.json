@@ -1,0 +1,136 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "M2-P016",
+  "p0": ["P0-016"],
+  "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+  "status": "CI_PASS",
+  "branch": "codex/m2-digital-detail",
+  "baseCommit": "dfd03e1b0ba554c56231e5c6b4c5515d15d772a6",
+  "implementationCommit": "f76b2c0708bba03c3ce52d72b23b12d8206ed08d",
+  "scope": {
+    "goal": "以不可变DIGITAL模板驱动型号、参数、能效、包装清单、安装、保修、公开DTO白名单及用户小程序数码详情区块",
+    "nonGoals": [
+      "P0-017至P0-018礼盒和强监管开关",
+      "P0-021与P0-088完整通用商品详情和交易交互",
+      "正式生产数码模板、能效、保修和商品数据导入",
+      "价格审批、库存扣减、交易、支付、配送和M2-P017后续切片"
+    ]
+  },
+  "redEvidence": [{
+    "test": "apps/api/test/unit/digital-detail-policy.test.mjs",
+    "result": "FAIL_ERR_MODULE_NOT_FOUND",
+    "exitCode": 1,
+    "cause": "dist/category-templates/digital-template.policy.js尚不存在，数码模板运行时规则未实现"
+  }],
+  "focusedGreen": {
+    "digitalPolicyUnit": "PASS_2_OF_2",
+    "categoryAndPublicDetailApi": "PASS_2_FILES_17_OF_17",
+    "allApi": "PASS_UNIT_53_AND_SUPERTEST_27_FILES_157_OF_157",
+    "userMiniapp": "PASS_10_OF_10",
+    "digitalMigrationContract": "PASS_2_OF_2",
+    "allMigrationContracts": "PASS_36_OF_36",
+    "digitalP0Playwright": "PASS_1_OF_1",
+    "lintAndTypecheck": "PASS_API_AND_TARGET_APPS",
+    "prismaValidate": "PASS",
+    "migrationRehearsal": "PASS_EMPTY_2_UPGRADE_2_RESTORE_2_PRODUCT_19_CLEANUP",
+    "openApiGenerateAndCheck": "PASS_BYTE_IDENTICAL",
+    "behaviors": [
+      "DIGITAL模板固定九个商品字段、颜色容量型号三个SKU维度、六个详情模块和公司售后保修规则",
+      "型号经NFKC、去首尾空白和大小写归一后在同一商品内必须唯一",
+      "供应商创建、修改和提交时按精确已发布模板版本校验必填、白名单和型号唯一性",
+      "供应商不能新增、替换或通过嵌套字段覆盖公司售后及保修规则",
+      "已发布模板的profile和JSON定义均由数据库触发器保护不可覆盖",
+      "公开详情只返回在售零售SKU、整数分零售价、数码白名单字段、型号规格和公司保修提示",
+      "公开DTO不返回供应价、资质私有引用、companyId、functionalAccountId、identityId或内部审批快照",
+      "对客销售、结账和售后主体固定为江苏福礼团供应链科技有限公司",
+      "原生用户小程序继续只经miniapp-kit生成契约请求，并保留加载、错误和重试状态"
+    ]
+  },
+  "fullVerification": {
+    "status": "PASS_17_OF_17_CLEAN_HEAD",
+    "initialPnpmVerify": {
+      "result": "FAIL_EXPECTED_OPENAPI_DIFF_AGAINST_PRE_IMPLEMENTATION_HEAD",
+      "exitCode": 1,
+      "completedSteps": ["workspace", "lint", "openapi-generate"],
+      "cause": "本切片生成的OpenAPI尚未提交，openapi:diff按设计检测到与HEAD不同"
+    },
+    "regressionRepair": {
+      "firstRun": "FAIL_3_STALE_HANDOFF_CURRENT_POINTER_ASSERTIONS",
+      "secondRun": "FAIL_20_STALE_HISTORICAL_CONTRACT_ASSERTIONS",
+      "focusedAfterRepair": "PASS_CONTRACTS_69_OF_69_AND_HANDOFFS_6_OF_6",
+      "finalRun": "PASS_EXIT_0_446_2_SECONDS"
+    },
+    "cleanHeadVerify": {
+      "result": "PASS_17_OF_17_EXIT_0",
+      "commit": "f76b2c0708bba03c3ce52d72b23b12d8206ed08d",
+      "baseRef": "HEAD",
+      "startedAt": "2026-08-11T07:05:43.687Z",
+      "endedAt": "2026-08-11T07:18:52.099Z",
+      "report": "artifacts/test-results/verification/pnpm-verify.json"
+    },
+    "splitGates": {
+      "lint": "PASS_13_PACKAGES_AFTER_FINAL_TEST_REPAIRS",
+      "typecheck": "PASS_13_PACKAGES",
+      "test": "PASS_EXIT_0",
+      "testApi": "PASS_CONTRACT_3_OF_3_SUPERTEST_27_FILES_157_OF_157",
+      "testE2eFoundation": "PASS_3_OF_3",
+      "testE2eP0": "PASS_41_OF_41",
+      "prismaValidate": "PASS",
+      "prismaMigrateDryRun": "PASS_EMPTY_2_UPGRADE_2_RESTORE_2_PRODUCT_19_CLEANUP",
+      "openApiCheck": "PASS_BYTE_IDENTICAL",
+      "openApiBreaking": "PASS_0_ERRORS_404_ADDITIVE_ENUM_WARNINGS",
+      "build": "PASS_13_PACKAGES",
+      "secretsScan": "PASS_668_TRACKED_FILES"
+    },
+    "localEnvironmentConstraint": "本轮Turborepo可正常执行；未关闭或绕过任何企业安全策略"
+  },
+  "dataAndMigration": {
+    "migration": "packages/db/prisma/migrations/20260811060000_m2_digital_template_profile/migration.sql",
+    "change": "CategoryTemplate profile CHECK以前向迁移从GENERIC|FOOD|FRESH|APPAREL扩展为GENERIC|FOOD|FRESH|APPAREL|DIGITAL；已发布profile与模板JSON继续不可变",
+    "backfill": "NO_FORMAL_DIGITAL_DATA_AND_NO_HISTORY_REWRITE",
+    "rollback": "回退应用提交；共享环境若已应用迁移则不改写已发布SQL，保留兼容枚举并以前向修复处理"
+  },
+  "contractsAndPages": {
+    "api": "GET /v1/catalog/products/{productId}",
+    "companyPage": "PAGE-005 /company-admin/workspaces/product-ops",
+    "consumerPage": "PAGE-053 /pages/product-detail/index P0-016子集",
+    "openApi": "packages/contracts/openapi.json",
+    "generatedTypes": "packages/contracts/types.ts",
+    "miniappContract": "packages/contracts/src/miniapp-contracts.ts"
+  },
+  "environmentBoundary": {
+    "local": "LOCAL_PASS",
+    "ci": "CI_PASS",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_EXECUTED",
+    "production": "NOT_EXECUTED",
+    "formalDigitalData": "BLOCKED_EXTERNAL_EXT_007_AUTHORIZED_PRODUCT_AND_COMPLIANCE_CONFIRMATION"
+  },
+  "github": {
+    "repository": "EasyStep-lee/flt1",
+    "issue": 57,
+    "pullRequest": 58,
+    "pullRequestState": "DRAFT",
+    "exactHead": "f76b2c0708bba03c3ce52d72b23b12d8206ed08d",
+    "exactHeadCi": "CI_PASS_RUN_31468592265_JOB_93706680485",
+    "review": "NOT_EXECUTED",
+    "merge": "NOT_EXECUTED",
+    "mainPostMergeCi": "NOT_EXECUTED",
+    "previousSlice": {
+      "taskId": "M2-P015",
+      "pullRequest": 56,
+      "exactHead": "7319f6f2fa13e490e46f262ba9aae7f0746016ad",
+      "mergeCommit": "dfd03e1b0ba554c56231e5c6b4c5515d15d772a6",
+      "mainCiRun": 31462310044,
+      "status": "CI_PASS"
+    }
+  },
+  "risks": [
+    "正式数码字段、能效、包装、安装和保修口径仍需EXT-007授权商品运营及合规确认",
+    "P016页面只完成数码详情子集，不能宣称P0-021或P0-088完整商品详情完成",
+    "公开详情继续复用兼容响应类型名PublicFoodProductDetailResponseDto；后续通用化命名不得破坏现有契约",
+    "staging、device和production未执行，不能由本地测试升级证据等级"
+  ],
+  "nextAllowedTask": "M2-P016_HUMAN_READY_AND_MERGE_GATE_ONLY",
+  "m2p017StartAllowed": false
+}

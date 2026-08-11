@@ -86,7 +86,9 @@ const pageDefinition = {
             ? '生鲜详情'
             : response.templateProfile === 'APPAREL'
               ? '服饰详情'
-              : '食品详情',
+              : response.templateProfile === 'DIGITAL'
+                ? '数码详情'
+                : '食品详情',
         sellerName: response.sellerName,
         priceLabel: priceLabel(response.retailSalePrice),
         checkoutLabel:

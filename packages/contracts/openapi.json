@@ -49,6 +49,9 @@
               "IDEMPOTENCY_KEY_REQUIRED",
               "APPAREL_HISTORY_REWRITE",
               "APPAREL_REQUIRED_FIELD_MISSING",
+              "DIGITAL_HISTORY_REWRITE",
+              "DIGITAL_MODEL_DUPLICATE",
+              "DIGITAL_REQUIRED_FIELD_MISSING",
               "CATEGORY_DISABLED",
               "CATEGORY_DUPLICATE",
               "CATEGORY_LEVEL_INVALID",
@@ -441,6 +444,7 @@
               "FOOD",
               "FRESH",
               "APPAREL",
+              "DIGITAL",
               "GENERIC"
             ],
             "type": "string"
@@ -478,6 +482,7 @@
               "FOOD",
               "FRESH",
               "APPAREL",
+              "DIGITAL",
               "GENERIC"
             ],
             "type": "string"
@@ -545,6 +550,7 @@
               "FOOD",
               "FRESH",
               "APPAREL",
+              "DIGITAL",
               "GENERIC"
             ],
             "type": "string"
@@ -611,6 +617,7 @@
               "FOOD",
               "FRESH",
               "APPAREL",
+              "DIGITAL",
               "GENERIC"
             ],
             "type": "string"
@@ -2100,7 +2107,8 @@
             "enum": [
               "FOOD",
               "FRESH",
-              "APPAREL"
+              "APPAREL",
+              "DIGITAL"
             ],
             "type": "string"
           },

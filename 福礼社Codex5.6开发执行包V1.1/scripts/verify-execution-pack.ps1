@@ -234,7 +234,7 @@ if ($projectStatus.execution.lastPassedGate -eq 'M0-GATE') {
         Assert-Condition (@($priorM2Tasks | Where-Object { $_.Status -ne 'DONE' -or $_.EvidenceStatus -ne 'CI_PASS' -or $_.CI -ne 'CI_PASS' }).Count -eq 0) 'M2当前任务之前存在未完成GitHub门禁的切片'
         Assert-Condition (@($laterM2Tasks | Where-Object Status -ne 'NOT_STARTED').Count -eq 0) 'M2当前任务之后的切片被提前解锁'
     }
-    Assert-Condition ($m2StageGate.Count -eq 1 -and $m2StageGate[0].Status -eq 'IN_PROGRESS' -and $m2StageGate[0].EvidenceStatus -in @('NOT_EXECUTED', 'LOCAL_PASS')) 'M2阶段未按IN_PROGRESS与真实本地证据推进'
+    Assert-Condition ($m2StageGate.Count -eq 1 -and $m2StageGate[0].Status -eq 'IN_PROGRESS' -and $m2StageGate[0].EvidenceStatus -in @('NOT_EXECUTED', 'LOCAL_PASS', 'CI_PASS')) 'M2阶段未按IN_PROGRESS与真实本地或CI证据推进'
     Assert-Condition ($m3StageGate.Count -eq 1 -and $m3StageGate[0].Status -eq 'LOCKED' -and $m3StageGate[0].EvidenceStatus -eq 'NOT_EXECUTED') 'M3未保持LOCKED/NOT_EXECUTED'
 }
 

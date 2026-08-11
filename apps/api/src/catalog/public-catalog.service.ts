@@ -22,6 +22,10 @@ import {
   buildFreshProductDetailResponse,
   type PublicFreshProductDetailResponse,
 } from './fresh-product-detail.policy.js';
+import {
+  buildDigitalProductDetailResponse,
+  type PublicDigitalProductDetailResponse,
+} from './digital-product-detail.policy.js';
 
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu;
@@ -47,7 +51,8 @@ export interface PublicCatalogPageResponse {
 export type PublicProductDetailResponse =
   | PublicFoodProductDetailResponse
   | PublicFreshProductDetailResponse
-  | PublicApparelProductDetailResponse;
+  | PublicApparelProductDetailResponse
+  | PublicDigitalProductDetailResponse;
 
 const requireUuid = (value: unknown, field: string): string => {
   if (typeof value !== 'string' || !uuidPattern.test(value)) {
@@ -98,13 +103,15 @@ export class PublicCatalogService {
           ? buildFreshProductDetailResponse(source)
           : source.template.profile === 'APPAREL'
             ? buildApparelProductDetailResponse(source)
-            : (() => {
+            : source.template.profile === 'DIGITAL'
+              ? buildDigitalProductDetailResponse(source)
+              : (() => {
                 throw new SafeApiError(
                   409,
                   'PRODUCT_NOT_SALEABLE',
                   'Product detail template is not supported on the public shelf',
                 );
-              })();
+                })();
     assertCustomerCatalogPayloadAllowed(response);
     return response;
   }

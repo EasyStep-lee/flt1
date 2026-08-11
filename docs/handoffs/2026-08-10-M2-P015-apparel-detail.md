@@ -1,5 +1,7 @@
 # M2-P015 服饰详情交接
 
+> 合并门禁补充（2026-08-11）：PR #56 最终 head `7319f6f2fa13e490e46f262ba9aae7f0746016ad` 的 Actions run `31460861833` 成功；已按用户对该精确 head 的授权合并为 `main@dfd03e1b0ba554c56231e5c6b4c5515d15d772a6`，合并后 main run `31462310044` 成功，Issue #55 已关闭。M2-P016 因此前序门禁闭环而解锁；下文保留合并前交接快照作为审计历史。
+
 ## 结论与边界
 
 - 当前结论：`CI_PASS / BLOCKED_EXTERNAL_HUMAN_MERGE_GATE`；实现提交 `d87fd3409978f79f9490752e0ce1ce44d25154eb` 的行为 RED、服饰领域策略、focused API/小程序/P0、全量 Supertest、Prisma 校验、真实 MySQL 迁移演练、OpenAPI 确定性和不依赖 Turbo 的逐包测试/构建均通过；本机完整 `pnpm verify` 仍受 Windows 企业应用控制阻止，但 Draft PR #56 的 Ubuntu Actions 已对精确 head `486b32ffd255b144bb856b88f64db9b7218789af` 完成全量门禁。人工合并及合并后 main CI 尚未执行，因此 GitHub 门禁不得写成闭环。

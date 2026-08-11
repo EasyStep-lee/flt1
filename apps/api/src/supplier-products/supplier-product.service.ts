@@ -4,6 +4,7 @@ import { SafeApiError, type ApiErrorCode } from '../http/api-error.js';
 import { CategoryService } from '../categories/category.service.js';
 import { CategoryTemplateService } from '../category-templates/category-template.service.js';
 import { validateApparelSupplierProductTemplateContent } from '../category-templates/apparel-template.policy.js';
+import { validateDigitalSupplierProductTemplateContent } from '../category-templates/digital-template.policy.js';
 import { validateSupplierProductTemplateContent } from '../category-templates/food-template.policy.js';
 import { validateFreshSupplierProductTemplateContent } from '../category-templates/fresh-template.policy.js';
 import type { SupplierProductActor } from './supplier-product.actor.js';
@@ -172,6 +173,7 @@ export class SupplierProductService {
     validateSupplierProductTemplateContent(template, input);
     validateFreshSupplierProductTemplateContent(template, input);
     validateApparelSupplierProductTemplateContent(template, input);
+    validateDigitalSupplierProductTemplateContent(template, input);
     const result = await this.repository.createDraft({
       ...input,
       supplierId: actor.supplierId,
@@ -233,6 +235,10 @@ export class SupplierProductService {
         skus: (patch.skus ?? currentProduct.skus).map(({ attributes }) => ({ attributes })),
       });
       validateApparelSupplierProductTemplateContent(template, {
+        attributes: patch.attributes ?? currentProduct.attributes,
+        skus: (patch.skus ?? currentProduct.skus).map(({ attributes }) => ({ attributes })),
+      });
+      validateDigitalSupplierProductTemplateContent(template, {
         attributes: patch.attributes ?? currentProduct.attributes,
         skus: (patch.skus ?? currentProduct.skus).map(({ attributes }) => ({ attributes })),
       });
@@ -313,6 +319,7 @@ export class SupplierProductService {
         validateSupplierProductTemplateContent(template, product);
         validateFreshSupplierProductTemplateContent(template, product);
         validateApparelSupplierProductTemplateContent(template, product);
+        validateDigitalSupplierProductTemplateContent(template, product);
       }
     }
     const result = await this.repository.submitMaterial({
