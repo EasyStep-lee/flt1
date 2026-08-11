@@ -15,6 +15,10 @@ import {
 import { ApiErrorResponseDto } from '../http/api-error.dto.js';
 import {
   PublicProductCardResponseDto,
+  PublicFoodProductDetailResponseDto,
+  PublicFoodDetailFieldResponseDto,
+  PublicFoodDetailModuleResponseDto,
+  PublicFoodSkuResponseDto,
   PublicProductPageResponseDto,
   SupplierProductQueryDto,
 } from './public-catalog.dto.js';
@@ -24,16 +28,37 @@ import { PublicCatalogService } from './public-catalog.service.js';
 @ApiExtraModels(
   ApiErrorResponseDto,
   PublicProductCardResponseDto,
+  PublicFoodProductDetailResponseDto,
+  PublicFoodDetailFieldResponseDto,
+  PublicFoodDetailModuleResponseDto,
+  PublicFoodSkuResponseDto,
   PublicProductPageResponseDto,
   SupplierProductQueryDto,
 )
-@Controller('v1/catalog/suppliers')
+@Controller('v1/catalog')
 export class PublicCatalogController {
   constructor(
     @Inject(PublicCatalogService) private readonly service: PublicCatalogService,
   ) {}
 
-  @Get(':supplierId/products')
+  @Get('products/:productId')
+  @Header('Cache-Control', 'public, max-age=30, stale-while-revalidate=30')
+  @ApiOperation({
+    operationId: 'catalog.getProductDetail',
+    summary: 'Get a sellable food product detail from the unified company shelf',
+  })
+  @ApiParam({ format: 'uuid', name: 'productId', type: String })
+  @ApiOkResponse({ type: PublicFoodProductDetailResponseDto })
+  @ApiNotFoundResponse({ type: ApiErrorResponseDto })
+  @ApiConflictResponse({ type: ApiErrorResponseDto })
+  @ApiUnprocessableEntityResponse({ type: ApiErrorResponseDto })
+  getProductDetail(
+    @Param('productId') productId: string,
+  ): Promise<PublicFoodProductDetailResponseDto> {
+    return this.service.getProductDetail(productId);
+  }
+
+  @Get('suppliers/:supplierId/products')
   @Header('Cache-Control', 'public, max-age=30, stale-while-revalidate=30')
   @ApiOperation({
     operationId: 'catalog.listSupplierProducts',

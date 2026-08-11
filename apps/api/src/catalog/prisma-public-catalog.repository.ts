@@ -1,9 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 
+import { normalizeCategoryTemplateDefinition } from '../category-templates/category-template.policy.js';
 import { PrismaService } from '../infrastructure/prisma.service.js';
 import type {
   FindPublicCatalogProductsInput,
   PublicCatalogPageRecord,
+  PublicCatalogProductDetailRecord,
   PublicCatalogRepository,
 } from './public-catalog.repository.js';
 
@@ -21,6 +23,50 @@ export class PrismaPublicCatalogRepository implements PublicCatalogRepository {
       select: { id: true },
     });
     return supplier !== null;
+  }
+
+  async findSellableProductDetail(
+    productId: string,
+  ): Promise<PublicCatalogProductDetailRecord | null> {
+    const product = await this.prisma.product.findUnique({
+      where: { id: productId },
+      include: {
+        template: true,
+        skus: {
+          include: { supplierProductSku: true },
+          orderBy: [{ currentRetailSalePrice: 'asc' }, { id: 'asc' }],
+        },
+      },
+    });
+    if (!product) return null;
+    const asObject = (value: unknown): Readonly<Record<string, unknown>> =>
+      value && typeof value === 'object' && !Array.isArray(value)
+        ? (structuredClone(value) as Readonly<Record<string, unknown>>)
+        : {};
+    return {
+      productId: product.id,
+      supplierId: product.supplierId,
+      categoryId: product.categoryId,
+      templateVersion: product.templateVersion,
+      name: product.name,
+      saleStatus: product.saleStatus,
+      isRetailEnabled: product.isRetailEnabled,
+      detailSnapshot: asObject(product.detailSnapshot),
+      template: normalizeCategoryTemplateDefinition({
+        profile: product.template.profile === 'FOOD' ? 'FOOD' : 'GENERIC',
+        fieldSchema: asObject(product.template.fieldSchema),
+        skuDimensions: asObject(product.template.skuDimensions),
+        qualificationRules: asObject(product.template.qualificationRules),
+        detailModules: asObject(product.template.detailModules),
+        afterSaleRules: asObject(product.template.afterSaleRules),
+      }),
+      skus: product.skus.map((sku) => ({
+        skuId: sku.id,
+        status: sku.status,
+        retailSalePrice: sku.currentRetailSalePrice,
+        attributes: asObject(sku.supplierProductSku.attributes),
+      })),
+    };
   }
 
   async findSellableRetailProducts(

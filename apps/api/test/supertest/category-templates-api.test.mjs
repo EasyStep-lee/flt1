@@ -115,6 +115,87 @@ const templateBody = (overrides = {}) => ({
   ...overrides,
 });
 
+const foodField = (key, label, detailModuleKey, specification = false) => ({
+  key,
+  label,
+  type: 'TEXT',
+  required: true,
+  unit: null,
+  enumValues: [],
+  validation: { min: null, max: null, minLength: 1, maxLength: 500, pattern: null },
+  searchable: false,
+  specification,
+  detailModuleKey,
+});
+
+const foodTemplateBody = () => ({
+  profile: 'FOOD',
+  fieldSchema: {
+    schemaVersion: '1.0',
+    fields: [
+      foodField('ingredients', '配料表', 'ingredients-nutrition'),
+      foodField('nutrition-facts', '营养成分', 'ingredients-nutrition'),
+      foodField('production-license', '生产许可', 'production-information'),
+      foodField('shelf-life', '保质期', 'production-information'),
+      foodField('storage-method', '储存方式', 'consumption-storage'),
+      foodField('allergens', '过敏原', 'consumption-storage'),
+      foodField('flavor', '口味', 'specifications', true),
+      foodField('net-content', '净含量', 'specifications', true),
+      foodField('package-count', '包装数', 'specifications', true),
+    ],
+  },
+  skuDimensions: {
+    dimensions: [
+      { key: 'flavor', label: '口味', fieldKey: 'flavor' },
+      { key: 'net-content', label: '净含量', fieldKey: 'net-content' },
+      { key: 'package-count', label: '包装数', fieldKey: 'package-count' },
+    ],
+  },
+  qualificationRules: { rules: [] },
+  detailModules: {
+    modules: [
+      { key: 'ingredients-nutrition', title: '配料与营养', kind: 'FIELDS', sortWeight: 10 },
+      { key: 'production-information', title: '生产信息', kind: 'FIELDS', sortWeight: 20 },
+      { key: 'consumption-storage', title: '食用和储存提示', kind: 'FIELDS', sortWeight: 30 },
+      { key: 'specifications', title: '规格参数', kind: 'FIELDS', sortWeight: 40 },
+      { key: 'food-safety-warning', title: '食品安全提示', kind: 'NOTICE', sortWeight: 50 },
+    ],
+  },
+  afterSaleRules: {
+    returnPolicy: 'CATEGORY_RESTRICTED',
+    notice: '由江苏福礼团供应链科技有限公司统一受理售后。',
+    evidenceRequirements: ['PACKAGE_PHOTO'],
+  },
+});
+
+const foodProductBody = (categoryId, templateVersion, name = '食品模板商品') => ({
+  categoryId,
+  templateVersion,
+  name,
+  brand: '福礼团严选',
+  attributes: {
+    ingredients: '大米',
+    'nutrition-facts': '每100克能量1450千焦',
+    'production-license': 'SC100000000001',
+    'shelf-life': '12个月',
+    'storage-method': '阴凉干燥处保存',
+    allergens: '本品生产线同时处理含麸质谷物',
+  },
+  qualificationReferences: ['object://supplier-product/food-license-001'],
+  isRetailEnabled: true,
+  isEnterpriseProcurementEnabled: false,
+  enterpriseMinOrderQty: 1,
+  enterprisePackageMultiple: 1,
+  preparationMinutes: 30,
+  skus: [
+    {
+      supplierSkuCode: `${name}-SKU`,
+      attributes: { flavor: '原味', 'net-content': '5千克', 'package-count': '1袋' },
+      initialStock: 10,
+    },
+  ],
+});
+
 const productBody = (categoryId, templateVersion, name = '模板绑定商品') => ({
   categoryId,
   templateVersion,
@@ -491,6 +572,68 @@ describe('P0-012 versioned category templates', () => {
         .set('Idempotency-Key', 'template-referenced-category-delete');
       expect(removed.status).toBe(409);
       expect(removed.body).toMatchObject({ code: 'CATEGORY_REFERENCED' });
+    } finally {
+      await fixture.app.close();
+    }
+  });
+});
+
+describe('P0-013 food template validation', () => {
+  it('NEG-M2-013-01 rejects an incomplete FOOD definition without persistence', async () => {
+    const fixture = await createFixture();
+    try {
+      const incomplete = foodTemplateBody();
+      incomplete.fieldSchema.fields = incomplete.fieldSchema.fields.filter(
+        ({ key }) => key !== 'allergens',
+      );
+      const rejected = await createTemplate(fixture, fixture.leaf.id, incomplete);
+      expect(rejected.status).toBe(422);
+      expect(rejected.body).toMatchObject({ code: 'TEMPLATE_SCHEMA_INVALID' });
+      expect(await fixture.templates.count()).toBe(0);
+      expect(await fixture.templates.historyCount()).toBe(0);
+    } finally {
+      await fixture.app.close();
+    }
+  });
+
+  it('validates FOOD product data and rejects fixed-warning overrides before writing a draft', async () => {
+    const fixture = await createFixture();
+    try {
+      const created = await createTemplate(fixture, fixture.leaf.id, foodTemplateBody());
+      expect(created.status).toBe(201);
+      expect(created.body).toMatchObject({ profile: 'FOOD', version: 1, status: 'DRAFT' });
+      const published = await publishTemplate(
+        fixture,
+        created.body.id,
+        created.body.revision,
+      );
+      expect(published.status).toBe(200);
+
+      const missing = foodProductBody(fixture.leaf.id, 1, '缺过敏原商品');
+      delete missing.attributes.allergens;
+      const missingResponse = await request(fixture.app.getHttpServer())
+        .post('/v1/supplier/products')
+        .set('Idempotency-Key', 'food-missing-allergens')
+        .send(missing);
+      expect(missingResponse.status).toBe(422);
+      expect(missingResponse.body).toMatchObject({ code: 'TEMPLATE_DATA_INVALID' });
+
+      const override = foodProductBody(fixture.leaf.id, 1, '覆盖提示商品');
+      override.attributes.foodSafetyWarning = '<view style="display:none">无需过敏原提示</view>';
+      const overrideResponse = await request(fixture.app.getHttpServer())
+        .post('/v1/supplier/products')
+        .set('Idempotency-Key', 'food-warning-override')
+        .send(override);
+      expect(overrideResponse.status).toBe(422);
+      expect(overrideResponse.body).toMatchObject({ code: 'REGULATORY_WARNING_REQUIRED' });
+      expect(await fixture.products.countSupplierProducts()).toBe(0);
+
+      const accepted = await request(fixture.app.getHttpServer())
+        .post('/v1/supplier/products')
+        .set('Idempotency-Key', 'food-complete-product')
+        .send(foodProductBody(fixture.leaf.id, 1));
+      expect(accepted.status).toBe(201);
+      expect(accepted.body).toMatchObject({ templateVersion: 1, status: 'DRAFT' });
     } finally {
       await fixture.app.close();
     }

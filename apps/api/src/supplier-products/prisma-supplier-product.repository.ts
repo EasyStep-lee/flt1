@@ -130,6 +130,17 @@ const parseStored = <T>(value: Prisma.JsonValue): T => structuredClone(value) as
 export class PrismaSupplierProductRepository implements SupplierProductRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
+  async findOwnedProduct(
+    supplierProductId: string,
+    supplierId: string,
+  ): Promise<SupplierProductRecord | null> {
+    const value = await this.prisma.supplierProduct.findFirst({
+      where: { id: supplierProductId, supplierId },
+      include: { skus: true },
+    });
+    return value ? toRecord(value) : null;
+  }
+
   replayMutation<T>(
     scope: string,
     idempotencyKey: string,

@@ -673,6 +673,10 @@ export class InMemorySupplierProductRepository implements SupplierProductReposit
     return value ? clone(value) : null;
   }
 
+  findOwnedProduct(id: string, supplierId: string): Promise<SupplierProductRecord | null> {
+    return Promise.resolve(this.findOwned(id, supplierId));
+  }
+
   async countSupplierProducts(): Promise<number> {
     return this.supplierProducts.size;
   }

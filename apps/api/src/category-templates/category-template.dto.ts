@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class TemplateValidationRuleDto {
   @ApiProperty({ nullable: true, required: true, type: Number }) readonly min!: number | null;
@@ -89,6 +89,8 @@ export class TemplateAfterSaleRulesDto {
 }
 
 export class CategoryTemplateDefinitionDto {
+  @ApiPropertyOptional({ default: 'GENERIC', enum: ['FOOD', 'GENERIC'] })
+  readonly profile?: 'FOOD' | 'GENERIC';
   @ApiProperty({ type: TemplateFieldSchemaDto }) readonly fieldSchema!: TemplateFieldSchemaDto;
   @ApiProperty({ type: TemplateSkuDimensionsDto })
   readonly skuDimensions!: TemplateSkuDimensionsDto;

@@ -1,0 +1,33 @@
+<view class="page" data-page-id="PAGE-M2-P013-FOOD" data-page-state="{{state}}">
+  <view wx:if="{{state === 'loading'}}" class="state-card">正在加载食品详情…</view>
+  <view wx:elif="{{state === 'error'}}" class="state-card">
+    <view class="state-title">{{errorMessage}}</view>
+    <button class="retry-button" bindtap="retry">重新加载</button>
+  </view>
+  <block wx:else>
+    <view class="hero-card">
+      <view class="eyebrow">食品详情</view>
+      <view class="product-name">{{name}}</view>
+      <view class="brand">{{brand}}</view>
+      <view class="price">{{priceLabel}}</view>
+      <view class="seller">由{{sellerName}}{{checkoutLabel}}</view>
+    </view>
+
+    <view class="sku-card">
+      <view class="section-title">可选规格</view>
+      <view wx:for="{{skus}}" wx:key="skuId" class="sku-row">
+        <view class="sku-spec">{{item.specificationLabel}}</view>
+        <view class="sku-price">{{item.priceLabel}}</view>
+      </view>
+    </view>
+
+    <view wx:for="{{detailModules}}" wx:key="key" class="detail-card {{item.kind === 'FIXED_NOTICE' ? 'warning-card' : ''}}">
+      <view class="section-title">{{item.title}}</view>
+      <view wx:for="{{item.fields}}" wx:for-item="field" wx:key="key" class="field-row">
+        <view class="field-label">{{field.label}}</view>
+        <view class="field-value">{{field.value}}</view>
+      </view>
+      <view wx:if="{{item.kind === 'FIXED_NOTICE'}}" class="warning-text">{{item.notice}}</view>
+    </view>
+  </block>
+</view>

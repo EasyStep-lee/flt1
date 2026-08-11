@@ -127,6 +127,7 @@ test('native mini-programs keep separate roots and retain their independent shel
   const runnerApp = readJson('apps', 'runner-miniapp', 'src', 'app.json');
   assert.deepEqual(userApp.pages, [
     'pages/shell/index',
+    'pages/product-detail/index',
     'pages/supplier-products/index',
   ]);
   assert.deepEqual(runnerApp.pages, ['pages/shell/index']);

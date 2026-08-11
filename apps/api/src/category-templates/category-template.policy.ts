@@ -1,4 +1,5 @@
 import { SafeApiError } from '../http/api-error.js';
+import { assertFoodTemplateDefinition } from './food-template.policy.js';
 import {
   requestHash,
   requireIdempotencyKey,
@@ -7,6 +8,7 @@ import {
 } from '../supplier-products/supplier-product.policy.js';
 
 export type CategoryTemplateStatus = 'DRAFT' | 'PUBLISHED' | 'RETIRED';
+export type CategoryTemplateProfile = 'FOOD' | 'GENERIC';
 export type TemplateFieldType =
   | 'BOOLEAN'
   | 'DATE'
@@ -38,6 +40,7 @@ export interface TemplateFieldDefinition {
 }
 
 export interface CategoryTemplateDefinition {
+  readonly profile: CategoryTemplateProfile;
   readonly fieldSchema: {
     readonly schemaVersion: '1.0';
     readonly fields: readonly TemplateFieldDefinition[];
@@ -377,25 +380,43 @@ const normalizeAfterSale = (value: unknown): CategoryTemplateDefinition['afterSa
 export const normalizeCategoryTemplateDefinition = (
   value: unknown,
 ): CategoryTemplateDefinition => {
-  const input = record(value, 'template', [
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return invalid('template must be an object');
+  }
+  const candidate = value as Record<string, unknown>;
+  const input = record(
+    {
+      ...candidate,
+      profile: candidate.profile ?? 'GENERIC',
+    },
+    'template',
+    [
+    'profile',
     'fieldSchema',
     'skuDimensions',
     'qualificationRules',
     'detailModules',
     'afterSaleRules',
-  ]);
+    ],
+  );
+  if (!['FOOD', 'GENERIC'].includes(input.profile as string)) {
+    return invalid('template.profile is invalid');
+  }
   const detailModules = normalizeModules(input.detailModules);
   const fieldSchema = normalizeFields(
     input.fieldSchema,
     new Set(detailModules.modules.map(({ key: moduleKey }) => moduleKey)),
   );
-  return {
+  const definition: CategoryTemplateDefinition = {
+    profile: input.profile as CategoryTemplateProfile,
     fieldSchema,
     skuDimensions: normalizeSkuDimensions(input.skuDimensions, fieldSchema.fields),
     qualificationRules: normalizeQualifications(input.qualificationRules),
     detailModules,
     afterSaleRules: normalizeAfterSale(input.afterSaleRules),
   };
+  assertFoodTemplateDefinition(definition);
+  return definition;
 };
 
 export const normalizeCategoryTemplatePatch = (

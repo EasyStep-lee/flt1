@@ -326,6 +326,7 @@ type JsonValue =
       useValue: {
         replayMutation: async () => null,
         categoryIsReferenced: async () => false,
+        findOwnedProduct: async () => null,
         findCategoryAssignment: async () => null,
         createDraft: async () => {
           throw new Error('OPENAPI_GENERATION_ONLY');
@@ -403,6 +404,7 @@ type JsonValue =
       provide: PUBLIC_CATALOG_REPOSITORY,
       useValue: {
         isActiveSupplierSource: async () => false,
+        findSellableProductDetail: async () => null,
         findSellableRetailProducts: async () => ({ items: [], total: 0 }),
       } satisfies PublicCatalogRepository,
     },

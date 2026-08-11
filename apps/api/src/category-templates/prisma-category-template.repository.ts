@@ -5,6 +5,7 @@ import { Prisma } from '@fulishe/db';
 
 import { PrismaService } from '../infrastructure/prisma.service.js';
 import type { CategoryTemplateDefinition } from './category-template.policy.js';
+import { assertFoodTemplateDefinition } from './food-template.policy.js';
 import type {
   CategoryTemplateListResult,
   CategoryTemplateMutationResult,
@@ -25,6 +26,7 @@ type StoredTemplate = {
   readonly version: number;
   readonly revision: number;
   readonly status: 'DRAFT' | 'PUBLISHED' | 'RETIRED';
+  readonly profile: string;
   readonly fieldSchema: unknown;
   readonly skuDimensions: unknown;
   readonly qualificationRules: unknown;
@@ -42,6 +44,7 @@ const toRecord = (value: StoredTemplate): CategoryTemplateRecord => ({
   version: value.version,
   revision: value.revision,
   status: value.status,
+  profile: value.profile === 'FOOD' ? 'FOOD' : 'GENERIC',
   fieldSchema: structuredClone(value.fieldSchema) as CategoryTemplateDefinition['fieldSchema'],
   skuDimensions: structuredClone(value.skuDimensions) as CategoryTemplateDefinition['skuDimensions'],
   qualificationRules: structuredClone(
@@ -104,6 +107,7 @@ export class PrismaCategoryTemplateRepository implements CategoryTemplateReposit
           status: 'DRAFT',
           draftSlot: 1,
           activeSlot: null,
+          profile: command.profile,
           fieldSchema: json(command.fieldSchema),
           skuDimensions: json(command.skuDimensions),
           qualificationRules: json(command.qualificationRules),
@@ -134,6 +138,7 @@ export class PrismaCategoryTemplateRepository implements CategoryTemplateReposit
         where: { id: stored.id },
         data: {
           revision: { increment: 1 },
+          profile: command.definition.profile,
           fieldSchema: json(command.definition.fieldSchema),
           skuDimensions: json(command.definition.skuDimensions),
           qualificationRules: json(command.definition.qualificationRules),
@@ -160,6 +165,7 @@ export class PrismaCategoryTemplateRepository implements CategoryTemplateReposit
       await tx.$queryRaw`SELECT id FROM category WHERE id = ${stored.categoryId} FOR UPDATE`;
       if (stored.revision !== command.expectedRevision) return { kind: 'VERSION_CONFLICT' };
       if (stored.status !== 'DRAFT') return { kind: 'TEMPLATE_IMMUTABLE' };
+      assertFoodTemplateDefinition(toRecord(stored));
       const invalidTarget = await this.invalidTarget(tx, command.companyId, stored.categoryId);
       if (invalidTarget) return { kind: invalidTarget };
       const current = await tx.categoryTemplate.findFirst({
