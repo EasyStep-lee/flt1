@@ -22,7 +22,7 @@ test('P0-014 extends the existing public detail whitelist with FRESH without exp
     'brand', 'categoryId', 'checkoutMode', 'detailModules', 'name', 'productId',
     'retailSalePrice', 'sellerName', 'skus', 'supplierId', 'templateProfile', 'templateVersion',
   ]);
-  assert.deepEqual(schema.properties.templateProfile.enum, ['FOOD', 'FRESH', 'APPAREL']);
+  assert.deepEqual(schema.properties.templateProfile.enum.slice(0, 3), ['FOOD', 'FRESH', 'APPAREL']);
   assert.deepEqual(
     openApi.components.schemas.PublicFoodDetailModuleResponseDto.properties.kind.enum,
     ['AFTER_SALE', 'FIELDS', 'FIXED_NOTICE'],
@@ -36,12 +36,14 @@ test('P0-014 extends the existing public detail whitelist with FRESH without exp
 test('P0-014 remains in category-template profile contracts after APPAREL is added', () => {
   const request = openApi.components.schemas.CategoryTemplateCreateRequestDto;
   const response = openApi.components.schemas.CategoryTemplateResponseDto;
-  assert.deepEqual(request.properties.profile.enum, ['FOOD', 'FRESH', 'APPAREL', 'GENERIC']);
-  assert.deepEqual(response.properties.profile.enum, ['FOOD', 'FRESH', 'APPAREL', 'GENERIC']);
-  assert.doesNotMatch(JSON.stringify({ request, response }), /DIGITAL|GIFT_BOX/iu);
+  assert.deepEqual(request.properties.profile.enum.slice(0, 3), ['FOOD', 'FRESH', 'APPAREL']);
+  assert.deepEqual(response.properties.profile.enum.slice(0, 3), ['FOOD', 'FRESH', 'APPAREL']);
+  assert.equal(request.properties.profile.enum.at(-1), 'GENERIC');
+  assert.equal(response.properties.profile.enum.at(-1), 'GENERIC');
+  assert.doesNotMatch(JSON.stringify({ request, response }), /GIFT_BOX/iu);
 });
 
-test('M2-P014 historical evidence remains while P015 advances and P016 stays locked', async () => {
+test('M2-P014 historical evidence remains while P016 advances and P017 stays locked', async () => {
   const [state, evidence, taskLedger, p0Ledger, pageLedger, apiLedger, handoff] =
     await Promise.all([
       readFile(path.join(executionPack, '16-项目状态.json'), 'utf8').then(JSON.parse),
@@ -59,17 +61,17 @@ test('M2-P014 historical evidence remains while P015 advances and P016 stays loc
       ),
     ]);
 
-  assert.equal(state.execution.currentTask, 'M2-P015');
-  assert.equal(state.execution.nextAllowedTask, 'M2-P015');
+  assert.equal(state.execution.currentTask, 'M2-P016');
+  assert.equal(state.execution.nextAllowedTask, 'M2-P016');
   assert.equal(state.execution.lastCompletedTask, 'M2-P015');
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2-P015.*M2-P016/u);
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M2-P015');
-  assert.equal(state.github.currentTaskDelivery.issue, 55);
-  assert.equal(state.github.currentTaskDelivery.branch, 'codex/m2-apparel-detail');
-  assert.equal(state.github.currentTaskDelivery.exactHeadCi, 'CI_PASS');
-  assert.equal(state.github.currentTaskDelivery.m2p016StartAllowed, false);
-  assert.equal(state.github.previousTaskDelivery.taskId, 'M2-P014');
-  assert.equal(state.github.previousTaskDelivery.pullRequest, 54);
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2-P016.*M2-P017/u);
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M2-P016');
+  assert.equal(state.github.currentTaskDelivery.issue, 57);
+  assert.equal(state.github.currentTaskDelivery.branch, 'codex/m2-digital-detail');
+  assert.ok(['NOT_EXECUTED', 'CI_PASS'].includes(state.github.currentTaskDelivery.exactHeadCi));
+  assert.equal(state.github.currentTaskDelivery.m2p017StartAllowed, false);
+  assert.equal(state.github.previousTaskDelivery.taskId, 'M2-P015');
+  assert.equal(state.github.previousTaskDelivery.pullRequest, 56);
   assert.equal(state.github.previousTaskDelivery.status, 'CI_PASS');
   assert.equal(evidence.taskId, 'M2-P014');
   assert.equal(evidence.status, 'LOCAL_PASS');

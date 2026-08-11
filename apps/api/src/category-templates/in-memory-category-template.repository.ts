@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 
 import { assertApparelTemplateDefinition } from './apparel-template.policy.js';
+import { assertDigitalTemplateDefinition } from './digital-template.policy.js';
 import type { CategoryTemplateDefinition } from './category-template.policy.js';
 import { assertFoodTemplateDefinition } from './food-template.policy.js';
 import { assertFreshTemplateDefinition } from './fresh-template.policy.js';
@@ -210,7 +211,9 @@ export class InMemoryCategoryTemplateRepository implements CategoryTemplateRepos
             ? 'FRESH_HISTORY_REWRITE'
             : existing.profile === 'APPAREL'
               ? 'APPAREL_HISTORY_REWRITE'
-              : 'TEMPLATE_IMMUTABLE',
+              : existing.profile === 'DIGITAL'
+                ? 'DIGITAL_HISTORY_REWRITE'
+                : 'TEMPLATE_IMMUTABLE',
       };
     }
     const value: CategoryTemplateRecord = {
@@ -245,7 +248,9 @@ export class InMemoryCategoryTemplateRepository implements CategoryTemplateRepos
             ? 'FRESH_HISTORY_REWRITE'
             : existing.profile === 'APPAREL'
               ? 'APPAREL_HISTORY_REWRITE'
-              : 'TEMPLATE_IMMUTABLE',
+              : existing.profile === 'DIGITAL'
+                ? 'DIGITAL_HISTORY_REWRITE'
+                : 'TEMPLATE_IMMUTABLE',
       };
     }
     const target = await this.validateTarget(command.companyId, existing.categoryId);
@@ -253,6 +258,7 @@ export class InMemoryCategoryTemplateRepository implements CategoryTemplateRepos
     assertFoodTemplateDefinition(existing);
     assertFreshTemplateDefinition(existing);
     assertApparelTemplateDefinition(existing);
+    assertDigitalTemplateDefinition(existing);
     const current = [...this.templates.values()].find(
       (template) =>
         template.companyId === command.companyId &&

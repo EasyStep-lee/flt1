@@ -199,3 +199,58 @@ test('P0-015 renders APPAREL size, material, care and company return rules throu
   assert.match(runtime.definition.data.detailModules.at(-1).notice, /江苏福礼团/u);
   assert.match(runtime.requestedUrl(), new RegExp(`/v1/catalog/products/${productId}`, 'u'));
 });
+
+test('P0-016 renders DIGITAL models, parameters, energy, package and company warranty through miniapp-kit', async () => {
+  const digitalResponse = {
+    ...response(),
+    templateProfile: 'DIGITAL',
+    name: '高效办公一体机',
+    retailSalePrice: 399900,
+    skus: [{
+      skuId: '33333333-3333-4333-8333-333333333333',
+      retailSalePrice: 399900,
+      specifications: [
+        { key: 'color', label: '颜色', value: '白色' },
+        { key: 'capacity', label: '容量', value: '512GB' },
+        { key: 'model', label: '型号', value: 'FL-D2' },
+      ],
+    }],
+    detailModules: [
+      {
+        key: 'technical-parameters', title: '规格参数', kind: 'FIELDS', notice: null,
+        fields: [
+          { key: 'power', label: '功率', value: '65W' },
+          { key: 'voltage', label: '电压', value: '220V' },
+        ],
+      },
+      {
+        key: 'energy-efficiency', title: '能效信息', kind: 'FIELDS', notice: null,
+        fields: [{ key: 'energy-efficiency', label: '能效', value: '一级能效' }],
+      },
+      {
+        key: 'package-and-installation', title: '包装与安装', kind: 'FIELDS', notice: null,
+        fields: [{ key: 'package-list', label: '包装清单', value: '主机×1、适配器×1' }],
+      },
+      {
+        key: 'warranty', title: '保修信息', kind: 'FIELDS', notice: null,
+        fields: [{ key: 'warranty-period', label: '保修期', value: '整机一年' }],
+      },
+      {
+        key: 'digital-after-sales', title: '安装与保修服务', kind: 'AFTER_SALE', fields: [],
+        notice: '由江苏福礼团供应链科技有限公司统一受理。',
+      },
+    ],
+  };
+  const runtime = loadBuiltPage(0, digitalResponse);
+  await runtime.definition.onLoad.call(runtime.definition, { productId });
+  assert.equal(runtime.definition.data.state, 'success');
+  assert.equal(runtime.definition.data.profileLabel, '数码详情');
+  assert.equal(runtime.definition.data.priceLabel, '¥3999.00');
+  assert.equal(
+    runtime.definition.data.skus[0].specificationLabel,
+    '颜色：白色 · 容量：512GB · 型号：FL-D2',
+  );
+  assert.equal(runtime.definition.data.detailModules[1].fields[0].value, '一级能效');
+  assert.match(runtime.definition.data.detailModules.at(-1).notice, /江苏福礼团/u);
+  assert.match(runtime.requestedUrl(), new RegExp(`/v1/catalog/products/${productId}`, 'u'));
+});

@@ -105,7 +105,7 @@
   },
   "environmentBoundary": {
     "local": "LOCAL_PASS_WITH_FULL_GATE_BLOCKED_EXTERNAL",
-    "ci": "CI_PASS_EXACT_HEAD_486B32F",
+    "ci": "CI_PASS_EXACT_HEAD_7319F6F_AND_MERGED_MAIN_DFD03E1",
     "staging": "NOT_EXECUTED",
     "device": "NOT_EXECUTED",
     "production": "NOT_EXECUTED",
@@ -116,12 +116,12 @@
     "issue": 55,
     "pullRequest": 56,
     "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/56",
-    "pullRequestState": "DRAFT",
-    "exactHead": "486b32ffd255b144bb856b88f64db9b7218789af",
-    "exactHeadCi": "CI_PASS_RUN_31459377570",
+    "pullRequestState": "MERGED",
+    "exactHead": "7319f6f2fa13e490e46f262ba9aae7f0746016ad",
+    "exactHeadCi": "CI_PASS_RUN_31460861833",
     "review": "DOCUMENTED_SELF_REVIEW_COMMENT_5249128261",
-    "merge": "NOT_EXECUTED",
-    "mainPostMergeCi": "NOT_EXECUTED",
+    "merge": "MERGED_DFD03E1B0BA554C56231E5C6B4C5515D15D772A6",
+    "mainPostMergeCi": "CI_PASS_RUN_31462310044",
     "previousSlice": {
       "taskId": "M2-P014",
       "pullRequest": 54,
@@ -138,6 +138,6 @@
     "GitHub Ubuntu Actions已对486b32f精确head完成完整pnpm verify；staging、device和production仍不得据此升级",
     "Windows企业应用控制仍会阻止本机未签名turbo.exe；未修改或绕过安全策略，该本机环境边界由GitHub Ubuntu全量门禁补充验证"
   ],
-  "nextAllowedTask": "M2-P015_DRAFT_PR_REVIEW_AND_HUMAN_MERGE_GATE_ONLY",
-  "m2p016StartAllowed": false
+  "nextAllowedTask": "M2-P016",
+  "m2p016StartAllowed": true
 }

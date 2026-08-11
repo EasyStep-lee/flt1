@@ -5,6 +5,7 @@ import { Prisma } from '@fulishe/db';
 
 import { PrismaService } from '../infrastructure/prisma.service.js';
 import { assertApparelTemplateDefinition } from './apparel-template.policy.js';
+import { assertDigitalTemplateDefinition } from './digital-template.policy.js';
 import type { CategoryTemplateDefinition } from './category-template.policy.js';
 import { assertFoodTemplateDefinition } from './food-template.policy.js';
 import { assertFreshTemplateDefinition } from './fresh-template.policy.js';
@@ -47,7 +48,10 @@ const toRecord = (value: StoredTemplate): CategoryTemplateRecord => ({
   revision: value.revision,
   status: value.status,
   profile:
-    value.profile === 'FOOD' || value.profile === 'FRESH' || value.profile === 'APPAREL'
+    value.profile === 'FOOD' ||
+    value.profile === 'FRESH' ||
+    value.profile === 'APPAREL' ||
+    value.profile === 'DIGITAL'
       ? value.profile
       : 'GENERIC',
   fieldSchema: structuredClone(value.fieldSchema) as CategoryTemplateDefinition['fieldSchema'],
@@ -144,7 +148,9 @@ export class PrismaCategoryTemplateRepository implements CategoryTemplateReposit
               ? 'FRESH_HISTORY_REWRITE'
               : stored.profile === 'APPAREL'
                 ? 'APPAREL_HISTORY_REWRITE'
-                : 'TEMPLATE_IMMUTABLE',
+                : stored.profile === 'DIGITAL'
+                  ? 'DIGITAL_HISTORY_REWRITE'
+                  : 'TEMPLATE_IMMUTABLE',
         };
       }
       const before = toRecord(stored);
@@ -185,12 +191,15 @@ export class PrismaCategoryTemplateRepository implements CategoryTemplateReposit
               ? 'FRESH_HISTORY_REWRITE'
               : stored.profile === 'APPAREL'
                 ? 'APPAREL_HISTORY_REWRITE'
-                : 'TEMPLATE_IMMUTABLE',
+                : stored.profile === 'DIGITAL'
+                  ? 'DIGITAL_HISTORY_REWRITE'
+                  : 'TEMPLATE_IMMUTABLE',
         };
       }
       assertFoodTemplateDefinition(toRecord(stored));
       assertFreshTemplateDefinition(toRecord(stored));
       assertApparelTemplateDefinition(toRecord(stored));
+      assertDigitalTemplateDefinition(toRecord(stored));
       const invalidTarget = await this.invalidTarget(tx, command.companyId, stored.categoryId);
       if (invalidTarget) return { kind: invalidTarget };
       const current = await tx.categoryTemplate.findFirst({

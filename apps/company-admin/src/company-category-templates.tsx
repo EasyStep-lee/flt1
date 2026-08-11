@@ -242,6 +242,71 @@ const apparelDefinition = (): TemplateDefinition => ({
   },
 });
 
+const digitalField = (
+  key: string,
+  label: string,
+  detailModuleKey: string,
+  options: {
+    readonly specification?: boolean;
+    readonly type?: 'RICH_TEXT' | 'TEXT';
+  } = {},
+): TemplateDefinition['fieldSchema']['fields'][number] => ({
+  key,
+  label,
+  type: options.type ?? 'TEXT',
+  required: true,
+  unit: null,
+  enumValues: [],
+  validation: { min: null, max: null, minLength: 1, maxLength: 500, pattern: null },
+  searchable: false,
+  specification: options.specification ?? false,
+  detailModuleKey,
+});
+
+const digitalDefinition = (): TemplateDefinition => ({
+  profile: 'DIGITAL',
+  fieldSchema: {
+    schemaVersion: '1.0',
+    fields: [
+      digitalField('dimensions', '尺寸', 'technical-parameters'),
+      digitalField('power', '功率', 'technical-parameters'),
+      digitalField('voltage', '电压', 'technical-parameters'),
+      digitalField('interfaces', '接口', 'technical-parameters'),
+      digitalField('energy-efficiency', '能效', 'energy-efficiency'),
+      digitalField('execution-standard', '执行标准', 'technical-parameters'),
+      digitalField('package-list', '包装清单', 'package-and-installation', { type: 'RICH_TEXT' }),
+      digitalField('installation-instructions', '安装说明', 'package-and-installation', { type: 'RICH_TEXT' }),
+      digitalField('warranty-period', '保修期', 'warranty'),
+      digitalField('color', '颜色', 'specifications', { specification: true }),
+      digitalField('capacity', '容量', 'specifications', { specification: true }),
+      digitalField('model', '型号', 'specifications', { specification: true }),
+    ],
+  },
+  skuDimensions: {
+    dimensions: [
+      { key: 'color', label: '颜色', fieldKey: 'color' },
+      { key: 'capacity', label: '容量', fieldKey: 'capacity' },
+      { key: 'model', label: '型号', fieldKey: 'model' },
+    ],
+  },
+  qualificationRules: { rules: [] },
+  detailModules: {
+    modules: [
+      { key: 'technical-parameters', title: '规格参数', kind: 'FIELDS', sortWeight: 10 },
+      { key: 'energy-efficiency', title: '能效信息', kind: 'FIELDS', sortWeight: 20 },
+      { key: 'package-and-installation', title: '包装与安装', kind: 'FIELDS', sortWeight: 30 },
+      { key: 'warranty', title: '保修信息', kind: 'FIELDS', sortWeight: 40 },
+      { key: 'specifications', title: '型号规格', kind: 'FIELDS', sortWeight: 50 },
+      { key: 'digital-after-sales', title: '安装与保修服务', kind: 'AFTER_SALE', sortWeight: 60 },
+    ],
+  },
+  afterSaleRules: {
+    returnPolicy: 'CATEGORY_RESTRICTED',
+    notice: '由江苏福礼团供应链科技有限公司统一受理；安装与保修按已发布规则执行。',
+    evidenceRequirements: ['PACKAGE_PHOTO', 'PRODUCT_PHOTO'],
+  },
+});
+
 const messageFrom = (value: unknown, fallback: string): string => {
   if (value && typeof value === 'object' && 'message' in value) {
     const message = (value as { readonly message?: unknown }).message;
@@ -473,6 +538,13 @@ export function CompanyCategoryTemplatePanel() {
           >
             新建服饰模板草稿
           </Button>
+          <Button
+            disabled={!categoryId || Boolean(data?.items.some(({ status }) => status === 'DRAFT'))}
+            loading={submitting}
+            onClick={() => void createDraft(digitalDefinition())}
+          >
+            新建数码模板草稿
+          </Button>
         </Space>
       </div>
 
@@ -498,7 +570,7 @@ export function CompanyCategoryTemplatePanel() {
             { title: '版本', dataIndex: 'version', render: (value: number) => `V${value}` },
             { title: '修订', dataIndex: 'revision', render: (value: number) => `R${value}` },
             { title: '状态', dataIndex: 'status', render: (value: Template['status']) => <Tag color={value === 'PUBLISHED' ? 'success' : value === 'DRAFT' ? 'processing' : 'default'}>{value === 'PUBLISHED' ? '当前发布' : value === 'DRAFT' ? '草稿' : '已退役'}</Tag> },
-            { title: '类型', dataIndex: 'profile', render: (value: Template['profile']) => value === 'FOOD' ? <Tag color="gold">食品</Tag> : value === 'FRESH' ? <Tag color="green">生鲜</Tag> : value === 'APPAREL' ? <Tag color="magenta">服饰</Tag> : <Tag>通用</Tag> },
+            { title: '类型', dataIndex: 'profile', render: (value: Template['profile']) => value === 'FOOD' ? <Tag color="gold">食品</Tag> : value === 'FRESH' ? <Tag color="green">生鲜</Tag> : value === 'APPAREL' ? <Tag color="magenta">服饰</Tag> : value === 'DIGITAL' ? <Tag color="blue">数码</Tag> : <Tag>通用</Tag> },
             { title: '字段/SKU 维度', key: 'shape', render: (_value, row) => `${row.fieldSchema.fields.length} / ${row.skuDimensions.dimensions.length}` },
             { title: '资质规则', key: 'qualification', render: (_value, row) => `${row.qualificationRules.rules.length} 项` },
             {

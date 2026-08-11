@@ -50,6 +50,11 @@ const throwFailure = (kind: CategoryTemplateFailureKind): never => {
       'APPAREL_HISTORY_REWRITE',
       'Published apparel template versions are immutable',
     ],
+    DIGITAL_HISTORY_REWRITE: [
+      409,
+      'DIGITAL_HISTORY_REWRITE',
+      'Published digital template versions are immutable',
+    ],
     AUDIT_REQUIRED: [503, 'AUDIT_REQUIRED', 'Category template audit write is required'],
     CATEGORY_DISABLED: [422, 'CATEGORY_DISABLED', 'Category is disabled'],
     CATEGORY_NOT_FOUND: [404, 'CATEGORY_NOT_FOUND', 'Category was not found'],

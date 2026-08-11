@@ -367,6 +367,104 @@ const apparelProductBody = (categoryId, templateVersion, name = '服饰模板商
   ],
 });
 
+const digitalField = (
+  key,
+  label,
+  detailModuleKey,
+  { specification = false, type = 'TEXT' } = {},
+) => ({
+  key,
+  label,
+  type,
+  required: true,
+  unit: null,
+  enumValues: [],
+  validation: { min: null, max: null, minLength: 1, maxLength: 500, pattern: null },
+  searchable: false,
+  specification,
+  detailModuleKey,
+});
+
+const digitalTemplateBody = () => ({
+  profile: 'DIGITAL',
+  fieldSchema: {
+    schemaVersion: '1.0',
+    fields: [
+      digitalField('dimensions', '尺寸', 'technical-parameters'),
+      digitalField('power', '功率', 'technical-parameters'),
+      digitalField('voltage', '电压', 'technical-parameters'),
+      digitalField('interfaces', '接口', 'technical-parameters'),
+      digitalField('energy-efficiency', '能效', 'energy-efficiency'),
+      digitalField('execution-standard', '执行标准', 'technical-parameters'),
+      digitalField('package-list', '包装清单', 'package-and-installation', { type: 'RICH_TEXT' }),
+      digitalField('installation-instructions', '安装说明', 'package-and-installation', { type: 'RICH_TEXT' }),
+      digitalField('warranty-period', '保修期', 'warranty'),
+      digitalField('color', '颜色', 'specifications', { specification: true }),
+      digitalField('capacity', '容量', 'specifications', { specification: true }),
+      digitalField('model', '型号', 'specifications', { specification: true }),
+    ],
+  },
+  skuDimensions: {
+    dimensions: [
+      { key: 'color', label: '颜色', fieldKey: 'color' },
+      { key: 'capacity', label: '容量', fieldKey: 'capacity' },
+      { key: 'model', label: '型号', fieldKey: 'model' },
+    ],
+  },
+  qualificationRules: { rules: [] },
+  detailModules: {
+    modules: [
+      { key: 'technical-parameters', title: '规格参数', kind: 'FIELDS', sortWeight: 10 },
+      { key: 'energy-efficiency', title: '能效信息', kind: 'FIELDS', sortWeight: 20 },
+      { key: 'package-and-installation', title: '包装与安装', kind: 'FIELDS', sortWeight: 30 },
+      { key: 'warranty', title: '保修信息', kind: 'FIELDS', sortWeight: 40 },
+      { key: 'specifications', title: '型号规格', kind: 'FIELDS', sortWeight: 50 },
+      { key: 'digital-after-sales', title: '安装与保修服务', kind: 'AFTER_SALE', sortWeight: 60 },
+    ],
+  },
+  afterSaleRules: {
+    returnPolicy: 'CATEGORY_RESTRICTED',
+    notice: '由江苏福礼团供应链科技有限公司统一受理；安装与保修按已发布规则执行。',
+    evidenceRequirements: ['PACKAGE_PHOTO', 'PRODUCT_PHOTO'],
+  },
+});
+
+const digitalProductBody = (categoryId, templateVersion, name = '数码模板商品') => ({
+  categoryId,
+  templateVersion,
+  name,
+  brand: '福礼团严选',
+  attributes: {
+    dimensions: '300mm × 200mm × 50mm',
+    power: '65W',
+    voltage: '220V',
+    interfaces: 'USB-C、HDMI',
+    'energy-efficiency': '一级能效',
+    'execution-standard': 'GB 4943.1-2022',
+    'package-list': '主机×1、电源适配器×1、说明书×1',
+    'installation-instructions': '接通电源后按说明书完成首次配置',
+    'warranty-period': '整机一年',
+  },
+  qualificationReferences: [],
+  isRetailEnabled: true,
+  isEnterpriseProcurementEnabled: false,
+  enterpriseMinOrderQty: 1,
+  enterprisePackageMultiple: 1,
+  preparationMinutes: 30,
+  skus: [
+    {
+      supplierSkuCode: `${name}-D1`,
+      attributes: { color: '白色', capacity: '256GB', model: 'FL-D1' },
+      initialStock: 10,
+    },
+    {
+      supplierSkuCode: `${name}-D2`,
+      attributes: { color: '黑色', capacity: '512GB', model: 'FL-D2' },
+      initialStock: 10,
+    },
+  ],
+});
+
 const productBody = (categoryId, templateVersion, name = '模板绑定商品') => ({
   categoryId,
   templateVersion,
@@ -924,6 +1022,62 @@ describe('P0-015 apparel template validation', () => {
         .post('/v1/supplier/products')
         .set('Idempotency-Key', 'apparel-complete-product')
         .send(apparelProductBody(fixture.leaf.id, 1));
+      expect(accepted.status).toBe(201);
+      expect(accepted.body).toMatchObject({ templateVersion: 1, status: 'DRAFT' });
+    } finally {
+      await fixture.app.close();
+    }
+  });
+});
+
+describe('P0-016 digital template validation', () => {
+  it('NEG-M2-016-01 rejects an incomplete DIGITAL definition without persistence', async () => {
+    const fixture = await createFixture();
+    try {
+      const incomplete = digitalTemplateBody();
+      incomplete.fieldSchema.fields = incomplete.fieldSchema.fields.filter(
+        ({ key }) => key !== 'energy-efficiency',
+      );
+      const rejected = await createTemplate(fixture, fixture.leaf.id, incomplete);
+      expect(rejected.status).toBe(422);
+      expect(rejected.body).toMatchObject({ code: 'TEMPLATE_SCHEMA_INVALID' });
+      expect(await fixture.templates.count()).toBe(0);
+      expect(await fixture.templates.historyCount()).toBe(0);
+    } finally {
+      await fixture.app.close();
+    }
+  });
+
+  it('validates unique models and returns the dedicated immutable-history error', async () => {
+    const fixture = await createFixture();
+    try {
+      const created = await createTemplate(fixture, fixture.leaf.id, digitalTemplateBody());
+      expect(created.status).toBe(201);
+      expect(created.body).toMatchObject({ profile: 'DIGITAL', version: 1, status: 'DRAFT' });
+      const published = await publishTemplate(fixture, created.body.id, created.body.revision);
+      expect(published.status).toBe(200);
+
+      const rewrite = await patchTemplate(fixture, created.body.id, {
+        revision: published.body.revision,
+        ...digitalTemplateBody(),
+      });
+      expect(rewrite.status).toBe(409);
+      expect(rewrite.body).toMatchObject({ code: 'DIGITAL_HISTORY_REWRITE' });
+
+      const duplicate = digitalProductBody(fixture.leaf.id, 1, '重复型号数码商品');
+      duplicate.skus[1].attributes = { color: '黑色', capacity: '512GB', model: ' fl-d1 ' };
+      const duplicateResponse = await request(fixture.app.getHttpServer())
+        .post('/v1/supplier/products')
+        .set('Idempotency-Key', 'digital-duplicate-model')
+        .send(duplicate);
+      expect(duplicateResponse.status).toBe(422);
+      expect(duplicateResponse.body).toMatchObject({ code: 'DIGITAL_MODEL_DUPLICATE' });
+      expect(await fixture.products.countSupplierProducts()).toBe(0);
+
+      const accepted = await request(fixture.app.getHttpServer())
+        .post('/v1/supplier/products')
+        .set('Idempotency-Key', 'digital-complete-product')
+        .send(digitalProductBody(fixture.leaf.id, 1));
       expect(accepted.status).toBe(201);
       expect(accepted.body).toMatchObject({ templateVersion: 1, status: 'DRAFT' });
     } finally {

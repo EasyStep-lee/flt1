@@ -138,21 +138,22 @@ test('historical EXT-005 evidence stays locked while current state advances only
   const m2p013 = tasks.find(({ TaskID }) => TaskID === 'M2-P013');
   const m2p014 = tasks.find(({ TaskID }) => TaskID === 'M2-P014');
   const m2p015 = tasks.find(({ TaskID }) => TaskID === 'M2-P015');
+  const m2p016 = tasks.find(({ TaskID }) => TaskID === 'M2-P016');
 
   assert.equal(projectStatus.execution.status, 'M2_IN_PROGRESS');
-  assert.equal(projectStatus.execution.currentTask, 'M2-P015');
-  assert.equal(projectStatus.execution.nextAllowedTask, 'M2-P015');
+  assert.equal(projectStatus.execution.currentTask, 'M2-P016');
+  assert.equal(projectStatus.execution.nextAllowedTask, 'M2-P016');
   assert.equal(
     projectStatus.execution.activeTaskCount,
-    m2p015.Status === 'IN_PROGRESS' ? 1 : 0,
+    m2p016.Status === 'IN_PROGRESS' ? 1 : 0,
   );
   assert.equal(projectStatus.execution.lastPassedGate, 'M1-GATE');
-  assert.equal(projectStatus.github.currentTaskDelivery.taskId, 'M2-P015');
-  assert.equal(projectStatus.github.currentTaskDelivery.issue, 55);
-  assert.equal(projectStatus.github.currentTaskDelivery.exactHeadCi, 'CI_PASS');
-  assert.equal(projectStatus.github.currentTaskDelivery.m2p016StartAllowed, false);
-  assert.equal(projectStatus.github.previousTaskDelivery.taskId, 'M2-P014');
-  assert.equal(projectStatus.github.previousTaskDelivery.pullRequest, 54);
+  assert.equal(projectStatus.github.currentTaskDelivery.taskId, 'M2-P016');
+  assert.equal(projectStatus.github.currentTaskDelivery.issue, 57);
+  assert.equal(projectStatus.github.currentTaskDelivery.exactHeadCi, 'NOT_EXECUTED');
+  assert.equal(projectStatus.github.currentTaskDelivery.m2p017StartAllowed, false);
+  assert.equal(projectStatus.github.previousTaskDelivery.taskId, 'M2-P015');
+  assert.equal(projectStatus.github.previousTaskDelivery.pullRequest, 56);
   assert.equal(projectStatus.github.previousTaskDelivery.status, 'CI_PASS');
 
   assert.equal(m1Gate.Status, 'DONE');
@@ -192,7 +193,10 @@ test('historical EXT-005 evidence stays locked while current state advances only
   assert.equal(m2p014.CI, 'CI_PASS');
   assert.equal(m2p015.Status, 'DONE');
   assert.equal(m2p015.EvidenceStatus, 'CI_PASS');
-  assert.equal(m2p015.CI, 'BLOCKED_EXTERNAL');
+  assert.equal(m2p015.CI, 'CI_PASS');
+  assert.equal(m2p016.Status, 'IN_PROGRESS');
+  assert.equal(m2p016.EvidenceStatus, 'LOCAL_PASS');
+  assert.equal(m2p016.CI, 'NOT_EXECUTED');
 
   assert.equal(evidence.schemaVersion, '1.0.0');
   assert.equal(evidence.taskId, 'M1-GATE-EXT005-PROVIDED');
