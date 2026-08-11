@@ -334,6 +334,7 @@ test('generated contract exposes foundation, identity, onboarding and catalog AP
       'PublicFoodDetailModuleResponseDto',
       'PublicFoodProductDetailResponseDto',
       'PublicFoodSkuResponseDto',
+      'PublicGiftBoxItemResponseDto',
       'PublicMerchantProfileQuery',
       'PublicMerchantProfileResponse',
       'PublicMerchantSubjectsDto',
