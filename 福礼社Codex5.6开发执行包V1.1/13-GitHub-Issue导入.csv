@@ -683,7 +683,7 @@ P0：P0-013
 回滚：按原子提交回退；迁移仅向前修复
 
 执行纪律：先写失败测试并确认失败原因，再实现；运行focused tests和pnpm verify；更新字段/状态机/OpenAPI/DTO/错误码/P0证据；不得扩展阶段外范围。","codex-execution,m2,p0,catalog_domain",M2,,M2-P013,"M2-000,M2-P012",codex/m2-m2-p013,NOT_IMPORTED,,仓库未由用户确认前不得导入或写远程
-[OWNER/REPO],[M2-P014] 生鲜详情,"执行任务：M2-P014
+EasyStep-lee/flt1,[M2-P014] 生鲜详情,"执行任务：M2-P014
 
 阶段：M2
 方案来源：§5分类模板、§6商品价格库存
@@ -700,8 +700,8 @@ P0：P0-014
 人工门槛：NO
 回滚：按原子提交回退；迁移仅向前修复
 
-执行纪律：先写失败测试并确认失败原因，再实现；运行focused tests和pnpm verify；更新字段/状态机/OpenAPI/DTO/错误码/P0证据；不得扩展阶段外范围。","codex-execution,m2,p0,catalog_domain",M2,,M2-P014,"M2-000,M2-P012",codex/m2-m2-p014,NOT_IMPORTED,,仓库未由用户确认前不得导入或写远程
-[OWNER/REPO],[M2-P015] 服饰详情,"执行任务：M2-P015
+执行纪律：先写失败测试并确认失败原因，再实现；运行focused tests和pnpm verify；更新字段/状态机/OpenAPI/DTO/错误码/P0证据；不得扩展阶段外范围。","codex-execution,m2,p0,catalog_domain",M2,,M2-P014,"M2-000,M2-P012",codex/m2-fresh-detail,IMPORTED,https://github.com/EasyStep-lee/flt1/issues/53,已创建并由PR #54交付合并
+EasyStep-lee/flt1,[M2-P015] 服饰详情,"执行任务：M2-P015
 
 阶段：M2
 方案来源：§5分类模板、§6商品价格库存
@@ -718,7 +718,7 @@ P0：P0-015
 人工门槛：NO
 回滚：按原子提交回退；迁移仅向前修复
 
-执行纪律：先写失败测试并确认失败原因，再实现；运行focused tests和pnpm verify；更新字段/状态机/OpenAPI/DTO/错误码/P0证据；不得扩展阶段外范围。","codex-execution,m2,p0,catalog_domain",M2,,M2-P015,"M2-000,M2-P012",codex/m2-m2-p015,NOT_IMPORTED,,仓库未由用户确认前不得导入或写远程
+执行纪律：先写失败测试并确认失败原因，再实现；运行focused tests和pnpm verify；更新字段/状态机/OpenAPI/DTO/错误码/P0证据；不得扩展阶段外范围。","codex-execution,m2,p0,catalog_domain",M2,,M2-P015,"M2-000,M2-P012",codex/m2-apparel-detail,IMPORTED,https://github.com/EasyStep-lee/flt1/issues/55,已创建；Draft PR待建立
 [OWNER/REPO],[M2-P016] 数码详情,"执行任务：M2-P016
 
 阶段：M2

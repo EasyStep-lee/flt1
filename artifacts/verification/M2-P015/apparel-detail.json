@@ -1,0 +1,122 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "M2-P015",
+  "p0": [
+    "P0-015"
+  ],
+  "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+  "status": "LOCAL_PASS",
+  "branch": "codex/m2-apparel-detail",
+  "baseCommit": "f2d6c1c665774bc57149e6125da829d7b1fb9dd1",
+  "implementationCommit": "d87fd3409978f79f9490752e0ce1ce44d25154eb",
+  "scope": {
+    "goal": "以不可变APPAREL模板驱动面料、里料、版型、执行标准、尺码表、洗护、颜色尺码SKU、公司退换规则、公开DTO白名单及用户小程序服饰详情区块",
+    "nonGoals": [
+      "P0-016至P0-018数码、礼盒和强监管开关",
+      "P0-021与P0-088完整通用商品详情和交易交互",
+      "正式生产服饰模板、尺码和商品数据导入",
+      "价格审批、库存扣减、交易、支付、配送和M2-P016后续切片"
+    ]
+  },
+  "redEvidence": [
+    {
+      "test": "apps/api/test/unit/apparel-detail-policy.test.mjs",
+      "result": "FAIL_ERR_MODULE_NOT_FOUND",
+      "cause": "dist/category-templates/apparel-template.policy.js尚不存在，服饰模板运行时规则未实现"
+    }
+  ],
+  "focusedGreen": {
+    "apparelPolicyUnit": "PASS_3_OF_3",
+    "categoryAndPublicDetailApi": "PASS_15_OF_15",
+    "allSupertest": "PASS_26_FILES_152_OF_152",
+    "userMiniapp": "PASS_9_OF_9_AFTER_EXPLICIT_BUILD",
+    "apparelMigrationContract": "PASS_2_OF_2",
+    "apparelP0Playwright": "PASS_1_OF_1",
+    "lintAndTypecheck": "PASS",
+    "prismaValidate": "PASS",
+    "migrationRehearsal": "PASS_EMPTY_2_UPGRADE_2_RESTORE_2_PRODUCT_18_CLEANUP",
+    "openApiGenerateAndCheck": "PASS_BYTE_IDENTICAL",
+    "behaviors": [
+      "APPAREL模板固定六个商品字段、颜色和尺码两个SKU维度、五个详情模块和公司退换规则",
+      "颜色与尺码经NFKC、去首尾空白和大小写归一后必须组成唯一SKU组合",
+      "供应商创建、修改和提交时按精确已发布模板版本校验必填、白名单和SKU组合",
+      "供应商不能新增、替换或通过嵌套字段覆盖公司试穿退换规则",
+      "已发布模板的profile和JSON定义均由数据库触发器保护不可覆盖",
+      "公开详情只返回在售零售SKU、整数分零售价、服饰白名单字段、颜色尺码和公司退换提示",
+      "公开DTO不返回供应价、资质私有引用、companyId、functionalAccountId、identityId或内部审批快照",
+      "对客销售、结账和售后主体固定为江苏福礼团供应链科技有限公司",
+      "原生用户小程序继续只经miniapp-kit生成契约请求，并保留加载、错误和重试状态"
+    ]
+  },
+  "fullVerification": {
+    "status": "BLOCKED_EXTERNAL_WINDOWS_APPLICATION_CONTROL",
+    "command": "pnpm verify",
+    "commit": "d87fd3409978f79f9490752e0ce1ce44d25154eb",
+    "startedAt": "2026-08-11T03:37:04Z",
+    "endedAt": "2026-08-11T03:41:11Z",
+    "report": "artifacts/test-results/verification/pnpm-verify.json",
+    "passedBeforeBlock": "8_OF_17",
+    "blockedStep": "regression",
+    "blockCause": "Windows Code Integrity events 3033/3077 policy 0283ac0f-fff1-49ae-ada1-8a933130cad6 blocked unsigned turbo.exe with spawn UNKNOWN",
+    "equivalentSplitEvidence": {
+      "regressionAssertions": "PASS_SHELL_6_MINIAPP_TRANSPORT_4_OPENAPI_17_MIGRATIONS_34_CI_8_HANDOFF_23_CONTRACTS_66_FOUNDATION_4",
+      "workspacePackageTests": "PASS_RECURSIVE_13_OF_14_PROJECTS",
+      "api": "PASS_CONTRACT_3_AND_SUPERTEST_26_FILES_152_OF_152",
+      "p0": "PASS_40_OF_40",
+      "prismaValidate": "PASS",
+      "migrationIntegrity": "PASS_18_OF_18",
+      "migrationRehearsal": "PASS_EMPTY_2_UPGRADE_2_RESTORE_2_PRODUCT_18_CLEANUP",
+      "workspaceBuild": "PASS_RECURSIVE_13_OF_14_PROJECTS",
+      "secrets": "PASS_665_TRACKED_FILES"
+    }
+  },
+  "dataAndMigration": {
+    "migration": "packages/db/prisma/migrations/20260810230500_m2_apparel_template_profile/migration.sql",
+    "change": "CategoryTemplate profile CHECK以前向迁移从GENERIC|FOOD|FRESH扩展为GENERIC|FOOD|FRESH|APPAREL；已发布profile与模板JSON继续不可变",
+    "backfill": "NO_FORMAL_APPAREL_DATA_AND_NO_HISTORY_REWRITE",
+    "rollback": "回退应用提交；共享环境若已应用迁移则不改写已发布SQL，保留兼容枚举并以前向修复处理"
+  },
+  "contractsAndPages": {
+    "api": "GET /v1/catalog/products/{productId}",
+    "companyPage": "PAGE-005 /company-admin/workspaces/product-ops",
+    "consumerPage": "PAGE-053 /pages/product-detail/index P0-015子集",
+    "openApi": "packages/contracts/openapi.json",
+    "generatedTypes": "packages/contracts/types.ts",
+    "miniappContract": "packages/contracts/src/miniapp-contracts.ts"
+  },
+  "environmentBoundary": {
+    "local": "LOCAL_PASS_WITH_FULL_GATE_BLOCKED_EXTERNAL",
+    "ci": "NOT_EXECUTED_NO_PR",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_EXECUTED",
+    "production": "NOT_EXECUTED",
+    "formalApparelData": "BLOCKED_EXTERNAL_EXT_007_AUTHORIZED_PRODUCT_AND_COMPLIANCE_CONFIRMATION"
+  },
+  "github": {
+    "repository": "EasyStep-lee/flt1",
+    "issue": 55,
+    "pullRequest": null,
+    "pullRequestState": "NOT_CREATED",
+    "exactHeadCi": "NOT_EXECUTED_NO_PR",
+    "review": "NOT_EXECUTED",
+    "merge": "NOT_EXECUTED",
+    "mainPostMergeCi": "NOT_EXECUTED",
+    "previousSlice": {
+      "taskId": "M2-P014",
+      "pullRequest": 54,
+      "exactHead": "9bbaa92e22d2c7055ffefbe089f92eaaf69cdabe",
+      "mergeCommit": "f2d6c1c665774bc57149e6125da829d7b1fb9dd1",
+      "mainCiRun": 31453656294,
+      "status": "CI_PASS"
+    }
+  },
+  "risks": [
+    "正式服饰模板字段、尺码表、洗护和试穿退换口径仍需EXT-007授权商品运营及合规确认",
+    "P015页面只完成服饰详情子集，不能宣称P0-021或P0-088完整商品详情完成",
+    "公开详情继续复用兼容响应类型名PublicFoodProductDetailResponseDto；后续通用化命名不得破坏现有契约",
+    "当前证据仅来自本地Node、MySQL 8和Chromium，不能升级为CI、staging、device或production",
+    "Windows企业应用控制阻止未签名turbo.exe；未修改或绕过安全策略，完整聚合门禁等待GitHub Ubuntu Actions复验"
+  ],
+  "nextAllowedTask": "M2-P015_DRAFT_PR_GATE_ONLY",
+  "m2p016StartAllowed": false
+}
