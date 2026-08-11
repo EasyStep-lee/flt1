@@ -3,10 +3,10 @@
   "taskId": "M2-P016",
   "p0": ["P0-016"],
   "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
-  "status": "LOCAL_PASS",
+  "status": "CI_PASS",
   "branch": "codex/m2-digital-detail",
   "baseCommit": "dfd03e1b0ba554c56231e5c6b4c5515d15d772a6",
-  "implementationCommit": null,
+  "implementationCommit": "f76b2c0708bba03c3ce52d72b23b12d8206ed08d",
   "scope": {
     "goal": "以不可变DIGITAL模板驱动型号、参数、能效、包装清单、安装、保修、公开DTO白名单及用户小程序数码详情区块",
     "nonGoals": [
@@ -47,7 +47,7 @@
     ]
   },
   "fullVerification": {
-    "status": "SPLIT_GATES_PASS_PENDING_CLEAN_HEAD_VERIFY",
+    "status": "PASS_17_OF_17_CLEAN_HEAD",
     "initialPnpmVerify": {
       "result": "FAIL_EXPECTED_OPENAPI_DIFF_AGAINST_PRE_IMPLEMENTATION_HEAD",
       "exitCode": 1,
@@ -59,6 +59,14 @@
       "secondRun": "FAIL_20_STALE_HISTORICAL_CONTRACT_ASSERTIONS",
       "focusedAfterRepair": "PASS_CONTRACTS_69_OF_69_AND_HANDOFFS_6_OF_6",
       "finalRun": "PASS_EXIT_0_446_2_SECONDS"
+    },
+    "cleanHeadVerify": {
+      "result": "PASS_17_OF_17_EXIT_0",
+      "commit": "f76b2c0708bba03c3ce52d72b23b12d8206ed08d",
+      "baseRef": "HEAD",
+      "startedAt": "2026-08-11T07:05:43.687Z",
+      "endedAt": "2026-08-11T07:18:52.099Z",
+      "report": "artifacts/test-results/verification/pnpm-verify.json"
     },
     "splitGates": {
       "lint": "PASS_13_PACKAGES_AFTER_FINAL_TEST_REPAIRS",
@@ -92,7 +100,7 @@
   },
   "environmentBoundary": {
     "local": "LOCAL_PASS",
-    "ci": "NOT_EXECUTED",
+    "ci": "CI_PASS",
     "staging": "NOT_EXECUTED",
     "device": "NOT_EXECUTED",
     "production": "NOT_EXECUTED",
@@ -101,10 +109,10 @@
   "github": {
     "repository": "EasyStep-lee/flt1",
     "issue": 57,
-    "pullRequest": null,
-    "pullRequestState": "NOT_CREATED",
-    "exactHead": null,
-    "exactHeadCi": "NOT_EXECUTED",
+    "pullRequest": 58,
+    "pullRequestState": "DRAFT",
+    "exactHead": "f76b2c0708bba03c3ce52d72b23b12d8206ed08d",
+    "exactHeadCi": "CI_PASS_RUN_31468592265_JOB_93706680485",
     "review": "NOT_EXECUTED",
     "merge": "NOT_EXECUTED",
     "mainPostMergeCi": "NOT_EXECUTED",
@@ -123,6 +131,6 @@
     "公开详情继续复用兼容响应类型名PublicFoodProductDetailResponseDto；后续通用化命名不得破坏现有契约",
     "staging、device和production未执行，不能由本地测试升级证据等级"
   ],
-  "nextAllowedTask": "M2-P016_DRAFT_PR_CI_AND_HUMAN_MERGE_GATE_ONLY",
+  "nextAllowedTask": "M2-P016_HUMAN_READY_AND_MERGE_GATE_ONLY",
   "m2p017StartAllowed": false
 }

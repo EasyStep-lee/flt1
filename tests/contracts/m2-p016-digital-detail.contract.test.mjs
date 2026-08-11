@@ -35,7 +35,7 @@ test('P0-016 adds only DIGITAL to category-template profiles and safe errors', (
   assert.match(JSON.stringify(openApi.components.schemas), /DIGITAL_HISTORY_REWRITE/u);
 });
 
-test('M2-P016 records local evidence while Draft PR CI and P017 remain locked', async () => {
+test('M2-P016 records exact implementation-head CI while human merge and P017 remain locked', async () => {
   const [state, evidence, taskLedger, p0Ledger, pageLedger, apiLedger, handoff] =
     await Promise.all([
       readFile(path.join(executionPack, '16-项目状态.json'), 'utf8').then(JSON.parse),
@@ -60,22 +60,34 @@ test('M2-P016 records local evidence while Draft PR CI and P017 remain locked', 
   assert.equal(state.github.currentTaskDelivery.taskId, 'M2-P016');
   assert.equal(state.github.currentTaskDelivery.issue, 57);
   assert.equal(state.github.currentTaskDelivery.branch, 'codex/m2-digital-detail');
-  assert.equal(state.github.currentTaskDelivery.exactHeadCi, 'NOT_EXECUTED');
+  assert.equal(
+    state.github.currentTaskDelivery.exactHeadCi,
+    'CI_PASS_RUN_31468592265_JOB_93706680485',
+  );
+  assert.equal(state.github.currentTaskDelivery.pullRequest, 58);
+  assert.equal(state.github.currentTaskDelivery.pullRequestState, 'DRAFT');
+  assert.equal(state.github.currentTaskDelivery.merge, 'NOT_EXECUTED');
+  assert.equal(state.github.currentTaskDelivery.mainPostMergeCi, 'NOT_EXECUTED');
   assert.equal(state.github.currentTaskDelivery.m2p017StartAllowed, false);
   assert.equal(state.github.previousTaskDelivery.taskId, 'M2-P015');
   assert.equal(state.github.previousTaskDelivery.pullRequest, 56);
   assert.equal(state.github.previousTaskDelivery.mainPostMergeCiRun, 31462310044);
   assert.equal(state.github.previousTaskDelivery.status, 'CI_PASS');
   assert.equal(evidence.taskId, 'M2-P016');
-  assert.equal(evidence.status, 'LOCAL_PASS');
-  assert.equal(evidence.environmentBoundary.ci, 'NOT_EXECUTED');
+  assert.equal(evidence.status, 'CI_PASS');
+  assert.equal(evidence.environmentBoundary.ci, 'CI_PASS');
   assert.equal(evidence.github.issue, 57);
-  assert.equal(evidence.github.pullRequest, null);
+  assert.equal(evidence.github.pullRequest, 58);
+  assert.equal(evidence.github.pullRequestState, 'DRAFT');
+  assert.equal(evidence.github.exactHead, 'f76b2c0708bba03c3ce52d72b23b12d8206ed08d');
+  assert.equal(evidence.github.exactHeadCi, 'CI_PASS_RUN_31468592265_JOB_93706680485');
+  assert.equal(evidence.github.merge, 'NOT_EXECUTED');
+  assert.equal(evidence.github.mainPostMergeCi, 'NOT_EXECUTED');
   assert.equal(evidence.m2p017StartAllowed, false);
   assert.match(taskLedger, /M2-P015[^\r\n]*DONE[^\r\n]*CI_PASS/u);
-  assert.match(taskLedger, /M2-P016[^\r\n]*IN_PROGRESS[^\r\n]*LOCAL_PASS/u);
-  assert.match(p0Ledger, /P0-016[^\r\n]*LOCAL_PASS/u);
-  assert.match(pageLedger, /P0-016_LOCAL_PASS/u);
+  assert.match(taskLedger, /M2-P016[^\r\n]*IN_PROGRESS[^\r\n]*CI_PASS/u);
+  assert.match(p0Ledger, /P0-016[^\r\n]*CI_PASS/u);
+  assert.match(pageLedger, /P0-016_CI_PASS/u);
   assert.match(apiLedger, /API-030[^\r\n]*P0-016[^\r\n]*IMPLEMENTED/u);
   assert.match(handoff, /^# M2-P016 数码详情交接/u);
   assert.match(handoff, /M2-P017/u);

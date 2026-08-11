@@ -2,9 +2,9 @@
 
 ## 结论与边界
 
-- 当前结论：`LOCAL_PASS / GITHUB_DELIVERY_IN_PROGRESS`；RED、数码领域策略、focused API/小程序/P0、完整 `pnpm test`、独立 API、41 项 P0 E2E、Prisma 校验、真实 MySQL 迁移演练、OpenAPI 兼容性、全构建和秘密扫描已有新鲜本地证据。首次 `pnpm verify` 按设计在“尚未提交的 OpenAPI 与旧 HEAD 不一致”处退出；提交后仍须在干净 OpenAPI HEAD 上重跑。Draft PR、精确 head CI、人工合并与合并后 main CI 尚未完成，因此不得写成 `CI_PASS` 或进入 P017。
+- 当前结论：`CI_PASS / BLOCKED_EXTERNAL_HUMAN_MERGE_GATE`；RED、数码领域策略、focused API/小程序/P0、完整 `pnpm test`、独立 API、41 项 P0 E2E、Prisma 校验、真实 MySQL 迁移演练、OpenAPI 兼容性、全构建和秘密扫描已有新鲜本地证据。干净实现提交 `f76b2c0708bba03c3ce52d72b23b12d8206ed08d` 的 `pnpm verify` 17/17 通过，Draft PR #58 的同一精确 head Actions run 31468592265 / job 93706680485 成功。人工 Ready/合并与合并后 main CI 尚未完成，因此不得进入 P017。
 - 方案 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`。
-- 仓库：`EasyStep-lee/flt1`；基线 `main@dfd03e1b0ba554c56231e5c6b4c5515d15d772a6`；分支 `codex/m2-digital-detail`；Issue [#57](https://github.com/EasyStep-lee/flt1/issues/57)。
+- 仓库：`EasyStep-lee/flt1`；基线 `main@dfd03e1b0ba554c56231e5c6b4c5515d15d772a6`；分支 `codex/m2-digital-detail`；实现提交 `f76b2c0708bba03c3ce52d72b23b12d8206ed08d`；Issue [#57](https://github.com/EasyStep-lee/flt1/issues/57)；Draft PR [#58](https://github.com/EasyStep-lee/flt1/pull/58)。
 - 唯一范围：`P0-016` DIGITAL 模板、数码字段与型号 SKU 校验、公开详情 DTO 白名单、公司模板预置及用户小程序数码详情区块。
 - 明确未进入：`P0-017` 至 `P0-018`、`P0-021`/`P0-088` 完整商品详情、正式数据、价格审批、交易、支付、库存扣减和配送。
 
@@ -54,7 +54,8 @@
 | 全构建 | 13/13 workspace packages | PASS |
 | secrets scan | 668 个 tracked 文件 | PASS |
 | 完整 `pnpm verify` 初跑 | 在 openapi-diff 发现尚未提交的合法生成差异后退出 1 | EXPECTED_PRE_COMMIT_FAIL |
-| 完整 `pnpm verify` 干净 OpenAPI HEAD 重跑 | 提交后执行 | NOT_EXECUTED |
+| 完整 `pnpm verify` 干净 OpenAPI HEAD 重跑 | `f76b2c0`，17/17，退出 0，07:05:43Z—07:18:52Z | PASS |
+| Draft PR 精确 head CI | run 31468592265 / job 93706680485，`f76b2c0`，完整门禁成功 | CI_PASS |
 
 ## 环境、风险与回滚
 
@@ -67,5 +68,5 @@
 
 ## GitHub 门禁与下一步
 
-- 当前仅 Issue #57 与本地分支存在；Draft PR、精确 head CI、自审、人工 Ready/合并和合并后 main CI 均待执行。
-- 未经用户对届时精确 head 的明确授权，不转 Ready、不合并；合并后 `main` CI 成功前不得开始 M2-P017。
+- Draft PR #58 当前 head `f76b2c0708bba03c3ce52d72b23b12d8206ed08d` 的 Actions run 31468592265 成功；同步证据会生成新的 PR head，必须再核对新 head 的 CI 后才可向人工交付精确授权文本。
+- 自审、人工 Ready/合并和合并后 main CI 尚未执行；未经用户对最终精确 head 的明确授权，不转 Ready、不合并。合并后 `main` CI 成功前不得开始 M2-P017。
