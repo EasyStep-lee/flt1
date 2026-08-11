@@ -6,7 +6,7 @@
   "status": "LOCAL_PASS",
   "branch": "codex/m2-gift-box-detail",
   "baseCommit": "371d99dc668cf021583fb43f86750cb4630573b7",
-  "implementationCommit": null,
+  "implementationCommit": "42f3c152cf07c1a1b949fd6c4e689dd0ea4f34ea",
   "scope": {
     "goal": "以不可变GIFT_BOX模板驱动结构化组合子项快照，并在公开详情和用户小程序明确展示名称、数量、规格与最低有效期",
     "nonGoals": [
@@ -33,6 +33,7 @@
     "giftBoxP0Playwright": "PASS_1_OF_1_AFTER_COMPANY_ADMIN_REBUILD",
     "typecheck": "PASS_13_OF_13_PACKAGES",
     "openApiGenerate": "PASS",
+    "lintAndHistoricalContracts": "PASS_LINT_13_PACKAGES_AND_CONTRACTS_72_OF_72",
     "behaviors": [
       "GIFT_BOX模板固定结构化组合清单、包装、定制、交付周期、福利场景和套餐SKU维度",
       "每个组合子项必须包含名称、正整数数量、规格和正整数最低有效期天数",
@@ -46,20 +47,44 @@
     ]
   },
   "fullVerification": {
-    "status": "NOT_EXECUTED",
+    "status": "PASS_17_OF_17_CLEAN_HEAD",
+    "initialPnpmVerify": {
+      "result": "FAIL_REGRESSION_STRICT_OPENAPI_SCHEMA_INVENTORY",
+      "exitCode": 1,
+      "completedSteps": [
+        "workspace",
+        "lint",
+        "openapi-generate",
+        "openapi-diff",
+        "openapi-check",
+        "openapi-breaking",
+        "typecheck",
+        "unit"
+      ],
+      "cause": "PublicGiftBoxItemResponseDto已确定性生成，但严格OpenAPI schema清单未同步登记",
+      "repair": "只在严格清单中登记新增DTO，原focused OpenAPI测试4/4通过"
+    },
+    "cleanHeadVerify": {
+      "result": "PASS_17_OF_17_EXIT_0",
+      "commit": "42f3c152cf07c1a1b949fd6c4e689dd0ea4f34ea",
+      "baseRef": "HEAD",
+      "startedAt": "2026-08-11T09:07:36.713Z",
+      "endedAt": "2026-08-11T09:22:54.900Z",
+      "report": "artifacts/test-results/verification/pnpm-verify.json"
+    },
     "splitGates": {
-      "lint": "NOT_EXECUTED",
+      "lint": "PASS_13_PACKAGES",
       "typecheck": "PASS_13_PACKAGES",
-      "test": "NOT_EXECUTED",
+      "test": "PASS_EXIT_0",
       "testApi": "PASS_CONTRACT_3_OF_3_AND_SUPERTEST_28_FILES_160_OF_160",
-      "testE2eFoundation": "NOT_EXECUTED",
-      "testE2eP0": "PASS_FOCUSED_P017_1_OF_1",
-      "prismaValidate": "NOT_EXECUTED",
-      "prismaMigrateDryRun": "NOT_EXECUTED",
-      "openApiCheck": "NOT_EXECUTED",
-      "openApiBreaking": "NOT_EXECUTED",
-      "build": "PASS_API_USER_MINIAPP_COMPANY_ADMIN_FOCUSED",
-      "secretsScan": "NOT_EXECUTED"
+      "testE2eFoundation": "PASS_3_OF_3",
+      "testE2eP0": "PASS_42_OF_42",
+      "prismaValidate": "PASS",
+      "prismaMigrateDryRun": "PASS_EMPTY_2_UPGRADE_2_RESTORE_2_PRODUCT_20_CLEANUP",
+      "openApiCheck": "PASS_BYTE_IDENTICAL",
+      "openApiBreaking": "PASS_NO_CHANGES_AGAINST_HEAD",
+      "build": "PASS_13_PACKAGES",
+      "secretsScan": "PASS_690_TRACKED_FILES"
     },
     "initialPageFailure": {
       "result": "FAIL_TIMEOUT_STALE_PREVIEW_BUILD",
@@ -82,7 +107,7 @@
     "miniappContract": "packages/contracts/src/miniapp-contracts.ts"
   },
   "environmentBoundary": {
-    "local": "LOCAL_PASS_FOCUSED_ONLY",
+    "local": "LOCAL_PASS_FULL_VERIFY_17_OF_17",
     "ci": "NOT_EXECUTED",
     "staging": "NOT_EXECUTED",
     "device": "NOT_EXECUTED",
@@ -111,7 +136,7 @@
     "正式礼盒字段、组合子项、最低有效期和售后口径仍需EXT-007授权商品运营及合规确认",
     "P017页面只完成礼盒详情子集，不能宣称P0-021或P0-088完整商品详情完成",
     "公开详情继续复用兼容响应类型名PublicFoodProductDetailResponseDto，后续通用化命名不得破坏现有契约",
-    "full verify、CI、staging、device和production尚未执行，不能升级证据等级"
+    "CI、staging、device和production尚未执行，不能升级证据等级"
   ],
   "nextAllowedTask": "M2-P017_FULL_GATE_AND_DRAFT_PR",
   "m2p018StartAllowed": false

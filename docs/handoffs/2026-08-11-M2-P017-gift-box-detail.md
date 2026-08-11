@@ -2,9 +2,9 @@
 
 ## 结论与边界
 
-- 当前结论：`LOCAL_PASS_FOCUSED / IN_PROGRESS`。真实 RED、礼盒领域策略、focused API、小程序、契约、迁移契约与 P017 Playwright 已通过；完整 `pnpm verify`、Draft PR 和 CI 尚未执行，因此本切片未完成，也不得进入 P018。
+- 当前结论：`LOCAL_PASS / IN_PROGRESS`。真实 RED、礼盒领域策略、focused API、小程序、契约、迁移契约、P017 Playwright 以及干净 head `42f3c152cf07c1a1b949fd6c4e689dd0ea4f34ea` 的完整 `pnpm verify` 17/17 已通过；Draft PR 和 CI 尚未执行，因此本切片未完成，也不得进入 P018。
 - 方案 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`。
-- 仓库：`EasyStep-lee/flt1`；基线 `main@371d99dc668cf021583fb43f86750cb4630573b7`；分支 `codex/m2-gift-box-detail`；实现提交尚未创建；Issue [#59](https://github.com/EasyStep-lee/flt1/issues/59)；PR 尚未创建。
+- 仓库：`EasyStep-lee/flt1`；基线 `main@371d99dc668cf021583fb43f86750cb4630573b7`；分支 `codex/m2-gift-box-detail`；干净实现提交 `42f3c152cf07c1a1b949fd6c4e689dd0ea4f34ea`；Issue [#59](https://github.com/EasyStep-lee/flt1/issues/59)；PR 尚未创建。
 - 唯一范围：`P0-017` GIFT_BOX 模板、结构化组合子项与归属校验、公开详情 DTO 白名单、公司模板预置及用户小程序组合清单区块。
 - 明确未进入：`P0-018`、`P0-021`/`P0-088` 完整商品详情、正式数据、价格审批、交易、支付、库存扣减和配送。
 
@@ -45,7 +45,16 @@
 | OpenAPI 生成 | `pnpm openapi:generate` | PASS |
 | P017 Playwright 首跑 | 预览使用旧 company-admin 构建，等待礼盒模板按钮超时 | FAIL_CONFIRMED |
 | P017 Playwright 修复后 | 重建 company-admin 后原断言 1/1 | PASS |
-| 完整 `pnpm verify` | 尚未在干净实现提交上执行 | NOT_EXECUTED |
+| 历史契约回归首跑 | 22 个陈旧当前切片/合法后续 profile 断言失败 | FAIL_CONFIRMED |
+| 历史契约修复后 | 保留历史不变量并容纳 P017 合法扩展，72/72 | PASS |
+| lint 首跑 | 1 个未使用类型和 2 个未声明 Node 全局 | FAIL_CONFIRMED |
+| lint 修复后 | 13/13 workspace packages | PASS |
+| 完整 `pnpm verify` 首跑 | regression 严格 schema 清单缺少 `PublicGiftBoxItemResponseDto`，退出 1 | FAIL_CONFIRMED |
+| focused OpenAPI 修复后 | 4/4 | PASS |
+| 完整 `pnpm verify` 干净 head 重跑 | `42f3c15`，17/17，退出 0，09:07:36Z—09:22:54Z | PASS |
+| P0 E2E 全量 | 42/42 | PASS |
+| 迁移演练 | empty=2、upgrade=2、restore=2、product=20、cleanup=PASS | PASS |
+| secrets scan | 690 个 tracked 文件 | PASS |
 
 ## 数据、迁移与回滚
 
@@ -55,7 +64,7 @@
 
 ## 环境、外部缺口与风险
 
-- 本地 focused 证据来自 Windows、Node 22、Docker Desktop/MySQL 8 和 Chromium；完整门禁尚未执行。
+- 本地证据来自 Windows、Node 22、Docker Desktop/MySQL 8 和 Chromium；完整 `pnpm verify` 已在干净 head `42f3c15` 真实执行通过。
 - EXT-007 正式礼盒字段、组合子项、最低有效期和售后口径仍需授权商品运营/合规确认；自动化模板和示例不是正式数据验收。
 - PAGE-053 只完成 P017 礼盒区块，不能扩展为 P0-021/P0-088 完整商品详情或真机通过。
 - staging、微信真机和 production 均为 `NOT_EXECUTED`。
@@ -63,5 +72,5 @@
 ## GitHub 门禁与唯一下一步
 
 - Issue #59 已创建；PR、CI、评论与人工合并均未执行。
-- 唯一下一步是同步执行包工作簿，在实现提交上运行完整 `pnpm verify`，修复本切片真实回归，然后创建/更新 Draft PR 并等待精确 head CI。
+- 唯一下一步是提交本轮新鲜验证证据，创建 Draft PR 并等待最终精确 head CI。
 - 未获用户对最终精确 head 的明确授权前，不转 Ready、不合并；合并后 `main` CI 成功前不得开始 M2-P018。

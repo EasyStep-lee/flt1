@@ -85,11 +85,11 @@
       "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/59",
       "branch": "codex/m2-gift-box-detail",
       "baseCommit": "371d99dc668cf021583fb43f86750cb4630573b7",
-      "implementationCommit": null,
+      "implementationCommit": "42f3c152cf07c1a1b949fd6c4e689dd0ea4f34ea",
       "status": "LOCAL_PASS",
-      "technicalConclusion": "LOCAL_PASS_PENDING_FULL_VERIFY_AND_DRAFT_PR",
+      "technicalConclusion": "LOCAL_PASS_FULL_VERIFY_PENDING_DRAFT_PR_AND_CI",
       "blockingExternalItem": null,
-      "localFullVerify": "NOT_EXECUTED",
+      "localFullVerify": "PASS_17_OF_17_CLEAN_HEAD_42F3C15",
       "pullRequest": null,
       "pullRequestState": "NOT_CREATED",
       "exactHeadCi": "NOT_EXECUTED",
@@ -106,7 +106,7 @@
       "mainPostMergeCiRun": 31472192291,
       "status": "CI_PASS"
     },
-    "note": "M2-P016 PR #58最终head 6ec6e8f的CI run 31471253414通过，按精确授权合并为main@371d99d且main CI run 31472192291通过；M2-P017已取得RED和focused本地GREEN，Issue #59与分支codex/m2-gift-box-detail已建立。完整pnpm verify、Draft PR和精确head CI尚未执行，P018保持锁定。"
+    "note": "M2-P016 PR #58最终head 6ec6e8f的CI run 31471253414通过，按精确授权合并为main@371d99d且main CI run 31472192291通过；M2-P017已取得RED、focused GREEN和clean-head 42f3c15的pnpm verify 17/17，Issue #59与分支codex/m2-gift-box-detail已建立。Draft PR和精确head CI尚未执行，P018保持锁定。"
   },
   "evidence": {
     "local": "LOCAL_PASS",
