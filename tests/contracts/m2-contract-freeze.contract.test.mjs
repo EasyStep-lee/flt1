@@ -399,7 +399,7 @@ test('machine control preserves the M2 freeze while later slices advance one gat
   assert.equal(m2p015.EvidenceStatus, 'CI_PASS');
   assert.equal(m2p015.GitHubIssue, 'https://github.com/EasyStep-lee/flt1/issues/55');
   assert.equal(m2p015.Branch, 'codex/m2-apparel-detail');
-  assert.equal(m2p015.CI, 'CI_PASS');
+  assert.equal(m2p015.CI, 'BLOCKED_EXTERNAL');
   assert.equal(laterM2Tasks.every(({ Status }) => Status === 'NOT_STARTED'), true);
 
   const m1Stage = stages.find(({ Stage }) => Stage === 'M1');

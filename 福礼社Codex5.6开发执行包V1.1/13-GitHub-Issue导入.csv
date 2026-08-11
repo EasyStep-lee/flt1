@@ -718,7 +718,7 @@ P0：P0-015
 人工门槛：NO
 回滚：按原子提交回退；迁移仅向前修复
 
-执行纪律：先写失败测试并确认失败原因，再实现；运行focused tests和pnpm verify；更新字段/状态机/OpenAPI/DTO/错误码/P0证据；不得扩展阶段外范围。","codex-execution,m2,p0,catalog_domain",M2,,M2-P015,"M2-000,M2-P012",codex/m2-apparel-detail,IMPORTED,https://github.com/EasyStep-lee/flt1/issues/55,Draft PR #56已创建；204a559精确head CI run 31458022233通过；review和人工合并待执行
+执行纪律：先写失败测试并确认失败原因，再实现；运行focused tests和pnpm verify；更新字段/状态机/OpenAPI/DTO/错误码/P0证据；不得扩展阶段外范围。","codex-execution,m2,p0,catalog_domain",M2,,M2-P015,"M2-000,M2-P012",codex/m2-apparel-detail,IMPORTED,https://github.com/EasyStep-lee/flt1/issues/55,Draft PR #56已创建；486b32f精确head CI run 31459377570通过且自审无新发现；人工Ready/合并和合并后main CI待执行
 [OWNER/REPO],[M2-P016] 数码详情,"执行任务：M2-P016
 
 阶段：M2

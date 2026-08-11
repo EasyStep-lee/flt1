@@ -247,7 +247,7 @@ test('M1 ledgers retain the exact-head gate while M2 advances one slice at a tim
   assert.equal(m2CompletedSlice.CI, 'CI_PASS');
   assert.equal(m2CurrentSlice.Status, 'DONE');
   assert.equal(m2CurrentSlice.EvidenceStatus, 'CI_PASS');
-  assert.equal(m2CurrentSlice.CI, 'CI_PASS');
+  assert.equal(m2CurrentSlice.CI, 'BLOCKED_EXTERNAL');
 
   const ext005 = externalRows.find(
     ({ DependencyID }) => DependencyID === 'EXT-005',
@@ -289,13 +289,13 @@ test('project status records M1 gate success while historical blocked handoff st
   assert.equal(projectStatus.github.pullRequestCi.status, 'CI_PASS');
   assert.equal(
     projectStatus.github.pullRequestCi.headSha,
-    '204a559ab7fa8808f37e90280445f950d06b0e3e',
+    '486b32ffd255b144bb856b88f64db9b7218789af',
   );
   assert.equal(projectStatus.github.latestCi.scope, 'CURRENT_SLICE_PR_EXACT_HEAD');
   assert.equal(projectStatus.github.latestCi.status, 'CI_PASS');
   assert.equal(
     projectStatus.github.latestCi.headSha,
-    '204a559ab7fa8808f37e90280445f950d06b0e3e',
+    '486b32ffd255b144bb856b88f64db9b7218789af',
   );
   assert.equal(projectStatus.github.currentTaskDelivery.taskId, 'M2-P015');
   assert.equal(projectStatus.github.currentTaskDelivery.issue, 55);

@@ -70,11 +70,12 @@ test('M2-P015 records exact-head Draft PR CI evidence while P016 stays locked', 
   assert.equal(state.github.previousTaskDelivery.status, 'CI_PASS');
   assert.equal(evidence.taskId, 'M2-P015');
   assert.equal(evidence.status, 'CI_PASS');
-  assert.equal(evidence.environmentBoundary.ci, 'CI_PASS_EXACT_HEAD_204A559');
-  assert.equal(evidence.ciVerification.runId, 31458022233);
+  assert.equal(evidence.environmentBoundary.ci, 'CI_PASS_EXACT_HEAD_486B32F');
+  assert.equal(evidence.ciVerification.runId, 31459377570);
   assert.equal(evidence.m2p016StartAllowed, false);
   assert.match(taskLedger, /M2-P014[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(taskLedger, /M2-P015[^\r\n]*DONE[^\r\n]*CI_PASS/u);
+  assert.match(taskLedger, /M2-P015[^\r\n]*BLOCKED_EXTERNAL/u);
   assert.match(p0Ledger, /P0-015[^\r\n]*CI_PASS/u);
   assert.match(pageLedger, /P0-015_CI_PASS/u);
   assert.match(apiLedger, /API-030[^\r\n]*P0-015[^\r\n]*IMPLEMENTED/u);

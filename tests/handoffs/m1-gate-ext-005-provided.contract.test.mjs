@@ -192,7 +192,7 @@ test('historical EXT-005 evidence stays locked while current state advances only
   assert.equal(m2p014.CI, 'CI_PASS');
   assert.equal(m2p015.Status, 'DONE');
   assert.equal(m2p015.EvidenceStatus, 'CI_PASS');
-  assert.equal(m2p015.CI, 'CI_PASS');
+  assert.equal(m2p015.CI, 'BLOCKED_EXTERNAL');
 
   assert.equal(evidence.schemaVersion, '1.0.0');
   assert.equal(evidence.taskId, 'M1-GATE-EXT005-PROVIDED');
