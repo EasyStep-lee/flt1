@@ -48,10 +48,25 @@ export class PrismaPublicCatalogRepository implements PublicCatalogRepository {
           },
         ],
       },
-      include: {
+      select: {
+        id: true,
+        supplierId: true,
+        categoryId: true,
+        templateVersion: true,
+        name: true,
+        saleStatus: true,
+        isRetailEnabled: true,
+        isEnterpriseProcurementEnabled: true,
+        detailSnapshot: true,
         template: true,
         skus: {
-          include: { supplierProductSku: true },
+          select: {
+            id: true,
+            status: true,
+            currentRetailSalePrice: true,
+            currentEnterpriseSalePrice: true,
+            supplierProductSku: { select: { attributes: true } },
+          },
           orderBy: [{ currentRetailSalePrice: 'asc' }, { id: 'asc' }],
         },
       },
@@ -69,6 +84,7 @@ export class PrismaPublicCatalogRepository implements PublicCatalogRepository {
       name: product.name,
       saleStatus: product.saleStatus,
       isRetailEnabled: product.isRetailEnabled,
+      isEnterpriseProcurementEnabled: product.isEnterpriseProcurementEnabled,
       detailSnapshot: asObject(product.detailSnapshot),
       template: normalizeCategoryTemplateDefinition({
         regulatoryMode: product.template.regulatoryMode,
@@ -90,6 +106,7 @@ export class PrismaPublicCatalogRepository implements PublicCatalogRepository {
         skuId: sku.id,
         status: sku.status,
         retailSalePrice: sku.currentRetailSalePrice,
+        enterpriseSalePrice: sku.currentEnterpriseSalePrice,
         attributes: asObject(sku.supplierProductSku.attributes),
       })),
     };

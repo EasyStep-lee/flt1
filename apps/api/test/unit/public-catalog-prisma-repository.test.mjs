@@ -99,3 +99,26 @@ test('P0-010 inactive or cross-company supplier source is not accepted', async (
   });
   assert.equal(await repository.isActiveSupplierSource(supplierId), false);
 });
+
+test('P0-021 product detail query reads both customer selling prices but never the supply price', async () => {
+  let captured;
+  const prisma = {
+    product: {
+      findFirst: async (input) => {
+        captured = input;
+        return null;
+      },
+    },
+  };
+  const repository = new PrismaPublicCatalogRepository(prisma);
+  assert.equal(await repository.findSellableProductDetail(excludedProductId), null);
+  assert.equal(captured.select.skus.select.currentRetailSalePrice, true);
+  assert.equal(captured.select.skus.select.currentEnterpriseSalePrice, true);
+  assert.deepEqual(captured.select.skus.select.supplierProductSku, {
+    select: { attributes: true },
+  });
+  assert.doesNotMatch(
+    JSON.stringify(captured.select),
+    /approvedSupplyPrice|supplyPriceVersion|supplierPayable|grossMargin/iu,
+  );
+});

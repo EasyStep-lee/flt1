@@ -32,6 +32,10 @@ export const SUPPLIER_ONBOARDING_ERROR_CODES = Object.freeze([
   'WORKSPACE_FORBIDDEN',
 ] as const);
 
+export const CUSTOMER_CATALOG_ERROR_CODES = Object.freeze([
+  'SENSITIVE_FIELD_LEAK',
+] as const);
+
 export const COMPANY_AUTH_ERROR_CODES = Object.freeze([
   'ACCOUNT_SUSPENDED',
   'AUTH_INVALID',
@@ -110,6 +114,7 @@ export const API_ERROR_CODES = Object.freeze([
   ...COMPANY_AUTH_ERROR_CODES,
   ...AUDIT_ERROR_CODES,
   ...SUPPLIER_PRODUCT_ERROR_CODES,
+  ...CUSTOMER_CATALOG_ERROR_CODES,
 ] as const);
 
 export type ApiErrorCode = (typeof API_ERROR_CODES)[number];

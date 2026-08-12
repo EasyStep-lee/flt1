@@ -89,7 +89,8 @@
               "TEMPLATE_NOT_FOUND",
               "TEMPLATE_SCHEMA_INVALID",
               "TEMPLATE_VERSION_INACTIVE",
-              "TEMPLATE_VERSION_IMMUTABLE"
+              "TEMPLATE_VERSION_IMMUTABLE",
+              "SENSITIVE_FIELD_LEAK"
             ],
             "example": "RESOURCE_NOT_FOUND",
             "type": "string"
@@ -1276,6 +1277,118 @@
           "opinion",
           "secondVerificationCode",
           "version"
+        ],
+        "type": "object"
+      },
+      "EnterpriseFoodSkuResponseDto": {
+        "properties": {
+          "enterpriseSalePrice": {
+            "description": "Enterprise procurement price in integer cents",
+            "minimum": 0,
+            "type": "number"
+          },
+          "skuId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "specifications": {
+            "items": {
+              "$ref": "#/components/schemas/PublicFoodDetailFieldResponseDto"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "skuId",
+          "enterpriseSalePrice",
+          "specifications"
+        ],
+        "type": "object"
+      },
+      "EnterpriseProductDetailResponseDto": {
+        "properties": {
+          "brand": {
+            "maxLength": 120,
+            "nullable": true,
+            "type": "string"
+          },
+          "bundleItems": {
+            "items": {
+              "$ref": "#/components/schemas/PublicGiftBoxItemResponseDto"
+            },
+            "type": "array"
+          },
+          "categoryId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "checkoutMode": {
+            "enum": [
+              "COMPANY_UNIFIED"
+            ],
+            "type": "string"
+          },
+          "detailModules": {
+            "items": {
+              "$ref": "#/components/schemas/PublicFoodDetailModuleResponseDto"
+            },
+            "type": "array"
+          },
+          "enterpriseSalePrice": {
+            "description": "Minimum active SKU enterprise procurement price in integer cents",
+            "minimum": 0,
+            "type": "number"
+          },
+          "name": {
+            "maxLength": 200,
+            "type": "string"
+          },
+          "productId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "sellerName": {
+            "example": "江苏福礼团供应链科技有限公司",
+            "type": "string"
+          },
+          "skus": {
+            "items": {
+              "$ref": "#/components/schemas/EnterpriseFoodSkuResponseDto"
+            },
+            "type": "array"
+          },
+          "supplierId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "templateProfile": {
+            "enum": [
+              "FOOD",
+              "FRESH",
+              "APPAREL",
+              "DIGITAL",
+              "GIFT_BOX"
+            ],
+            "type": "string"
+          },
+          "templateVersion": {
+            "minimum": 1,
+            "type": "number"
+          }
+        },
+        "required": [
+          "productId",
+          "supplierId",
+          "categoryId",
+          "templateVersion",
+          "templateProfile",
+          "name",
+          "brand",
+          "sellerName",
+          "checkoutMode",
+          "enterpriseSalePrice",
+          "skus",
+          "detailModules"
         ],
         "type": "object"
       },
@@ -4669,6 +4782,11 @@
         "name": "__Host-fulishe-company-admin",
         "type": "apiKey"
       },
+      "enterpriseSession": {
+        "in": "cookie",
+        "name": "__Host-fulishe-enterprise-portal",
+        "type": "apiKey"
+      },
       "functionalSession": {
         "description": "Server-bound functional account session; clients cannot select owner scope",
         "in": "cookie",
@@ -7158,6 +7276,83 @@
         "x-fulishe-request-dto": "SupplierReviewRequestDto",
         "x-fulishe-response-dto": "SupplierResponseDto",
         "x-fulishe-response-policy": "NEVER_RETURN_INTERNAL_PRICING"
+      }
+    },
+    "/v1/enterprise/catalog/products/{productId}": {
+      "get": {
+        "operationId": "enterpriseCatalog.getProductDetail",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "productId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnterpriseProductDetailResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "enterpriseSession": []
+          }
+        ],
+        "summary": "Get an enterprise-only product detail with the procurement selling price",
+        "tags": [
+          "enterprise-catalog"
+        ]
       }
     },
     "/v1/public/merchant-profile": {

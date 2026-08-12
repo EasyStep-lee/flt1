@@ -105,3 +105,34 @@ export class PublicFoodProductDetailResponseDto {
   @ApiPropertyOptional({ type: [PublicGiftBoxItemResponseDto] })
   readonly bundleItems?: readonly PublicGiftBoxItemResponseDto[];
 }
+
+export class EnterpriseFoodSkuResponseDto {
+  @ApiProperty({ format: 'uuid', type: String }) readonly skuId!: string;
+  @ApiProperty({ description: 'Enterprise procurement price in integer cents', minimum: 0, type: Number })
+  readonly enterpriseSalePrice!: number;
+  @ApiProperty({ type: [PublicFoodDetailFieldResponseDto] })
+  readonly specifications!: readonly PublicFoodDetailFieldResponseDto[];
+}
+
+export class EnterpriseProductDetailResponseDto {
+  @ApiProperty({ format: 'uuid', type: String }) readonly productId!: string;
+  @ApiProperty({ format: 'uuid', type: String }) readonly supplierId!: string;
+  @ApiProperty({ format: 'uuid', type: String }) readonly categoryId!: string;
+  @ApiProperty({ minimum: 1, type: Number }) readonly templateVersion!: number;
+  @ApiProperty({ enum: ['FOOD', 'FRESH', 'APPAREL', 'DIGITAL', 'GIFT_BOX'] })
+  readonly templateProfile!: 'FOOD' | 'FRESH' | 'APPAREL' | 'DIGITAL' | 'GIFT_BOX';
+  @ApiProperty({ maxLength: 200, type: String }) readonly name!: string;
+  @ApiProperty({ maxLength: 120, nullable: true, required: true, type: String })
+  readonly brand!: string | null;
+  @ApiProperty({ example: '江苏福礼团供应链科技有限公司', type: String })
+  readonly sellerName!: '江苏福礼团供应链科技有限公司';
+  @ApiProperty({ enum: ['COMPANY_UNIFIED'] }) readonly checkoutMode!: 'COMPANY_UNIFIED';
+  @ApiProperty({ description: 'Minimum active SKU enterprise procurement price in integer cents', minimum: 0, type: Number })
+  readonly enterpriseSalePrice!: number;
+  @ApiProperty({ type: [EnterpriseFoodSkuResponseDto] })
+  readonly skus!: readonly EnterpriseFoodSkuResponseDto[];
+  @ApiProperty({ type: [PublicFoodDetailModuleResponseDto] })
+  readonly detailModules!: readonly PublicFoodDetailModuleResponseDto[];
+  @ApiPropertyOptional({ type: [PublicGiftBoxItemResponseDto] })
+  readonly bundleItems?: readonly PublicGiftBoxItemResponseDto[];
+}

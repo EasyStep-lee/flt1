@@ -13,6 +13,7 @@ import type {
 import type { CompanyFunctionalAccountRepository } from './company-functional-accounts/company-functional-account.repository.js';
 import type { CompanyProductApprovalActorResolver } from './company-product-approvals/company-product-approval.actor.js';
 import type { PublicCatalogRepository } from './catalog/public-catalog.repository.js';
+import type { EnterpriseCatalogViewerResolver } from './catalog/enterprise-catalog-viewer.resolver.js';
 import type { CategoryRepository } from './categories/category.repository.js';
 import type { CategoryTemplateRepository } from './category-templates/category-template.repository.js';
 import type { RegulatedCategoryRepository } from './regulated-categories/regulated-category.repository.js';
@@ -81,6 +82,7 @@ export interface CreateApplicationOptions {
   readonly supplierPricingActorResolver?: SupplierPricingActorResolver;
   readonly companyProductApprovalActorResolver?: CompanyProductApprovalActorResolver;
   readonly catalogRepository?: PublicCatalogRepository;
+  readonly enterpriseCatalogViewerResolver?: EnterpriseCatalogViewerResolver;
   readonly categoryRepository?: CategoryRepository;
   readonly categoryTemplateRepository?: CategoryTemplateRepository;
   readonly regulatedCategoryRepository?: RegulatedCategoryRepository;
@@ -178,6 +180,9 @@ export const createApplication = async (
       : {}),
     ...(options.catalogRepository
       ? { catalogRepository: options.catalogRepository }
+      : {}),
+    ...(options.enterpriseCatalogViewerResolver
+      ? { enterpriseCatalogViewerResolver: options.enterpriseCatalogViewerResolver }
       : {}),
     ...(options.categoryRepository
       ? { categoryRepository: options.categoryRepository }

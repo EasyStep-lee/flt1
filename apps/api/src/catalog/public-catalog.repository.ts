@@ -24,12 +24,14 @@ export interface PublicCatalogProductDetailRecord {
   readonly name: string;
   readonly saleStatus: 'ACTIVE' | 'OFF_SHELF' | 'ARCHIVED';
   readonly isRetailEnabled: boolean;
+  readonly isEnterpriseProcurementEnabled: boolean;
   readonly detailSnapshot: Readonly<Record<string, unknown>>;
   readonly template: CategoryTemplateDefinition;
   readonly skus: readonly {
     readonly skuId: string;
     readonly status: 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
     readonly retailSalePrice: number;
+    readonly enterpriseSalePrice: number;
     readonly attributes: Readonly<Record<string, unknown>>;
   }[];
 }
