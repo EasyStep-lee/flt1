@@ -62,7 +62,7 @@ test('P0-019 company price-review page displays old/new supply price and require
   const review = { id: taskId, approvalType: 'SUPPLY_PRICE_CHANGE', skuId, skuCode: 'RICE-LISTED-001', productName: '在售大米礼盒', oldSupplyPrice: 5000, requestedSupplyPrice: 5400, currentApprovedSupplyPrice: 5000, requestedEffectiveAt: now, effectiveAt: null, status: 'SUBMITTED', reason: '原材料成本调整', reviewOpinion: null, version: 1, createdAt: now, updatedAt: now };
   await page.route('**/v1/company/price-reviews/supply-price-changes', (route) => json(route, { items: [review], total: 1 }));
   let decisionBody: Record<string, unknown> | undefined;
-  await page.route('**/v1/company/price-reviews/*/decision', async (route) => {
+  await page.route('**/v1/company/price-reviews/supply-price-changes/*/decision', async (route) => {
     decisionBody = route.request().postDataJSON() as Record<string, unknown>;
     return json(route, { ...review, status: 'EFFECTIVE', currentApprovedSupplyPrice: 5400, effectiveAt: now, version: 3, reviewOpinion: decisionBody.opinion });
   });
