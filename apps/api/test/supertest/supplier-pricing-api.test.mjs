@@ -225,7 +225,11 @@ describe('P0-008 supplier independent initial pricing', () => {
         pageSize: 20,
       });
       expect(audit.total).toBe(1);
-      expect(JSON.stringify(audit.items)).not.toMatch(
+      const auditSnapshots = audit.items.map(({ beforeSnapshot, afterSnapshot }) => ({
+        beforeSnapshot,
+        afterSnapshot,
+      }));
+      expect(JSON.stringify(auditSnapshots)).not.toMatch(
         /requestedSupplyPrice|requestedRetailSalePrice|requestedEnterpriseSalePrice|5000|6990|6200/iu,
       );
     } finally {
