@@ -127,6 +127,7 @@ test('generated contract exposes foundation, identity, onboarding and catalog AP
     '/v1/company/category-template-versions/{templateId}',
     '/v1/company/category-template-versions/{templateId}/publish',
     '/v1/company/price-reviews',
+    '/v1/company/price-reviews/supply-price-changes',
     '/v1/company/price-reviews/{taskId}/decision',
     '/v1/company/product-material-reviews',
     '/v1/company/product-material-reviews/{taskId}/decision',
@@ -144,6 +145,9 @@ test('generated contract exposes foundation, identity, onboarding and catalog AP
     '/v1/supplier/me/submit-review',
     '/v1/supplier/pricing/products',
     '/v1/supplier/pricing/products/{supplierProductId}/initial-prices',
+    '/v1/supplier/pricing/skus',
+    '/v1/supplier/pricing/skus/{skuId}/sale-prices',
+    '/v1/supplier/pricing/skus/{skuId}/supply-price-change',
     '/v1/supplier/products',
     '/v1/supplier/products/{supplierProductId}',
     '/v1/supplier/products/{supplierProductId}/submit-material',
@@ -327,6 +331,8 @@ test('generated contract exposes foundation, identity, onboarding and catalog AP
       'InitialPriceRowRequestDto',
       'InitialPricesRequestDto',
       'InitialPricesResponseDto',
+      'ListedSkuPriceDto',
+      'ListedSkuPricePageDto',
       'ProductApprovalDecisionRequestDto',
       'ProductApprovalDecisionResponseDto',
       'ProductMaterialApprovalResponseDto',
@@ -347,6 +353,8 @@ test('generated contract exposes foundation, identity, onboarding and catalog AP
       'RegulatedCategoryControlResponseDto',
       'RegulatedCategoryDisableRequestDto',
       'RegulatedCategoryEnableRequestDto',
+      'SalePriceChangeRequestDto',
+      'SalePriceChangeResponseDto',
       'SelectWorkspaceRequestDto',
       'SensitiveApprovalPageResponseDto',
       'SensitiveApprovalTaskResponseDto',
@@ -385,6 +393,9 @@ test('generated contract exposes foundation, identity, onboarding and catalog AP
       'SupplierWorkspacePageResponseDto',
       'SupplierWorkspacePageSummaryDto',
       'SupplierWorkspaceResponseDto',
+      'SupplyPriceChangeDto',
+      'SupplyPriceChangePageDto',
+      'SupplyPriceChangeRequestDto',
       'TemplateAfterSaleRulesDto',
       'TemplateDetailModuleDto',
       'TemplateDetailModulesDto',
@@ -409,7 +420,13 @@ test('generated contract exposes foundation, identity, onboarding and catalog AP
     Object.keys(spec.components.schemas.PublicMerchantSubjectsDto.properties),
     ['paymentPayee', 'refundOperator', 'seller'],
   );
-  assert.deepEqual(findForbiddenKeys(spec), []);
+  assert.deepEqual(findForbiddenKeys(spec), [
+    '$.components.schemas.ListedSkuPriceDto.properties.approvedSupplyPrice',
+  ]);
+  const publicSchemas = Object.fromEntries(
+    Object.entries(spec.components.schemas).filter(([name]) => name.startsWith('Public')),
+  );
+  assert.deepEqual(findForbiddenKeys(publicSchemas), []);
 
   const generatedTypes = readFileSync(typesPath, 'utf8');
   assert.match(generatedTypes, /export interface paths/u);
@@ -429,10 +446,8 @@ test('generated contract exposes foundation, identity, onboarding and catalog AP
   assert.match(generatedTypes, /"supplierauth\.login"/u);
   assert.match(generatedTypes, /"supplierauth\.selectWorkspace"/u);
   assert.match(generatedTypes, /ApiErrorResponseDto/u);
-  assert.doesNotMatch(
-    generatedTypes,
-    /approvedSupplyPrice|grossMargin|supplierPayable|supplyPrice/u,
-  );
+  assert.match(generatedTypes, /ListedSkuPriceDto:[\s\S]*approvedSupplyPrice: number/u);
+  assert.doesNotMatch(generatedTypes, /grossMargin|supplierPayable|supplyPriceSnapshot/u);
 });
 
 test('openapi:check detects spec drift without rewriting the expected files', () => {
