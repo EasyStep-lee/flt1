@@ -4,6 +4,7 @@
   "status": "LOCAL_PASS",
   "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
   "baseCommit": "b2fee8424b803a5e629f1c243632bbefe2d566c3",
+  "implementationCommit": "296f65ed17d433a02002b0030322dbb9a80d6ce1",
   "branch": "codex/m2-shared-catalog-enterprise-flag",
   "issue": 67,
   "red": {
@@ -23,6 +24,15 @@
     "lint": "all 13 workspaces plus root targets passed",
     "typecheck": "all 13 workspaces plus OpenAPI/test configs passed",
     "build": "all 13 applicable workspaces passed"
+  },
+  "fullVerify": {
+    "command": "pnpm verify",
+    "status": "PASS",
+    "steps": 17,
+    "commit": "296f65ed17d433a02002b0030322dbb9a80d6ce1",
+    "startedAt": "2026-08-12T08:55:08.670Z",
+    "endedAt": "2026-08-12T09:10:12.993Z",
+    "report": "artifacts/test-results/verification/pnpm-verify.json"
   },
   "database": {
     "migrationId": "MIG-008A",

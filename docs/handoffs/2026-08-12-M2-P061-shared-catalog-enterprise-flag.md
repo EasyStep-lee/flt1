@@ -3,6 +3,7 @@
 ## 结论
 
 - 切片结论：`LOCAL_PASS`；P0-061 本地证据成立，但尚无当前提交的 GitHub CI、人工合并或合并后 main CI。
+- 实现提交：`296f65ed17d433a02002b0030322dbb9a80d6ce1`。
 - 方案 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`，基线自检通过。
 - 仓库/基线：`EasyStep-lee/flt1`，`main@b2fee8424b803a5e629f1c243632bbefe2d566c3`。
 - 分支/Issue：`codex/m2-shared-catalog-enterprise-flag`，Issue #67。
@@ -38,8 +39,9 @@
 | MySQL 迁移演练 | empty=2、upgrade=2、restore=2、product=23、cleanup=PASS |
 | OpenAPI | 生成字节稳定；oasdiff 0 error、169 warning |
 | 基线/秘密/禁止能力 | baseline、执行包、secrets、no-franchise、no-supplier-storefront 均 PASS |
+| `pnpm verify` | `296f65ed17d433a02002b0030322dbb9a80d6ce1` 上 17/17 PASS，退出码 0，`2026-08-12T08:55:08Z..09:10:12Z` |
 
-第一次全量契约运行发现旧 OpenAPI 路由/DTO 清单、历史当前任务断言和 M2 冻结生成器未同步；修正为 P061 合法新增契约后均已重跑通过。提交前执行 `pnpm verify` 能完成 lint，但按设计在 `openapi:diff` 发现尚未提交的生成契约并退出；形成原子提交后必须对该提交重跑完整 `pnpm verify`。
+第一次全量契约运行发现旧 OpenAPI 路由/DTO 清单、历史当前任务断言和 M2 冻结生成器未同步；修正为 P061 合法新增契约后均已重跑通过。提交前执行 `pnpm verify` 能完成 lint，但按设计在 `openapi:diff` 发现尚未提交的生成契约并退出；形成原子提交 `296f65e` 后完整重跑通过，机器报告为 `artifacts/test-results/verification/pnpm-verify.json`。
 
 ## P0 与安全边界
 
