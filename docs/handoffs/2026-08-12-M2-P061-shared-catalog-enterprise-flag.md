@@ -2,11 +2,11 @@
 
 ## 结论
 
-- 切片结论：`LOCAL_PASS`；P0-061 本地证据成立，但尚无当前提交的 GitHub CI、人工合并或合并后 main CI。
+- 切片结论：`CI_PASS / DONE`；P0-061 本地证据成立，PR #68 head `74a53613b6f67b287e61e540d0feaadcc9b66437` 的 Actions run `31582179718` 完整通过，经用户对该精确 head 授权后合并为 `main@09433c07ae48dbfc9b45c0cc3ecbe67240e58f50`，合并后 main run `31583443909` 成功。
 - 实现提交：`296f65ed17d433a02002b0030322dbb9a80d6ce1`。
 - 方案 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`，基线自检通过。
 - 仓库/基线：`EasyStep-lee/flt1`，`main@b2fee8424b803a5e629f1c243632bbefe2d566c3`。
-- 分支/Issue：`codex/m2-shared-catalog-enterprise-flag`，Issue #67。
+- 分支/Issue/PR：`codex/m2-shared-catalog-enterprise-flag`，Issue [#67](https://github.com/EasyStep-lee/flt1/issues/67) 已关闭，PR [#68](https://github.com/EasyStep-lee/flt1/pull/68) 已合并。
 - 明确未进入：M2-P063 InventoryBalance、M3 企业认证/采购交易、订单、资金、配送、staging、真机与生产。
 
 ## 本切片范围
@@ -40,12 +40,14 @@
 | OpenAPI | 生成字节稳定；oasdiff 0 error、169 warning |
 | 基线/秘密/禁止能力 | baseline、执行包、secrets、no-franchise、no-supplier-storefront 均 PASS |
 | `pnpm verify` | `296f65ed17d433a02002b0030322dbb9a80d6ce1` 上 17/17 PASS，退出码 0，`2026-08-12T08:55:08Z..09:10:12Z` |
+| PR exact-head CI | head `74a53613b6f67b287e61e540d0feaadcc9b66437`；run `31582179718` / job `94067567399`；9m40s；PASS |
+| merged-main CI | main `09433c07ae48dbfc9b45c0cc3ecbe67240e58f50`；run `31583443909` / job `94071640611`；9m07s；PASS |
 
 第一次全量契约运行发现旧 OpenAPI 路由/DTO 清单、历史当前任务断言和 M2 冻结生成器未同步；修正为 P061 合法新增契约后均已重跑通过。提交前执行 `pnpm verify` 能完成 lint，但按设计在 `openapi:diff` 发现尚未提交的生成契约并退出；形成原子提交 `296f65e` 后完整重跑通过，机器报告为 `artifacts/test-results/verification/pnpm-verify.json`。
 
 ## P0 与安全边界
 
-- P0-061：`LOCAL_PASS`。企业列表与个人详情使用相同 Product/SKU/category/template/media 标识；集采标识和 ACTIVE 状态由服务端过滤。
+- P0-061：`CI_PASS`。企业列表与个人详情使用相同 Product/SKU/category/template/media 标识；集采标识和 ACTIVE 状态由服务端过滤；PR #68 head `74a5361` 的完整 CI 已通过。
 - P0-021 回归：企业只返回 `enterpriseSalePrice`；个人只返回 `retailSalePrice`；供应价、对方渠道价、归属键和行为人身份均不返回。
 - M2-P063 未实现：本切片没有宣称 InventoryBalance、跨渠道库存并发或库存守恒完成。
 - staging/device/production 全部 `NOT_EXECUTED`；无真实企业、正式商品或生产账号证据。
@@ -60,4 +62,4 @@
 
 ## GitHub 门禁与下一步
 
-当前没有 PR、当前 head CI、评论或合并证据。提交、推送并创建 Draft PR 后，必须读取 exact-head Actions 和未解决评论；只有 exact-head CI 成功且用户对该精确 head 明确授权，才可转 Ready/合并。人工合并及合并后 main CI 成功前，禁止进入 `M2-P063`。
+PR #68 head `74a5361` 的 Actions run `31582179718` 成功，评论 0、review 0、未解决 review thread 0；经用户精确 head 授权后于 `2026-08-12T09:33:18Z` 合并为 main `09433c0`，合并后 run `31583443909` 成功，Issue #67 已关闭。GitHub 托管 runner 对固定 SHA actions 给出 Node.js 20 runtime 弃用提示，但 runner 已使用 Node.js 24 且两次门禁均成功；后续基础设施维护应跟踪上游 runtime 更新。`M2-P063` 已解锁并成为唯一活动切片，M2-P071 与 M3 仍锁定。
