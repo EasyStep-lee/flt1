@@ -66,7 +66,7 @@ test('M1-P072 records natural-person separation and remains closed after the M1 
   assert.match(p0, /P0-072[^\r\n]*CI_PASS/u);
   assert.match(pages, /PAGE-012[^\r\n]*P0-072_LOCAL_PASS/u);
   assert.match(pages, /PAGE-023[^\r\n]*P0-072_LOCAL_PASS/u);
-  assert.equal(manifest.counts.apiContracts, 90);
+  assert.equal(manifest.counts.apiContracts, 91);
   for (const apiId of ['API-086', 'API-087', 'API-088', 'API-089']) {
     assert.match(
       apis,

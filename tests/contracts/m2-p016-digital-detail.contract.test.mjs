@@ -65,10 +65,10 @@ test('M2-P016 records its merged-main gate while P019 remains the only active sl
   assert.equal(state.github.currentTaskDelivery.branch, 'codex/m2-tiered-price-change');
   assert.equal(
     state.github.currentTaskDelivery.exactHeadCi,
-    'NOT_EXECUTED',
+    'CI_PASS_RUN_31561577045_HEAD_91613EE',
   );
-  assert.equal(state.github.currentTaskDelivery.pullRequest, null);
-  assert.equal(state.github.currentTaskDelivery.pullRequestState, 'NOT_CREATED');
+  assert.equal(state.github.currentTaskDelivery.pullRequest, 64);
+  assert.equal(state.github.currentTaskDelivery.pullRequestState, 'DRAFT');
   assert.equal(state.github.currentTaskDelivery.merge, 'NOT_EXECUTED');
   assert.equal(state.github.currentTaskDelivery.mainPostMergeCi, 'NOT_EXECUTED');
   assert.equal(state.github.currentTaskDelivery.m2p020StartAllowed, false);

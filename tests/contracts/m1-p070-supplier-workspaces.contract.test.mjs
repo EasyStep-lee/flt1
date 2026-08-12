@@ -98,7 +98,10 @@ test('M1-P070 records eight isolated supplier workspaces at the local evidence b
     'PAGE-022',
     'PAGE-023',
   ]) {
-    assert.match(pages, new RegExp(`${pageId}[^\\r\\n]*IMPLEMENTED[^\\r\\n]*LOCAL_PASS`, 'u'));
+    assert.match(
+      pages,
+      new RegExp(`${pageId}[^\\r\\n]*IMPLEMENTED[^\\r\\n]*(?:LOCAL|CI)_PASS`, 'u'),
+    );
   }
   assert.match(apis, /API-084[^\r\n]*P0-070[^\r\n]*GENERATED[^\r\n]*IMPLEMENTED/u);
   assert.match(apis, /API-085[^\r\n]*P0-070[^\r\n]*GENERATED[^\r\n]*IMPLEMENTED/u);
