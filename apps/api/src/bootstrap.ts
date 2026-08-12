@@ -26,6 +26,8 @@ import {
 import { FoundationExceptionFilter } from './http/foundation-exception.filter.js';
 import { requestIdMiddleware } from './http/request-id.middleware.js';
 import type { InfrastructureProbe } from './infrastructure/probe.js';
+import type { SupplierInventoryActorResolver } from './inventory/inventory.actor.js';
+import type { InventoryRepository } from './inventory/inventory.repository.js';
 import { SafeJsonLogger } from './logging/safe-json.logger.js';
 import type { SingleMerchantRepository } from './merchant/single-merchant.repository.js';
 import type { SensitiveApprovalRepository } from './sensitive-approval/sensitive-approval.repository.js';
@@ -88,6 +90,8 @@ export interface CreateApplicationOptions {
   readonly regulatedCategoryRepository?: RegulatedCategoryRepository;
   readonly priceChangeRepository?: PriceChangeRepository;
   readonly priceEffectScheduler?: PriceEffectScheduler;
+  readonly inventoryRepository?: InventoryRepository;
+  readonly supplierInventoryActorResolver?: SupplierInventoryActorResolver;
   readonly logger?: LoggerService | false;
 }
 
@@ -198,6 +202,12 @@ export const createApplication = async (
       : {}),
     ...(fallbackPriceEffectScheduler
       ? { priceEffectScheduler: fallbackPriceEffectScheduler }
+      : {}),
+    ...(options.inventoryRepository
+      ? { inventoryRepository: options.inventoryRepository }
+      : {}),
+    ...(options.supplierInventoryActorResolver
+      ? { supplierInventoryActorResolver: options.supplierInventoryActorResolver }
       : {}),
   };
   const logger = options.logger === false ? false : options.logger ?? new SafeJsonLogger();

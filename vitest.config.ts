@@ -12,7 +12,10 @@ export const testProjects = [
     test: {
       name: 'api-contract',
       environment: 'node',
-      include: ['apps/api/test/supertest/**/*.test.mjs'],
+      include: [
+        'apps/api/test/supertest/**/*.test.mjs',
+        'apps/api/test/unit/**/*.test.mjs',
+      ],
       testTimeout: 15_000,
     },
   },

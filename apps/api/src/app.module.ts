@@ -85,6 +85,18 @@ import {
 import { PrismaService } from './infrastructure/prisma.service.js';
 import { QueueService } from './infrastructure/queue.service.js';
 import { RedisService } from './infrastructure/redis.service.js';
+import {
+  DenySupplierInventoryActorResolver,
+  SUPPLIER_INVENTORY_ACTOR_RESOLVER,
+  type SupplierInventoryActorResolver,
+} from './inventory/inventory.actor.js';
+import { SupplierInventorySessionActorResolver } from './inventory/inventory-session-actor.resolver.js';
+import { InventoryService } from './inventory/inventory.service.js';
+import { PrismaInventoryRepository } from './inventory/prisma-inventory.repository.js';
+import {
+  INVENTORY_REPOSITORY,
+  type InventoryRepository,
+} from './inventory/inventory.repository.js';
 import { PrismaSingleMerchantRepository } from './merchant/prisma-single-merchant.repository.js';
 import {
   SINGLE_MERCHANT_REPOSITORY,
@@ -213,6 +225,8 @@ export interface AppModuleOptions {
   readonly regulatedCategoryRepository?: RegulatedCategoryRepository;
   readonly priceChangeRepository?: PriceChangeRepository;
   readonly priceEffectScheduler?: PriceEffectScheduler;
+  readonly inventoryRepository?: InventoryRepository;
+  readonly supplierInventoryActorResolver?: SupplierInventoryActorResolver;
 }
 
 @Module({})
@@ -269,6 +283,10 @@ export class AppModule {
       SupplierPricingService,
       PrismaPriceChangeRepository,
       PriceChangeService,
+      PrismaInventoryRepository,
+      DenySupplierInventoryActorResolver,
+      SupplierInventorySessionActorResolver,
+      InventoryService,
       DenyCompanyProductApprovalActorResolver,
       CompanyProductApprovalSessionActorResolver,
       CompanyProductApprovalService,
@@ -288,6 +306,12 @@ export class AppModule {
       options.priceEffectScheduler
         ? { provide: PRICE_EFFECT_SCHEDULER, useValue: options.priceEffectScheduler }
         : { provide: PRICE_EFFECT_SCHEDULER, useClass: BullPriceEffectScheduler },
+      options.inventoryRepository
+        ? { provide: INVENTORY_REPOSITORY, useValue: options.inventoryRepository }
+        : { provide: INVENTORY_REPOSITORY, useExisting: PrismaInventoryRepository },
+      options.supplierInventoryActorResolver
+        ? { provide: SUPPLIER_INVENTORY_ACTOR_RESOLVER, useValue: options.supplierInventoryActorResolver }
+        : { provide: SUPPLIER_INVENTORY_ACTOR_RESOLVER, useExisting: SupplierInventorySessionActorResolver },
       options.merchantRepository
         ? {
             provide: SINGLE_MERCHANT_REPOSITORY,

@@ -36,3 +36,17 @@ test('P0-069 bundle separates registration, login and server-bound account selec
   assert.match(javascript, /供应商不是店铺/u);
   assert.doesNotMatch(javascript, /手工输入.*supplierId|手工输入.*accountId/iu);
 });
+
+test('M2-P063 bundle provides the fixed supplier inventory workspace without price fields', () => {
+  const assetsDir = path.join(packageRoot, 'dist', 'assets');
+  const javascript = readdirSync(assetsDir)
+    .filter((file) => file.endsWith('.js'))
+    .map((file) => readFileSync(path.join(assetsDir, file), 'utf8'))
+    .join('\n');
+
+  assert.match(javascript, /M2-P063/u);
+  assert.match(javascript, /\/supplier\/workspaces\/inventory/u);
+  assert.match(javascript, /跨渠道共用库存/u);
+  assert.match(javascript, /按原请求恢复/u);
+  assert.match(javascript, /库存历史不可覆盖/u);
+});

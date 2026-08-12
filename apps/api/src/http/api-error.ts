@@ -36,6 +36,12 @@ export const CUSTOMER_CATALOG_ERROR_CODES = Object.freeze([
   'SENSITIVE_FIELD_LEAK',
 ] as const);
 
+export const INVENTORY_ERROR_CODES = Object.freeze([
+  'INVENTORY_NEGATIVE',
+  'INVENTORY_STATE_INVALID',
+  'INVENTORY_VERSION_CONFLICT',
+] as const);
+
 export const COMPANY_AUTH_ERROR_CODES = Object.freeze([
   'ACCOUNT_SUSPENDED',
   'AUTH_INVALID',
@@ -116,6 +122,7 @@ export const API_ERROR_CODES = Object.freeze([
   ...AUDIT_ERROR_CODES,
   ...SUPPLIER_PRODUCT_ERROR_CODES,
   ...CUSTOMER_CATALOG_ERROR_CODES,
+  ...INVENTORY_ERROR_CODES,
 ] as const);
 
 export type ApiErrorCode = (typeof API_ERROR_CODES)[number];
