@@ -41,7 +41,7 @@ test('P0-063 supplier inventory page adjusts the single shared SKU balance witho
     version: 0,
     updatedAt: new Date(0).toISOString(),
   };
-  await page.route('**/v1/supplier/inventory', (route) => json(route, { items: [current], total: 1, page: 1, pageSize: 20 }));
+  await page.route('**/v1/supplier/inventory?**', (route) => json(route, { items: [current], total: 1, page: 1, pageSize: 100 }));
   let adjustmentBody: Record<string, unknown> | undefined;
   let idempotencyKey: string | undefined;
   await page.route('**/v1/supplier/inventory/*/adjustments', async (route) => {

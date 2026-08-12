@@ -82,7 +82,7 @@ export function SupplierInventoryPage({ workspace }: { readonly workspace: Suppl
   return (
     <div data-m2-slice="M2-P063" data-inventory-state={state} data-route="/supplier/workspaces/inventory">
       <FixedSupplierWorkspacePage workspace={workspace} />
-      <section className="supplier-pricing-editor" data-page-id="PAGE-019">
+      <section className="supplier-pricing-editor" data-inventory-panel="shared-sku-balance">
         <div className="supplier-product-heading">
           <div>
             <Typography.Text className="eyebrow">SHARED SKU INVENTORY</Typography.Text>
