@@ -2,7 +2,7 @@
 
 ## 结论与边界
 
-- 当前结论：`LOCAL_PASS / IN_PROGRESS`。实现提交 `739b0b0d786406536a67762f01e599bbcdaded9f` 与调度失败恢复加固提交 `007f065cdd4b12e30828fec1848d4b78b86f9dfc` 已形成；真实 RED、focused API/契约/P0 E2E、OpenAPI 和 MySQL 迁移演练通过。完整 `pnpm verify`、Draft PR、精确 head CI、自评与人工合并尚未执行。
+- 当前结论：`LOCAL_PASS / IN_PROGRESS`。实现提交 `739b0b0d786406536a67762f01e599bbcdaded9f`、调度失败恢复加固提交 `007f065cdd4b12e30828fec1848d4b78b86f9dfc` 与完整验证 head `66a251160cf5229550c35dbd14f3e8a0660cd753` 已形成；真实 RED、focused API/契约/P0 E2E、OpenAPI、MySQL 迁移演练及完整 `pnpm verify` 通过。Draft PR、精确 head CI、自评与人工合并尚未执行。
 - 方案 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`。
 - 仓库：`EasyStep-lee/flt1`；基线 `main@413adffe4e4276d3378e8218e99022193627e57a`；分支 `codex/m2-tiered-price-change`；Issue [#63](https://github.com/EasyStep-lee/flt1/issues/63)；PR 尚未创建。
 - 唯一范围：`P0-019` 上架后供应价送审、销售价免审、立即/预约生效、版本/历史、幂等、并发、审计、两个固定职能页面。
@@ -45,7 +45,9 @@
 | 迁移演练首跑 | 5 个外键约束名与 Prisma 默认名漂移 | FAIL_CONFIRMED |
 | 迁移演练修复后 | empty=2、upgrade=2、restore=2、product=22、cleanup=PASS | PASS |
 | OpenAPI generate/check | 字节一致 | PASS |
-| 完整 `pnpm verify` | 证据提交形成干净 head 后执行 | NOT_EXECUTED |
+| 完整 `pnpm verify` | head `66a2511`；17/17；API 172/172；P0 Chromium 46/46；811.6s | PASS |
+
+完整门禁曾三次真实失败并修复：OpenAPI 路径/schema 冻结清单漂移、工作簿 manifest 哈希未同步、历史 M2 契约将当前任务硬编码为 P018；均保留失败轮次并在后续 focused/全量重跑通过。
 
 ## 数据、迁移与回滚
 
@@ -58,4 +60,4 @@
 - 本地证据：Windows、Node 22.23.1、Docker Desktop 29.6.2、MySQL 8、Chromium。
 - staging、device 与 production 为 `NOT_EXECUTED`；正式供应商价格和财务口径未录入，本切片不依赖它们完成代码验收。
 - 风险：预约任务最终失败会标记 outbox `FAILED` 并等待同一幂等命令恢复或运营排查；不得直接修改 SKU 当前价绕过历史。
-- 唯一下一步：同步台账/工作簿并提交，在干净 head 运行完整 `pnpm verify`；通过后推送、创建 Draft PR、读取精确 head Actions 与未解决评论并完成自评。未经用户对最终精确 head 授权，不转 Ready、不合并，不进入 M2-P020。
+- 唯一下一步：同步最终本地证据后推送、创建 Draft PR、读取精确 head Actions 与未解决评论并完成自评。未经用户对最终精确 head 授权，不转 Ready、不合并，不进入 M2-P020。

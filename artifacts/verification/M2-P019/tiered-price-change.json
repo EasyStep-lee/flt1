@@ -8,6 +8,7 @@
   "baseCommit": "413adffe4e4276d3378e8218e99022193627e57a",
   "implementationCommit": "739b0b0d786406536a67762f01e599bbcdaded9f",
   "hardeningCommit": "007f065cdd4b12e30828fec1848d4b78b86f9dfc",
+  "fullVerifyCommit": "66a251160cf5229550c35dbd14f3e8a0660cd753",
   "issue": "https://github.com/EasyStep-lee/flt1/issues/63",
   "pullRequest": null,
   "scope": {
@@ -50,8 +51,19 @@
     ]
   },
   "fullVerification": {
-    "status": "NOT_EXECUTED",
-    "reason": "实现提交后正在同步证据台账与工作簿；须在证据提交形成干净head后运行pnpm verify"
+    "status": "PASS_17_OF_17",
+    "commit": "66a251160cf5229550c35dbd14f3e8a0660cd753",
+    "startedAt": "2026-08-12T02:55:22.378Z",
+    "endedAt": "2026-08-12T03:08:52.096Z",
+    "durationMs": 809718,
+    "p0E2e": "PASS_46_OF_46",
+    "apiRegression": "PASS_172_OF_172",
+    "report": "artifacts/test-results/verification/pnpm-verify.json",
+    "failureHistory": [
+      "head 5fd70f3: OpenAPI精确路径/schema冻结清单漂移",
+      "head 2037165: 工作簿更新后manifest SHA-256未同步",
+      "head 5bf6dcd: 历史M2契约的当前任务指针仍停在P018"
+    ]
   },
   "dataAndMigration": {
     "migration": "packages/db/prisma/migrations/20260812013000_m2_tiered_price_changes/migration.sql",
