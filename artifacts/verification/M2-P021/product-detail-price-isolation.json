@@ -9,7 +9,7 @@
   "implementationCommit": "9b27b398777e8d1399adc6b40fbbf81fccabada1",
   "fullVerifyCommit": "426b41c929bbd1c4cd53887f4f99f783bd8a3afb",
   "issue": "https://github.com/EasyStep-lee/flt1/issues/65",
-  "pullRequest": null,
+  "pullRequest": "https://github.com/EasyStep-lee/flt1/pull/66",
   "scope": {
     "goal": "个人商品详情只返回零售销售价，企业采购详情只返回企业集采销售价，并从DTO、OpenAPI、页面、缓存与埋点边界隔离供应价、供应价快照和内部毛利",
     "nonGoals": [
@@ -89,13 +89,13 @@
     "previousMergeCommit": "d8da461fa3884ec4fbd7a92403b610f7f3ac70aa",
     "previousMainCiRun": 31564696638,
     "currentIssue": 65,
-    "currentPullRequest": null,
-    "currentExactHead": "426b41c929bbd1c4cd53887f4f99f783bd8a3afb",
+    "currentPullRequest": 66,
+    "currentExactHead": "7c1188a",
     "currentCi": "NOT_EXECUTED",
     "review": "NOT_EXECUTED",
     "comments": 0,
     "unresolvedReviewThreads": 0,
-    "draft": null,
+    "draft": true,
     "merge": "NOT_EXECUTED"
   },
   "nextAllowedTask": "M2-P021_FULL_VERIFY_DRAFT_PR_EXACT_HEAD_CI",
