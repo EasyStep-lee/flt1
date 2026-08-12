@@ -163,6 +163,17 @@ import {
 } from './supplier-pricing/supplier-pricing.actor.js';
 import { SupplierPricingService } from './supplier-pricing/supplier-pricing.service.js';
 import { SupplierPricingSessionActorResolver } from './supplier-pricing/supplier-pricing-session-actor.resolver.js';
+import { PriceChangeService } from './price-changes/price-change.service.js';
+import { PrismaPriceChangeRepository } from './price-changes/prisma-price-change.repository.js';
+import {
+  PRICE_CHANGE_REPOSITORY,
+  type PriceChangeRepository,
+} from './price-changes/price-change.repository.js';
+import {
+  BullPriceEffectScheduler,
+  PRICE_EFFECT_SCHEDULER,
+  type PriceEffectScheduler,
+} from './price-changes/price-effect.scheduler.js';
 
 export interface AppModuleOptions {
   readonly config: RuntimeConfig;
@@ -193,6 +204,8 @@ export interface AppModuleOptions {
   readonly categoryRepository?: CategoryRepository;
   readonly categoryTemplateRepository?: CategoryTemplateRepository;
   readonly regulatedCategoryRepository?: RegulatedCategoryRepository;
+  readonly priceChangeRepository?: PriceChangeRepository;
+  readonly priceEffectScheduler?: PriceEffectScheduler;
 }
 
 @Module({})
@@ -247,6 +260,8 @@ export class AppModule {
       DenySupplierPricingActorResolver,
       SupplierPricingSessionActorResolver,
       SupplierPricingService,
+      PrismaPriceChangeRepository,
+      PriceChangeService,
       DenyCompanyProductApprovalActorResolver,
       CompanyProductApprovalSessionActorResolver,
       CompanyProductApprovalService,
@@ -258,6 +273,12 @@ export class AppModule {
       CategoryTemplateService,
       PrismaRegulatedCategoryRepository,
       RegulatedCategoryService,
+      options.priceChangeRepository
+        ? { provide: PRICE_CHANGE_REPOSITORY, useValue: options.priceChangeRepository }
+        : { provide: PRICE_CHANGE_REPOSITORY, useExisting: PrismaPriceChangeRepository },
+      options.priceEffectScheduler
+        ? { provide: PRICE_EFFECT_SCHEDULER, useValue: options.priceEffectScheduler }
+        : { provide: PRICE_EFFECT_SCHEDULER, useClass: BullPriceEffectScheduler },
       options.merchantRepository
         ? {
             provide: SINGLE_MERCHANT_REPOSITORY,

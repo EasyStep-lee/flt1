@@ -118,6 +118,7 @@ export class CompanyProductMaterialReviewController {
 }
 
 @ApiTags('company-price-reviews')
+@ApiExtraModels(ProductApprovalDecisionResponseDto)
 @Controller('v1/company/price-reviews')
 export class CompanyInitialPriceReviewController {
   constructor(

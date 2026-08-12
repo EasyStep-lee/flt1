@@ -8,6 +8,9 @@ export class ProductApprovalDecisionRequestDto {
   readonly opinion!: string;
 
   @ApiProperty({ minimum: 0, type: Number }) readonly version!: number;
+
+  @ApiPropertyOptional({ type: String })
+  readonly secondVerificationCode?: string;
 }
 
 export class ProductMaterialReviewSkuDto {

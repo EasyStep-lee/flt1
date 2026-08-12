@@ -190,10 +190,17 @@ test('all M2 ledgers are covered by codeable frozen contracts', async () => {
   );
   assert.deepEqual(
     sort(freeze.apiContract.contractIds),
-    sort(m2ApiIds.filter((contractId) => contractId !== 'API-090')),
+    sort(m2ApiIds.filter((contractId) => !['API-090', 'API-091'].includes(contractId))),
   );
-  assert.deepEqual(taskRefinements.map(({ ContractID }) => ContractID), ['API-090']);
-  assert.match(taskRefinements[0].Notes, /M2-P008任务内契约细化/u);
+  assert.deepEqual(sort(taskRefinements.map(({ ContractID }) => ContractID)), ['API-090', 'API-091']);
+  assert.match(
+    taskRefinements.find(({ ContractID }) => ContractID === 'API-090').Notes,
+    /M2-P008任务内契约细化/u,
+  );
+  assert.match(
+    taskRefinements.find(({ ContractID }) => ContractID === 'API-091').Notes,
+    /M2-P019任务内契约细化/u,
+  );
   assert.equal(freeze.apiContract.commonResponse, 'ApiResponse<T>');
   assert.equal(freeze.apiContract.databaseEntityReturnedDirectly, false);
   assert.equal(freeze.apiContract.objectScopeCheckedBeforeLookupResult, true);
@@ -327,6 +334,7 @@ test('machine control preserves the M2 freeze while later slices advance one gat
   const m2p016 = tasks.find(({ TaskID }) => TaskID === 'M2-P016');
   const m2p017 = tasks.find(({ TaskID }) => TaskID === 'M2-P017');
   const m2p018 = tasks.find(({ TaskID }) => TaskID === 'M2-P018');
+  const m2p019 = tasks.find(({ TaskID }) => TaskID === 'M2-P019');
   const laterM2Tasks = tasks.filter(
     ({ Stage, TaskID }) =>
       Stage === 'M2' &&
@@ -345,6 +353,7 @@ test('machine control preserves the M2 freeze while later slices advance one gat
         'M2-P016',
         'M2-P017',
         'M2-P018',
+        'M2-P019',
       ].includes(
         TaskID,
       ),
@@ -417,11 +426,17 @@ test('machine control preserves the M2 freeze while later slices advance one gat
   assert.equal(m2p017.Branch, 'codex/m2-gift-box-detail');
   assert.equal(m2p017.PullRequest, 'https://github.com/EasyStep-lee/flt1/pull/60');
   assert.equal(m2p017.CI, 'CI_PASS');
-  assert.equal(m2p018.Status, 'IN_PROGRESS');
+  assert.equal(m2p018.Status, 'DONE');
   assert.equal(m2p018.EvidenceStatus, 'CI_PASS');
   assert.equal(m2p018.GitHubIssue, 'https://github.com/EasyStep-lee/flt1/issues/61');
   assert.equal(m2p018.Branch, 'codex/m2-regulated-default-deny');
   assert.equal(m2p018.CI, 'CI_PASS');
+  assert.equal(m2p019.Status, 'IN_PROGRESS');
+  assert.equal(m2p019.EvidenceStatus, 'CI_PASS');
+  assert.equal(m2p019.GitHubIssue, 'https://github.com/EasyStep-lee/flt1/issues/63');
+  assert.equal(m2p019.Branch, 'codex/m2-tiered-price-change');
+  assert.equal(m2p019.PullRequest, 'https://github.com/EasyStep-lee/flt1/pull/64');
+  assert.equal(m2p019.CI, 'CI_PASS');
   assert.equal(laterM2Tasks.every(({ Status }) => Status === 'NOT_STARTED'), true);
 
   const m1Stage = stages.find(({ Stage }) => Stage === 'M1');
@@ -435,11 +450,11 @@ test('machine control preserves the M2 freeze while later slices advance one gat
 
   assert.equal(projectStatus.execution.status, 'M2_IN_PROGRESS');
   assert.equal(projectStatus.execution.currentStage, 'M2');
-  assert.equal(projectStatus.execution.currentTask, 'M2-P018');
-  assert.equal(projectStatus.execution.nextAllowedTask, 'M2-P018');
+  assert.equal(projectStatus.execution.currentTask, 'M2-P019');
+  assert.equal(projectStatus.execution.nextAllowedTask, 'M2-P019');
   assert.equal(projectStatus.execution.activeTaskCount, 1);
-  assert.equal(projectStatus.execution.lastCompletedTask, 'M2-P017');
+  assert.equal(projectStatus.execution.lastCompletedTask, 'M2-P018');
   assert.equal(projectStatus.execution.lastPassedGate, 'M1-GATE');
   assert.equal(projectStatus.evidence.local, 'LOCAL_PASS');
-  assert.ok(['NOT_EXECUTED', 'CI_PASS'].includes(projectStatus.evidence.ci));
+  assert.equal(projectStatus.evidence.ci, 'CI_PASS');
 });

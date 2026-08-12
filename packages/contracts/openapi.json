@@ -65,6 +65,9 @@
               "PRICE_INVALID",
               "INITIAL_PRICE_REVIEW_PENDING",
               "INITIAL_PRICE_STATE_INVALID",
+              "PRICE_CHANGE_PENDING",
+              "PRICE_EFFECT_SCHEDULE_FAILED",
+              "SUPPLY_PRICE_REVIEW_REQUIRED",
               "PRODUCT_APPROVAL_INCOMPLETE",
               "PRODUCT_NOT_FOUND",
               "PRODUCT_NOT_SALEABLE",
@@ -1755,6 +1758,75 @@
         ],
         "type": "object"
       },
+      "ListedSkuPriceDto": {
+        "properties": {
+          "approvedSupplyPrice": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "code": {
+            "type": "string"
+          },
+          "currentEnterpriseSalePrice": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "currentRetailSalePrice": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "enterprisePriceVersion": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "productName": {
+            "type": "string"
+          },
+          "retailPriceVersion": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "supplyPriceVersion": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "productName",
+          "code",
+          "approvedSupplyPrice",
+          "currentRetailSalePrice",
+          "currentEnterpriseSalePrice",
+          "supplyPriceVersion",
+          "retailPriceVersion",
+          "enterprisePriceVersion"
+        ],
+        "type": "object"
+      },
+      "ListedSkuPricePageDto": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ListedSkuPriceDto"
+            },
+            "type": "array"
+          },
+          "total": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ],
+        "type": "object"
+      },
       "ProductApprovalDecisionRequestDto": {
         "properties": {
           "decision": {
@@ -1767,6 +1839,9 @@
           "opinion": {
             "maxLength": 1000,
             "minLength": 2,
+            "type": "string"
+          },
+          "secondVerificationCode": {
             "type": "string"
           },
           "version": {
@@ -2500,6 +2575,89 @@
           "companyQualificationReferences",
           "qualificationValidUntil",
           "secondVerificationCode"
+        ],
+        "type": "object"
+      },
+      "SalePriceChangeRequestDto": {
+        "properties": {
+          "effectiveAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "enterprisePriceVersion": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "enterpriseSalePrice": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "reason": {
+            "maxLength": 1000,
+            "minLength": 2,
+            "type": "string"
+          },
+          "retailPriceVersion": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "retailSalePrice": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "secondVerificationCode": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason",
+          "effectiveAt",
+          "secondVerificationCode"
+        ],
+        "type": "object"
+      },
+      "SalePriceChangeResponseDto": {
+        "properties": {
+          "currentEnterpriseSalePrice": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "currentRetailSalePrice": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "effectiveAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "enterprisePriceVersion": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "retailPriceVersion": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "reviewCreated": {
+            "type": "boolean"
+          },
+          "scheduled": {
+            "type": "boolean"
+          },
+          "skuId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "skuId",
+          "currentRetailSalePrice",
+          "currentEnterpriseSalePrice",
+          "retailPriceVersion",
+          "enterprisePriceVersion",
+          "effectiveAt",
+          "reviewCreated",
+          "scheduled"
         ],
         "type": "object"
       },
@@ -3989,6 +4147,148 @@
           "pageId",
           "workspaceRoute",
           "menuItems"
+        ],
+        "type": "object"
+      },
+      "SupplyPriceChangeDto": {
+        "properties": {
+          "approvalType": {
+            "enum": [
+              "SUPPLY_PRICE_CHANGE"
+            ],
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "currentApprovedSupplyPrice": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "effectiveAt": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "oldSupplyPrice": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "productName": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "requestedEffectiveAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "requestedSupplyPrice": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "reviewOpinion": {
+            "nullable": true,
+            "type": "string"
+          },
+          "skuCode": {
+            "type": "string"
+          },
+          "skuId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "SUBMITTED",
+              "APPROVED",
+              "REJECTED",
+              "EFFECTIVE",
+              "CANCELLED"
+            ],
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 1,
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "approvalType",
+          "skuId",
+          "skuCode",
+          "productName",
+          "oldSupplyPrice",
+          "requestedSupplyPrice",
+          "currentApprovedSupplyPrice",
+          "requestedEffectiveAt",
+          "status",
+          "reason",
+          "version",
+          "createdAt",
+          "updatedAt"
+        ],
+        "type": "object"
+      },
+      "SupplyPriceChangePageDto": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SupplyPriceChangeDto"
+            },
+            "type": "array"
+          },
+          "total": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ],
+        "type": "object"
+      },
+      "SupplyPriceChangeRequestDto": {
+        "properties": {
+          "effectiveAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "reason": {
+            "maxLength": 1000,
+            "minLength": 2,
+            "type": "string"
+          },
+          "requestedSupplyPrice": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "secondVerificationCode": {
+            "type": "string"
+          },
+          "version": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "requestedSupplyPrice",
+          "reason",
+          "effectiveAt",
+          "version",
+          "secondVerificationCode"
         ],
         "type": "object"
       },
@@ -5973,6 +6273,148 @@
         ]
       }
     },
+    "/v1/company/price-reviews/supply-price-changes": {
+      "get": {
+        "operationId": "companySupplyPriceReviews.list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupplyPriceChangePageDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "List supply price changes for the independent price-review role",
+        "tags": [
+          "company-price-reviews"
+        ]
+      }
+    },
+    "/v1/company/price-reviews/supply-price-changes/{taskId}/decision": {
+      "post": {
+        "operationId": "companySupplyPriceReviews.decide",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "taskId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductApprovalDecisionRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupplyPriceChangeDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Approve or reject a post-listing supply price change",
+        "tags": [
+          "company-price-reviews"
+        ]
+      }
+    },
     "/v1/company/price-reviews/{taskId}/decision": {
       "post": {
         "operationId": "companyInitialPriceReviews.decide",
@@ -7471,6 +7913,248 @@
         "summary": "Freeze and submit current-supplier initial three-price values",
         "tags": [
           "supplier-pricing"
+        ]
+      }
+    },
+    "/v1/supplier/pricing/skus": {
+      "get": {
+        "operationId": "supplierListedPricing.list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListedSkuPricePageDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "List own listed SKU prices and versions",
+        "tags": [
+          "supplier-post-listing-pricing"
+        ]
+      }
+    },
+    "/v1/supplier/pricing/skus/{skuId}/sale-prices": {
+      "patch": {
+        "operationId": "supplierListedPricing.patchSalePrices",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "skuId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SalePriceChangeRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SalePriceChangeResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Version retail and enterprise sale prices without creating an approval task",
+        "tags": [
+          "supplier-post-listing-pricing"
+        ]
+      }
+    },
+    "/v1/supplier/pricing/skus/{skuId}/supply-price-change": {
+      "post": {
+        "operationId": "supplierListedPricing.submitSupplyPriceChange",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "skuId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SupplyPriceChangeRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupplyPriceChangeDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Submit a reviewed supply price change while the old price remains effective",
+        "tags": [
+          "supplier-post-listing-pricing"
         ]
       }
     },

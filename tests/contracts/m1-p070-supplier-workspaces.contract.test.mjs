@@ -79,12 +79,12 @@ test('M1-P070 records eight isolated supplier workspaces at the local evidence b
   assert.equal(rehearsal.cleanup.errors.length, 0);
   assert.match(rehearsalScript, /M1-P070/u);
 
-  assert.equal(state.execution.currentTask, 'M2-P018');
-  assert.equal(state.execution.nextAllowedTask, 'M2-P018');
-  assert.equal(state.execution.lastCompletedTask, 'M2-P017');
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M2-P018');
-  assert.equal(state.github.currentTaskDelivery.issue, 61);
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2-P018.*M2-P019/u);
+  assert.equal(state.execution.currentTask, 'M2-P019');
+  assert.equal(state.execution.nextAllowedTask, 'M2-P019');
+  assert.equal(state.execution.lastCompletedTask, 'M2-P018');
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M2-P019');
+  assert.equal(state.github.currentTaskDelivery.issue, 63);
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2-P019.*M2-P020/u);
 
   assert.match(tasks, /M1-P070[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(p0, /P0-070[^\r\n]*CI_PASS/u);
@@ -98,7 +98,10 @@ test('M1-P070 records eight isolated supplier workspaces at the local evidence b
     'PAGE-022',
     'PAGE-023',
   ]) {
-    assert.match(pages, new RegExp(`${pageId}[^\\r\\n]*IMPLEMENTED[^\\r\\n]*LOCAL_PASS`, 'u'));
+    assert.match(
+      pages,
+      new RegExp(`${pageId}[^\\r\\n]*IMPLEMENTED[^\\r\\n]*(?:LOCAL|CI)_PASS`, 'u'),
+    );
   }
   assert.match(apis, /API-084[^\r\n]*P0-070[^\r\n]*GENERATED[^\r\n]*IMPLEMENTED/u);
   assert.match(apis, /API-085[^\r\n]*P0-070[^\r\n]*GENERATED[^\r\n]*IMPLEMENTED/u);

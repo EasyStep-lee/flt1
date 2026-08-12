@@ -132,6 +132,15 @@ import {
   SUPPLIER_PRICING_ACTOR_RESOLVER,
 } from '../supplier-pricing/supplier-pricing.actor.js';
 import { SupplierPricingService } from '../supplier-pricing/supplier-pricing.service.js';
+import { PriceChangeService } from '../price-changes/price-change.service.js';
+import {
+  PRICE_CHANGE_REPOSITORY,
+  type PriceChangeRepository,
+} from '../price-changes/price-change.repository.js';
+import {
+  NoopPriceEffectScheduler,
+  PRICE_EFFECT_SCHEDULER,
+} from '../price-changes/price-effect.scheduler.js';
 import { OPENAPI_CONTROLLERS } from './openapi-controller.registry.js';
 import {
   applyM1OpenApiContracts,
@@ -319,6 +328,8 @@ type JsonValue =
     },
     SupplierProductService,
     SupplierPricingService,
+    PriceChangeService,
+    NoopPriceEffectScheduler,
     CompanyProductApprovalService,
     PublicCatalogService,
     CategoryService,
@@ -327,6 +338,24 @@ type JsonValue =
     DenyCompanyProductApprovalActorResolver,
     DenySupplierProductActorResolver,
     DenySupplierPricingActorResolver,
+    {
+      provide: PRICE_CHANGE_REPOSITORY,
+      useValue: {
+        listSupplierSkus: async () => [],
+        listCompanySupplyReviews: async () => [],
+        findCompanySupplyReview: async () => null,
+        submitSupplyChange: async () => { throw new Error('OPENAPI_GENERATION_ONLY'); },
+        patchSalePrices: async () => { throw new Error('OPENAPI_GENERATION_ONLY'); },
+        decideSupplyChange: async () => { throw new Error('OPENAPI_GENERATION_ONLY'); },
+        effect: async () => undefined,
+        markEffectFailed: async () => undefined,
+        listPendingEffects: async () => [],
+      } satisfies PriceChangeRepository,
+    },
+    {
+      provide: PRICE_EFFECT_SCHEDULER,
+      useExisting: NoopPriceEffectScheduler,
+    },
     {
       provide: SUPPLIER_PRODUCT_REPOSITORY,
       useValue: {

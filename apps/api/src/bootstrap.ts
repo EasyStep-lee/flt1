@@ -45,6 +45,12 @@ import type { SupplierRegistrationVerifier } from './supplier-onboarding/supplie
 import type { SupplierProductActorResolver } from './supplier-products/supplier-product.actor.js';
 import type { SupplierProductRepository } from './supplier-products/supplier-product.repository.js';
 import type { SupplierPricingActorResolver } from './supplier-pricing/supplier-pricing.actor.js';
+import type { PriceChangeRepository } from './price-changes/price-change.repository.js';
+import { InMemoryPriceChangeRepository } from './price-changes/in-memory-price-change.repository.js';
+import {
+  InMemoryPriceEffectScheduler,
+  type PriceEffectScheduler,
+} from './price-changes/price-effect.scheduler.js';
 
 type Environment = Readonly<Record<string, string | undefined>>;
 
@@ -78,6 +84,8 @@ export interface CreateApplicationOptions {
   readonly categoryRepository?: CategoryRepository;
   readonly categoryTemplateRepository?: CategoryTemplateRepository;
   readonly regulatedCategoryRepository?: RegulatedCategoryRepository;
+  readonly priceChangeRepository?: PriceChangeRepository;
+  readonly priceEffectScheduler?: PriceEffectScheduler;
   readonly logger?: LoggerService | false;
 }
 
@@ -85,6 +93,14 @@ export const createApplication = async (
   options: CreateApplicationOptions = {},
 ): Promise<INestApplication> => {
   const config = options.config ?? loadRuntimeConfig(options.env ?? process.env);
+  const fallbackPriceChangeRepository =
+    options.priceChangeRepository ??
+    (options.probes ? new InMemoryPriceChangeRepository() : undefined);
+  const fallbackPriceEffectScheduler =
+    options.priceEffectScheduler ??
+    (options.probes && fallbackPriceChangeRepository
+      ? new InMemoryPriceEffectScheduler(fallbackPriceChangeRepository)
+      : undefined);
   const moduleOptions = {
     config,
     ...(options.probes ? { probes: options.probes } : {}),
@@ -171,6 +187,12 @@ export const createApplication = async (
       : {}),
     ...(options.regulatedCategoryRepository
       ? { regulatedCategoryRepository: options.regulatedCategoryRepository }
+      : {}),
+    ...(fallbackPriceChangeRepository
+      ? { priceChangeRepository: fallbackPriceChangeRepository }
+      : {}),
+    ...(fallbackPriceEffectScheduler
+      ? { priceEffectScheduler: fallbackPriceEffectScheduler }
       : {}),
   };
   const logger = options.logger === false ? false : options.logger ?? new SafeJsonLogger();

@@ -20,6 +20,10 @@ import {
 } from '../supplier-onboarding/supplier-onboarding.controller.js';
 import { SupplierProductController } from '../supplier-products/supplier-product.controller.js';
 import { SupplierPricingController } from '../supplier-pricing/supplier-pricing.controller.js';
+import {
+  CompanySupplyPriceReviewController,
+  SupplierListedPricingController,
+} from '../price-changes/price-change.controller.js';
 
 export const OPENAPI_CONTROLLERS = Object.freeze([
   AuditLogController,
@@ -40,4 +44,6 @@ export const OPENAPI_CONTROLLERS = Object.freeze([
   CompanySupplierOnboardingController,
   SupplierProductController,
   SupplierPricingController,
+  SupplierListedPricingController,
+  CompanySupplyPriceReviewController,
 ]);

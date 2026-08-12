@@ -108,6 +108,41 @@ enum SkuStatus {
   ARCHIVED
 }
 
+enum SupplyPriceChangeStatus {
+  SUBMITTED
+  APPROVED
+  REJECTED
+  EFFECTIVE
+  CANCELLED
+}
+
+enum SupplyPriceChangeHistoryEvent {
+  SUBMIT
+  APPROVE
+  REJECT
+  EFFECT
+  CANCEL
+}
+
+enum PriceType {
+  SUPPLY
+  RETAIL
+  ENTERPRISE
+}
+
+enum PriceReviewStatus {
+  NOT_REQUIRED
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum PriceEffectStatus {
+  PENDING
+  EFFECTIVE
+  FAILED
+}
+
 enum CategoryStatus {
   ENABLED
   DISABLED
@@ -261,20 +296,23 @@ enum FieldAccessMode {
 }
 
 model Company {
-  id                 String              @id @default(uuid()) @db.Char(36)
-  legalName          String              @unique @map("legal_name") @db.VarChar(128)
-  platformName       String              @unique @map("platform_name") @db.VarChar(64)
-  wechatPayConfigRef String              @map("wechat_pay_config_ref") @db.VarChar(255)
-  status             CompanyStatus       @default(ACTIVE)
-  createdAt          DateTime            @default(now()) @map("created_at") @db.DateTime(3)
-  updatedAt          DateTime            @updatedAt @map("updated_at") @db.DateTime(3)
-  suppliers          Supplier[]
-  users              CompanyUser[]
-  functionalAccounts FunctionalAccount[]
-  products           Product[]
-  categories         Category[]
-  categoryTemplates  CategoryTemplate[]
+  id                        String                     @id @default(uuid()) @db.Char(36)
+  legalName                 String                     @unique @map("legal_name") @db.VarChar(128)
+  platformName              String                     @unique @map("platform_name") @db.VarChar(64)
+  wechatPayConfigRef        String                     @map("wechat_pay_config_ref") @db.VarChar(255)
+  status                    CompanyStatus              @default(ACTIVE)
+  createdAt                 DateTime                   @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt                 DateTime                   @updatedAt @map("updated_at") @db.DateTime(3)
+  suppliers                 Supplier[]
+  users                     CompanyUser[]
+  functionalAccounts        FunctionalAccount[]
+  products                  Product[]
+  categories                Category[]
+  categoryTemplates         CategoryTemplate[]
   regulatedCategoryControls RegulatedCategoryControl[]
+  supplyPriceChangeRequests SupplyPriceChangeRequest[]
+  priceChangeLogs           PriceChangeLog[]
+  priceEffectOutboxes       PriceEffectOutbox[]
 
   @@map("company")
 }
@@ -300,26 +338,29 @@ model CompanyUser {
 }
 
 model Supplier {
-  id                      String                  @id @default(uuid()) @db.Char(36)
-  companyId               String                  @map("company_id") @db.Char(36)
-  legalName               String                  @map("legal_name") @db.VarChar(128)
-  creditCode              String                  @unique @map("credit_code") @db.Char(18)
-  status                  SupplierStatus          @default(DRAFT)
-  pickupAddress           String?                 @map("pickup_address") @db.VarChar(500)
-  pickupLat               Decimal?                @map("pickup_lat") @db.Decimal(10, 7)
-  pickupLng               Decimal?                @map("pickup_lng") @db.Decimal(10, 7)
-  settlementAccountMasked String?                 @map("settlement_account_masked") @db.VarChar(128)
-  qualificationSnapshot   Json                    @map("qualification_snapshot")
-  version                 Int                     @default(0)
-  submittedAt             DateTime?               @map("submitted_at") @db.DateTime(3)
-  createdAt               DateTime                @default(now()) @map("created_at") @db.DateTime(3)
-  updatedAt               DateTime                @updatedAt @map("updated_at") @db.DateTime(3)
-  company                 Company                 @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  statusHistory           SupplierStatusHistory[]
-  users                   SupplierUser[]
-  functionalAccounts      FunctionalAccount[]
-  supplierProducts        SupplierProduct[]
-  products                Product[]
+  id                        String                     @id @default(uuid()) @db.Char(36)
+  companyId                 String                     @map("company_id") @db.Char(36)
+  legalName                 String                     @map("legal_name") @db.VarChar(128)
+  creditCode                String                     @unique @map("credit_code") @db.Char(18)
+  status                    SupplierStatus             @default(DRAFT)
+  pickupAddress             String?                    @map("pickup_address") @db.VarChar(500)
+  pickupLat                 Decimal?                   @map("pickup_lat") @db.Decimal(10, 7)
+  pickupLng                 Decimal?                   @map("pickup_lng") @db.Decimal(10, 7)
+  settlementAccountMasked   String?                    @map("settlement_account_masked") @db.VarChar(128)
+  qualificationSnapshot     Json                       @map("qualification_snapshot")
+  version                   Int                        @default(0)
+  submittedAt               DateTime?                  @map("submitted_at") @db.DateTime(3)
+  createdAt                 DateTime                   @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt                 DateTime                   @updatedAt @map("updated_at") @db.DateTime(3)
+  company                   Company                    @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  statusHistory             SupplierStatusHistory[]
+  users                     SupplierUser[]
+  functionalAccounts        FunctionalAccount[]
+  supplierProducts          SupplierProduct[]
+  products                  Product[]
+  supplyPriceChangeRequests SupplyPriceChangeRequest[]
+  priceChangeLogs           PriceChangeLog[]
+  priceEffectOutboxes       PriceEffectOutbox[]
 
   @@index([companyId, status], map: "supplier_company_id_status_idx")
   @@map("supplier")
@@ -628,22 +669,22 @@ model SupplierOnboardingCommand {
 }
 
 model Category {
-  id             String         @id @default(uuid()) @db.Char(36)
-  companyId      String         @map("company_id") @db.Char(36)
-  parentId       String?        @map("parent_id") @db.Char(36)
-  parentScopeKey String         @map("parent_scope_key") @db.Char(36)
-  name           String         @db.VarChar(100)
-  level          Int
-  sortWeight     Int            @map("sort_weight")
-  status         CategoryStatus @default(ENABLED)
-  version        Int            @default(0)
-  createdAt      DateTime       @default(now()) @map("created_at") @db.DateTime(3)
-  updatedAt      DateTime       @updatedAt @map("updated_at") @db.DateTime(3)
-  company        Company        @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  parent         Category?      @relation("CategoryTree", fields: [parentId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  children       Category[]     @relation("CategoryTree")
-  templates      CategoryTemplate[]
-  products       Product[]
+  id               String                    @id @default(uuid()) @db.Char(36)
+  companyId        String                    @map("company_id") @db.Char(36)
+  parentId         String?                   @map("parent_id") @db.Char(36)
+  parentScopeKey   String                    @map("parent_scope_key") @db.Char(36)
+  name             String                    @db.VarChar(100)
+  level            Int
+  sortWeight       Int                       @map("sort_weight")
+  status           CategoryStatus            @default(ENABLED)
+  version          Int                       @default(0)
+  createdAt        DateTime                  @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt        DateTime                  @updatedAt @map("updated_at") @db.DateTime(3)
+  company          Company                   @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  parent           Category?                 @relation("CategoryTree", fields: [parentId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  children         Category[]                @relation("CategoryTree")
+  templates        CategoryTemplate[]
+  products         Product[]
   regulatedControl RegulatedCategoryControl?
 
   @@unique([companyId, parentScopeKey, name], map: "category_company_parent_name_key")
@@ -689,7 +730,7 @@ model CategoryTemplate {
   version            Int
   revision           Int                    @default(0)
   status             CategoryTemplateStatus @default(DRAFT)
-  regulatoryMode     CategoryRegulatoryMode  @default(STANDARD) @map("regulatory_mode")
+  regulatoryMode     CategoryRegulatoryMode @default(STANDARD) @map("regulatory_mode")
   draftSlot          Int?                   @map("draft_slot")
   activeSlot         Int?                   @map("active_slot")
   profile            String                 @default("GENERIC") @db.VarChar(32)
@@ -746,19 +787,19 @@ model CategoryTemplateCommand {
 }
 
 model RegulatedCategoryControl {
-  id                               String                         @id @default(uuid()) @db.Char(36)
-  companyId                        String                         @map("company_id") @db.Char(36)
-  categoryId                       String                         @unique(map: "regulated_category_control_category_key") @map("category_id") @db.Char(36)
-  status                           RegulatedCategoryControlStatus @default(DISABLED)
-  companyQualificationSnapshot     Json                           @map("company_qualification_snapshot")
-  companyQualificationValidUntil   DateTime?                      @map("company_qualification_valid_until") @db.DateTime(3)
-  version                          Int                            @default(0)
-  enabledAt                        DateTime?                      @map("enabled_at") @db.DateTime(3)
-  disabledAt                       DateTime?                      @map("disabled_at") @db.DateTime(3)
-  createdAt                        DateTime                       @default(now()) @map("created_at") @db.DateTime(3)
-  updatedAt                        DateTime                       @updatedAt @map("updated_at") @db.DateTime(3)
-  company                          Company                        @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  category                         Category                       @relation(fields: [categoryId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  id                             String                         @id @default(uuid()) @db.Char(36)
+  companyId                      String                         @map("company_id") @db.Char(36)
+  categoryId                     String                         @unique(map: "regulated_category_control_category_key") @map("category_id") @db.Char(36)
+  status                         RegulatedCategoryControlStatus @default(DISABLED)
+  companyQualificationSnapshot   Json                           @map("company_qualification_snapshot")
+  companyQualificationValidUntil DateTime?                      @map("company_qualification_valid_until") @db.DateTime(3)
+  version                        Int                            @default(0)
+  enabledAt                      DateTime?                      @map("enabled_at") @db.DateTime(3)
+  disabledAt                     DateTime?                      @map("disabled_at") @db.DateTime(3)
+  createdAt                      DateTime                       @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt                      DateTime                       @updatedAt @map("updated_at") @db.DateTime(3)
+  company                        Company                        @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  category                       Category                       @relation(fields: [categoryId], references: [id], onDelete: Restrict, onUpdate: Cascade)
 
   @@index([companyId, status], map: "regulated_category_control_company_status_idx")
   @@map("regulated_category_control")
@@ -817,7 +858,7 @@ model SupplierProduct {
   createdAt                      DateTime                       @default(now()) @map("created_at") @db.DateTime(3)
   updatedAt                      DateTime                       @updatedAt @map("updated_at") @db.DateTime(3)
   supplier                       Supplier                       @relation(fields: [supplierId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  template                       CategoryTemplate                @relation(fields: [categoryId, templateVersion], references: [categoryId, version], onDelete: Restrict, onUpdate: Cascade, map: "supplier_product_category_template_fkey")
+  template                       CategoryTemplate               @relation(fields: [categoryId, templateVersion], references: [categoryId, version], onDelete: Restrict, onUpdate: Cascade, map: "supplier_product_category_template_fkey")
   skus                           SupplierProductSku[]
   statusHistory                  SupplierProductStatusHistory[]
   product                        Product?
@@ -909,24 +950,152 @@ model Product {
 }
 
 model Sku {
-  id                         String             @id @default(uuid()) @db.Char(36)
-  productId                  String             @map("product_id") @db.Char(36)
-  supplierProductSkuId       String             @unique(map: "sku_supplier_product_sku_key") @map("supplier_product_sku_id") @db.Char(36)
-  code                       String             @unique @db.VarChar(64)
-  approvedSupplyPrice        Int                @map("approved_supply_price")
-  currentRetailSalePrice     Int                @map("current_retail_sale_price")
-  currentEnterpriseSalePrice Int                @map("current_enterprise_sale_price")
-  supplyPriceVersion         Int                @map("supply_price_version")
-  retailPriceVersion         Int                @map("retail_price_version")
-  enterprisePriceVersion     Int                @map("enterprise_price_version")
-  status                     SkuStatus          @default(ACTIVE)
-  createdAt                  DateTime           @default(now()) @map("created_at") @db.DateTime(3)
-  updatedAt                  DateTime           @updatedAt @map("updated_at") @db.DateTime(3)
-  product                    Product            @relation(fields: [productId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  supplierProductSku         SupplierProductSku @relation(fields: [supplierProductSkuId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  id                         String                     @id @default(uuid()) @db.Char(36)
+  productId                  String                     @map("product_id") @db.Char(36)
+  supplierProductSkuId       String                     @unique(map: "sku_supplier_product_sku_key") @map("supplier_product_sku_id") @db.Char(36)
+  code                       String                     @unique @db.VarChar(64)
+  approvedSupplyPrice        Int                        @map("approved_supply_price")
+  currentRetailSalePrice     Int                        @map("current_retail_sale_price")
+  currentEnterpriseSalePrice Int                        @map("current_enterprise_sale_price")
+  supplyPriceVersion         Int                        @map("supply_price_version")
+  retailPriceVersion         Int                        @map("retail_price_version")
+  enterprisePriceVersion     Int                        @map("enterprise_price_version")
+  status                     SkuStatus                  @default(ACTIVE)
+  createdAt                  DateTime                   @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt                  DateTime                   @updatedAt @map("updated_at") @db.DateTime(3)
+  product                    Product                    @relation(fields: [productId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  supplierProductSku         SupplierProductSku         @relation(fields: [supplierProductSkuId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  supplyPriceChangeRequests  SupplyPriceChangeRequest[]
+  priceChangeLogs            PriceChangeLog[]
+  priceEffectOutboxes        PriceEffectOutbox[]
 
   @@index([productId, status], map: "sku_product_status_idx")
   @@map("sku")
+}
+
+model SupplyPriceChangeRequest {
+  id                           String                     @id @default(uuid()) @db.Char(36)
+  companyId                    String                     @map("company_id") @db.Char(36)
+  supplierId                   String                     @map("supplier_id") @db.Char(36)
+  skuId                        String                     @map("sku_id") @db.Char(36)
+  oldSupplyPrice               Int                        @map("old_supply_price")
+  requestedSupplyPrice         Int                        @map("requested_supply_price")
+  baseSupplyPriceVersion       Int                        @map("base_supply_price_version")
+  requestedEffectiveAt         DateTime                   @map("requested_effective_at") @db.DateTime(3)
+  status                       SupplyPriceChangeStatus    @default(SUBMITTED)
+  reason                       String                     @db.VarChar(1000)
+  applicantIdentityId          String                     @map("applicant_identity_id") @db.Char(36)
+  applicantFunctionalAccountId String                     @map("applicant_functional_account_id") @db.Char(36)
+  reviewerIdentityId           String?                    @map("reviewer_identity_id") @db.Char(36)
+  reviewerFunctionalAccountId  String?                    @map("reviewer_functional_account_id") @db.Char(36)
+  reviewOpinion                String?                    @map("review_opinion") @db.VarChar(1000)
+  reviewedAt                   DateTime?                  @map("reviewed_at") @db.DateTime(3)
+  effectiveAt                  DateTime?                  @map("effective_at") @db.DateTime(3)
+  version                      Int                        @default(1)
+  createdAt                    DateTime                   @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt                    DateTime                   @updatedAt @map("updated_at") @db.DateTime(3)
+  company                      Company                    @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  supplier                     Supplier                   @relation(fields: [supplierId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  sku                          Sku                        @relation(fields: [skuId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  history                      SupplyPriceChangeHistory[]
+  effectOutboxes               PriceEffectOutbox[]
+  priceChangeLogs              PriceChangeLog[]
+
+  @@index([companyId, status, createdAt], map: "supply_price_change_company_status_time_idx")
+  @@index([supplierId, status, createdAt], map: "supply_price_change_supplier_status_time_idx")
+  @@index([skuId, status, createdAt], map: "supply_price_change_sku_status_time_idx")
+  @@map("supply_price_change_request")
+}
+
+model SupplyPriceChangeHistory {
+  id                  String                        @id @default(uuid()) @db.Char(36)
+  requestId           String                        @map("request_id") @db.Char(36)
+  event               SupplyPriceChangeHistoryEvent
+  fromStatus          SupplyPriceChangeStatus?      @map("from_status")
+  toStatus            SupplyPriceChangeStatus       @map("to_status")
+  version             Int
+  snapshot            Json
+  actorIdentityId     String                        @map("actor_identity_id") @db.Char(36)
+  functionalAccountId String                        @map("functional_account_id") @db.Char(36)
+  occurredAt          DateTime                      @default(now()) @map("occurred_at") @db.DateTime(3)
+  request             SupplyPriceChangeRequest      @relation(fields: [requestId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@unique([requestId, version], map: "supply_price_change_history_request_version_key")
+  @@index([requestId, occurredAt], map: "supply_price_change_history_request_time_idx")
+  @@map("supply_price_change_history")
+}
+
+model PriceChangeLog {
+  id                         String                    @id @default(uuid()) @db.Char(36)
+  companyId                  String                    @map("company_id") @db.Char(36)
+  supplierId                 String                    @map("supplier_id") @db.Char(36)
+  skuId                      String                    @map("sku_id") @db.Char(36)
+  supplyPriceChangeRequestId String?                   @map("supply_price_change_request_id") @db.Char(36)
+  priceType                  PriceType                 @map("price_type")
+  oldPrice                   Int                       @map("old_price")
+  newPrice                   Int                       @map("new_price")
+  oldVersion                 Int                       @map("old_version")
+  newVersion                 Int                       @map("new_version")
+  effectiveAt                DateTime                  @map("effective_at") @db.DateTime(3)
+  changedByIdentityId        String                    @map("changed_by_identity_id") @db.Char(36)
+  functionalAccountId        String                    @map("functional_account_id") @db.Char(36)
+  changeReason               String                    @map("change_reason") @db.VarChar(1000)
+  reviewStatus               PriceReviewStatus         @map("review_status")
+  riskWarning                String?                   @map("risk_warning") @db.VarChar(1000)
+  createdAt                  DateTime                  @default(now()) @map("created_at") @db.DateTime(3)
+  company                    Company                   @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  supplier                   Supplier                  @relation(fields: [supplierId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  sku                        Sku                       @relation(fields: [skuId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  supplyPriceChangeRequest   SupplyPriceChangeRequest? @relation(fields: [supplyPriceChangeRequestId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@unique([skuId, priceType, newVersion], map: "price_change_log_sku_type_version_key")
+  @@index([companyId, effectiveAt], map: "price_change_log_company_effective_idx")
+  @@index([supplierId, effectiveAt], map: "price_change_log_supplier_effective_idx")
+  @@index([skuId, effectiveAt], map: "price_change_log_sku_effective_idx")
+  @@map("price_change_log")
+}
+
+model PriceEffectOutbox {
+  id                         String                    @id @default(uuid()) @db.Char(36)
+  businessKey                String                    @unique(map: "price_effect_outbox_business_key") @map("business_key") @db.VarChar(191)
+  companyId                  String                    @map("company_id") @db.Char(36)
+  supplierId                 String                    @map("supplier_id") @db.Char(36)
+  skuId                      String                    @map("sku_id") @db.Char(36)
+  supplyPriceChangeRequestId String?                   @map("supply_price_change_request_id") @db.Char(36)
+  priceType                  PriceType                 @map("price_type")
+  targetPrice                Int                       @map("target_price")
+  expectedVersion            Int                       @map("expected_version")
+  changeReason               String                    @map("change_reason") @db.VarChar(1000)
+  changedByIdentityId        String                    @map("changed_by_identity_id") @db.Char(36)
+  functionalAccountId        String                    @map("functional_account_id") @db.Char(36)
+  reviewStatus               PriceReviewStatus         @map("review_status")
+  effectiveAt                DateTime                  @map("effective_at") @db.DateTime(3)
+  status                     PriceEffectStatus         @default(PENDING)
+  attempts                   Int                       @default(0)
+  lastErrorCode              String?                   @map("last_error_code") @db.VarChar(128)
+  processedAt                DateTime?                 @map("processed_at") @db.DateTime(3)
+  createdAt                  DateTime                  @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt                  DateTime                  @updatedAt @map("updated_at") @db.DateTime(3)
+  company                    Company                   @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  supplier                   Supplier                  @relation(fields: [supplierId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  sku                        Sku                       @relation(fields: [skuId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  supplyPriceChangeRequest   SupplyPriceChangeRequest? @relation(fields: [supplyPriceChangeRequestId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([status, effectiveAt], map: "price_effect_outbox_status_effective_idx")
+  @@index([skuId, priceType, status], map: "price_effect_outbox_sku_type_status_idx")
+  @@map("price_effect_outbox")
+}
+
+model PriceChangeCommand {
+  id               String   @id @default(uuid()) @db.Char(36)
+  scope            String   @db.VarChar(191)
+  idempotencyKey   String   @map("idempotency_key") @db.VarChar(128)
+  requestHash      String   @map("request_hash") @db.Char(64)
+  responseSnapshot Json     @map("response_snapshot")
+  createdAt        DateTime @default(now()) @map("created_at") @db.DateTime(3)
+
+  @@unique([scope, idempotencyKey], map: "price_change_command_scope_key")
+  @@map("price_change_command")
 }
 
 model AuditLog {
