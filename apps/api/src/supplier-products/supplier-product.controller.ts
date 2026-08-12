@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Header,
   Headers,
   Inject,
@@ -35,10 +36,15 @@ import {
 } from './supplier-product.actor.js';
 import {
   ProductMaterialApprovalResponseDto,
+  ProductChannelVisibilityHistoryItemDto,
+  ProductChannelVisibilityHistoryPageDto,
+  ProductChannelVisibilitySnapshotDto,
   SubmitProductMaterialRequestDto,
   SupplierProductDraftRequestDto,
   SupplierProductPatchRequestDto,
   SupplierProductResponseDto,
+  SupplierProductChannelVisibilityRequestDto,
+  SupplierProductChannelVisibilityResponseDto,
 } from './supplier-product.dto.js';
 import { SupplierProductService } from './supplier-product.service.js';
 
@@ -50,10 +56,15 @@ const replayHeader = (response: Response, replayed: boolean): void => {
 @ApiExtraModels(
   ApiErrorResponseDto,
   ProductMaterialApprovalResponseDto,
+  ProductChannelVisibilityHistoryItemDto,
+  ProductChannelVisibilityHistoryPageDto,
+  ProductChannelVisibilitySnapshotDto,
   SubmitProductMaterialRequestDto,
   SupplierProductDraftRequestDto,
   SupplierProductPatchRequestDto,
   SupplierProductResponseDto,
+  SupplierProductChannelVisibilityRequestDto,
+  SupplierProductChannelVisibilityResponseDto,
 )
 @Controller('v1/supplier/products')
 export class SupplierProductController {
@@ -115,6 +126,60 @@ export class SupplierProductController {
     );
     replayHeader(response, result.replayed);
     return result.body as SupplierProductResponseDto;
+  }
+
+  @Patch(':supplierProductId/channel-visibility')
+  @Header('Cache-Control', 'private, no-store, max-age=0')
+  @ApiOperation({
+    operationId: 'supplierProducts.changeChannelVisibility',
+    summary: 'Change ACTIVE product channel visibility without duplicating Product/Sku resources',
+  })
+  @ApiParam({ format: 'uuid', name: 'supplierProductId', type: String })
+  @ApiHeader({ name: 'Idempotency-Key', required: true })
+  @ApiBody({ type: SupplierProductChannelVisibilityRequestDto })
+  @ApiOkResponse({ type: SupplierProductChannelVisibilityResponseDto })
+  @ApiConflictResponse({ type: ApiErrorResponseDto })
+  @ApiForbiddenResponse({ type: ApiErrorResponseDto })
+  @ApiNotFoundResponse({ type: ApiErrorResponseDto })
+  @ApiPreconditionRequiredResponse({ type: ApiErrorResponseDto })
+  @ApiUnauthorizedResponse({ type: ApiErrorResponseDto })
+  @ApiUnprocessableEntityResponse({ type: ApiErrorResponseDto })
+  async changeChannelVisibility(
+    @Req() request: Request,
+    @Param('supplierProductId') supplierProductId: string,
+    @Body() body: SupplierProductChannelVisibilityRequestDto & Record<string, unknown>,
+    @Headers('idempotency-key') idempotencyKey: string | undefined,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<SupplierProductChannelVisibilityResponseDto> {
+    const actor = await this.actorResolver.resolve(request);
+    const result = await this.service.changeChannelVisibility(
+      actor,
+      supplierProductId,
+      body,
+      idempotencyKey,
+    );
+    replayHeader(response, result.replayed);
+    return result.body;
+  }
+
+  @Get(':supplierProductId/channel-visibility-history')
+  @Header('Cache-Control', 'private, no-store, max-age=0')
+  @ApiOperation({
+    operationId: 'supplierProducts.listChannelVisibilityHistory',
+    summary: 'List immutable channel visibility history for an owned supplier product',
+  })
+  @ApiParam({ format: 'uuid', name: 'supplierProductId', type: String })
+  @ApiOkResponse({ type: ProductChannelVisibilityHistoryPageDto })
+  @ApiForbiddenResponse({ type: ApiErrorResponseDto })
+  @ApiNotFoundResponse({ type: ApiErrorResponseDto })
+  @ApiUnauthorizedResponse({ type: ApiErrorResponseDto })
+  @ApiUnprocessableEntityResponse({ type: ApiErrorResponseDto })
+  async listChannelVisibilityHistory(
+    @Req() request: Request,
+    @Param('supplierProductId') supplierProductId: string,
+  ): Promise<ProductChannelVisibilityHistoryPageDto> {
+    const actor = await this.actorResolver.resolve(request);
+    return this.service.listChannelVisibilityHistory(actor, supplierProductId);
   }
 
   @Post(':supplierProductId/submit-material')

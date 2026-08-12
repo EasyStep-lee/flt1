@@ -193,6 +193,7 @@ const resolveFieldFormat = (row, type) => {
     : 'UTC ISO-8601';
   if (type === 'Boolean') return 'true|false';
   if (type === 'Json') return 'canonical JSON object; schema-versioned';
+  if (/^Enum<[^>]+>$/u.test(type)) return row.UnitOrFormat;
   if (isMoneyField(row.Field)) return 'integer cents; >=0';
   if (/PriceVersion$|^version$/u.test(row.Field)) return 'positive monotonic integer';
   if (row.Field === 'quantityDelta') return 'signed non-zero integer quantity';

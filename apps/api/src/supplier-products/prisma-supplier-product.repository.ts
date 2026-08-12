@@ -7,6 +7,7 @@ import { PrismaService } from '../infrastructure/prisma.service.js';
 import { COMPANY_LEGAL_NAME, PLATFORM_NAME } from '../merchant/single-merchant.service.js';
 import type { JsonObject } from './supplier-product.policy.js';
 import type {
+  ChangeProductChannelVisibilityCommand,
   CreateSupplierProductCommand,
   DecideProductApprovalCommand,
   InitialPriceReviewRecord,
@@ -14,6 +15,8 @@ import type {
   MaterializedProductRecord,
   PatchSupplierProductCommand,
   ProductApprovalDecisionRecord,
+  ProductChannelVisibilityHistoryRecord,
+  ProductChannelVisibilityRecord,
   ProductMaterialReviewRecord,
   ProductMaterialApprovalRecord,
   ProductPublicationCandidate,
@@ -39,6 +42,14 @@ class ApprovalDecisionRollback extends Error {
   constructor(kind: ApprovalDecisionRollbackKind) {
     super(kind);
     this.kind = kind;
+  }
+}
+
+class ChannelVisibilityRollback extends Error {
+  constructor(
+    readonly kind: 'DUPLICATE_CATALOG_RESOURCE' | 'VERSION_CONFLICT',
+  ) {
+    super(kind);
   }
 }
 
@@ -1143,6 +1154,27 @@ export class PrismaSupplierProductRepository implements SupplierProductRepositor
           },
           include: { skus: true },
         });
+        const channelSnapshot = {
+          isRetailEnabled: supplierProduct.isRetailEnabled,
+          isEnterpriseProcurementEnabled:
+            supplierProduct.isEnterpriseProcurementEnabled,
+          enterpriseMinOrderQty: supplierProduct.enterpriseMinOrderQty,
+          enterprisePackageMultiple: supplierProduct.enterprisePackageMultiple,
+        };
+        await database.productChannelVisibilityHistory.create({
+          data: {
+            productId: product.id,
+            supplierProductId: supplierProduct.id,
+            event: 'INITIAL',
+            fromVersion: product.version,
+            toVersion: product.version,
+            beforeSnapshot: asInputJson(channelSnapshot),
+            afterSnapshot: asInputJson(channelSnapshot),
+            reason: 'INITIAL_MATERIALIZATION',
+            actorIdentityId: null,
+            functionalAccountId: null,
+          },
+        });
         const update = await database.supplierProduct.updateMany({
           where: {
             id: supplierProduct.id,
@@ -1187,6 +1219,150 @@ export class PrismaSupplierProductRepository implements SupplierProductRepositor
       }
       throw error;
     }
+  }
+
+  async changeChannelVisibility(
+    command: ChangeProductChannelVisibilityCommand,
+  ): Promise<SupplierProductMutationResult<ProductChannelVisibilityRecord>> {
+    const scope = `CHANNEL_VISIBILITY:${command.supplierId}:${command.supplierProductId}`;
+    try {
+      return await this.prisma.$transaction(async (database) => {
+        const replay = await this.replay<ProductChannelVisibilityRecord>(
+          database,
+          scope,
+          command.idempotencyKey,
+          command.requestHash,
+        );
+        if (replay) return replay;
+        const current = await database.supplierProduct.findFirst({
+          where: { id: command.supplierProductId, supplierId: command.supplierId },
+          include: { product: { include: { skus: { select: { id: true } } } } },
+        });
+        if (!current) return { kind: 'NOT_FOUND' } as const;
+        if (current.status !== 'ACTIVE' || current.product?.saleStatus !== 'ACTIVE') {
+          return { kind: 'STATE_INVALID' } as const;
+        }
+        if (current.version !== command.expectedVersion) {
+          return { kind: 'VERSION_CONFLICT' } as const;
+        }
+        const productCount = await database.product.count({
+          where: { supplierProductId: current.id },
+        });
+        if (productCount !== 1 || current.product.skus.length < 1) {
+          return { kind: 'DUPLICATE_CATALOG_RESOURCE' } as const;
+        }
+        const before = {
+          isRetailEnabled: current.product.isRetailEnabled,
+          isEnterpriseProcurementEnabled:
+            current.product.isEnterpriseProcurementEnabled,
+          enterpriseMinOrderQty: current.enterpriseMinOrderQty,
+          enterprisePackageMultiple: current.enterprisePackageMultiple,
+        };
+        const after = {
+          isRetailEnabled: command.isRetailEnabled,
+          isEnterpriseProcurementEnabled: command.isEnterpriseProcurementEnabled,
+          enterpriseMinOrderQty: command.enterpriseMinOrderQty,
+          enterprisePackageMultiple: command.enterprisePackageMultiple,
+        };
+        if (JSON.stringify(before) === JSON.stringify(after)) {
+          return { kind: 'NO_CHANGE' } as const;
+        }
+        const productUpdate = await database.product.updateMany({
+          where: {
+            id: current.product.id,
+            supplierProductId: current.id,
+            saleStatus: 'ACTIVE',
+            version: current.product.version,
+          },
+          data: {
+            isRetailEnabled: after.isRetailEnabled,
+            isEnterpriseProcurementEnabled:
+              after.isEnterpriseProcurementEnabled,
+            version: { increment: 1 },
+          },
+        });
+        if (productUpdate.count !== 1) {
+          throw new ChannelVisibilityRollback('VERSION_CONFLICT');
+        }
+        const supplierProductUpdate = await database.supplierProduct.updateMany({
+          where: {
+            id: current.id,
+            supplierId: command.supplierId,
+            status: 'ACTIVE',
+            version: command.expectedVersion,
+          },
+          data: {
+            ...after,
+            version: { increment: 1 },
+          },
+        });
+        if (supplierProductUpdate.count !== 1) {
+          throw new ChannelVisibilityRollback('VERSION_CONFLICT');
+        }
+        const productVersion = current.product.version + 1;
+        await database.productChannelVisibilityHistory.create({
+          data: {
+            productId: current.product.id,
+            supplierProductId: current.id,
+            event: 'CHANGE',
+            fromVersion: current.product.version,
+            toVersion: productVersion,
+            beforeSnapshot: asInputJson(before),
+            afterSnapshot: asInputJson(after),
+            reason: command.reason,
+            actorIdentityId: command.actorIdentityId,
+            functionalAccountId: command.functionalAccountId,
+          },
+        });
+        const value: ProductChannelVisibilityRecord = {
+          supplierProductId: current.id,
+          productId: current.product.id,
+          supplierProductVersion: current.version + 1,
+          productVersion,
+          ...after,
+        };
+        await this.remember(
+          database,
+          scope,
+          command.idempotencyKey,
+          command.requestHash,
+          value,
+        );
+        return { kind: 'OK', value, replayed: false } as const;
+      });
+    } catch (error) {
+      if (error instanceof ChannelVisibilityRollback) {
+        return { kind: error.kind };
+      }
+      throw error;
+    }
+  }
+
+  async listChannelVisibilityHistory(
+    supplierProductId: string,
+    supplierId: string,
+  ): Promise<readonly ProductChannelVisibilityHistoryRecord[] | null> {
+    const product = await this.prisma.supplierProduct.findFirst({
+      where: { id: supplierProductId, supplierId },
+      select: { product: { select: { id: true } } },
+    });
+    if (!product?.product) return null;
+    const history = await this.prisma.productChannelVisibilityHistory.findMany({
+      where: { productId: product.product.id, supplierProductId },
+      orderBy: [{ toVersion: 'asc' }, { occurredAt: 'asc' }, { id: 'asc' }],
+    });
+    return history.map((row) => ({
+      id: row.id,
+      productId: row.productId,
+      supplierProductId: row.supplierProductId,
+      event: row.event,
+      fromVersion: row.fromVersion,
+      toVersion: row.toVersion,
+      before: asJsonObject(row.beforeSnapshot, 'channel_visibility_before') as unknown as ProductChannelVisibilityHistoryRecord['before'],
+      after: asJsonObject(row.afterSnapshot, 'channel_visibility_after') as unknown as ProductChannelVisibilityHistoryRecord['after'],
+      reason: row.reason,
+      occurredAt: row.occurredAt.toISOString(),
+    }));
   }
 
   async findSellableProductBySupplierProductId(

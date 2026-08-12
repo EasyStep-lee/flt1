@@ -4,6 +4,8 @@ import { normalizeCategoryTemplateDefinition } from '../category-templates/categ
 import { PrismaService } from '../infrastructure/prisma.service.js';
 import type {
   FindPublicCatalogProductsInput,
+  FindEnterpriseCatalogProductsInput,
+  EnterpriseCatalogPageRecord,
   PublicCatalogPageRecord,
   PublicCatalogProductDetailRecord,
   PublicCatalogRepository,
@@ -32,6 +34,8 @@ export class PrismaPublicCatalogRepository implements PublicCatalogRepository {
     const product = await this.prisma.product.findFirst({
       where: {
         id: productId,
+        company: { status: 'ACTIVE' },
+        supplier: { status: 'ACTIVE' },
         OR: [
           { template: { regulatoryMode: 'STANDARD' } },
           {
@@ -121,6 +125,7 @@ export class PrismaPublicCatalogRepository implements PublicCatalogRepository {
       saleStatus: 'ACTIVE' as const,
       isRetailEnabled: true,
       company: { status: 'ACTIVE' as const },
+      supplier: { status: 'ACTIVE' as const },
       skus: { some: { status: 'ACTIVE' as const } },
       OR: [
         { template: { regulatoryMode: 'STANDARD' as const } },
@@ -174,6 +179,53 @@ export class PrismaPublicCatalogRepository implements PublicCatalogRepository {
         retailSalePrice: product.skus[0]?.currentRetailSalePrice ?? -1,
         activeSkuCount: product.skus.length,
       })),
+    };
+  }
+
+  async findSellableEnterpriseProducts(
+    input: FindEnterpriseCatalogProductsInput,
+  ): Promise<EnterpriseCatalogPageRecord> {
+    const now = new Date();
+    const where = {
+      saleStatus: 'ACTIVE' as const,
+      isEnterpriseProcurementEnabled: true,
+      company: { status: 'ACTIVE' as const },
+      supplier: { status: 'ACTIVE' as const },
+      skus: { some: { status: 'ACTIVE' as const } },
+      OR: [
+        { template: { regulatoryMode: 'STANDARD' as const } },
+        {
+          template: { regulatoryMode: 'HIGH_RISK' as const },
+          qualificationValidUntil: { gt: now },
+          category: {
+            regulatedControl: {
+              is: {
+                status: 'ENABLED' as const,
+                companyQualificationValidUntil: { gt: now },
+              },
+            },
+          },
+        },
+      ],
+    };
+    const [total, productIds] = await this.prisma.$transaction([
+      this.prisma.product.count({ where }),
+      this.prisma.product.findMany({
+        where,
+        orderBy: [{ createdAt: 'desc' }, { id: 'asc' }],
+        skip: (input.page - 1) * input.pageSize,
+        take: input.pageSize,
+        select: { id: true },
+      }),
+    ]);
+    const details = await Promise.all(
+      productIds.map(({ id }) => this.findSellableProductDetail(id)),
+    );
+    return {
+      total,
+      items: details.filter(
+        (detail): detail is PublicCatalogProductDetailRecord => detail !== null,
+      ),
     };
   }
 }

@@ -195,3 +195,77 @@ export class ProductMaterialApprovalResponseDto {
   @ApiProperty({ minimum: 0, type: Number })
   readonly version!: number;
 }
+
+export class SupplierProductChannelVisibilityRequestDto {
+  @ApiProperty({ minimum: 0, type: Number })
+  readonly version!: number;
+
+  @ApiProperty({ type: Boolean })
+  readonly isRetailEnabled!: boolean;
+
+  @ApiProperty({ type: Boolean })
+  readonly isEnterpriseProcurementEnabled!: boolean;
+
+  @ApiProperty({ minimum: 0, type: Number })
+  readonly enterpriseMinOrderQty!: number;
+
+  @ApiProperty({ minimum: 0, type: Number })
+  readonly enterprisePackageMultiple!: number;
+
+  @ApiProperty({ maxLength: 1000, minLength: 1, type: String })
+  readonly reason!: string;
+}
+
+export class SupplierProductChannelVisibilityResponseDto {
+  @ApiProperty({ format: 'uuid', type: String })
+  readonly supplierProductId!: string;
+
+  @ApiProperty({ format: 'uuid', type: String })
+  readonly productId!: string;
+
+  @ApiProperty({ minimum: 0, type: Number })
+  readonly supplierProductVersion!: number;
+
+  @ApiProperty({ minimum: 0, type: Number })
+  readonly productVersion!: number;
+
+  @ApiProperty({ type: Boolean })
+  readonly isRetailEnabled!: boolean;
+
+  @ApiProperty({ type: Boolean })
+  readonly isEnterpriseProcurementEnabled!: boolean;
+
+  @ApiProperty({ minimum: 0, type: Number })
+  readonly enterpriseMinOrderQty!: number;
+
+  @ApiProperty({ minimum: 0, type: Number })
+  readonly enterprisePackageMultiple!: number;
+}
+
+export class ProductChannelVisibilitySnapshotDto {
+  @ApiProperty({ type: Boolean }) readonly isRetailEnabled!: boolean;
+  @ApiProperty({ type: Boolean }) readonly isEnterpriseProcurementEnabled!: boolean;
+  @ApiProperty({ minimum: 0, type: Number }) readonly enterpriseMinOrderQty!: number;
+  @ApiProperty({ minimum: 0, type: Number }) readonly enterprisePackageMultiple!: number;
+}
+
+export class ProductChannelVisibilityHistoryItemDto {
+  @ApiProperty({ format: 'uuid', type: String }) readonly id!: string;
+  @ApiProperty({ format: 'uuid', type: String }) readonly productId!: string;
+  @ApiProperty({ format: 'uuid', type: String }) readonly supplierProductId!: string;
+  @ApiProperty({ enum: ['INITIAL', 'CHANGE'] }) readonly event!: 'INITIAL' | 'CHANGE';
+  @ApiProperty({ minimum: 0, type: Number }) readonly fromVersion!: number;
+  @ApiProperty({ minimum: 0, type: Number }) readonly toVersion!: number;
+  @ApiProperty({ type: ProductChannelVisibilitySnapshotDto })
+  readonly before!: ProductChannelVisibilitySnapshotDto;
+  @ApiProperty({ type: ProductChannelVisibilitySnapshotDto })
+  readonly after!: ProductChannelVisibilitySnapshotDto;
+  @ApiProperty({ maxLength: 1000, type: String }) readonly reason!: string;
+  @ApiProperty({ format: 'date-time', type: String }) readonly occurredAt!: string;
+}
+
+export class ProductChannelVisibilityHistoryPageDto {
+  @ApiProperty({ format: 'uuid', type: String }) readonly supplierProductId!: string;
+  @ApiProperty({ type: [ProductChannelVisibilityHistoryItemDto] })
+  readonly items!: readonly ProductChannelVisibilityHistoryItemDto[];
+}

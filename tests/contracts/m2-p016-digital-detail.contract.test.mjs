@@ -14,7 +14,7 @@ test('P0-016 extends the public detail whitelist with DIGITAL without exposing p
   assert.equal(operation.operationId, 'catalog.getProductDetail');
   const schema = openApi.components.schemas.PublicFoodProductDetailResponseDto;
   assert.deepEqual(Object.keys(schema.properties).sort(), [
-    'brand', 'bundleItems', 'categoryId', 'checkoutMode', 'detailModules', 'name', 'productId',
+    'brand', 'bundleItems', 'categoryId', 'checkoutMode', 'detailModules', 'media', 'name', 'productId',
     'retailSalePrice', 'sellerName', 'skus', 'supplierId', 'templateProfile', 'templateVersion',
   ]);
   assert.deepEqual(schema.properties.templateProfile.enum, [
@@ -56,25 +56,25 @@ test('M2-P016 records its merged-main gate while P019 remains the only active sl
       ),
     ]);
 
-  assert.equal(state.execution.currentTask, 'M2-P021');
-  assert.equal(state.execution.nextAllowedTask, 'M2-P021');
-  assert.equal(state.execution.lastCompletedTask, 'M2-P019');
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2-P021.*M2-P061/u);
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M2-P021');
-  assert.equal(state.github.currentTaskDelivery.issue, 65);
-  assert.equal(state.github.currentTaskDelivery.branch, 'codex/m2-product-detail-price-isolation');
+  assert.equal(state.execution.currentTask, 'M2-P061');
+  assert.equal(state.execution.nextAllowedTask, 'M2-P061');
+  assert.equal(state.execution.lastCompletedTask, 'M2-P021');
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2-P061.*M2-P063/u);
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M2-P061');
+  assert.equal(state.github.currentTaskDelivery.issue, 67);
+  assert.equal(state.github.currentTaskDelivery.branch, 'codex/m2-shared-catalog-enterprise-flag');
   assert.equal(
     state.github.currentTaskDelivery.exactHeadCi,
     'NOT_EXECUTED',
   );
-  assert.equal(state.github.currentTaskDelivery.pullRequest, 66);
-  assert.equal(state.github.currentTaskDelivery.pullRequestState, 'DRAFT');
+  assert.equal(state.github.currentTaskDelivery.pullRequest, null);
+  assert.equal(state.github.currentTaskDelivery.pullRequestState, 'NOT_CREATED');
   assert.equal(state.github.currentTaskDelivery.merge, 'NOT_EXECUTED');
   assert.equal(state.github.currentTaskDelivery.mainPostMergeCi, 'NOT_EXECUTED');
-  assert.equal(state.github.currentTaskDelivery.m2p061StartAllowed, false);
-  assert.equal(state.github.previousTaskDelivery.taskId, 'M2-P019');
-  assert.equal(state.github.previousTaskDelivery.pullRequest, 64);
-  assert.equal(state.github.previousTaskDelivery.mainPostMergeCiRun, 31564696638);
+  assert.equal(state.github.currentTaskDelivery.m2p063StartAllowed, false);
+  assert.equal(state.github.previousTaskDelivery.taskId, 'M2-P021');
+  assert.equal(state.github.previousTaskDelivery.pullRequest, 66);
+  assert.equal(state.github.previousTaskDelivery.mainPostMergeCiRun, 31573819683);
   assert.equal(state.github.previousTaskDelivery.status, 'CI_PASS');
   assert.equal(evidence.taskId, 'M2-P016');
   assert.equal(evidence.status, 'CI_PASS');

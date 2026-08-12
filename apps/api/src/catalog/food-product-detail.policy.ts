@@ -8,6 +8,7 @@ import {
 } from '../category-templates/food-template.policy.js';
 import type { CategoryTemplateDefinition } from '../category-templates/category-template.policy.js';
 import { SafeApiError } from '../http/api-error.js';
+import { buildCatalogMediaResponse, type CatalogMediaResponse } from './catalog-media.policy.js';
 
 export interface FoodProductDetailSource {
   readonly productId: string;
@@ -38,6 +39,7 @@ export interface PublicFoodProductDetailResponse {
   readonly sellerName: typeof COMPANY_LEGAL_NAME;
   readonly checkoutMode: 'COMPANY_UNIFIED';
   readonly retailSalePrice: number;
+  readonly media: readonly CatalogMediaResponse[];
   readonly skus: readonly {
     readonly skuId: string;
     readonly retailSalePrice: number;
@@ -161,6 +163,7 @@ export const buildFoodProductDetailResponse = (
     sellerName: COMPANY_LEGAL_NAME,
     checkoutMode: 'COMPANY_UNIFIED',
     retailSalePrice: Math.min(...skus.map(({ retailSalePrice }) => retailSalePrice)),
+    media: buildCatalogMediaResponse(source.detailSnapshot),
     skus,
     detailModules,
   };

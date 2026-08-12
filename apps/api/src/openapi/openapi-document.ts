@@ -397,6 +397,10 @@ type JsonValue =
           throw new Error('OPENAPI_GENERATION_ONLY');
         },
         findSellableProductBySupplierProductId: async () => null,
+        changeChannelVisibility: async () => {
+          throw new Error('OPENAPI_GENERATION_ONLY');
+        },
+        listChannelVisibilityHistory: async () => [],
       } satisfies SupplierProductRepository,
     },
     {
@@ -465,6 +469,7 @@ type JsonValue =
         isActiveSupplierSource: async () => false,
         findSellableProductDetail: async () => null,
         findSellableRetailProducts: async () => ({ items: [], total: 0 }),
+        findSellableEnterpriseProducts: async () => ({ items: [], total: 0 }),
       } satisfies PublicCatalogRepository,
     },
   ],

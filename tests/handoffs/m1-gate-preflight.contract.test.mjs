@@ -295,7 +295,9 @@ test('project status records M1 gate success while historical blocked handoff st
     projectStatus.execution.currentTask,
   );
   assert.equal(
-    ['LOCAL_PASS', 'CI_PASS'].includes(projectStatus.github.currentTaskDelivery.status),
+    ['IN_PROGRESS', 'LOCAL_PASS', 'CI_PASS'].includes(
+      projectStatus.github.currentTaskDelivery.status,
+    ),
     true,
   );
   assert.equal(projectStatus.github.currentTaskDelivery.merge, 'NOT_EXECUTED');

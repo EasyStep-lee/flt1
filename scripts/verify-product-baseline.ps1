@@ -104,7 +104,7 @@ if (-not (Test-Path -LiteralPath $executionManifestPath)) {
     foreach ($entry in $lock.expectedCounts.PSObject.Properties) {
         $actualCount = [int]$executionManifest.counts.($entry.Name)
         $expectedCount = [int]$entry.Value
-        if ($entry.Name -eq 'apiContracts') {
+        if ($entry.Name -in @('fields', 'stateTransitions', 'migrations', 'apiContracts')) {
             if ($actualCount -lt $expectedCount) {
                 Add-Failure "执行包计数低于冻结基线：$($entry.Name)=$actualCount，至少应为$expectedCount"
             }

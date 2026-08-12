@@ -10,6 +10,19 @@ export class SupplierProductQueryDto {
   @ApiPropertyOptional({ default: 20, maximum: 50, minimum: 1, type: Number })
   readonly pageSize?: string;
 }
+
+export class EnterpriseCatalogQueryDto {
+  @ApiPropertyOptional({ default: 1, maximum: 10000, minimum: 1, type: Number })
+  readonly page?: string;
+
+  @ApiPropertyOptional({ default: 20, maximum: 50, minimum: 1, type: Number })
+  readonly pageSize?: string;
+}
+
+export class CatalogMediaResponseDto {
+  @ApiProperty({ format: 'uri', maxLength: 2048, type: String }) readonly url!: string;
+  @ApiProperty({ maxLength: 200, type: String }) readonly alt!: string;
+}
 export class PublicProductCardResponseDto {
   @ApiProperty({ format: 'uuid', type: String })
   readonly productId!: string;
@@ -98,6 +111,8 @@ export class PublicFoodProductDetailResponseDto {
   @ApiProperty({ enum: ['COMPANY_UNIFIED'] }) readonly checkoutMode!: 'COMPANY_UNIFIED';
   @ApiProperty({ description: 'Minimum active SKU retail price in integer cents', minimum: 0, type: Number })
   readonly retailSalePrice!: number;
+  @ApiProperty({ type: [CatalogMediaResponseDto] })
+  readonly media!: readonly CatalogMediaResponseDto[];
   @ApiProperty({ type: [PublicFoodSkuResponseDto] })
   readonly skus!: readonly PublicFoodSkuResponseDto[];
   @ApiProperty({ type: [PublicFoodDetailModuleResponseDto] })
@@ -129,10 +144,37 @@ export class EnterpriseProductDetailResponseDto {
   @ApiProperty({ enum: ['COMPANY_UNIFIED'] }) readonly checkoutMode!: 'COMPANY_UNIFIED';
   @ApiProperty({ description: 'Minimum active SKU enterprise procurement price in integer cents', minimum: 0, type: Number })
   readonly enterpriseSalePrice!: number;
+  @ApiProperty({ type: [CatalogMediaResponseDto] })
+  readonly media!: readonly CatalogMediaResponseDto[];
   @ApiProperty({ type: [EnterpriseFoodSkuResponseDto] })
   readonly skus!: readonly EnterpriseFoodSkuResponseDto[];
   @ApiProperty({ type: [PublicFoodDetailModuleResponseDto] })
   readonly detailModules!: readonly PublicFoodDetailModuleResponseDto[];
   @ApiPropertyOptional({ type: [PublicGiftBoxItemResponseDto] })
   readonly bundleItems?: readonly PublicGiftBoxItemResponseDto[];
+}
+
+export class EnterpriseCatalogProductResponseDto {
+  @ApiProperty({ format: 'uuid', type: String }) readonly productId!: string;
+  @ApiProperty({ format: 'uuid', type: String }) readonly supplierId!: string;
+  @ApiProperty({ format: 'uuid', type: String }) readonly categoryId!: string;
+  @ApiProperty({ minimum: 1, type: Number }) readonly templateVersion!: number;
+  @ApiProperty({ maxLength: 200, type: String }) readonly name!: string;
+  @ApiProperty({ type: [CatalogMediaResponseDto] }) readonly media!: readonly CatalogMediaResponseDto[];
+  @ApiProperty({ items: { format: 'uuid', type: 'string' }, type: 'array' })
+  readonly skuIds!: readonly string[];
+  @ApiProperty({ description: 'Minimum active SKU enterprise procurement price in integer cents', minimum: 0, type: Number })
+  readonly enterpriseSalePrice!: number;
+  @ApiProperty({ minimum: 1, type: Number }) readonly activeSkuCount!: number;
+}
+
+export class EnterpriseCatalogPageResponseDto {
+  @ApiProperty({ example: '江苏福礼团供应链科技有限公司', type: String })
+  readonly sellerName!: '江苏福礼团供应链科技有限公司';
+  @ApiProperty({ enum: ['COMPANY_UNIFIED'] }) readonly checkoutMode!: 'COMPANY_UNIFIED';
+  @ApiProperty({ minimum: 1, type: Number }) readonly page!: number;
+  @ApiProperty({ maximum: 50, minimum: 1, type: Number }) readonly pageSize!: number;
+  @ApiProperty({ minimum: 0, type: Number }) readonly total!: number;
+  @ApiProperty({ type: [EnterpriseCatalogProductResponseDto] })
+  readonly items!: readonly EnterpriseCatalogProductResponseDto[];
 }

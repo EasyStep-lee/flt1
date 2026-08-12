@@ -187,6 +187,46 @@ export interface MaterializedProductRecord {
   readonly skuIds: readonly string[];
 }
 
+export interface ProductChannelVisibilitySnapshot {
+  readonly isRetailEnabled: boolean;
+  readonly isEnterpriseProcurementEnabled: boolean;
+  readonly enterpriseMinOrderQty: number;
+  readonly enterprisePackageMultiple: number;
+}
+
+export interface ProductChannelVisibilityHistoryRecord {
+  readonly id: string;
+  readonly productId: string;
+  readonly supplierProductId: string;
+  readonly event: 'INITIAL' | 'CHANGE';
+  readonly fromVersion: number;
+  readonly toVersion: number;
+  readonly before: ProductChannelVisibilitySnapshot;
+  readonly after: ProductChannelVisibilitySnapshot;
+  readonly reason: string;
+  readonly occurredAt: string;
+}
+
+export interface ProductChannelVisibilityRecord
+  extends ProductChannelVisibilitySnapshot {
+  readonly supplierProductId: string;
+  readonly productId: string;
+  readonly supplierProductVersion: number;
+  readonly productVersion: number;
+}
+
+export interface ChangeProductChannelVisibilityCommand
+  extends ProductChannelVisibilitySnapshot {
+  readonly supplierId: string;
+  readonly supplierProductId: string;
+  readonly expectedVersion: number;
+  readonly reason: string;
+  readonly actorIdentityId: string;
+  readonly functionalAccountId: string;
+  readonly idempotencyKey: string;
+  readonly requestHash: string;
+}
+
 export interface SellableProductSummary {
   readonly productId: string;
   readonly supplierProductId: string;
@@ -241,9 +281,11 @@ export type SupplierProductFailureKind =
   | 'APPROVAL_VERSION_CONFLICT'
   | 'AUDIT_REQUIRED'
   | 'COMPANY_INVARIANT'
+  | 'DUPLICATE_CATALOG_RESOURCE'
   | 'DUPLICATE'
   | 'IDEMPOTENCY_CONFLICT'
   | 'NOT_FOUND'
+  | 'NO_CHANGE'
   | 'PRICE_INVALID'
   | 'PRODUCT_APPROVAL_INCOMPLETE'
   | 'STATE_INVALID'
@@ -305,6 +347,13 @@ export interface SupplierProductRepository {
   materializeApproved(
     command: MaterializeApprovedProductCommand,
   ): Promise<SupplierProductMutationResult<MaterializedProductRecord>>;
+  changeChannelVisibility(
+    command: ChangeProductChannelVisibilityCommand,
+  ): Promise<SupplierProductMutationResult<ProductChannelVisibilityRecord>>;
+  listChannelVisibilityHistory(
+    supplierProductId: string,
+    supplierId: string,
+  ): Promise<readonly ProductChannelVisibilityHistoryRecord[] | null>;
   findSellableProductBySupplierProductId(
     supplierProductId: string,
   ): Promise<SellableProductSummary | null>;

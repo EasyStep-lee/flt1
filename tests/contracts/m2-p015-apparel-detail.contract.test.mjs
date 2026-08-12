@@ -19,7 +19,7 @@ test('P0-015 extends the existing public detail whitelist with APPAREL without e
   );
   const schema = openApi.components.schemas.PublicFoodProductDetailResponseDto;
   assert.deepEqual(Object.keys(schema.properties).sort(), [
-    'brand', 'bundleItems', 'categoryId', 'checkoutMode', 'detailModules', 'name', 'productId',
+    'brand', 'bundleItems', 'categoryId', 'checkoutMode', 'detailModules', 'media', 'name', 'productId',
     'retailSalePrice', 'sellerName', 'skus', 'supplierId', 'templateProfile', 'templateVersion',
   ]);
   assert.deepEqual(schema.properties.templateProfile.enum.slice(0, 3), ['FOOD', 'FRESH', 'APPAREL']);
@@ -58,17 +58,17 @@ test('M2-P015 remains closed after later M2 slices advance', async () => {
       ),
     ]);
 
-  assert.equal(state.execution.currentTask, 'M2-P021');
-  assert.equal(state.execution.nextAllowedTask, 'M2-P021');
-  assert.equal(state.execution.lastCompletedTask, 'M2-P019');
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2-P021.*M2-P061/u);
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M2-P021');
-  assert.equal(state.github.currentTaskDelivery.issue, 65);
-  assert.equal(state.github.previousTaskDelivery.taskId, 'M2-P019');
-  assert.equal(state.github.previousTaskDelivery.pullRequest, 64);
-  assert.equal(state.github.previousTaskDelivery.exactHead, '5c66ed1147e44dad53ab8a29e77f7b71e692111c');
-  assert.equal(state.github.previousTaskDelivery.mergeCommit, 'd8da461fa3884ec4fbd7a92403b610f7f3ac70aa');
-  assert.equal(state.github.previousTaskDelivery.mainPostMergeCiRun, 31564696638);
+  assert.equal(state.execution.currentTask, 'M2-P061');
+  assert.equal(state.execution.nextAllowedTask, 'M2-P061');
+  assert.equal(state.execution.lastCompletedTask, 'M2-P021');
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2-P061.*M2-P063/u);
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M2-P061');
+  assert.equal(state.github.currentTaskDelivery.issue, 67);
+  assert.equal(state.github.previousTaskDelivery.taskId, 'M2-P021');
+  assert.equal(state.github.previousTaskDelivery.pullRequest, 66);
+  assert.equal(state.github.previousTaskDelivery.exactHead, '7c9cb32da828cfe65bbd3918fb940d58f9c4c805');
+  assert.equal(state.github.previousTaskDelivery.mergeCommit, 'b2fee8424b803a5e629f1c243632bbefe2d566c3');
+  assert.equal(state.github.previousTaskDelivery.mainPostMergeCiRun, 31573819683);
   assert.equal(state.github.previousTaskDelivery.status, 'CI_PASS');
   assert.equal(evidence.taskId, 'M2-P015');
   assert.equal(evidence.status, 'CI_PASS');

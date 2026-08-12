@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto';
 import type { AuditLogRepository } from '../audit/audit-log.repository.js';
 import type { JsonObject } from './supplier-product.policy.js';
 import type {
+  ChangeProductChannelVisibilityCommand,
   CreateSupplierProductCommand,
   DecideProductApprovalCommand,
   InitialPriceReviewRecord,
@@ -10,6 +11,8 @@ import type {
   MaterializedProductRecord,
   PatchSupplierProductCommand,
   ProductApprovalDecisionRecord,
+  ProductChannelVisibilityHistoryRecord,
+  ProductChannelVisibilityRecord,
   ProductMaterialReviewRecord,
   ProductMaterialApprovalRecord,
   ProductPublicationCandidate,
@@ -101,6 +104,11 @@ export class InMemorySupplierProductRepository implements SupplierProductReposit
   private readonly supplierProducts = new Map<string, SupplierProductRecord>();
   private readonly approvalTasks = new Map<string, StoredApproval>();
   private readonly products = new Map<string, MaterializedProductRecord>();
+  private readonly channelSettings = new Map<string, ProductChannelVisibilityRecord>();
+  private readonly channelHistory = new Map<
+    string,
+    readonly ProductChannelVisibilityHistoryRecord[]
+  >();
   private readonly commands = new Map<string, StoredCommand<unknown>>();
   private readonly pendingDecisions = new Map<string, PendingDecision>();
   private readonly pendingInitialPrices = new Map<string, PendingInitialPrices>();
@@ -631,14 +639,114 @@ export class InMemorySupplierProductRepository implements SupplierProductReposit
       skuIds: supplierProduct.skus.map(() => randomUUID()),
     };
     this.products.set(supplierProduct.id, value);
-    this.supplierProducts.set(supplierProduct.id, {
+    const activatedSupplierProduct = {
       ...supplierProduct,
       status: 'ACTIVE',
       version: supplierProduct.version + 1,
       skus: supplierProduct.skus.map((sku) => ({ ...sku, status: 'ACTIVE' })),
+    } satisfies SupplierProductRecord;
+    this.supplierProducts.set(supplierProduct.id, activatedSupplierProduct);
+    const initialSnapshot = {
+      isRetailEnabled: supplierProduct.isRetailEnabled,
+      isEnterpriseProcurementEnabled:
+        supplierProduct.isEnterpriseProcurementEnabled,
+      enterpriseMinOrderQty: supplierProduct.enterpriseMinOrderQty,
+      enterprisePackageMultiple: supplierProduct.enterprisePackageMultiple,
+    };
+    this.channelSettings.set(supplierProduct.id, {
+      supplierProductId: supplierProduct.id,
+      productId: value.productId,
+      supplierProductVersion: activatedSupplierProduct.version,
+      productVersion: 0,
+      ...initialSnapshot,
     });
+    this.channelHistory.set(supplierProduct.id, [
+      {
+        id: randomUUID(),
+        productId: value.productId,
+        supplierProductId: supplierProduct.id,
+        event: 'INITIAL',
+        fromVersion: 0,
+        toVersion: 0,
+        before: clone(initialSnapshot),
+        after: clone(initialSnapshot),
+        reason: 'INITIAL_MATERIALIZATION',
+        occurredAt: new Date().toISOString(),
+      },
+    ]);
     this.remember(scope, command, value);
     return { kind: 'OK', value: clone(value), replayed: false };
+  }
+
+  async changeChannelVisibility(
+    command: ChangeProductChannelVisibilityCommand,
+  ): Promise<SupplierProductMutationResult<ProductChannelVisibilityRecord>> {
+    const scope = `CHANNEL_VISIBILITY:${command.supplierId}:${command.supplierProductId}`;
+    const replay = this.replay<ProductChannelVisibilityRecord>(scope, command);
+    if (replay) return replay;
+    const current = this.findOwned(command.supplierProductId, command.supplierId);
+    const settings = this.channelSettings.get(command.supplierProductId);
+    const product = this.products.get(command.supplierProductId);
+    if (!current || !settings || !product) return { kind: 'NOT_FOUND' };
+    if (current.status !== 'ACTIVE') return { kind: 'STATE_INVALID' };
+    if (current.version !== command.expectedVersion) {
+      return { kind: 'VERSION_CONFLICT' };
+    }
+    const before = {
+      isRetailEnabled: settings.isRetailEnabled,
+      isEnterpriseProcurementEnabled: settings.isEnterpriseProcurementEnabled,
+      enterpriseMinOrderQty: settings.enterpriseMinOrderQty,
+      enterprisePackageMultiple: settings.enterprisePackageMultiple,
+    };
+    const after = {
+      isRetailEnabled: command.isRetailEnabled,
+      isEnterpriseProcurementEnabled: command.isEnterpriseProcurementEnabled,
+      enterpriseMinOrderQty: command.enterpriseMinOrderQty,
+      enterprisePackageMultiple: command.enterprisePackageMultiple,
+    };
+    if (JSON.stringify(before) === JSON.stringify(after)) return { kind: 'NO_CHANGE' };
+
+    const next: ProductChannelVisibilityRecord = {
+      supplierProductId: current.id,
+      productId: product.productId,
+      supplierProductVersion: current.version + 1,
+      productVersion: settings.productVersion + 1,
+      ...after,
+    };
+    this.supplierProducts.set(current.id, {
+      ...current,
+      ...after,
+      version: next.supplierProductVersion,
+    });
+    this.channelSettings.set(current.id, next);
+    this.channelHistory.set(current.id, [
+      ...(this.channelHistory.get(current.id) ?? []),
+      {
+        id: randomUUID(),
+        productId: product.productId,
+        supplierProductId: current.id,
+        event: 'CHANGE',
+        fromVersion: settings.productVersion,
+        toVersion: next.productVersion,
+        before: clone(before),
+        after: clone(after),
+        reason: command.reason,
+        occurredAt: new Date().toISOString(),
+      },
+    ]);
+    this.remember(scope, command, next);
+    return { kind: 'OK', value: clone(next), replayed: false };
+  }
+
+  listChannelVisibilityHistory(
+    supplierProductId: string,
+    supplierId: string,
+  ): Promise<readonly ProductChannelVisibilityHistoryRecord[] | null> {
+    const current = this.findOwned(supplierProductId, supplierId);
+    if (!current || !this.channelSettings.has(supplierProductId)) {
+      return Promise.resolve(null);
+    }
+    return Promise.resolve(clone(this.channelHistory.get(supplierProductId) ?? []));
   }
 
   async findSellableProductBySupplierProductId(

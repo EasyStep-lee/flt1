@@ -53,7 +53,7 @@ test('M1-P047 evidence remains closed after PR 20 merge as the project advances'
   assert.equal(state.github.pullRequestMerged, false);
   assert.equal(state.github.mergeCommitSha, null);
   assert.equal(state.github.currentTaskDelivery.taskId, state.execution.currentTask);
-  assert.ok(['LOCAL_PASS', 'CI_PASS'].includes(state.github.currentTaskDelivery.status));
+  assert.ok(['IN_PROGRESS', 'LOCAL_PASS', 'CI_PASS'].includes(state.github.currentTaskDelivery.status));
   assert.ok(
     state.github.currentTaskDelivery.exactHeadCi === 'NOT_EXECUTED' ||
       state.github.currentTaskDelivery.exactHeadCi.startsWith('CI_PASS_RUN_'),

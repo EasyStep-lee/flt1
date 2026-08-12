@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-12T06:08:20Z",
+  "updatedAt": "2026-08-12T08:12:00Z",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -14,15 +14,15 @@
   "execution": {
     "status": "M2_IN_PROGRESS",
     "currentStage": "M2",
-    "currentTask": "M2-P021",
-    "nextAllowedTask": "M2-P021",
+    "currentTask": "M2-P061",
+    "nextAllowedTask": "M2-P061",
     "activeTaskCount": 1,
-    "lastCompletedTask": "M2-P019",
-    "lastCompletedCommit": "d8da461fa3884ec4fbd7a92403b610f7f3ac70aa",
+    "lastCompletedTask": "M2-P021",
+    "lastCompletedCommit": "b2fee8424b803a5e629f1c243632bbefe2d566c3",
     "lastPassedGate": "M1-GATE",
     "prohibitedUntilGate": [
-      "M2-P021最终证据head CI通过后才可请求人工将对应Draft PR转Ready并合并",
-      "M2-P021人工合并及合并后main CI完成前不得开始M2-P061"
+      "M2-P061最终证据head CI通过后才可请求人工将对应Draft PR转Ready并合并",
+      "M2-P061人工合并及合并后main CI完成前不得开始M2-P063"
     ],
     "persistentRestrictions": [
       "M2-GATE通过前M3及以后阶段保持LOCKED/NOT_STARTED",
@@ -39,9 +39,9 @@
     "authenticationConfirmed": true,
     "writeAllowed": true,
     "connectorAccessConfirmed": true,
-    "pullRequest": 66,
-    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/66",
-    "pullRequestState": "DRAFT",
+    "pullRequest": null,
+    "pullRequestUrl": null,
+    "pullRequestState": "NOT_CREATED",
     "pullRequestMerged": false,
     "mergeCommitSha": null,
     "mergedAt": null,
@@ -72,43 +72,43 @@
     "latestCi": {
       "scope": "PREVIOUS_TASK_POST_MERGE_MAIN",
       "status": "CI_PASS",
-      "runId": 31564696638,
-      "jobId": 94014030429,
-      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31564696638",
-      "headSha": "d8da461fa3884ec4fbd7a92403b610f7f3ac70aa",
+      "runId": 31573819683,
+      "jobId": 94041350239,
+      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31573819683",
+      "headSha": "b2fee8424b803a5e629f1c243632bbefe2d566c3",
       "event": "push",
-      "completedAt": "2026-08-12T05:02:32Z"
+      "completedAt": "2026-08-12T07:33:42Z"
     },
     "currentTaskDelivery": {
-      "taskId": "M2-P021",
-      "issue": 65,
-      "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/65",
-      "branch": "codex/m2-product-detail-price-isolation",
-      "baseCommit": "d8da461fa3884ec4fbd7a92403b610f7f3ac70aa",
-      "implementationCommit": "9b27b398777e8d1399adc6b40fbbf81fccabada1",
-      "deliveryHead": "426b41c929bbd1c4cd53887f4f99f783bd8a3afb",
-      "status": "LOCAL_PASS",
-      "technicalConclusion": "FULL_LOCAL_PASS_17_OF_17_PENDING_DRAFT_PR_AND_EXACT_HEAD_CI",
+      "taskId": "M2-P061",
+      "issue": 67,
+      "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/67",
+      "branch": "codex/m2-shared-catalog-enterprise-flag",
+      "baseCommit": "b2fee8424b803a5e629f1c243632bbefe2d566c3",
+      "implementationCommit": null,
+      "deliveryHead": null,
+      "status": "IN_PROGRESS",
+      "technicalConclusion": "LOCAL_EQUIVALENT_FULL_PASS_PENDING_COMMIT_BOUND_VERIFY_DRAFT_PR_AND_EXACT_HEAD_CI",
       "blockingExternalItem": null,
-      "localFullVerify": "PASS_17_OF_17_HEAD_426B41C",
-      "pullRequest": 66,
-      "pullRequestState": "DRAFT",
+      "localFullVerify": "EQUIVALENT_LOCAL_PASS_COMMIT_BOUND_PNPM_VERIFY_PENDING",
+      "pullRequest": null,
+      "pullRequestState": "NOT_CREATED",
       "exactHeadCi": "NOT_EXECUTED",
       "review": "NOT_EXECUTED",
       "merge": "NOT_EXECUTED",
       "mainPostMergeCi": "NOT_EXECUTED",
-      "m2p061StartAllowed": false
+      "m2p063StartAllowed": false
     },
     "previousTaskDelivery": {
-      "taskId": "M2-P019",
-      "pullRequest": 64,
-      "exactHead": "5c66ed1147e44dad53ab8a29e77f7b71e692111c",
-      "pullRequestCiRun": 31564008036,
-      "mergeCommit": "d8da461fa3884ec4fbd7a92403b610f7f3ac70aa",
-      "mainPostMergeCiRun": 31564696638,
+      "taskId": "M2-P021",
+      "pullRequest": 66,
+      "exactHead": "7c9cb32da828cfe65bbd3918fb940d58f9c4c805",
+      "pullRequestCiRun": 31572083328,
+      "mergeCommit": "b2fee8424b803a5e629f1c243632bbefe2d566c3",
+      "mainPostMergeCiRun": 31573819683,
       "status": "CI_PASS"
     },
-    "note": "M2-P019 PR #64最终head 5c66ed1经用户授权合并为main@d8da461；合并后main Actions run 31564696638/job 94014030429成功。M2-P021在head 426b41c上完整pnpm verify 17/17通过（API 176/176加node contract 3/3，P0 Chromium 47/47）；Draft PR、exact-head CI与人工合并尚未执行，M2-P061保持锁定。"
+    "note": "M2-P021 PR #66最终head 7c9cb32经用户授权合并为main@b2fee842；合并后main Actions run 31573819683/job 94041350239成功。M2-P061已完成RED 404、API 179/179、P0 E2E 48/48、阶段契约80/80、迁移41/41、真实MySQL演练及等价lint/typecheck/build；提交绑定pnpm verify、Draft PR与exact-head CI待执行。"
   },
   "evidence": {
     "local": "LOCAL_PASS",
@@ -120,13 +120,13 @@
   "counts": {
     "tasks": 149,
     "p0": 119,
-    "fields": 658,
-    "stateTransitions": 104,
+    "fields": 670,
+    "stateTransitions": 105,
     "permissions": 22,
     "pages": 80,
     "externalDependencies": 28,
-    "migrations": 22,
-    "apiContracts": 92
+    "migrations": 23,
+    "apiContracts": 95
   },
   "resumeProtocol": [
     "读取AGENTS.md、综合方案、00/01/02、project-status和当前任务行",
