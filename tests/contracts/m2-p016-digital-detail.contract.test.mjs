@@ -67,8 +67,8 @@ test('M2-P016 records its merged-main gate while P019 remains the only active sl
     state.github.currentTaskDelivery.exactHeadCi,
     'NOT_EXECUTED',
   );
-  assert.equal(state.github.currentTaskDelivery.pullRequest, null);
-  assert.equal(state.github.currentTaskDelivery.pullRequestState, 'NOT_CREATED');
+  assert.equal(state.github.currentTaskDelivery.pullRequest, 66);
+  assert.equal(state.github.currentTaskDelivery.pullRequestState, 'DRAFT');
   assert.equal(state.github.currentTaskDelivery.merge, 'NOT_EXECUTED');
   assert.equal(state.github.currentTaskDelivery.mainPostMergeCi, 'NOT_EXECUTED');
   assert.equal(state.github.currentTaskDelivery.m2p061StartAllowed, false);
