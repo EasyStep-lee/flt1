@@ -19,6 +19,12 @@ import {
   type PublicCatalogRepository,
 } from './catalog/public-catalog.repository.js';
 import { PublicCatalogService } from './catalog/public-catalog.service.js';
+import { EnterpriseCatalogService } from './catalog/enterprise-catalog.service.js';
+import {
+  DenyEnterpriseCatalogViewerResolver,
+  ENTERPRISE_CATALOG_VIEWER_RESOLVER,
+  type EnterpriseCatalogViewerResolver,
+} from './catalog/enterprise-catalog-viewer.resolver.js';
 import { CategoryService } from './categories/category.service.js';
 import { PrismaCategoryRepository } from './categories/prisma-category.repository.js';
 import {
@@ -201,6 +207,7 @@ export interface AppModuleOptions {
   readonly supplierPricingActorResolver?: SupplierPricingActorResolver;
   readonly companyProductApprovalActorResolver?: CompanyProductApprovalActorResolver;
   readonly catalogRepository?: PublicCatalogRepository;
+  readonly enterpriseCatalogViewerResolver?: EnterpriseCatalogViewerResolver;
   readonly categoryRepository?: CategoryRepository;
   readonly categoryTemplateRepository?: CategoryTemplateRepository;
   readonly regulatedCategoryRepository?: RegulatedCategoryRepository;
@@ -267,6 +274,8 @@ export class AppModule {
       CompanyProductApprovalService,
       PrismaPublicCatalogRepository,
       PublicCatalogService,
+      EnterpriseCatalogService,
+      DenyEnterpriseCatalogViewerResolver,
       PrismaCategoryRepository,
       CategoryService,
       PrismaCategoryTemplateRepository,
@@ -458,6 +467,15 @@ export class AppModule {
         : {
             provide: PUBLIC_CATALOG_REPOSITORY,
             useExisting: PrismaPublicCatalogRepository,
+          },
+      options.enterpriseCatalogViewerResolver
+        ? {
+            provide: ENTERPRISE_CATALOG_VIEWER_RESOLVER,
+            useValue: options.enterpriseCatalogViewerResolver,
+          }
+        : {
+            provide: ENTERPRISE_CATALOG_VIEWER_RESOLVER,
+            useExisting: DenyEnterpriseCatalogViewerResolver,
           },
       options.categoryRepository
         ? {

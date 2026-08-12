@@ -25,7 +25,14 @@ export default defineConfig({
     {
       command:
         'pnpm --filter @fulishe/portal-web exec next start --hostname 127.0.0.1 --port 4319',
+      env: { PORTAL_API_BASE_URL: 'http://127.0.0.1:4324' },
       url: 'http://127.0.0.1:4319',
+      reuseExistingServer: false,
+      timeout: 60_000,
+    },
+    {
+      command: 'node ./tests/fixtures/p0-enterprise-catalog-server.mjs',
+      url: 'http://127.0.0.1:4324/health',
       reuseExistingServer: false,
       timeout: 60_000,
     },

@@ -23,6 +23,11 @@ import {
   type PublicCatalogRepository,
 } from '../catalog/public-catalog.repository.js';
 import { PublicCatalogService } from '../catalog/public-catalog.service.js';
+import { EnterpriseCatalogService } from '../catalog/enterprise-catalog.service.js';
+import {
+  DenyEnterpriseCatalogViewerResolver,
+  ENTERPRISE_CATALOG_VIEWER_RESOLVER,
+} from '../catalog/enterprise-catalog-viewer.resolver.js';
 import { CategoryService } from '../categories/category.service.js';
 import {
   CATEGORY_REPOSITORY,
@@ -332,6 +337,12 @@ type JsonValue =
     NoopPriceEffectScheduler,
     CompanyProductApprovalService,
     PublicCatalogService,
+    EnterpriseCatalogService,
+    DenyEnterpriseCatalogViewerResolver,
+    {
+      provide: ENTERPRISE_CATALOG_VIEWER_RESOLVER,
+      useExisting: DenyEnterpriseCatalogViewerResolver,
+    },
     CategoryService,
     CategoryTemplateService,
     RegulatedCategoryService,
@@ -491,6 +502,11 @@ export const createDeterministicOpenApiDocument = async (): Promise<OpenAPIObjec
       .setTitle('福礼社统一 API')
       .setDescription('江苏福礼团供应链科技有限公司单商户平台 API 契约')
       .setVersion('1.0.0')
+      .addCookieAuth(
+        '__Host-fulishe-enterprise-portal',
+        { type: 'apiKey', in: 'cookie' },
+        'enterpriseSession',
+      )
       .build();
     const document = SwaggerModule.createDocument(app, configuration, {
       extraModels: [

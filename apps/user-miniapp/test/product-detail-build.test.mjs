@@ -94,6 +94,22 @@ test('P0-013 loads the generated food detail contract through miniapp-kit', asyn
   assert.match(runtime.requestedUrl(), new RegExp(`/v1/catalog/products/${productId}`, 'u'));
 });
 
+test('P0-021 retail miniapp state keeps only retail prices when transport data is tainted', async () => {
+  const tainted = response();
+  tainted.enterpriseSalePrice = 6190;
+  tainted.supplyPrice = 5000;
+  tainted.grossMargin = 1990;
+  tainted.skus[0].enterpriseSalePrice = 6190;
+  tainted.skus[0].supplyPrice = 5000;
+  const runtime = loadBuiltPage(0, tainted);
+  await runtime.definition.onLoad.call(runtime.definition, { productId });
+  assert.equal(runtime.definition.data.priceLabel, '¥69.90');
+  assert.doesNotMatch(
+    JSON.stringify(runtime.definition.data),
+    /enterpriseSalePrice|supplyPrice|grossMargin|¥61\.90|¥50\.00/iu,
+  );
+});
+
 test('P0-013 exposes an honest offline error and retries the same product', async () => {
   const runtime = loadBuiltPage(1);
   await runtime.definition.onLoad.call(runtime.definition, { productId });

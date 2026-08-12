@@ -8,8 +8,10 @@ import {
 import { SafeApiError } from '../http/api-error.js';
 import {
   PUBLIC_CATALOG_REPOSITORY,
+  type PublicCatalogProductDetailRecord,
   type PublicCatalogRepository,
 } from './public-catalog.repository.js';
+import { assertCatalogPricePayloadAllowed } from './catalog-price-isolation.policy.js';
 import {
   buildApparelProductDetailResponse,
   type PublicApparelProductDetailResponse,
@@ -101,7 +103,14 @@ export class PublicCatalogService {
     if (!source) {
       throw new SafeApiError(404, 'PRODUCT_NOT_FOUND', 'Product was not found');
     }
-    const response =
+    const response = this.buildProductDetail(source);
+    assertCustomerCatalogPayloadAllowed(response);
+    assertCatalogPricePayloadAllowed(response, 'RETAIL');
+    return response;
+  }
+
+  buildProductDetail(source: PublicCatalogProductDetailRecord): PublicProductDetailResponse {
+    return (
       source.template.profile === 'FOOD'
         ? buildFoodProductDetailResponse(source)
         : source.template.profile === 'FRESH'
@@ -118,9 +127,8 @@ export class PublicCatalogService {
                   'PRODUCT_NOT_SALEABLE',
                   'Product detail template is not supported on the public shelf',
                 );
-                })();
-    assertCustomerCatalogPayloadAllowed(response);
-    return response;
+                })()
+    );
   }
 
   async listSupplierProducts(
@@ -188,6 +196,7 @@ export class PublicCatalogService {
       })),
     };
     assertCustomerCatalogPayloadAllowed(response);
+    assertCatalogPricePayloadAllowed(response, 'RETAIL');
     return response;
   }
 }

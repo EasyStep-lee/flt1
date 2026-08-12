@@ -2,11 +2,11 @@
 
 ## 结论与边界
 
-- 当前结论：`CI_PASS / IN_PROGRESS`。实现提交 `739b0b0d786406536a67762f01e599bbcdaded9f`、调度恢复加固 `007f065cdd4b12e30828fec1848d4b78b86f9dfc`、兼容修复与 P0 路由测试同步后，Draft PR #64 的实现 head `91613ee448f722545daa25738d122c3148024b58` 已由 Actions run `31561577045` 完整通过；自评无发现、评论 0、未解决线程 0。最终证据提交及其 exact-head CI、人工 Ready/合并尚未执行。
+- 当前结论：`CI_PASS / DONE`。PR #64 最终授权 head `5c66ed1147e44dad53ab8a29e77f7b71e692111c` 的 Actions run `31564008036`、job `94012014445` 成功；用户按该精确 head 授权后，PR 已转 Ready 并合并为 `main@d8da461fa3884ec4fbd7a92403b610f7f3ac70aa`。合并后 main run `31564696638`、job `94014030429` 成功；未解决线程 0。
 - 方案 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`。
-- 仓库：`EasyStep-lee/flt1`；基线 `main@413adffe4e4276d3378e8218e99022193627e57a`；分支 `codex/m2-tiered-price-change`；Issue [#63](https://github.com/EasyStep-lee/flt1/issues/63)；Draft PR [#64](https://github.com/EasyStep-lee/flt1/pull/64)。
+- 仓库：`EasyStep-lee/flt1`；基线 `main@413adffe4e4276d3378e8218e99022193627e57a`；分支 `codex/m2-tiered-price-change`；Issue [#63](https://github.com/EasyStep-lee/flt1/issues/63) 已关闭；PR [#64](https://github.com/EasyStep-lee/flt1/pull/64) 已合并。
 - 唯一范围：`P0-019` 上架后供应价送审、销售价免审、立即/预约生效、版本/历史、幂等、并发、审计、两个固定职能页面。
-- 明确未进入：M2-P020 及以后任务、订单、支付、退款、库存预扣、配送、正式价格数据、staging、真机和生产。
+- 明确未进入：M2-P021 及以后任务、订单、支付、退款、库存预扣、配送、正式价格数据、staging、真机和生产。
 
 ## 前序 GitHub 门禁
 
@@ -46,7 +46,8 @@
 | 迁移演练修复后 | empty=2、upgrade=2、restore=2、product=22、cleanup=PASS | PASS |
 | OpenAPI generate/check | 字节一致 | PASS |
 | 完整 `pnpm verify` | head `66a2511`；17/17；API 172/172；P0 Chromium 46/46；811.6s | PASS |
-| PR 实现 head CI | head `91613ee`；run `31561577045`、job `94004811416`；8m59s | CI_PASS |
+| PR 最终 head CI | head `5c66ed1`；run `31564008036`、job `94012014445` | CI_PASS |
+| 合并后 main CI | head `d8da461`；run `31564696638`、job `94014030429` | CI_PASS |
 
 完整门禁本地曾三次真实失败并修复：OpenAPI 路径/schema 冻结清单漂移、工作簿 manifest 哈希未同步、历史 M2 契约将当前任务硬编码为 P018。PR CI 又依次发现并修复干净环境缺少 config 构建、API-026 响应兼容破坏及 P019 E2E mock 仍监听旧路由；最终实现 head run `31561577045` 通过。
 
@@ -61,4 +62,4 @@
 - 本地证据：Windows、Node 22.23.1、Docker Desktop 29.6.2、MySQL 8、Chromium。
 - staging、device 与 production 为 `NOT_EXECUTED`；正式供应商价格和财务口径未录入，本切片不依赖它们完成代码验收。
 - 风险：预约任务最终失败会标记 outbox `FAILED` 并等待同一幂等命令恢复或运营排查；不得直接修改 SKU 当前价绕过历史。
-- 唯一下一步：提交本交接与台账同步，验证最终证据 head 的 Actions。之后仅等待用户对该最终精确 head 授权转 Ready 并合并；未经授权不转 Ready、不合并，不进入 M2-P020。
+- 唯一下一步：执行 `M2-P021` 商品详情与价格隔离；在其独立 Draft PR 合并且 main CI 通过前，不进入 `M2-P061`。
