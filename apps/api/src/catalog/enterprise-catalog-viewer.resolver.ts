@@ -17,7 +17,8 @@ export interface EnterpriseCatalogViewerResolver {
 export class DenyEnterpriseCatalogViewerResolver
   implements EnterpriseCatalogViewerResolver
 {
-  async resolve(_cookieHeader: string | undefined): Promise<null> {
+  async resolve(cookieHeader: string | undefined): Promise<null> {
+    void cookieHeader;
     return null;
   }
 }
