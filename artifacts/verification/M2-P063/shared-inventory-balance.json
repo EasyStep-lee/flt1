@@ -4,7 +4,7 @@
   "status": "LOCAL_PASS",
   "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
   "baseCommit": "09433c07ae48dbfc9b45c0cc3ecbe67240e58f50",
-  "implementationCommit": "b9dd2bfd69c9f9b4afca55f813be7f91026c802e",
+  "implementationCommit": "80cc4eaf4cf39650c480dbeefce243cd88784d9e",
   "branch": "codex/m2-shared-inventory-balance",
   "issue": 69,
   "red": {
@@ -24,8 +24,12 @@
   },
   "fullVerify": {
     "command": "pnpm verify",
-    "status": "PENDING_FINAL_LEDGER_SYNC_RETRY",
-    "lastRun": "P0 E2E passed; handoff ledger/hash consistency failed before this evidence sync"
+    "status": "PASS",
+    "steps": 17,
+    "commit": "80cc4eaf4cf39650c480dbeefce243cd88784d9e",
+    "startedAt": "2026-08-12T11:33:23.512Z",
+    "endedAt": "2026-08-12T11:47:18.001Z",
+    "report": "artifacts/test-results/verification/pnpm-verify.json"
   },
   "invariants": [
     "one InventoryBalance per platform Sku",

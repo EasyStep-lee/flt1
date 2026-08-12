@@ -2,7 +2,7 @@
 
 ## 结论与范围
 
-- 当前结论：`LOCAL_PASS`，仍需最终 `pnpm verify`、Draft PR exact-head Actions、人工合并和合并后 main CI。
+- 当前结论：`LOCAL_PASS`；提交 `80cc4ea` 的完整 `pnpm verify` 17/17 通过，仍需 Draft PR exact-head Actions、人工合并和合并后 main CI。
 - 方案 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`。
 - 分支：`codex/m2-shared-inventory-balance`；基线：main `09433c0`；Issue：#69。
 - 仅完成唯一库存真源、供应商库存页面/API、调整/盘点/报损/预警、追加流水和内部原子库存契约。
@@ -28,9 +28,9 @@
 | P0-063 + P0-070 focused Chromium | 4/4 PASS |
 | Prisma validate / OpenAPI check | PASS |
 | MySQL 迁移演练 | empty=2、upgrade=2、restore=2、product=24、cleanup=PASS |
-| 完整 pnpm verify | 台账和工作簿同步后待最终重跑；不得提前写 PASS |
+| 完整 pnpm verify | PASS 17/17，`80cc4ea`，2026-08-12T11:33:23.512Z 至 11:47:18.001Z |
 
-完整验证第一次暴露 OpenAPI schema 清单遗漏；修复后 17/17 OpenAPI 测试通过。第二次暴露 P0-063 Mock 查询 URL 和重复 PAGE-019 标识；修复后 P0 聚合通过。随后交接一致性检查发现执行包仍记录旧 P061/P063 状态及工作簿哈希，已按新鲜证据同步，等待最终全量重跑。
+完整验证依次暴露并修复 OpenAPI schema 清单遗漏、P0-063 Mock 查询 URL、重复 PAGE-019、执行包工作簿哈希、历史契约当前任务硬编码、Node/Vitest runner 归属和旧价格审计测试随机 UUID 误报。最终 `80cc4ea` 的 17 个聚合步骤全部退出 0；没有删除测试、降低业务断言或跳过门禁。
 
 ## 风险、环境与回滚
 
