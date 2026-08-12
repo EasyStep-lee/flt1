@@ -3,6 +3,7 @@ import { ApiBody, ApiConflictResponse, ApiCreatedResponse, ApiExtraModels, ApiFo
 import type { Response } from 'express';
 
 import { COMPANY_PRODUCT_APPROVAL_ACTOR_RESOLVER, type CompanyProductApprovalActorResolver } from '../company-product-approvals/company-product-approval.actor.js';
+import { ProductApprovalDecisionRequestDto } from '../company-product-approvals/company-product-approval.dto.js';
 import { ApiErrorResponseDto } from '../http/api-error.dto.js';
 import type { RequestWithId } from '../http/request-id.middleware.js';
 import { SUPPLIER_PRICING_ACTOR_RESOLVER, type SupplierPricingActorResolver } from '../supplier-pricing/supplier-pricing.actor.js';
@@ -80,7 +81,7 @@ export class SupplierListedPricingController {
   }
 }
 
-@ApiExtraModels(ApiErrorResponseDto, SupplyPriceChangePageDto)
+@ApiExtraModels(ApiErrorResponseDto, ProductApprovalDecisionRequestDto, SupplyPriceChangeDto, SupplyPriceChangePageDto)
 @ApiTags('company-price-reviews')
 @Controller('v1/company/price-reviews/supply-price-changes')
 export class CompanySupplyPriceReviewController {
@@ -97,5 +98,38 @@ export class CompanySupplyPriceReviewController {
   @ApiUnauthorizedResponse({ type: ApiErrorResponseDto })
   async list(@Req() request: RequestWithId): Promise<SupplyPriceChangePageDto> {
     return this.service.listCompany(await this.actorResolver.resolve(request, 'COMPANY_PRICE_REVIEW'));
+  }
+
+  @Post(':taskId/decision')
+  @HttpCode(200)
+  @Header('Cache-Control', 'private, no-store, max-age=0')
+  @ApiOperation({ operationId: 'companySupplyPriceReviews.decide', summary: 'Approve or reject a post-listing supply price change' })
+  @ApiParam({ format: 'uuid', name: 'taskId', type: String })
+  @ApiHeader({ name: 'Idempotency-Key', required: true })
+  @ApiBody({ type: ProductApprovalDecisionRequestDto })
+  @ApiOkResponse({ type: SupplyPriceChangeDto })
+  @ApiConflictResponse({ type: ApiErrorResponseDto })
+  @ApiForbiddenResponse({ type: ApiErrorResponseDto })
+  @ApiNotFoundResponse({ type: ApiErrorResponseDto })
+  @ApiUnprocessableEntityResponse({ type: ApiErrorResponseDto })
+  @ApiResponse({ status: 503, type: ApiErrorResponseDto })
+  async decide(
+    @Req() request: RequestWithId,
+    @Param('taskId') taskId: string,
+    @Body() body: ProductApprovalDecisionRequestDto & Record<string, unknown>,
+    @Headers('idempotency-key') idempotencyKey: string | undefined,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<SupplyPriceChangeDto> {
+    const actor = await this.actorResolver.resolve(request, 'COMPANY_PRICE_REVIEW');
+    const result = await this.service.decideSupply(
+      actor,
+      taskId,
+      body,
+      idempotencyKey,
+      request.requestId!,
+      request.ip ?? null,
+    );
+    replayHeader(response, result.replayed);
+    return result.body;
   }
 }

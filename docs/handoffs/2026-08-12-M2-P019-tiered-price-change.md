@@ -17,7 +17,7 @@
 
 - 新增 `SupplyPriceChangeRequest`、不可变 `SupplyPriceChangeHistory`、三类 `PriceChangeLog`、持久化 `PriceEffectOutbox` 与 `PriceChangeCommand`。
 - 供应价提交时冻结旧价、申请价、基础版本、原因与约定生效时间；同 SKU 只允许一个 `SUBMITTED/APPROVED` 申请。
-- 公司价格审核沿用固定 `/v1/company/price-reviews/{taskId}/decision`，强制二次验证且审核人 `identityId` 必须不同于申请人。
+- 公司上架后供应价审核使用独立 `/v1/company/price-reviews/supply-price-changes/{taskId}/decision`，强制二次验证且审核人 `identityId` 必须不同于申请人；原 `/v1/company/price-reviews/{taskId}/decision` 保持首上架初始价格审核响应兼容。
 - 已到生效时间的供应价按 `SUBMITTED → APPROVED → EFFECTIVE` 两次合法版本推进；未来生效写 outbox。
 - 零售与企业集采销售价不创建审核任务，立即或预约增加各自版本并追加 `PriceChangeLog`；响应 `reviewCreated=false`。
 - `price-effects` BullMQ 延迟任务在启动及每 30 秒扫描未处理 outbox；最终失败记录 `FAILED`，原幂等命令重试可移除失败任务并恢复调度。

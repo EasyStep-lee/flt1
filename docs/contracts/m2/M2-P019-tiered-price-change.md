@@ -25,7 +25,8 @@
 - API-023 `POST /v1/supplier/pricing/skus/{skuId}/supply-price-change`：本供应商价格职能、二次验证、幂等键；返回本申请及当前供应价，不接受任何归属字段。
 - API-024 `PATCH /v1/supplier/pricing/skus/{skuId}/sale-prices`：本供应商价格职能、二次验证、幂等键；至少变更一种销售价，不创建审批任务。
 - `GET /v1/supplier/pricing/skus`：仅本供应商三价、版本、待审申请、定时项和历史摘要。
-- `GET /v1/company/price-reviews/supply-price-changes` 与 API-026 决定接口：仅公司价格审核职能；返回原值、新值、比例、原因、生效时间、提交人/审核人摘要和历史意见。
+- `GET /v1/company/price-reviews/supply-price-changes` 与 API-091 `POST /v1/company/price-reviews/supply-price-changes/{taskId}/decision`：仅公司价格审核职能；返回原值、新值、比例、原因、生效时间、提交人/审核人摘要和历史意见。
+- API-026 `POST /v1/company/price-reviews/{taskId}/decision` 继续只处理首上架初始三价审核，并保留原 `ProductApprovalDecisionResponseDto`，不得为复用路由破坏既有客户端契约。
 - 公开、个人、企业采购、跑腿、普通日志与非价格职能 DTO 不得含 `approvedSupplyPrice`、申请供应价、供应价快照或毛利。
 
 ## 错误码与失败不变量

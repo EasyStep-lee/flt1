@@ -139,6 +139,7 @@ test('generated contract exposes foundation, identity, onboarding and catalog AP
     '/v1/company/category-template-versions/{templateId}/publish',
     '/v1/company/price-reviews',
     '/v1/company/price-reviews/supply-price-changes',
+    '/v1/company/price-reviews/supply-price-changes/{taskId}/decision',
     '/v1/company/price-reviews/{taskId}/decision',
     '/v1/company/product-material-reviews',
     '/v1/company/product-material-reviews/{taskId}/decision',

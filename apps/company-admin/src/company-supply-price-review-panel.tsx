@@ -58,7 +58,7 @@ export function CompanySupplyPriceReviewPanel() {
     pending.current = { id: target.id, key: idempotencyKey };
     setSubmitting(true);
     try {
-      const response = await api.POST('/v1/company/price-reviews/{taskId}/decision', {
+      const response = await api.POST('/v1/company/price-reviews/supply-price-changes/{taskId}/decision', {
         params: { header: { 'Idempotency-Key': idempotencyKey }, path: { taskId: target.id } },
         body: { decision, opinion: opinion.trim(), version: target.version, secondVerificationCode: verification },
       });

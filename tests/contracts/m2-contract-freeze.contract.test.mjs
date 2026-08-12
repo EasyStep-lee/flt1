@@ -190,10 +190,17 @@ test('all M2 ledgers are covered by codeable frozen contracts', async () => {
   );
   assert.deepEqual(
     sort(freeze.apiContract.contractIds),
-    sort(m2ApiIds.filter((contractId) => contractId !== 'API-090')),
+    sort(m2ApiIds.filter((contractId) => !['API-090', 'API-091'].includes(contractId))),
   );
-  assert.deepEqual(taskRefinements.map(({ ContractID }) => ContractID), ['API-090']);
-  assert.match(taskRefinements[0].Notes, /M2-P008任务内契约细化/u);
+  assert.deepEqual(sort(taskRefinements.map(({ ContractID }) => ContractID)), ['API-090', 'API-091']);
+  assert.match(
+    taskRefinements.find(({ ContractID }) => ContractID === 'API-090').Notes,
+    /M2-P008任务内契约细化/u,
+  );
+  assert.match(
+    taskRefinements.find(({ ContractID }) => ContractID === 'API-091').Notes,
+    /M2-P019任务内契约细化/u,
+  );
   assert.equal(freeze.apiContract.commonResponse, 'ApiResponse<T>');
   assert.equal(freeze.apiContract.databaseEntityReturnedDirectly, false);
   assert.equal(freeze.apiContract.objectScopeCheckedBeforeLookupResult, true);

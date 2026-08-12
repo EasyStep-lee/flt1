@@ -99,7 +99,7 @@ describe('M2-P019 tiered post-listing price changes', () => {
     });
 
     const decided = await request(app.getHttpServer())
-      .post(`/v1/company/price-reviews/${submitted.body.id}/decision`)
+      .post(`/v1/company/price-reviews/supply-price-changes/${submitted.body.id}/decision`)
       .set('Idempotency-Key', randomUUID())
       .send({
         decision: 'APPROVE',
@@ -215,7 +215,7 @@ describe('M2-P019 tiered post-listing price changes', () => {
       .set('Idempotency-Key', randomUUID())
       .send({ requestedSupplyPrice: 5_300, reason: '同人审核测试', effectiveAt: new Date(0).toISOString(), version: 0, secondVerificationCode: '246810' });
     const decision = await request(app.getHttpServer())
-      .post(`/v1/company/price-reviews/${submitted.body.id}/decision`)
+      .post(`/v1/company/price-reviews/supply-price-changes/${submitted.body.id}/decision`)
       .set('Idempotency-Key', randomUUID())
       .send({ decision: 'APPROVE', opinion: '不得由同一自然人审核', version: submitted.body.version, secondVerificationCode: '135790' });
     expect(decision.status).toBe(403);
