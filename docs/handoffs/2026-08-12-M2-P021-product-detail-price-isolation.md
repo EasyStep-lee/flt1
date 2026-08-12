@@ -2,7 +2,7 @@
 
 ## 结论与边界
 
-- 当前结论：`LOCAL_PASS / IN_PROGRESS`。实现提交 `9b27b398777e8d1399adc6b40fbbf81fccabada1` 已完成 focused 行为测试；台账同步、完整 `pnpm verify`、Draft PR 和 exact-head CI 尚未完成。
+- 当前结论：`LOCAL_PASS / IN_PROGRESS`。实现提交 `9b27b398777e8d1399adc6b40fbbf81fccabada1`、lint 修复 `802ffc6`、OpenAPI 冻结修复 `426b41c` 已完成；`426b41c929bbd1c4cd53887f4f99f783bd8a3afb` 上完整 `pnpm verify` 17/17 通过。Draft PR 和 exact-head CI 尚未完成。
 - 方案 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`。
 - 仓库：`EasyStep-lee/flt1`；基线 `main@d8da461fa3884ec4fbd7a92403b610f7f3ac70aa`；分支 `codex/m2-product-detail-price-isolation`；Issue [#65](https://github.com/EasyStep-lee/flt1/issues/65)；PR 尚未创建。
 - 唯一范围：`P0-021`。个人详情只显示零售销售价，企业采购详情只显示企业集采销售价；供应价、供应价快照、应付金额和内部毛利不得进入对客 DTO、OpenAPI、页面状态、缓存或埋点。
@@ -35,17 +35,17 @@
 | 企业门户运行时 | 1/1 | PASS |
 | P021 Playwright | 1/1；两端 HTML、头部和敏感字段隔离 | PASS |
 | OpenAPI generate/check | 字节一致 | PASS |
-| 完整 `pnpm verify` | 尚未执行 | NOT_EXECUTED |
+| 完整 `pnpm verify` | head `426b41c`；17/17；API 176/176 + node contract 3/3；P0 Chromium 47/47；933.8s | PASS |
 | 当前提交 CI | PR 尚未创建 | NOT_EXECUTED |
 
 ## 数据、环境、风险与回滚
 
 - 数据库迁移：不需要。既有 `Product/Sku` 已有集采标识和两类对客销售价，本切片只收紧查询与响应边界。
-- 本地 focused 证据：`LOCAL_PASS`；CI、staging、device、production 均为 `NOT_EXECUTED`。
+- 本地 focused 与完整门禁证据：`LOCAL_PASS`；CI、staging、device、production 均为 `NOT_EXECUTED`。
 - 企业真实登录为 M3 边界，当前生产默认解析器拒绝所有企业会话；测试注入解析器只验证本切片授权后价格白名单，不升级为真实认证证据。
 - 风险：M3 接入真实会话时必须继续从服务端会话派生企业身份，并保留当前私有缓存和 DTO 白名单；不得增加客户端 `channel` 或 `enterpriseId` 选择。
 - 回滚：回退本切片提交；无迁移、无正式数据回填，不改写历史。
 
 ## 唯一下一步
 
-同步机器台账并在干净提交上运行完整 `pnpm verify`，随后推送并创建 Draft PR，读取 exact-head Actions。PR 未经用户对精确 head 授权转 Ready/合并且合并后 main CI 未通过前，不进入 `M2-P061`。
+提交完整验证证据，随后推送并创建 Draft PR，读取 exact-head Actions。PR 未经用户对精确 head 授权转 Ready/合并且合并后 main CI 未通过前，不进入 `M2-P061`。

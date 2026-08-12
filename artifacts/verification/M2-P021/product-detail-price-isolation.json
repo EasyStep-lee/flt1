@@ -7,6 +7,7 @@
   "branch": "codex/m2-product-detail-price-isolation",
   "baseCommit": "d8da461fa3884ec4fbd7a92403b610f7f3ac70aa",
   "implementationCommit": "9b27b398777e8d1399adc6b40fbbf81fccabada1",
+  "fullVerifyCommit": "426b41c929bbd1c4cd53887f4f99f783bd8a3afb",
   "issue": "https://github.com/EasyStep-lee/flt1/issues/65",
   "pullRequest": null,
   "scope": {
@@ -46,9 +47,21 @@
     ]
   },
   "fullVerification": {
-    "status": "NOT_EXECUTED",
-    "commit": null,
-    "report": null
+    "status": "PASS_17_OF_17",
+    "commit": "426b41c929bbd1c4cd53887f4f99f783bd8a3afb",
+    "startedAt": "2026-08-12T05:52:46.413Z",
+    "endedAt": "2026-08-12T06:08:20.190Z",
+    "durationMs": 933777,
+    "apiRegression": "PASS_176_OF_176_PLUS_NODE_CONTRACT_3_OF_3",
+    "p0E2e": "PASS_47_OF_47",
+    "foundationE2e": "PASS_3_OF_3",
+    "secrets": "PASS_738_TRACKED_FILES",
+    "report": "artifacts/test-results/verification/pnpm-verify.json",
+    "failureHistory": [
+      "head adae0a9: lint rejected an intentionally ignored default resolver parameter",
+      "head 802ffc6: OpenAPI exact path list omitted the enterprise detail route",
+      "head 426b41c focused rerun: OpenAPI exact schema list omitted the two enterprise DTOs before final full PASS"
+    ]
   },
   "dataAndMigration": {
     "migration": "NOT_REQUIRED_EXISTING_PRODUCT_SKU_FIELDS",
@@ -61,7 +74,7 @@
     "enterpriseSecurity": "__Host-fulishe-enterprise-portal Cookie；生产默认拒绝；M3接真实会话"
   },
   "environment": {
-    "local": "LOCAL_PASS_FOCUSED",
+    "local": "LOCAL_PASS_FULL_VERIFY_17_OF_17",
     "ci": "NOT_EXECUTED",
     "staging": "NOT_EXECUTED",
     "device": "NOT_EXECUTED",
@@ -77,7 +90,7 @@
     "previousMainCiRun": 31564696638,
     "currentIssue": 65,
     "currentPullRequest": null,
-    "currentExactHead": "9b27b398777e8d1399adc6b40fbbf81fccabada1",
+    "currentExactHead": "426b41c929bbd1c4cd53887f4f99f783bd8a3afb",
     "currentCi": "NOT_EXECUTED",
     "review": "NOT_EXECUTED",
     "comments": 0,

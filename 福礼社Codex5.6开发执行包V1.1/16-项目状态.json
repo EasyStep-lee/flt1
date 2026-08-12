@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-12T05:26:11Z",
+  "updatedAt": "2026-08-12T06:08:20Z",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -86,11 +86,11 @@
       "branch": "codex/m2-product-detail-price-isolation",
       "baseCommit": "d8da461fa3884ec4fbd7a92403b610f7f3ac70aa",
       "implementationCommit": "9b27b398777e8d1399adc6b40fbbf81fccabada1",
-      "deliveryHead": "9b27b398777e8d1399adc6b40fbbf81fccabada1",
+      "deliveryHead": "426b41c929bbd1c4cd53887f4f99f783bd8a3afb",
       "status": "LOCAL_PASS",
-      "technicalConclusion": "FOCUSED_LOCAL_PASS_PENDING_FULL_VERIFY_DRAFT_PR_AND_EXACT_HEAD_CI",
+      "technicalConclusion": "FULL_LOCAL_PASS_17_OF_17_PENDING_DRAFT_PR_AND_EXACT_HEAD_CI",
       "blockingExternalItem": null,
-      "localFullVerify": "NOT_EXECUTED_ON_P021_HEAD",
+      "localFullVerify": "PASS_17_OF_17_HEAD_426B41C",
       "pullRequest": null,
       "pullRequestState": "NOT_CREATED",
       "exactHeadCi": "NOT_EXECUTED",
@@ -108,7 +108,7 @@
       "mainPostMergeCiRun": 31564696638,
       "status": "CI_PASS"
     },
-    "note": "M2-P019 PR #64最终head 5c66ed1经用户授权合并为main@d8da461；合并后main Actions run 31564696638/job 94014030429成功。M2-P021实现提交9b27b39的focused API、策略、OpenAPI、用户小程序、企业门户运行态和P0浏览器测试通过；完整verify、Draft PR、exact-head CI与人工合并尚未执行，M2-P061保持锁定。"
+    "note": "M2-P019 PR #64最终head 5c66ed1经用户授权合并为main@d8da461；合并后main Actions run 31564696638/job 94014030429成功。M2-P021在head 426b41c上完整pnpm verify 17/17通过（API 176/176加node contract 3/3，P0 Chromium 47/47）；Draft PR、exact-head CI与人工合并尚未执行，M2-P061保持锁定。"
   },
   "evidence": {
     "local": "LOCAL_PASS",
