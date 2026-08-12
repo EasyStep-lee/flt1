@@ -54,7 +54,7 @@ const createFixture = async (options = {}) => {
     retailPriceVersion: 0,
     enterprisePriceVersion: 0,
   }], audit);
-  const scheduler = new InMemoryPriceEffectScheduler(priceChanges);
+  const scheduler = options.scheduler ?? new InMemoryPriceEffectScheduler(priceChanges);
   const app = await createApplication({
     config: config(),
     probes: probes(),
@@ -246,5 +246,27 @@ describe('M2-P019 tiered post-listing price changes', () => {
     expect(changed.status).toBe(503);
     expect(changed.body.code).toBe('AUDIT_REQUIRED');
     expect((await priceChanges.listSupplierSkus(supplierId))[0]).toMatchObject({ currentRetailSalePrice: 6_990, retailPriceVersion: 0 });
+  });
+
+  it('recovers a durable scheduled command with the same idempotency key after queue scheduling fails', async () => {
+    const scheduled = [];
+    let available = false;
+    const scheduler = {
+      schedule: async (jobs) => {
+        if (!available) throw new Error('QUEUE_UNAVAILABLE');
+        scheduled.push(...jobs);
+      },
+    };
+    const { app } = await createFixture({ scheduler });
+    const key = randomUUID();
+    const payload = { retailSalePrice: 7_300, retailPriceVersion: 0, reason: '调度失败恢复', effectiveAt: new Date(Date.now() + 60_000).toISOString(), secondVerificationCode: '246810' };
+    const failed = await request(app.getHttpServer()).patch(`/v1/supplier/pricing/skus/${skuId}/sale-prices`).set('Idempotency-Key', key).send(payload);
+    expect(failed.status).toBe(503);
+    expect(failed.body.code).toBe('PRICE_EFFECT_SCHEDULE_FAILED');
+    available = true;
+    const recovered = await request(app.getHttpServer()).patch(`/v1/supplier/pricing/skus/${skuId}/sale-prices`).set('Idempotency-Key', key).send(payload);
+    expect(recovered.status).toBe(200);
+    expect(recovered.headers['idempotency-replayed']).toBe('true');
+    expect(scheduled).toHaveLength(1);
   });
 });

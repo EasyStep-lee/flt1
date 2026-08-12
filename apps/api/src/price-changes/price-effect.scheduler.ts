@@ -56,6 +56,14 @@ export class BullPriceEffectScheduler
     );
     this.queue.on('error', () => undefined);
     this.worker.on('error', () => undefined);
+    this.worker.on('failed', (job, error) => {
+      if (job && job.attemptsMade >= (job.opts.attempts ?? 1)) {
+        void this.repository.markEffectFailed(
+          String(job.data.outboxId),
+          error instanceof Error ? error.name : 'PRICE_EFFECT_FAILED',
+        );
+      }
+    });
   }
 
   async onModuleInit(): Promise<void> {
@@ -75,16 +83,20 @@ export class BullPriceEffectScheduler
   async schedule(jobs: readonly PriceEffectJob[]): Promise<void> {
     const now = Date.now();
     await Promise.all(
-      jobs.map((job) =>
-        this.queue.add(
+      jobs.map(async (job) => {
+        const existing = await this.queue.getJob(job.id);
+        if (existing && (await existing.getState()) === 'failed') {
+          await existing.remove();
+        }
+        await this.queue.add(
           'effect',
           { outboxId: job.id },
           {
             jobId: job.id,
             delay: Math.max(0, Date.parse(job.effectiveAt) - now),
           },
-        ),
-      ),
+        );
+      }),
     );
   }
 

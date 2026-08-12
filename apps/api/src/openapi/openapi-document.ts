@@ -348,6 +348,7 @@ type JsonValue =
         patchSalePrices: async () => { throw new Error('OPENAPI_GENERATION_ONLY'); },
         decideSupplyChange: async () => { throw new Error('OPENAPI_GENERATION_ONLY'); },
         effect: async () => undefined,
+        markEffectFailed: async () => undefined,
         listPendingEffects: async () => [],
       } satisfies PriceChangeRepository,
     },

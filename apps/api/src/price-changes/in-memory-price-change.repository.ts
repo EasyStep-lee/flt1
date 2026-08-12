@@ -23,7 +23,7 @@ interface StoredOutbox extends PriceEffectJob {
   readonly reason: string;
   readonly actorIdentityId: string;
   readonly functionalAccountId: string;
-  status: 'PENDING' | 'EFFECTIVE';
+  status: 'PENDING' | 'EFFECTIVE' | 'FAILED';
 }
 
 interface StoredCommand {
@@ -320,6 +320,13 @@ export class InMemoryPriceChangeRepository implements PriceChangeRepository {
 
   listPendingEffects(): Promise<readonly PriceEffectJob[]> {
     return Promise.resolve([...this.outboxes.values()].filter((item) => item.status === 'PENDING').map(({ id, effectiveAt }) => ({ id, effectiveAt })));
+  }
+
+  async markEffectFailed(jobId: string): Promise<void> {
+    return this.serialized(async () => {
+      const job = this.outboxes.get(jobId);
+      if (job && job.status !== 'EFFECTIVE') job.status = 'FAILED';
+    });
   }
 
   historyCount(): number {

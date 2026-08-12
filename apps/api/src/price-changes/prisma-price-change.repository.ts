@@ -389,4 +389,16 @@ export class PrismaPriceChangeRepository implements PriceChangeRepository {
     const rows = await this.prisma.priceEffectOutbox.findMany({ where: { status: 'PENDING' }, select: { id: true, effectiveAt: true } });
     return rows.map((row) => ({ id: row.id, effectiveAt: row.effectiveAt.toISOString() }));
   }
+
+  async markEffectFailed(jobId: string, errorCode: string, now = new Date()): Promise<void> {
+    await this.prisma.priceEffectOutbox.updateMany({
+      where: { id: jobId, status: { not: 'EFFECTIVE' } },
+      data: {
+        status: 'FAILED',
+        attempts: { increment: 1 },
+        lastErrorCode: errorCode.slice(0, 128),
+        processedAt: now,
+      },
+    });
+  }
 }

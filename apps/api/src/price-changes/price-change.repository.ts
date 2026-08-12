@@ -113,5 +113,6 @@ export interface PriceChangeRepository {
   patchSalePrices(command: PatchSalePricesCommand): Promise<PriceMutationResult<SalePriceChangeResult>>;
   decideSupplyChange(command: DecideSupplyPriceChangeCommand): Promise<PriceMutationResult<SupplyPriceChangeRecord>>;
   effect(jobId: string, now?: Date): Promise<void>;
+  markEffectFailed(jobId: string, errorCode: string, now?: Date): Promise<void>;
   listPendingEffects(): Promise<readonly PriceEffectJob[]>;
 }

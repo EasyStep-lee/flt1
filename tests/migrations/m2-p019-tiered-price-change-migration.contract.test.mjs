@@ -7,7 +7,7 @@ const sql = await readFile(
   'utf8',
 );
 
-test('MIG-013 persists reviewed supply changes, approval-free price logs and durable scheduled effects', () => {
+test('MIG-008 persists reviewed supply changes, approval-free price logs and durable scheduled effects', () => {
   assert.match(sql, /CREATE TABLE `supply_price_change_request`/u);
   assert.match(sql, /CREATE TABLE `supply_price_change_history`/u);
   assert.match(sql, /CREATE TABLE `price_change_log`/u);
