@@ -60,17 +60,28 @@ test('openapi:generate builds runtime contracts before loading API sources', () 
   const script = rootPackage.scripts?.['openapi:generate'];
   assert.equal(typeof script, 'string');
 
+  const configBuild = 'pnpm --filter @fulishe/config build';
   const contractsBuild = 'pnpm --filter @fulishe/contracts build';
   const generator = 'tsx --tsconfig ./apps/api/tsconfig.json ./scripts/generate-openapi.ts';
+  const configBuildIndex = script.indexOf(configBuild);
   const contractsBuildIndex = script.indexOf(contractsBuild);
   const generatorIndex = script.indexOf(generator);
 
+  assert.notEqual(
+    configBuildIndex,
+    -1,
+    'clean environments must build @fulishe/config before OpenAPI generation',
+  );
   assert.notEqual(
     contractsBuildIndex,
     -1,
     'clean environments must build @fulishe/contracts before OpenAPI generation',
   );
   assert.notEqual(generatorIndex, -1, 'the deterministic OpenAPI generator must remain enabled');
+  assert.ok(
+    configBuildIndex < generatorIndex,
+    '@fulishe/config must be built before API source modules are loaded',
+  );
   assert.ok(
     contractsBuildIndex < generatorIndex,
     '@fulishe/contracts must be built before API source modules are loaded',

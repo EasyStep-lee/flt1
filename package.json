@@ -21,7 +21,7 @@
     "openapi:breaking": "node ./scripts/check-openapi-breaking.mjs",
     "openapi:check": "node ./scripts/check-openapi-generated.mjs",
     "openapi:diff": "git diff --exit-code HEAD -- packages/contracts/openapi.json packages/contracts/types.ts",
-    "openapi:generate": "pnpm --filter @fulishe/contracts build && tsx --tsconfig ./apps/api/tsconfig.json ./scripts/generate-openapi.ts",
+    "openapi:generate": "pnpm --filter @fulishe/config build && pnpm --filter @fulishe/contracts build && tsx --tsconfig ./apps/api/tsconfig.json ./scripts/generate-openapi.ts",
     "policy:no-franchise": "node ./scripts/check-no-franchise-capabilities.mjs",
     "policy:no-supplier-storefront": "node ./scripts/check-no-supplier-storefront.mjs",
     "prisma:generate": "pnpm --filter @fulishe/db prisma:generate",
