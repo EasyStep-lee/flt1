@@ -49,3 +49,7 @@
 ## 唯一下一步
 
 提交完整验证证据，随后推送并创建 Draft PR，读取 exact-head Actions。PR 未经用户对精确 head 授权转 Ready/合并且合并后 main CI 未通过前，不进入 `M2-P061`。
+
+## 后续门禁结果（2026-08-12）
+
+PR #66 已由用户对精确 head `7c9cb32da828cfe65bbd3918fb940d58f9c4c805` 授权并合并；merge commit 为 `b2fee8424b803a5e629f1c243632bbefe2d566c3`。合并后 main Actions run `31573819683`、job `94041350239` 于 `2026-08-12T07:33:42Z` 成功，M2-P061 因此解锁。

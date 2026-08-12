@@ -2,6 +2,8 @@ import { createServer } from 'node:http';
 
 const port = Number(process.env.P0_ENTERPRISE_CATALOG_PORT ?? 4324);
 const productId = '21111111-1111-4111-8111-111111111111';
+const skuId = '23333333-3333-4333-8333-333333333333';
+const media = [{ url: 'https://cdn.example.test/catalog/rice.webp', alt: '企业采购测试商品' }];
 
 const server = createServer((request, response) => {
   if (request.url === '/health') {
@@ -11,12 +13,36 @@ const server = createServer((request, response) => {
   }
   response.setHeader('Cache-Control', 'private, no-store');
   response.setHeader('Content-Type', 'application/json; charset=utf-8');
-  if (
-    request.url !== `/v1/enterprise/catalog/products/${productId}` ||
-    request.headers.cookie !== '__Host-fulishe-enterprise-portal=p0-session'
-  ) {
+  if (request.headers.cookie !== '__Host-fulishe-enterprise-portal=p0-session') {
     response.writeHead(401);
     response.end(JSON.stringify({ code: 'AUTHENTICATION_REQUIRED' }));
+    return;
+  }
+  if (request.url === '/v1/enterprise/catalog/products?page=1&pageSize=20') {
+    response.writeHead(200);
+    response.end(JSON.stringify({
+      sellerName: '江苏福礼团供应链科技有限公司',
+      checkoutMode: 'COMPANY_UNIFIED',
+      page: 1,
+      pageSize: 20,
+      total: 1,
+      items: [{
+        productId,
+        supplierId: '2aaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+        categoryId: '22222222-2222-4222-8222-222222222222',
+        templateVersion: 1,
+        name: '企业采购测试商品',
+        media,
+        skuIds: [skuId],
+        enterpriseSalePrice: 6190,
+        activeSkuCount: 1,
+      }],
+    }));
+    return;
+  }
+  if (request.url !== `/v1/enterprise/catalog/products/${productId}`) {
+    response.writeHead(404);
+    response.end(JSON.stringify({ code: 'PRODUCT_NOT_FOUND' }));
     return;
   }
   response.writeHead(200);
@@ -31,8 +57,9 @@ const server = createServer((request, response) => {
     sellerName: '江苏福礼团供应链科技有限公司',
     checkoutMode: 'COMPANY_UNIFIED',
     enterpriseSalePrice: 6190,
+    media,
     skus: [{
-      skuId: '23333333-3333-4333-8333-333333333333',
+      skuId,
       enterpriseSalePrice: 6190,
       specifications: [{ key: 'flavor', label: '口味', value: '原味' }],
     }],

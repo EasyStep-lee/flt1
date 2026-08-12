@@ -20,6 +20,7 @@ test('P0-013 exposes a public FOOD detail DTO whitelist with company-unified che
     'categoryId',
     'checkoutMode',
     'detailModules',
+    'media',
     'name',
     'productId',
     'retailSalePrice',

@@ -39,6 +39,15 @@ export interface SupplierProductDraftInput {
   readonly skus: readonly SupplierProductSkuInput[];
 }
 
+export interface ProductChannelVisibilityInput {
+  readonly version: number;
+  readonly isRetailEnabled: boolean;
+  readonly isEnterpriseProcurementEnabled: boolean;
+  readonly enterpriseMinOrderQty: number;
+  readonly enterprisePackageMultiple: number;
+  readonly reason: string;
+}
+
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu;
 const dangerousText = /<script|javascript:|data:text\/html/iu;
@@ -391,6 +400,61 @@ export const normalizeSupplierProductPatch = (
     patch.skus = skus;
   }
   return patch as Partial<SupplierProductDraftInput>;
+};
+
+export const normalizeProductChannelVisibility = (
+  value: unknown,
+): ProductChannelVisibilityInput => {
+  inspectForbiddenKeys(value);
+  const input = asRecord(value, 'body');
+  const allowed = new Set([
+    'enterpriseMinOrderQty',
+    'enterprisePackageMultiple',
+    'isEnterpriseProcurementEnabled',
+    'isRetailEnabled',
+    'reason',
+    'version',
+  ]);
+  if (
+    Object.keys(input).some((key) => !allowed.has(key)) ||
+    [...allowed].some((key) => !Object.prototype.hasOwnProperty.call(input, key))
+  ) {
+    throw new SafeApiError(
+      422,
+      'VALIDATION_FAILED',
+      'Complete channel visibility settings are required',
+    );
+  }
+  const isEnterpriseProcurementEnabled = boolean(
+    input.isEnterpriseProcurementEnabled,
+    'isEnterpriseProcurementEnabled',
+  );
+  const enterpriseMinOrderQty = integer(
+    input.enterpriseMinOrderQty,
+    'enterpriseMinOrderQty',
+  );
+  const enterprisePackageMultiple = integer(
+    input.enterprisePackageMultiple,
+    'enterprisePackageMultiple',
+  );
+  if (
+    isEnterpriseProcurementEnabled &&
+    (enterpriseMinOrderQty < 1 || enterprisePackageMultiple < 1)
+  ) {
+    throw new SafeApiError(
+      422,
+      'VALIDATION_FAILED',
+      'Enterprise quantity rules must be positive while the channel is enabled',
+    );
+  }
+  return {
+    version: integer(input.version, 'version'),
+    isRetailEnabled: boolean(input.isRetailEnabled, 'isRetailEnabled'),
+    isEnterpriseProcurementEnabled,
+    enterpriseMinOrderQty,
+    enterprisePackageMultiple,
+    reason: text(input.reason, 'reason', 1000)!,
+  };
 };
 
 export const stableSerialize = (value: unknown): string => {

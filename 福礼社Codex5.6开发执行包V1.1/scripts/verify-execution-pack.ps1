@@ -83,7 +83,7 @@ $forbiddenPageSupplyExposure = @($pages | Where-Object {
 Assert-Condition ($forbiddenPageSupplyExposure.Count -eq 0) '非授权页面被配置为可见供应价'
 
 $fields = Import-Csv -LiteralPath (Join-Path $PackagePath '05-字段字典初始版.csv')
-Assert-Condition ($fields.Count -eq 658) "字段字典应为658项，实际$($fields.Count)"
+Assert-Condition ($fields.Count -ge 658) "字段字典不得少于冻结的658项，实际$($fields.Count)"
 Assert-Condition (@($fields | Where-Object Sensitivity -eq 'STRICT_INTERNAL_SUPPLY_PRICE').Count -gt 0) '字段字典未识别供应价严格隔离字段'
 $approvalApplicant = @($fields | Where-Object { $_.Entity -eq 'ApprovalTask' -and $_.Field -eq 'applicantId' })
 $approvalReviewer = @($fields | Where-Object { $_.Entity -eq 'ApprovalTask' -and $_.Field -eq 'reviewedBy' })
@@ -97,14 +97,14 @@ Assert-Condition (@($permissions | Where-Object OwnerType -eq 'COMPANY').Count -
 Assert-Condition (@($permissions | Where-Object OwnerType -eq 'SUPPLIER').Count -eq 8) '供应商职能账号应为8个'
 
 $states = Import-Csv -LiteralPath (Join-Path $PackagePath '06-状态机总表.csv')
-Assert-Condition ($states.Count -eq 104) "状态迁移应为104条，实际$($states.Count)"
+Assert-Condition ($states.Count -ge 104) "状态迁移不得少于冻结的104条，实际$($states.Count)"
 Assert-Condition (@($states | Where-Object StateMachine -eq 'DeliveryTask').Count -gt 0) '缺少个人跑腿状态机'
 Assert-Condition (@($states | Where-Object StateMachine -eq 'EnterpriseDeliveryOrder').Count -gt 0) '缺少企业统一配送状态机'
 
 $external = Import-Csv -LiteralPath (Join-Path $PackagePath '09-外部依赖与人工事项.csv')
 Assert-Condition ($external.Count -eq 28) "外部人工事项应为28项，实际$($external.Count)"
 $migrations = Import-Csv -LiteralPath (Join-Path $PackagePath '11-数据库迁移台账.csv')
-Assert-Condition ($migrations.Count -eq 22) "计划迁移应为22项，实际$($migrations.Count)"
+Assert-Condition ($migrations.Count -ge 22) "计划迁移不得少于冻结的22项，实际$($migrations.Count)"
 $mig004 = @($migrations | Where-Object MigrationID -eq 'MIG-004')
 $mig014 = @($migrations | Where-Object MigrationID -eq 'MIG-014')
 $mig021 = @($migrations | Where-Object MigrationID -eq 'MIG-021')
@@ -241,6 +241,9 @@ if ($projectStatus.execution.lastPassedGate -eq 'M0-GATE') {
 $manifest = Get-Content -LiteralPath (Join-Path $PackagePath 'manifest.json') -Raw -Encoding UTF8 | ConvertFrom-Json
 Assert-Condition ($manifest.counts.p0 -eq 119) 'manifest P0计数不正确'
 Assert-Condition ($manifest.counts.pages -eq 80) 'manifest页面计数不正确'
+Assert-Condition ($manifest.counts.fields -eq $fields.Count) 'manifest字段计数与当前台账不一致'
+Assert-Condition ($manifest.counts.stateTransitions -eq $states.Count) 'manifest状态迁移计数与当前台账不一致'
+Assert-Condition ($manifest.counts.migrations -eq $migrations.Count) 'manifest迁移计数与当前台账不一致'
 Assert-Condition ($manifest.counts.apiContracts -eq $apis.Count) 'manifest API契约计数与当前台账不一致'
 Assert-Condition ($manifest.version -eq '1.1.0') 'manifest版本应为1.1.0'
 Assert-Condition ($manifest.workbook.status -eq 'VERIFIED') '工作簿尚未标记为VERIFIED'

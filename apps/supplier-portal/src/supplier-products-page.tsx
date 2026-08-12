@@ -22,6 +22,8 @@ import {
 } from './supplier-workspace-pages.js';
 
 type SupplierProduct = components['schemas']['SupplierProductResponseDto'];
+type ChannelVisibility = components['schemas']['SupplierProductChannelVisibilityResponseDto'];
+type ChannelVisibilityHistory = components['schemas']['ProductChannelVisibilityHistoryItemDto'];
 
 interface SupplierProductFormValues {
   readonly categoryId: string;
@@ -38,6 +40,16 @@ interface SupplierProductFormValues {
   readonly supplierSkuCode: string;
   readonly skuAttributes: string;
   readonly initialStock: number;
+}
+
+interface ChannelVisibilityFormValues {
+  readonly supplierProductId: string;
+  readonly version: number;
+  readonly isRetailEnabled?: boolean;
+  readonly isEnterpriseProcurementEnabled?: boolean;
+  readonly enterpriseMinOrderQty: number;
+  readonly enterprisePackageMultiple: number;
+  readonly reason: string;
 }
 
 const api = createSupplierPortalApiClient(import.meta.env.VITE_API_BASE_URL ?? '');
@@ -62,6 +74,137 @@ const jsonObject = (value: string, field: string): Readonly<Record<string, unkno
   }
   return parsed as Readonly<Record<string, unknown>>;
 };
+
+function ChannelVisibilityPanel() {
+  const [form] = Form.useForm<ChannelVisibilityFormValues>();
+  const [saving, setSaving] = useState(false);
+  const [current, setCurrent] = useState<ChannelVisibility>();
+  const [history, setHistory] = useState<readonly ChannelVisibilityHistory[]>([]);
+  const [error, setError] = useState<string>();
+
+  const submit = async (values: ChannelVisibilityFormValues) => {
+    setSaving(true);
+    setError(undefined);
+    try {
+      const supplierProductId = values.supplierProductId.trim();
+      const mutation = await api.PATCH(
+        '/v1/supplier/products/{supplierProductId}/channel-visibility',
+        {
+          params: {
+            path: { supplierProductId },
+            header: { 'Idempotency-Key': crypto.randomUUID() },
+          },
+          body: {
+            version: values.version,
+            isRetailEnabled: values.isRetailEnabled ?? false,
+            isEnterpriseProcurementEnabled:
+              values.isEnterpriseProcurementEnabled ?? false,
+            enterpriseMinOrderQty: values.enterpriseMinOrderQty,
+            enterprisePackageMultiple: values.enterprisePackageMultiple,
+            reason: values.reason.trim(),
+          },
+        },
+      );
+      if (!mutation.data) {
+        setError(safeMessage(mutation.error));
+        return;
+      }
+      setCurrent(mutation.data);
+      form.setFieldValue('version', mutation.data.supplierProductVersion);
+      const loaded = await api.GET(
+        '/v1/supplier/products/{supplierProductId}/channel-visibility-history',
+        { params: { path: { supplierProductId } } },
+      );
+      if (loaded.data) setHistory(loaded.data.items);
+    } catch {
+      setError('网络连接超时或已离线，请恢复网络后重试。');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <section className="supplier-product-editor" data-m2-slice="M2-P061" data-channel-visibility-state={error ? 'error' : current ? 'success' : 'empty'}>
+      <div className="supplier-product-heading">
+        <div>
+          <Typography.Text className="eyebrow">SHARED PRODUCT CHANNELS</Typography.Text>
+          <Typography.Title level={2}>已上架商品渠道标识</Typography.Title>
+          <Typography.Paragraph>
+            只切换同一 Product/Sku 的个人零售与企业集采可见性；不会复制商品、SKU 或库存。
+          </Typography.Paragraph>
+        </div>
+        <Tag color="gold">追加留痕</Tag>
+      </div>
+      {error ? <Alert description={error} message="渠道标识保存失败" showIcon type="error" /> : null}
+      <Row gutter={[20, 20]}>
+        <Col lg={16} xs={24}>
+          <Card bordered={false}>
+            <Form
+              form={form}
+              initialValues={{
+                version: 1,
+                isRetailEnabled: true,
+                isEnterpriseProcurementEnabled: false,
+                enterpriseMinOrderQty: 0,
+                enterprisePackageMultiple: 0,
+              }}
+              layout="vertical"
+              onFinish={submit}
+            >
+              <Form.Item label="供应商商品编号" name="supplierProductId" rules={[{ required: true, message: '请输入已上架供应商商品 UUID' }]}>
+                <Input placeholder="已上架 SupplierProduct UUID" />
+              </Form.Item>
+              <Form.Item label="当前版本" name="version" rules={[{ required: true }]}>
+                <InputNumber min={1} precision={0} style={{ width: '100%' }} />
+              </Form.Item>
+              <Space size="large" wrap>
+                <Form.Item name="isRetailEnabled" valuePropName="checked">
+                  <Checkbox>个人零售可见</Checkbox>
+                </Form.Item>
+                <Form.Item name="isEnterpriseProcurementEnabled" valuePropName="checked">
+                  <Checkbox>企业集采可见</Checkbox>
+                </Form.Item>
+              </Space>
+              <Row gutter={16}>
+                <Col md={12} xs={24}>
+                  <Form.Item label="企业最小起订量" name="enterpriseMinOrderQty" rules={[{ required: true }]}>
+                    <InputNumber min={0} precision={0} style={{ width: '100%' }} />
+                  </Form.Item>
+                </Col>
+                <Col md={12} xs={24}>
+                  <Form.Item label="企业包装倍数" name="enterprisePackageMultiple" rules={[{ required: true }]}>
+                    <InputNumber min={0} precision={0} style={{ width: '100%' }} />
+                  </Form.Item>
+                </Col>
+              </Row>
+              <Form.Item label="变更原因" name="reason" rules={[{ required: true, min: 2, max: 1000 }]}>
+                <Input.TextArea maxLength={1000} rows={3} showCount />
+              </Form.Item>
+              <Button htmlType="submit" loading={saving} type="primary">保存渠道标识</Button>
+            </Form>
+          </Card>
+        </Col>
+        <Col lg={8} xs={24}>
+          <Card bordered={false} title="不可覆盖的变更历史">
+            {history.length === 0 ? (
+              <Typography.Paragraph>保存成功后显示初始快照和本次变更。</Typography.Paragraph>
+            ) : (
+              <Space direction="vertical" size="middle">
+                {history.map((item) => (
+                  <div data-channel-history-event={item.event} key={item.id}>
+                    <Tag color={item.event === 'INITIAL' ? 'blue' : 'green'}>{item.event}</Tag>
+                    <Typography.Text>版本 {item.fromVersion} → {item.toVersion}</Typography.Text>
+                    <Typography.Paragraph>{item.reason}</Typography.Paragraph>
+                  </div>
+                ))}
+              </Space>
+            )}
+          </Card>
+        </Col>
+      </Row>
+    </section>
+  );
+}
 
 export function SupplierProductsPage({
   workspace,
@@ -282,6 +425,7 @@ export function SupplierProductsPage({
           </Col>
         </Row>
       </section>
+      <ChannelVisibilityPanel />
     </div>
   );
 }

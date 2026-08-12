@@ -56,6 +56,7 @@ test('P0-010 Prisma query fixes supplier, company, sale status, retail channel a
     saleStatus: 'ACTIVE',
     isRetailEnabled: true,
     company: { status: 'ACTIVE' },
+    supplier: { status: 'ACTIVE' },
     skus: { some: { status: 'ACTIVE' } },
     id: { not: excludedProductId },
     OR: undefined,
@@ -91,6 +92,36 @@ test('P0-010 Prisma query fixes supplier, company, sale status, retail channel a
   assert.doesNotMatch(
     JSON.stringify(captured.findMany.select),
     /approvedSupplyPrice|supplyPrice|supplierProductId|creditCode|phone|settlement/iu,
+  );
+});
+
+test('P0-061 enterprise query requires active company, supplier, product flag and active SKU', async () => {
+  let capturedFindMany;
+  const prisma = {
+    product: {
+      count: async () => 0,
+      findMany: async (input) => {
+        capturedFindMany = input;
+        return [];
+      },
+    },
+    $transaction: async (operations) => Promise.all(operations),
+  };
+  const repository = new PrismaPublicCatalogRepository(prisma);
+  assert.deepEqual(
+    await repository.findSellableEnterpriseProducts({ page: 2, pageSize: 20 }),
+    { total: 0, items: [] },
+  );
+  assert.equal(capturedFindMany.where.saleStatus, 'ACTIVE');
+  assert.equal(capturedFindMany.where.isEnterpriseProcurementEnabled, true);
+  assert.deepEqual(capturedFindMany.where.company, { status: 'ACTIVE' });
+  assert.deepEqual(capturedFindMany.where.supplier, { status: 'ACTIVE' });
+  assert.deepEqual(capturedFindMany.where.skus, { some: { status: 'ACTIVE' } });
+  assert.equal(capturedFindMany.skip, 20);
+  assert.equal(capturedFindMany.take, 20);
+  assert.doesNotMatch(
+    JSON.stringify(capturedFindMany.select),
+    /approvedSupplyPrice|supplyPrice|inventoryBalance|supplierPayable/iu,
   );
 });
 test('P0-010 inactive or cross-company supplier source is not accepted', async () => {

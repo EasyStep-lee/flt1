@@ -1,4 +1,4 @@
-import { Controller, Get, Header, Headers, Inject, Param } from '@nestjs/common';
+import { Controller, Get, Header, Headers, Inject, Param, Query } from '@nestjs/common';
 import {
   ApiConflictResponse,
   ApiExtraModels,
@@ -6,6 +6,7 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiSecurity,
   ApiTags,
   ApiUnauthorizedResponse,
@@ -15,6 +16,10 @@ import {
 import { ApiErrorResponseDto } from '../http/api-error.dto.js';
 import {
   EnterpriseFoodSkuResponseDto,
+  EnterpriseCatalogPageResponseDto,
+  EnterpriseCatalogProductResponseDto,
+  EnterpriseCatalogQueryDto,
+  CatalogMediaResponseDto,
   EnterpriseProductDetailResponseDto,
   PublicFoodDetailFieldResponseDto,
   PublicFoodDetailModuleResponseDto,
@@ -22,10 +27,15 @@ import {
 } from './public-catalog.dto.js';
 import { EnterpriseCatalogService } from './enterprise-catalog.service.js';
 import type { EnterpriseProductDetailResponse } from './enterprise-catalog.service.js';
+import type { EnterpriseCatalogPageResponse } from './enterprise-catalog.service.js';
 
 @ApiTags('enterprise-catalog')
 @ApiExtraModels(
   ApiErrorResponseDto,
+  CatalogMediaResponseDto,
+  EnterpriseCatalogQueryDto,
+  EnterpriseCatalogProductResponseDto,
+  EnterpriseCatalogPageResponseDto,
   EnterpriseFoodSkuResponseDto,
   EnterpriseProductDetailResponseDto,
   PublicFoodDetailFieldResponseDto,
@@ -38,6 +48,27 @@ export class EnterpriseCatalogController {
     @Inject(EnterpriseCatalogService)
     private readonly service: EnterpriseCatalogService,
   ) {}
+
+  @Get('products')
+  @Header('Cache-Control', 'private, no-store, max-age=0')
+  @Header('X-Robots-Tag', 'noindex, nofollow')
+  @ApiSecurity('enterpriseSession')
+  @ApiOperation({
+    operationId: 'enterpriseCatalog.listProducts',
+    summary: 'List enterprise-enabled Product and SKU resources from the unified company shelf',
+  })
+  @ApiOkResponse({ type: EnterpriseCatalogPageResponseDto })
+  @ApiQuery({ name: 'page', required: false, type: Number, minimum: 1, maximum: 10000 })
+  @ApiQuery({ name: 'pageSize', required: false, type: Number, minimum: 1, maximum: 50 })
+  @ApiUnauthorizedResponse({ type: ApiErrorResponseDto })
+  @ApiConflictResponse({ type: ApiErrorResponseDto })
+  @ApiUnprocessableEntityResponse({ type: ApiErrorResponseDto })
+  listProducts(
+    @Query() query: EnterpriseCatalogQueryDto & Record<string, unknown>,
+    @Headers('cookie') cookieHeader: string | undefined,
+  ): Promise<EnterpriseCatalogPageResponse> {
+    return this.service.listProducts(query, cookieHeader);
+  }
 
   @Get('products/:productId')
   @Header('Cache-Control', 'private, no-store, max-age=0')

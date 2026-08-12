@@ -19,7 +19,7 @@ test('P0-014 extends the existing public detail whitelist with FRESH without exp
   );
   const schema = openApi.components.schemas.PublicFoodProductDetailResponseDto;
   assert.deepEqual(Object.keys(schema.properties).sort(), [
-    'brand', 'bundleItems', 'categoryId', 'checkoutMode', 'detailModules', 'name', 'productId',
+    'brand', 'bundleItems', 'categoryId', 'checkoutMode', 'detailModules', 'media', 'name', 'productId',
     'retailSalePrice', 'sellerName', 'skus', 'supplierId', 'templateProfile', 'templateVersion',
   ]);
   assert.deepEqual(schema.properties.templateProfile.enum.slice(0, 3), ['FOOD', 'FRESH', 'APPAREL']);

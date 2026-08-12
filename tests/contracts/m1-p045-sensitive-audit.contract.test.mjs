@@ -91,11 +91,11 @@ test('M1-P045 evidence remains valid after the project advances', async () => {
 
   assert.equal(evidence.status, 'LOCAL_PASS');
   assert.equal(evidence.greenEvidence.fullVerify, 'PASS_17_OF_17');
-  assert.equal(state.execution.lastCompletedTask, 'M2-P019');
+  assert.equal(state.execution.lastCompletedTask, 'M2-P021');
   assert.equal(state.execution.currentTask, state.execution.nextAllowedTask);
-  assert.equal(state.execution.currentTask, 'M2-P021');
+  assert.equal(state.execution.currentTask, 'M2-P061');
   assert.equal(state.execution.activeTaskCount, 1);
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2-P021.*M2-P061/u);
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2-P061.*M2-P063/u);
   assert.match(taskLedger, /M1-P045[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(taskLedger, /M1-GATE[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(p0Ledger, /P0-045[^\r\n]*CI_PASS/u);

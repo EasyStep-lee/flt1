@@ -74,8 +74,8 @@
     "tasks": "福礼社Codex5.6开发执行包V1.1/03-任务台账.csv"
   },
   "fieldContract": {
-    "entityCount": 10,
-    "fieldCount": 113,
+    "entityCount": 11,
+    "fieldCount": 125,
     "entities": [
       {
         "entity": "Category",
@@ -275,10 +275,10 @@
             "required": true,
             "format": "canonical JSON object; schema-versioned",
             "sensitivity": "INTERNAL",
-            "visibility": "按角色、对象归属及配送阶段脱敏/解密",
-            "forbiddenExposure": "禁止跨供应商、越阶段或批量无审批导出",
+            "visibility": "公司商品运营按固定职能访问；对客仅返回审核后的展示白名单",
+            "forbiddenExposure": "禁止跨供应商、越阶段或返回资质受控对象引用",
             "validation": "new version only after publication; referenced versions cannot be overwritten",
-            "historyRule": "按实体version或审计日志保留变更证据",
+            "historyRule": "已发布模板版本不可覆盖；强监管启停由RegulatedCategoryControl版本/历史/幂等命令追加留痕",
             "p0Ids": [
               "P0-012",
               "P0-013",
@@ -479,14 +479,15 @@
             "required": true,
             "format": "canonical JSON object; schema-versioned",
             "sensitivity": "INTERNAL",
-            "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
-            "forbiddenExposure": "数据库实体不得直接序列化为响应",
+            "visibility": "仅本供应商商品职能与公司商品运营授权可见；公开DTO另行白名单",
+            "forbiddenExposure": "数据库实体及资质对象引用不得直接序列化为响应",
             "validation": "validated against frozen schema; canonicalized; dangerous rich-text content rejected",
-            "historyRule": "按实体version或审计日志保留变更证据",
+            "historyRule": "固化到资料版本和Product资质有效期快照；不回写历史",
             "p0Ids": [
               "P0-006",
               "P0-007",
               "P0-008",
+              "P0-018",
               "P0-061"
             ]
           },
@@ -953,7 +954,7 @@
             "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
             "forbiddenExposure": "数据库实体不得直接序列化为响应",
             "validation": "enum value and legal transition enforced by domain state machine",
-            "historyRule": "按实体version或审计日志保留变更证据",
+            "historyRule": "状态历史和商品资质有效期快照均不回写历史",
             "p0Ids": [
               "P0-006",
               "P0-007",
@@ -1095,6 +1096,182 @@
               "P0-012",
               "P0-018",
               "P0-021",
+              "P0-061"
+            ]
+          }
+        ]
+      },
+      {
+        "entity": "ProductChannelVisibilityHistory",
+        "fields": [
+          {
+            "name": "id",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "仅本供应商商品职能与审计证据可见",
+            "forbiddenExposure": "不得进入对客DTO",
+            "validation": "server-owned identifier; ownership verified before lookup result",
+            "historyRule": "append-only; UPDATE/DELETE forbidden",
+            "p0Ids": [
+              "P0-061"
+            ]
+          },
+          {
+            "name": "productId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "按本供应商数据域读取",
+            "forbiddenExposure": "对客仅使用Product.id且不序列化历史实体",
+            "validation": "server-owned identifier; ownership verified before lookup result",
+            "historyRule": "append-only; unique with toVersion",
+            "p0Ids": [
+              "P0-061"
+            ]
+          },
+          {
+            "name": "supplierProductId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "从会话归属对象派生",
+            "forbiddenExposure": "客户端不得提交supplierId或对象归属",
+            "validation": "server-owned identifier; ownership verified before lookup result",
+            "historyRule": "append-only",
+            "p0Ids": [
+              "P0-061"
+            ]
+          },
+          {
+            "name": "event",
+            "type": "Enum<ProductChannelVisibilityEvent>",
+            "required": true,
+            "format": "INITIAL|CHANGE",
+            "sensitivity": "INTERNAL",
+            "visibility": "本供应商商品职能和审计可见",
+            "forbiddenExposure": "不得进入企业或个人货架DTO",
+            "validation": "DTO whitelist; length/enum/ownership/state validation; client-derived ownership rejected",
+            "historyRule": "append-only",
+            "p0Ids": [
+              "P0-061"
+            ]
+          },
+          {
+            "name": "fromVersion",
+            "type": "Int",
+            "required": true,
+            "format": "integer",
+            "sensitivity": "INTERNAL",
+            "visibility": "本供应商商品职能和审计可见",
+            "forbiddenExposure": "不得进入对客DTO",
+            "validation": "DTO whitelist; length/enum/ownership/state validation; client-derived ownership rejected",
+            "historyRule": "append-only",
+            "p0Ids": [
+              "P0-061"
+            ]
+          },
+          {
+            "name": "toVersion",
+            "type": "Int",
+            "required": true,
+            "format": "integer",
+            "sensitivity": "INTERNAL",
+            "visibility": "本供应商商品职能和审计可见",
+            "forbiddenExposure": "不得进入对客DTO",
+            "validation": "DTO whitelist; length/enum/ownership/state validation; client-derived ownership rejected",
+            "historyRule": "append-only",
+            "p0Ids": [
+              "P0-061"
+            ]
+          },
+          {
+            "name": "beforeSnapshot",
+            "type": "Json",
+            "required": true,
+            "format": "canonical JSON object; schema-versioned",
+            "sensitivity": "INTERNAL",
+            "visibility": "本供应商商品职能和审计可见",
+            "forbiddenExposure": "不得包含价格/库存/归属密钥",
+            "validation": "validated against frozen schema; canonicalized; dangerous rich-text content rejected",
+            "historyRule": "append-only immutable snapshot",
+            "p0Ids": [
+              "P0-061"
+            ]
+          },
+          {
+            "name": "afterSnapshot",
+            "type": "Json",
+            "required": true,
+            "format": "canonical JSON object; schema-versioned",
+            "sensitivity": "INTERNAL",
+            "visibility": "本供应商商品职能和审计可见",
+            "forbiddenExposure": "不得包含价格/库存/归属密钥",
+            "validation": "validated against frozen schema; canonicalized; dangerous rich-text content rejected",
+            "historyRule": "append-only immutable snapshot",
+            "p0Ids": [
+              "P0-061"
+            ]
+          },
+          {
+            "name": "reason",
+            "type": "String(191)",
+            "required": true,
+            "format": "UTF-8; max 191 chars",
+            "sensitivity": "INTERNAL",
+            "visibility": "本供应商商品职能和审计可见",
+            "forbiddenExposure": "对客不返回且日志仅记录安全摘要",
+            "validation": "DTO whitelist; length/enum/ownership/state validation; client-derived ownership rejected",
+            "historyRule": "append-only",
+            "p0Ids": [
+              "P0-061"
+            ]
+          },
+          {
+            "name": "actorIdentityId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "仅审计授权职能",
+            "forbiddenExposure": "不得进入商品或企业货架DTO",
+            "validation": "server-owned identifier; ownership verified before lookup result",
+            "historyRule": "append-only",
+            "p0Ids": [
+              "P0-045",
+              "P0-061",
+              "P0-072"
+            ]
+          },
+          {
+            "name": "functionalAccountId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "仅审计授权职能",
+            "forbiddenExposure": "不得进入商品或企业货架DTO",
+            "validation": "server-owned identifier; ownership verified before lookup result",
+            "historyRule": "append-only",
+            "p0Ids": [
+              "P0-061",
+              "P0-072"
+            ]
+          },
+          {
+            "name": "occurredAt",
+            "type": "DateTime",
+            "required": true,
+            "format": "UTC ISO-8601",
+            "sensitivity": "INTERNAL",
+            "visibility": "本供应商商品职能与审计证据可见",
+            "forbiddenExposure": "不得作为对客埋点字段",
+            "validation": "DTO whitelist; length/enum/ownership/state validation; client-derived ownership rejected",
+            "historyRule": "append-only",
+            "p0Ids": [
               "P0-061"
             ]
           }
@@ -2061,7 +2238,7 @@
     ]
   },
   "stateContract": {
-    "transitionCount": 11,
+    "transitionCount": 12,
     "transitions": [
       {
         "id": "SupplierProduct:DRAFT:SUBMIT_MATERIAL",
@@ -2070,12 +2247,12 @@
         "event": "SUBMIT_MATERIAL",
         "nextState": "PENDING_MATERIAL_REVIEW",
         "allowedActor": "SUPPLIER_PRODUCT",
-        "guard": "末级分类模板校验通过且无价格字段在本页面",
+        "guard": "末级分类模板校验通过且无价格字段；HIGH_RISK须当前合规模板、显式ENABLED公司控制及公司/商品资质未过期",
         "sideEffect": "冻结资料快照；创建资料审批",
         "idempotency": "supplierProductId+version",
-        "illegalTransition": "返回409 STATE_TRANSITION_INVALID；不改变状态；写安全审计（按风险级别）",
+        "illegalTransition": "返回REGULATED_CATEGORY_DISABLED/QUALIFICATION_REQUIRED/CATEGORY_TEMPLATE_INVALID或409 STATE_TRANSITION_INVALID；不改变状态",
         "concurrencyControl": "version乐观锁/唯一键/事务；受影响行数必须=1",
-        "history": "追加状态日志或不可变快照，禁止覆盖历史",
+        "history": "追加状态日志、强监管控制历史和脱敏审计，禁止覆盖历史",
         "p0Ids": [
           "P0-006",
           "P0-007",
@@ -2090,12 +2267,12 @@
         "event": "APPROVE_MATERIAL",
         "nextState": "MATERIAL_APPROVED",
         "allowedActor": "COMPANY_PRODUCT_OPS",
-        "guard": "资质与模板字段通过",
+        "guard": "资质与模板字段通过；HIGH_RISK在审批时重新校验显式控制、公司资质和商品资质有效期",
         "sideEffect": "等待初始三价审批",
         "idempotency": "approvalTaskId+decision",
-        "illegalTransition": "返回409 STATE_TRANSITION_INVALID；不改变状态；写安全审计（按风险级别）",
+        "illegalTransition": "返回REGULATED_CATEGORY_DISABLED/QUALIFICATION_REQUIRED/CATEGORY_TEMPLATE_INVALID或409 STATE_TRANSITION_INVALID；不改变状态",
         "concurrencyControl": "version乐观锁/唯一键/事务；受影响行数必须=1",
-        "history": "追加状态日志或不可变快照，禁止覆盖历史",
+        "history": "追加状态日志和脱敏审计；停用控制不删除历史审批快照",
         "p0Ids": [
           "P0-006",
           "P0-007",
@@ -2180,6 +2357,23 @@
           "P0-006",
           "P0-007",
           "P0-018",
+          "P0-061"
+        ]
+      },
+      {
+        "id": "ProductChannelVisibility:ACTIVE:CHANGE",
+        "stateMachine": "ProductChannelVisibility",
+        "currentState": "ACTIVE",
+        "event": "CHANGE",
+        "nextState": "ACTIVE",
+        "allowedActor": "SUPPLIER_PRODUCT",
+        "guard": "固定本供应商会话且唯一Product存在；version匹配；集采启用时起订量和包装倍数均大于0",
+        "sideEffect": "同事务更新SupplierProduct与同一Product渠道设置并追加历史",
+        "idempotency": "supplierProductId+Idempotency-Key",
+        "illegalTransition": "返回404 SUPPLIER_PRODUCT_NOT_FOUND或409 VERSION_CONFLICT/DUPLICATE_CATALOG_RESOURCE；不修改旧历史",
+        "concurrencyControl": "Product.version与SupplierProduct.version乐观锁；两个受影响行数均=1",
+        "history": "ProductChannelVisibilityHistory只追加且数据库禁止UPDATE/DELETE",
+        "p0Ids": [
           "P0-061"
         ]
       },
@@ -2299,13 +2493,13 @@
         "roleCode": "COMPANY_PRODUCT_OPS",
         "roleName": "商品与分类运营",
         "entryRoute": "/company-admin/workspaces/product-ops",
-        "readScope": "分类模板、商品资料、公开售价",
-        "writeScope": "分类模板、商品资料审核、上下架",
-        "approvalAuthority": "商品资料审核",
+        "readScope": "分类模板、商品资料、公开售价、强监管开关摘要",
+        "writeScope": "分类模板、商品资料审核、上下架、强监管启停",
+        "approvalAuthority": "商品资料审核；强监管启停须二次验证",
         "supplyPriceVisibility": "HIDDEN",
         "dataScope": "唯一公司全商品",
-        "forbiddenActions": "不得读取供应价或批准供应价",
-        "secondVerification": "强监管开关/批量上下架",
+        "forbiddenActions": "不得读取供应价或批准供应价；不得返回资质对象引用",
+        "secondVerification": "强监管开关/批量上下架须二次验证；不替代要求不同identityId的maker-checker",
         "sessionBoundary": "登录后选择一个职能；会话固定workspaceRoute；切换职能重新签发并审计",
         "p0Ids": [
           "P0-006",
@@ -2343,13 +2537,13 @@
         "roleCode": "SUPPLIER_PRODUCT",
         "roleName": "商品运营",
         "entryRoute": "/supplier/workspaces/products",
-        "readScope": "本供应商商品资料；不加载任何价格字段",
-        "writeScope": "商品草稿、模板资料、资质、集采标识、提交审核",
+        "readScope": "本供应商商品资料与渠道可见历史；不加载任何价格字段",
+        "writeScope": "商品草稿、模板资料、资质、集采标识、提交审核；ACTIVE商品渠道标识变更并追加历史",
         "approvalAuthority": "NONE",
         "supplyPriceVisibility": "STRICTLY_HIDDEN",
         "dataScope": "supplierId=当前供应商",
-        "forbiddenActions": "不得读取/写入任何价格；不得自行上架",
-        "secondVerification": "批量提交/删除草稿",
+        "forbiddenActions": "不得读取/写入任何价格；不得自行上架；不得提交supplierId/productId/企业身份覆盖",
+        "secondVerification": "批量提交/删除草稿；渠道标识变更使用幂等键和版本",
         "sessionBoundary": "登录后选择一个职能；会话固定workspaceRoute；切换职能重新签发并审计",
         "p0Ids": [
           "P0-006",
@@ -2431,12 +2625,20 @@
           "permission-denied",
           "offline-or-timeout",
           "success",
-          "交易页增加duplicate/unknown-result"
+          "启停增加duplicate/unknown-result"
         ],
         "shellImplementationStatus": "IMPLEMENTED",
         "businessImplementationStatus": "NOT_IMPLEMENTED",
         "p0Ids": [
           "P0-007",
+          "P0-011",
+          "P0-012",
+          "P0-013",
+          "P0-014",
+          "P0-015",
+          "P0-016",
+          "P0-017",
+          "P0-018",
           "P0-067",
           "P0-068"
         ]
@@ -2553,6 +2755,7 @@
   },
   "apiContract": {
     "contractIds": [
+      "API-091",
       "API-016",
       "API-017",
       "API-018",
@@ -2565,22 +2768,54 @@
       "API-025",
       "API-026",
       "API-027",
-      "API-028"
+      "API-028",
+      "API-090",
+      "API-092",
+      "API-093",
+      "API-094",
+      "API-095"
     ],
     "contracts": [
+      {
+        "contractId": "API-091",
+        "domain": "company-price-review",
+        "method": "POST",
+        "path": "/v1/company/price-reviews/supply-price-changes/{taskId}/decision",
+        "actor": "COMPANY_PRICE_REVIEW",
+        "requestDto": "ProductApprovalDecisionRequestDto",
+        "responseDto": "SupplyPriceChangeDto",
+        "errorCodes": [
+          "APPROVAL_VERSION_CONFLICT",
+          "SELF_APPROVAL_FORBIDDEN",
+          "SECOND_VERIFICATION_REQUIRED",
+          "APPROVAL_STATE_INVALID",
+          "IDEMPOTENCY_CONFLICT",
+          "AUDIT_REQUIRED",
+          "PRICE_EFFECT_SCHEDULE_FAILED"
+        ],
+        "idempotency": "Idempotency-Key",
+        "sensitiveFieldPolicy": "ROLE_AND_SUPPLIER_SCOPE_WHITELIST; DTO白名单；不返回companyId/supplierId/identityId/functionalAccountId",
+        "moneyRule": "INTEGER_CENTS_ONLY",
+        "p0Ids": [
+          "P0-019",
+          "P0-071"
+        ],
+        "openApiStatus": "PLANNED",
+        "runtimeStatus": "NOT_IMPLEMENTED"
+      },
       {
         "contractId": "API-016",
         "domain": "categories",
         "method": "GET",
         "path": "/v1/company/categories",
         "actor": "COMPANY_PRODUCT_OPS",
-        "requestDto": "CategoryQuery",
-        "responseDto": "CategoryTreeResponse",
+        "requestDto": "CategoryQuery(status?)",
+        "responseDto": "CategoryTreeResponseDto",
         "errorCodes": [
           "COMMON_AUTH_VALIDATION_ERRORS"
         ],
         "idempotency": "NONE",
-        "sensitiveFieldPolicy": "NEVER_RETURN; DTO白名单；对象归属校验先于查询结果返回",
+        "sensitiveFieldPolicy": "NEVER_RETURN; DTO白名单；companyId和职能均从会话派生；不返回供应价",
         "moneyRule": "INTEGER_CENTS_ONLY",
         "p0Ids": [
           "P0-011"
@@ -2594,14 +2829,16 @@
         "method": "POST",
         "path": "/v1/company/categories",
         "actor": "COMPANY_PRODUCT_OPS",
-        "requestDto": "CategoryCreateRequest",
-        "responseDto": "CategoryResponse",
+        "requestDto": "CategoryCreateRequestDto",
+        "responseDto": "CategoryResponseDto",
         "errorCodes": [
           "CATEGORY_PARENT_INVALID",
-          "CATEGORY_LEVEL_INVALID"
+          "CATEGORY_LEVEL_INVALID",
+          "CATEGORY_DUPLICATE",
+          "IDEMPOTENCY_CONFLICT"
         ],
         "idempotency": "Idempotency-Key",
-        "sensitiveFieldPolicy": "NEVER_RETURN; DTO白名单；对象归属校验先于查询结果返回",
+        "sensitiveFieldPolicy": "NEVER_RETURN; DTO白名单；companyId和操作者均从会话派生；不返回供应价",
         "moneyRule": "INTEGER_CENTS_ONLY",
         "p0Ids": [
           "P0-011"
@@ -2611,17 +2848,28 @@
       },
       {
         "contractId": "API-018",
-        "domain": "category-templates",
-        "method": "POST",
-        "path": "/v1/company/categories/{categoryId}/template-versions",
+        "domain": "category-templates+regulated-category-controls",
+        "method": "GET|POST|PATCH|POST|GET|POST|POST",
+        "path": "/v1/company/categories/{categoryId}/template-versions|/v1/company/category-template-versions/{templateId}|/v1/company/category-template-versions/{templateId}/publish|/v1/company/regulated-category-controls|/v1/company/regulated-category-controls/{categoryId}/enable|/v1/company/regulated-category-controls/{categoryId}/disable",
         "actor": "COMPANY_PRODUCT_OPS",
-        "requestDto": "CategoryTemplateVersionRequest",
-        "responseDto": "CategoryTemplateResponse",
+        "requestDto": "CategoryTemplateCreateRequestDto|CategoryTemplatePatchRequestDto|CategoryTemplatePublishRequestDto|RegulatedCategoryEnableRequestDto|RegulatedCategoryDisableRequestDto",
+        "responseDto": "CategoryTemplateListResponseDto|CategoryTemplateResponseDto|RegulatedCategoryControlListResponseDto|RegulatedCategoryControlResponseDto",
         "errorCodes": [
-          "TEMPLATE_SCHEMA_INVALID"
+          "TEMPLATE_SCHEMA_INVALID",
+          "TEMPLATE_NOT_FOUND",
+          "TEMPLATE_DRAFT_EXISTS",
+          "TEMPLATE_IMMUTABLE",
+          "TEMPLATE_VERSION_INACTIVE",
+          "REGULATED_CATEGORY_DISABLED",
+          "QUALIFICATION_REQUIRED",
+          "CATEGORY_TEMPLATE_INVALID",
+          "SECOND_VERIFICATION_REQUIRED",
+          "VERSION_CONFLICT",
+          "IDEMPOTENCY_CONFLICT",
+          "AUDIT_REQUIRED"
         ],
         "idempotency": "Idempotency-Key",
-        "sensitiveFieldPolicy": "NEVER_RETURN; DTO白名单；对象归属校验先于查询结果返回",
+        "sensitiveFieldPolicy": "NEVER_RETURN；companyId/identityId/functionalAccountId由会话派生；响应只返回资质引用数和有效期；不返回供应价或资质对象引用",
         "moneyRule": "INTEGER_CENTS_ONLY",
         "p0Ids": [
           "P0-012",
@@ -2636,11 +2884,13 @@
         "method": "POST",
         "path": "/v1/supplier/products",
         "actor": "SUPPLIER_PRODUCT",
-        "requestDto": "SupplierProductDraftRequest",
-        "responseDto": "SupplierProductResponse",
+        "requestDto": "SupplierProductDraftRequestDto",
+        "responseDto": "SupplierProductResponseDto",
         "errorCodes": [
           "CATEGORY_TEMPLATE_INVALID",
-          "PRICE_FIELD_FORBIDDEN"
+          "PRICE_FIELD_FORBIDDEN",
+          "SUPPLIER_SCOPE_FORBIDDEN",
+          "IDEMPOTENCY_CONFLICT"
         ],
         "idempotency": "Idempotency-Key",
         "sensitiveFieldPolicy": "NEVER_RETURN; DTO白名单；对象归属校验先于查询结果返回",
@@ -2659,12 +2909,13 @@
         "method": "PATCH",
         "path": "/v1/supplier/products/{supplierProductId}",
         "actor": "SUPPLIER_PRODUCT",
-        "requestDto": "SupplierProductPatchRequest",
-        "responseDto": "SupplierProductResponse",
+        "requestDto": "SupplierProductPatchRequestDto",
+        "responseDto": "SupplierProductResponseDto",
         "errorCodes": [
-          "SUPPLIER_SCOPE_FORBIDDEN",
+          "SUPPLIER_PRODUCT_NOT_FOUND",
           "VERSION_CONFLICT",
-          "PRICE_FIELD_FORBIDDEN"
+          "PRICE_FIELD_FORBIDDEN",
+          "IDEMPOTENCY_CONFLICT"
         ],
         "idempotency": "Idempotency-Key",
         "sensitiveFieldPolicy": "NEVER_RETURN; DTO白名单；对象归属校验先于查询结果返回",
@@ -2682,11 +2933,13 @@
         "method": "POST",
         "path": "/v1/supplier/products/{supplierProductId}/submit-material",
         "actor": "SUPPLIER_PRODUCT",
-        "requestDto": "SubmitMaterialRequest",
-        "responseDto": "ApprovalTaskResponse",
+        "requestDto": "SubmitProductMaterialRequestDto",
+        "responseDto": "ProductMaterialApprovalResponseDto",
         "errorCodes": [
-          "TEMPLATE_VALIDATION_FAILED",
-          "STATE_TRANSITION_INVALID"
+          "SUPPLIER_PRODUCT_NOT_FOUND",
+          "STATE_TRANSITION_INVALID",
+          "VERSION_CONFLICT",
+          "IDEMPOTENCY_CONFLICT"
         ],
         "idempotency": "Idempotency-Key",
         "sensitiveFieldPolicy": "NEVER_RETURN; DTO白名单；对象归属校验先于查询结果返回",
@@ -2704,11 +2957,16 @@
         "method": "PUT",
         "path": "/v1/supplier/pricing/products/{supplierProductId}/initial-prices",
         "actor": "SUPPLIER_PRICING",
-        "requestDto": "InitialPricesRequest",
-        "responseDto": "InitialPricesResponse",
+        "requestDto": "InitialPricesRequestDto",
+        "responseDto": "InitialPricesResponseDto",
         "errorCodes": [
           "PRICE_INVALID",
-          "SUPPLIER_SCOPE_FORBIDDEN"
+          "SUPPLIER_SCOPE_FORBIDDEN",
+          "WORKSPACE_FORBIDDEN",
+          "INITIAL_PRICE_STATE_INVALID",
+          "INITIAL_PRICE_REVIEW_PENDING",
+          "IDEMPOTENCY_CONFLICT",
+          "AUDIT_REQUIRED"
         ],
         "idempotency": "Idempotency-Key",
         "sensitiveFieldPolicy": "ROLE_AND_SUPPLIER_SCOPE_WHITELIST; DTO白名单；对象归属校验先于查询结果返回",
@@ -2726,10 +2984,15 @@
         "path": "/v1/supplier/pricing/skus/{skuId}/supply-price-change",
         "actor": "SUPPLIER_PRICING",
         "requestDto": "SupplyPriceChangeRequestDto",
-        "responseDto": "SupplyPriceChangeResponse",
+        "responseDto": "SupplyPriceChangeDto",
         "errorCodes": [
-          "SUPPLY_PRICE_REVIEW_REQUIRED",
-          "VERSION_CONFLICT"
+          "PRICE_CHANGE_PENDING",
+          "PRICE_INVALID",
+          "VERSION_CONFLICT",
+          "SECOND_VERIFICATION_REQUIRED",
+          "IDEMPOTENCY_CONFLICT",
+          "AUDIT_REQUIRED",
+          "PRICE_EFFECT_SCHEDULE_FAILED"
         ],
         "idempotency": "Idempotency-Key",
         "sensitiveFieldPolicy": "ROLE_AND_SUPPLIER_SCOPE_WHITELIST; DTO白名单；对象归属校验先于查询结果返回",
@@ -2747,11 +3010,15 @@
         "method": "PATCH",
         "path": "/v1/supplier/pricing/skus/{skuId}/sale-prices",
         "actor": "SUPPLIER_PRICING",
-        "requestDto": "SalePricesPatchRequest",
-        "responseDto": "SkuSalePricesResponse",
+        "requestDto": "SalePriceChangeRequestDto",
+        "responseDto": "SalePriceChangeResponseDto",
         "errorCodes": [
           "PRICE_INVALID",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "SECOND_VERIFICATION_REQUIRED",
+          "IDEMPOTENCY_CONFLICT",
+          "AUDIT_REQUIRED",
+          "PRICE_EFFECT_SCHEDULE_FAILED"
         ],
         "idempotency": "Idempotency-Key",
         "sensitiveFieldPolicy": "ROLE_AND_SUPPLIER_SCOPE_WHITELIST; DTO白名单；对象归属校验先于查询结果返回",
@@ -2769,8 +3036,8 @@
         "method": "POST",
         "path": "/v1/company/product-material-reviews/{taskId}/decision",
         "actor": "COMPANY_PRODUCT_OPS",
-        "requestDto": "ReviewDecisionRequest",
-        "responseDto": "ApprovalTaskResponse",
+        "requestDto": "ProductApprovalDecisionRequestDto",
+        "responseDto": "ProductApprovalDecisionResponseDto",
         "errorCodes": [
           "APPROVAL_VERSION_CONFLICT"
         ],
@@ -2789,18 +3056,20 @@
         "method": "POST",
         "path": "/v1/company/price-reviews/{taskId}/decision",
         "actor": "COMPANY_PRICE_REVIEW",
-        "requestDto": "ReviewDecisionRequest",
-        "responseDto": "ApprovalTaskResponse",
+        "requestDto": "ProductApprovalDecisionRequestDto",
+        "responseDto": "ProductApprovalDecisionResponseDto",
         "errorCodes": [
           "APPROVAL_VERSION_CONFLICT",
-          "SELF_APPROVAL_FORBIDDEN"
+          "SELF_APPROVAL_FORBIDDEN",
+          "SECOND_VERIFICATION_REQUIRED",
+          "APPROVAL_STATE_INVALID",
+          "IDEMPOTENCY_CONFLICT"
         ],
         "idempotency": "Idempotency-Key",
         "sensitiveFieldPolicy": "ROLE_AND_SUPPLIER_SCOPE_WHITELIST; DTO白名单；对象归属校验先于查询结果返回",
         "moneyRule": "INTEGER_CENTS_ONLY",
         "p0Ids": [
           "P0-007",
-          "P0-019",
           "P0-071"
         ],
         "openApiStatus": "PLANNED",
@@ -2848,6 +3117,124 @@
         ],
         "openApiStatus": "PLANNED",
         "runtimeStatus": "NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-090",
+        "domain": "supplier-pricing",
+        "method": "GET",
+        "path": "/v1/supplier/pricing/products",
+        "actor": "SUPPLIER_PRICING",
+        "requestDto": "None",
+        "responseDto": "SupplierInitialPricingPageDto",
+        "errorCodes": [
+          "AUTHENTICATION_REQUIRED",
+          "WORKSPACE_FORBIDDEN",
+          "SUPPLIER_SCOPE_FORBIDDEN"
+        ],
+        "idempotency": "NONE",
+        "sensitiveFieldPolicy": "ROLE_AND_SUPPLIER_SCOPE_WHITELIST; 仅本供应商价格职能可见三价；不返回归属或审核人私有字段",
+        "moneyRule": "INTEGER_CENTS_ONLY",
+        "p0Ids": [
+          "P0-008"
+        ],
+        "openApiStatus": "PLANNED",
+        "runtimeStatus": "NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-092",
+        "domain": "enterprise-catalog",
+        "method": "GET",
+        "path": "/v1/enterprise/catalog/products/{productId}",
+        "actor": "ENTERPRISE_BUYER",
+        "requestDto": "ProductIdPath",
+        "responseDto": "EnterpriseProductDetailResponseDto",
+        "errorCodes": [
+          "AUTHENTICATION_REQUIRED",
+          "PRODUCT_NOT_FOUND",
+          "PRODUCT_NOT_SALEABLE",
+          "VALIDATION_FAILED",
+          "SENSITIVE_FIELD_LEAK",
+          "FIELD_FORBIDDEN"
+        ],
+        "idempotency": "NONE",
+        "sensitiveFieldPolicy": "NEVER_RETURN; ENTERPRISE_SESSION_DERIVED; ENTERPRISE_PRICE_ONLY; private/no-store/noindex",
+        "moneyRule": "INTEGER_CENTS_ONLY",
+        "p0Ids": [
+          "P0-021"
+        ],
+        "openApiStatus": "PLANNED",
+        "runtimeStatus": "NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-093",
+        "domain": "enterprise-catalog",
+        "method": "GET",
+        "path": "/v1/enterprise/catalog/products",
+        "actor": "ENTERPRISE_BUYER",
+        "requestDto": "EnterpriseCatalogQueryDto",
+        "responseDto": "EnterpriseCatalogPageResponseDto",
+        "errorCodes": [
+          "AUTHENTICATION_REQUIRED",
+          "PRODUCT_NOT_SALEABLE",
+          "VALIDATION_FAILED",
+          "SENSITIVE_FIELD_LEAK",
+          "FIELD_FORBIDDEN"
+        ],
+        "idempotency": "NONE",
+        "sensitiveFieldPolicy": "NEVER_RETURN; ENTERPRISE_SESSION_DERIVED; ENTERPRISE_PRICE_ONLY; private/no-store/noindex",
+        "moneyRule": "INTEGER_CENTS_ONLY",
+        "p0Ids": [
+          "P0-061"
+        ],
+        "openApiStatus": "PLANNED",
+        "runtimeStatus": "NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-094",
+        "domain": "supplier-products",
+        "method": "PATCH",
+        "path": "/v1/supplier/products/{supplierProductId}/channel-visibility",
+        "actor": "SUPPLIER_PRODUCT",
+        "requestDto": "SupplierProductChannelVisibilityRequestDto",
+        "responseDto": "SupplierProductChannelVisibilityResponseDto",
+        "errorCodes": [
+          "AUTHENTICATION_REQUIRED",
+          "SUPPLIER_PRODUCT_NOT_FOUND",
+          "STATE_TRANSITION_INVALID",
+          "VERSION_CONFLICT",
+          "IDEMPOTENCY_CONFLICT",
+          "DUPLICATE_CATALOG_RESOURCE",
+          "VALIDATION_FAILED"
+        ],
+        "idempotency": "Idempotency-Key",
+        "sensitiveFieldPolicy": "NEVER_RETURN; supplierId/identityId/functionalAccountId由会话派生；不返回价格",
+        "moneyRule": "INTEGER_CENTS_ONLY",
+        "p0Ids": [
+          "P0-061"
+        ],
+        "openApiStatus": "PLANNED",
+        "runtimeStatus": "NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-095",
+        "domain": "supplier-products",
+        "method": "GET",
+        "path": "/v1/supplier/products/{supplierProductId}/channel-visibility-history",
+        "actor": "SUPPLIER_PRODUCT",
+        "requestDto": "None",
+        "responseDto": "ProductChannelVisibilityHistoryPageDto",
+        "errorCodes": [
+          "AUTHENTICATION_REQUIRED",
+          "SUPPLIER_PRODUCT_NOT_FOUND"
+        ],
+        "idempotency": "NONE",
+        "sensitiveFieldPolicy": "NEVER_RETURN; OWN_SUPPLIER_ONLY; actor identity and functional account omitted",
+        "moneyRule": "INTEGER_CENTS_ONLY",
+        "p0Ids": [
+          "P0-061"
+        ],
+        "openApiStatus": "PLANNED",
+        "runtimeStatus": "NOT_IMPLEMENTED"
       }
     ],
     "commonResponse": "ApiResponse<T>",
@@ -2872,31 +3259,40 @@
   "migrationContract": [
     {
       "migrationId": "MIG-005",
-      "plannedName": "0201_category_templates",
-      "dependsOn": "MIG-004",
+      "plannedName": "20260810062000_m2_category_tree+20260810094000_m2_category_templates+20260810110000_m2_food_template_profile+20260810213000_m2_fresh_template_profile+20260810230500_m2_apparel_template_profile+20260811060000_m2_digital_template_profile+20260811090000_m2_gift_box_template_profile+20260811110000_m2_regulated_category_controls",
+      "dependsOn": "MIG-007",
       "objects": [
         "Category",
-        "CategoryTemplate"
+        "CategoryHistory",
+        "CategoryCommand",
+        "CategoryTemplate",
+        "CategoryTemplateHistory",
+        "CategoryTemplateCommand",
+        "RegulatedCategoryControl",
+        "RegulatedCategoryControlHistory",
+        "RegulatedCategoryControlCommand",
+        "SupplierProduct.qualificationValidUntil",
+        "Product.qualificationValidUntil"
       ],
       "status": "PLANNED_NOT_CREATED",
-      "recovery": "已发布迁移不回改；失败前恢复备份或创建向前修复迁移；应用版本可回退时保持schema兼容窗口",
-      "verification": "末级模板版本引用保护；prisma validate；空库/升级路径dry-run；关键不变量SQL"
+      "recovery": "已发布迁移不回改；应用回退时先停用强监管控制；共享环境保留历史并以新前向迁移修复",
+      "verification": "模板不可变；强监管默认关闭、有效期、历史/命令唯一键；prisma validate；空库/升级/恢复dry-run；真实MySQL关键不变量探针"
     },
     {
       "migrationId": "MIG-006",
-      "plannedName": "0202_supplier_product_drafts",
-      "dependsOn": "MIG-005",
+      "plannedName": "20260809074000_m2_product_two_layer_model",
+      "dependsOn": "MIG-004",
       "objects": [
         "SupplierProduct",
         "SupplierProductSku"
       ],
       "status": "PLANNED_NOT_CREATED",
       "recovery": "已发布迁移不回改；失败前恢复备份或创建向前修复迁移；应用版本可回退时保持schema兼容窗口",
-      "verification": "商品页面价格字段物理/DTO隔离；prisma validate；空库/升级路径dry-run；关键不变量SQL"
+      "verification": "商品页面价格字段物理/DTO隔离；prisma validate；空库/升级/恢复dry-run"
     },
     {
       "migrationId": "MIG-007",
-      "plannedName": "0203_sellable_product_sku",
+      "plannedName": "20260809074000_m2_product_two_layer_model+20260809100000_m2_company_product_approval",
       "dependsOn": "MIG-006",
       "objects": [
         "Product",
@@ -2904,24 +3300,38 @@
       ],
       "status": "PLANNED_NOT_CREATED",
       "recovery": "已发布迁移不回改；失败前恢复备份或创建向前修复迁移；应用版本可回退时保持schema兼容窗口",
-      "verification": "两层模型、上架状态和版本；prisma validate；空库/升级路径dry-run；关键不变量SQL"
+      "verification": "双审前不物化；唯一键防并发重复；prisma validate；空库/升级/恢复dry-run"
     },
     {
       "migrationId": "MIG-008",
-      "plannedName": "0204_price_history_approval",
+      "plannedName": "20260812013000_m2_tiered_price_changes",
       "dependsOn": "MIG-007",
       "objects": [
         "SupplyPriceChangeRequest",
-        "PriceChangeLog"
+        "SupplyPriceChangeHistory",
+        "PriceChangeLog",
+        "PriceEffectOutbox",
+        "PriceChangeCommand"
       ],
       "status": "PLANNED_NOT_CREATED",
-      "recovery": "已发布迁移不回改；失败前恢复备份或创建向前修复迁移；应用版本可回退时保持schema兼容窗口",
-      "verification": "三类价格历史与审批唯一性；prisma validate；空库/升级路径dry-run；关键不变量SQL"
+      "recovery": "已发布迁移不回改；应用回退停止新调价和worker；共享环境保留申请/历史/日志/outbox/命令并以新前向迁移修复",
+      "verification": "三类价格历史不可覆盖；申请状态合法推进；命令/业务键唯一；prisma validate；空库/升级/恢复dry-run；MySQL drift和cleanup"
+    },
+    {
+      "migrationId": "MIG-008A",
+      "plannedName": "20260812080000_m2_shared_catalog_enterprise_flag",
+      "dependsOn": "MIG-008",
+      "objects": [
+        "ProductChannelVisibilityHistory"
+      ],
+      "status": "PLANNED_NOT_CREATED",
+      "recovery": "已发布迁移不回改；应用回退停止渠道变更；共享环境保留历史并以前向迁移修复",
+      "verification": "productId+toVersion唯一；UPDATE/DELETE触发器拒绝；prisma validate；空库/升级/恢复dry-run"
     },
     {
       "migrationId": "MIG-009",
       "plannedName": "0205_inventory_truth",
-      "dependsOn": "MIG-008",
+      "dependsOn": "MIG-008A",
       "objects": [
         "InventoryBalance",
         "InventoryChangeLog"
@@ -3182,7 +3592,8 @@
         "apis": [
           "API-019",
           "API-020",
-          "API-022"
+          "API-022",
+          "API-090"
         ]
       },
       "negativeTestIds": [
@@ -3303,7 +3714,9 @@
         "roles": [
           "COMPANY_PRODUCT_OPS"
         ],
-        "pages": [],
+        "pages": [
+          "PAGE-005"
+        ],
         "apis": [
           "API-016",
           "API-017"
@@ -3356,7 +3769,9 @@
         "roles": [
           "COMPANY_PRODUCT_OPS"
         ],
-        "pages": [],
+        "pages": [
+          "PAGE-005"
+        ],
         "apis": [
           "API-018"
         ]
@@ -3391,7 +3806,9 @@
         ],
         "states": [],
         "roles": [],
-        "pages": [],
+        "pages": [
+          "PAGE-005"
+        ],
         "apis": []
       },
       "negativeTestIds": [
@@ -3424,7 +3841,9 @@
         ],
         "states": [],
         "roles": [],
-        "pages": [],
+        "pages": [
+          "PAGE-005"
+        ],
         "apis": []
       },
       "negativeTestIds": [
@@ -3457,7 +3876,9 @@
         ],
         "states": [],
         "roles": [],
-        "pages": [],
+        "pages": [
+          "PAGE-005"
+        ],
         "apis": []
       },
       "negativeTestIds": [
@@ -3490,7 +3911,9 @@
         ],
         "states": [],
         "roles": [],
-        "pages": [],
+        "pages": [
+          "PAGE-005"
+        ],
         "apis": []
       },
       "negativeTestIds": [
@@ -3523,7 +3946,9 @@
         ],
         "states": [],
         "roles": [],
-        "pages": [],
+        "pages": [
+          "PAGE-005"
+        ],
         "apis": []
       },
       "negativeTestIds": [
@@ -3553,6 +3978,7 @@
           "CategoryTemplate.detailModules",
           "CategoryTemplate.afterSaleRules",
           "CategoryTemplate.status",
+          "SupplierProduct.qualificationSnapshot",
           "Product.id",
           "Product.companyId",
           "Product.supplierId",
@@ -3579,7 +4005,9 @@
         "roles": [
           "COMPANY_PRODUCT_OPS"
         ],
-        "pages": [],
+        "pages": [
+          "PAGE-005"
+        ],
         "apis": [
           "API-018"
         ]
@@ -3672,9 +4100,9 @@
           "PAGE-018"
         ],
         "apis": [
+          "API-091",
           "API-023",
-          "API-024",
-          "API-026"
+          "API-024"
         ]
       },
       "negativeTestIds": [
@@ -3744,7 +4172,9 @@
         "states": [],
         "roles": [],
         "pages": [],
-        "apis": []
+        "apis": [
+          "API-092"
+        ]
       },
       "negativeTestIds": [
         "NEG-M2-021-01",
@@ -3801,7 +4231,19 @@
           "Product.detailSnapshot",
           "Product.afterSaleSnapshot",
           "Product.deliveryRuleId",
-          "Product.version"
+          "Product.version",
+          "ProductChannelVisibilityHistory.id",
+          "ProductChannelVisibilityHistory.productId",
+          "ProductChannelVisibilityHistory.supplierProductId",
+          "ProductChannelVisibilityHistory.event",
+          "ProductChannelVisibilityHistory.fromVersion",
+          "ProductChannelVisibilityHistory.toVersion",
+          "ProductChannelVisibilityHistory.beforeSnapshot",
+          "ProductChannelVisibilityHistory.afterSnapshot",
+          "ProductChannelVisibilityHistory.reason",
+          "ProductChannelVisibilityHistory.actorIdentityId",
+          "ProductChannelVisibilityHistory.functionalAccountId",
+          "ProductChannelVisibilityHistory.occurredAt"
         ],
         "states": [
           "SupplierProduct:DRAFT:SUBMIT_MATERIAL",
@@ -3809,7 +4251,8 @@
           "SupplierProduct:PENDING_MATERIAL_REVIEW:REJECT_MATERIAL",
           "SupplierProduct:MATERIAL_APPROVED:INITIAL_PRICES_APPROVED",
           "SupplierProduct:ACTIVE:OFF_SHELF",
-          "SupplierProduct:OFF_SHELF:RESUBMIT"
+          "SupplierProduct:OFF_SHELF:RESUBMIT",
+          "ProductChannelVisibility:ACTIVE:CHANGE"
         ],
         "roles": [
           "SUPPLIER_PRODUCT"
@@ -3818,7 +4261,10 @@
           "PAGE-017"
         ],
         "apis": [
-          "API-019"
+          "API-019",
+          "API-093",
+          "API-094",
+          "API-095"
         ]
       },
       "negativeTestIds": [
@@ -3965,6 +4411,7 @@
           "PAGE-018"
         ],
         "apis": [
+          "API-091",
           "API-023",
           "API-024",
           "API-026"
@@ -4623,11 +5070,11 @@
     {
       "dependencyId": "EXT-007",
       "category": "分类业务",
-      "requiredInputOrDecision": "确认首批分类树、每类模板字段、资质和售后规则",
+      "requiredInputOrDecision": "确认首批分类树、每类模板字段、公司与商品资质有效期及售后规则",
       "owner": "UNASSIGNED_HUMAN",
       "status": "NOT_PROVIDED",
-      "blockingTask": "M2-P012",
-      "blocksFormalAcceptance": false,
+      "blockingTask": "M2-P012|M2-P018",
+      "blocksFormalAcceptance": true,
       "blocksContractFreeze": false,
       "guessedByCode": false
     },

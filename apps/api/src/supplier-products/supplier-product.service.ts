@@ -18,6 +18,7 @@ import {
   normalizeSupplierProductDraft,
   normalizeSupplierProductJson,
   normalizeSupplierProductPatch,
+  normalizeProductChannelVisibility,
   requestHash,
   requireIdempotencyKey,
   requireRequestId,
@@ -29,6 +30,8 @@ import {
   SUPPLIER_PRODUCT_REPOSITORY,
   type MaterializeApprovedProductCommand,
   type MaterializedProductRecord,
+  type ProductChannelVisibilityHistoryRecord,
+  type ProductChannelVisibilityRecord,
   type ProductMaterialApprovalRecord,
   type SupplierProductFailureKind,
   type SupplierProductRecord,
@@ -98,9 +101,15 @@ const throwFailure = (kind: SupplierProductFailureKind): never => {
     APPROVAL_VERSION_CONFLICT: [409, 'APPROVAL_VERSION_CONFLICT', 'Approval version changed'],
     AUDIT_REQUIRED: [503, 'AUDIT_REQUIRED', 'Audit write is required'],
     COMPANY_INVARIANT: [409, 'SINGLE_MERCHANT_VIOLATION', 'Single merchant invariant failed'],
+    DUPLICATE_CATALOG_RESOURCE: [
+      409,
+      'DUPLICATE_CATALOG_RESOURCE',
+      'Retail and enterprise channels must share one Product/Sku resource',
+    ],
     DUPLICATE: [409, 'SUPPLIER_PRODUCT_DUPLICATE', 'Supplier product already exists'],
     IDEMPOTENCY_CONFLICT: [409, 'IDEMPOTENCY_CONFLICT', 'Idempotency-Key conflicts'],
     NOT_FOUND: [404, 'SUPPLIER_PRODUCT_NOT_FOUND', 'Supplier product was not found'],
+    NO_CHANGE: [422, 'VALIDATION_FAILED', 'Channel visibility settings are unchanged'],
     PRICE_INVALID: [422, 'PRICE_INVALID', 'Price input is invalid'],
     STATE_INVALID: [409, 'STATE_TRANSITION_INVALID', 'Supplier product state is invalid'],
     SUPPLIER_INACTIVE: [403, 'SUPPLIER_INACTIVE', 'Supplier is not active'],
@@ -375,6 +384,59 @@ export class SupplierProductService {
       return { body: { ...result.value.approvalTask }, replayed: result.replayed };
     }
     return throwFailure(result.kind);
+  }
+
+  async changeChannelVisibility(
+    actor: SupplierProductActor,
+    supplierProductIdValue: unknown,
+    bodyValue: unknown,
+    idempotencyKeyValue: string | undefined,
+  ): Promise<SupplierProductMutationResponse<ProductChannelVisibilityRecord>> {
+    const supplierProductId = requireSupplierProductId(supplierProductIdValue);
+    const input = normalizeProductChannelVisibility(bodyValue);
+    const idempotencyKey = requireIdempotencyKey(idempotencyKeyValue);
+    const { version: expectedVersion, ...settings } = input;
+    const hash = requestHash({ expectedVersion, ...settings });
+    const scope = `CHANNEL_VISIBILITY:${actor.supplierId}:${supplierProductId}`;
+    const replay = await this.repository.replayMutation<ProductChannelVisibilityRecord>(
+      scope,
+      idempotencyKey,
+      hash,
+    );
+    if (replay?.kind === 'OK') {
+      return { body: replay.value, replayed: true };
+    }
+    if (replay) return throwFailure(replay.kind);
+    const result = await this.repository.changeChannelVisibility({
+      supplierId: actor.supplierId,
+      supplierProductId,
+      expectedVersion,
+      ...settings,
+      actorIdentityId: actor.identityId,
+      functionalAccountId: actor.functionalAccountId,
+      idempotencyKey,
+      requestHash: hash,
+    });
+    if (result.kind === 'OK') {
+      return { body: result.value, replayed: result.replayed };
+    }
+    return throwFailure(result.kind);
+  }
+
+  async listChannelVisibilityHistory(
+    actor: SupplierProductActor,
+    supplierProductIdValue: unknown,
+  ): Promise<{
+    readonly supplierProductId: string;
+    readonly items: readonly ProductChannelVisibilityHistoryRecord[];
+  }> {
+    const supplierProductId = requireSupplierProductId(supplierProductIdValue);
+    const history = await this.repository.listChannelVisibilityHistory(
+      supplierProductId,
+      actor.supplierId,
+    );
+    if (!history) return throwFailure('NOT_FOUND');
+    return { supplierProductId, items: history };
   }
 
   async materializeApprovedProduct(

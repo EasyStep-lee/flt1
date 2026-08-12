@@ -43,10 +43,23 @@ export interface FindPublicCatalogProductsInput {
   readonly pageSize: number;
 }
 
+export interface FindEnterpriseCatalogProductsInput {
+  readonly page: number;
+  readonly pageSize: number;
+}
+
+export interface EnterpriseCatalogPageRecord {
+  readonly total: number;
+  readonly items: readonly PublicCatalogProductDetailRecord[];
+}
+
 export interface PublicCatalogRepository {
   isActiveSupplierSource(supplierId: string): Promise<boolean>;
   findSellableProductDetail(productId: string): Promise<PublicCatalogProductDetailRecord | null>;
   findSellableRetailProducts(
     input: FindPublicCatalogProductsInput,
   ): Promise<PublicCatalogPageRecord>;
+  findSellableEnterpriseProducts(
+    input: FindEnterpriseCatalogProductsInput,
+  ): Promise<EnterpriseCatalogPageRecord>;
 }

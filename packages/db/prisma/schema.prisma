@@ -102,6 +102,11 @@ enum ProductSaleStatus {
   ARCHIVED
 }
 
+enum ProductChannelVisibilityEvent {
+  INITIAL
+  CHANGE
+}
+
 enum SkuStatus {
   ACTIVE
   INACTIVE
@@ -861,6 +866,7 @@ model SupplierProduct {
   template                       CategoryTemplate               @relation(fields: [categoryId, templateVersion], references: [categoryId, version], onDelete: Restrict, onUpdate: Cascade, map: "supplier_product_category_template_fkey")
   skus                           SupplierProductSku[]
   statusHistory                  SupplierProductStatusHistory[]
+  channelVisibilityHistory       ProductChannelVisibilityHistory[]
   product                        Product?
 
   @@unique([supplierId, name], map: "supplier_product_supplier_name_key")
@@ -942,11 +948,33 @@ model Product {
   template                       CategoryTemplate  @relation(fields: [categoryId, templateVersion], references: [categoryId, version], onDelete: Restrict, onUpdate: Cascade, map: "product_category_template_fkey")
   category                       Category          @relation(fields: [categoryId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "product_category_fkey")
   skus                           Sku[]
+  channelVisibilityHistory       ProductChannelVisibilityHistory[]
 
   @@index([companyId, saleStatus], map: "product_company_status_idx")
   @@index([supplierId, saleStatus], map: "product_supplier_status_idx")
   @@index([categoryId, templateVersion, saleStatus], map: "product_category_template_status_idx")
   @@map("product")
+}
+
+model ProductChannelVisibilityHistory {
+  id                  String                        @id @default(uuid()) @db.Char(36)
+  productId           String                        @map("product_id") @db.Char(36)
+  supplierProductId   String                        @map("supplier_product_id") @db.Char(36)
+  event               ProductChannelVisibilityEvent
+  fromVersion         Int                           @map("from_version")
+  toVersion           Int                           @map("to_version")
+  beforeSnapshot      Json                          @map("before_snapshot")
+  afterSnapshot       Json                          @map("after_snapshot")
+  reason              String                        @db.VarChar(1000)
+  actorIdentityId     String?                       @map("actor_identity_id") @db.Char(36)
+  functionalAccountId String?                       @map("functional_account_id") @db.Char(36)
+  occurredAt          DateTime                      @default(now()) @map("occurred_at") @db.DateTime(3)
+  product             Product                       @relation(fields: [productId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "product_channel_visibility_history_product_id_fkey")
+  supplierProduct     SupplierProduct               @relation(fields: [supplierProductId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "product_channel_visibility_history_supplier_product_id_fkey")
+
+  @@unique([productId, toVersion], map: "product_channel_visibility_history_product_version_key")
+  @@index([supplierProductId, occurredAt], map: "product_channel_visibility_history_supplier_time_idx")
+  @@map("product_channel_visibility_history")
 }
 
 model Sku {

@@ -1,0 +1,71 @@
+{
+  "taskId": "M2-P061",
+  "p0Ids": ["P0-061"],
+  "status": "LOCAL_PASS",
+  "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+  "baseCommit": "b2fee8424b803a5e629f1c243632bbefe2d566c3",
+  "implementationCommit": "296f65ed17d433a02002b0030322dbb9a80d6ce1",
+  "branch": "codex/m2-shared-catalog-enterprise-flag",
+  "issue": 67,
+  "red": {
+    "command": "pnpm --filter @fulishe/api... build; pnpm exec vitest run --config ./vitest.config.ts --project api-contract apps/api/test/supertest/shared-catalog-enterprise-flag-api.test.mjs --reporter=verbose",
+    "result": "FAIL_EXPECTED",
+    "tests": "2/2 failed because all three new routes returned 404"
+  },
+  "green": {
+    "focusedApi": "3/3 passed",
+    "focusedContractAndMigration": "3/3 passed",
+    "focusedP0E2e": "2/2 passed",
+    "fullApi": "32 files, 179/179 passed",
+    "fullP0E2e": "48/48 passed",
+    "fullStageContracts": "80/80 passed",
+    "fullMigrationContracts": "41/41 passed",
+    "workspaceTests": "all applicable workspace tests passed",
+    "lint": "all 13 workspaces plus root targets passed",
+    "typecheck": "all 13 workspaces plus OpenAPI/test configs passed",
+    "build": "all 13 applicable workspaces passed"
+  },
+  "fullVerify": {
+    "command": "pnpm verify",
+    "status": "PASS",
+    "steps": 17,
+    "commit": "296f65ed17d433a02002b0030322dbb9a80d6ce1",
+    "startedAt": "2026-08-12T08:55:08.670Z",
+    "endedAt": "2026-08-12T09:10:12.993Z",
+    "report": "artifacts/test-results/verification/pnpm-verify.json"
+  },
+  "database": {
+    "migrationId": "MIG-008A",
+    "migrationDirectory": "20260812080000_m2_shared_catalog_enterprise_flag",
+    "rehearsal": "PRISMA_MIGRATION_REHEARSAL_OK:empty=2:upgrade=2:restore=2:product=23:cleanup=PASS",
+    "integrity": "PRISMA_MIGRATIONS_OK:base=HEAD:published=22:current=23"
+  },
+  "openapi": {
+    "contracts": ["API-093", "API-094", "API-095"],
+    "deterministic": true,
+    "breakingErrors": 0,
+    "warnings": 169
+  },
+  "invariants": [
+    "Retail and enterprise use the same Product, Sku, category, template and media identifiers",
+    "Only ACTIVE products with the enterprise flag and ACTIVE SKU enter the enterprise shelf",
+    "Supplier ownership and enterprise identity are derived from authenticated sessions",
+    "Supply price and actor identity never enter customer DTOs",
+    "Channel changes are optimistic, idempotent and append immutable history",
+    "No second catalog or inventory resource is created"
+  ],
+  "environmentBoundary": {
+    "local": "LOCAL_PASS",
+    "ci": "NOT_EXECUTED",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_EXECUTED",
+    "production": "NOT_EXECUTED"
+  },
+  "deferred": [
+    "M2-P063 InventoryBalance and cross-channel inventory concurrency",
+    "M3 enterprise authentication and full procurement interaction",
+    "staging, device and production evidence"
+  ],
+  "nextAllowedTask": "M2-P061_COMMIT_DRAFT_PR_EXACT_HEAD_CI",
+  "prohibitedNext": "M2-P063"
+}

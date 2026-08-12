@@ -61,6 +61,7 @@
               "CATEGORY_PARENT_INVALID",
               "CATEGORY_REFERENCED",
               "CATEGORY_TEMPLATE_INVALID",
+              "DUPLICATE_CATALOG_RESOURCE",
               "PRICE_FIELD_FORBIDDEN",
               "PRICE_INVALID",
               "INITIAL_PRICE_REVIEW_PENDING",
@@ -297,6 +298,24 @@
             "type": "number"
           }
         },
+        "type": "object"
+      },
+      "CatalogMediaResponseDto": {
+        "properties": {
+          "alt": {
+            "maxLength": 200,
+            "type": "string"
+          },
+          "url": {
+            "format": "uri",
+            "maxLength": 2048,
+            "type": "string"
+          }
+        },
+        "required": [
+          "url",
+          "alt"
+        ],
         "type": "object"
       },
       "CategoryCreateRequestDto": {
@@ -1280,6 +1299,123 @@
         ],
         "type": "object"
       },
+      "EnterpriseCatalogPageResponseDto": {
+        "properties": {
+          "checkoutMode": {
+            "enum": [
+              "COMPANY_UNIFIED"
+            ],
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/EnterpriseCatalogProductResponseDto"
+            },
+            "type": "array"
+          },
+          "page": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "pageSize": {
+            "maximum": 50,
+            "minimum": 1,
+            "type": "number"
+          },
+          "sellerName": {
+            "example": "江苏福礼团供应链科技有限公司",
+            "type": "string"
+          },
+          "total": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "sellerName",
+          "checkoutMode",
+          "page",
+          "pageSize",
+          "total",
+          "items"
+        ],
+        "type": "object"
+      },
+      "EnterpriseCatalogProductResponseDto": {
+        "properties": {
+          "activeSkuCount": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "categoryId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "enterpriseSalePrice": {
+            "description": "Minimum active SKU enterprise procurement price in integer cents",
+            "minimum": 0,
+            "type": "number"
+          },
+          "media": {
+            "items": {
+              "$ref": "#/components/schemas/CatalogMediaResponseDto"
+            },
+            "type": "array"
+          },
+          "name": {
+            "maxLength": 200,
+            "type": "string"
+          },
+          "productId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "skuIds": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "supplierId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "templateVersion": {
+            "minimum": 1,
+            "type": "number"
+          }
+        },
+        "required": [
+          "productId",
+          "supplierId",
+          "categoryId",
+          "templateVersion",
+          "name",
+          "media",
+          "skuIds",
+          "enterpriseSalePrice",
+          "activeSkuCount"
+        ],
+        "type": "object"
+      },
+      "EnterpriseCatalogQueryDto": {
+        "properties": {
+          "page": {
+            "default": 1,
+            "maximum": 10000,
+            "minimum": 1,
+            "type": "number"
+          },
+          "pageSize": {
+            "default": 20,
+            "maximum": 50,
+            "minimum": 1,
+            "type": "number"
+          }
+        },
+        "type": "object"
+      },
       "EnterpriseFoodSkuResponseDto": {
         "properties": {
           "enterpriseSalePrice": {
@@ -1339,6 +1475,12 @@
             "minimum": 0,
             "type": "number"
           },
+          "media": {
+            "items": {
+              "$ref": "#/components/schemas/CatalogMediaResponseDto"
+            },
+            "type": "array"
+          },
           "name": {
             "maxLength": 200,
             "type": "string"
@@ -1387,6 +1529,7 @@
           "sellerName",
           "checkoutMode",
           "enterpriseSalePrice",
+          "media",
           "skus",
           "detailModules"
         ],
@@ -2025,6 +2168,108 @@
         ],
         "type": "object"
       },
+      "ProductChannelVisibilityHistoryItemDto": {
+        "properties": {
+          "after": {
+            "$ref": "#/components/schemas/ProductChannelVisibilitySnapshotDto"
+          },
+          "before": {
+            "$ref": "#/components/schemas/ProductChannelVisibilitySnapshotDto"
+          },
+          "event": {
+            "enum": [
+              "INITIAL",
+              "CHANGE"
+            ],
+            "type": "string"
+          },
+          "fromVersion": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "occurredAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "productId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "reason": {
+            "maxLength": 1000,
+            "type": "string"
+          },
+          "supplierProductId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "toVersion": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "productId",
+          "supplierProductId",
+          "event",
+          "fromVersion",
+          "toVersion",
+          "before",
+          "after",
+          "reason",
+          "occurredAt"
+        ],
+        "type": "object"
+      },
+      "ProductChannelVisibilityHistoryPageDto": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ProductChannelVisibilityHistoryItemDto"
+            },
+            "type": "array"
+          },
+          "supplierProductId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "supplierProductId",
+          "items"
+        ],
+        "type": "object"
+      },
+      "ProductChannelVisibilitySnapshotDto": {
+        "properties": {
+          "enterpriseMinOrderQty": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "enterprisePackageMultiple": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "isEnterpriseProcurementEnabled": {
+            "type": "boolean"
+          },
+          "isRetailEnabled": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "isRetailEnabled",
+          "isEnterpriseProcurementEnabled",
+          "enterpriseMinOrderQty",
+          "enterprisePackageMultiple"
+        ],
+        "type": "object"
+      },
       "ProductMaterialApprovalResponseDto": {
         "properties": {
           "approvalType": {
@@ -2316,6 +2561,12 @@
             },
             "type": "array"
           },
+          "media": {
+            "items": {
+              "$ref": "#/components/schemas/CatalogMediaResponseDto"
+            },
+            "type": "array"
+          },
           "name": {
             "maxLength": 200,
             "type": "string"
@@ -2369,6 +2620,7 @@
           "sellerName",
           "checkoutMode",
           "retailSalePrice",
+          "media",
           "skus",
           "detailModules"
         ],
@@ -3106,6 +3358,87 @@
           "page",
           "pageSize",
           "total"
+        ],
+        "type": "object"
+      },
+      "SupplierProductChannelVisibilityRequestDto": {
+        "properties": {
+          "enterpriseMinOrderQty": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "enterprisePackageMultiple": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "isEnterpriseProcurementEnabled": {
+            "type": "boolean"
+          },
+          "isRetailEnabled": {
+            "type": "boolean"
+          },
+          "reason": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "type": "string"
+          },
+          "version": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "version",
+          "isRetailEnabled",
+          "isEnterpriseProcurementEnabled",
+          "enterpriseMinOrderQty",
+          "enterprisePackageMultiple",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "SupplierProductChannelVisibilityResponseDto": {
+        "properties": {
+          "enterpriseMinOrderQty": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "enterprisePackageMultiple": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "isEnterpriseProcurementEnabled": {
+            "type": "boolean"
+          },
+          "isRetailEnabled": {
+            "type": "boolean"
+          },
+          "productId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "productVersion": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "supplierProductId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "supplierProductVersion": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "supplierProductId",
+          "productId",
+          "supplierProductVersion",
+          "productVersion",
+          "isRetailEnabled",
+          "isEnterpriseProcurementEnabled",
+          "enterpriseMinOrderQty",
+          "enterprisePackageMultiple"
         ],
         "type": "object"
       },
@@ -7278,6 +7611,84 @@
         "x-fulishe-response-policy": "NEVER_RETURN_INTERNAL_PRICING"
       }
     },
+    "/v1/enterprise/catalog/products": {
+      "get": {
+        "operationId": "enterpriseCatalog.listProducts",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "pageSize",
+            "required": false,
+            "schema": {
+              "maximum": 50,
+              "minimum": 1,
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "maximum": 10000,
+              "minimum": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnterpriseCatalogPageResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "enterpriseSession": []
+          }
+        ],
+        "summary": "List enterprise-enabled Product and SKU resources from the unified company shelf",
+        "tags": [
+          "enterprise-catalog"
+        ]
+      }
+    },
     "/v1/enterprise/catalog/products/{productId}": {
       "get": {
         "operationId": "enterpriseCatalog.getProductDetail",
@@ -8549,6 +8960,188 @@
           }
         },
         "summary": "Patch an owned supplier product draft",
+        "tags": [
+          "supplier-products"
+        ]
+      }
+    },
+    "/v1/supplier/products/{supplierProductId}/channel-visibility": {
+      "patch": {
+        "operationId": "supplierProducts.changeChannelVisibility",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "supplierProductId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SupplierProductChannelVisibilityRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupplierProductChannelVisibilityResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "428": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Change ACTIVE product channel visibility without duplicating Product/Sku resources",
+        "tags": [
+          "supplier-products"
+        ]
+      }
+    },
+    "/v1/supplier/products/{supplierProductId}/channel-visibility-history": {
+      "get": {
+        "operationId": "supplierProducts.listChannelVisibilityHistory",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "supplierProductId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductChannelVisibilityHistoryPageDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "List immutable channel visibility history for an owned supplier product",
         "tags": [
           "supplier-products"
         ]
