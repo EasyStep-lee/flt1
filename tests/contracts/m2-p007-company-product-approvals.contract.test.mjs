@@ -92,7 +92,7 @@ test('M2-P007 retains evidence while the current M2 slice advances through its d
   assert.match(apiLedger, /API-025[^\r\n]*GENERATED[^\r\n]*IMPLEMENTED/u);
   assert.match(apiLedger, /API-026[^\r\n]*GENERATED[^\r\n]*IMPLEMENTED/u);
   assert.match(pageLedger, /PAGE-005[^\r\n]*P0-007_CI_PASS/u);
-  assert.match(pageLedger, /PAGE-006[^\r\n]*P0-007_LOCAL_PASS/u);
+  assert.match(pageLedger, /PAGE-006[^\r\n]*P0-007_CI_PASS/u);
   assert.equal(evidence.status, 'LOCAL_PASS');
   assert.equal(evidence.environment.ci, 'NOT_EXECUTED');
   assert.match(handoff, /M2-P008.*锁定/u);
