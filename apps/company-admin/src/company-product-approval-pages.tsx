@@ -19,6 +19,7 @@ import { CompanyCategoryTreePanel } from './company-category-tree.js';
 import { CompanyCategoryTemplatePanel } from './company-category-templates.js';
 import { CompanyRegulatedCategoryControlPanel } from './company-regulated-category-controls.js';
 import { CompanyWorkspacePagePanel, type CompanyWorkspace } from './company-workspace-pages.js';
+import { CompanySupplyPriceReviewPanel } from './company-supply-price-review-panel.js';
 
 type MaterialReview = components['schemas']['ProductMaterialReviewDto'];
 type MaterialPage = components['schemas']['ProductMaterialReviewPageDto'];
@@ -296,6 +297,7 @@ export function CompanyInitialPriceReviewPage({ workspace }: { readonly workspac
           <Input.TextArea aria-label="价格审核意见" maxLength={1000} onChange={(event) => setOpinion(event.target.value)} rows={5} showCount value={opinion} />
         </Space>
       </Modal>
+      <CompanySupplyPriceReviewPanel />
     </ApprovalShell>
   );
 }

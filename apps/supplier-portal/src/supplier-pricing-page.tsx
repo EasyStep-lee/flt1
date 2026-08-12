@@ -19,6 +19,7 @@ import {
   FixedSupplierWorkspacePage,
   type SupplierWorkspace,
 } from './supplier-workspace-pages.js';
+import { SupplierPostListingPricePanel } from './supplier-post-listing-price-panel.js';
 
 type PricingProduct = components['schemas']['SupplierInitialPricingProductDto'];
 type InitialPriceRequest = components['schemas']['InitialPricesRequestDto'];
@@ -408,6 +409,7 @@ export function SupplierPricingPage({
           </Space>
         )}
       </section>
+      <SupplierPostListingPricePanel />
     </div>
   );
 }

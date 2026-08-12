@@ -45,6 +45,8 @@ import {
   ProductMaterialReviewSkuDto,
 } from './company-product-approval.dto.js';
 import { CompanyProductApprovalService } from './company-product-approval.service.js';
+import { SupplyPriceChangeDto } from '../price-changes/price-change.dto.js';
+import { PriceChangeService } from '../price-changes/price-change.service.js';
 
 const replayHeader = (response: Response, replayed: boolean): void => {
   if (replayed) response.setHeader('Idempotency-Replayed', 'true');
@@ -118,6 +120,7 @@ export class CompanyProductMaterialReviewController {
 }
 
 @ApiTags('company-price-reviews')
+@ApiExtraModels(ProductApprovalDecisionResponseDto, SupplyPriceChangeDto)
 @Controller('v1/company/price-reviews')
 export class CompanyInitialPriceReviewController {
   constructor(
@@ -125,6 +128,8 @@ export class CompanyInitialPriceReviewController {
     private readonly service: CompanyProductApprovalService,
     @Inject(COMPANY_PRODUCT_APPROVAL_ACTOR_RESOLVER)
     private readonly actorResolver: CompanyProductApprovalActorResolver,
+    @Inject(PriceChangeService)
+    private readonly priceChangeService: PriceChangeService,
   ) {}
 
   @Get()
@@ -145,7 +150,10 @@ export class CompanyInitialPriceReviewController {
   @ApiParam({ format: 'uuid', name: 'taskId', type: String })
   @ApiHeader({ name: 'Idempotency-Key', required: true })
   @ApiBody({ type: ProductApprovalDecisionRequestDto })
-  @ApiOkResponse({ type: ProductApprovalDecisionResponseDto })
+  @ApiOkResponse({ schema: { oneOf: [
+    { $ref: '#/components/schemas/ProductApprovalDecisionResponseDto' },
+    { $ref: '#/components/schemas/SupplyPriceChangeDto' },
+  ] } })
   @ApiConflictResponse({ type: ApiErrorResponseDto })
   @ApiForbiddenResponse({ type: ApiErrorResponseDto })
   @ApiNotFoundResponse({ type: ApiErrorResponseDto })
@@ -157,8 +165,20 @@ export class CompanyInitialPriceReviewController {
     @Body() body: ProductApprovalDecisionRequestDto & Record<string, unknown>,
     @Headers('idempotency-key') idempotencyKey: string | undefined,
     @Res({ passthrough: true }) response: Response,
-  ): Promise<ProductApprovalDecisionResponseDto> {
+  ): Promise<ProductApprovalDecisionResponseDto | SupplyPriceChangeDto> {
     const actor = await this.actorResolver.resolve(request, 'COMPANY_PRICE_REVIEW');
+    if (await this.priceChangeService.findCompanyReview(actor, taskId)) {
+      const priceResult = await this.priceChangeService.decideSupply(
+        actor,
+        taskId,
+        body,
+        idempotencyKey,
+        request.requestId!,
+        request.ip ?? null,
+      );
+      replayHeader(response, priceResult.replayed);
+      return priceResult.body;
+    }
     const result = await this.service.decide(
       actor,
       'PRODUCT_INITIAL_PRICE',
