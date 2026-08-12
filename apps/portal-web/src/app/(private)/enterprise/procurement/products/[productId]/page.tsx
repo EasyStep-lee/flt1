@@ -1,6 +1,8 @@
 import { createWebApiClient } from '@fulishe/web-api-client';
 import { cookies } from 'next/headers';
 
+import { SESSION_COOKIE_NAME } from '../../../../../../session-boundary';
+
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 export const revalidate = 0;
@@ -13,10 +15,10 @@ export default async function EnterpriseProductDetailPage({
   readonly params: Promise<{ readonly productId: string }>;
 }) {
   const { productId } = await params;
-  const cookieHeader = (await cookies())
-    .getAll()
-    .map(({ name, value }) => `${name}=${value}`)
-    .join('; ');
+  const enterpriseSession = (await cookies()).get(SESSION_COOKIE_NAME);
+  const cookieHeader = enterpriseSession
+    ? `${SESSION_COOKIE_NAME}=${enterpriseSession.value}`
+    : '';
   const client = createWebApiClient({
     baseUrl: process.env.PORTAL_API_BASE_URL ?? 'http://127.0.0.1:3000',
     headers: cookieHeader ? { Cookie: cookieHeader } : {},

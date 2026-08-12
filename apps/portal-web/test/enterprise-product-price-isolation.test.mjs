@@ -103,7 +103,10 @@ test('P0-021 private enterprise page forwards only the session and renders only 
   await waitUntilReady(portalOrigin, portal);
 
   const response = await fetch(`${portalOrigin}/enterprise/procurement/products/${productId}`, {
-    headers: { Cookie: '__Host-fulishe-enterprise-portal=verified-session' },
+    headers: {
+      Cookie:
+        '__Host-fulishe-enterprise-portal=verified-session; unrelated-preference=must-not-leave-portal',
+    },
   });
   const html = await response.text();
   assert.equal(response.status, 200);
