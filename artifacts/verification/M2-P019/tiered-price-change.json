@@ -96,17 +96,23 @@
     "previousMainCiRun": 31552935068,
     "currentIssue": 63,
     "currentPullRequest": 64,
-    "currentExactHead": "91613ee448f722545daa25738d122c3148024b58",
+    "currentExactHead": "5c66ed1147e44dad53ab8a29e77f7b71e692111c",
     "currentCi": "CI_PASS",
-    "currentCiRun": 31561577045,
-    "currentCiJob": 94004811416,
-    "currentCiCompletedAt": "2026-08-12T04:04:10Z",
-    "review": "PASS_NO_FINDINGS_HEAD_91613EE",
-    "comments": 0,
+    "currentCiRun": 31564008036,
+    "currentCiJob": 94012014445,
+    "currentCiCompletedAt": "2026-08-12T04:48:58Z",
+    "review": "PASS_NO_FINDINGS_HEAD_5C66ED1",
+    "comments": 2,
     "unresolvedReviewThreads": 0,
-    "draft": true,
-    "merge": "NOT_EXECUTED"
+    "draft": false,
+    "merge": "MERGED",
+    "mergedAt": "2026-08-12T04:52:56Z",
+    "mergeCommit": "d8da461fa3884ec4fbd7a92403b610f7f3ac70aa",
+    "mainCi": "CI_PASS",
+    "mainCiRun": 31564696638,
+    "mainCiJob": 94014030429,
+    "mainCiCompletedAt": "2026-08-12T05:02:32Z"
   },
-  "nextAllowedTask": "M2-P019_HUMAN_READY_AND_MERGE_AUTHORIZATION",
-  "prohibitedNext": "M2-P020"
+  "nextAllowedTask": "M2-P021",
+  "prohibitedNext": "M2-P061"
 }

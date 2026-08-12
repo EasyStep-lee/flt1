@@ -8,7 +8,7 @@ test('P0-021 enterprise detail is private and renders only the enterprise sellin
   await page.setExtraHTTPHeaders({
     Cookie: '__Host-fulishe-enterprise-portal=p0-session',
   });
-  const response = await page.goto(`/enterprise/products/${productId}`);
+  const response = await page.goto(`/enterprise/procurement/products/${productId}`);
   expect(response?.status()).toBe(200);
   expect(response?.headers()['cache-control'] ?? '').toMatch(/private.*no-store/iu);
   expect(response?.headers()['x-robots-tag'] ?? '').toMatch(/noindex/iu);

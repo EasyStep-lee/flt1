@@ -1,0 +1,90 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "M2-P021",
+  "p0": ["P0-021"],
+  "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+  "status": "LOCAL_PASS",
+  "branch": "codex/m2-product-detail-price-isolation",
+  "baseCommit": "d8da461fa3884ec4fbd7a92403b610f7f3ac70aa",
+  "implementationCommit": "9b27b398777e8d1399adc6b40fbbf81fccabada1",
+  "issue": "https://github.com/EasyStep-lee/flt1/issues/65",
+  "pullRequest": null,
+  "scope": {
+    "goal": "个人商品详情只返回零售销售价，企业采购详情只返回企业集采销售价，并从DTO、OpenAPI、页面、缓存与埋点边界隔离供应价、供应价快照和内部毛利",
+    "nonGoals": [
+      "M2-P061及以后任务",
+      "M3企业认证、采购车、订单或支付",
+      "正式商品、供应商价格或企业数据",
+      "staging、微信真机或production验收"
+    ]
+  },
+  "redEvidence": [{
+    "command": "pnpm exec vitest run --config ./vitest.config.ts --project api-contract apps/api/test/supertest/product-detail-price-isolation-api.test.mjs --reporter=verbose",
+    "result": "FAIL_2_PASS_1",
+    "exitCode": 1,
+    "cause": "企业商品详情与未认证访问均命中尚不存在的路由并返回404，测试分别期望200和401"
+  }],
+  "focusedGreen": {
+    "priceIsolationPolicy": "PASS_3_OF_3",
+    "repositoryAndPolicy": "PASS_6_OF_6",
+    "apiSupertest": "PASS_4_OF_4",
+    "openApiContract": "PASS_2_OF_2",
+    "userMiniapp": "PASS_8_OF_8",
+    "portalRuntime": "PASS_1_OF_1",
+    "p0Playwright": "PASS_1_OF_1",
+    "apiBuild": "PASS",
+    "portalBuild": "PASS_CANONICAL_ROUTE_ENTERPRISE_PROCUREMENT_PRODUCTS_PRODUCT_ID",
+    "openApiGenerateAndCheck": "PASS_BYTE_IDENTICAL",
+    "behaviors": [
+      "公开个人详情DTO仅返回retailSalePrice且可公共缓存",
+      "企业私有详情DTO仅返回enterpriseSalePrice并强制private/no-store/noindex",
+      "供应价、供应价快照、应付金额、毛利和错误渠道售价由递归策略拒绝",
+      "Prisma详情查询使用显式select且不读取approvedSupplyPrice",
+      "客户端不得提交channel、enterpriseId或其他归属字段",
+      "生产默认企业会话解析器拒绝访问，M3接入真实企业认证前不伪造已登录能力",
+      "用户小程序即使收到污染传输载荷也不把企业价或敏感价字段写入页面状态"
+    ]
+  },
+  "fullVerification": {
+    "status": "NOT_EXECUTED",
+    "commit": null,
+    "report": null
+  },
+  "dataAndMigration": {
+    "migration": "NOT_REQUIRED_EXISTING_PRODUCT_SKU_FIELDS",
+    "reason": "既有Product/Sku已包含企业集采标识和两类对客销售价，本切片只增加查询白名单、隔离策略和端侧消费契约",
+    "rollback": "回退本切片提交；不涉及数据库回滚或历史数据改写"
+  },
+  "openApi": {
+    "retail": "API-030 GET /v1/catalog/products/{productId}",
+    "enterprise": "API-092 GET /v1/enterprise/catalog/products/{productId}",
+    "enterpriseSecurity": "__Host-fulishe-enterprise-portal Cookie；生产默认拒绝；M3接真实会话"
+  },
+  "environment": {
+    "local": "LOCAL_PASS_FOCUSED",
+    "ci": "NOT_EXECUTED",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_EXECUTED",
+    "production": "NOT_EXECUTED",
+    "enterpriseAuthentication": "NOT_EXECUTED_M3_BOUNDARY"
+  },
+  "github": {
+    "repository": "EasyStep-lee/flt1",
+    "previousPullRequest": 64,
+    "previousExactHead": "5c66ed1147e44dad53ab8a29e77f7b71e692111c",
+    "previousPullRequestCiRun": 31564008036,
+    "previousMergeCommit": "d8da461fa3884ec4fbd7a92403b610f7f3ac70aa",
+    "previousMainCiRun": 31564696638,
+    "currentIssue": 65,
+    "currentPullRequest": null,
+    "currentExactHead": "9b27b398777e8d1399adc6b40fbbf81fccabada1",
+    "currentCi": "NOT_EXECUTED",
+    "review": "NOT_EXECUTED",
+    "comments": 0,
+    "unresolvedReviewThreads": 0,
+    "draft": null,
+    "merge": "NOT_EXECUTED"
+  },
+  "nextAllowedTask": "M2-P021_FULL_VERIFY_DRAFT_PR_EXACT_HEAD_CI",
+  "prohibitedNext": "M2-P061"
+}
