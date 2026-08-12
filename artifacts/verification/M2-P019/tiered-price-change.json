@@ -3,14 +3,14 @@
   "taskId": "M2-P019",
   "p0": ["P0-019"],
   "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
-  "status": "LOCAL_PASS",
+  "status": "CI_PASS",
   "branch": "codex/m2-tiered-price-change",
   "baseCommit": "413adffe4e4276d3378e8218e99022193627e57a",
   "implementationCommit": "739b0b0d786406536a67762f01e599bbcdaded9f",
   "hardeningCommit": "007f065cdd4b12e30828fec1848d4b78b86f9dfc",
   "fullVerifyCommit": "66a251160cf5229550c35dbd14f3e8a0660cd753",
   "issue": "https://github.com/EasyStep-lee/flt1/issues/63",
-  "pullRequest": null,
+  "pullRequest": "https://github.com/EasyStep-lee/flt1/pull/64",
   "scope": {
     "goal": "上架商品供应价经公司价格职能异人审核后按约定时间生效，零售与集采销售价免审版本化生效，三类价格历史不可覆盖",
     "nonGoals": [
@@ -81,7 +81,7 @@
   },
   "environment": {
     "local": "LOCAL_PASS",
-    "ci": "NOT_EXECUTED",
+    "ci": "CI_PASS",
     "staging": "NOT_EXECUTED",
     "device": "NOT_EXECUTED",
     "production": "NOT_EXECUTED",
@@ -95,11 +95,18 @@
     "previousMergeCommit": "413adffe4e4276d3378e8218e99022193627e57a",
     "previousMainCiRun": 31552935068,
     "currentIssue": 63,
-    "currentPullRequest": null,
-    "currentCi": "NOT_EXECUTED",
-    "review": "NOT_EXECUTED",
+    "currentPullRequest": 64,
+    "currentExactHead": "91613ee448f722545daa25738d122c3148024b58",
+    "currentCi": "CI_PASS",
+    "currentCiRun": 31561577045,
+    "currentCiJob": 94004811416,
+    "currentCiCompletedAt": "2026-08-12T04:04:10Z",
+    "review": "PASS_NO_FINDINGS_HEAD_91613EE",
+    "comments": 0,
+    "unresolvedReviewThreads": 0,
+    "draft": true,
     "merge": "NOT_EXECUTED"
   },
-  "nextAllowedTask": "M2-P019_FULL_VERIFY_DRAFT_PR_EXACT_HEAD_CI_AND_SELF_REVIEW",
+  "nextAllowedTask": "M2-P019_HUMAN_READY_AND_MERGE_AUTHORIZATION",
   "prohibitedNext": "M2-P020"
 }

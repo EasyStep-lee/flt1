@@ -432,10 +432,11 @@ test('machine control preserves the M2 freeze while later slices advance one gat
   assert.equal(m2p018.Branch, 'codex/m2-regulated-default-deny');
   assert.equal(m2p018.CI, 'CI_PASS');
   assert.equal(m2p019.Status, 'IN_PROGRESS');
-  assert.equal(m2p019.EvidenceStatus, 'LOCAL_PASS');
+  assert.equal(m2p019.EvidenceStatus, 'CI_PASS');
   assert.equal(m2p019.GitHubIssue, 'https://github.com/EasyStep-lee/flt1/issues/63');
   assert.equal(m2p019.Branch, 'codex/m2-tiered-price-change');
-  assert.equal(m2p019.CI, 'NOT_EXECUTED');
+  assert.equal(m2p019.PullRequest, 'https://github.com/EasyStep-lee/flt1/pull/64');
+  assert.equal(m2p019.CI, 'CI_PASS');
   assert.equal(laterM2Tasks.every(({ Status }) => Status === 'NOT_STARTED'), true);
 
   const m1Stage = stages.find(({ Stage }) => Stage === 'M1');
@@ -455,5 +456,5 @@ test('machine control preserves the M2 freeze while later slices advance one gat
   assert.equal(projectStatus.execution.lastCompletedTask, 'M2-P018');
   assert.equal(projectStatus.execution.lastPassedGate, 'M1-GATE');
   assert.equal(projectStatus.evidence.local, 'LOCAL_PASS');
-  assert.ok(['NOT_EXECUTED', 'CI_PASS'].includes(projectStatus.evidence.ci));
+  assert.equal(projectStatus.evidence.ci, 'CI_PASS');
 });
