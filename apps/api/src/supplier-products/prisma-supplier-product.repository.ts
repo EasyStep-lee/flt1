@@ -75,6 +75,7 @@ const toRecord = (value: {
   readonly brand: string | null;
   readonly attributes: Prisma.JsonValue;
   readonly qualificationSnapshot: Prisma.JsonValue;
+  readonly qualificationValidUntil: Date | null;
   readonly isRetailEnabled: boolean;
   readonly isEnterpriseProcurementEnabled: boolean;
   readonly enterpriseMinOrderQty: number;
@@ -103,6 +104,7 @@ const toRecord = (value: {
   brand: value.brand,
   attributes: asJsonObject(value.attributes, 'supplier_product_attributes'),
   qualificationSnapshot: qualification(value.qualificationSnapshot),
+  qualificationValidUntil: value.qualificationValidUntil?.toISOString() ?? null,
   isRetailEnabled: value.isRetailEnabled,
   isEnterpriseProcurementEnabled: value.isEnterpriseProcurementEnabled,
   enterpriseMinOrderQty: value.enterpriseMinOrderQty,
@@ -225,6 +227,9 @@ export class PrismaSupplierProductRepository implements SupplierProductRepositor
             schemaVersion: '1.0',
             references: command.qualificationReferences,
           }),
+          qualificationValidUntil: command.qualificationValidUntil
+            ? new Date(command.qualificationValidUntil)
+            : null,
           isRetailEnabled: command.isRetailEnabled,
           isEnterpriseProcurementEnabled: command.isEnterpriseProcurementEnabled,
           enterpriseMinOrderQty: command.enterpriseMinOrderQty,
@@ -319,6 +324,13 @@ export class PrismaSupplierProductRepository implements SupplierProductRepositor
                   schemaVersion: '1.0',
                   references: command.patch.qualificationReferences,
                 }),
+              }
+            : {}),
+          ...(command.patch.qualificationValidUntil !== undefined
+            ? {
+                qualificationValidUntil: command.patch.qualificationValidUntil
+                  ? new Date(command.patch.qualificationValidUntil)
+                  : null,
               }
             : {}),
           ...(command.patch.isRetailEnabled !== undefined
@@ -443,6 +455,7 @@ export class PrismaSupplierProductRepository implements SupplierProductRepositor
               templateVersion: current.templateVersion,
               attributes: current.attributes,
               qualificationReferenceCount: qualification(current.qualificationSnapshot).references.length,
+              qualificationValidUntil: current.qualificationValidUntil?.toISOString() ?? null,
               isRetailEnabled: current.isRetailEnabled,
               isEnterpriseProcurementEnabled: current.isEnterpriseProcurementEnabled,
               preparationMinutes: current.preparationMinutes,
@@ -1111,6 +1124,7 @@ export class PrismaSupplierProductRepository implements SupplierProductRepositor
             isEnterpriseProcurementEnabled:
               supplierProduct.isEnterpriseProcurementEnabled,
             detailSnapshot: asInputJson(command.detailSnapshot),
+            qualificationValidUntil: supplierProduct.qualificationValidUntil,
             afterSaleSnapshot: asInputJson(command.afterSaleSnapshot),
             deliveryRuleId: command.deliveryRuleId,
             skus: {
@@ -1255,6 +1269,7 @@ export class PrismaSupplierProductRepository implements SupplierProductRepositor
       typeof row.attributes !== 'object' ||
       Array.isArray(row.attributes) ||
       !Number.isSafeInteger(row.qualificationReferenceCount) ||
+      !(row.qualificationValidUntil === null || typeof row.qualificationValidUntil === 'string') ||
       typeof row.isRetailEnabled !== 'boolean' ||
       typeof row.isEnterpriseProcurementEnabled !== 'boolean' ||
       !Number.isSafeInteger(row.preparationMinutes) ||
@@ -1288,6 +1303,7 @@ export class PrismaSupplierProductRepository implements SupplierProductRepositor
       templateVersion: Number(row.templateVersion),
       attributes: structuredClone(row.attributes) as JsonObject,
       qualificationReferenceCount: Number(row.qualificationReferenceCount),
+      qualificationValidUntil: row.qualificationValidUntil as string | null,
       isRetailEnabled: row.isRetailEnabled,
       isEnterpriseProcurementEnabled: row.isEnterpriseProcurementEnabled,
       preparationMinutes: Number(row.preparationMinutes),

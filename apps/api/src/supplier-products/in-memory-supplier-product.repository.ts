@@ -66,6 +66,7 @@ interface StoredMaterialApproval {
     readonly templateVersion: number;
     readonly attributes: JsonObject;
     readonly qualificationReferenceCount: number;
+    readonly qualificationValidUntil: string | null;
     readonly isRetailEnabled: boolean;
     readonly isEnterpriseProcurementEnabled: boolean;
     readonly preparationMinutes: number;
@@ -172,6 +173,7 @@ export class InMemorySupplierProductRepository implements SupplierProductReposit
         schemaVersion: '1.0',
         references: clone(command.qualificationReferences),
       },
+      qualificationValidUntil: command.qualificationValidUntil,
       isRetailEnabled: command.isRetailEnabled,
       isEnterpriseProcurementEnabled: command.isEnterpriseProcurementEnabled,
       enterpriseMinOrderQty: command.enterpriseMinOrderQty,
@@ -229,6 +231,10 @@ export class InMemorySupplierProductRepository implements SupplierProductReposit
             references: clone(command.patch.qualificationReferences),
           }
         : existing.qualificationSnapshot,
+      qualificationValidUntil:
+        command.patch.qualificationValidUntil !== undefined
+          ? command.patch.qualificationValidUntil
+          : existing.qualificationValidUntil,
       skus: command.patch.skus
         ? command.patch.skus.map((sku) => {
             const previous = existing.skus.find(
@@ -312,6 +318,7 @@ export class InMemorySupplierProductRepository implements SupplierProductReposit
         templateVersion: supplierProduct.templateVersion,
         attributes: clone(supplierProduct.attributes),
         qualificationReferenceCount: supplierProduct.qualificationSnapshot.references.length,
+        qualificationValidUntil: supplierProduct.qualificationValidUntil,
         isRetailEnabled: supplierProduct.isRetailEnabled,
         isEnterpriseProcurementEnabled: supplierProduct.isEnterpriseProcurementEnabled,
         preparationMinutes: supplierProduct.preparationMinutes,

@@ -1,6 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { SafeApiError, type ApiErrorCode } from '../http/api-error.js';
+import { CategoryTemplateService } from '../category-templates/category-template.service.js';
+import { RegulatedCategoryService } from '../regulated-categories/regulated-category.service.js';
 import {
   requestHash,
   requireIdempotencyKey,
@@ -61,6 +63,10 @@ export class CompanyProductApprovalService {
     private readonly repository: SupplierProductRepository,
     @Inject(SupplierProductService)
     private readonly supplierProductService: SupplierProductService,
+    @Inject(CategoryTemplateService)
+    private readonly categoryTemplates: CategoryTemplateService,
+    @Inject(RegulatedCategoryService)
+    private readonly regulatedCategories: RegulatedCategoryService,
   ) {}
 
   async listMaterial(actor: CompanyProductApprovalActor) {
@@ -96,6 +102,33 @@ export class CompanyProductApprovalService {
     const taskId = requireSupplierProductId(taskIdValue, 'taskId');
     const body = asDecision(bodyValue);
     const idempotencyKey = requireIdempotencyKey(idempotencyKeyValue);
+    if (
+      approvalType === 'PRODUCT_MATERIAL' &&
+      body.decision === 'APPROVE'
+    ) {
+      const review = (await this.repository.listMaterialReviews(actor.companyId)).find(
+        ({ id }) => id === taskId,
+      );
+      if (review) {
+        const product = await this.repository.findOwnedProduct(
+          review.supplierProductId,
+          review.supplierId,
+        );
+        if (product) {
+          const template = await this.categoryTemplates.validateAssignment(
+            actor.companyId,
+            review.categoryId,
+            review.templateVersion,
+          );
+          await this.regulatedCategories.assertProductEligible(
+            actor.companyId,
+            review.categoryId,
+            template,
+            product,
+          );
+        }
+      }
+    }
     const result = await this.repository.decideProductApproval({
       companyId: actor.companyId,
       taskId,

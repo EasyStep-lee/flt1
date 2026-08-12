@@ -28,8 +28,26 @@ export class PrismaPublicCatalogRepository implements PublicCatalogRepository {
   async findSellableProductDetail(
     productId: string,
   ): Promise<PublicCatalogProductDetailRecord | null> {
-    const product = await this.prisma.product.findUnique({
-      where: { id: productId },
+    const now = new Date();
+    const product = await this.prisma.product.findFirst({
+      where: {
+        id: productId,
+        OR: [
+          { template: { regulatoryMode: 'STANDARD' } },
+          {
+            template: { regulatoryMode: 'HIGH_RISK' },
+            qualificationValidUntil: { gt: now },
+            category: {
+              regulatedControl: {
+                is: {
+                  status: 'ENABLED',
+                  companyQualificationValidUntil: { gt: now },
+                },
+              },
+            },
+          },
+        ],
+      },
       include: {
         template: true,
         skus: {
@@ -53,6 +71,7 @@ export class PrismaPublicCatalogRepository implements PublicCatalogRepository {
       isRetailEnabled: product.isRetailEnabled,
       detailSnapshot: asObject(product.detailSnapshot),
       template: normalizeCategoryTemplateDefinition({
+        regulatoryMode: product.template.regulatoryMode,
         profile:
           product.template.profile === 'FOOD' ||
           product.template.profile === 'FRESH' ||
@@ -79,12 +98,28 @@ export class PrismaPublicCatalogRepository implements PublicCatalogRepository {
   async findSellableRetailProducts(
     input: FindPublicCatalogProductsInput,
   ): Promise<PublicCatalogPageRecord> {
+    const now = new Date();
     const where = {
       supplierId: input.supplierId,
       saleStatus: 'ACTIVE' as const,
       isRetailEnabled: true,
       company: { status: 'ACTIVE' as const },
       skus: { some: { status: 'ACTIVE' as const } },
+      OR: [
+        { template: { regulatoryMode: 'STANDARD' as const } },
+        {
+          template: { regulatoryMode: 'HIGH_RISK' as const },
+          qualificationValidUntil: { gt: now },
+          category: {
+            regulatedControl: {
+              is: {
+                status: 'ENABLED' as const,
+                companyQualificationValidUntil: { gt: now },
+              },
+            },
+          },
+        },
+      ],
       ...(input.excludeProductId
         ? { id: { not: input.excludeProductId } }
         : {}),

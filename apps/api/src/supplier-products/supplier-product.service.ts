@@ -12,6 +12,7 @@ import {
 } from '../category-templates/gift-box-template.policy.js';
 import { validateSupplierProductTemplateContent } from '../category-templates/food-template.policy.js';
 import { validateFreshSupplierProductTemplateContent } from '../category-templates/fresh-template.policy.js';
+import { RegulatedCategoryService } from '../regulated-categories/regulated-category.service.js';
 import type { SupplierProductActor } from './supplier-product.actor.js';
 import {
   normalizeSupplierProductDraft,
@@ -47,6 +48,7 @@ export interface SupplierProductResponse {
   readonly brand: string | null;
   readonly attributes: JsonObject;
   readonly qualificationReferenceCount: number;
+  readonly qualificationValidUntil: string | null;
   readonly isRetailEnabled: boolean;
   readonly isEnterpriseProcurementEnabled: boolean;
   readonly enterpriseMinOrderQty: number;
@@ -124,6 +126,7 @@ const toResponse = (record: SupplierProductRecord): SupplierProductResponse => (
   brand: record.brand,
   attributes: structuredClone(record.attributes),
   qualificationReferenceCount: record.qualificationSnapshot.references.length,
+  qualificationValidUntil: record.qualificationValidUntil,
   isRetailEnabled: record.isRetailEnabled,
   isEnterpriseProcurementEnabled: record.isEnterpriseProcurementEnabled,
   enterpriseMinOrderQty: record.enterpriseMinOrderQty,
@@ -147,6 +150,7 @@ export class SupplierProductService {
     private readonly repository: SupplierProductRepository,
     @Inject(CategoryService) private readonly categories: CategoryService,
     @Inject(CategoryTemplateService) private readonly categoryTemplates: CategoryTemplateService,
+    @Inject(RegulatedCategoryService) private readonly regulatedCategories: RegulatedCategoryService,
   ) {}
 
   private async validateGiftBoxReferences(
@@ -349,6 +353,12 @@ export class SupplierProductService {
         validateApparelSupplierProductTemplateContent(template, product);
         validateDigitalSupplierProductTemplateContent(template, product);
         await this.validateGiftBoxReferences(template, product, actor.supplierId);
+        await this.regulatedCategories.assertProductEligible(
+          category.companyId,
+          categoryAssignment.categoryId,
+          template,
+          product,
+        );
       }
     }
     const result = await this.repository.submitMaterial({
@@ -414,11 +424,23 @@ export class SupplierProductService {
         categoryAssignment.supplierId,
         categoryAssignment.categoryId,
       );
-      await this.categoryTemplates.validateAssignment(
+      const template = await this.categoryTemplates.validateAssignment(
         category.companyId,
         categoryAssignment.categoryId,
         categoryAssignment.templateVersion,
       );
+      const product = await this.repository.findOwnedProduct(
+        command.supplierProductId,
+        categoryAssignment.supplierId,
+      );
+      if (product) {
+        await this.regulatedCategories.assertProductEligible(
+          category.companyId,
+          categoryAssignment.categoryId,
+          template,
+          product,
+        );
+      }
     }
     const result = await this.repository.materializeApproved(persistedCommand);
     if (result.kind === 'OK') {

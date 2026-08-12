@@ -30,6 +30,7 @@ type StoredTemplate = {
   readonly version: number;
   readonly revision: number;
   readonly status: 'DRAFT' | 'PUBLISHED' | 'RETIRED';
+  readonly regulatoryMode: 'HIGH_RISK' | 'STANDARD';
   readonly profile: string;
   readonly fieldSchema: unknown;
   readonly skuDimensions: unknown;
@@ -48,6 +49,7 @@ const toRecord = (value: StoredTemplate): CategoryTemplateRecord => ({
   version: value.version,
   revision: value.revision,
   status: value.status,
+  regulatoryMode: value.regulatoryMode,
   profile:
     value.profile === 'FOOD' ||
     value.profile === 'FRESH' ||
@@ -116,6 +118,7 @@ export class PrismaCategoryTemplateRepository implements CategoryTemplateReposit
           version: (latest._max.version ?? 0) + 1,
           revision: 0,
           status: 'DRAFT',
+          regulatoryMode: command.regulatoryMode,
           draftSlot: 1,
           activeSlot: null,
           profile: command.profile,
@@ -162,6 +165,7 @@ export class PrismaCategoryTemplateRepository implements CategoryTemplateReposit
         where: { id: stored.id },
         data: {
           revision: { increment: 1 },
+          regulatoryMode: command.definition.regulatoryMode,
           profile: command.definition.profile,
           fieldSchema: json(command.definition.fieldSchema),
           skuDimensions: json(command.definition.skuDimensions),

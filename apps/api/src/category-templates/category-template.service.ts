@@ -32,6 +32,7 @@ const toResponse = (value: CategoryTemplateRecord): CategoryTemplateResponse => 
   version: value.version,
   revision: value.revision,
   status: value.status,
+  regulatoryMode: value.regulatoryMode,
   profile: value.profile,
   fieldSchema: structuredClone(value.fieldSchema),
   skuDimensions: structuredClone(value.skuDimensions),

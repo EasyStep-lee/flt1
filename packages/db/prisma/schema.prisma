@@ -128,6 +128,21 @@ enum CategoryTemplateStatus {
   RETIRED
 }
 
+enum CategoryRegulatoryMode {
+  STANDARD
+  HIGH_RISK
+}
+
+enum RegulatedCategoryControlStatus {
+  DISABLED
+  ENABLED
+}
+
+enum RegulatedCategoryControlHistoryEvent {
+  ENABLE
+  DISABLE
+}
+
 enum CategoryTemplateHistoryEvent {
   CREATE
   UPDATE
@@ -259,6 +274,7 @@ model Company {
   products           Product[]
   categories         Category[]
   categoryTemplates  CategoryTemplate[]
+  regulatedCategoryControls RegulatedCategoryControl[]
 
   @@map("company")
 }
@@ -627,6 +643,8 @@ model Category {
   parent         Category?      @relation("CategoryTree", fields: [parentId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   children       Category[]     @relation("CategoryTree")
   templates      CategoryTemplate[]
+  products       Product[]
+  regulatedControl RegulatedCategoryControl?
 
   @@unique([companyId, parentScopeKey, name], map: "category_company_parent_name_key")
   @@index([companyId, level, status, sortWeight], map: "category_company_level_status_sort_idx")
@@ -671,6 +689,7 @@ model CategoryTemplate {
   version            Int
   revision           Int                    @default(0)
   status             CategoryTemplateStatus @default(DRAFT)
+  regulatoryMode     CategoryRegulatoryMode  @default(STANDARD) @map("regulatory_mode")
   draftSlot          Int?                   @map("draft_slot")
   activeSlot         Int?                   @map("active_slot")
   profile            String                 @default("GENERIC") @db.VarChar(32)
@@ -726,6 +745,57 @@ model CategoryTemplateCommand {
   @@map("category_template_command")
 }
 
+model RegulatedCategoryControl {
+  id                               String                         @id @default(uuid()) @db.Char(36)
+  companyId                        String                         @map("company_id") @db.Char(36)
+  categoryId                       String                         @unique(map: "regulated_category_control_category_key") @map("category_id") @db.Char(36)
+  status                           RegulatedCategoryControlStatus @default(DISABLED)
+  companyQualificationSnapshot     Json                           @map("company_qualification_snapshot")
+  companyQualificationValidUntil   DateTime?                      @map("company_qualification_valid_until") @db.DateTime(3)
+  version                          Int                            @default(0)
+  enabledAt                        DateTime?                      @map("enabled_at") @db.DateTime(3)
+  disabledAt                       DateTime?                      @map("disabled_at") @db.DateTime(3)
+  createdAt                        DateTime                       @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt                        DateTime                       @updatedAt @map("updated_at") @db.DateTime(3)
+  company                          Company                        @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  category                         Category                       @relation(fields: [categoryId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([companyId, status], map: "regulated_category_control_company_status_idx")
+  @@map("regulated_category_control")
+}
+
+model RegulatedCategoryControlHistory {
+  id                  String                               @id @default(uuid()) @db.Char(36)
+  controlId           String                               @map("control_id") @db.Char(36)
+  companyId           String                               @map("company_id") @db.Char(36)
+  categoryId          String                               @map("category_id") @db.Char(36)
+  event               RegulatedCategoryControlHistoryEvent
+  version             Int
+  snapshot            Json
+  actorIdentityId     String                               @map("actor_identity_id") @db.Char(36)
+  functionalAccountId String                               @map("functional_account_id") @db.Char(36)
+  requestId           String                               @map("request_id") @db.Char(36)
+  occurredAt          DateTime                             @default(now()) @map("occurred_at") @db.DateTime(3)
+
+  @@unique([controlId, version], map: "regulated_category_control_history_version_key")
+  @@index([companyId, occurredAt], map: "regulated_category_control_history_company_time_idx")
+  @@index([categoryId, occurredAt], map: "regulated_category_control_history_category_time_idx")
+  @@index([requestId], map: "regulated_category_control_history_request_id_idx")
+  @@map("regulated_category_control_history")
+}
+
+model RegulatedCategoryControlCommand {
+  id               String   @id @default(uuid()) @db.Char(36)
+  scope            String   @db.VarChar(180)
+  idempotencyKey   String   @map("idempotency_key") @db.VarChar(128)
+  requestHash      String   @map("request_hash") @db.Char(64)
+  responseSnapshot Json     @map("response_snapshot")
+  createdAt        DateTime @default(now()) @map("created_at") @db.DateTime(3)
+
+  @@unique([scope, idempotencyKey], map: "regulated_category_control_command_scope_key")
+  @@map("regulated_category_control_command")
+}
+
 model SupplierProduct {
   id                             String                         @id @default(uuid()) @db.Char(36)
   supplierId                     String                         @map("supplier_id") @db.Char(36)
@@ -735,6 +805,7 @@ model SupplierProduct {
   brand                          String?                        @db.VarChar(120)
   attributes                     Json
   qualificationSnapshot          Json                           @map("qualification_snapshot")
+  qualificationValidUntil        DateTime?                      @map("qualification_valid_until") @db.DateTime(3)
   isRetailEnabled                Boolean                        @map("is_retail_enabled")
   isEnterpriseProcurementEnabled Boolean                        @map("is_enterprise_procurement_enabled")
   enterpriseMinOrderQty          Int                            @map("enterprise_min_order_qty")
@@ -818,6 +889,7 @@ model Product {
   isRetailEnabled                Boolean           @map("is_retail_enabled")
   isEnterpriseProcurementEnabled Boolean           @map("is_enterprise_procurement_enabled")
   detailSnapshot                 Json              @map("detail_snapshot")
+  qualificationValidUntil        DateTime?         @map("qualification_valid_until") @db.DateTime(3)
   afterSaleSnapshot              Json              @map("after_sale_snapshot")
   deliveryRuleId                 String            @map("delivery_rule_id") @db.Char(36)
   version                        Int               @default(0)
@@ -827,6 +899,7 @@ model Product {
   supplier                       Supplier          @relation(fields: [supplierId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   supplierProduct                SupplierProduct   @relation(fields: [supplierProductId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   template                       CategoryTemplate  @relation(fields: [categoryId, templateVersion], references: [categoryId, version], onDelete: Restrict, onUpdate: Cascade, map: "product_category_template_fkey")
+  category                       Category          @relation(fields: [categoryId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "product_category_fkey")
   skus                           Sku[]
 
   @@index([companyId, saleStatus], map: "product_company_status_idx")

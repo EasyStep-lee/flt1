@@ -97,6 +97,8 @@ export class TemplateAfterSaleRulesDto {
 }
 
 export class CategoryTemplateDefinitionDto {
+  @ApiPropertyOptional({ default: 'STANDARD', enum: ['STANDARD', 'HIGH_RISK'] })
+  readonly regulatoryMode?: 'STANDARD' | 'HIGH_RISK';
   @ApiPropertyOptional({ default: 'GENERIC', enum: ['FOOD', 'FRESH', 'APPAREL', 'DIGITAL', 'GIFT_BOX', 'GENERIC'] })
   readonly profile?: 'FOOD' | 'FRESH' | 'APPAREL' | 'DIGITAL' | 'GIFT_BOX' | 'GENERIC';
   @ApiProperty({ type: TemplateFieldSchemaDto }) readonly fieldSchema!: TemplateFieldSchemaDto;

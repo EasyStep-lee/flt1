@@ -17,6 +17,7 @@ import type { components } from '@fulishe/contracts';
 import { createCompanyAdminApiClient } from './api-client.js';
 import { CompanyCategoryTreePanel } from './company-category-tree.js';
 import { CompanyCategoryTemplatePanel } from './company-category-templates.js';
+import { CompanyRegulatedCategoryControlPanel } from './company-regulated-category-controls.js';
 import { CompanyWorkspacePagePanel, type CompanyWorkspace } from './company-workspace-pages.js';
 
 type MaterialReview = components['schemas']['ProductMaterialReviewDto'];
@@ -154,6 +155,7 @@ export function CompanyProductMaterialReviewPage({ workspace }: { readonly works
       <CompanyWorkspacePagePanel workspace={workspace} />
       <CompanyCategoryTreePanel />
       <CompanyCategoryTemplatePanel />
+      <CompanyRegulatedCategoryControlPanel />
       <div className="metric-grid">
         <Card bordered={false}><Statistic title="审核任务" value={data?.total ?? 0} /></Card>
         <Card bordered={false}><Statistic title="待处理" value={data?.items.filter(({ status }) => status === 'PENDING').length ?? 0} /></Card>

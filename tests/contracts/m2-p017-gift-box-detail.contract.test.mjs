@@ -27,7 +27,7 @@ test('P0-017 exposes GIFT_BOX and structured bundle snapshots through the existi
   );
 });
 
-test('P0-017 adds only GIFT_BOX and BUNDLE_ITEMS to the category-template contract', () => {
+test('P0-017 preserves its exact GIFT_BOX and BUNDLE_ITEMS contract after the P0-018 regulatory extension', () => {
   const request = openApi.components.schemas.CategoryTemplateCreateRequestDto;
   const response = openApi.components.schemas.CategoryTemplateResponseDto;
   assert.deepEqual(request.properties.profile.enum, [
@@ -40,7 +40,9 @@ test('P0-017 adds only GIFT_BOX and BUNDLE_ITEMS to the category-template contra
   ]);
   assert.match(JSON.stringify(openApi.components.schemas), /BUNDLE_SCHEMA_INVALID/u);
   assert.match(JSON.stringify(openApi.components.schemas), /TEMPLATE_VERSION_IMMUTABLE/u);
-  assert.doesNotMatch(JSON.stringify({ request, response }), /REGULATED|HIGH_RISK/iu);
+  assert.deepEqual(request.properties.regulatoryMode.enum, ['STANDARD', 'HIGH_RISK']);
+  assert.equal(request.properties.regulatoryMode.default, 'STANDARD');
+  assert.deepEqual(response.properties.regulatoryMode, request.properties.regulatoryMode);
 });
 
 test('the user miniapp renders a dedicated bundle list and keeps internal references out of view state', async () => {

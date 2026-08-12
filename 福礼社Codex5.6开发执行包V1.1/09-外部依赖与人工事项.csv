@@ -5,7 +5,7 @@ EXT-003,M0,GitHub,配置Actions Secrets与Environment审批,UNASSIGNED_HUMAN,NOT
 EXT-004,M0,基础设施,确认开发/预发布/生产域名、服务器、数据库和对象存储责任人,UNASSIGNED_HUMAN,NOT_PROVIDED,HUMAN_REQUIRED,M0只使用本地替代；生产资料不进聊天,M0-005,NO,,,,
 EXT-005,M1,公司资料,江苏福礼团供应链科技有限公司营业执照、对客名称、客服和开票资料由授权人员确认,UNASSIGNED_HUMAN,PROVIDED,HUMAN_REQUIRED,敏感资料进入受控存储；执行包仅登记状态,M1-P001,YES,artifacts/verification/M1-GATE/ext-005-company-confirmation.json,2026-08-09T00:07:41-04:00,COMPANY_AUTHORIZED_REVIEWER,脱敏确认回执schemaVersion=1.1.0；三类资料均为CONTROLLED_STORAGE_CONFIRMED且NO_INTERNAL_IDENTIFIER；未提交原件或完整联系方式
 EXT-006,M1,供应商规则,供应商准入资质清单、补正/停用/退出审批责任人,UNASSIGNED_HUMAN,NOT_PROVIDED,HUMAN_REQUIRED,未确认前用可配置规则，不伪造合规结论,M1-P003,NO,,,,
-EXT-007,M2,分类业务,确认首批分类树、每类模板字段、资质和售后规则,UNASSIGNED_HUMAN,NOT_PROVIDED,HUMAN_REQUIRED,强监管品类默认关闭,M2-P012,NO,,,,
+EXT-007,M2,分类业务,确认首批分类树、每类模板字段、公司与商品资质有效期及售后规则,UNASSIGNED_HUMAN,NOT_PROVIDED,HUMAN_REQUIRED,未提供正式数据时强监管品类默认关闭；不得把测试对象引用当正式资质,M2-P012|M2-P018,YES,,,,P018可配置代码与自动化不被阻塞；M2正式业务/合规验收在授权人员提供并复核数据前保持BLOCKED_EXTERNAL
 EXT-008,M2,价格治理,确认供应价审核阈值、风险提示和计划生效规则,UNASSIGNED_HUMAN,NOT_PROVIDED,HUMAN_REQUIRED,不改变锁定边界：供应价必审，零售/集采售价免审留痕,M2-P019,NO,,,,
 EXT-009,M3,微信小程序,公司主体下用户小程序AppID及开发者权限,UNASSIGNED_HUMAN,NOT_PROVIDED,HUMAN_REQUIRED,AppSecret不发聊天；由环境变量/密钥管理注入,M3-P085,YES,,,,
 EXT-010,M3,微信支付,微信支付商户号、应用绑定、API v3密钥、证书、通知域名,UNASSIGNED_HUMAN,NOT_PROVIDED,HUMAN_REQUIRED,密钥与证书不提交；M3先完成Adapter和契约桩,M3-P024,YES,,,,

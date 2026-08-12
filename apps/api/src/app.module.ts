@@ -31,6 +31,12 @@ import {
   CATEGORY_TEMPLATE_REPOSITORY,
   type CategoryTemplateRepository,
 } from './category-templates/category-template.repository.js';
+import { PrismaRegulatedCategoryRepository } from './regulated-categories/prisma-regulated-category.repository.js';
+import {
+  REGULATED_CATEGORY_REPOSITORY,
+  type RegulatedCategoryRepository,
+} from './regulated-categories/regulated-category.repository.js';
+import { RegulatedCategoryService } from './regulated-categories/regulated-category.service.js';
 import {
   COMPANY_PRODUCT_APPROVAL_ACTOR_RESOLVER,
   DenyCompanyProductApprovalActorResolver,
@@ -186,6 +192,7 @@ export interface AppModuleOptions {
   readonly catalogRepository?: PublicCatalogRepository;
   readonly categoryRepository?: CategoryRepository;
   readonly categoryTemplateRepository?: CategoryTemplateRepository;
+  readonly regulatedCategoryRepository?: RegulatedCategoryRepository;
 }
 
 @Module({})
@@ -249,6 +256,8 @@ export class AppModule {
       CategoryService,
       PrismaCategoryTemplateRepository,
       CategoryTemplateService,
+      PrismaRegulatedCategoryRepository,
+      RegulatedCategoryService,
       options.merchantRepository
         ? {
             provide: SINGLE_MERCHANT_REPOSITORY,
@@ -446,6 +455,15 @@ export class AppModule {
         : {
             provide: CATEGORY_TEMPLATE_REPOSITORY,
             useExisting: PrismaCategoryTemplateRepository,
+          },
+      options.regulatedCategoryRepository
+        ? {
+            provide: REGULATED_CATEGORY_REPOSITORY,
+            useValue: options.regulatedCategoryRepository,
+          }
+        : {
+            provide: REGULATED_CATEGORY_REPOSITORY,
+            useExisting: PrismaRegulatedCategoryRepository,
           },
     ];
 

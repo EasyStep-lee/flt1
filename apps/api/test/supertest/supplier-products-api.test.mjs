@@ -204,6 +204,7 @@ describe('P0-006 supplier and company product two-layer model', () => {
         brand: '福礼优选',
         attributes: draftBody().attributes,
         qualificationReferenceCount: 1,
+        qualificationValidUntil: null,
         isRetailEnabled: true,
         isEnterpriseProcurementEnabled: true,
         enterpriseMinOrderQty: 10,
