@@ -13,6 +13,7 @@ import type {
   SalePriceChangeResult,
   SubmitSupplyPriceChangeCommand,
   SupplyPriceChangeRecord,
+  SupplyPriceReviewHistoryRecord,
 } from './price-change.repository.js';
 
 type Transaction = Prisma.TransactionClient;
@@ -77,6 +78,15 @@ export class PrismaPriceChangeRepository implements PriceChangeRepository {
     return rows.map((row) => this.skuRecord(row));
   }
 
+  async listSupplierSupplyReviews(supplierId: string): Promise<readonly SupplyPriceChangeRecord[]> {
+    const rows = await this.prisma.supplyPriceChangeRequest.findMany({
+      where: { supplierId },
+      include: { sku: { include: { product: true } } },
+      orderBy: { createdAt: 'desc' },
+    });
+    return rows.map((row) => this.requestRecord(row));
+  }
+
   async listCompanySupplyReviews(companyId: string): Promise<readonly SupplyPriceChangeRecord[]> {
     const rows = await this.prisma.supplyPriceChangeRequest.findMany({
       where: { companyId },
@@ -92,6 +102,34 @@ export class PrismaPriceChangeRepository implements PriceChangeRepository {
       include: { sku: { include: { product: true } } },
     });
     return row ? this.requestRecord(row) : null;
+  }
+
+  async listSupplyReviewHistory(
+    companyId: string,
+    taskId: string,
+  ): Promise<readonly SupplyPriceReviewHistoryRecord[] | null> {
+    const request = await this.prisma.supplyPriceChangeRequest.findFirst({
+      where: { id: taskId, companyId },
+      select: { id: true },
+    });
+    if (!request) return null;
+    const rows = await this.prisma.supplyPriceChangeHistory.findMany({
+      where: { requestId: taskId },
+      orderBy: { version: 'asc' },
+    });
+    return rows.map((row) => {
+      const snapshot = row.snapshot && typeof row.snapshot === 'object' && !Array.isArray(row.snapshot)
+        ? row.snapshot as Record<string, unknown>
+        : {};
+      return {
+        event: row.event,
+        fromStatus: row.fromStatus,
+        toStatus: row.toStatus,
+        version: row.version,
+        opinion: typeof snapshot.opinion === 'string' ? snapshot.opinion : null,
+        occurredAt: row.occurredAt.toISOString(),
+      };
+    });
   }
 
   private async replay<T>(tx: Transaction, scope: string, key: string, hash: string): Promise<PriceMutationResult<T> | null> {

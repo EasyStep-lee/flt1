@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Alert, Button, Card, Empty, Input, Modal, Space, Statistic, Table, Tag, Typography } from 'antd';
+import { Alert, Button, Card, Empty, Input, Modal, Space, Statistic, Table, Tag, Timeline, Typography } from 'antd';
 import type { components } from '@fulishe/contracts';
 
 import { createCompanyAdminApiClient } from './api-client.js';
 
 type Review = components['schemas']['SupplyPriceChangeDto'];
 type Page = components['schemas']['SupplyPriceChangePageDto'];
+type HistoryPage = components['schemas']['SupplyPriceReviewHistoryPageDto'];
 
 const api = createCompanyAdminApiClient(import.meta.env.VITE_API_BASE_URL ?? '');
 
@@ -25,6 +26,8 @@ export function CompanySupplyPriceReviewPanel() {
   const [verification, setVerification] = useState('');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [history, setHistory] = useState<HistoryPage>();
+  const [historyLoading, setHistoryLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [state, setState] = useState<'ready' | 'error' | 'offline' | 'permission' | 'unknown'>('ready');
   const pending = useRef<{ id: string; key: string } | undefined>(undefined);
@@ -51,6 +54,28 @@ export function CompanySupplyPriceReviewPanel() {
   }, []);
 
   useEffect(() => { void load(); }, [load]);
+
+  const openHistory = async (review: Review) => {
+    setHistoryLoading(true);
+    setMessage('');
+    try {
+      const response = await api.GET('/v1/company/price-reviews/supply-price-changes/{taskId}/history', {
+        params: { path: { taskId: review.id } },
+      });
+      if (!response.data) {
+        setState([401, 403].includes(response.response.status) ? 'permission' : 'error');
+        setMessage('历史意见暂时无法加载，请核对当前价格审核职能权限。');
+        return;
+      }
+      setHistory(response.data);
+      setState('ready');
+    } catch {
+      setState('offline');
+      setMessage('历史意见请求超时或网络离线，请恢复后重试。');
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
 
   const submit = async () => {
     if (!target || opinion.trim().length < 2 || !verification.trim()) return;
@@ -82,7 +107,7 @@ export function CompanySupplyPriceReviewPanel() {
   };
 
   return (
-    <section data-m2-slice="M2-P019" data-review-state={state}>
+    <section data-m2-slice="M2-P071" data-review-state={state}>
       <div className="page-title-row">
         <div>
           <Typography.Text className="eyebrow">POST-LISTING SUPPLY PRICE REVIEW</Typography.Text>
@@ -110,10 +135,10 @@ export function CompanySupplyPriceReviewPanel() {
             { title: '旧供应价', dataIndex: 'oldSupplyPrice', render: (value: number) => `¥${(value / 100).toFixed(2)}` },
             { title: '申请供应价', dataIndex: 'requestedSupplyPrice', render: (value: number, row) => <Space direction="vertical" size={0}><strong>¥{(value / 100).toFixed(2)}</strong><span>{((value - row.oldSupplyPrice) / Math.max(1, row.oldSupplyPrice) * 100).toFixed(2)}%</span></Space> },
             { title: '原因', dataIndex: 'reason' },
-            { title: '约定生效时间', dataIndex: 'requestedEffectiveAt' },
+            { title: '申请 / 约定生效时间', key: 'time', render: (_value, row) => <Space direction="vertical" size={0}><span>{row.createdAt}</span><span>{row.requestedEffectiveAt}</span></Space> },
             { title: '当前状态', dataIndex: 'status', render: (value: string) => <Tag color={value === 'SUBMITTED' ? 'processing' : value === 'EFFECTIVE' ? 'success' : value === 'REJECTED' ? 'error' : 'warning'}>{statusLabel[value] ?? value}</Tag> },
-            { title: '历史版本', dataIndex: 'version', render: (value: number) => `V${value}` },
-            { title: '操作', key: 'action', render: (_value, row) => row.status === 'SUBMITTED' ? <Button type="primary" onClick={() => setTarget(row)}>审核变更</Button> : <Typography.Text type="secondary">已追加留痕</Typography.Text> },
+            { title: '历史版本 / 意见', key: 'history', render: (_value, row) => <Space direction="vertical" size={0}><span>V{row.version}</span><span>{row.reviewOpinion ?? '尚无审核意见'}</span></Space> },
+            { title: '操作', key: 'action', render: (_value, row) => <Space direction="vertical"><Button loading={historyLoading} onClick={() => void openHistory(row)}>查看历史意见</Button>{row.status === 'SUBMITTED' ? <Button type="primary" onClick={() => setTarget(row)}>审核变更</Button> : <Typography.Text type="secondary">已追加留痕</Typography.Text>}</Space> },
           ]}
         />
       </Card>
@@ -124,6 +149,25 @@ export function CompanySupplyPriceReviewPanel() {
           <Input.TextArea aria-label="供应价审核意见" maxLength={1000} onChange={(event) => setOpinion(event.target.value)} rows={4} showCount value={opinion} />
           <Input.Password aria-label="价格审核二次验证" placeholder="二次验证口令" value={verification} onChange={(event) => setVerification(event.target.value)} />
         </Space>
+      </Modal>
+      <Modal
+        footer={null}
+        onCancel={() => setHistory(undefined)}
+        open={Boolean(history)}
+        title="供应价审核历史意见"
+      >
+        <Timeline
+          items={(history?.items ?? []).map((item) => ({
+            children: (
+              <Space direction="vertical" size={0}>
+                <strong>{item.event} · V{item.version}</strong>
+                <span>{item.fromStatus ?? '创建'} → {item.toStatus}</span>
+                <span>{item.opinion ?? '无审核意见'}</span>
+                <Typography.Text type="secondary">{item.occurredAt}</Typography.Text>
+              </Space>
+            ),
+          }))}
+        />
       </Modal>
     </section>
   );

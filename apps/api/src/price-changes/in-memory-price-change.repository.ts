@@ -12,6 +12,7 @@ import type {
   SalePriceChangeResult,
   SubmitSupplyPriceChangeCommand,
   SupplyPriceChangeRecord,
+  SupplyPriceReviewHistoryRecord,
 } from './price-change.repository.js';
 
 interface StoredOutbox extends PriceEffectJob {
@@ -39,6 +40,7 @@ export class InMemoryPriceChangeRepository implements PriceChangeRepository {
   private readonly outboxes = new Map<string, StoredOutbox>();
   private readonly commands = new Map<string, StoredCommand>();
   private readonly history: unknown[] = [];
+  private readonly supplyHistory = new Map<string, SupplyPriceReviewHistoryRecord[]>();
   private mutationTail: Promise<void> = Promise.resolve();
 
   constructor(
@@ -66,6 +68,12 @@ export class InMemoryPriceChangeRepository implements PriceChangeRepository {
     );
   }
 
+  listSupplierSupplyReviews(supplierId: string): Promise<readonly SupplyPriceChangeRecord[]> {
+    return Promise.resolve(
+      [...this.requests.values()].filter((item) => item.supplierId === supplierId).map(clone),
+    );
+  }
+
   listCompanySupplyReviews(companyId: string): Promise<readonly SupplyPriceChangeRecord[]> {
     return Promise.resolve(
       [...this.requests.values()].filter((item) => item.companyId === companyId).map(clone),
@@ -75,6 +83,25 @@ export class InMemoryPriceChangeRepository implements PriceChangeRepository {
   findCompanySupplyReview(companyId: string, taskId: string): Promise<SupplyPriceChangeRecord | null> {
     const item = this.requests.get(taskId);
     return Promise.resolve(item?.companyId === companyId ? clone(item) : null);
+  }
+
+  listSupplyReviewHistory(
+    companyId: string,
+    taskId: string,
+  ): Promise<readonly SupplyPriceReviewHistoryRecord[] | null> {
+    const item = this.requests.get(taskId);
+    if (!item || item.companyId !== companyId) return Promise.resolve(null);
+    return Promise.resolve(clone(this.supplyHistory.get(taskId) ?? []));
+  }
+
+  private appendSupplyHistory(
+    requestId: string,
+    item: SupplyPriceReviewHistoryRecord,
+  ): void {
+    this.supplyHistory.set(requestId, [
+      ...(this.supplyHistory.get(requestId) ?? []),
+      clone(item),
+    ]);
   }
 
   private replay<T>(scope: string, key: string, hash: string): PriceMutationResult<T> | null {
@@ -163,6 +190,10 @@ export class InMemoryPriceChangeRepository implements PriceChangeRepository {
     });
     this.requests.set(item.id, clone(item));
     this.history.push({ requestId: item.id, event: 'SUBMIT', version: 1, snapshot: clone(item) });
+    this.appendSupplyHistory(item.id, {
+      event: 'SUBMIT', fromStatus: null, toStatus: 'SUBMITTED', version: 1,
+      opinion: null, occurredAt: now,
+    });
       return this.remember(scope, command.idempotencyKey, command.requestHash, { body: item, replayed: false, jobs: [] });
     });
   }
@@ -282,6 +313,21 @@ export class InMemoryPriceChangeRepository implements PriceChangeRepository {
     });
     this.requests.set(next.id, next);
     this.history.push({ requestId: next.id, event: command.decision, version: next.version, snapshot: clone(next) });
+    const decisionVersion = current.version + 1;
+    this.appendSupplyHistory(next.id, {
+      event: command.decision === 'APPROVE' ? 'APPROVE' : 'REJECT',
+      fromStatus: 'SUBMITTED',
+      toStatus: command.decision === 'APPROVE' ? 'APPROVED' : 'REJECTED',
+      version: decisionVersion,
+      opinion: command.opinion,
+      occurredAt: now.toISOString(),
+    });
+    if (command.decision === 'APPROVE' && due) {
+      this.appendSupplyHistory(next.id, {
+        event: 'EFFECT', fromStatus: 'APPROVED', toStatus: 'EFFECTIVE',
+        version: decisionVersion + 1, opinion: null, occurredAt: now.toISOString(),
+      });
+    }
     for (const job of jobs) this.outboxes.set(job.id, job);
       return this.remember(scope, command.idempotencyKey, command.requestHash, {
         body: next, replayed: false, jobs: jobs.map(({ id, effectiveAt }) => ({ id, effectiveAt })),
@@ -302,8 +348,13 @@ export class InMemoryPriceChangeRepository implements PriceChangeRepository {
       next = { ...sku, approvedSupplyPrice: job.targetPrice, supplyPriceVersion: sku.supplyPriceVersion + 1 };
       const request = this.requests.get(job.requestId!);
       if (request?.status === 'APPROVED') {
-        this.requests.set(request.id, { ...request, status: 'EFFECTIVE', effectiveAt: now.toISOString(),
-          currentApprovedSupplyPrice: job.targetPrice, version: request.version + 1, updatedAt: now.toISOString() });
+        const occurredAt = now.toISOString();
+        this.requests.set(request.id, { ...request, status: 'EFFECTIVE', effectiveAt: occurredAt,
+          currentApprovedSupplyPrice: job.targetPrice, version: request.version + 1, updatedAt: occurredAt });
+        this.appendSupplyHistory(request.id, {
+          event: 'EFFECT', fromStatus: 'APPROVED', toStatus: 'EFFECTIVE',
+          version: request.version + 1, opinion: null, occurredAt,
+        });
       }
     } else if (job.priceType === 'RETAIL') {
       if (sku.retailPriceVersion !== job.expectedVersion) throw new SafeApiError(409, 'VERSION_CONFLICT', 'Retail price effect version conflict');

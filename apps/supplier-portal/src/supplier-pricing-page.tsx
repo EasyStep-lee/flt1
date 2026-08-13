@@ -251,6 +251,7 @@ export function SupplierPricingPage({
   ) : null;
 
   return (
+    <div data-m2-slice="M2-P071">
     <div
       data-m2-slice="M2-P008"
       data-pricing-state={state}
@@ -410,6 +411,7 @@ export function SupplierPricingPage({
         )}
       </section>
       <SupplierPostListingPricePanel />
+    </div>
     </div>
   );
 }

@@ -56,6 +56,11 @@ export class PriceChangeService {
     };
   }
 
+  async listSupplierSupplyReviews(actor: SupplierPricingActor) {
+    const items = await this.repository.listSupplierSupplyReviews(actor.supplierId);
+    return { items: items.map((item) => this.toResponse(item)), total: items.length };
+  }
+
   async listCompany(actor: CompanyProductApprovalActor) {
     const items = await this.repository.listCompanySupplyReviews(actor.companyId);
     return { items: items.map((item) => this.toResponse(item)), total: items.length };
@@ -63,6 +68,14 @@ export class PriceChangeService {
 
   findCompanyReview(actor: CompanyProductApprovalActor, taskId: string): Promise<SupplyPriceChangeRecord | null> {
     return this.repository.findCompanySupplyReview(actor.companyId, taskId);
+  }
+
+  async listCompanyHistory(actor: CompanyProductApprovalActor, taskId: string) {
+    const items = await this.repository.listSupplyReviewHistory(actor.companyId, taskId);
+    if (!items) {
+      throw new SafeApiError(404, 'APPROVAL_NOT_FOUND', 'Supply price change review was not found');
+    }
+    return { taskId, items };
   }
 
   private async verifySupplier(actor: SupplierPricingActor, code: unknown): Promise<void> {
