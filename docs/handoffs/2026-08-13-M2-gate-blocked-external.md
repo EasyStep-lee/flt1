@@ -27,14 +27,15 @@
 | 迁移契约 | `LOCAL_PASS` | 17/17 |
 | MySQL 迁移演练 | `LOCAL_PASS` | `empty=2 / upgrade=2 / restore=2 / product=24 / cleanup=PASS` |
 | OpenAPI / DTO | `LOCAL_PASS` | 确定性生成、类型无漂移、相对候选 main 无破坏变更 |
-| 根级 `pnpm verify` | `NOT_EXECUTED` | 待门禁证据与总控工作簿同步后在提交上运行 |
+| 根级 `pnpm verify` | `LOCAL_PASS` | 提交 `346ef4a`，17/17，`2026-08-13T04:19:56.415Z` 至 `04:37:04.990Z` |
 
 已复核的关键不变量包括：SupplierProduct 与 Product/Sku 两层模型、分类模板版本化、无供应商店铺、供应价变更必审、零售/集采销售价免审但追加留痕、供应价对买家永久不可见、强监管默认关闭，以及个人/企业共用商品和每 SKU 唯一 InventoryBalance。
 
 ## 先红后绿
 
 - RED：`node --test ./tests/handoffs/m2-gate-preflight.contract.test.mjs` 首次因机器证据、门禁台账状态和交接文件不存在而 `0/3`、退出码 `1`。
-- GREEN：机器证据、门禁台账、项目状态和本交接同步后重跑；最终退出码将在提交与完整门禁后写回。
+- GREEN：门禁契约最终 `3/3`；M2 契约 `46/46`；完整合同集合 `83/83`；根级 `pnpm verify` 最终 `17/17`、退出码 `0`。
+- 完整门禁前三次重跑均在 regression 步骤失败并被保留：依次发现 3 个 M1 交接契约、6 个 M2 历史切片契约和 12 个 M1 历史切片契约硬编码旧的当前任务。修复没有删除断言，而是把当前态断言升级为 `M2-GATE + EXT-007 + M3锁定`，并继续保留历史切片精确证据。
 - 一次组合迁移/OpenAPI 命令在 120 秒编排超时后未得出结论；拆分重跑的各独立命令均真实通过，未把超时虚报为 PASS 或功能失败。
 
 ## 真实阻塞
@@ -45,7 +46,7 @@
 
 ## 环境边界
 
-- local：`LOCAL_PASS`（完整 `pnpm verify` 待最终提交后补跑）。
+- local：`LOCAL_PASS`，完整 `pnpm verify` 17/17。
 - candidate main CI：`CI_PASS`，run `31663228561`。
 - staging：`NOT_EXECUTED`。
 - 真机：`NOT_EXECUTED`，本门禁不以模拟器冒充真机证据。

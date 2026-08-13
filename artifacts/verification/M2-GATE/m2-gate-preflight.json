@@ -2,10 +2,10 @@
   "schemaVersion": "1.0.0",
   "taskId": "M2-GATE",
   "stage": "M2",
-  "generatedAt": "2026-08-13T03:35:50Z",
+  "generatedAt": "2026-08-13T04:37:04.990Z",
   "status": "BLOCKED_EXTERNAL",
   "gateConclusion": "BLOCKED_EXTERNAL",
-  "technicalConclusion": "LOCAL_PASS_PENDING_FINAL_VERIFY",
+  "technicalConclusion": "LOCAL_PASS",
   "baseline": {
     "id": "FULISHE-V1.1-2026-08-02",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -81,7 +81,7 @@
   "technicalChecks": {
     "failed": [],
     "baseline": { "status": "PASS" },
-    "executionPack": { "status": "PENDING_FINAL_SYNC" },
+    "executionPack": { "status": "PASS" },
     "m2Contracts": { "status": "PASS", "testsPassed": 46 },
     "policyAndInventory": { "status": "PASS", "testsPassed": 13 },
     "api": { "status": "PASS", "testsPassed": 50 },
@@ -89,7 +89,12 @@
     "migrationContracts": { "status": "PASS", "testsPassed": 17 },
     "migration": { "status": "PASS", "empty": 2, "upgrade": 2, "restore": 2, "productMigrations": 24, "cleanup": "PASS" },
     "openapi": { "status": "PASS", "deterministic": true, "breakingChanges": 0 },
-    "fullVerify": { "status": "NOT_EXECUTED_PENDING_FINAL_SYNC", "stepsPassed": 0, "baseSha": "7ea79b9fec8364aecbe5beeb12fc53d43be45690", "startedAt": null, "endedAt": null }
+    "fullVerify": { "status": "PASS", "stepsPassed": 17, "commitSha": "346ef4a3cab462a3994a3b7223dda3e2012ba658", "baseSha": "7ea79b9fec8364aecbe5beeb12fc53d43be45690", "startedAt": "2026-08-13T04:19:56.415Z", "endedAt": "2026-08-13T04:37:04.990Z" },
+    "preFinalFailures": [
+      { "attempt": 1, "status": "FAIL", "failedStep": "regression", "reason": "Three M1 handoff contracts still required M2_IN_PROGRESS after the stage advanced to the blocked M2 gate." },
+      { "attempt": 2, "status": "FAIL", "failedStep": "regression", "reason": "Six M2 historical slice contracts still required M2-P071 to be the active slice." },
+      { "attempt": 3, "status": "FAIL", "failedStep": "regression", "reason": "Twelve M1 historical slice contracts still hard-coded M2-P071 or M2-P063 as current delivery state." }
+    ]
   },
   "invariants": [
     { "id": "PRODUCT_TWO_LAYER", "status": "PASS", "evidence": "P0-006/P0-007" },
@@ -122,7 +127,7 @@
     }
   ],
   "environment": {
-    "local": "LOCAL_PASS_PENDING_FINAL_VERIFY",
+    "local": "LOCAL_PASS",
     "candidateMainCi": "CI_PASS",
     "gateRecordPrCi": "NOT_EXECUTED",
     "staging": "NOT_EXECUTED",
