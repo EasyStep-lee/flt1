@@ -1,0 +1,55 @@
+<view class="home" data-page-id="PAGE-049-HOME" data-page-state="{{state}}">
+  <view class="hero">
+    <view class="hero-topline">
+      <view class="brand">福礼社</view>
+      <navigator class="region" url="/pages/shell/index?entry=delivery-region">送至 · {{regionLabel}}</navigator>
+    </view>
+    <navigator class="search" url="/pages/shell/index?entry=search">搜索商品、品牌和福利</navigator>
+  </view>
+
+  <view class="entrance-grid" aria-label="个人服务入口">
+    <navigator wx:for="{{entrances}}" wx:key="id" class="entrance" url="{{item.route}}">
+      <view class="entrance-icon">{{index + 1}}</view>
+      <view class="entrance-label">{{item.label}}</view>
+      <view class="entrance-description">{{item.description}}</view>
+    </navigator>
+  </view>
+
+  <view class="welfare-card">
+    <view>
+      <view class="welfare-title">福利卡服务</view>
+      <view class="welfare-copy">登录后可查看本人账户；平台永久不提供个人现金充值</view>
+    </view>
+    <navigator class="welfare-action" url="/pages/shell/index?entry=welfare-card">了解福利卡</navigator>
+  </view>
+
+  <view class="service-grid">
+    <view class="service"><view class="service-title">跨供应商购物</view><view>统一向公司结账</view></view>
+    <view class="service"><view class="service-title">公司统一售后</view><view>售后与退款有保障</view></view>
+    <view class="service"><view class="service-title">配送区域</view><view>选择后校验可售范围</view></view>
+  </view>
+
+  <view class="section-heading">
+    <view><view class="section-title">品质好物</view><view class="section-subtitle">公司统一货架 · 平台零售价</view></view>
+    <navigator class="orders-link" url="/pages/shell/index?entry=personal-orders">个人订单</navigator>
+  </view>
+
+  <view wx:if="{{state === 'loading'}}" class="state-card">正在加载公司统一货架…</view>
+  <view wx:elif="{{state === 'error'}}" class="state-card">
+    <view class="state-title">{{errorMessage}}</view>
+    <button class="retry-button" bindtap="retry">重新加载</button>
+  </view>
+  <view wx:elif="{{state === 'empty'}}" class="state-card">
+    <view class="state-title">{{emptyMessage}}</view>
+    <navigator class="secondary-action" url="/pages/category/index">浏览全部分类</navigator>
+  </view>
+  <view wx:else class="product-grid">
+    <navigator wx:for="{{products}}" wx:key="productId" class="product" url="/pages/product-detail/index?productId={{item.productId}}">
+      <image wx:if="{{item.imageUrl}}" class="product-image" src="{{item.imageUrl}}" mode="aspectFill" aria-label="{{item.imageAlt}}" />
+      <view wx:else class="product-image product-placeholder">福礼社</view>
+      <view class="product-name">{{item.name}}</view>
+      <view class="product-source">公司统一销售</view>
+      <view class="product-price">{{item.priceLabel}}</view>
+    </navigator>
+  </view>
+</view>

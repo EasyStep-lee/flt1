@@ -36,6 +36,7 @@ import {
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu;
 const allowedQueryKeys = new Set(['excludeProductId', 'page', 'pageSize']);
+const allowedConsumerCatalogQueryKeys = new Set(['page', 'pageSize', 'regionCode']);
 
 export interface PublicCatalogProductResponse {
   readonly productId: string;
@@ -52,6 +53,24 @@ export interface PublicCatalogPageResponse {
   readonly pageSize: number;
   readonly total: number;
   readonly items: readonly PublicCatalogProductResponse[];
+}
+
+export interface ConsumerCatalogPageResponse {
+  readonly sellerName: typeof COMPANY_LEGAL_NAME;
+  readonly checkoutMode: 'COMPANY_UNIFIED';
+  readonly region: { readonly code: null; readonly label: '请选择配送区域'; readonly status: 'UNSELECTED' };
+  readonly page: number;
+  readonly pageSize: number;
+  readonly total: number;
+  readonly items: readonly {
+    readonly productId: string;
+    readonly supplierId: string;
+    readonly categoryId: string;
+    readonly name: string;
+    readonly retailSalePrice: number;
+    readonly activeSkuCount: number;
+    readonly media: readonly { readonly url: string; readonly alt: string }[];
+  }[];
 }
 
 export type PublicProductDetailResponse =
@@ -96,6 +115,60 @@ export class PublicCatalogService {
     @Inject(PUBLIC_CATALOG_REPOSITORY)
     private readonly repository: PublicCatalogRepository,
   ) {}
+
+  async listProducts(queryValue: unknown): Promise<ConsumerCatalogPageResponse> {
+    const query =
+      queryValue && typeof queryValue === 'object' && !Array.isArray(queryValue)
+        ? (queryValue as Record<string, unknown>)
+        : {};
+    if (Object.keys(query).some((key) => !allowedConsumerCatalogQueryKeys.has(key))) {
+      throw new SafeApiError(422, 'VALIDATION_FAILED', 'Unsupported catalog query field');
+    }
+    if (query.regionCode !== undefined) {
+      throw new SafeApiError(
+        422,
+        'REGION_UNAVAILABLE',
+        'Select a delivery region through the verified region flow',
+      );
+    }
+    const page = integerQuery(query.page, 'page', 1, 10_000);
+    const pageSize = integerQuery(query.pageSize, 'pageSize', 20, 50);
+    const repositoryPage = await this.repository.findSellableRetailCatalogProducts({
+      page,
+      pageSize,
+    });
+    for (const product of repositoryPage.items) {
+      if (
+        product.saleStatus !== 'ACTIVE' ||
+        !product.isRetailEnabled ||
+        product.activeSkuCount < 1 ||
+        !Number.isSafeInteger(product.retailSalePrice) ||
+        product.retailSalePrice < 0
+      ) {
+        throw new SafeApiError(409, 'PRODUCT_NOT_SALEABLE', 'Catalog candidate is not saleable');
+      }
+    }
+    const response: ConsumerCatalogPageResponse = {
+      sellerName: COMPANY_LEGAL_NAME,
+      checkoutMode: 'COMPANY_UNIFIED',
+      region: { code: null, label: '请选择配送区域', status: 'UNSELECTED' },
+      page,
+      pageSize,
+      total: repositoryPage.total,
+      items: repositoryPage.items.map((product) => ({
+        productId: product.productId,
+        supplierId: product.supplierId,
+        categoryId: product.categoryId,
+        name: product.name,
+        retailSalePrice: product.retailSalePrice,
+        activeSkuCount: product.activeSkuCount,
+        media: product.media,
+      })),
+    };
+    assertCustomerCatalogPayloadAllowed(response);
+    assertCatalogPricePayloadAllowed(response, 'RETAIL');
+    return response;
+  }
 
   async getProductDetail(productIdValue: unknown): Promise<PublicProductDetailResponse> {
     const productId = requireUuid(productIdValue, 'productId');

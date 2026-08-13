@@ -109,13 +109,12 @@ test('portal route groups freeze public ISR and private no-store/noindex boundar
   assert.doesNotMatch(sitemap, /\/enterprise\/workspace/u);
 });
 
-test('native mini-programs keep separate roots and retain their independent shell entry', () => {
+test('native mini-programs keep separate roots and independent phase-appropriate entries', () => {
   for (const appName of ['user-miniapp', 'runner-miniapp']) {
     const project = readJson('apps', appName, 'project.config.json');
     const app = readJson('apps', appName, 'src', 'app.json');
     assert.equal(project.miniprogramRoot, 'dist/');
     assert.equal(project.appid, 'touristappid');
-    assert.equal(app.pages[0], 'pages/shell/index');
     for (const extension of ['ts', 'json', 'wxml', 'wxss']) {
       assert.ok(
         existsSync(fromRoot('apps', appName, 'src', 'pages', 'shell', `index.${extension}`)),
@@ -125,7 +124,13 @@ test('native mini-programs keep separate roots and retain their independent shel
   }
   const userApp = readJson('apps', 'user-miniapp', 'src', 'app.json');
   const runnerApp = readJson('apps', 'runner-miniapp', 'src', 'app.json');
+  assert.equal(userApp.pages[0], 'pages/home/index');
+  assert.equal(runnerApp.pages[0], 'pages/shell/index');
   assert.deepEqual(userApp.pages, [
+    'pages/home/index',
+    'pages/category/index',
+    'pages/cart/index',
+    'pages/profile/index',
     'pages/shell/index',
     'pages/product-detail/index',
     'pages/supplier-products/index',

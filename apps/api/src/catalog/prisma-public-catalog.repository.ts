@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { normalizeCategoryTemplateDefinition } from '../category-templates/category-template.policy.js';
 import { PrismaService } from '../infrastructure/prisma.service.js';
+import { buildCatalogMediaResponse } from './catalog-media.policy.js';
 import type {
   FindPublicCatalogProductsInput,
   FindEnterpriseCatalogProductsInput,
@@ -9,6 +10,7 @@ import type {
   PublicCatalogPageRecord,
   PublicCatalogProductDetailRecord,
   PublicCatalogRepository,
+  PublicRetailCatalogPageRecord,
 } from './public-catalog.repository.js';
 
 @Injectable()
@@ -178,6 +180,76 @@ export class PrismaPublicCatalogRepository implements PublicCatalogRepository {
         isRetailEnabled: product.isRetailEnabled,
         retailSalePrice: product.skus[0]?.currentRetailSalePrice ?? -1,
         activeSkuCount: product.skus.length,
+      })),
+    };
+  }
+
+  async findSellableRetailCatalogProducts(
+    input: { readonly page: number; readonly pageSize: number },
+  ): Promise<PublicRetailCatalogPageRecord> {
+    const now = new Date();
+    const where = {
+      saleStatus: 'ACTIVE' as const,
+      isRetailEnabled: true,
+      company: { status: 'ACTIVE' as const },
+      supplier: { status: 'ACTIVE' as const },
+      category: { status: 'ENABLED' as const },
+      skus: { some: { status: 'ACTIVE' as const } },
+      OR: [
+        { template: { regulatoryMode: 'STANDARD' as const } },
+        {
+          template: { regulatoryMode: 'HIGH_RISK' as const },
+          qualificationValidUntil: { gt: now },
+          category: {
+            regulatedControl: {
+              is: {
+                status: 'ENABLED' as const,
+                companyQualificationValidUntil: { gt: now },
+              },
+            },
+          },
+        },
+      ],
+    };
+    const [total, products] = await this.prisma.$transaction([
+      this.prisma.product.count({ where }),
+      this.prisma.product.findMany({
+        where,
+        orderBy: [{ createdAt: 'desc' }, { id: 'asc' }],
+        skip: (input.page - 1) * input.pageSize,
+        take: input.pageSize,
+        select: {
+          id: true,
+          supplierId: true,
+          categoryId: true,
+          name: true,
+          saleStatus: true,
+          isRetailEnabled: true,
+          detailSnapshot: true,
+          skus: {
+            where: { status: 'ACTIVE' },
+            orderBy: [{ currentRetailSalePrice: 'asc' }, { id: 'asc' }],
+            select: { currentRetailSalePrice: true },
+          },
+        },
+      }),
+    ]);
+    const asObject = (value: unknown): Readonly<Record<string, unknown>> =>
+      value && typeof value === 'object' && !Array.isArray(value)
+        ? (value as Readonly<Record<string, unknown>>)
+        : {};
+    return {
+      total,
+      items: products.map((product) => ({
+        productId: product.id,
+        supplierId: product.supplierId,
+        categoryId: product.categoryId,
+        name: product.name,
+        saleStatus: product.saleStatus,
+        isRetailEnabled: product.isRetailEnabled,
+        retailSalePrice: product.skus[0]?.currentRetailSalePrice ?? -1,
+        activeSkuCount: product.skus.length,
+        media: buildCatalogMediaResponse(asObject(product.detailSnapshot)),
       })),
     };
   }

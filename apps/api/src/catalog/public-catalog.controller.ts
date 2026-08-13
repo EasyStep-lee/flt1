@@ -8,6 +8,7 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiTags,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
@@ -22,6 +23,10 @@ import {
   PublicGiftBoxItemResponseDto,
   PublicProductPageResponseDto,
   SupplierProductQueryDto,
+  ConsumerCatalogQueryDto,
+  ConsumerCatalogPageResponseDto,
+  ConsumerCatalogProductResponseDto,
+  ConsumerCatalogRegionResponseDto,
 } from './public-catalog.dto.js';
 import { PublicCatalogService } from './public-catalog.service.js';
 
@@ -36,12 +41,33 @@ import { PublicCatalogService } from './public-catalog.service.js';
   PublicGiftBoxItemResponseDto,
   PublicProductPageResponseDto,
   SupplierProductQueryDto,
+  ConsumerCatalogQueryDto,
+  ConsumerCatalogPageResponseDto,
+  ConsumerCatalogProductResponseDto,
+  ConsumerCatalogRegionResponseDto,
 )
 @Controller('v1/catalog')
 export class PublicCatalogController {
   constructor(
     @Inject(PublicCatalogService) private readonly service: PublicCatalogService,
   ) {}
+
+  @Get('products')
+  @Header('Cache-Control', 'public, max-age=30, stale-while-revalidate=30')
+  @ApiOperation({
+    operationId: 'catalog.listProducts',
+    summary: 'List guest-safe retail products from the unified company shelf',
+  })
+  @ApiQuery({ type: ConsumerCatalogQueryDto })
+  @ApiOkResponse({ type: ConsumerCatalogPageResponseDto })
+  @ApiBadRequestResponse({ type: ApiErrorResponseDto })
+  @ApiConflictResponse({ type: ApiErrorResponseDto })
+  @ApiUnprocessableEntityResponse({ type: ApiErrorResponseDto })
+  listProducts(
+    @Query() query: ConsumerCatalogQueryDto,
+  ): Promise<ConsumerCatalogPageResponseDto> {
+    return this.service.listProducts(query);
+  }
 
   @Get('products/:productId')
   @Header('Cache-Control', 'public, max-age=30, stale-while-revalidate=30')

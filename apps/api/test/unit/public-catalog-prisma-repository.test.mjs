@@ -124,6 +124,76 @@ test('P0-061 enterprise query requires active company, supplier, product flag an
     /approvedSupplyPrice|supplyPrice|inventoryBalance|supplierPayable/iu,
   );
 });
+
+test('P0-020 consumer home query is cross-supplier but only returns enabled retail shelf records', async () => {
+  let capturedFindMany;
+  const prisma = {
+    product: {
+      count: async () => 1,
+      findMany: async (input) => {
+        capturedFindMany = input;
+        return [
+          {
+            id: excludedProductId,
+            supplierId,
+            categoryId: '22222222-2222-4222-8222-222222222222',
+            name: '员工关怀礼盒',
+            saleStatus: 'ACTIVE',
+            isRetailEnabled: true,
+            detailSnapshot: {
+              media: [
+                {
+                  url: 'https://cdn.example.test/catalog/gift-box.webp',
+                  alt: '员工关怀礼盒',
+                },
+              ],
+            },
+            skus: [{ currentRetailSalePrice: 12800 }],
+          },
+        ];
+      },
+    },
+    $transaction: async (operations) => Promise.all(operations),
+  };
+  const repository = new PrismaPublicCatalogRepository(prisma);
+
+  const result = await repository.findSellableRetailCatalogProducts({ page: 2, pageSize: 20 });
+
+  assert.equal(capturedFindMany.where.supplierId, undefined);
+  assert.equal(capturedFindMany.where.saleStatus, 'ACTIVE');
+  assert.equal(capturedFindMany.where.isRetailEnabled, true);
+  assert.deepEqual(capturedFindMany.where.company, { status: 'ACTIVE' });
+  assert.deepEqual(capturedFindMany.where.supplier, { status: 'ACTIVE' });
+  assert.deepEqual(capturedFindMany.where.category, { status: 'ENABLED' });
+  assert.deepEqual(capturedFindMany.where.skus, { some: { status: 'ACTIVE' } });
+  assert.equal(capturedFindMany.skip, 20);
+  assert.equal(capturedFindMany.take, 20);
+  assert.deepEqual(result, {
+    total: 1,
+    items: [
+      {
+        productId: excludedProductId,
+        supplierId,
+        categoryId: '22222222-2222-4222-8222-222222222222',
+        name: '员工关怀礼盒',
+        saleStatus: 'ACTIVE',
+        isRetailEnabled: true,
+        retailSalePrice: 12800,
+        activeSkuCount: 1,
+        media: [
+          {
+            url: 'https://cdn.example.test/catalog/gift-box.webp',
+            alt: '员工关怀礼盒',
+          },
+        ],
+      },
+    ],
+  });
+  assert.doesNotMatch(
+    JSON.stringify(capturedFindMany.select),
+    /approvedSupplyPrice|supplyPrice|currentEnterpriseSalePrice|supplierPayable|inventoryBalance/iu,
+  );
+});
 test('P0-010 inactive or cross-company supplier source is not accepted', async () => {
   const repository = new PrismaPublicCatalogRepository({
     supplier: { findFirst: async () => null },

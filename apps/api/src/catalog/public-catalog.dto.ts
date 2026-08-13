@@ -19,9 +19,59 @@ export class EnterpriseCatalogQueryDto {
   readonly pageSize?: string;
 }
 
+export class ConsumerCatalogQueryDto {
+  @ApiPropertyOptional({ default: 1, maximum: 10000, minimum: 1, type: Number })
+  readonly page?: string;
+
+  @ApiPropertyOptional({ default: 20, maximum: 50, minimum: 1, type: Number })
+  readonly pageSize?: string;
+
+  @ApiPropertyOptional({
+    description: 'Reserved for a server-verified delivery region; arbitrary client scope is rejected',
+    maxLength: 64,
+    type: String,
+  })
+  readonly regionCode?: string;
+}
+
 export class CatalogMediaResponseDto {
   @ApiProperty({ format: 'uri', maxLength: 2048, type: String }) readonly url!: string;
   @ApiProperty({ maxLength: 200, type: String }) readonly alt!: string;
+}
+
+export class ConsumerCatalogRegionResponseDto {
+  @ApiProperty({ nullable: true, required: true, type: String })
+  readonly code!: string | null;
+  @ApiProperty({ example: '请选择配送区域', type: String })
+  readonly label!: string;
+  @ApiProperty({ enum: ['UNSELECTED'], type: String })
+  readonly status!: 'UNSELECTED';
+}
+
+export class ConsumerCatalogProductResponseDto {
+  @ApiProperty({ format: 'uuid', type: String }) readonly productId!: string;
+  @ApiProperty({ format: 'uuid', type: String }) readonly supplierId!: string;
+  @ApiProperty({ format: 'uuid', type: String }) readonly categoryId!: string;
+  @ApiProperty({ maxLength: 200, type: String }) readonly name!: string;
+  @ApiProperty({ description: 'Minimum active SKU retail price in integer cents', minimum: 0, type: Number })
+  readonly retailSalePrice!: number;
+  @ApiProperty({ minimum: 1, type: Number }) readonly activeSkuCount!: number;
+  @ApiProperty({ type: () => [CatalogMediaResponseDto] })
+  readonly media!: readonly CatalogMediaResponseDto[];
+}
+
+export class ConsumerCatalogPageResponseDto {
+  @ApiProperty({ example: '江苏福礼团供应链科技有限公司', type: String })
+  readonly sellerName!: '江苏福礼团供应链科技有限公司';
+  @ApiProperty({ enum: ['COMPANY_UNIFIED'], type: String })
+  readonly checkoutMode!: 'COMPANY_UNIFIED';
+  @ApiProperty({ type: () => ConsumerCatalogRegionResponseDto })
+  readonly region!: ConsumerCatalogRegionResponseDto;
+  @ApiProperty({ minimum: 1, type: Number }) readonly page!: number;
+  @ApiProperty({ maximum: 50, minimum: 1, type: Number }) readonly pageSize!: number;
+  @ApiProperty({ minimum: 0, type: Number }) readonly total!: number;
+  @ApiProperty({ type: () => [ConsumerCatalogProductResponseDto] })
+  readonly items!: readonly ConsumerCatalogProductResponseDto[];
 }
 export class PublicProductCardResponseDto {
   @ApiProperty({ format: 'uuid', type: String })
