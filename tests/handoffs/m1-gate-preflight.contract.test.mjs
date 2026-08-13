@@ -258,10 +258,16 @@ test('M1 ledgers retain the exact-head gate while M2 advances one slice at a tim
       ),
       true,
     );
-    assert.equal(m2Stage.Status, 'BLOCKED');
-    assert.equal(m2Gate.Status, 'BLOCKED');
+    assert.equal(
+      m2Stage.Status,
+      ext007.CurrentStatus === 'PROVIDED' ? 'IN_PROGRESS' : 'BLOCKED',
+    );
+    assert.equal(
+      m2Gate.Status,
+      ext007.CurrentStatus === 'PROVIDED' ? 'IN_PROGRESS' : 'BLOCKED',
+    );
     assert.equal(m2Gate.EvidenceStatus, 'LOCAL_PASS');
-    assert.equal(ext007.CurrentStatus, 'NOT_PROVIDED');
+    assert.equal(['NOT_PROVIDED', 'PROVIDED'].includes(ext007.CurrentStatus), true);
     assert.equal(ext007.BlocksFormalAcceptance, 'YES');
   }
 
@@ -309,14 +315,18 @@ test('project status records M1 gate success while historical blocked handoff st
     projectStatus.execution.currentTask,
   );
   if (projectStatus.execution.status === 'M2_IN_PROGRESS') {
-    assert.match(projectStatus.execution.currentTask, /^M2-P\d{3}$/u);
+    assert.match(projectStatus.execution.currentTask, /^(?:M2-P\d{3}|M2-GATE)$/u);
     assert.equal(projectStatus.execution.activeTaskCount, 1);
     assert.equal(
-      ['IN_PROGRESS', 'LOCAL_PASS', 'CI_PASS'].includes(
+      ['IN_PROGRESS', 'LOCAL_PASS', 'CI_PASS', 'LOCAL_PASS_PENDING_EXACT_HEAD_CI_AND_MERGE'].includes(
         projectStatus.github.currentTaskDelivery.status,
       ),
       true,
     );
+    if (projectStatus.execution.currentTask === 'M2-GATE') {
+      assert.equal(projectStatus.github.currentTaskDelivery.blockingExternalItem, null);
+      assert.equal(projectStatus.github.currentTaskDelivery.m3Unlocked, false);
+    }
   } else {
     assert.equal(projectStatus.execution.status, 'M2_BLOCKED_EXTERNAL');
     assert.equal(projectStatus.execution.currentTask, 'M2-GATE');

@@ -60,11 +60,11 @@ test('M2-P007 retains evidence while the current M2 slice advances through its d
       read('docs', 'handoffs', '2026-08-09-M2-P007-company-product-approvals.md'),
     ]);
 
-  assert.equal(state.execution.status, 'M2_BLOCKED_EXTERNAL');
+  assert.equal(state.execution.status, 'M2_IN_PROGRESS');
   assert.equal(state.execution.currentTask, 'M2-GATE');
   assert.equal(state.execution.nextAllowedTask, state.execution.currentTask);
   assert.match(state.execution.lastCompletedTask, /^M2-P\d{3}$/u);
-  assert.equal(state.execution.activeTaskCount, 0);
+  assert.equal(state.execution.activeTaskCount, 1);
   assert.equal(state.github.currentTaskDelivery.taskId, state.execution.currentTask);
   assert.ok(
     state.github.currentTaskDelivery.pullRequest === null ||
@@ -77,7 +77,7 @@ test('M2-P007 retains evidence while the current M2 slice advances through its d
   );
   assert.equal(state.github.currentTaskDelivery.merge, 'NOT_EXECUTED');
   assert.equal(state.github.currentTaskDelivery.mainPostMergeCi, 'NOT_EXECUTED');
-  assert.equal(state.github.currentTaskDelivery.blockingExternalItem, 'EXT-007');
+  assert.equal(state.github.currentTaskDelivery.blockingExternalItem, null);
   assert.equal(state.github.currentTaskDelivery.m3Unlocked, false);
   assert.match(state.evidence.local, /^(?:NOT_EXECUTED|LOCAL_PASS)$/u);
   assert.ok(['NOT_EXECUTED', 'CI_PASS'].includes(state.evidence.ci));

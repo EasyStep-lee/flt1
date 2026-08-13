@@ -2,9 +2,9 @@
   "schemaVersion": "1.0.0",
   "taskId": "M2-GATE",
   "stage": "M2",
-  "generatedAt": "2026-08-13T04:37:04.990Z",
-  "status": "BLOCKED_EXTERNAL",
-  "gateConclusion": "BLOCKED_EXTERNAL",
+  "generatedAt": "2026-08-13T07:38:35.192Z",
+  "status": "IN_PROGRESS",
+  "gateConclusion": "PENDING_EXACT_HEAD_CI_AND_MERGE",
   "technicalConclusion": "LOCAL_PASS",
   "baseline": {
     "id": "FULISHE-V1.1-2026-08-02",
@@ -17,7 +17,12 @@
     "gateRecord": {
       "issue": 73,
       "branch": "codex/m2-gate",
-      "pullRequest": "NOT_CREATED_AT_CAPTURE"
+      "pullRequest": 74,
+      "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/74",
+      "state": "DRAFT_OPEN",
+      "lastCiPassingHead": "c7b33c36537f74ea346e08e3789247f95733f0eb",
+      "lastCiRun": 31667793351,
+      "currentChangesExactHeadCi": "NOT_EXECUTED"
     },
     "lastSlice": {
       "taskId": "M2-P071",
@@ -90,6 +95,16 @@
     "migration": { "status": "PASS", "empty": 2, "upgrade": 2, "restore": 2, "productMigrations": 24, "cleanup": "PASS" },
     "openapi": { "status": "PASS", "deterministic": true, "breakingChanges": 0 },
     "fullVerify": { "status": "PASS", "stepsPassed": 17, "commitSha": "346ef4a3cab462a3994a3b7223dda3e2012ba658", "baseSha": "7ea79b9fec8364aecbe5beeb12fc53d43be45690", "startedAt": "2026-08-13T04:19:56.415Z", "endedAt": "2026-08-13T04:37:04.990Z" },
+    "ext007WorkingTreeVerification": {
+      "status": "PASS",
+      "scope": "UNCOMMITTED_WORKING_TREE_BASED_ON_C7B33C3",
+      "red": { "status": "EXPECTED_FAIL", "testsPassed": 0, "testsFailed": 3, "exitCode": 1 },
+      "green": { "status": "PASS", "testsPassed": 3, "testsFailed": 0, "exitCode": 0 },
+      "focusedGateContracts": { "status": "PASS", "testsPassed": 57, "testsFailed": 0, "exitCode": 0 },
+      "fullVerify": { "status": "PASS", "stepsPassed": 17, "exitCode": 0, "startedAt": "2026-08-13T07:24:55.405Z", "endedAt": "2026-08-13T07:38:35.192Z" },
+      "migration": { "status": "PASS", "empty": 2, "upgrade": 2, "restore": 2, "productMigrations": 24, "cleanup": "PASS" },
+      "commitBoundEvidence": "NOT_EXECUTED_UNTIL_CHANGES_ARE_COMMITTED"
+    },
     "preFinalFailures": [
       { "attempt": 1, "status": "FAIL", "failedStep": "regression", "reason": "Three M1 handoff contracts still required M2_IN_PROGRESS after the stage advanced to the blocked M2 gate." },
       { "attempt": 2, "status": "FAIL", "failedStep": "regression", "reason": "Six M2 historical slice contracts still required M2-P071 to be the active slice." },
@@ -107,9 +122,13 @@
   ],
   "externalItems": {
     "EXT007": {
-      "status": "NOT_PROVIDED",
-      "blocksStage": true,
-      "requiredAction": "Authorized business/compliance personnel confirm the first category tree, template fields, company and product qualification validity periods, and after-sales rules."
+      "status": "PROVIDED",
+      "blocksStage": false,
+      "approvedBy": "COMPANY_AUTHORIZED_BUSINESS_COMPLIANCE_REVIEWER",
+      "providedAt": "2026-08-13T02:55:10-04:00",
+      "evidence": "artifacts/verification/M2-GATE/ext-007-category-compliance-confirmation.json",
+      "normalizedPolicy": "docs/product/m2/ext-007-first-phase-category-policy.json",
+      "precedence": "DEVELOPMENT_DOCUMENTS_FIRST_EXT007_ONLY_FILLS_UNDEFINED_INPUTS"
     },
     "EXT008": {
       "status": "NOT_PROVIDED",
@@ -117,33 +136,25 @@
       "requiredAction": "Authorized pricing personnel confirm review thresholds, risk hints and scheduled-effect rules without changing the locked review boundary."
     }
   },
-  "blockers": [
-    {
-      "id": "EXT-007",
-      "status": "NOT_PROVIDED",
-      "blocksStage": true,
-      "reason": "Formal M2 business/compliance acceptance requires an authorized first category tree, template fields, qualification validity periods and after-sales rules.",
-      "safeBoundary": "Do not treat test fixtures as approved business data; keep regulated categories disabled until authorized confirmation is recorded."
-    }
-  ],
+  "blockers": [],
   "environment": {
     "local": "LOCAL_PASS",
     "candidateMainCi": "CI_PASS",
-    "gateRecordPrCi": "NOT_EXECUTED",
+    "gateRecordPrCi": "NOT_EXECUTED_FOR_CURRENT_EXT007_CHANGES",
     "staging": "NOT_EXECUTED",
     "device": "NOT_EXECUTED",
     "production": "NOT_EXECUTED"
   },
   "decision": {
     "stagePassed": false,
-    "conclusion": "BLOCKED_EXTERNAL",
+    "conclusion": "PENDING_EXACT_HEAD_CI_AND_MERGE",
     "lastPassedGate": "M1-GATE",
     "nextAllowedTask": "M2-GATE",
     "m3Unlocked": false,
     "requiredActions": [
-      "Authorized business/compliance personnel provide a redacted EXT-007 confirmation; do not upload confidential originals to chat or the repository.",
-      "Keep the M2-GATE pull request Draft while EXT-007 remains NOT_PROVIDED.",
-      "After EXT-007 is recorded, refresh the gate evidence and run the exact-head checks before requesting Ready/merge authorization.",
+      "Commit the normalized EXT-007 evidence, rerun full verification on that implementation commit, and record the new exact head.",
+      "Keep M2-GATE pull request #74 Draft until the current exact-head CI succeeds.",
+      "After exact-head CI succeeds, document current-head self-review and request explicit Ready/merge authorization for that head.",
       "Do not start M3 until M2-GATE is merged after exact-head authorization and the post-merge main CI succeeds."
     ]
   },

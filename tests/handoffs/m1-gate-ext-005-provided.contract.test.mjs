@@ -147,12 +147,18 @@ test('historical EXT-005 evidence stays locked while current state advances only
   assert.equal(projectStatus.github.currentTaskDelivery.merge, 'NOT_EXECUTED');
   assert.equal(projectStatus.github.currentTaskDelivery.mainPostMergeCi, 'NOT_EXECUTED');
   if (projectStatus.execution.status === 'M2_IN_PROGRESS') {
-    assert.match(projectStatus.execution.currentTask, /^M2-P\d{3}$/u);
+    assert.match(projectStatus.execution.currentTask, /^(?:M2-P\d{3}|M2-GATE)$/u);
     assert.equal(projectStatus.execution.activeTaskCount, 1);
-    assert.equal(
-      projectStatus.github.currentTaskDelivery.exactHeadCi.startsWith('CI_PASS_RUN_'),
-      currentM2Task.EvidenceStatus === 'CI_PASS',
-    );
+    if (projectStatus.execution.currentTask === 'M2-GATE') {
+      assert.equal(projectStatus.github.currentTaskDelivery.exactHeadCi, 'NOT_EXECUTED');
+      assert.equal(projectStatus.github.currentTaskDelivery.blockingExternalItem, null);
+      assert.equal(projectStatus.github.currentTaskDelivery.m3Unlocked, false);
+    } else {
+      assert.equal(
+        projectStatus.github.currentTaskDelivery.exactHeadCi.startsWith('CI_PASS_RUN_'),
+        currentM2Task.EvidenceStatus === 'CI_PASS',
+      );
+    }
   } else {
     assert.equal(projectStatus.execution.status, 'M2_BLOCKED_EXTERNAL');
     assert.equal(projectStatus.execution.currentTask, 'M2-GATE');

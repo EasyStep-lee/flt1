@@ -44,18 +44,21 @@ test('M1-P047 evidence remains closed after PR 20 merge as the project advances'
   assert.equal(evidence.negativeTests.length, 4);
   assert.ok(evidence.negativeTests.every(({ status }) => status === 'PASS'));
   assert.match(state.execution.lastCompletedTask, /^M2-P\d{3}$/u);
-  assert.equal(state.execution.status, 'M2_BLOCKED_EXTERNAL');
+  assert.equal(state.execution.status, 'M2_IN_PROGRESS');
   assert.equal(state.execution.currentTask, 'M2-GATE');
   assert.equal(state.execution.nextAllowedTask, state.execution.currentTask);
-  assert.equal(state.execution.activeTaskCount, 0);
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /EXT-007.*M3/u);
+  assert.equal(state.execution.activeTaskCount, 1);
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2-GATE.*M3/u);
   assert.ok(state.github.pullRequest === null || Number.isInteger(state.github.pullRequest));
   assert.ok(['NOT_CREATED', 'DRAFT'].includes(state.github.pullRequestState));
   assert.equal(state.github.pullRequestMerged, false);
   assert.equal(state.github.mergeCommitSha, null);
   assert.equal(state.github.currentTaskDelivery.taskId, state.execution.currentTask);
-  assert.equal(state.github.currentTaskDelivery.status, 'BLOCKED_EXTERNAL');
-  assert.equal(state.github.currentTaskDelivery.blockingExternalItem, 'EXT-007');
+  assert.equal(
+    state.github.currentTaskDelivery.status,
+    'LOCAL_PASS_PENDING_EXACT_HEAD_CI_AND_MERGE',
+  );
+  assert.equal(state.github.currentTaskDelivery.blockingExternalItem, null);
   assert.equal(state.github.currentTaskDelivery.m3Unlocked, false);
   assert.ok(
     state.github.currentTaskDelivery.exactHeadCi === 'NOT_EXECUTED' ||

@@ -36,7 +36,7 @@ const m2P0Ids = [
   'P0-018', 'P0-019', 'P0-021', 'P0-061', 'P0-063', 'P0-071',
 ];
 
-test('M2 gate binds all 18 technical P0 items and keeps EXT-007 blocking formal acceptance', async () => {
+test('M2 gate binds all 18 technical P0 items and keeps merge-dependent acceptance locked', async () => {
   const evidence = await readJson(evidencePath);
   assert.equal(evidence.taskId, 'M2-GATE');
   assert.equal(evidence.stage, 'M2');
@@ -45,11 +45,11 @@ test('M2 gate binds all 18 technical P0 items and keeps EXT-007 blocking formal 
   assert.deepEqual(evidence.p0.items.map(({ p0Id }) => p0Id), m2P0Ids);
   assert.equal(evidence.p0.items.every(({ status }) => status === 'CI_PASS'), true);
   assert.equal(evidence.technicalChecks.failed.length, 0);
-  assert.equal(evidence.externalItems.EXT007.status, 'NOT_PROVIDED');
-  assert.equal(evidence.externalItems.EXT007.blocksStage, true);
+  assert.equal(evidence.externalItems.EXT007.status, 'PROVIDED');
+  assert.equal(evidence.externalItems.EXT007.blocksStage, false);
   assert.equal(evidence.externalItems.EXT008.status, 'NOT_PROVIDED');
   assert.equal(evidence.decision.stagePassed, false);
-  assert.equal(evidence.decision.conclusion, 'BLOCKED_EXTERNAL');
+  assert.equal(evidence.decision.conclusion, 'PENDING_EXACT_HEAD_CI_AND_MERGE');
   assert.equal(evidence.decision.lastPassedGate, 'M1-GATE');
   assert.equal(evidence.decision.nextAllowedTask, 'M2-GATE');
   assert.equal(evidence.decision.m3Unlocked, false);
@@ -58,7 +58,7 @@ test('M2 gate binds all 18 technical P0 items and keeps EXT-007 blocking formal 
   assert.equal(evidence.environment.production, 'NOT_EXECUTED');
 });
 
-test('M2 gate ledgers remain blocked and do not unlock M3', async () => {
+test('M2 gate ledgers remain in progress and do not unlock M3 before exact-head merge evidence', async () => {
   const [tasks, stages, externals, state] = await Promise.all([
     readFile(path.join(pack, '03-任务台账.csv'), 'utf8').then(parseCsv),
     readFile(path.join(pack, 'data', '阶段门禁.csv'), 'utf8').then(parseCsv),
@@ -69,18 +69,18 @@ test('M2 gate ledgers remain blocked and do not unlock M3', async () => {
   const m2 = stages.find(({ Stage }) => Stage === 'M2');
   const m3 = stages.find(({ Stage }) => Stage === 'M3');
   const ext007 = externals.find(({ DependencyID }) => DependencyID === 'EXT-007');
-  assert.equal(gate.Status, 'BLOCKED');
+  assert.equal(gate.Status, 'IN_PROGRESS');
   assert.equal(gate.EvidenceStatus, 'LOCAL_PASS');
-  assert.equal(m2.Status, 'BLOCKED');
+  assert.equal(m2.Status, 'IN_PROGRESS');
   assert.equal(m2.EvidenceStatus, 'LOCAL_PASS');
   assert.equal(m3.Status, 'LOCKED');
   assert.equal(m3.EvidenceStatus, 'NOT_EXECUTED');
-  assert.equal(ext007.CurrentStatus, 'NOT_PROVIDED');
+  assert.equal(ext007.CurrentStatus, 'PROVIDED');
   assert.equal(ext007.BlocksFormalAcceptance, 'YES');
   assert.equal(state.execution.currentTask, 'M2-GATE');
   assert.equal(state.execution.nextAllowedTask, 'M2-GATE');
   assert.equal(state.execution.lastPassedGate, 'M1-GATE');
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /EXT-007.*M3/u);
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2-GATE.*M3/u);
 });
 
 test('M2 gate handoff states the technical boundary without claiming PASS', async () => {

@@ -56,11 +56,11 @@ test('M2-P016 records its merged-main gate while M2 formal acceptance remains bl
       ),
     ]);
 
-  assert.equal(state.execution.status, 'M2_BLOCKED_EXTERNAL');
+  assert.equal(state.execution.status, 'M2_IN_PROGRESS');
   assert.equal(state.execution.currentTask, 'M2-GATE');
   assert.equal(state.execution.nextAllowedTask, 'M2-GATE');
   assert.equal(state.execution.lastCompletedTask, 'M2-P071');
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /EXT-007.*M3/u);
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2-GATE.*M3/u);
   assert.equal(state.github.currentTaskDelivery.taskId, 'M2-GATE');
   assert.equal(state.github.currentTaskDelivery.issue, 73);
   assert.equal(state.github.currentTaskDelivery.branch, 'codex/m2-gate');
@@ -68,11 +68,11 @@ test('M2-P016 records its merged-main gate while M2 formal acceptance remains bl
     state.github.currentTaskDelivery.exactHeadCi,
     'NOT_EXECUTED',
   );
-  assert.equal(state.github.currentTaskDelivery.pullRequest, null);
-  assert.equal(state.github.currentTaskDelivery.pullRequestState, 'NOT_CREATED');
+  assert.equal(state.github.currentTaskDelivery.pullRequest, 74);
+  assert.equal(state.github.currentTaskDelivery.pullRequestState, 'DRAFT');
   assert.equal(state.github.currentTaskDelivery.merge, 'NOT_EXECUTED');
   assert.equal(state.github.currentTaskDelivery.mainPostMergeCi, 'NOT_EXECUTED');
-  assert.equal(state.github.currentTaskDelivery.blockingExternalItem, 'EXT-007');
+  assert.equal(state.github.currentTaskDelivery.blockingExternalItem, null);
   assert.equal(state.github.currentTaskDelivery.m3Unlocked, false);
   assert.equal(state.github.previousTaskDelivery.taskId, 'M2-P071');
   assert.equal(state.github.previousTaskDelivery.pullRequest, 72);

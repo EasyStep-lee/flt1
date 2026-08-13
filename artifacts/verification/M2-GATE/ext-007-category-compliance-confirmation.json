@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "1.0.0",
+  "dependencyId": "EXT-007",
+  "status": "CONFIRMED",
+  "confirmationId": "EXT-007-20260813-A01",
+  "confirmedAt": "2026-08-13T02:55:10-04:00",
+  "confirmedBy": {
+    "authorizedRole": "COMPANY_AUTHORIZED_BUSINESS_COMPLIANCE_REVIEWER",
+    "identityRef": null
+  },
+  "source": {
+    "fileName": "# EXT-007 福利商城首期商品分类与合规授权确认.md",
+    "version": "V1.1",
+    "sha256": "5F6E2E51CDE12E7ED004064E6CD1DAA137359611C9C9AA4C6D192B8AA4B454CF",
+    "sizeBytes": 12883,
+    "lastModifiedAt": "2026-08-13T06:37:13.906Z",
+    "originalCommitted": false,
+    "containsSensitiveSource": false,
+    "normalizedPolicy": "docs/product/m2/ext-007-first-phase-category-policy.json"
+  },
+  "declarations": {
+    "developmentDocumentsTakePrecedence": true,
+    "ext007OnlyFillsUndefinedBusinessInputs": true,
+    "firstPhaseCategoryAndComplianceScopeApproved": true,
+    "restrictedCategoriesRemainDisabledWithoutNewApproval": true,
+    "noRuntimeBoundaryRedefined": true,
+    "noConfidentialOriginalCommitted": true
+  }
+}

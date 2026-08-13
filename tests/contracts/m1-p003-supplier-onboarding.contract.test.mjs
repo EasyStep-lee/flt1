@@ -178,15 +178,18 @@ test('M1-P003 retains its local evidence after PR and main CI closure', async ()
 
   assert.equal(state.execution.currentStage, 'M2');
   assert.equal(state.execution.currentTask, state.execution.nextAllowedTask);
-  assert.equal(state.execution.status, 'M2_BLOCKED_EXTERNAL');
+  assert.equal(state.execution.status, 'M2_IN_PROGRESS');
   assert.equal(state.execution.currentTask, 'M2-GATE');
   assert.equal(state.execution.activeTaskCount, active.length);
   assert.equal(state.execution.lastCompletedTask, 'M2-P071');
   assert.equal(state.execution.lastPassedGate, 'M1-GATE');
   assert.equal(state.github.repository, 'EasyStep-lee/flt1');
   assert.equal(state.github.currentTaskDelivery.taskId, 'M2-GATE');
-  assert.equal(state.github.currentTaskDelivery.status, 'BLOCKED_EXTERNAL');
-  assert.equal(state.github.currentTaskDelivery.blockingExternalItem, 'EXT-007');
+  assert.equal(
+    state.github.currentTaskDelivery.status,
+    'LOCAL_PASS_PENDING_EXACT_HEAD_CI_AND_MERGE',
+  );
+  assert.equal(state.github.currentTaskDelivery.blockingExternalItem, null);
   assert.equal(state.github.currentTaskDelivery.m3Unlocked, false);
   assert.equal(state.github.previousTaskDelivery.taskId, 'M2-P071');
   assert.equal(state.github.previousTaskDelivery.pullRequest, 72);

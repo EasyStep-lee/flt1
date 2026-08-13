@@ -238,11 +238,20 @@ if ($projectStatus.execution.lastPassedGate -eq 'M0-GATE') {
         Assert-Condition ($m2StageGate.Count -eq 1 -and $m2StageGate[0].Status -eq 'IN_PROGRESS' -and $m2StageGate[0].EvidenceStatus -in @('NOT_EXECUTED', 'LOCAL_PASS', 'CI_PASS')) 'M2阶段未按IN_PROGRESS与真实本地或CI证据推进'
     } else {
         Assert-Condition (@($m2BusinessTasks | Where-Object { $_.Status -ne 'DONE' -or $_.EvidenceStatus -ne 'CI_PASS' -or $_.CI -ne 'CI_PASS' }).Count -eq 0) '进入M2-GATE前仍有业务切片未以DONE/CI_PASS完成'
-        Assert-Condition ($projectStatus.execution.status -eq 'M2_BLOCKED_EXTERNAL') 'EXT-007未提供时项目状态必须为M2_BLOCKED_EXTERNAL'
-        Assert-Condition ($projectStatus.execution.currentStage -eq 'M2' -and $projectStatus.execution.currentTask -eq 'M2-GATE' -and $projectStatus.execution.nextAllowedTask -eq 'M2-GATE') 'EXT-007未提供时唯一允许任务必须保持M2-GATE'
-        Assert-Condition ($m2GateTask.Count -eq 1 -and $m2GateTask[0].Status -eq 'BLOCKED' -and $m2GateTask[0].EvidenceStatus -eq 'LOCAL_PASS' -and $m2GateTask[0].CI -eq 'NOT_EXECUTED') 'M2-GATE必须如实保持BLOCKED/LOCAL_PASS/NOT_EXECUTED'
-        Assert-Condition ($m2StageGate.Count -eq 1 -and $m2StageGate[0].Status -eq 'BLOCKED' -and $m2StageGate[0].EvidenceStatus -eq 'LOCAL_PASS') 'M2阶段必须如实保持BLOCKED/LOCAL_PASS'
-        Assert-Condition ($ext007.Count -eq 1 -and $ext007[0].CurrentStatus -eq 'NOT_PROVIDED' -and $ext007[0].BlocksFormalAcceptance -eq 'YES') 'M2-GATE缺少EXT-007阻塞正式验收的真实记录'
+        Assert-Condition ($projectStatus.execution.currentStage -eq 'M2' -and $projectStatus.execution.currentTask -eq 'M2-GATE' -and $projectStatus.execution.nextAllowedTask -eq 'M2-GATE') 'M2业务切片完成后唯一允许任务必须保持M2-GATE'
+        if ($ext007.Count -eq 1 -and $ext007[0].CurrentStatus -eq 'NOT_PROVIDED') {
+            Assert-Condition ($projectStatus.execution.status -eq 'M2_BLOCKED_EXTERNAL') 'EXT-007未提供时项目状态必须为M2_BLOCKED_EXTERNAL'
+            Assert-Condition ($m2GateTask.Count -eq 1 -and $m2GateTask[0].Status -eq 'BLOCKED' -and $m2GateTask[0].EvidenceStatus -eq 'LOCAL_PASS' -and $m2GateTask[0].CI -eq 'NOT_EXECUTED') 'M2-GATE必须如实保持BLOCKED/LOCAL_PASS/NOT_EXECUTED'
+            Assert-Condition ($m2StageGate.Count -eq 1 -and $m2StageGate[0].Status -eq 'BLOCKED' -and $m2StageGate[0].EvidenceStatus -eq 'LOCAL_PASS') 'M2阶段必须如实保持BLOCKED/LOCAL_PASS'
+            Assert-Condition ($ext007[0].BlocksFormalAcceptance -eq 'YES') 'M2-GATE缺少EXT-007阻塞正式验收的真实记录'
+        } elseif ($ext007.Count -eq 1 -and $ext007[0].CurrentStatus -eq 'PROVIDED') {
+            Assert-Condition ($projectStatus.execution.status -eq 'M2_IN_PROGRESS') 'EXT-007提供后M2-GATE必须保持M2_IN_PROGRESS等待精确head门禁'
+            Assert-Condition ($m2GateTask.Count -eq 1 -and $m2GateTask[0].Status -eq 'IN_PROGRESS' -and $m2GateTask[0].EvidenceStatus -eq 'LOCAL_PASS' -and $m2GateTask[0].CI -eq 'NOT_EXECUTED') 'EXT-007提供后M2-GATE必须为IN_PROGRESS/LOCAL_PASS/NOT_EXECUTED'
+            Assert-Condition ($m2StageGate.Count -eq 1 -and $m2StageGate[0].Status -eq 'IN_PROGRESS' -and $m2StageGate[0].EvidenceStatus -eq 'LOCAL_PASS') 'EXT-007提供后M2阶段必须保持IN_PROGRESS/LOCAL_PASS'
+            Assert-Condition ($ext007[0].EvidenceLink -eq 'artifacts/verification/M2-GATE/ext-007-category-compliance-confirmation.json' -and $ext007[0].ApprovedBy -eq 'COMPANY_AUTHORIZED_BUSINESS_COMPLIANCE_REVIEWER') 'EXT-007提供状态缺少脱敏回执或授权角色'
+        } else {
+            Assert-Condition $false 'M2-GATE的EXT-007状态必须为NOT_PROVIDED或PROVIDED'
+        }
     }
     Assert-Condition ($m3StageGate.Count -eq 1 -and $m3StageGate[0].Status -eq 'LOCKED' -and $m3StageGate[0].EvidenceStatus -eq 'NOT_EXECUTED') 'M3未保持LOCKED/NOT_EXECUTED'
 }
