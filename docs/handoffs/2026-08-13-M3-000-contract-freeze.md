@@ -8,7 +8,7 @@
 - M2-GATE：PR #74 按授权精确 head `5c00e74d2d0f4bd6a7368f368a01e19a4425e68e` 转 Ready 并合并。
 - M2-GATE merge commit：`6cbe9460109c3b0ed5eb4ba307eec4c2cb5d23d9`。
 - 合并后 main CI：run `31686758134` / job `94404518581`，对应上述 merge commit，`CI_PASS`。
-- 当前任务：Issue #75，分支 `codex/m3-contract-freeze`，基线为上述 merge commit；Draft PR 尚未创建。
+- 当前任务：Issue #75，分支 `codex/m3-contract-freeze`，实现提交 `26d9ce46c1137004165194900549fe851bd8db39`，Draft PR #76；精确 head CI 待读取。
 
 ## 唯一目标与非目标
 
