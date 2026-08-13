@@ -2,7 +2,7 @@
   "schemaVersion": "1.0.0",
   "taskId": "M2-GATE",
   "stage": "M2",
-  "generatedAt": "2026-08-13T07:38:35.192Z",
+  "generatedAt": "2026-08-13T07:58:33.209Z",
   "status": "IN_PROGRESS",
   "gateConclusion": "PENDING_EXACT_HEAD_CI_AND_MERGE",
   "technicalConclusion": "LOCAL_PASS",
@@ -105,6 +105,14 @@
       "migration": { "status": "PASS", "empty": 2, "upgrade": 2, "restore": 2, "productMigrations": 24, "cleanup": "PASS" },
       "commitBoundEvidence": "NOT_EXECUTED_UNTIL_CHANGES_ARE_COMMITTED"
     },
+    "ext007ImplementationCommitVerification": {
+      "status": "PASS",
+      "commitSha": "f93bcc1e1bc370c4d23a825f226fdcf938007657",
+      "fullVerify": { "status": "PASS", "stepsPassed": 17, "exitCode": 0, "startedAt": "2026-08-13T07:44:35.816Z", "endedAt": "2026-08-13T07:58:33.209Z" },
+      "migration": { "status": "PASS", "empty": 2, "upgrade": 2, "restore": 2, "productMigrations": 24, "cleanup": "PASS" },
+      "openapi": { "status": "PASS", "deterministic": true, "breakingChanges": 0 },
+      "secrets": { "status": "PASS", "trackedFilesChecked": 780 }
+    },
     "preFinalFailures": [
       { "attempt": 1, "status": "FAIL", "failedStep": "regression", "reason": "Three M1 handoff contracts still required M2_IN_PROGRESS after the stage advanced to the blocked M2 gate." },
       { "attempt": 2, "status": "FAIL", "failedStep": "regression", "reason": "Six M2 historical slice contracts still required M2-P071 to be the active slice." },
@@ -152,7 +160,7 @@
     "nextAllowedTask": "M2-GATE",
     "m3Unlocked": false,
     "requiredActions": [
-      "Commit the normalized EXT-007 evidence, rerun full verification on that implementation commit, and record the new exact head.",
+      "Commit the verification evidence, push Draft PR #74, and confirm CI succeeds on the new exact head.",
       "Keep M2-GATE pull request #74 Draft until the current exact-head CI succeeds.",
       "After exact-head CI succeeds, document current-head self-review and request explicit Ready/merge authorization for that head.",
       "Do not start M3 until M2-GATE is merged after exact-head authorization and the post-merge main CI succeeds."

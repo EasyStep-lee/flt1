@@ -42,11 +42,12 @@
 - RED：`node --test tests/handoffs/m2-gate-ext-007-provided.contract.test.mjs`，3 个测试均因回执、归一化政策和新交接不存在而失败，退出码 `1`。
 - GREEN：`node --test tests/handoffs/m2-gate-ext-007-provided.contract.test.mjs` 为 3/3；M2 门禁 focused 契约组最终为 57/57。历史状态断言在推进到 `M2-GATE/IN_PROGRESS` 后曾依次出现 34/57、51/57、55/57，均按当前真实状态修正后复跑通过，没有删除测试或降低业务断言。
 - 工作树完整验证：`pnpm verify` 于 `2026-08-13T07:24:55.405Z` 至 `07:38:35.192Z` 通过 17/17。首次完整运行在 `migration-rehearsal` 因 Docker Desktop Linux Engine 未运行而失败；启动本机 Docker Desktop 后，迁移 focused 演练为 `empty=2/upgrade=2/restore=2/product=24/cleanup=PASS`，随后完整复跑退出码 `0`。该结果基于 `c7b33c3` 加本切片未提交工作树，只记为工作树证据，不冒充提交级证据。
+- 提交级完整验证：实现提交 `f93bcc1e1bc370c4d23a825f226fdcf938007657` 上的 `pnpm verify` 于 `2026-08-13T07:44:35.816Z` 至 `07:58:33.209Z` 再次通过 17/17，退出码 `0`；迁移演练、OpenAPI 确定性/breaking、P0 E2E、构建和秘密扫描均包含在内。离线/失败恢复用例出现的本机代理 `ECONNREFUSED` 属预期测试输入，未形成失败步骤。
 
 ## P0、环境与边界
 
 - M2 18 项主 P0 的既有技术证据保持 `CI_PASS`；EXT-007 仅补齐正式业务/合规输入，不把自动化证据升级为 staging、真机或生产证据。
-- local：本次工作树 focused 与完整验证均为 `LOCAL_PASS`；精确提交仍需在提交后复验。
+- local：focused、工作树完整验证及实现提交 `f93bcc1` 的完整验证均为 `LOCAL_PASS`。
 - PR 当前变更 CI：`NOT_EXECUTED`。
 - staging：`NOT_EXECUTED`。
 - 真机：`NOT_EXECUTED`。
@@ -60,9 +61,8 @@
 
 ## 继续条件
 
-1. 将当前变更提交，并在该实现提交上复跑完整 `pnpm verify`，形成提交级本地证据。
-2. 推送 Draft PR #74 后读取最新 Actions，确认 CI 对应当前精确 head 且成功。
-3. 对当前精确 head 完成自审并由用户明确授权 Ready/合并。
-4. 合并后 main CI 成功，才可把 M2-GATE 写成 PASS 并解锁 M3。
+1. 提交本次提交级验证登记并推送 Draft PR #74，读取最新 Actions，确认 CI 对应当前精确 head 且成功。
+2. 对当前精确 head 完成自审并由用户明确授权 Ready/合并。
+3. 合并后 main CI 成功，才可把 M2-GATE 写成 PASS 并解锁 M3。
 
 在以上条件全部满足前，`nextAllowedTask=M2-GATE`，M3 保持锁定。
