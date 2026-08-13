@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-13T12:24:13.028Z",
+  "updatedAt": "2026-08-13T13:50:08.833Z",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -86,11 +86,11 @@
       "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/77",
       "branch": "codex/m3-user-home",
       "baseCommit": "05c87e058d86ab05dfaa09b6bb6d4341e7f45019",
-      "implementationCommit": null,
+      "implementationCommit": "0f8257ca79ec6feb6893f45747c3bda4894cbd55",
       "deliveryHead": null,
-      "status": "LOCAL_PASS_PENDING_FULL_VERIFY_COMMIT_PR_CI_AND_MERGE",
+      "status": "LOCAL_PASS_PENDING_PR_CI_AND_MERGE",
       "localFocusedTest": "LOCAL_PASS_API_3_MINIAPP_3_REPOSITORY_5_P0_E2E_1",
-      "localFullVerify": "NOT_EXECUTED",
+      "localFullVerify": "LOCAL_PASS_17_OF_17_ON_0F8257C",
       "pullRequest": null,
       "pullRequestState": "NOT_CREATED",
       "exactHeadCi": "NOT_EXECUTED",

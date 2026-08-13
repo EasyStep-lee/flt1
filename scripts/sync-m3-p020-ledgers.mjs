@@ -4,8 +4,9 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const pack = path.join(root, '福礼社Codex5.6开发执行包V1.1');
-const updatedAt = '2026-08-13T12:24:13.028Z';
+const updatedAt = '2026-08-13T13:50:08.833Z';
 const mergedM3ContractCommit = '05c87e058d86ab05dfaa09b6bb6d4341e7f45019';
+const verifiedImplementationCommit = '0f8257ca79ec6feb6893f45747c3bda4894cbd55';
 
 const parseLine = (line) => {
   const values = [];
@@ -44,7 +45,7 @@ const updateCsv = async (relativePath, update) => {
 
 await updateCsv('03-任务台账.csv', (row) => {
   if (row.TaskID === 'M3-000') return { ...row, Status: 'DONE', EvidenceStatus: 'CI_PASS', CommitSHA: mergedM3ContractCommit, CI: 'CI_PASS', UpdatedAt: '2026-08-13T12:06:09Z', Notes: 'PR #76精确head 78eeade经授权转Ready并合并；merge commit 05c87e0；main CI run 31697763759成功，M3-P020已解锁。' };
-  if (row.TaskID === 'M3-P020') return { ...row, Status: 'IN_PROGRESS', EvidenceStatus: 'LOCAL_PASS', Owner: 'CODEX', GitHubIssue: 'https://github.com/EasyStep-lee/flt1/issues/77', Branch: 'codex/m3-user-home', CommitSHA: 'PENDING_LOCAL_COMMIT', PullRequest: '', CI: 'NOT_EXECUTED', UpdatedAt: updatedAt, Notes: 'RED证据为公开货架404、首页构建产物缺失及TabBar错误；最小实现后API 3/3、小程序3/3、仓储5/5、P0 E2E 1/1通过。仅实现首页与GET /v1/catalog/products；无迁移；真机、CI、staging和production未执行。' };
+  if (row.TaskID === 'M3-P020') return { ...row, Status: 'IN_PROGRESS', EvidenceStatus: 'LOCAL_PASS', Owner: 'CODEX', GitHubIssue: 'https://github.com/EasyStep-lee/flt1/issues/77', Branch: 'codex/m3-user-home', CommitSHA: verifiedImplementationCommit, PullRequest: '', CI: 'NOT_EXECUTED', UpdatedAt: updatedAt, Notes: 'RED证据为公开货架404、首页构建产物缺失及TabBar错误；最小实现后API 3/3、小程序3/3、仓储5/5、P0 E2E 1/1通过；实现提交0f8257c全量pnpm verify 17/17通过。仅实现首页与GET /v1/catalog/products；无迁移；真机、CI、staging和production未执行。' };
   if (row.TaskID === 'M3-P022') return { ...row, Status: 'LOCKED', EvidenceStatus: 'NOT_EXECUTED', Owner: 'UNASSIGNED', Notes: '仅在M3-P020精确head PR CI成功、人工合并且合并后main CI成功后解锁；当前禁止订单、库存预扣与资金实现。' };
   return null;
 });
@@ -53,7 +54,7 @@ await updateCsv('04-P0-1至P0-119验收矩阵.csv', (row) => row.P0ID === 'P0-02
   CurrentEvidenceStatus: 'LOCAL_PASS',
   AutomatedTestID: 'NEG-M3-P020-01|NEG-M3-P020-02|NEG-M3-P020-03|apps/api/test/supertest/consumer-home-catalog-api.test.mjs|apps/user-miniapp/test/home-build.test.mjs|tests/e2e/p0/p0-020-user-home.spec.ts',
   EvidenceLink: 'docs/handoffs/2026-08-13-M3-P020-user-home.md',
-  LastVerifiedCommit: 'PENDING_LOCAL_COMMIT',
+  LastVerifiedCommit: verifiedImplementationCommit,
   Verifier: 'CODEX',
   VerifiedAt: updatedAt,
   Notes: 'LOCAL_PASS仅覆盖本地行为/API/P0模拟；微信开发者工具与真机未执行，CI须等待Draft PR精确head Actions。',
@@ -69,10 +70,10 @@ await updateCsv('10-测试证据登记.csv', (row) => row.EvidenceID === 'EVD-02
   ...row,
   CurrentStatus: 'LOCAL_PASS',
   CommandOrProcedure: 'pnpm exec vitest run apps/api/test/supertest/consumer-home-catalog-api.test.mjs; node --test apps/user-miniapp/test/home-build.test.mjs apps/api/test/unit/public-catalog-prisma-repository.test.mjs; pnpm exec playwright test tests/e2e/p0/p0-020-user-home.spec.ts --config playwright.p0.config.ts; pnpm verify',
-  Actual: 'RED: API 404、首页构建产物缺失、首路由/TabBar错误。GREEN: API 3/3、小程序3/3、仓储5/5、P0 E2E 1/1；全量pnpm verify待最终执行。',
+  Actual: 'RED: API 404、首页构建产物缺失、首路由/TabBar错误。GREEN: API 3/3、小程序3/3、仓储5/5、P0 E2E 1/1；实现提交0f8257c全量pnpm verify 17/17通过，P0门禁52/52。',
   Environment: 'LOCAL_WINDOWS_NODE22_MOCK_EXTERNALS',
   ExecutedAt: updatedAt,
-  CommitSHA: 'PENDING_LOCAL_COMMIT',
+  CommitSHA: verifiedImplementationCommit,
   ArtifactOrScreenshot: 'docs/handoffs/2026-08-13-M3-P020-user-home.md',
   Executor: 'CODEX',
   Freshness: 'FRESH_LOCAL',
@@ -126,7 +127,7 @@ status.github = {
   lastVerifiedPullRequestHead: null,
   pullRequestCi: { status: 'NOT_EXECUTED', runId: null, jobId: null, runUrl: null, headSha: null, completedAt: null },
   latestCi: { scope: 'M3_000_MAIN_POST_MERGE', status: 'CI_PASS', runId: 31697763759, jobId: 94439368381, runUrl: 'https://github.com/EasyStep-lee/flt1/actions/runs/31697763759', headSha: mergedM3ContractCommit, event: 'push', completedAt: '2026-08-13T12:06:09Z', firstAttempt: 'PASS' },
-  currentTaskDelivery: { taskId: 'M3-P020', issue: 77, issueUrl: 'https://github.com/EasyStep-lee/flt1/issues/77', branch: 'codex/m3-user-home', baseCommit: mergedM3ContractCommit, implementationCommit: null, deliveryHead: null, status: 'LOCAL_PASS_PENDING_FULL_VERIFY_COMMIT_PR_CI_AND_MERGE', localFocusedTest: 'LOCAL_PASS_API_3_MINIAPP_3_REPOSITORY_5_P0_E2E_1', localFullVerify: 'NOT_EXECUTED', pullRequest: null, pullRequestState: 'NOT_CREATED', exactHeadCi: 'NOT_EXECUTED', review: 'NOT_EXECUTED', merge: 'NOT_EXECUTED', mainPostMergeCi: 'NOT_EXECUTED', blockingExternalItem: null, nextTaskUnlocked: false },
+  currentTaskDelivery: { taskId: 'M3-P020', issue: 77, issueUrl: 'https://github.com/EasyStep-lee/flt1/issues/77', branch: 'codex/m3-user-home', baseCommit: mergedM3ContractCommit, implementationCommit: verifiedImplementationCommit, deliveryHead: null, status: 'LOCAL_PASS_PENDING_PR_CI_AND_MERGE', localFocusedTest: 'LOCAL_PASS_API_3_MINIAPP_3_REPOSITORY_5_P0_E2E_1', localFullVerify: 'LOCAL_PASS_17_OF_17_ON_0F8257C', pullRequest: null, pullRequestState: 'NOT_CREATED', exactHeadCi: 'NOT_EXECUTED', review: 'NOT_EXECUTED', merge: 'NOT_EXECUTED', mainPostMergeCi: 'NOT_EXECUTED', blockingExternalItem: null, nextTaskUnlocked: false },
   previousTaskDelivery: { taskId: 'M3-000', pullRequest: 76, pullRequestUrl: 'https://github.com/EasyStep-lee/flt1/pull/76', exactHead: '78eeade32d868b32d544230d218a90ef9f259c01', mergeCommit: mergedM3ContractCommit, mainPostMergeCiRun: 31697763759, mainPostMergeCiJob: 94439368381, status: 'CI_PASS' },
   note: 'M3-000已在main取得CI_PASS。M3-P020仅本地通过；M3-P022及后续保持锁定。',
 };
