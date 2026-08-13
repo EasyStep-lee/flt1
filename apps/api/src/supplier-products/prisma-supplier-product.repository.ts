@@ -1149,6 +1149,16 @@ export class PrismaSupplierProductRepository implements SupplierProductRepositor
                 retailPriceVersion: command.priceVersion,
                 enterprisePriceVersion: command.priceVersion,
                 status: 'ACTIVE',
+                inventoryBalance: {
+                  create: {
+                    availableQty: sku.initialStock,
+                    reservedQty: 0,
+                    soldQty: 0,
+                    damagedQty: 0,
+                    safetyStockQty: 0,
+                    version: 0,
+                  },
+                },
               })),
             },
           },

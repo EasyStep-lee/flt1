@@ -113,6 +113,26 @@ enum SkuStatus {
   ARCHIVED
 }
 
+enum InventoryChangeType {
+  INCREASE
+  DECREASE
+  STOCKTAKE_GAIN
+  STOCKTAKE_LOSS
+  DAMAGE
+  RESERVE
+  RELEASE
+  CONFIRM_SALE
+}
+
+enum InventoryReferenceType {
+  MANUAL_ADJUSTMENT
+  STOCKTAKE
+  DAMAGE
+  ORDER_RESERVATION
+  ORDER_RELEASE
+  ORDER_CONFIRM
+}
+
 enum SupplyPriceChangeStatus {
   SUBMITTED
   APPROVED
@@ -366,6 +386,7 @@ model Supplier {
   supplyPriceChangeRequests SupplyPriceChangeRequest[]
   priceChangeLogs           PriceChangeLog[]
   priceEffectOutboxes       PriceEffectOutbox[]
+  inventoryChangeLogs       InventoryChangeLog[]
 
   @@index([companyId, status], map: "supplier_company_id_status_idx")
   @@map("supplier")
@@ -996,9 +1017,77 @@ model Sku {
   supplyPriceChangeRequests  SupplyPriceChangeRequest[]
   priceChangeLogs            PriceChangeLog[]
   priceEffectOutboxes        PriceEffectOutbox[]
+  inventoryBalance           InventoryBalance?
+  inventoryChangeLogs        InventoryChangeLog[]
 
   @@index([productId, status], map: "sku_product_status_idx")
   @@map("sku")
+}
+
+model InventoryBalance {
+  id             String               @id @default(uuid()) @db.Char(36)
+  skuId          String               @unique(map: "inventory_balance_sku_key") @map("sku_id") @db.Char(36)
+  availableQty   Int                  @default(0) @map("available_qty")
+  reservedQty    Int                  @default(0) @map("reserved_qty")
+  soldQty        Int                  @default(0) @map("sold_qty")
+  damagedQty     Int                  @default(0) @map("damaged_qty")
+  safetyStockQty Int                  @default(0) @map("safety_stock_qty")
+  version        Int                  @default(0)
+  createdAt      DateTime             @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt      DateTime             @updatedAt @map("updated_at") @db.DateTime(3)
+  sku            Sku                  @relation(fields: [skuId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  changeLogs     InventoryChangeLog[]
+
+  @@index([availableQty, safetyStockQty], map: "inventory_balance_warning_idx")
+  @@map("inventory_balance")
+}
+
+model InventoryChangeLog {
+  id                  String                 @id @default(uuid()) @db.Char(36)
+  inventoryBalanceId  String                 @map("inventory_balance_id") @db.Char(36)
+  supplierId          String                 @map("supplier_id") @db.Char(36)
+  skuId               String                 @map("sku_id") @db.Char(36)
+  type                InventoryChangeType
+  availableDelta      Int                    @map("available_delta")
+  reservedDelta       Int                    @map("reserved_delta")
+  soldDelta           Int                    @map("sold_delta")
+  damagedDelta        Int                    @map("damaged_delta")
+  beforeAvailableQty  Int                    @map("before_available_qty")
+  afterAvailableQty   Int                    @map("after_available_qty")
+  beforeReservedQty   Int                    @map("before_reserved_qty")
+  afterReservedQty    Int                    @map("after_reserved_qty")
+  beforeSoldQty       Int                    @map("before_sold_qty")
+  afterSoldQty        Int                    @map("after_sold_qty")
+  beforeDamagedQty    Int                    @map("before_damaged_qty")
+  afterDamagedQty     Int                    @map("after_damaged_qty")
+  resultingVersion    Int                    @map("resulting_version")
+  referenceType       InventoryReferenceType @map("reference_type")
+  referenceId         String                 @map("reference_id") @db.VarChar(128)
+  reason              String                 @db.VarChar(1000)
+  actorIdentityId     String?                @map("actor_identity_id") @db.Char(36)
+  functionalAccountId String?                @map("functional_account_id") @db.Char(36)
+  occurredAt          DateTime               @default(now()) @map("occurred_at") @db.DateTime(3)
+  inventoryBalance    InventoryBalance       @relation(fields: [inventoryBalanceId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "inventory_change_log_balance_id_fkey")
+  supplier            Supplier               @relation(fields: [supplierId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  sku                 Sku                    @relation(fields: [skuId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@unique([inventoryBalanceId, resultingVersion], map: "inventory_change_log_balance_version_key")
+  @@index([supplierId, occurredAt], map: "inventory_change_log_supplier_time_idx")
+  @@index([skuId, occurredAt], map: "inventory_change_log_sku_time_idx")
+  @@index([referenceType, referenceId], map: "inventory_change_log_reference_idx")
+  @@map("inventory_change_log")
+}
+
+model InventoryCommand {
+  id               String   @id @default(uuid()) @db.Char(36)
+  scope            String   @db.VarChar(191)
+  idempotencyKey   String   @map("idempotency_key") @db.VarChar(128)
+  requestHash      String   @map("request_hash") @db.Char(64)
+  responseSnapshot Json     @map("response_snapshot")
+  createdAt        DateTime @default(now()) @map("created_at") @db.DateTime(3)
+
+  @@unique([scope, idempotencyKey], map: "inventory_command_scope_key")
+  @@map("inventory_command")
 }
 
 model SupplyPriceChangeRequest {

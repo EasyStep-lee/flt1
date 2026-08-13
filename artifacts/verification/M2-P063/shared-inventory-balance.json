@@ -1,0 +1,54 @@
+{
+  "taskId": "M2-P063",
+  "p0Ids": ["P0-063"],
+  "status": "LOCAL_PASS",
+  "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+  "baseCommit": "09433c07ae48dbfc9b45c0cc3ecbe67240e58f50",
+  "implementationCommit": "80cc4eaf4cf39650c480dbeefce243cd88784d9e",
+  "branch": "codex/m2-shared-inventory-balance",
+  "issue": 69,
+  "red": {
+    "test": "apps/api/test/supertest/shared-inventory-balance-api.test.mjs",
+    "result": "FAIL_EXPECTED",
+    "tests": "2/2 failed because the inventory routes returned 404"
+  },
+  "green": {
+    "focusedApi": "2/2 passed",
+    "internalDomain": "2/2 passed",
+    "contractAndMigration": "2/2 passed",
+    "supplierPortal": "4/4 passed",
+    "focusedP0E2e": "4/4 passed including P0-070 regression",
+    "prismaValidate": "passed",
+    "openApiCheck": "passed",
+    "mysqlRehearsal": "empty=2; upgrade=2; restore=2; product=24; cleanup=PASS"
+  },
+  "fullVerify": {
+    "command": "pnpm verify",
+    "status": "PASS",
+    "steps": 17,
+    "commit": "80cc4eaf4cf39650c480dbeefce243cd88784d9e",
+    "startedAt": "2026-08-12T11:33:23.512Z",
+    "endedAt": "2026-08-12T11:47:18.001Z",
+    "report": "artifacts/test-results/verification/pnpm-verify.json"
+  },
+  "invariants": [
+    "one InventoryBalance per platform Sku",
+    "non-negative quantities and monotonic version",
+    "append-only arithmetic history",
+    "session-derived supplier ownership",
+    "idempotent replay and conflict detection",
+    "no supply or sale prices in supplier inventory DTOs",
+    "no public order inventory command API in M2"
+  ],
+  "environment": {
+    "local": "LOCAL_PASS",
+    "ci": "NOT_EXECUTED",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_EXECUTED",
+    "production": "NOT_EXECUTED"
+  },
+  "risk": "M3 must compose cross-supplier order reservations transactionally and must not add another inventory store.",
+  "rollback": "Revert application commits; retain applied append-only schema/history and use a forward repair migration.",
+  "nextAllowedTask": "M2-P063 exact-head Draft PR and CI only",
+  "prohibitedNext": "M2-P071 until PR merge and post-merge main CI pass"
+}

@@ -1,7 +1,7 @@
 {
   "taskId": "M2-P061",
   "p0Ids": ["P0-061"],
-  "status": "LOCAL_PASS",
+  "status": "CI_PASS",
   "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
   "baseCommit": "b2fee8424b803a5e629f1c243632bbefe2d566c3",
   "implementationCommit": "296f65ed17d433a02002b0030322dbb9a80d6ce1",
@@ -34,6 +34,28 @@
     "endedAt": "2026-08-12T09:10:12.993Z",
     "report": "artifacts/test-results/verification/pnpm-verify.json"
   },
+  "github": {
+    "pullRequest": 68,
+    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/68",
+    "pullRequestState": "MERGED",
+    "verifiedHead": "74a53613b6f67b287e61e540d0feaadcc9b66437",
+    "ciRunId": 31582179718,
+    "ciJobId": 94067567399,
+    "ciRunUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31582179718",
+    "ciCompletedAt": "2026-08-12T09:26:25Z",
+    "ciStatus": "CI_PASS",
+    "comments": 0,
+    "reviews": 0,
+    "unresolvedReviewThreads": 0,
+    "merge": "MERGED",
+    "mergeCommit": "09433c07ae48dbfc9b45c0cc3ecbe67240e58f50",
+    "mergedAt": "2026-08-12T09:33:18Z",
+    "mainCiRunId": 31583443909,
+    "mainCiJobId": 94071640611,
+    "mainCiRunUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31583443909",
+    "mainCiCompletedAt": "2026-08-12T09:42:30Z",
+    "mainCiStatus": "CI_PASS"
+  },
   "database": {
     "migrationId": "MIG-008A",
     "migrationDirectory": "20260812080000_m2_shared_catalog_enterprise_flag",
@@ -56,7 +78,7 @@
   ],
   "environmentBoundary": {
     "local": "LOCAL_PASS",
-    "ci": "NOT_EXECUTED",
+    "ci": "CI_PASS",
     "staging": "NOT_EXECUTED",
     "device": "NOT_EXECUTED",
     "production": "NOT_EXECUTED"
@@ -66,6 +88,6 @@
     "M3 enterprise authentication and full procurement interaction",
     "staging, device and production evidence"
   ],
-  "nextAllowedTask": "M2-P061_COMMIT_DRAFT_PR_EXACT_HEAD_CI",
-  "prohibitedNext": "M2-P063"
+  "nextAllowedTask": "M2-P063",
+  "prohibitedNext": "M2-P071_AND_M3"
 }

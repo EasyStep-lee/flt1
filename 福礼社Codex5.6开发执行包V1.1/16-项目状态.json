@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-12T08:12:00Z",
+  "updatedAt": "2026-08-12T11:47:18Z",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -14,15 +14,15 @@
   "execution": {
     "status": "M2_IN_PROGRESS",
     "currentStage": "M2",
-    "currentTask": "M2-P061",
-    "nextAllowedTask": "M2-P061",
+    "currentTask": "M2-P063",
+    "nextAllowedTask": "M2-P063",
     "activeTaskCount": 1,
-    "lastCompletedTask": "M2-P021",
-    "lastCompletedCommit": "b2fee8424b803a5e629f1c243632bbefe2d566c3",
+    "lastCompletedTask": "M2-P061",
+    "lastCompletedCommit": "09433c07ae48dbfc9b45c0cc3ecbe67240e58f50",
     "lastPassedGate": "M1-GATE",
     "prohibitedUntilGate": [
-      "M2-P061最终证据head CI通过后才可请求人工将对应Draft PR转Ready并合并",
-      "M2-P061人工合并及合并后main CI完成前不得开始M2-P063"
+      "M2-P063最终证据head CI通过后才可请求人工将对应Draft PR转Ready并合并",
+      "M2-P063人工合并及合并后main CI完成前不得开始M2-P071"
     ],
     "persistentRestrictions": [
       "M2-GATE通过前M3及以后阶段保持LOCKED/NOT_STARTED",
@@ -72,43 +72,43 @@
     "latestCi": {
       "scope": "PREVIOUS_TASK_POST_MERGE_MAIN",
       "status": "CI_PASS",
-      "runId": 31573819683,
-      "jobId": 94041350239,
-      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31573819683",
-      "headSha": "b2fee8424b803a5e629f1c243632bbefe2d566c3",
+      "runId": 31583443909,
+      "jobId": 94071640611,
+      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31583443909",
+      "headSha": "09433c07ae48dbfc9b45c0cc3ecbe67240e58f50",
       "event": "push",
-      "completedAt": "2026-08-12T07:33:42Z"
+      "completedAt": "2026-08-12T09:42:30Z"
     },
     "currentTaskDelivery": {
-      "taskId": "M2-P061",
-      "issue": 67,
-      "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/67",
-      "branch": "codex/m2-shared-catalog-enterprise-flag",
-      "baseCommit": "b2fee8424b803a5e629f1c243632bbefe2d566c3",
-      "implementationCommit": "296f65ed17d433a02002b0030322dbb9a80d6ce1",
+      "taskId": "M2-P063",
+      "issue": 69,
+      "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/69",
+      "branch": "codex/m2-shared-inventory-balance",
+      "baseCommit": "09433c07ae48dbfc9b45c0cc3ecbe67240e58f50",
+      "implementationCommit": "80cc4eaf4cf39650c480dbeefce243cd88784d9e",
       "deliveryHead": null,
       "status": "IN_PROGRESS",
       "technicalConclusion": "LOCAL_FULL_VERIFY_17_OF_17_PASS_PENDING_DRAFT_PR_AND_EXACT_HEAD_CI",
       "blockingExternalItem": null,
-      "localFullVerify": "LOCAL_PASS_17_OF_17_COMMIT_296F65E",
+      "localFullVerify": "LOCAL_PASS_17_OF_17_COMMIT_80CC4EA",
       "pullRequest": null,
       "pullRequestState": "NOT_CREATED",
       "exactHeadCi": "NOT_EXECUTED",
       "review": "NOT_EXECUTED",
       "merge": "NOT_EXECUTED",
       "mainPostMergeCi": "NOT_EXECUTED",
-      "m2p063StartAllowed": false
+      "m2p071StartAllowed": false
     },
     "previousTaskDelivery": {
-      "taskId": "M2-P021",
-      "pullRequest": 66,
-      "exactHead": "7c9cb32da828cfe65bbd3918fb940d58f9c4c805",
-      "pullRequestCiRun": 31572083328,
-      "mergeCommit": "b2fee8424b803a5e629f1c243632bbefe2d566c3",
-      "mainPostMergeCiRun": 31573819683,
+      "taskId": "M2-P061",
+      "pullRequest": 68,
+      "exactHead": "74a53613b6f67b287e61e540d0feaadcc9b66437",
+      "pullRequestCiRun": 31582179718,
+      "mergeCommit": "09433c07ae48dbfc9b45c0cc3ecbe67240e58f50",
+      "mainPostMergeCiRun": 31583443909,
       "status": "CI_PASS"
     },
-    "note": "M2-P021 PR #66最终head 7c9cb32经用户授权合并为main@b2fee842；合并后main Actions run 31573819683/job 94041350239成功。M2-P061实现提交296f65e已完成pnpm verify 17/17、API 179/179、P0 E2E 48/48、阶段契约80/80、迁移41/41和真实MySQL演练；Draft PR与exact-head CI待执行。"
+    "note": "M2-P061 PR #68已合并且main run 31583443909成功。M2-P063已完成RED、最小实现、focused与MySQL演练；提交80cc4ea的完整pnpm verify 17/17通过。Draft PR、exact-head CI、人工合并及合并后main CI未执行，M2-P071保持锁定。"
   },
   "evidence": {
     "local": "LOCAL_PASS",
@@ -120,8 +120,8 @@
   "counts": {
     "tasks": 149,
     "p0": 119,
-    "fields": 670,
-    "stateTransitions": 105,
+    "fields": 688,
+    "stateTransitions": 109,
     "permissions": 22,
     "pages": 80,
     "externalDependencies": 28,

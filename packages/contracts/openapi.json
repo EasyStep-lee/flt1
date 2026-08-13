@@ -91,7 +91,10 @@
               "TEMPLATE_SCHEMA_INVALID",
               "TEMPLATE_VERSION_INACTIVE",
               "TEMPLATE_VERSION_IMMUTABLE",
-              "SENSITIVE_FIELD_LEAK"
+              "SENSITIVE_FIELD_LEAK",
+              "INVENTORY_NEGATIVE",
+              "INVENTORY_STATE_INVALID",
+              "INVENTORY_VERSION_CONFLICT"
             ],
             "example": "RESOURCE_NOT_FOUND",
             "type": "string"
@@ -3298,6 +3301,264 @@
           "initialPriceEditable",
           "latestReview",
           "skus"
+        ],
+        "type": "object"
+      },
+      "SupplierInventoryAdjustmentRequestDto": {
+        "properties": {
+          "expectedVersion": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "mode": {
+            "enum": [
+              "DELTA_AVAILABLE",
+              "SET_AVAILABLE"
+            ],
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer"
+          },
+          "reason": {
+            "maxLength": 1000,
+            "minLength": 2,
+            "type": "string"
+          },
+          "safetyStockQty": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "type": {
+            "enum": [
+              "INCREASE",
+              "DECREASE",
+              "STOCKTAKE_GAIN",
+              "STOCKTAKE_LOSS",
+              "DAMAGE"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "mode",
+          "quantity",
+          "expectedVersion",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "SupplierInventoryBalanceDto": {
+        "properties": {
+          "availableQty": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "damagedQty": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "productName": {
+            "type": "string"
+          },
+          "reservedQty": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "safetyStockQty": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "skuCode": {
+            "type": "string"
+          },
+          "skuId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "soldQty": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "status": {
+            "enum": [
+              "AVAILABLE",
+              "LOW_STOCK",
+              "OUT_OF_STOCK"
+            ],
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "warning": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "skuId",
+          "productName",
+          "skuCode",
+          "status",
+          "availableQty",
+          "reservedQty",
+          "soldQty",
+          "damagedQty",
+          "safetyStockQty",
+          "warning",
+          "version",
+          "updatedAt"
+        ],
+        "type": "object"
+      },
+      "SupplierInventoryChangeDto": {
+        "properties": {
+          "afterAvailableQty": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "afterReservedQty": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "afterSoldQty": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "availableDelta": {
+            "type": "number"
+          },
+          "beforeAvailableQty": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "beforeReservedQty": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "beforeSoldQty": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "damagedDelta": {
+            "type": "number"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "occurredAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "reservedDelta": {
+            "type": "number"
+          },
+          "resultingVersion": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "skuId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "soldDelta": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "skuId",
+          "type",
+          "availableDelta",
+          "reservedDelta",
+          "soldDelta",
+          "damagedDelta",
+          "beforeAvailableQty",
+          "afterAvailableQty",
+          "beforeReservedQty",
+          "afterReservedQty",
+          "beforeSoldQty",
+          "afterSoldQty",
+          "resultingVersion",
+          "reason",
+          "occurredAt"
+        ],
+        "type": "object"
+      },
+      "SupplierInventoryHistoryDto": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SupplierInventoryChangeDto"
+            },
+            "type": "array"
+          },
+          "total": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ],
+        "type": "object"
+      },
+      "SupplierInventoryMutationDto": {
+        "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/SupplierInventoryBalanceDto"
+          },
+          "log": {
+            "$ref": "#/components/schemas/SupplierInventoryChangeDto"
+          }
+        },
+        "required": [
+          "balance",
+          "log"
+        ],
+        "type": "object"
+      },
+      "SupplierInventoryPageDto": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SupplierInventoryBalanceDto"
+            },
+            "type": "array"
+          },
+          "page": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "pageSize": {
+            "maximum": 100,
+            "minimum": 1,
+            "type": "number"
+          },
+          "total": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "pageSize"
         ],
         "type": "object"
       },
@@ -8088,6 +8349,228 @@
         "x-fulishe-request-dto": "SupplierSelectWorkspaceRequestDto",
         "x-fulishe-response-dto": "SupplierSessionResponseDto",
         "x-fulishe-response-policy": "NEVER_RETURN_INTERNAL_PRICING"
+      }
+    },
+    "/v1/supplier/inventory": {
+      "get": {
+        "operationId": "supplierInventory.list",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "warningOnly",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "pageSize",
+            "required": false,
+            "schema": {
+              "maximum": 100,
+              "minimum": 1,
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "minimum": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupplierInventoryPageDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "List the current supplier shared SKU inventory balances",
+        "tags": [
+          "supplier-inventory"
+        ]
+      }
+    },
+    "/v1/supplier/inventory/{skuId}/adjustments": {
+      "post": {
+        "operationId": "supplierInventory.adjust",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "skuId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SupplierInventoryAdjustmentRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupplierInventoryMutationDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Append one idempotent inventory adjustment",
+        "tags": [
+          "supplier-inventory"
+        ]
+      }
+    },
+    "/v1/supplier/inventory/{skuId}/history": {
+      "get": {
+        "operationId": "supplierInventory.history",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "skuId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupplierInventoryHistoryDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "List append-only inventory history in the current supplier scope",
+        "tags": [
+          "supplier-inventory"
+        ]
       }
     },
     "/v1/supplier/me": {

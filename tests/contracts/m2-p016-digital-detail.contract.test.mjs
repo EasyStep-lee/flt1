@@ -56,13 +56,13 @@ test('M2-P016 records its merged-main gate while P019 remains the only active sl
       ),
     ]);
 
-  assert.equal(state.execution.currentTask, 'M2-P061');
-  assert.equal(state.execution.nextAllowedTask, 'M2-P061');
-  assert.equal(state.execution.lastCompletedTask, 'M2-P021');
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2-P061.*M2-P063/u);
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M2-P061');
-  assert.equal(state.github.currentTaskDelivery.issue, 67);
-  assert.equal(state.github.currentTaskDelivery.branch, 'codex/m2-shared-catalog-enterprise-flag');
+  assert.equal(state.execution.currentTask, 'M2-P063');
+  assert.equal(state.execution.nextAllowedTask, 'M2-P063');
+  assert.equal(state.execution.lastCompletedTask, 'M2-P061');
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2-P063.*M2-P071/u);
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M2-P063');
+  assert.equal(state.github.currentTaskDelivery.issue, 69);
+  assert.equal(state.github.currentTaskDelivery.branch, 'codex/m2-shared-inventory-balance');
   assert.equal(
     state.github.currentTaskDelivery.exactHeadCi,
     'NOT_EXECUTED',
@@ -71,10 +71,10 @@ test('M2-P016 records its merged-main gate while P019 remains the only active sl
   assert.equal(state.github.currentTaskDelivery.pullRequestState, 'NOT_CREATED');
   assert.equal(state.github.currentTaskDelivery.merge, 'NOT_EXECUTED');
   assert.equal(state.github.currentTaskDelivery.mainPostMergeCi, 'NOT_EXECUTED');
-  assert.equal(state.github.currentTaskDelivery.m2p063StartAllowed, false);
-  assert.equal(state.github.previousTaskDelivery.taskId, 'M2-P021');
-  assert.equal(state.github.previousTaskDelivery.pullRequest, 66);
-  assert.equal(state.github.previousTaskDelivery.mainPostMergeCiRun, 31573819683);
+  assert.equal(state.github.currentTaskDelivery.m2p071StartAllowed, false);
+  assert.equal(state.github.previousTaskDelivery.taskId, 'M2-P061');
+  assert.equal(state.github.previousTaskDelivery.pullRequest, 68);
+  assert.equal(state.github.previousTaskDelivery.mainPostMergeCiRun, 31583443909);
   assert.equal(state.github.previousTaskDelivery.status, 'CI_PASS');
   assert.equal(evidence.taskId, 'M2-P016');
   assert.equal(evidence.status, 'CI_PASS');

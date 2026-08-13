@@ -10,8 +10,8 @@
   "counts": {
     "tasks": 149,
     "p0": 119,
-    "fields": 670,
-    "stateTransitions": 105,
+    "fields": 688,
+    "stateTransitions": 109,
     "permissions": 22,
     "pages": 80,
     "externalDependencies": 28,
@@ -21,7 +21,7 @@
   },
   "workbook": {
     "status": "VERIFIED",
-    "sha256": "E818DCFE72B7BEFFEC8FE36DF444F6B1AC55CBB0F10519970520DD925BCFC2E3"
+    "sha256": "A8802812EA1F002E5621489DCF8D9A327E05CFD2425D5D2A95F28D88E6DB3C6E"
   },
   "sourceOfTruth": [
     "综合方案HTML",

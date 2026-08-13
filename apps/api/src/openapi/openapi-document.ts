@@ -77,6 +77,15 @@ import {
 } from '../merchant/single-merchant.repository.js';
 import { SingleMerchantService } from '../merchant/single-merchant.service.js';
 import {
+  DenySupplierInventoryActorResolver,
+  SUPPLIER_INVENTORY_ACTOR_RESOLVER,
+} from '../inventory/inventory.actor.js';
+import { InventoryService } from '../inventory/inventory.service.js';
+import {
+  INVENTORY_REPOSITORY,
+  type InventoryRepository,
+} from '../inventory/inventory.repository.js';
+import {
   SENSITIVE_APPROVAL_REPOSITORY,
   type SensitiveApprovalRepository,
 } from '../sensitive-approval/sensitive-approval.repository.js';
@@ -334,6 +343,8 @@ type JsonValue =
     SupplierProductService,
     SupplierPricingService,
     PriceChangeService,
+    InventoryService,
+    DenySupplierInventoryActorResolver,
     NoopPriceEffectScheduler,
     CompanyProductApprovalService,
     PublicCatalogService,
@@ -366,6 +377,21 @@ type JsonValue =
     {
       provide: PRICE_EFFECT_SCHEDULER,
       useExisting: NoopPriceEffectScheduler,
+    },
+    {
+      provide: INVENTORY_REPOSITORY,
+      useValue: {
+        list: async () => [],
+        history: async () => [],
+        adjust: async () => { throw new Error('OPENAPI_GENERATION_ONLY'); },
+        reserve: async () => { throw new Error('OPENAPI_GENERATION_ONLY'); },
+        release: async () => { throw new Error('OPENAPI_GENERATION_ONLY'); },
+        confirmSale: async () => { throw new Error('OPENAPI_GENERATION_ONLY'); },
+      } satisfies InventoryRepository,
+    },
+    {
+      provide: SUPPLIER_INVENTORY_ACTOR_RESOLVER,
+      useExisting: DenySupplierInventoryActorResolver,
     },
     {
       provide: SUPPLIER_PRODUCT_REPOSITORY,

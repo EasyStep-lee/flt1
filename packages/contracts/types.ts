@@ -598,6 +598,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/supplier/inventory": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List the current supplier shared SKU inventory balances */
+        get: operations["supplierInventory.list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/supplier/inventory/{skuId}/adjustments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Append one idempotent inventory adjustment */
+        post: operations["supplierInventory.adjust"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/supplier/inventory/{skuId}/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List append-only inventory history in the current supplier scope */
+        get: operations["supplierInventory.history"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/supplier/me": {
         parameters: {
             query?: never;
@@ -847,7 +898,7 @@ export interface components {
              * @example RESOURCE_NOT_FOUND
              * @enum {string}
              */
-            code: "ACCESS_DENIED" | "AUTHENTICATION_REQUIRED" | "INTERNAL_ERROR" | "REQUEST_INVALID" | "RESOURCE_NOT_FOUND" | "SERVICE_UNAVAILABLE" | "FORBIDDEN_CAPABILITY" | "PAYEE_FORBIDDEN" | "SELLER_IDENTITY_FORBIDDEN" | "SINGLE_MERCHANT_VIOLATION" | "ACTOR_SPOOFED" | "ACCOUNT_TYPE_INVALID" | "APPROVAL_VERSION_CONFLICT" | "DATA_SCOPE_FORBIDDEN" | "FIELD_FORBIDDEN" | "IDEMPOTENCY_CONFLICT" | "SECOND_VERIFICATION_REQUIRED" | "STATE_TRANSITION_INVALID" | "SUPPLIER_DUPLICATE" | "SUPPLIER_SCOPE_FORBIDDEN" | "VALIDATION_FAILED" | "VERSION_CONFLICT" | "WORKSPACE_FORBIDDEN" | "ACCOUNT_SUSPENDED" | "AUTH_INVALID" | "AUTH_SESSION_REVOKED" | "RATE_LIMITED" | "SUPPLIER_NOT_ACTIVE" | "WORKSPACE_MENU_VIOLATION" | "WORKSPACE_MODULE_NOT_FOUND" | "WORKSPACE_SELECTION_REQUIRED" | "WORKSPACE_SESSION_CONFLICT" | "AUDIT_IMMUTABLE" | "AUDIT_REQUIRED" | "EXPORT_APPROVAL_REQUIRED" | "REQUEST_ID_REQUIRED" | "SAME_NATURAL_PERSON_REVIEW" | "SECOND_REVIEW_REQUIRED" | "APPROVAL_NOT_FOUND" | "APPROVAL_STATE_INVALID" | "IDEMPOTENCY_KEY_CONFLICT" | "IDEMPOTENCY_KEY_REQUIRED" | "APPAREL_HISTORY_REWRITE" | "APPAREL_REQUIRED_FIELD_MISSING" | "BUNDLE_SCHEMA_INVALID" | "DIGITAL_HISTORY_REWRITE" | "DIGITAL_MODEL_DUPLICATE" | "DIGITAL_REQUIRED_FIELD_MISSING" | "CATEGORY_DISABLED" | "CATEGORY_DUPLICATE" | "CATEGORY_LEVEL_INVALID" | "CATEGORY_NOT_FOUND" | "CATEGORY_NOT_LEAF" | "CATEGORY_PARENT_INVALID" | "CATEGORY_REFERENCED" | "CATEGORY_TEMPLATE_INVALID" | "DUPLICATE_CATALOG_RESOURCE" | "PRICE_FIELD_FORBIDDEN" | "PRICE_INVALID" | "INITIAL_PRICE_REVIEW_PENDING" | "INITIAL_PRICE_STATE_INVALID" | "PRICE_CHANGE_PENDING" | "PRICE_EFFECT_SCHEDULE_FAILED" | "SUPPLY_PRICE_REVIEW_REQUIRED" | "PRODUCT_APPROVAL_INCOMPLETE" | "PRODUCT_NOT_FOUND" | "PRODUCT_NOT_SALEABLE" | "SUPPLIER_INACTIVE" | "SUPPLIER_PRODUCT_DUPLICATE" | "SUPPLIER_PRODUCT_NOT_FOUND" | "SUPPLIER_SKU_DUPLICATE" | "SELF_APPROVAL_FORBIDDEN" | "SKU_DIMENSION_DUPLICATE" | "FRESH_HISTORY_REWRITE" | "FRESH_REQUIRED_FIELD_MISSING" | "FRESH_WEIGHT_RULE_INVALID" | "REGULATORY_WARNING_REQUIRED" | "REGULATED_CATEGORY_DISABLED" | "QUALIFICATION_REQUIRED" | "TEMPLATE_DATA_INVALID" | "TEMPLATE_DRAFT_EXISTS" | "TEMPLATE_IMMUTABLE" | "TEMPLATE_NOT_FOUND" | "TEMPLATE_SCHEMA_INVALID" | "TEMPLATE_VERSION_INACTIVE" | "TEMPLATE_VERSION_IMMUTABLE" | "SENSITIVE_FIELD_LEAK";
+            code: "ACCESS_DENIED" | "AUTHENTICATION_REQUIRED" | "INTERNAL_ERROR" | "REQUEST_INVALID" | "RESOURCE_NOT_FOUND" | "SERVICE_UNAVAILABLE" | "FORBIDDEN_CAPABILITY" | "PAYEE_FORBIDDEN" | "SELLER_IDENTITY_FORBIDDEN" | "SINGLE_MERCHANT_VIOLATION" | "ACTOR_SPOOFED" | "ACCOUNT_TYPE_INVALID" | "APPROVAL_VERSION_CONFLICT" | "DATA_SCOPE_FORBIDDEN" | "FIELD_FORBIDDEN" | "IDEMPOTENCY_CONFLICT" | "SECOND_VERIFICATION_REQUIRED" | "STATE_TRANSITION_INVALID" | "SUPPLIER_DUPLICATE" | "SUPPLIER_SCOPE_FORBIDDEN" | "VALIDATION_FAILED" | "VERSION_CONFLICT" | "WORKSPACE_FORBIDDEN" | "ACCOUNT_SUSPENDED" | "AUTH_INVALID" | "AUTH_SESSION_REVOKED" | "RATE_LIMITED" | "SUPPLIER_NOT_ACTIVE" | "WORKSPACE_MENU_VIOLATION" | "WORKSPACE_MODULE_NOT_FOUND" | "WORKSPACE_SELECTION_REQUIRED" | "WORKSPACE_SESSION_CONFLICT" | "AUDIT_IMMUTABLE" | "AUDIT_REQUIRED" | "EXPORT_APPROVAL_REQUIRED" | "REQUEST_ID_REQUIRED" | "SAME_NATURAL_PERSON_REVIEW" | "SECOND_REVIEW_REQUIRED" | "APPROVAL_NOT_FOUND" | "APPROVAL_STATE_INVALID" | "IDEMPOTENCY_KEY_CONFLICT" | "IDEMPOTENCY_KEY_REQUIRED" | "APPAREL_HISTORY_REWRITE" | "APPAREL_REQUIRED_FIELD_MISSING" | "BUNDLE_SCHEMA_INVALID" | "DIGITAL_HISTORY_REWRITE" | "DIGITAL_MODEL_DUPLICATE" | "DIGITAL_REQUIRED_FIELD_MISSING" | "CATEGORY_DISABLED" | "CATEGORY_DUPLICATE" | "CATEGORY_LEVEL_INVALID" | "CATEGORY_NOT_FOUND" | "CATEGORY_NOT_LEAF" | "CATEGORY_PARENT_INVALID" | "CATEGORY_REFERENCED" | "CATEGORY_TEMPLATE_INVALID" | "DUPLICATE_CATALOG_RESOURCE" | "PRICE_FIELD_FORBIDDEN" | "PRICE_INVALID" | "INITIAL_PRICE_REVIEW_PENDING" | "INITIAL_PRICE_STATE_INVALID" | "PRICE_CHANGE_PENDING" | "PRICE_EFFECT_SCHEDULE_FAILED" | "SUPPLY_PRICE_REVIEW_REQUIRED" | "PRODUCT_APPROVAL_INCOMPLETE" | "PRODUCT_NOT_FOUND" | "PRODUCT_NOT_SALEABLE" | "SUPPLIER_INACTIVE" | "SUPPLIER_PRODUCT_DUPLICATE" | "SUPPLIER_PRODUCT_NOT_FOUND" | "SUPPLIER_SKU_DUPLICATE" | "SELF_APPROVAL_FORBIDDEN" | "SKU_DIMENSION_DUPLICATE" | "FRESH_HISTORY_REWRITE" | "FRESH_REQUIRED_FIELD_MISSING" | "FRESH_WEIGHT_RULE_INVALID" | "REGULATORY_WARNING_REQUIRED" | "REGULATED_CATEGORY_DISABLED" | "QUALIFICATION_REQUIRED" | "TEMPLATE_DATA_INVALID" | "TEMPLATE_DRAFT_EXISTS" | "TEMPLATE_IMMUTABLE" | "TEMPLATE_NOT_FOUND" | "TEMPLATE_SCHEMA_INVALID" | "TEMPLATE_VERSION_INACTIVE" | "TEMPLATE_VERSION_IMMUTABLE" | "SENSITIVE_FIELD_LEAK" | "INVENTORY_NEGATIVE" | "INVENTORY_STATE_INVALID" | "INVENTORY_VERSION_CONFLICT";
             /** @example Resource was not found */
             message: string;
             /** @example /missing */
@@ -1708,6 +1759,68 @@ export interface components {
             /** Format: uuid */
             supplierProductId: string;
             version: number;
+        };
+        SupplierInventoryAdjustmentRequestDto: {
+            expectedVersion: number;
+            /** @enum {string} */
+            mode: "DELTA_AVAILABLE" | "SET_AVAILABLE";
+            quantity: number;
+            reason: string;
+            safetyStockQty?: number;
+            /** @enum {string} */
+            type: "INCREASE" | "DECREASE" | "STOCKTAKE_GAIN" | "STOCKTAKE_LOSS" | "DAMAGE";
+        };
+        SupplierInventoryBalanceDto: {
+            availableQty: number;
+            damagedQty: number;
+            productName: string;
+            reservedQty: number;
+            safetyStockQty: number;
+            skuCode: string;
+            /** Format: uuid */
+            skuId: string;
+            soldQty: number;
+            /** @enum {string} */
+            status: "AVAILABLE" | "LOW_STOCK" | "OUT_OF_STOCK";
+            /** Format: date-time */
+            updatedAt: string;
+            version: number;
+            warning: boolean;
+        };
+        SupplierInventoryChangeDto: {
+            afterAvailableQty: number;
+            afterReservedQty: number;
+            afterSoldQty: number;
+            availableDelta: number;
+            beforeAvailableQty: number;
+            beforeReservedQty: number;
+            beforeSoldQty: number;
+            damagedDelta: number;
+            /** Format: uuid */
+            id: string;
+            /** Format: date-time */
+            occurredAt: string;
+            reason: string;
+            reservedDelta: number;
+            resultingVersion: number;
+            /** Format: uuid */
+            skuId: string;
+            soldDelta: number;
+            type: string;
+        };
+        SupplierInventoryHistoryDto: {
+            items: components["schemas"]["SupplierInventoryChangeDto"][];
+            total: number;
+        };
+        SupplierInventoryMutationDto: {
+            balance: components["schemas"]["SupplierInventoryBalanceDto"];
+            log: components["schemas"]["SupplierInventoryChangeDto"];
+        };
+        SupplierInventoryPageDto: {
+            items: components["schemas"]["SupplierInventoryBalanceDto"][];
+            page: number;
+            pageSize: number;
+            total: number;
         };
         SupplierLoginRequestDto: {
             /** @example 13800138000 */
@@ -4090,6 +4203,149 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    "supplierInventory.list": {
+        parameters: {
+            query?: {
+                warningOnly?: boolean;
+                pageSize?: number;
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierInventoryPageDto"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
+    "supplierInventory.adjust": {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                skuId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SupplierInventoryAdjustmentRequestDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierInventoryMutationDto"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
+    "supplierInventory.history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                skuId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierInventoryHistoryDto"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
             };
         };
     };
