@@ -25,6 +25,7 @@ import { SupplierPricingController } from '../supplier-pricing/supplier-pricing.
 import {
   CompanySupplyPriceReviewController,
   SupplierListedPricingController,
+  SupplierSupplyPriceChangeController,
 } from '../price-changes/price-change.controller.js';
 
 export const OPENAPI_CONTROLLERS = Object.freeze([
@@ -49,5 +50,6 @@ export const OPENAPI_CONTROLLERS = Object.freeze([
   SupplierProductController,
   SupplierPricingController,
   SupplierListedPricingController,
+  SupplierSupplyPriceChangeController,
   CompanySupplyPriceReviewController,
 ]);

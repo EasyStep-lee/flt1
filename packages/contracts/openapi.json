@@ -4999,6 +4999,79 @@
         ],
         "type": "object"
       },
+      "SupplyPriceReviewHistoryItemDto": {
+        "properties": {
+          "event": {
+            "enum": [
+              "SUBMIT",
+              "APPROVE",
+              "REJECT",
+              "EFFECT",
+              "CANCEL"
+            ],
+            "type": "string"
+          },
+          "fromStatus": {
+            "enum": [
+              "SUBMITTED",
+              "APPROVED",
+              "REJECTED",
+              "EFFECTIVE",
+              "CANCELLED"
+            ],
+            "nullable": true,
+            "type": "string"
+          },
+          "occurredAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "opinion": {
+            "nullable": true,
+            "type": "string"
+          },
+          "toStatus": {
+            "enum": [
+              "SUBMITTED",
+              "APPROVED",
+              "REJECTED",
+              "EFFECTIVE",
+              "CANCELLED"
+            ],
+            "type": "string"
+          },
+          "version": {
+            "minimum": 1,
+            "type": "number"
+          }
+        },
+        "required": [
+          "event",
+          "toStatus",
+          "version",
+          "occurredAt"
+        ],
+        "type": "object"
+      },
+      "SupplyPriceReviewHistoryPageDto": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SupplyPriceReviewHistoryItemDto"
+            },
+            "type": "array"
+          },
+          "taskId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "taskId",
+          "items"
+        ],
+        "type": "object"
+      },
       "TemplateAfterSaleRulesDto": {
         "properties": {
           "evidenceRequirements": {
@@ -7127,6 +7200,68 @@
         ]
       }
     },
+    "/v1/company/price-reviews/supply-price-changes/{taskId}/history": {
+      "get": {
+        "operationId": "companySupplyPriceReviews.history",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "taskId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupplyPriceReviewHistoryPageDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Read the append-only decision and effect history for one company-scoped review",
+        "tags": [
+          "company-price-reviews"
+        ]
+      }
+    },
     "/v1/company/price-reviews/{taskId}/decision": {
       "post": {
         "operationId": "companyInitialPriceReviews.decide",
@@ -9242,6 +9377,48 @@
           }
         },
         "summary": "Submit a reviewed supply price change while the old price remains effective",
+        "tags": [
+          "supplier-post-listing-pricing"
+        ]
+      }
+    },
+    "/v1/supplier/pricing/supply-price-changes": {
+      "get": {
+        "operationId": "supplierListedPricing.listSupplyPriceChanges",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupplyPriceChangePageDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "List current-supplier supply price applications and review outcomes",
         "tags": [
           "supplier-post-listing-pricing"
         ]

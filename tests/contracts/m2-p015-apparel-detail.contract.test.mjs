@@ -58,17 +58,17 @@ test('M2-P015 remains closed after later M2 slices advance', async () => {
       ),
     ]);
 
-  assert.equal(state.execution.currentTask, 'M2-P063');
-  assert.equal(state.execution.nextAllowedTask, 'M2-P063');
-  assert.equal(state.execution.lastCompletedTask, 'M2-P061');
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2-P063.*M2-P071/u);
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M2-P063');
-  assert.equal(state.github.currentTaskDelivery.issue, 69);
-  assert.equal(state.github.previousTaskDelivery.taskId, 'M2-P061');
-  assert.equal(state.github.previousTaskDelivery.pullRequest, 68);
-  assert.equal(state.github.previousTaskDelivery.exactHead, '74a53613b6f67b287e61e540d0feaadcc9b66437');
-  assert.equal(state.github.previousTaskDelivery.mergeCommit, '09433c07ae48dbfc9b45c0cc3ecbe67240e58f50');
-  assert.equal(state.github.previousTaskDelivery.mainPostMergeCiRun, 31583443909);
+  assert.equal(state.execution.currentTask, 'M2-P071');
+  assert.equal(state.execution.nextAllowedTask, 'M2-P071');
+  assert.equal(state.execution.lastCompletedTask, 'M2-P063');
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2-P071.*M2-GATE/u);
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M2-P071');
+  assert.equal(state.github.currentTaskDelivery.issue, 71);
+  assert.equal(state.github.previousTaskDelivery.taskId, 'M2-P063');
+  assert.equal(state.github.previousTaskDelivery.pullRequest, 70);
+  assert.equal(state.github.previousTaskDelivery.exactHead, '92a0186d74be1c85372ab9dabbc225e769b6898a');
+  assert.equal(state.github.previousTaskDelivery.mergeCommit, 'b9eb7f700f50361e9290ab904627cc943e289bd4');
+  assert.equal(state.github.previousTaskDelivery.mainPostMergeCiRun, 31656547021);
   assert.equal(state.github.previousTaskDelivery.status, 'CI_PASS');
   assert.equal(evidence.taskId, 'M2-P015');
   assert.equal(evidence.status, 'CI_PASS');

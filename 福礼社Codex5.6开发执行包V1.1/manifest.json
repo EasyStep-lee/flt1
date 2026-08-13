@@ -16,12 +16,12 @@
     "pages": 80,
     "externalDependencies": 28,
     "migrations": 23,
-    "apiContracts": 95,
+    "apiContracts": 100,
     "githubIssues": 149
   },
   "workbook": {
     "status": "VERIFIED",
-    "sha256": "A8802812EA1F002E5621489DCF8D9A327E05CFD2425D5D2A95F28D88E6DB3C6E"
+    "sha256": "3FDC4B537025DC31B6D4A8797B354982DF04A7648A7470A95EB275984B59D2E6"
   },
   "sourceOfTruth": [
     "综合方案HTML",

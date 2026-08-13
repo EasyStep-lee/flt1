@@ -16,6 +16,7 @@ const installSupplierWorkspace = async (page: Page) => {
   await page.route('**/v1/supplier-auth/workspace/current**', (route) => json(route, workspace));
   await page.route('**/v1/supplier-auth/workspace/page**', (route) => json(route, { ...workspace, filters: { availability: 'ALL', keyword: '' }, summary: { availableTotal: 1, catalogTotal: 1, deferredTotal: 0, filteredTotal: 1 }, items: [], selectedModule: null }));
   await page.route('**/v1/supplier/pricing/products', (route) => json(route, { items: [], total: 0 }));
+  await page.route('**/v1/supplier/pricing/supply-price-changes', (route) => json(route, { items: [], total: 0 }));
 };
 
 const installCompanyWorkspace = async (page: Page) => {
@@ -42,17 +43,20 @@ test('P0-019 supplier page sends supply changes to review and sale prices withou
 
   await page.goto(`${supplierOrigin}${supplierRoute}`);
   const panel = page.locator('[data-m2-slice="M2-P019"]');
-  await expect(panel.getByRole('heading', { name: '上架后分级调价' })).toBeVisible();
-  await panel.getByLabel('RICE-LISTED-001调价原因').fill('成本与销售策略调整');
-  await panel.getByLabel('RICE-LISTED-001二次验证').fill('246810');
-  await panel.getByRole('button', { name: '提交供应价审核' }).click();
+  const supplySection = panel.locator('[data-p071-section="supply-price-application"]');
+  await expect(panel.getByRole('heading', { name: '上架后价格管理' })).toBeVisible();
+  await supplySection.getByLabel('RICE-LISTED-001调价原因').fill('成本与销售策略调整');
+  await supplySection.getByLabel('RICE-LISTED-001二次验证').fill('246810');
+  await supplySection.getByRole('button', { name: '提交供应价审核' }).click();
   await expect.poll(() => supplyBody).toBeTruthy();
   expect(supplyBody).toMatchObject({ requestedSupplyPrice: 5000, version: 0 });
   expect(JSON.stringify(supplyBody)).not.toMatch(/supplierId|companyId|identityId/iu);
 
-  await panel.getByLabel('RICE-LISTED-001调价原因').fill('销售策略调整');
-  await panel.getByLabel('RICE-LISTED-001二次验证').fill('246810');
-  await panel.getByRole('button', { name: '销售价免审生效' }).click();
+  await panel.getByRole('tab', { name: '销售价直接调价' }).click();
+  const saleSection = panel.locator('[data-p071-section="direct-sale-pricing"]');
+  await saleSection.getByLabel('RICE-LISTED-001调价原因').fill('销售策略调整');
+  await saleSection.getByLabel('RICE-LISTED-001二次验证').fill('246810');
+  await saleSection.getByRole('button', { name: '销售价免审生效' }).click();
   await expect.poll(() => saleBody).toBeTruthy();
   expect(saleBody).toMatchObject({ retailSalePrice: 6990, enterpriseSalePrice: 6200, retailPriceVersion: 0, enterprisePriceVersion: 0 });
 });
@@ -67,7 +71,7 @@ test('P0-019 company price-review page displays old/new supply price and require
     return json(route, { ...review, status: 'EFFECTIVE', currentApprovedSupplyPrice: 5400, effectiveAt: now, version: 3, reviewOpinion: decisionBody.opinion });
   });
   await page.goto(`${companyOrigin}${companyRoute}`);
-  const panel = page.locator('[data-m2-slice="M2-P019"]');
+  const panel = page.locator('[data-m2-slice="M2-P071"]');
   await expect(panel).toContainText('¥50.00');
   await expect(panel).toContainText('¥54.00');
   await panel.getByRole('button', { name: '审核变更' }).click();

@@ -46,6 +46,15 @@ export interface SupplyPriceChangeRecord {
   readonly updatedAt: string;
 }
 
+export interface SupplyPriceReviewHistoryRecord {
+  readonly event: 'SUBMIT' | 'APPROVE' | 'REJECT' | 'EFFECT' | 'CANCEL';
+  readonly fromStatus: SupplyPriceChangeStatus | null;
+  readonly toStatus: SupplyPriceChangeStatus;
+  readonly version: number;
+  readonly opinion: string | null;
+  readonly occurredAt: string;
+}
+
 export interface SalePriceChangeResult {
   readonly skuId: string;
   readonly currentRetailSalePrice: number;
@@ -107,8 +116,10 @@ export interface DecideSupplyPriceChangeCommand extends PriceMutationContext {
 
 export interface PriceChangeRepository {
   listSupplierSkus(supplierId: string): Promise<readonly ListedSkuPriceRecord[]>;
+  listSupplierSupplyReviews(supplierId: string): Promise<readonly SupplyPriceChangeRecord[]>;
   listCompanySupplyReviews(companyId: string): Promise<readonly SupplyPriceChangeRecord[]>;
   findCompanySupplyReview(companyId: string, taskId: string): Promise<SupplyPriceChangeRecord | null>;
+  listSupplyReviewHistory(companyId: string, taskId: string): Promise<readonly SupplyPriceReviewHistoryRecord[] | null>;
   submitSupplyChange(command: SubmitSupplyPriceChangeCommand): Promise<PriceMutationResult<SupplyPriceChangeRecord>>;
   patchSalePrices(command: PatchSalePricesCommand): Promise<PriceMutationResult<SalePriceChangeResult>>;
   decideSupplyChange(command: DecideSupplyPriceChangeCommand): Promise<PriceMutationResult<SupplyPriceChangeRecord>>;

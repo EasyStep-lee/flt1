@@ -364,8 +364,10 @@ type JsonValue =
       provide: PRICE_CHANGE_REPOSITORY,
       useValue: {
         listSupplierSkus: async () => [],
+        listSupplierSupplyReviews: async () => [],
         listCompanySupplyReviews: async () => [],
         findCompanySupplyReview: async () => null,
+        listSupplyReviewHistory: async () => null,
         submitSupplyChange: async () => { throw new Error('OPENAPI_GENERATION_ONLY'); },
         patchSalePrices: async () => { throw new Error('OPENAPI_GENERATION_ONLY'); },
         decideSupplyChange: async () => { throw new Error('OPENAPI_GENERATION_ONLY'); },

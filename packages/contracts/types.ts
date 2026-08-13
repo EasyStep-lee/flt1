@@ -343,6 +343,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/company/price-reviews/supply-price-changes/{taskId}/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read the append-only decision and effect history for one company-scoped review */
+        get: operations["companySupplyPriceReviews.history"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/company/price-reviews/{taskId}/decision": {
         parameters: {
             query?: never;
@@ -763,6 +780,23 @@ export interface paths {
         put?: never;
         /** Submit a reviewed supply price change while the old price remains effective */
         post: operations["supplierListedPricing.submitSupplyPriceChange"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/supplier/pricing/supply-price-changes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List current-supplier supply price applications and review outcomes */
+        get: operations["supplierListedPricing.listSupplyPriceChanges"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -2187,6 +2221,23 @@ export interface components {
             secondVerificationCode: string;
             version: number;
         };
+        SupplyPriceReviewHistoryItemDto: {
+            /** @enum {string} */
+            event: "SUBMIT" | "APPROVE" | "REJECT" | "EFFECT" | "CANCEL";
+            /** @enum {string|null} */
+            fromStatus?: "SUBMITTED" | "APPROVED" | "REJECTED" | "EFFECTIVE" | "CANCELLED" | null;
+            /** Format: date-time */
+            occurredAt: string;
+            opinion?: string | null;
+            /** @enum {string} */
+            toStatus: "SUBMITTED" | "APPROVED" | "REJECTED" | "EFFECTIVE" | "CANCELLED";
+            version: number;
+        };
+        SupplyPriceReviewHistoryPageDto: {
+            items: components["schemas"]["SupplyPriceReviewHistoryItemDto"][];
+            /** Format: uuid */
+            taskId: string;
+        };
         TemplateAfterSaleRulesDto: {
             evidenceRequirements: string[];
             notice: string;
@@ -3419,6 +3470,51 @@ export interface operations {
                 };
             };
             503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
+    "companySupplyPriceReviews.history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                taskId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplyPriceReviewHistoryPageDto"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -4784,6 +4880,41 @@ export interface operations {
                 };
             };
             503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
+    "supplierListedPricing.listSupplyPriceChanges": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplyPriceChangePageDto"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
