@@ -38,7 +38,7 @@ test('P0-016 retains DIGITAL in category-template profiles and safe errors', () 
   assert.match(JSON.stringify(openApi.components.schemas), /DIGITAL_HISTORY_REWRITE/u);
 });
 
-test('M2-P016 records its merged-main gate while P071 remains the only active slice', async () => {
+test('M2-P016 records its merged-main gate while M2 formal acceptance remains blocked', async () => {
   const [state, evidence, taskLedger, p0Ledger, pageLedger, apiLedger, handoff] =
     await Promise.all([
       readFile(path.join(executionPack, '16-项目状态.json'), 'utf8').then(JSON.parse),
@@ -56,25 +56,27 @@ test('M2-P016 records its merged-main gate while P071 remains the only active sl
       ),
     ]);
 
-  assert.equal(state.execution.currentTask, 'M2-P071');
-  assert.equal(state.execution.nextAllowedTask, 'M2-P071');
-  assert.equal(state.execution.lastCompletedTask, 'M2-P063');
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2-P071.*M2-GATE/u);
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M2-P071');
-  assert.equal(state.github.currentTaskDelivery.issue, 71);
-  assert.equal(state.github.currentTaskDelivery.branch, 'codex/m2-price-approval-pages');
+  assert.equal(state.execution.status, 'M2_IN_PROGRESS');
+  assert.equal(state.execution.currentTask, 'M2-GATE');
+  assert.equal(state.execution.nextAllowedTask, 'M2-GATE');
+  assert.equal(state.execution.lastCompletedTask, 'M2-P071');
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2-GATE.*M3/u);
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M2-GATE');
+  assert.equal(state.github.currentTaskDelivery.issue, 73);
+  assert.equal(state.github.currentTaskDelivery.branch, 'codex/m2-gate');
   assert.equal(
     state.github.currentTaskDelivery.exactHeadCi,
     'NOT_EXECUTED',
   );
-  assert.equal(state.github.currentTaskDelivery.pullRequest, null);
-  assert.equal(state.github.currentTaskDelivery.pullRequestState, 'NOT_CREATED');
+  assert.equal(state.github.currentTaskDelivery.pullRequest, 74);
+  assert.equal(state.github.currentTaskDelivery.pullRequestState, 'DRAFT');
   assert.equal(state.github.currentTaskDelivery.merge, 'NOT_EXECUTED');
   assert.equal(state.github.currentTaskDelivery.mainPostMergeCi, 'NOT_EXECUTED');
-  assert.equal(state.github.currentTaskDelivery.m2p071StartAllowed, true);
-  assert.equal(state.github.previousTaskDelivery.taskId, 'M2-P063');
-  assert.equal(state.github.previousTaskDelivery.pullRequest, 70);
-  assert.equal(state.github.previousTaskDelivery.mainPostMergeCiRun, 31656547021);
+  assert.equal(state.github.currentTaskDelivery.blockingExternalItem, null);
+  assert.equal(state.github.currentTaskDelivery.m3Unlocked, false);
+  assert.equal(state.github.previousTaskDelivery.taskId, 'M2-P071');
+  assert.equal(state.github.previousTaskDelivery.pullRequest, 72);
+  assert.equal(state.github.previousTaskDelivery.mainPostMergeCiRun, 31663228561);
   assert.equal(state.github.previousTaskDelivery.status, 'CI_PASS');
   assert.equal(evidence.taskId, 'M2-P016');
   assert.equal(evidence.status, 'CI_PASS');

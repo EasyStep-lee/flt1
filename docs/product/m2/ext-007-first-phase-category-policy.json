@@ -1,0 +1,243 @@
+{
+  "schemaVersion": "1.0.0",
+  "policyId": "EXT-007-V1.1-FIRST-PHASE",
+  "status": "APPROVED_BUSINESS_INPUT",
+  "scope": "FIRST_PHASE_WELFARE_MALL",
+  "precedence": {
+    "primary": "福礼社单商户供应链平台V1.1综合方案.html and frozen M2 development contracts",
+    "fallback": "EXT-007 V1.1 only for business and compliance inputs not already defined",
+    "conflictRule": "Development documents win; EXT-007 cannot redefine the single-merchant, pricing, inventory, identity, payment, delivery or data-ownership boundaries."
+  },
+  "enabledCategoryTree": [
+    {
+      "name": "食品",
+      "status": "ENABLED",
+      "templateProfile": "FOOD",
+      "children": [
+        {
+          "name": "休闲零食",
+          "children": ["坚果炒货", "饼干糕点", "膨化食品", "糖果巧克力", "果干蜜饯", "肉干肉脯", "海味零食", "其他零食"]
+        },
+        {
+          "name": "饮料冲调",
+          "children": ["饮用水", "饮料", "茶饮", "咖啡", "冲调饮品", "谷物冲调"]
+        },
+        {
+          "name": "粮油调味",
+          "children": ["大米", "杂粮", "面粉", "食用油", "调味料", "酱油醋", "调味酱", "南北干货"]
+        },
+        {
+          "name": "方便速食",
+          "children": ["方便面", "米粉/粉丝", "方便米饭", "自热食品", "罐头食品", "即食食品"]
+        },
+        {
+          "name": "常温乳品",
+          "children": ["常温牛奶", "常温酸奶", "奶酪制品", "普通成人奶粉", "其他常温乳制品"]
+        }
+      ]
+    },
+    {
+      "name": "家居日用",
+      "status": "ENABLED",
+      "templateProfile": "GENERIC",
+      "children": [
+        {
+          "name": "生活用品",
+          "children": ["衣架", "收纳用品", "晾晒用品", "垃圾袋", "保鲜袋", "保鲜膜", "一次性生活用品", "其他生活用品"]
+        },
+        {
+          "name": "厨房用品",
+          "children": ["餐具", "水杯", "保温杯", "饭盒", "厨房收纳", "清洁工具", "烹饪辅助用品"]
+        }
+      ]
+    },
+    {
+      "name": "个护",
+      "status": "ENABLED",
+      "templateProfile": "GENERIC",
+      "children": [
+        {
+          "name": "洗护用品",
+          "children": ["洗发水", "护发素", "沐浴露", "香皂", "洗手液"]
+        },
+        {
+          "name": "口腔护理",
+          "children": ["牙膏", "牙刷", "牙线", "漱口水"]
+        },
+        {
+          "name": "日常护理",
+          "children": ["毛巾", "浴巾", "梳子", "棉签", "湿巾", "日常护理用品"]
+        }
+      ]
+    },
+    {
+      "name": "纸品",
+      "status": "ENABLED",
+      "templateProfile": "GENERIC",
+      "children": [
+        {
+          "name": "家庭纸品",
+          "children": ["抽纸", "卷纸", "手帕纸", "厨房纸", "湿厕纸", "湿巾"]
+        }
+      ]
+    },
+    {
+      "name": "家庭清洁",
+      "status": "ENABLED",
+      "templateProfile": "GENERIC",
+      "children": [
+        {
+          "name": "衣物清洁",
+          "children": ["洗衣液", "洗衣粉", "洗衣凝珠", "衣物护理剂"]
+        },
+        {
+          "name": "家居清洁",
+          "children": ["洗洁精", "厨房清洁剂", "卫浴清洁剂", "玻璃清洁剂", "地板清洁剂", "普通家居清洁用品"]
+        }
+      ]
+    },
+    {
+      "name": "文体办公",
+      "status": "ENABLED",
+      "templateProfile": "GENERIC",
+      "children": [
+        {
+          "name": "文具",
+          "children": ["中性笔", "铅笔", "笔记本", "文件夹", "胶带", "剪刀", "常规办公文具"]
+        },
+        {
+          "name": "体育休闲",
+          "children": ["跳绳", "羽毛球", "普通球类", "棋牌", "非电子休闲用品"]
+        }
+      ]
+    }
+  ],
+  "restrictedCategories": [
+    "生鲜食品",
+    "冷链食品",
+    "活体商品",
+    "电子产品",
+    "家用电器",
+    "药品",
+    "医疗器械",
+    "保健食品",
+    "特殊医学用途配方食品",
+    "婴幼儿配方食品",
+    "烟草",
+    "电子烟",
+    "酒类",
+    "成人用品",
+    "危险化学品",
+    "易燃易爆商品",
+    "其他需要公司专项批准的强监管商品"
+  ],
+  "templateBusinessInputs": {
+    "publicCommonFields": {
+      "required": ["product_name", "category_id", "brand", "main_image", "detail_images", "sku_code", "barcode", "specification", "unit", "weight", "origin"],
+      "optional": ["subtitle", "keywords", "selling_points"]
+    },
+    "foodRequiredFields": [
+      "food_name",
+      "brand",
+      "net_content",
+      "ingredients",
+      "manufacturer",
+      "production_license_number",
+      "product_standard_code",
+      "origin",
+      "shelf_life",
+      "storage_conditions",
+      "nutrition_facts",
+      "label_images"
+    ],
+    "foodBatchFields": ["production_date", "shelf_life", "expiry_date", "batch_no"],
+    "genericRequiredFields": [
+      "product_name",
+      "brand",
+      "category_id",
+      "sku_code",
+      "barcode",
+      "specification",
+      "unit",
+      "material_or_main_ingredients_when_applicable",
+      "origin",
+      "manufacturer_or_responsible_entity",
+      "images",
+      "details",
+      "instructions_when_applicable"
+    ],
+    "categorySpecificExamples": {
+      "保温杯": ["capacity", "material", "thermal_performance", "food_contact_grade"],
+      "毛巾": ["material", "size", "gram_weight"],
+      "洗衣液": ["net_content", "main_ingredients", "instructions", "precautions"]
+    }
+  },
+  "qualificationRules": {
+    "company": ["business_license", "unified_social_credit_code", "legal_name", "legal_representative_or_principal", "registered_address", "business_status"],
+    "foodCompanyConditional": ["prepackaged_food_filing_or_applicable_food_business_license"],
+    "supplier": ["supplier_name", "unified_social_credit_code", "business_license", "contact", "contact_method", "address", "supplied_categories", "cooperation_status"],
+    "foodSupplierAdditional": ["food_qualification", "qualification_number", "validity", "purchase_source_evidence"],
+    "foodProduct": ["label_images", "production_license_information", "manufacturer_information", "product_standard_information", "supplier_information", "purchase_evidence"],
+    "genericProduct": ["package_or_label_images", "manufacturer_information", "product_standard_when_applicable", "supplier_information", "purchase_evidence"],
+    "conditionalProduct": ["inspection_report", "certification", "brand_authorization", "distribution_authorization", "other_category_specific_material"]
+  },
+  "qualificationValidity": {
+    "types": ["LONG_TERM", "DATE_RANGE"],
+    "dateRangeFields": ["effective_date", "expiry_date"],
+    "reminderDays": [30, 7],
+    "statuses": ["EXPIRING_SOON", "EXPIRING_URGENT", "EXPIRED"],
+    "expiredRequiredQualificationBlocksSale": true,
+    "resumeRequiresResubmissionAndApproval": true
+  },
+  "shelfLifeRules": {
+    "statuses": ["NORMAL", "NEAR_EXPIRY", "EXPIRED"],
+    "expiredBatchSaleable": false,
+    "thresholdsConfigurable": true,
+    "runtimeDeliveryStage": "M3_OR_LATER_WHEN_BATCH_INVENTORY_IS_IMPLEMENTED"
+  },
+  "afterSales": {
+    "categoryBound": true,
+    "genericDefault": "7_DAY_RETURN_SUPPORTED_WHEN_LEGALLY_ELIGIBLE_AND_INTACT",
+    "foodPolicies": ["7_DAY_RETURN_SUPPORTED", "7_DAY_RETURN_CONDITIONAL", "7_DAY_RETURN_NOT_APPLICABLE"],
+    "operatorArbitrarySelectionForbidden": true,
+    "qualityIssueAlwaysAccepted": true,
+    "qualityResolutions": ["REFUND", "RETURN_AND_REFUND", "EXCHANGE", "RESEND"],
+    "foodSafetyRiskReviewMayPause": ["SKU", "BATCH", "SUPPLIER_PRODUCT"]
+  },
+  "saleEligibility": [
+    "CATEGORY_ENABLED",
+    "SUPPLIER_ACTIVE",
+    "SUBJECT_QUALIFICATION_VALID",
+    "REQUIRED_FIELDS_COMPLETE",
+    "REQUIRED_PRODUCT_QUALIFICATION_VALID",
+    "PRODUCT_APPROVED",
+    "FOOD_NOT_EXPIRED",
+    "NOT_RESTRICTED_OR_UNAPPROVED_HIGH_RISK"
+  ],
+  "developmentMappings": {
+    "price": {
+      "sourceTerms": ["sale_price", "market_price"],
+      "canonicalRule": "Do not add generic price fields; use existing supply, retail sale and enterprise sale price versions in integer cents."
+    },
+    "stock": {
+      "sourceTerm": "stock",
+      "canonicalRule": "Use the existing single InventoryBalance per SKU; do not add template stock fields."
+    },
+    "supplier": {
+      "sourceTerm": "supplier_id",
+      "canonicalRule": "Derive supplierId from the verified session; never trust supplier_id from a client."
+    },
+    "restrictedStatus": {
+      "sourceTerms": ["CATEGORY_STATUS=DISABLED", "REGULATED_DISABLED"],
+      "canonicalRule": "Persist Category.status=DISABLED and require HIGH_RISK explicit RegulatedCategoryControl approval before enablement; REGULATED_DISABLED is not a new runtime enum."
+    },
+    "afterSales": {
+      "sourceTerm": "AFTER_SALES_POLICY",
+      "canonicalRule": "Use the existing immutable CategoryTemplate.afterSaleRules in M2; full after-sales workflow remains M5."
+    },
+    "shelfLife": {
+      "sourceTerm": "SHELF_LIFE_RULE",
+      "canonicalRule": "Record the approved configurable rule input now; batch inventory and expiry execution are not retroactively added to completed M2 slices."
+    }
+  }
+}
