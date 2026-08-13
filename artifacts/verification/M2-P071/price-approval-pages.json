@@ -1,0 +1,58 @@
+{
+  "taskId": "M2-P071",
+  "p0Ids": ["P0-071"],
+  "status": "LOCAL_PASS",
+  "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+  "baseCommit": "b9eb7f700f50361e9290ab904627cc943e289bd4",
+  "implementationCommit": "0a0ed6736b6e96ae24cd94348319af39a4309f5a",
+  "branch": "codex/m2-price-approval-pages",
+  "issue": 71,
+  "red": {
+    "api": "1/2 failed because GET /v1/supplier/pricing/supply-price-changes returned 404",
+    "contract": "2/2 failed because the new paths and history DTO whitelist were absent"
+  },
+  "green": {
+    "focusedApi": "3/3 passed including idempotent replay and stale concurrent decision conflict",
+    "focusedContract": "2/2 passed",
+    "focusedP0E2e": "4/4 passed including P0-019 regression",
+    "executionPack": "verified with 149 tasks, 119 P0 rows and 100 API contracts",
+    "workbook": "reimported, rendered and inspected with zero formula errors",
+    "mysqlRehearsal": "empty=2; upgrade=2; restore=2; product=24; cleanup=PASS"
+  },
+  "fullVerify": {
+    "command": "pnpm verify",
+    "status": "PASS",
+    "steps": 17,
+    "commit": "0a0ed6736b6e96ae24cd94348319af39a4309f5a",
+    "startedAt": "2026-08-13T02:30:13.340Z",
+    "endedAt": "2026-08-13T02:45:06.531Z",
+    "report": "artifacts/test-results/verification/pnpm-verify.json"
+  },
+  "failedFullVerifyAttempts": [
+    "regression failed on stale OpenAPI path and schema allowlists; focused OpenAPI test passed after adding the two paths and DTOs",
+    "regression failed because historical handoff tests require the stable CI_PASS status; retry metadata moved to explicit fields",
+    "regression failed because historical slice tests hard-coded M2-P063; tests now preserve historical evidence while checking the actual M2-P071 relay state",
+    "migration rehearsal failed because Docker Desktop Linux Engine was stopped; engine was restarted, focused MySQL rehearsal passed, then the complete fifth run passed"
+  ],
+  "invariants": [
+    "supplier supply-price applications are scoped from the verified supplier session",
+    "company review history is scoped from the company price-review session",
+    "history DTO omits supplierId, companyId, identityId, functionalAccountId and actor identities",
+    "old supply price remains effective until approval and scheduled effect",
+    "retail and enterprise sale prices remain direct versioned changes without approval tasks",
+    "no batch approval API or button exists",
+    "same-natural-person, version, idempotency and append-only history rules from M2-P019 remain unchanged"
+  ],
+  "migration": "N/A: reuses the append-only M2-P019 SupplyPriceChangeHistory schema; no new database migration",
+  "environment": {
+    "local": "LOCAL_PASS",
+    "ci": "NOT_EXECUTED",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_EXECUTED",
+    "production": "NOT_EXECUTED"
+  },
+  "risk": "The two private read endpoints add list/history traffic; database indexes and paging should be revisited with staging volume, but no money, order or inventory mutation is introduced.",
+  "rollback": "Revert the M2-P071 application and evidence commits; no schema rollback or data deletion is required.",
+  "nextAllowedTask": "M2-P071 Draft PR and exact-head CI only",
+  "prohibitedNext": "M2-GATE and M3 until exact-head CI, human merge authorization, merge, and post-merge main CI pass"
+}
