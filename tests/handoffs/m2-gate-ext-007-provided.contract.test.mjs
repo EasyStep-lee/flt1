@@ -143,7 +143,7 @@ test('normalized first-phase policy preserves the approved category tree and loc
   assert.equal(policy.afterSales.qualityIssueAlwaysAccepted, true);
 });
 
-test('EXT-007 advances M2 gate only to local pass pending exact-head CI and merge', async () => {
+test('EXT-007 historical evidence remains valid after exact-head merge unlocks M3-000', async () => {
   const [externals, tasks, stages, state, evidence, handoff] = await Promise.all([
     readFile(path.join(pack, '09-外部依赖与人工事项.csv'), 'utf8').then(parseCsv),
     readFile(path.join(pack, '03-任务台账.csv'), 'utf8').then(parseCsv),
@@ -166,20 +166,18 @@ test('EXT-007 advances M2 gate only to local pass pending exact-head CI and merg
     ext007.ApprovedBy,
     'COMPANY_AUTHORIZED_BUSINESS_COMPLIANCE_REVIEWER',
   );
-  assert.equal(gate.Status, 'IN_PROGRESS');
-  assert.equal(gate.EvidenceStatus, 'LOCAL_PASS');
-  assert.equal(gate.CI, 'NOT_EXECUTED');
-  assert.equal(m2.Status, 'IN_PROGRESS');
-  assert.equal(m2.EvidenceStatus, 'LOCAL_PASS');
-  assert.equal(m3.Status, 'LOCKED');
-  assert.equal(m3.EvidenceStatus, 'NOT_EXECUTED');
-  assert.equal(state.execution.status, 'M2_IN_PROGRESS');
-  assert.equal(state.execution.currentTask, 'M2-GATE');
-  assert.equal(state.execution.nextAllowedTask, 'M2-GATE');
+  assert.equal(gate.Status, 'DONE');
+  assert.equal(gate.EvidenceStatus, 'CI_PASS');
+  assert.equal(gate.CI, 'CI_PASS');
+  assert.equal(m2.Status, 'GATE_PASSED');
+  assert.equal(m2.EvidenceStatus, 'CI_PASS');
+  assert.equal(m3.Status, 'IN_PROGRESS');
+  assert.equal(m3.EvidenceStatus, 'LOCAL_PASS');
+  assert.equal(state.execution.status, 'M3_IN_PROGRESS');
+  assert.equal(state.execution.currentTask, 'M3-000');
+  assert.equal(state.execution.nextAllowedTask, 'M3-000');
   assert.equal(state.execution.activeTaskCount, 1);
-  assert.equal(state.execution.lastPassedGate, 'M1-GATE');
-  assert.equal(state.github.currentTaskDelivery.blockingExternalItem, null);
-  assert.equal(state.github.currentTaskDelivery.m3Unlocked, false);
+  assert.equal(state.execution.lastPassedGate, 'M2-GATE');
 
   assert.equal(evidence.externalItems.EXT007.status, 'PROVIDED');
   assert.equal(evidence.externalItems.EXT007.blocksStage, false);

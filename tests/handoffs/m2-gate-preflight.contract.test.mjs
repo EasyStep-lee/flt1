@@ -58,7 +58,7 @@ test('M2 gate binds all 18 technical P0 items and keeps merge-dependent acceptan
   assert.equal(evidence.environment.production, 'NOT_EXECUTED');
 });
 
-test('M2 gate ledgers remain in progress and do not unlock M3 before exact-head merge evidence', async () => {
+test('M2 gate ledgers close only after exact-head merge and main CI evidence', async () => {
   const [tasks, stages, externals, state] = await Promise.all([
     readFile(path.join(pack, '03-任务台账.csv'), 'utf8').then(parseCsv),
     readFile(path.join(pack, 'data', '阶段门禁.csv'), 'utf8').then(parseCsv),
@@ -69,18 +69,19 @@ test('M2 gate ledgers remain in progress and do not unlock M3 before exact-head 
   const m2 = stages.find(({ Stage }) => Stage === 'M2');
   const m3 = stages.find(({ Stage }) => Stage === 'M3');
   const ext007 = externals.find(({ DependencyID }) => DependencyID === 'EXT-007');
-  assert.equal(gate.Status, 'IN_PROGRESS');
-  assert.equal(gate.EvidenceStatus, 'LOCAL_PASS');
-  assert.equal(m2.Status, 'IN_PROGRESS');
-  assert.equal(m2.EvidenceStatus, 'LOCAL_PASS');
-  assert.equal(m3.Status, 'LOCKED');
-  assert.equal(m3.EvidenceStatus, 'NOT_EXECUTED');
+  assert.equal(gate.Status, 'DONE');
+  assert.equal(gate.EvidenceStatus, 'CI_PASS');
+  assert.equal(gate.CI, 'CI_PASS');
+  assert.equal(m2.Status, 'GATE_PASSED');
+  assert.equal(m2.EvidenceStatus, 'CI_PASS');
+  assert.equal(m3.Status, 'IN_PROGRESS');
+  assert.equal(m3.EvidenceStatus, 'LOCAL_PASS');
   assert.equal(ext007.CurrentStatus, 'PROVIDED');
   assert.equal(ext007.BlocksFormalAcceptance, 'YES');
-  assert.equal(state.execution.currentTask, 'M2-GATE');
-  assert.equal(state.execution.nextAllowedTask, 'M2-GATE');
-  assert.equal(state.execution.lastPassedGate, 'M1-GATE');
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2-GATE.*M3/u);
+  assert.equal(state.execution.currentTask, 'M3-000');
+  assert.equal(state.execution.nextAllowedTask, 'M3-000');
+  assert.equal(state.execution.lastPassedGate, 'M2-GATE');
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M3-000.*M3-P020/u);
 });
 
 test('M2 gate handoff states the technical boundary without claiming PASS', async () => {

@@ -176,24 +176,24 @@ test('M1-P003 retains its local evidence after PR and main CI closure', async ()
   assert.equal(rehearsal.productRehearsal.supplierOnboarding.onboardingTableCount, 4);
   assert.equal(rehearsal.cleanup.errors.length, 0);
 
-  assert.equal(state.execution.currentStage, 'M2');
+  assert.equal(state.execution.currentStage, 'M3');
   assert.equal(state.execution.currentTask, state.execution.nextAllowedTask);
-  assert.equal(state.execution.status, 'M2_IN_PROGRESS');
-  assert.equal(state.execution.currentTask, 'M2-GATE');
+  assert.equal(state.execution.status, 'M3_IN_PROGRESS');
+  assert.equal(state.execution.currentTask, 'M3-000');
   assert.equal(state.execution.activeTaskCount, active.length);
-  assert.equal(state.execution.lastCompletedTask, 'M2-P071');
-  assert.equal(state.execution.lastPassedGate, 'M1-GATE');
+  assert.equal(state.execution.lastCompletedTask, 'M2-GATE');
+  assert.equal(state.execution.lastPassedGate, 'M2-GATE');
   assert.equal(state.github.repository, 'EasyStep-lee/flt1');
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M2-GATE');
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M3-000');
   assert.equal(
     state.github.currentTaskDelivery.status,
-    'LOCAL_PASS_PENDING_EXACT_HEAD_CI_AND_MERGE',
+    'LOCAL_PASS_PENDING_COMMIT_PR_CI_AND_MERGE',
   );
   assert.equal(state.github.currentTaskDelivery.blockingExternalItem, null);
   assert.equal(state.github.currentTaskDelivery.m3Unlocked, false);
-  assert.equal(state.github.previousTaskDelivery.taskId, 'M2-P071');
-  assert.equal(state.github.previousTaskDelivery.pullRequest, 72);
+  assert.equal(state.github.previousTaskDelivery.taskId, 'M2-GATE');
+  assert.equal(state.github.previousTaskDelivery.pullRequest, 74);
   assert.match(m2p008?.Status, /^(?:IN_PROGRESS|DONE)$/u);
   assert.match(state.evidence.local, /^(?:NOT_EXECUTED|LOCAL_PASS)$/u);
-  assert.ok(['NOT_EXECUTED', 'CI_PASS'].includes(state.evidence.ci));
+  assert.equal(state.evidence.ci, 'CI_PASS_M2_GATE_ONLY');
 });

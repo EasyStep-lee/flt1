@@ -54,14 +54,14 @@ test('M1-P072 records natural-person separation and remains closed after the M1 
   assert.equal(rehearsal.productRehearsal.sensitiveApproval.frozenPermissionCount, 9);
   assert.equal(rehearsal.cleanup.errors.length, 0);
 
-  assert.equal(state.execution.status, 'M2_IN_PROGRESS');
-  assert.equal(state.execution.currentTask, 'M2-GATE');
-  assert.equal(state.execution.nextAllowedTask, 'M2-GATE');
-  assert.equal(state.execution.lastCompletedTask, 'M2-P071');
-  assert.equal(state.execution.lastPassedGate, 'M1-GATE');
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M2-GATE');
-  assert.equal(state.github.currentTaskDelivery.issue, 73);
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2-GATE.*M3/u);
+  assert.equal(state.execution.status, 'M3_IN_PROGRESS');
+  assert.equal(state.execution.currentTask, 'M3-000');
+  assert.equal(state.execution.nextAllowedTask, 'M3-000');
+  assert.equal(state.execution.lastCompletedTask, 'M2-GATE');
+  assert.equal(state.execution.lastPassedGate, 'M2-GATE');
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M3-000');
+  assert.equal(state.github.currentTaskDelivery.issue, 75);
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M3-000.*M3-P020/u);
   assert.match(tasks, /M1-P070[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(tasks, /M1-P072[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(p0, /P0-072[^\r\n]*CI_PASS/u);
