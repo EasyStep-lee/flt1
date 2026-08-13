@@ -138,10 +138,7 @@ test('historical EXT-005 evidence stays locked while current state advances only
       Number(Sequence) < Number(currentM2Task.Sequence),
   );
 
-  assert.equal(projectStatus.execution.status, 'M2_IN_PROGRESS');
-  assert.match(projectStatus.execution.currentTask, /^M2-P\d{3}$/u);
   assert.equal(projectStatus.execution.nextAllowedTask, projectStatus.execution.currentTask);
-  assert.equal(projectStatus.execution.activeTaskCount, 1);
   assert.equal(projectStatus.execution.lastPassedGate, 'M1-GATE');
   assert.equal(
     projectStatus.github.currentTaskDelivery.taskId,
@@ -149,10 +146,20 @@ test('historical EXT-005 evidence stays locked while current state advances only
   );
   assert.equal(projectStatus.github.currentTaskDelivery.merge, 'NOT_EXECUTED');
   assert.equal(projectStatus.github.currentTaskDelivery.mainPostMergeCi, 'NOT_EXECUTED');
-  assert.equal(
-    projectStatus.github.currentTaskDelivery.exactHeadCi.startsWith('CI_PASS_RUN_'),
-    currentM2Task.EvidenceStatus === 'CI_PASS',
-  );
+  if (projectStatus.execution.status === 'M2_IN_PROGRESS') {
+    assert.match(projectStatus.execution.currentTask, /^M2-P\d{3}$/u);
+    assert.equal(projectStatus.execution.activeTaskCount, 1);
+    assert.equal(
+      projectStatus.github.currentTaskDelivery.exactHeadCi.startsWith('CI_PASS_RUN_'),
+      currentM2Task.EvidenceStatus === 'CI_PASS',
+    );
+  } else {
+    assert.equal(projectStatus.execution.status, 'M2_BLOCKED_EXTERNAL');
+    assert.equal(projectStatus.execution.currentTask, 'M2-GATE');
+    assert.equal(projectStatus.execution.activeTaskCount, 0);
+    assert.equal(projectStatus.github.currentTaskDelivery.blockingExternalItem, 'EXT-007');
+    assert.equal(projectStatus.github.currentTaskDelivery.m3Unlocked, false);
+  }
   assert.equal(projectStatus.github.previousTaskDelivery.status, 'CI_PASS');
 
   assert.equal(m1Gate.Status, 'DONE');
@@ -171,12 +178,20 @@ test('historical EXT-005 evidence stays locked while current state advances only
     ),
     true,
   );
-  assert.equal(currentM2Task.Status, 'IN_PROGRESS');
-  assert.equal(['LOCAL_PASS', 'CI_PASS'].includes(currentM2Task.EvidenceStatus), true);
-  assert.equal(
-    currentM2Task.CI,
-    currentM2Task.EvidenceStatus === 'CI_PASS' ? 'CI_PASS' : 'NOT_EXECUTED',
-  );
+  if (projectStatus.execution.status === 'M2_IN_PROGRESS') {
+    assert.equal(currentM2Task.Status, 'IN_PROGRESS');
+    assert.equal(['LOCAL_PASS', 'CI_PASS'].includes(currentM2Task.EvidenceStatus), true);
+    assert.equal(
+      currentM2Task.CI,
+      currentM2Task.EvidenceStatus === 'CI_PASS' ? 'CI_PASS' : 'NOT_EXECUTED',
+    );
+  } else {
+    assert.equal(currentM2Task.TaskID, 'M2-GATE');
+    assert.equal(currentM2Task.Status, 'BLOCKED');
+    assert.equal(currentM2Task.EvidenceStatus, 'LOCAL_PASS');
+    assert.equal(currentM2Task.CI, 'NOT_EXECUTED');
+    assert.equal(priorM2Tasks.length, 18);
+  }
 
   assert.equal(evidence.schemaVersion, '1.0.0');
   assert.equal(evidence.taskId, 'M1-GATE-EXT005-PROVIDED');

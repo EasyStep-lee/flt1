@@ -214,7 +214,7 @@ test('M1 ledgers retain the exact-head gate while M2 advances one slice at a tim
   assert.equal(m1Stage.Status, 'GATE_PASSED');
   assert.equal(m1Stage.EvidenceStatus, 'CI_PASS');
   assert.match(m1Stage.Notes, /31295823535/u);
-  assert.equal(m2Stage.Status, 'IN_PROGRESS');
+  assert.equal(['IN_PROGRESS', 'BLOCKED'].includes(m2Stage.Status), true);
   assert.equal(['LOCAL_PASS', 'CI_PASS'].includes(m2Stage.EvidenceStatus), true);
   assert.equal(m3Stage.Status, 'LOCKED');
   assert.equal(m3Stage.EvidenceStatus, 'NOT_EXECUTED');
@@ -224,29 +224,46 @@ test('M1 ledgers retain the exact-head gate while M2 advances one slice at a tim
     .filter(({ TaskID }) => /^M2-P\d{3}$/u.test(TaskID))
     .sort((left, right) => Number(left.Sequence) - Number(right.Sequence));
   const m2CurrentSlice = m2BusinessTasks.find(({ Status }) => Status === 'IN_PROGRESS');
-  const priorM2Slices = m2BusinessTasks.filter(
-    ({ Sequence }) => Number(Sequence) < Number(m2CurrentSlice.Sequence),
-  );
-  const laterM2Slices = m2BusinessTasks.filter(
-    ({ Sequence }) => Number(Sequence) > Number(m2CurrentSlice.Sequence),
-  );
   assert.equal(m2Contract.Status, 'DONE');
   assert.equal(m2Contract.EvidenceStatus, 'CI_PASS');
   assert.equal(m2Contract.CI, 'CI_PASS');
-  assert.equal(
-    priorM2Slices.every(
-      ({ Status, EvidenceStatus, CI }) =>
-        Status === 'DONE' && EvidenceStatus === 'CI_PASS' && CI === 'CI_PASS',
-    ),
-    true,
-  );
-  assert.equal(m2CurrentSlice.Status, 'IN_PROGRESS');
-  assert.equal(['LOCAL_PASS', 'CI_PASS'].includes(m2CurrentSlice.EvidenceStatus), true);
-  assert.equal(
-    m2CurrentSlice.CI,
-    m2CurrentSlice.EvidenceStatus === 'CI_PASS' ? 'CI_PASS' : 'NOT_EXECUTED',
-  );
-  assert.equal(laterM2Slices.every(({ Status }) => Status === 'NOT_STARTED'), true);
+  if (m2CurrentSlice) {
+    const priorM2Slices = m2BusinessTasks.filter(
+      ({ Sequence }) => Number(Sequence) < Number(m2CurrentSlice.Sequence),
+    );
+    const laterM2Slices = m2BusinessTasks.filter(
+      ({ Sequence }) => Number(Sequence) > Number(m2CurrentSlice.Sequence),
+    );
+    assert.equal(
+      priorM2Slices.every(
+        ({ Status, EvidenceStatus, CI }) =>
+          Status === 'DONE' && EvidenceStatus === 'CI_PASS' && CI === 'CI_PASS',
+      ),
+      true,
+    );
+    assert.equal(['LOCAL_PASS', 'CI_PASS'].includes(m2CurrentSlice.EvidenceStatus), true);
+    assert.equal(
+      m2CurrentSlice.CI,
+      m2CurrentSlice.EvidenceStatus === 'CI_PASS' ? 'CI_PASS' : 'NOT_EXECUTED',
+    );
+    assert.equal(laterM2Slices.every(({ Status }) => Status === 'NOT_STARTED'), true);
+  } else {
+    const m2Gate = tasks.find(({ TaskID }) => TaskID === 'M2-GATE');
+    const ext007 = externalRows.find(({ DependencyID }) => DependencyID === 'EXT-007');
+    assert.equal(m2BusinessTasks.length, 18);
+    assert.equal(
+      m2BusinessTasks.every(
+        ({ Status, EvidenceStatus, CI }) =>
+          Status === 'DONE' && EvidenceStatus === 'CI_PASS' && CI === 'CI_PASS',
+      ),
+      true,
+    );
+    assert.equal(m2Stage.Status, 'BLOCKED');
+    assert.equal(m2Gate.Status, 'BLOCKED');
+    assert.equal(m2Gate.EvidenceStatus, 'LOCAL_PASS');
+    assert.equal(ext007.CurrentStatus, 'NOT_PROVIDED');
+    assert.equal(ext007.BlocksFormalAcceptance, 'YES');
+  }
 
   const ext005 = externalRows.find(
     ({ DependencyID }) => DependencyID === 'EXT-005',
@@ -270,11 +287,8 @@ test('project status records M1 gate success while historical blocked handoff st
     readFile(handoffPath, 'utf8'),
   ]);
 
-  assert.equal(projectStatus.execution.status, 'M2_IN_PROGRESS');
   assert.equal(projectStatus.execution.currentStage, 'M2');
-  assert.match(projectStatus.execution.currentTask, /^M2-P\d{3}$/u);
   assert.equal(projectStatus.execution.nextAllowedTask, projectStatus.execution.currentTask);
-  assert.equal(projectStatus.execution.activeTaskCount, 1);
   assert.match(projectStatus.execution.lastCompletedTask, /^M2-P\d{3}$/u);
   assert.equal(projectStatus.execution.lastPassedGate, 'M1-GATE');
   assert.equal(
@@ -294,12 +308,23 @@ test('project status records M1 gate success while historical blocked handoff st
     projectStatus.github.currentTaskDelivery.taskId,
     projectStatus.execution.currentTask,
   );
-  assert.equal(
-    ['IN_PROGRESS', 'LOCAL_PASS', 'CI_PASS'].includes(
-      projectStatus.github.currentTaskDelivery.status,
-    ),
-    true,
-  );
+  if (projectStatus.execution.status === 'M2_IN_PROGRESS') {
+    assert.match(projectStatus.execution.currentTask, /^M2-P\d{3}$/u);
+    assert.equal(projectStatus.execution.activeTaskCount, 1);
+    assert.equal(
+      ['IN_PROGRESS', 'LOCAL_PASS', 'CI_PASS'].includes(
+        projectStatus.github.currentTaskDelivery.status,
+      ),
+      true,
+    );
+  } else {
+    assert.equal(projectStatus.execution.status, 'M2_BLOCKED_EXTERNAL');
+    assert.equal(projectStatus.execution.currentTask, 'M2-GATE');
+    assert.equal(projectStatus.execution.activeTaskCount, 0);
+    assert.equal(projectStatus.github.currentTaskDelivery.status, 'BLOCKED_EXTERNAL');
+    assert.equal(projectStatus.github.currentTaskDelivery.blockingExternalItem, 'EXT-007');
+    assert.equal(projectStatus.github.currentTaskDelivery.m3Unlocked, false);
+  }
   assert.equal(projectStatus.github.currentTaskDelivery.merge, 'NOT_EXECUTED');
   assert.equal(projectStatus.github.currentTaskDelivery.mainPostMergeCi, 'NOT_EXECUTED');
   assert.equal(projectStatus.github.previousTaskDelivery.status, 'CI_PASS');
