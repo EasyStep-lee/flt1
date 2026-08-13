@@ -60,10 +60,10 @@ test('M2-P007 retains evidence while the current M2 slice advances through its d
       read('docs', 'handoffs', '2026-08-09-M2-P007-company-product-approvals.md'),
     ]);
 
-  assert.equal(state.execution.status, 'M2_IN_PROGRESS');
-  assert.equal(state.execution.currentTask, 'M2-GATE');
+  assert.equal(state.execution.status, 'M3_IN_PROGRESS');
+  assert.equal(state.execution.currentTask, 'M3-000');
   assert.equal(state.execution.nextAllowedTask, state.execution.currentTask);
-  assert.match(state.execution.lastCompletedTask, /^M2-P\d{3}$/u);
+  assert.equal(state.execution.lastCompletedTask, 'M2-GATE');
   assert.equal(state.execution.activeTaskCount, 1);
   assert.equal(state.github.currentTaskDelivery.taskId, state.execution.currentTask);
   assert.ok(
@@ -80,7 +80,7 @@ test('M2-P007 retains evidence while the current M2 slice advances through its d
   assert.equal(state.github.currentTaskDelivery.blockingExternalItem, null);
   assert.equal(state.github.currentTaskDelivery.m3Unlocked, false);
   assert.match(state.evidence.local, /^(?:NOT_EXECUTED|LOCAL_PASS)$/u);
-  assert.ok(['NOT_EXECUTED', 'CI_PASS'].includes(state.evidence.ci));
+  assert.equal(state.evidence.ci, 'CI_PASS_M2_GATE_ONLY');
   assert.match(taskLedger, /M2-P007[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(taskLedger, /M2-P008[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(taskLedger, /M2-P009[^\r\n]*DONE[^\r\n]*CI_PASS/u);

@@ -495,24 +495,25 @@ test('machine control preserves the M2 freeze while later slices advance one gat
   assert.equal(m2p071.CI, 'CI_PASS');
   assert.equal(laterM2Tasks.length, 1);
   assert.equal(laterM2Tasks[0].TaskID, 'M2-GATE');
-  assert.equal(laterM2Tasks[0].Status, 'IN_PROGRESS');
+  assert.equal(laterM2Tasks[0].Status, 'DONE');
 
   const m1Stage = stages.find(({ Stage }) => Stage === 'M1');
   const m2Stage = stages.find(({ Stage }) => Stage === 'M2');
   const m3Stage = stages.find(({ Stage }) => Stage === 'M3');
   assert.equal(m1Stage.Status, 'GATE_PASSED');
   assert.equal(m1Stage.EvidenceStatus, 'CI_PASS');
-  assert.equal(m2Stage.Status, 'IN_PROGRESS');
-  assert.equal(m2Stage.EvidenceStatus, 'LOCAL_PASS');
-  assert.equal(m3Stage.Status, 'LOCKED');
+  assert.equal(m2Stage.Status, 'GATE_PASSED');
+  assert.equal(m2Stage.EvidenceStatus, 'CI_PASS');
+  assert.equal(m3Stage.Status, 'IN_PROGRESS');
+  assert.equal(m3Stage.EvidenceStatus, 'LOCAL_PASS');
 
-  assert.equal(projectStatus.execution.status, 'M2_IN_PROGRESS');
-  assert.equal(projectStatus.execution.currentStage, 'M2');
-  assert.equal(projectStatus.execution.currentTask, 'M2-GATE');
-  assert.equal(projectStatus.execution.nextAllowedTask, 'M2-GATE');
+  assert.equal(projectStatus.execution.status, 'M3_IN_PROGRESS');
+  assert.equal(projectStatus.execution.currentStage, 'M3');
+  assert.equal(projectStatus.execution.currentTask, 'M3-000');
+  assert.equal(projectStatus.execution.nextAllowedTask, 'M3-000');
   assert.equal(projectStatus.execution.activeTaskCount, 1);
-  assert.equal(projectStatus.execution.lastCompletedTask, 'M2-P071');
-  assert.equal(projectStatus.execution.lastPassedGate, 'M1-GATE');
+  assert.equal(projectStatus.execution.lastCompletedTask, 'M2-GATE');
+  assert.equal(projectStatus.execution.lastPassedGate, 'M2-GATE');
   assert.equal(projectStatus.evidence.local, 'LOCAL_PASS');
-  assert.equal(projectStatus.evidence.ci, 'CI_PASS');
+  assert.equal(projectStatus.evidence.ci, 'CI_PASS_M2_GATE_ONLY');
 });

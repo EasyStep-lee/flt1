@@ -43,12 +43,12 @@ test('M1-P047 evidence remains closed after PR 20 merge as the project advances'
   assert.equal(evidence.fullVerification.status, 'PASS_17_OF_17');
   assert.equal(evidence.negativeTests.length, 4);
   assert.ok(evidence.negativeTests.every(({ status }) => status === 'PASS'));
-  assert.match(state.execution.lastCompletedTask, /^M2-P\d{3}$/u);
-  assert.equal(state.execution.status, 'M2_IN_PROGRESS');
-  assert.equal(state.execution.currentTask, 'M2-GATE');
+  assert.equal(state.execution.lastCompletedTask, 'M2-GATE');
+  assert.equal(state.execution.status, 'M3_IN_PROGRESS');
+  assert.equal(state.execution.currentTask, 'M3-000');
   assert.equal(state.execution.nextAllowedTask, state.execution.currentTask);
   assert.equal(state.execution.activeTaskCount, 1);
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M2-GATE.*M3/u);
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M3-000.*M3-P020/u);
   assert.ok(state.github.pullRequest === null || Number.isInteger(state.github.pullRequest));
   assert.ok(['NOT_CREATED', 'DRAFT'].includes(state.github.pullRequestState));
   assert.equal(state.github.pullRequestMerged, false);
@@ -56,7 +56,7 @@ test('M1-P047 evidence remains closed after PR 20 merge as the project advances'
   assert.equal(state.github.currentTaskDelivery.taskId, state.execution.currentTask);
   assert.equal(
     state.github.currentTaskDelivery.status,
-    'LOCAL_PASS_PENDING_EXACT_HEAD_CI_AND_MERGE',
+    'LOCAL_PASS_PENDING_COMMIT_PR_CI_AND_MERGE',
   );
   assert.equal(state.github.currentTaskDelivery.blockingExternalItem, null);
   assert.equal(state.github.currentTaskDelivery.m3Unlocked, false);
@@ -68,7 +68,7 @@ test('M1-P047 evidence remains closed after PR 20 merge as the project advances'
   assert.equal(state.github.currentTaskDelivery.mainPostMergeCi, 'NOT_EXECUTED');
   assert.equal(state.github.previousTaskDelivery.status, 'CI_PASS');
   assert.match(state.evidence.local, /^(?:NOT_EXECUTED|LOCAL_PASS)$/u);
-  assert.ok(['NOT_EXECUTED', 'CI_PASS'].includes(state.evidence.ci));
+  assert.equal(state.evidence.ci, 'CI_PASS_M2_GATE_ONLY');
   assert.match(taskLedger, /M1-P047[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(taskLedger, /M1-P066[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(p0Ledger, /P0-047[^\r\n]*CI_PASS/u);

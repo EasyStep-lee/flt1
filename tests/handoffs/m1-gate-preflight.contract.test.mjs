@@ -214,10 +214,10 @@ test('M1 ledgers retain the exact-head gate while M2 advances one slice at a tim
   assert.equal(m1Stage.Status, 'GATE_PASSED');
   assert.equal(m1Stage.EvidenceStatus, 'CI_PASS');
   assert.match(m1Stage.Notes, /31295823535/u);
-  assert.equal(['IN_PROGRESS', 'BLOCKED'].includes(m2Stage.Status), true);
-  assert.equal(['LOCAL_PASS', 'CI_PASS'].includes(m2Stage.EvidenceStatus), true);
-  assert.equal(m3Stage.Status, 'LOCKED');
-  assert.equal(m3Stage.EvidenceStatus, 'NOT_EXECUTED');
+  assert.equal(m2Stage.Status, 'GATE_PASSED');
+  assert.equal(m2Stage.EvidenceStatus, 'CI_PASS');
+  assert.equal(m3Stage.Status, 'IN_PROGRESS');
+  assert.equal(m3Stage.EvidenceStatus, 'LOCAL_PASS');
 
   const m2Contract = tasks.find(({ TaskID }) => TaskID === 'M2-000');
   const m2BusinessTasks = tasks
@@ -258,15 +258,9 @@ test('M1 ledgers retain the exact-head gate while M2 advances one slice at a tim
       ),
       true,
     );
-    assert.equal(
-      m2Stage.Status,
-      ext007.CurrentStatus === 'PROVIDED' ? 'IN_PROGRESS' : 'BLOCKED',
-    );
-    assert.equal(
-      m2Gate.Status,
-      ext007.CurrentStatus === 'PROVIDED' ? 'IN_PROGRESS' : 'BLOCKED',
-    );
-    assert.equal(m2Gate.EvidenceStatus, 'LOCAL_PASS');
+    assert.equal(m2Stage.Status, 'GATE_PASSED');
+    assert.equal(m2Gate.Status, 'DONE');
+    assert.equal(m2Gate.EvidenceStatus, 'CI_PASS');
     assert.equal(['NOT_PROVIDED', 'PROVIDED'].includes(ext007.CurrentStatus), true);
     assert.equal(ext007.BlocksFormalAcceptance, 'YES');
   }
@@ -293,12 +287,12 @@ test('project status records M1 gate success while historical blocked handoff st
     readFile(handoffPath, 'utf8'),
   ]);
 
-  assert.equal(projectStatus.execution.currentStage, 'M2');
+  assert.equal(projectStatus.execution.currentStage, 'M3');
   assert.equal(projectStatus.execution.nextAllowedTask, projectStatus.execution.currentTask);
-  assert.match(projectStatus.execution.lastCompletedTask, /^M2-P\d{3}$/u);
-  assert.equal(projectStatus.execution.lastPassedGate, 'M1-GATE');
+  assert.equal(projectStatus.execution.lastCompletedTask, 'M2-GATE');
+  assert.equal(projectStatus.execution.lastPassedGate, 'M2-GATE');
   assert.equal(
-    projectStatus.execution.prohibitedUntilGate.some((item) => /M2/u.test(item)),
+    projectStatus.execution.prohibitedUntilGate.some((item) => /M3-000/u.test(item)),
     true,
   );
   assert.equal(
@@ -309,37 +303,20 @@ test('project status records M1 gate success while historical blocked handoff st
   assert.equal(projectStatus.github.pullRequestMerged, false);
   assert.equal(projectStatus.github.mergeCommitSha, null);
   assert.equal(['NOT_EXECUTED', 'CI_PASS'].includes(projectStatus.github.pullRequestCi.status), true);
-  assert.equal(['LOCAL_PASS', 'CI_PASS'].includes(projectStatus.github.latestCi.status), true);
+  assert.equal(projectStatus.github.latestCi.status, 'CI_PASS');
   assert.equal(
     projectStatus.github.currentTaskDelivery.taskId,
     projectStatus.execution.currentTask,
   );
-  if (projectStatus.execution.status === 'M2_IN_PROGRESS') {
-    assert.match(projectStatus.execution.currentTask, /^(?:M2-P\d{3}|M2-GATE)$/u);
-    assert.equal(projectStatus.execution.activeTaskCount, 1);
-    assert.equal(
-      ['IN_PROGRESS', 'LOCAL_PASS', 'CI_PASS', 'LOCAL_PASS_PENDING_EXACT_HEAD_CI_AND_MERGE'].includes(
-        projectStatus.github.currentTaskDelivery.status,
-      ),
-      true,
-    );
-    if (projectStatus.execution.currentTask === 'M2-GATE') {
-      assert.equal(projectStatus.github.currentTaskDelivery.blockingExternalItem, null);
-      assert.equal(projectStatus.github.currentTaskDelivery.m3Unlocked, false);
-    }
-  } else {
-    assert.equal(projectStatus.execution.status, 'M2_BLOCKED_EXTERNAL');
-    assert.equal(projectStatus.execution.currentTask, 'M2-GATE');
-    assert.equal(projectStatus.execution.activeTaskCount, 0);
-    assert.equal(projectStatus.github.currentTaskDelivery.status, 'BLOCKED_EXTERNAL');
-    assert.equal(projectStatus.github.currentTaskDelivery.blockingExternalItem, 'EXT-007');
-    assert.equal(projectStatus.github.currentTaskDelivery.m3Unlocked, false);
-  }
+  assert.equal(projectStatus.execution.status, 'M3_IN_PROGRESS');
+  assert.equal(projectStatus.execution.currentTask, 'M3-000');
+  assert.equal(projectStatus.execution.activeTaskCount, 1);
+  assert.equal(projectStatus.github.currentTaskDelivery.status, 'LOCAL_PASS_PENDING_COMMIT_PR_CI_AND_MERGE');
   assert.equal(projectStatus.github.currentTaskDelivery.merge, 'NOT_EXECUTED');
   assert.equal(projectStatus.github.currentTaskDelivery.mainPostMergeCi, 'NOT_EXECUTED');
   assert.equal(projectStatus.github.previousTaskDelivery.status, 'CI_PASS');
   assert.equal(projectStatus.evidence.local, 'LOCAL_PASS');
-  assert.equal(['NOT_EXECUTED', 'CI_PASS'].includes(projectStatus.evidence.ci), true);
+  assert.equal(projectStatus.evidence.ci, 'CI_PASS_M2_GATE_ONLY');
   assert.equal(projectStatus.evidence.staging, 'NOT_EXECUTED');
   assert.equal(projectStatus.evidence.device, 'NOT_EXECUTED');
   assert.equal(projectStatus.evidence.production, 'NOT_EXECUTED');
