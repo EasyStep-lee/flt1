@@ -38,10 +38,9 @@ test('P0-016 retains DIGITAL in category-template profiles and safe errors', () 
   assert.match(JSON.stringify(openApi.components.schemas), /DIGITAL_HISTORY_REWRITE/u);
 });
 
-test('M2-P016 records its merged-main gate while M2 formal acceptance remains blocked', async () => {
-  const [state, evidence, taskLedger, p0Ledger, pageLedger, apiLedger, handoff] =
+test('M2-P016 preserves its immutable merged-main evidence after later phases advance', async () => {
+  const [evidence, taskLedger, p0Ledger, pageLedger, apiLedger, handoff] =
     await Promise.all([
-      readFile(path.join(executionPack, '16-项目状态.json'), 'utf8').then(JSON.parse),
       readFile(
         path.join(repositoryRoot, 'artifacts', 'verification', 'M2-P016', 'digital-detail.json'),
         'utf8',
@@ -56,28 +55,6 @@ test('M2-P016 records its merged-main gate while M2 formal acceptance remains bl
       ),
     ]);
 
-  assert.equal(state.execution.status, 'M3_IN_PROGRESS');
-  assert.equal(state.execution.currentTask, 'M3-000');
-  assert.equal(state.execution.nextAllowedTask, 'M3-000');
-  assert.equal(state.execution.lastCompletedTask, 'M2-GATE');
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M3-000.*M3-P020/u);
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M3-000');
-  assert.equal(state.github.currentTaskDelivery.issue, 75);
-  assert.equal(state.github.currentTaskDelivery.branch, 'codex/m3-contract-freeze');
-  assert.equal(
-    state.github.currentTaskDelivery.exactHeadCi,
-    'NOT_EXECUTED',
-  );
-  assert.equal(state.github.currentTaskDelivery.pullRequest, null);
-  assert.equal(state.github.currentTaskDelivery.pullRequestState, 'NOT_CREATED');
-  assert.equal(state.github.currentTaskDelivery.merge, 'NOT_EXECUTED');
-  assert.equal(state.github.currentTaskDelivery.mainPostMergeCi, 'NOT_EXECUTED');
-  assert.equal(state.github.currentTaskDelivery.blockingExternalItem, null);
-  assert.equal(state.github.currentTaskDelivery.m3Unlocked, false);
-  assert.equal(state.github.previousTaskDelivery.taskId, 'M2-GATE');
-  assert.equal(state.github.previousTaskDelivery.pullRequest, 74);
-  assert.equal(state.github.previousTaskDelivery.mainPostMergeCiRun, 31686758134);
-  assert.equal(state.github.previousTaskDelivery.status, 'CI_PASS');
   assert.equal(evidence.taskId, 'M2-P016');
   assert.equal(evidence.status, 'CI_PASS');
   assert.equal(evidence.environmentBoundary.ci, 'CI_PASS');
