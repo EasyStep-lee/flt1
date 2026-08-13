@@ -1,0 +1,150 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "M2-GATE",
+  "stage": "M2",
+  "generatedAt": "2026-08-13T03:35:50Z",
+  "status": "BLOCKED_EXTERNAL",
+  "gateConclusion": "BLOCKED_EXTERNAL",
+  "technicalConclusion": "LOCAL_PASS_PENDING_FINAL_VERIFY",
+  "baseline": {
+    "id": "FULISHE-V1.1-2026-08-02",
+    "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+    "verification": "PASS"
+  },
+  "candidate": {
+    "repository": "EasyStep-lee/flt1",
+    "mainSha": "7ea79b9fec8364aecbe5beeb12fc53d43be45690",
+    "gateRecord": {
+      "issue": 73,
+      "branch": "codex/m2-gate",
+      "pullRequest": "NOT_CREATED_AT_CAPTURE"
+    },
+    "lastSlice": {
+      "taskId": "M2-P071",
+      "pullRequest": 72,
+      "url": "https://github.com/EasyStep-lee/flt1/pull/72",
+      "headSha": "8b166d3801f6de3809d311ff8947214bb16aab9d",
+      "state": "MERGED",
+      "draft": false,
+      "mergeCommitSha": "7ea79b9fec8364aecbe5beeb12fc53d43be45690",
+      "mergedAt": "2026-08-13T03:12:53Z",
+      "issue": 71,
+      "issueState": "CLOSED"
+    }
+  },
+  "p0": {
+    "mappedCount": 18,
+    "status": "CI_PASS_TECHNICAL_EVIDENCE",
+    "items": [
+      { "p0Id": "P0-006", "status": "CI_PASS", "candidateMainSha": "7ea79b9fec8364aecbe5beeb12fc53d43be45690" },
+      { "p0Id": "P0-007", "status": "CI_PASS", "candidateMainSha": "7ea79b9fec8364aecbe5beeb12fc53d43be45690" },
+      { "p0Id": "P0-008", "status": "CI_PASS", "candidateMainSha": "7ea79b9fec8364aecbe5beeb12fc53d43be45690" },
+      { "p0Id": "P0-009", "status": "CI_PASS", "candidateMainSha": "7ea79b9fec8364aecbe5beeb12fc53d43be45690" },
+      { "p0Id": "P0-010", "status": "CI_PASS", "candidateMainSha": "7ea79b9fec8364aecbe5beeb12fc53d43be45690" },
+      { "p0Id": "P0-011", "status": "CI_PASS", "candidateMainSha": "7ea79b9fec8364aecbe5beeb12fc53d43be45690" },
+      { "p0Id": "P0-012", "status": "CI_PASS", "candidateMainSha": "7ea79b9fec8364aecbe5beeb12fc53d43be45690" },
+      { "p0Id": "P0-013", "status": "CI_PASS", "candidateMainSha": "7ea79b9fec8364aecbe5beeb12fc53d43be45690" },
+      { "p0Id": "P0-014", "status": "CI_PASS", "candidateMainSha": "7ea79b9fec8364aecbe5beeb12fc53d43be45690" },
+      { "p0Id": "P0-015", "status": "CI_PASS", "candidateMainSha": "7ea79b9fec8364aecbe5beeb12fc53d43be45690" },
+      { "p0Id": "P0-016", "status": "CI_PASS", "candidateMainSha": "7ea79b9fec8364aecbe5beeb12fc53d43be45690" },
+      { "p0Id": "P0-017", "status": "CI_PASS", "candidateMainSha": "7ea79b9fec8364aecbe5beeb12fc53d43be45690" },
+      { "p0Id": "P0-018", "status": "CI_PASS", "candidateMainSha": "7ea79b9fec8364aecbe5beeb12fc53d43be45690" },
+      { "p0Id": "P0-019", "status": "CI_PASS", "candidateMainSha": "7ea79b9fec8364aecbe5beeb12fc53d43be45690" },
+      { "p0Id": "P0-021", "status": "CI_PASS", "candidateMainSha": "7ea79b9fec8364aecbe5beeb12fc53d43be45690" },
+      { "p0Id": "P0-061", "status": "CI_PASS", "candidateMainSha": "7ea79b9fec8364aecbe5beeb12fc53d43be45690" },
+      { "p0Id": "P0-063", "status": "CI_PASS", "candidateMainSha": "7ea79b9fec8364aecbe5beeb12fc53d43be45690" },
+      { "p0Id": "P0-071", "status": "CI_PASS", "candidateMainSha": "7ea79b9fec8364aecbe5beeb12fc53d43be45690" }
+    ]
+  },
+  "evidence": {
+    "lastSlicePullRequestCi": {
+      "status": "CI_PASS",
+      "runId": 31662130194,
+      "jobId": 94328914066,
+      "url": "https://github.com/EasyStep-lee/flt1/actions/runs/31662130194",
+      "headSha": "8b166d3801f6de3809d311ff8947214bb16aab9d",
+      "conclusion": "success"
+    },
+    "candidateMainCi": {
+      "status": "CI_PASS",
+      "runId": 31663228561,
+      "jobId": 94332305240,
+      "url": "https://github.com/EasyStep-lee/flt1/actions/runs/31663228561",
+      "headSha": "7ea79b9fec8364aecbe5beeb12fc53d43be45690",
+      "event": "push",
+      "conclusion": "success"
+    },
+    "comments": 1,
+    "reviews": 0,
+    "unresolvedReviewThreads": 0
+  },
+  "technicalChecks": {
+    "failed": [],
+    "baseline": { "status": "PASS" },
+    "executionPack": { "status": "PENDING_FINAL_SYNC" },
+    "m2Contracts": { "status": "PASS", "testsPassed": 46 },
+    "policyAndInventory": { "status": "PASS", "testsPassed": 13 },
+    "api": { "status": "PASS", "testsPassed": 50 },
+    "p0E2e": { "status": "PASS", "testsPassed": 27 },
+    "migrationContracts": { "status": "PASS", "testsPassed": 17 },
+    "migration": { "status": "PASS", "empty": 2, "upgrade": 2, "restore": 2, "productMigrations": 24, "cleanup": "PASS" },
+    "openapi": { "status": "PASS", "deterministic": true, "breakingChanges": 0 },
+    "fullVerify": { "status": "NOT_EXECUTED_PENDING_FINAL_SYNC", "stepsPassed": 0, "baseSha": "7ea79b9fec8364aecbe5beeb12fc53d43be45690", "startedAt": null, "endedAt": null }
+  },
+  "invariants": [
+    { "id": "PRODUCT_TWO_LAYER", "status": "PASS", "evidence": "P0-006/P0-007" },
+    { "id": "CATEGORY_TEMPLATE_VERSIONING", "status": "PASS", "evidence": "P0-011/P0-012/P0-013/P0-014/P0-015/P0-016/P0-017" },
+    { "id": "NO_SUPPLIER_STOREFRONT", "status": "PASS", "evidence": "P0-009/P0-010" },
+    { "id": "SUPPLY_PRICE_REVIEW_AND_SALES_PRICE_AUDIT", "status": "PASS", "evidence": "P0-008/P0-019/P0-071" },
+    { "id": "SUPPLY_PRICE_NEVER_BUYER_VISIBLE", "status": "PASS", "evidence": "P0-021" },
+    { "id": "REGULATED_CATEGORY_DEFAULT_DENY", "status": "PASS", "evidence": "P0-018" },
+    { "id": "SHARED_CATALOG_AND_SINGLE_INVENTORY_BALANCE", "status": "PASS", "evidence": "P0-061/P0-063" }
+  ],
+  "externalItems": {
+    "EXT007": {
+      "status": "NOT_PROVIDED",
+      "blocksStage": true,
+      "requiredAction": "Authorized business/compliance personnel confirm the first category tree, template fields, company and product qualification validity periods, and after-sales rules."
+    },
+    "EXT008": {
+      "status": "NOT_PROVIDED",
+      "blocksStage": false,
+      "requiredAction": "Authorized pricing personnel confirm review thresholds, risk hints and scheduled-effect rules without changing the locked review boundary."
+    }
+  },
+  "blockers": [
+    {
+      "id": "EXT-007",
+      "status": "NOT_PROVIDED",
+      "blocksStage": true,
+      "reason": "Formal M2 business/compliance acceptance requires an authorized first category tree, template fields, qualification validity periods and after-sales rules.",
+      "safeBoundary": "Do not treat test fixtures as approved business data; keep regulated categories disabled until authorized confirmation is recorded."
+    }
+  ],
+  "environment": {
+    "local": "LOCAL_PASS_PENDING_FINAL_VERIFY",
+    "candidateMainCi": "CI_PASS",
+    "gateRecordPrCi": "NOT_EXECUTED",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_EXECUTED",
+    "production": "NOT_EXECUTED"
+  },
+  "decision": {
+    "stagePassed": false,
+    "conclusion": "BLOCKED_EXTERNAL",
+    "lastPassedGate": "M1-GATE",
+    "nextAllowedTask": "M2-GATE",
+    "m3Unlocked": false,
+    "requiredActions": [
+      "Authorized business/compliance personnel provide a redacted EXT-007 confirmation; do not upload confidential originals to chat or the repository.",
+      "Keep the M2-GATE pull request Draft while EXT-007 remains NOT_PROVIDED.",
+      "After EXT-007 is recorded, refresh the gate evidence and run the exact-head checks before requesting Ready/merge authorization.",
+      "Do not start M3 until M2-GATE is merged after exact-head authorization and the post-merge main CI succeeds."
+    ]
+  },
+  "rollback": {
+    "application": "Revert only the M2-GATE evidence commit through a reviewed pull request; do not rewrite public history.",
+    "database": "No schema or migration change in this gate slice.",
+    "externalState": "No external business or production state changed."
+  }
+}

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-13T02:45:06Z",
+  "updatedAt": "2026-08-13T03:35:50Z",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -12,20 +12,20 @@
     "pageCount": 80
   },
   "execution": {
-    "status": "M2_IN_PROGRESS",
+    "status": "M2_BLOCKED_EXTERNAL",
     "currentStage": "M2",
-    "currentTask": "M2-P071",
-    "nextAllowedTask": "M2-P071",
-    "activeTaskCount": 1,
-    "lastCompletedTask": "M2-P063",
-    "lastCompletedCommit": "b9eb7f700f50361e9290ab904627cc943e289bd4",
+    "currentTask": "M2-GATE",
+    "nextAllowedTask": "M2-GATE",
+    "activeTaskCount": 0,
+    "lastCompletedTask": "M2-P071",
+    "lastCompletedCommit": "7ea79b9fec8364aecbe5beeb12fc53d43be45690",
     "lastPassedGate": "M1-GATE",
     "prohibitedUntilGate": [
-      "M2-P071最终证据head CI通过后才可请求人工将对应Draft PR转Ready并合并",
-      "M2-P071人工合并及合并后main CI完成前不得执行M2-GATE或进入M3"
+      "EXT-007未提供前M2-GATE保持BLOCKED_EXTERNAL且不得解锁M3",
+      "M2-GATE最新head CI通过并获得精确head人工授权前不得转Ready或合并"
     ],
     "persistentRestrictions": [
-      "M2-GATE通过前M3及以后阶段保持LOCKED/NOT_STARTED",
+      "M2-GATE通过前M3及以后阶段保持LOCKED/NOT_EXECUTED",
       "真实支付/退款",
       "生产部署/迁移",
       "直接修改或推送main"
@@ -70,51 +70,51 @@
       "completedAt": null
     },
     "latestCi": {
-      "scope": "PREVIOUS_TASK_POST_MERGE_MAIN_RETRY",
+      "scope": "M2_CANDIDATE_MAIN_POST_MERGE",
       "status": "CI_PASS",
-      "runId": 31656547021,
-      "jobId": 94312597218,
-      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31656547021",
-      "headSha": "b9eb7f700f50361e9290ab904627cc943e289bd4",
+      "runId": 31663228561,
+      "jobId": 94332305240,
+      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31663228561",
+      "headSha": "7ea79b9fec8364aecbe5beeb12fc53d43be45690",
       "event": "push",
-      "completedAt": "2026-08-13T01:16:24Z",
-      "firstAttempt": "FAIL_OASDIFF_PINNED_BINARY_FETCH",
-      "retryAttempt": 2
+      "completedAt": "2026-08-13T03:22:51Z",
+      "firstAttempt": "PASS",
+      "retryAttempt": 1
     },
     "currentTaskDelivery": {
-      "taskId": "M2-P071",
-      "issue": 71,
-      "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/71",
-      "branch": "codex/m2-price-approval-pages",
-      "baseCommit": "b9eb7f700f50361e9290ab904627cc943e289bd4",
-      "implementationCommit": "0a0ed6736b6e96ae24cd94348319af39a4309f5a",
+      "taskId": "M2-GATE",
+      "issue": 73,
+      "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/73",
+      "branch": "codex/m2-gate",
+      "baseCommit": "7ea79b9fec8364aecbe5beeb12fc53d43be45690",
+      "implementationCommit": null,
       "deliveryHead": null,
-      "status": "IN_PROGRESS",
-      "technicalConclusion": "LOCAL_FULL_VERIFY_17_OF_17_PASS_PENDING_DRAFT_PR_AND_EXACT_HEAD_CI",
-      "blockingExternalItem": null,
-      "localFullVerify": "LOCAL_PASS_17_OF_17_COMMIT_0A0ED67",
+      "status": "BLOCKED_EXTERNAL",
+      "technicalConclusion": "LOCAL_FOCUSED_PASS_PENDING_FULL_VERIFY_DRAFT_PR_AND_EXACT_HEAD_CI",
+      "blockingExternalItem": "EXT-007",
+      "localFullVerify": "NOT_EXECUTED_PENDING_FINAL_SYNC",
       "pullRequest": null,
       "pullRequestState": "NOT_CREATED",
       "exactHeadCi": "NOT_EXECUTED",
       "review": "NOT_EXECUTED",
       "merge": "NOT_EXECUTED",
       "mainPostMergeCi": "NOT_EXECUTED",
-      "m2p071StartAllowed": true
+      "m3Unlocked": false
     },
     "previousTaskDelivery": {
-      "taskId": "M2-P063",
-      "pullRequest": 70,
-      "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/70",
-      "exactHead": "92a0186d74be1c85372ab9dabbc225e769b6898a",
-      "pullRequestCiRun": 31594798970,
-      "mergeCommit": "b9eb7f700f50361e9290ab904627cc943e289bd4",
-      "mainPostMergeCiRun": 31656547021,
-      "mainPostMergeCiJob": 94312597218,
+      "taskId": "M2-P071",
+      "pullRequest": 72,
+      "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/72",
+      "exactHead": "8b166d3801f6de3809d311ff8947214bb16aab9d",
+      "pullRequestCiRun": 31662130194,
+      "mergeCommit": "7ea79b9fec8364aecbe5beeb12fc53d43be45690",
+      "mainPostMergeCiRun": 31663228561,
+      "mainPostMergeCiJob": 94332305240,
       "status": "CI_PASS",
-      "firstMainAttempt": "FAIL_OASDIFF_PINNED_BINARY_FETCH",
-      "mainRetryAttempt": 2
+      "firstMainAttempt": "PASS",
+      "mainRetryAttempt": 1
     },
-    "note": "M2-P063 PR #70 exact-head CI成功并合并；main run 31656547021首次因oasdiff固定二进制下载fetch failed失败，同一merge SHA重跑job 94312597218成功。M2-P071已完成RED、最小实现与focused API/契约/P0 E2E，完整verify、Draft PR和exact-head CI待执行。"
+    "note": "M2-P071 PR #72 exact-head 8b166d3 的CI成功并经用户精确授权合并；main@7ea79b9 run 31663228561成功。M2-GATE focused技术证据通过，但EXT-007正式分类/模板/资质有效期/售后规则未提供，正式阶段结论保持BLOCKED_EXTERNAL，M3锁定。"
   },
   "evidence": {
     "local": "LOCAL_PASS",
