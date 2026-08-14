@@ -8,6 +8,8 @@ export type PaymentActor = ConsumerOrderActor | EnterpriseOrderActor;
 export interface PaymentRecord {
   readonly paymentTransactionId: string;
   readonly orderId: string;
+  readonly merchantConfigRef: string;
+  readonly collectorName: '江苏福礼团供应链科技有限公司';
   readonly amount: number;
   readonly outTradeNo: string;
   readonly status: 'CREATED' | 'PREPAY_CREATED' | 'PAID';

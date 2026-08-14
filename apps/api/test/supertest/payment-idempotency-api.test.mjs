@@ -11,6 +11,7 @@ const orderId = '70000000-0000-4000-8000-000000000001';
 const paymentTransactionId = '71000000-0000-4000-8000-000000000001';
 const companyId = '10000000-0000-4000-8000-000000000001';
 const consumerUserId = '10000000-0000-4000-8000-000000000002';
+const merchantConfigRef = 'secrets://wechat-pay/company-primary';
 
 const config = () =>
   loadRuntimeConfig({
@@ -52,6 +53,7 @@ class RecordingPaymentRepository {
     }
     this.payment = {
       paymentTransactionId, orderId, amount: 5800, outTradeNo: 'WP2026081400000000000000000001',
+      merchantConfigRef, collectorName: '江苏福礼团供应链科技有限公司',
       status: 'CREATED', idempotencyKey: command.idempotencyKey, requestHash: command.requestHash,
     };
     this.effects.allocations += 2;
@@ -150,11 +152,23 @@ describe('P0-024 WeChat payment idempotency', () => {
       const replay = await prepay(app).expect(200);
       expect(first.headers['cache-control']).toMatch(/private.*no-store/iu);
       expect(first.headers['x-robots-tag']).toBe('noindex, nofollow');
-      expect(first.body).toMatchObject({ orderId, paymentTransactionId, channel: 'WECHAT_PAY', status: 'PREPAY_CREATED', amount: 5800 });
+      expect(first.body).toMatchObject({
+        orderId,
+        paymentTransactionId,
+        channel: 'WECHAT_PAY',
+        status: 'PREPAY_CREATED',
+        amount: 5800,
+        collectorName: '江苏福礼团供应链科技有限公司',
+        checkoutMode: 'COMPANY_UNIFIED',
+      });
       expect(replay.body).toEqual(first.body);
       expect(wechatPaymentAdapter.prepayCalls).toHaveLength(1);
+      expect(wechatPaymentAdapter.prepayCalls[0]).toMatchObject({
+        merchantConfigRef,
+        collectorLegalName: '江苏福礼团供应链科技有限公司',
+      });
       expect(paymentRepository.effects.allocations).toBe(2);
-      expect(JSON.stringify(first.body)).not.toMatch(/companyId|consumerUserId|supplyPrice|merchant|secret/iu);
+      expect(JSON.stringify(first.body)).not.toMatch(/companyId|consumerUserId|supplyPrice|merchantConfig|secret/iu);
     } finally { await app.close(); }
   });
 

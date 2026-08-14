@@ -42,6 +42,8 @@ const toResponse = (payment: PaymentRecord & { readonly response: NonNullable<Pa
   orderId: payment.orderId,
   channel: 'WECHAT_PAY' as const,
   status: 'PREPAY_CREATED' as const,
+  collectorName: payment.collectorName,
+  checkoutMode: 'COMPANY_UNIFIED' as const,
   amount: payment.amount,
   outTradeNo: payment.outTradeNo,
   prepayId: payment.response.prepayId,
@@ -96,6 +98,8 @@ export class PaymentService {
         amount: begin.payment.amount,
         description: '福礼团订单',
         payerReference: buyerReference,
+        merchantConfigRef: begin.payment.merchantConfigRef,
+        collectorLegalName: begin.payment.collectorName,
       });
     } catch (error) {
       return mapAdapterError(error);

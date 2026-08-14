@@ -35,6 +35,10 @@ import {
   WechatPaymentNotificationController,
   WechatPrepayController,
 } from '../payments/payment.controller.js';
+import {
+  CompanyEnterpriseRemittanceController,
+  EnterpriseRemittanceController,
+} from '../enterprise-remittances/enterprise-remittance.controller.js';
 
 export const OPENAPI_CONTROLLERS = Object.freeze([
   AuditLogController,
@@ -62,6 +66,8 @@ export const OPENAPI_CONTROLLERS = Object.freeze([
   CompanySupplyPriceReviewController,
   ConsumerOrderController,
   EnterpriseOrderController,
+  EnterpriseRemittanceController,
+  CompanyEnterpriseRemittanceController,
   WechatPrepayController,
   WechatPaymentNotificationController,
 ]);
