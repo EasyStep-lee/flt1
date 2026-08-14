@@ -1,13 +1,13 @@
 # 2026-08-14 M3-P026 按原支付结构退款交接
 
-阶段结论：`IN_PROGRESS / LOCAL_PASS`。M3-P025 已由 PR #86 按精确 head `cd4b9ea32499793ea947bb646778db307a9c4acd` 合并到 `main@c4ab850ef7d6f6693376097350e2d0ddc27c6755`，合并后 Actions run `31796060635` / job `94753324144` 成功。本切片实现提交为 `b80d348`，OpenAPI 名单修复为 `a30d94a`，职能页回归修复为 `87f3bd3`，证据游标提交为 `f3c60d8`；`pnpm verify` 在 `f3c60d88208194fa5d2733e7a48faf940310b831` 上 17/17 通过。Draft PR、PR CI、人工合并和 post-merge main CI 尚未执行；真实福利卡账本、真实微信退款及 staging 未执行，所以 P0-026 整项保持 `NOT_EXECUTED`。
+阶段结论：`IN_PROGRESS / CI_PASS`。M3-P025 已由 PR #86 按精确 head `cd4b9ea32499793ea947bb646778db307a9c4acd` 合并到 `main@c4ab850ef7d6f6693376097350e2d0ddc27c6755`，合并后 Actions run `31796060635` / job `94753324144` 成功。本切片实现提交为 `b80d348`，OpenAPI 名单修复为 `a30d94a`，职能页回归修复为 `87f3bd3`，证据游标提交为 `f3c60d8`；`pnpm verify` 在 `f3c60d88208194fa5d2733e7a48faf940310b831` 上 17/17 通过。Draft PR #88 的精确 head `77a2bf38e4baab4109cca2c03c9e3307cc903e55` 已由 Actions run `31803746732` / job `94777572246` 验证成功；人工合并和 post-merge main CI 尚未执行。真实福利卡账本、真实微信退款及 staging 未执行，所以 P0-026 整项保持 `NOT_EXECUTED`。
 
 ## 基线、范围与 Git
 
 - 唯一方案 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`；基线校验通过，仅有执行包冻结副本的已知提示。
 - 当前阶段/任务：M3 / M3-P026；API-043；MIG-013；公司订单客服退款发起页。
-- 分支：`codex/m3-structured-refund`；基线：`main@c4ab850ef7d6f6693376097350e2d0ddc27c6755`；当前验证 head：`f3c60d88208194fa5d2733e7a48faf940310b831`。
-- GitHub：Issue #87；Draft PR 尚未创建；PR CI、评论、人工合并和 post-merge main CI 均为 `NOT_EXECUTED`。
+- 分支：`codex/m3-structured-refund`；基线：`main@c4ab850ef7d6f6693376097350e2d0ddc27c6755`；当前已验证 PR head：`77a2bf38e4baab4109cca2c03c9e3307cc903e55`。
+- GitHub：Issue #87；Draft PR #88；PR CI 为 `CI_PASS`（run `31803746732` / job `94777572246`）；人工合并和 post-merge main CI 为 `NOT_EXECUTED`。
 - 用户既有未跟踪文件和 `.codex-*` 临时证据均保留且未暂存。
 
 ## 完成范围
@@ -43,12 +43,13 @@
 | OpenAPI generate/check/breaking | 字节稳定；breaking 0 errors；新增全局错误枚举产生兼容性 warning，但门禁通过 |
 | 首次 `pnpm verify` | `FAIL`：实现尚未提交时 `openapi-diff` 正确检测到生成物相对 HEAD 有差异；没有跳过门禁 |
 | 最终 `pnpm verify` | `f3c60d8` 退出码 0；17/17 PASS；58 项 P0 E2E 通过；报告 `artifacts/test-results/verification/pnpm-verify.json` |
+| Draft PR exact-head CI | `77a2bf3`；Actions run `31803746732` / job `94777572246`；SUCCESS |
 
 ## P0 与环境边界
 
 - P0-026 自动化子行为：`LOCAL_PASS`；原结构、原目标、整数分守恒、同自然人隔离、并发/幂等、UNKNOWN 不重发、影响追加均有行为测试。
 - P0-026 整项：`NOT_EXECUTED`；required level 为 `STAGING_PASS`，真实福利卡账本和真实微信退款均未执行。
-- LOCAL：`LOCAL_PASS`；CI/STAGING/DEVICE/PRODUCTION：`NOT_EXECUTED`。
+- LOCAL：`LOCAL_PASS`；PR CI：`CI_PASS`；STAGING/DEVICE/PRODUCTION：`NOT_EXECUTED`。
 - 外部边界：真实微信商户证书/APIv3 密钥、真实福利卡账本连接、回调域名、staging 与财务核验必须由授权人工配置/执行；不得把秘密或真实敏感资金数据放入仓库或聊天。
 
 ## 风险与回滚
@@ -60,4 +61,4 @@
 
 ## 下一步门禁
 
-下一动作仅限完成本切片台账/工作簿、全量验证、创建并更新 M3-P026 Draft PR、修复其精确 head CI 和处理同一 PR 评论。只有人工按最新精确 head 授权转 Ready/合并且合并后 main CI 成功，才能开始 M3-P027。当前明确禁止 M3-P027、M4、M5、M6 以及任何真实资金或生产操作。
+下一动作仅限处理 M3-P026 Draft PR #88 的评论、确认最新 head CI，并等待人工按最新精确 head 授权转 Ready/合并；合并后 main CI 成功前不得开始 M3-P027。当前明确禁止 M3-P027、M4、M5、M6 以及任何真实资金或生产操作。
