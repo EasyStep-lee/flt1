@@ -411,6 +411,7 @@ type JsonValue =
       useValue: {
         findOrderableSkus: async () => [],
         createOrder: async () => { throw new Error('OPENAPI_GENERATION_ONLY'); },
+        releaseOrderInventory: async () => { throw new Error('OPENAPI_GENERATION_ONLY'); },
       } satisfies OrderRepository,
     },
     {

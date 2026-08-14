@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 
 import { Inject, Injectable } from '@nestjs/common';
 import { Prisma } from '@fulishe/db';
@@ -10,6 +10,8 @@ import type {
   OrderAggregateRecord,
   OrderRepository,
   OrderableSkuRecord,
+  ReleaseOrderInventoryCommand,
+  ReleaseOrderInventoryResult,
 } from './order.repository.js';
 
 const asObject = (value: unknown): Readonly<Record<string, unknown>> =>
@@ -18,6 +20,25 @@ const asObject = (value: unknown): Readonly<Record<string, unknown>> =>
     : {};
 
 const json = (value: unknown): Prisma.InputJsonValue => value as Prisma.InputJsonValue;
+
+class InventoryReservationFailure extends Error {
+  constructor(
+    readonly kind: 'INVENTORY_INSUFFICIENT' | 'INVENTORY_RESERVATION_CONFLICT',
+    readonly skuId?: string,
+  ) {
+    super(kind);
+  }
+}
+
+const reservationKey = (command: CreateOrderCommand): string =>
+  createHash('sha256')
+    .update(`${command.idempotencyScope}:${command.idempotencyKey}`)
+    .digest('hex');
+
+const releaseRequestHash = (command: ReleaseOrderInventoryCommand): string =>
+  createHash('sha256')
+    .update(JSON.stringify({ orderId: command.orderId, reason: command.reason }))
+    .digest('hex');
 
 const orderInclude = Prisma.validator<Prisma.BuyerOrderInclude>()({
   items: { orderBy: { lineNo: 'asc' } },
@@ -160,6 +181,79 @@ export class PrismaOrderRepository implements OrderRepository {
           command.supplierFulfillments.map((item) => [item.supplierId, randomUUID()]),
         );
         const orderNo = `FS${Date.now()}${randomUUID().replaceAll('-', '').slice(0, 8).toUpperCase()}`;
+        for (const item of [...command.items].sort((left, right) => left.skuId.localeCompare(right.skuId))) {
+          const before = await tx.inventoryBalance.findUnique({
+            where: { skuId: item.skuId },
+            select: {
+              id: true,
+              skuId: true,
+              availableQty: true,
+              reservedQty: true,
+              soldQty: true,
+              damagedQty: true,
+              version: true,
+            },
+          });
+          if (!before || before.availableQty < item.quantity) {
+            throw new InventoryReservationFailure('INVENTORY_INSUFFICIENT', item.skuId);
+          }
+          const changed = await tx.inventoryBalance.updateMany({
+            where: {
+              id: before.id,
+              version: before.version,
+              availableQty: { gte: item.quantity },
+            },
+            data: {
+              availableQty: { decrement: item.quantity },
+              reservedQty: { increment: item.quantity },
+              version: { increment: 1 },
+            },
+          });
+          if (changed.count !== 1) {
+            const current = await tx.inventoryBalance.findUnique({
+              where: { skuId: item.skuId },
+              select: { availableQty: true },
+            });
+            throw new InventoryReservationFailure(
+              !current || current.availableQty < item.quantity
+                ? 'INVENTORY_INSUFFICIENT'
+                : 'INVENTORY_RESERVATION_CONFLICT',
+              item.skuId,
+            );
+          }
+          await tx.inventoryChangeLog.create({
+            data: {
+              inventoryBalanceId: before.id,
+              supplierId: item.supplierId,
+              skuId: item.skuId,
+              type: 'RESERVE',
+              availableDelta: -item.quantity,
+              reservedDelta: item.quantity,
+              soldDelta: 0,
+              damagedDelta: 0,
+              beforeAvailableQty: before.availableQty,
+              afterAvailableQty: before.availableQty - item.quantity,
+              beforeReservedQty: before.reservedQty,
+              afterReservedQty: before.reservedQty + item.quantity,
+              beforeSoldQty: before.soldQty,
+              afterSoldQty: before.soldQty,
+              beforeDamagedQty: before.damagedQty,
+              afterDamagedQty: before.damagedQty,
+              resultingVersion: before.version + 1,
+              referenceType: 'ORDER_RESERVATION',
+              referenceId: orderId,
+              reason: 'ORDER_RESERVATION',
+            },
+          });
+        }
+        await tx.inventoryCommand.create({
+          data: {
+            scope: 'order-reserve',
+            idempotencyKey: reservationKey(command),
+            requestHash: command.requestHash,
+            responseSnapshot: json({ orderId, itemCount: command.items.length, status: 'RESERVED' }),
+          },
+        });
         await tx.buyerOrder.create({
           data: {
             id: orderId,
@@ -236,11 +330,19 @@ export class PrismaOrderRepository implements OrderRepository {
           include: orderInclude,
         });
         return { kind: 'CREATED', order: toAggregate(stored) };
-      });
+      }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
 
     try {
       return await create();
     } catch (error) {
+      if (error instanceof InventoryReservationFailure) {
+        return error.kind === 'INVENTORY_INSUFFICIENT'
+          ? { kind: error.kind, skuId: error.skuId! }
+          : { kind: error.kind };
+      }
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2034') {
+        return { kind: 'INVENTORY_RESERVATION_CONFLICT' };
+      }
       if (!(error instanceof Prisma.PrismaClientKnownRequestError) || error.code !== 'P2002') {
         throw error;
       }
@@ -257,6 +359,125 @@ export class PrismaOrderRepository implements OrderRepository {
         return { kind: 'IDEMPOTENCY_CONFLICT' };
       }
       return { kind: 'REPLAY', order: toAggregate(existing) };
+    }
+  }
+
+  async releaseOrderInventory(command: ReleaseOrderInventoryCommand): Promise<ReleaseOrderInventoryResult> {
+    const scope = `order-release:${command.orderId}`;
+    const requestHash = releaseRequestHash(command);
+    try {
+      return await this.prisma.$transaction(async (tx) => {
+        const previous = await tx.inventoryCommand.findUnique({
+          where: { scope_idempotencyKey: { scope, idempotencyKey: command.idempotencyKey } },
+        });
+        if (previous) {
+          return previous.requestHash === requestHash
+            ? { kind: 'REPLAY' as const }
+            : { kind: 'IDEMPOTENCY_CONFLICT' as const };
+        }
+        const order = await tx.buyerOrder.findUnique({
+          where: { id: command.orderId },
+          include: { items: true },
+        });
+        if (!order) return { kind: 'NOT_FOUND' as const };
+        if (order.paymentStatus === 'UNKNOWN' || order.paymentStatus === 'PAID') {
+          return { kind: 'STATE_CONFLICT' as const };
+        }
+
+        const orderedItems = [...order.items].sort((left, right) => left.skuId.localeCompare(right.skuId));
+        const lifecycle = await Promise.all(orderedItems.map(async (item) => ({
+          item,
+          reserved: await tx.inventoryChangeLog.findFirst({
+            where: { skuId: item.skuId, referenceType: 'ORDER_RESERVATION', referenceId: order.id },
+            select: { id: true },
+          }),
+          released: await tx.inventoryChangeLog.findFirst({
+            where: { skuId: item.skuId, referenceType: 'ORDER_RELEASE', referenceId: order.id },
+            select: { id: true },
+          }),
+        })));
+        if (lifecycle.every(({ released }) => Boolean(released))) return { kind: 'REPLAY' as const };
+        if (lifecycle.some(({ reserved, released }) => !reserved || Boolean(released))) {
+          return { kind: 'STATE_CONFLICT' as const };
+        }
+
+        for (const { item } of lifecycle) {
+          const before = await tx.inventoryBalance.findUnique({
+            where: { skuId: item.skuId },
+            select: {
+              id: true,
+              availableQty: true,
+              reservedQty: true,
+              soldQty: true,
+              damagedQty: true,
+              version: true,
+            },
+          });
+          if (!before || before.reservedQty < item.quantity) {
+            throw new InventoryReservationFailure('INVENTORY_RESERVATION_CONFLICT', item.skuId);
+          }
+          const changed = await tx.inventoryBalance.updateMany({
+            where: { id: before.id, version: before.version, reservedQty: { gte: item.quantity } },
+            data: {
+              availableQty: { increment: item.quantity },
+              reservedQty: { decrement: item.quantity },
+              version: { increment: 1 },
+            },
+          });
+          if (changed.count !== 1) {
+            throw new InventoryReservationFailure('INVENTORY_RESERVATION_CONFLICT', item.skuId);
+          }
+          await tx.inventoryChangeLog.create({
+            data: {
+              inventoryBalanceId: before.id,
+              supplierId: item.supplierId,
+              skuId: item.skuId,
+              type: 'RELEASE',
+              availableDelta: item.quantity,
+              reservedDelta: -item.quantity,
+              soldDelta: 0,
+              damagedDelta: 0,
+              beforeAvailableQty: before.availableQty,
+              afterAvailableQty: before.availableQty + item.quantity,
+              beforeReservedQty: before.reservedQty,
+              afterReservedQty: before.reservedQty - item.quantity,
+              beforeSoldQty: before.soldQty,
+              afterSoldQty: before.soldQty,
+              beforeDamagedQty: before.damagedQty,
+              afterDamagedQty: before.damagedQty,
+              resultingVersion: before.version + 1,
+              referenceType: 'ORDER_RELEASE',
+              referenceId: order.id,
+              reason: command.reason,
+            },
+          });
+        }
+        await tx.inventoryCommand.create({
+          data: {
+            scope,
+            idempotencyKey: command.idempotencyKey,
+            requestHash,
+            responseSnapshot: json({ orderId: order.id, itemCount: order.items.length, status: 'RELEASED' }),
+          },
+        });
+        return { kind: 'RELEASED' as const };
+      }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+    } catch (error) {
+      if (error instanceof InventoryReservationFailure) {
+        return { kind: 'INVENTORY_RESERVATION_CONFLICT' };
+      }
+      if (error instanceof Prisma.PrismaClientKnownRequestError && (error.code === 'P2002' || error.code === 'P2034')) {
+        const previous = await this.prisma.inventoryCommand.findUnique({
+          where: { scope_idempotencyKey: { scope, idempotencyKey: command.idempotencyKey } },
+        });
+        if (previous) {
+          return previous.requestHash === requestHash
+            ? { kind: 'REPLAY' }
+            : { kind: 'IDEMPOTENCY_CONFLICT' };
+        }
+        return { kind: 'INVENTORY_RESERVATION_CONFLICT' };
+      }
+      throw error;
     }
   }
 }

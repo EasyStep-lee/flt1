@@ -75,9 +75,28 @@ export interface OrderAggregateRecord extends CreateOrderCommand {
 export type CreateOrderResult =
   | { readonly kind: 'CREATED'; readonly order: OrderAggregateRecord }
   | { readonly kind: 'REPLAY'; readonly order: OrderAggregateRecord }
-  | { readonly kind: 'IDEMPOTENCY_CONFLICT' };
+  | { readonly kind: 'IDEMPOTENCY_CONFLICT' }
+  | { readonly kind: 'INVENTORY_INSUFFICIENT'; readonly skuId: string }
+  | { readonly kind: 'INVENTORY_RESERVATION_CONFLICT' };
+
+export type ReleaseOrderInventoryReason = 'USER_CANCELLED' | 'PAYMENT_FAILED' | 'PAYMENT_TIMEOUT';
+
+export interface ReleaseOrderInventoryCommand {
+  readonly orderId: string;
+  readonly reason: ReleaseOrderInventoryReason;
+  readonly idempotencyKey: string;
+}
+
+export type ReleaseOrderInventoryResult =
+  | { readonly kind: 'RELEASED' }
+  | { readonly kind: 'REPLAY' }
+  | { readonly kind: 'NOT_FOUND' }
+  | { readonly kind: 'STATE_CONFLICT' }
+  | { readonly kind: 'IDEMPOTENCY_CONFLICT' }
+  | { readonly kind: 'INVENTORY_RESERVATION_CONFLICT' };
 
 export interface OrderRepository {
   findOrderableSkus(companyId: string, skuIds: readonly string[]): Promise<readonly OrderableSkuRecord[]>;
   createOrder(command: CreateOrderCommand): Promise<CreateOrderResult>;
+  releaseOrderInventory(command: ReleaseOrderInventoryCommand): Promise<ReleaseOrderInventoryResult>;
 }
