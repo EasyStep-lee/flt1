@@ -30,6 +30,8 @@ import type { SupplierInventoryActorResolver } from './inventory/inventory.actor
 import type { InventoryRepository } from './inventory/inventory.repository.js';
 import type { OrderActorResolver } from './orders/order.actor.js';
 import type { OrderRepository } from './orders/order.repository.js';
+import type { PaymentRepository } from './payments/payment.repository.js';
+import type { WechatPaymentAdapter } from './payments/wechat-payment.adapter.js';
 import { SafeJsonLogger } from './logging/safe-json.logger.js';
 import type { SingleMerchantRepository } from './merchant/single-merchant.repository.js';
 import type { SensitiveApprovalRepository } from './sensitive-approval/sensitive-approval.repository.js';
@@ -96,6 +98,8 @@ export interface CreateApplicationOptions {
   readonly supplierInventoryActorResolver?: SupplierInventoryActorResolver;
   readonly orderRepository?: OrderRepository;
   readonly orderActorResolver?: OrderActorResolver;
+  readonly paymentRepository?: PaymentRepository;
+  readonly wechatPaymentAdapter?: WechatPaymentAdapter;
   readonly logger?: LoggerService | false;
 }
 
@@ -218,6 +222,12 @@ export const createApplication = async (
       : {}),
     ...(options.orderActorResolver
       ? { orderActorResolver: options.orderActorResolver }
+      : {}),
+    ...(options.paymentRepository
+      ? { paymentRepository: options.paymentRepository }
+      : {}),
+    ...(options.wechatPaymentAdapter
+      ? { wechatPaymentAdapter: options.wechatPaymentAdapter }
       : {}),
   };
   const logger = options.logger === false ? false : options.logger ?? new SafeJsonLogger();

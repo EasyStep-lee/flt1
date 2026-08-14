@@ -108,6 +108,17 @@ import {
 } from './orders/order.repository.js';
 import { OrderService } from './orders/order.service.js';
 import { PrismaOrderRepository } from './orders/prisma-order.repository.js';
+import { PaymentService } from './payments/payment.service.js';
+import { PrismaPaymentRepository } from './payments/prisma-payment.repository.js';
+import {
+  PAYMENT_REPOSITORY,
+  type PaymentRepository,
+} from './payments/payment.repository.js';
+import {
+  UnavailableWechatPaymentAdapter,
+  WECHAT_PAYMENT_ADAPTER,
+  type WechatPaymentAdapter,
+} from './payments/wechat-payment.adapter.js';
 import { PrismaSingleMerchantRepository } from './merchant/prisma-single-merchant.repository.js';
 import {
   SINGLE_MERCHANT_REPOSITORY,
@@ -240,6 +251,8 @@ export interface AppModuleOptions {
   readonly supplierInventoryActorResolver?: SupplierInventoryActorResolver;
   readonly orderRepository?: OrderRepository;
   readonly orderActorResolver?: OrderActorResolver;
+  readonly paymentRepository?: PaymentRepository;
+  readonly wechatPaymentAdapter?: WechatPaymentAdapter;
 }
 
 @Module({})
@@ -298,11 +311,14 @@ export class AppModule {
       PriceChangeService,
       PrismaInventoryRepository,
       PrismaOrderRepository,
+      PrismaPaymentRepository,
+      UnavailableWechatPaymentAdapter,
       DenyOrderActorResolver,
       DenySupplierInventoryActorResolver,
       SupplierInventorySessionActorResolver,
       InventoryService,
       OrderService,
+      PaymentService,
       DenyCompanyProductApprovalActorResolver,
       CompanyProductApprovalSessionActorResolver,
       CompanyProductApprovalService,
@@ -331,6 +347,12 @@ export class AppModule {
       options.orderActorResolver
         ? { provide: ORDER_ACTOR_RESOLVER, useValue: options.orderActorResolver }
         : { provide: ORDER_ACTOR_RESOLVER, useExisting: DenyOrderActorResolver },
+      options.paymentRepository
+        ? { provide: PAYMENT_REPOSITORY, useValue: options.paymentRepository }
+        : { provide: PAYMENT_REPOSITORY, useExisting: PrismaPaymentRepository },
+      options.wechatPaymentAdapter
+        ? { provide: WECHAT_PAYMENT_ADAPTER, useValue: options.wechatPaymentAdapter }
+        : { provide: WECHAT_PAYMENT_ADAPTER, useExisting: UnavailableWechatPaymentAdapter },
       options.supplierInventoryActorResolver
         ? { provide: SUPPLIER_INVENTORY_ACTOR_RESOLVER, useValue: options.supplierInventoryActorResolver }
         : { provide: SUPPLIER_INVENTORY_ACTOR_RESOLVER, useExisting: SupplierInventorySessionActorResolver },

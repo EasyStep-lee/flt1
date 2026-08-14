@@ -94,6 +94,15 @@ import {
   type OrderRepository,
 } from '../orders/order.repository.js';
 import { OrderService } from '../orders/order.service.js';
+import { PaymentService } from '../payments/payment.service.js';
+import {
+  PAYMENT_REPOSITORY,
+  type PaymentRepository,
+} from '../payments/payment.repository.js';
+import {
+  UnavailableWechatPaymentAdapter,
+  WECHAT_PAYMENT_ADAPTER,
+} from '../payments/wechat-payment.adapter.js';
 import {
   SENSITIVE_APPROVAL_REPOSITORY,
   type SensitiveApprovalRepository,
@@ -354,6 +363,8 @@ type JsonValue =
     PriceChangeService,
     InventoryService,
     OrderService,
+    PaymentService,
+    UnavailableWechatPaymentAdapter,
     DenySupplierInventoryActorResolver,
     DenyOrderActorResolver,
     NoopPriceEffectScheduler,
@@ -417,6 +428,18 @@ type JsonValue =
     {
       provide: ORDER_ACTOR_RESOLVER,
       useExisting: DenyOrderActorResolver,
+    },
+    {
+      provide: PAYMENT_REPOSITORY,
+      useValue: {
+        beginWechatPrepay: async () => ({ kind: 'NOT_FOUND' }),
+        completeWechatPrepay: async () => ({ kind: 'STATE_CONFLICT' }),
+        confirmWechatPayment: async () => ({ kind: 'NOT_FOUND' }),
+      } satisfies PaymentRepository,
+    },
+    {
+      provide: WECHAT_PAYMENT_ADAPTER,
+      useExisting: UnavailableWechatPaymentAdapter,
     },
     {
       provide: SUPPLIER_PRODUCT_REPOSITORY,

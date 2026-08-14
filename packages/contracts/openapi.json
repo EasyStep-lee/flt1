@@ -97,7 +97,17 @@
               "INVENTORY_NEGATIVE",
               "INVENTORY_RESERVATION_CONFLICT",
               "INVENTORY_STATE_INVALID",
-              "INVENTORY_VERSION_CONFLICT"
+              "INVENTORY_VERSION_CONFLICT",
+              "EXTERNAL_SERVICE_UNAVAILABLE",
+              "ORDER_NOT_FOUND",
+              "PAYMENT_AMOUNT_MISMATCH",
+              "PAYMENT_CONCURRENT_CONFLICT",
+              "PAYMENT_IDEMPOTENCY_CONFLICT",
+              "PAYMENT_IDENTITY_MISMATCH",
+              "PAYMENT_NOTIFICATION_INVALID",
+              "PAYMENT_STATE_INVALID",
+              "PAYMENT_TRANSACTION_CONFLICT",
+              "PAYMENT_TRANSACTION_NOT_FOUND"
             ],
             "example": "RESOURCE_NOT_FOUND",
             "type": "string"
@@ -2391,6 +2401,36 @@
         "required": [
           "items",
           "total"
+        ],
+        "type": "object"
+      },
+      "MiniappPaymentPayloadDto": {
+        "properties": {
+          "nonceStr": {
+            "type": "string"
+          },
+          "package": {
+            "type": "string"
+          },
+          "paySign": {
+            "type": "string"
+          },
+          "signType": {
+            "enum": [
+              "RSA"
+            ],
+            "type": "string"
+          },
+          "timeStamp": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "timeStamp",
+          "nonceStr",
+          "package",
+          "signType",
+          "paySign"
         ],
         "type": "object"
       },
@@ -5712,6 +5752,95 @@
         ],
         "type": "object"
       },
+      "WechatNotificationAcknowledgementDto": {
+        "properties": {
+          "code": {
+            "enum": [
+              "SUCCESS"
+            ],
+            "type": "string"
+          },
+          "message": {
+            "example": "成功",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ],
+        "type": "object"
+      },
+      "WechatPaymentNotificationDto": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "resource": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "resource",
+          "id"
+        ],
+        "type": "object"
+      },
+      "WechatPrepayRequestDto": {
+        "properties": {},
+        "type": "object"
+      },
+      "WechatPrepayResponseDto": {
+        "properties": {
+          "amount": {
+            "description": "WeChat amount in integer cents",
+            "minimum": 1,
+            "type": "number"
+          },
+          "channel": {
+            "enum": [
+              "WECHAT_PAY"
+            ],
+            "type": "string"
+          },
+          "clientPayment": {
+            "$ref": "#/components/schemas/MiniappPaymentPayloadDto"
+          },
+          "orderId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "outTradeNo": {
+            "maxLength": 32,
+            "type": "string"
+          },
+          "paymentTransactionId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "prepayId": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "PREPAY_CREATED"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "paymentTransactionId",
+          "orderId",
+          "channel",
+          "status",
+          "amount",
+          "outTradeNo",
+          "prepayId",
+          "clientPayment"
+        ],
+        "type": "object"
+      },
       "WorkspaceChoiceDto": {
         "properties": {
           "accountId": {
@@ -8729,6 +8858,139 @@
         "summary": "Create one company enterprise order across suppliers",
         "tags": [
           "enterprise-orders"
+        ]
+      }
+    },
+    "/v1/orders/{orderId}/wechat-prepay": {
+      "post": {
+        "operationId": "payments.createWechatPrepay",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WechatPrepayRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WechatPrepayResponseDto"
+                }
+              }
+            },
+            "description": "Idempotent replay"
+          },
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WechatPrepayResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Create or replay a WeChat prepay for an owned order",
+        "tags": [
+          "payments"
+        ]
+      }
+    },
+    "/v1/payment-notifications/wechat": {
+      "post": {
+        "operationId": "payments.confirmWechatNotification",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WechatPaymentNotificationDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WechatNotificationAcknowledgementDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Verify and idempotently process a WeChat Pay notification",
+        "tags": [
+          "payment-notifications"
         ]
       }
     },
