@@ -187,13 +187,13 @@ test('M1-P003 retains its local evidence after PR and main CI closure', async ()
   assert.equal(state.github.currentTaskDelivery.taskId, 'M3-P022');
   assert.equal(
     state.github.currentTaskDelivery.status,
-    'LOCAL_PASS_PENDING_FULL_VERIFY_PR_CI_AND_MERGE',
+    'LOCAL_PASS_PENDING_PR_CI_AND_MERGE',
   );
   assert.equal(state.github.currentTaskDelivery.blockingExternalItem, null);
   assert.equal(state.github.currentTaskDelivery.nextTaskUnlocked, false);
   assert.equal(state.github.previousTaskDelivery.taskId, 'M3-P020');
   assert.equal(state.github.previousTaskDelivery.pullRequest, 78);
   assert.match(m2p008?.Status, /^(?:IN_PROGRESS|DONE)$/u);
-  assert.equal(state.evidence.local, 'LOCAL_PASS_M3_P022_FOCUSED');
+  assert.equal(state.evidence.local, 'LOCAL_PASS_M3_P022_FULL');
   assert.equal(state.evidence.ci, 'CI_PASS_M3_P020_ONLY');
 });

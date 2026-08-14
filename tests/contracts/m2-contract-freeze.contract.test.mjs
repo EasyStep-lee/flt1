@@ -514,6 +514,6 @@ test('machine control preserves the M2 freeze while later slices advance one gat
   assert.equal(projectStatus.execution.activeTaskCount, 1);
   assert.equal(projectStatus.execution.lastCompletedTask, 'M3-P020');
   assert.equal(projectStatus.execution.lastPassedGate, 'M2-GATE');
-  assert.equal(projectStatus.evidence.local, 'LOCAL_PASS_M3_P022_FOCUSED');
+  assert.equal(projectStatus.evidence.local, 'LOCAL_PASS_M3_P022_FULL');
   assert.equal(projectStatus.evidence.ci, 'CI_PASS_M3_P020_ONLY');
 });
