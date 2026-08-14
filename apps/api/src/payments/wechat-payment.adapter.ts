@@ -7,6 +7,8 @@ export interface CreateWechatPrepayCommand {
   readonly amount: number;
   readonly description: string;
   readonly payerReference: string;
+  readonly merchantConfigRef: string;
+  readonly collectorLegalName: '江苏福礼团供应链科技有限公司';
 }
 
 export interface WechatPrepayResponse {

@@ -30,6 +30,8 @@ import type { SupplierInventoryActorResolver } from './inventory/inventory.actor
 import type { InventoryRepository } from './inventory/inventory.repository.js';
 import type { OrderActorResolver } from './orders/order.actor.js';
 import type { OrderRepository } from './orders/order.repository.js';
+import type { CompanyFinanceActorResolver } from './enterprise-remittances/enterprise-remittance.actor.js';
+import type { EnterpriseRemittanceRepository } from './enterprise-remittances/enterprise-remittance.repository.js';
 import type { PaymentRepository } from './payments/payment.repository.js';
 import type { WechatPaymentAdapter } from './payments/wechat-payment.adapter.js';
 import { SafeJsonLogger } from './logging/safe-json.logger.js';
@@ -98,6 +100,8 @@ export interface CreateApplicationOptions {
   readonly supplierInventoryActorResolver?: SupplierInventoryActorResolver;
   readonly orderRepository?: OrderRepository;
   readonly orderActorResolver?: OrderActorResolver;
+  readonly enterpriseRemittanceRepository?: EnterpriseRemittanceRepository;
+  readonly companyFinanceActorResolver?: CompanyFinanceActorResolver;
   readonly paymentRepository?: PaymentRepository;
   readonly wechatPaymentAdapter?: WechatPaymentAdapter;
   readonly logger?: LoggerService | false;
@@ -222,6 +226,12 @@ export const createApplication = async (
       : {}),
     ...(options.orderActorResolver
       ? { orderActorResolver: options.orderActorResolver }
+      : {}),
+    ...(options.enterpriseRemittanceRepository
+      ? { enterpriseRemittanceRepository: options.enterpriseRemittanceRepository }
+      : {}),
+    ...(options.companyFinanceActorResolver
+      ? { companyFinanceActorResolver: options.companyFinanceActorResolver }
       : {}),
     ...(options.paymentRepository
       ? { paymentRepository: options.paymentRepository }

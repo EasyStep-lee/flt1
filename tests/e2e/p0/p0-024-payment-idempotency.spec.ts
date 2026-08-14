@@ -17,6 +17,8 @@ class P0PaymentRepository {
     orderId: string;
     amount: number;
     outTradeNo: string;
+    merchantConfigRef: string;
+    collectorName: '江苏福礼团供应链科技有限公司';
     status: 'CREATED' | 'PREPAY_CREATED' | 'PAID';
     idempotencyKey: string;
     requestHash: string;
@@ -41,6 +43,8 @@ class P0PaymentRepository {
     }
     this.payment = {
       paymentTransactionId, orderId, amount: 5800, outTradeNo: 'WP2026081400000000000000000001',
+      merchantConfigRef: 'secrets://wechat-pay/company-primary',
+      collectorName: '江苏福礼团供应链科技有限公司',
       status: 'CREATED', idempotencyKey: command.idempotencyKey, requestHash: command.requestHash,
     };
     return { kind: 'NEEDS_PREPAY' as const, payment: this.payment };

@@ -15,6 +15,9 @@ export class WechatPrepayResponseDto {
   @ApiProperty({ format: 'uuid', type: String }) readonly orderId!: string;
   @ApiProperty({ enum: ['WECHAT_PAY'] }) readonly channel!: 'WECHAT_PAY';
   @ApiProperty({ enum: ['PREPAY_CREATED'] }) readonly status!: 'PREPAY_CREATED';
+  @ApiProperty({ example: '江苏福礼团供应链科技有限公司', type: String })
+  readonly collectorName!: '江苏福礼团供应链科技有限公司';
+  @ApiProperty({ enum: ['COMPANY_UNIFIED'] }) readonly checkoutMode!: 'COMPANY_UNIFIED';
   @ApiProperty({ description: 'WeChat amount in integer cents', minimum: 1, type: Number })
   readonly amount!: number;
   @ApiProperty({ maxLength: 32, type: String }) readonly outTradeNo!: string;

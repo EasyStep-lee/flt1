@@ -17,6 +17,12 @@ import type {
 import type { WechatPrepayResponse } from './wechat-payment.adapter.js';
 
 const json = (value: unknown): Prisma.InputJsonValue => value as Prisma.InputJsonValue;
+const COLLECTOR_NAME = '江苏福礼团供应链科技有限公司' as const;
+
+interface CompanyWechatMerchant {
+  readonly legalName: string;
+  readonly wechatPayConfigRef: string | null;
+}
 
 const isPrepayResponse = (value: unknown): value is WechatPrepayResponse => {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
@@ -40,12 +46,15 @@ const paymentRecord = (
     readonly outTradeNo: string;
     readonly status: string;
   },
+  merchant: CompanyWechatMerchant,
   response?: WechatPrepayResponse,
 ): PaymentRecord => ({
   paymentTransactionId: payment.id,
   orderId: payment.orderId,
   amount: payment.amount,
   outTradeNo: payment.outTradeNo,
+  merchantConfigRef: merchant.wechatPayConfigRef ?? '',
+  collectorName: COLLECTOR_NAME,
   status: payment.status === 'PAID' ? 'PAID' : payment.status === 'PREPAY_CREATED' ? 'PREPAY_CREATED' : 'CREATED',
   ...(response ? { response } : {}),
 });
@@ -87,7 +96,10 @@ export class PrismaPaymentRepository implements PaymentRepository {
       return await this.prisma.$transaction(async (tx) => {
         const order = await tx.buyerOrder.findUnique({
           where: { id: command.orderId },
-          include: { items: { orderBy: { lineNo: 'asc' } } },
+          include: {
+            items: { orderBy: { lineNo: 'asc' } },
+            company: { select: { legalName: true, wechatPayConfigRef: true } },
+          },
         });
         if (!order) return { kind: 'NOT_FOUND' as const };
         if (!ownsOrder(order, command)) return { kind: 'ACCESS_DENIED' as const };
@@ -97,14 +109,19 @@ export class PrismaPaymentRepository implements PaymentRepository {
           order.welfareCardAmount !== 0 ||
           order.welfareCardAccountId !== null ||
           order.cashAmount !== order.totalAmount ||
-          order.cashAmount <= 0
+          order.cashAmount <= 0 ||
+          order.company.legalName !== COLLECTOR_NAME ||
+          !order.company.wechatPayConfigRef?.trim()
         ) {
           return { kind: 'STATE_CONFLICT' as const };
         }
 
         const existing = await tx.paymentTransaction.findUnique({
           where: { orderId: order.id },
-          include: { attempts: { orderBy: { createdAt: 'desc' }, take: 1 } },
+          include: {
+            attempts: { orderBy: { createdAt: 'desc' }, take: 1 },
+            order: { select: { company: { select: { legalName: true, wechatPayConfigRef: true } } } },
+          },
         });
         if (existing) {
           if (existing.idempotencyKey !== command.idempotencyKey || existing.requestHash !== command.requestHash) {
@@ -112,10 +129,10 @@ export class PrismaPaymentRepository implements PaymentRepository {
           }
           const snapshot = existing.attempts[0]?.responseSnapshot;
           if (existing.status === 'PREPAY_CREATED' && isPrepayResponse(snapshot)) {
-            return { kind: 'REPLAY' as const, payment: { ...paymentRecord(existing, snapshot), response: snapshot } };
+            return { kind: 'REPLAY' as const, payment: { ...paymentRecord(existing, existing.order.company, snapshot), response: snapshot } };
           }
           if (existing.status === 'CREATED') {
-            return { kind: 'NEEDS_PREPAY' as const, payment: paymentRecord(existing) };
+            return { kind: 'NEEDS_PREPAY' as const, payment: paymentRecord(existing, existing.order.company) };
           }
           return { kind: 'STATE_CONFLICT' as const };
         }
@@ -157,13 +174,16 @@ export class PrismaPaymentRepository implements PaymentRepository {
           where: { id: order.id },
           data: { externalPaymentMethod: 'WECHAT_PAY' },
         });
-        return { kind: 'NEEDS_PREPAY' as const, payment: paymentRecord(payment) };
+        return { kind: 'NEEDS_PREPAY' as const, payment: paymentRecord(payment, order.company) };
       }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && (error.code === 'P2002' || error.code === 'P2034')) {
         const existing = await this.prisma.paymentTransaction.findUnique({
           where: { orderId: command.orderId },
-          include: { attempts: { orderBy: { createdAt: 'desc' }, take: 1 } },
+          include: {
+            attempts: { orderBy: { createdAt: 'desc' }, take: 1 },
+            order: { select: { company: { select: { legalName: true, wechatPayConfigRef: true } } } },
+          },
         });
         if (!existing) return { kind: 'CONCURRENT_CONFLICT' };
         if (existing.idempotencyKey !== command.idempotencyKey || existing.requestHash !== command.requestHash) {
@@ -171,10 +191,10 @@ export class PrismaPaymentRepository implements PaymentRepository {
         }
         const snapshot = existing.attempts[0]?.responseSnapshot;
         if (existing.status === 'PREPAY_CREATED' && isPrepayResponse(snapshot)) {
-          return { kind: 'REPLAY', payment: { ...paymentRecord(existing, snapshot), response: snapshot } };
+          return { kind: 'REPLAY', payment: { ...paymentRecord(existing, existing.order.company, snapshot), response: snapshot } };
         }
         return existing.status === 'CREATED'
-          ? { kind: 'NEEDS_PREPAY', payment: paymentRecord(existing) }
+          ? { kind: 'NEEDS_PREPAY', payment: paymentRecord(existing, existing.order.company) }
           : { kind: 'CONCURRENT_CONFLICT' };
       }
       throw error;
@@ -185,7 +205,10 @@ export class PrismaPaymentRepository implements PaymentRepository {
     return this.prisma.$transaction(async (tx) => {
       const payment = await tx.paymentTransaction.findUnique({
         where: { id: command.paymentTransactionId },
-        include: { attempts: { where: { idempotencyKey: command.idempotencyKey }, take: 1 } },
+        include: {
+          attempts: { where: { idempotencyKey: command.idempotencyKey }, take: 1 },
+          order: { select: { company: { select: { legalName: true, wechatPayConfigRef: true } } } },
+        },
       });
       if (!payment) return { kind: 'STATE_CONFLICT' as const };
       if (payment.idempotencyKey !== command.idempotencyKey || payment.requestHash !== command.requestHash) {
@@ -196,7 +219,7 @@ export class PrismaPaymentRepository implements PaymentRepository {
       if (payment.status === 'PREPAY_CREATED' && isPrepayResponse(attempt.responseSnapshot)) {
         return {
           kind: 'REPLAY' as const,
-          payment: { ...paymentRecord(payment, attempt.responseSnapshot), response: attempt.responseSnapshot },
+          payment: { ...paymentRecord(payment, payment.order.company, attempt.responseSnapshot), response: attempt.responseSnapshot },
         };
       }
       if (payment.status !== 'CREATED' || attempt.status !== 'CREATED') return { kind: 'STATE_CONFLICT' as const };
@@ -218,7 +241,7 @@ export class PrismaPaymentRepository implements PaymentRepository {
       return {
         kind: 'COMPLETED' as const,
         payment: {
-          ...paymentRecord({ ...payment, status: 'PREPAY_CREATED' }, command.response),
+          ...paymentRecord({ ...payment, status: 'PREPAY_CREATED' }, payment.order.company, command.response),
           response: command.response,
         },
       };

@@ -94,6 +94,15 @@ import {
   type OrderRepository,
 } from '../orders/order.repository.js';
 import { OrderService } from '../orders/order.service.js';
+import {
+  COMPANY_FINANCE_ACTOR_RESOLVER,
+  DenyCompanyFinanceActorResolver,
+} from '../enterprise-remittances/enterprise-remittance.actor.js';
+import {
+  ENTERPRISE_REMITTANCE_REPOSITORY,
+  type EnterpriseRemittanceRepository,
+} from '../enterprise-remittances/enterprise-remittance.repository.js';
+import { EnterpriseRemittanceService } from '../enterprise-remittances/enterprise-remittance.service.js';
 import { PaymentService } from '../payments/payment.service.js';
 import {
   PAYMENT_REPOSITORY,
@@ -363,10 +372,12 @@ type JsonValue =
     PriceChangeService,
     InventoryService,
     OrderService,
+    EnterpriseRemittanceService,
     PaymentService,
     UnavailableWechatPaymentAdapter,
     DenySupplierInventoryActorResolver,
     DenyOrderActorResolver,
+    DenyCompanyFinanceActorResolver,
     NoopPriceEffectScheduler,
     CompanyProductApprovalService,
     PublicCatalogService,
@@ -428,6 +439,17 @@ type JsonValue =
     {
       provide: ORDER_ACTOR_RESOLVER,
       useExisting: DenyOrderActorResolver,
+    },
+    {
+      provide: ENTERPRISE_REMITTANCE_REPOSITORY,
+      useValue: {
+        submit: async () => ({ kind: 'NOT_FOUND' }),
+        review: async () => ({ kind: 'NOT_FOUND' }),
+      } satisfies EnterpriseRemittanceRepository,
+    },
+    {
+      provide: COMPANY_FINANCE_ACTOR_RESOLVER,
+      useExisting: DenyCompanyFinanceActorResolver,
     },
     {
       provide: PAYMENT_REPOSITORY,

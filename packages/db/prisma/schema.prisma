@@ -138,6 +138,12 @@ enum BuyerOrderType {
   ENTERPRISE
 }
 
+enum BuyerOrderEventActorType {
+  CONSUMER
+  ENTERPRISE
+  COMPANY
+}
+
 enum BuyerOrderPaymentStatus {
   NOT_REQUIRED
   PENDING
@@ -182,6 +188,9 @@ enum SupplierFulfillmentOrderStatus {
 enum BuyerOrderEventType {
   CREATED
   PAYMENT_CONFIRMED
+  REMITTANCE_SUBMITTED
+  REMITTANCE_CONFIRMED
+  REMITTANCE_REJECTED
 }
 
 enum PaymentChannel {
@@ -213,6 +222,17 @@ enum PaymentOutboxStatus {
   PENDING
   PUBLISHED
   FAILED
+}
+
+enum EnterpriseRemittanceStatus {
+  PENDING_REVIEW
+  CONFIRMED
+  REJECTED
+}
+
+enum EnterpriseRemittanceDecision {
+  CONFIRM
+  REJECT
 }
 
 enum SupplyPriceChangeStatus {
@@ -1141,6 +1161,7 @@ model BuyerOrder {
   paymentTransactions   PaymentTransaction[]
   paymentAllocations    OrderPaymentAllocation[]
   paymentOutboxes       PaymentOutbox[]
+  enterpriseRemittances EnterpriseRemittanceSubmission[]
 
   @@unique([idempotencyScope, idempotencyKey], map: "buyer_order_idempotency_scope_key")
   @@index([companyId, orderType, createdAt], map: "buyer_order_company_type_time_idx")
@@ -1196,18 +1217,18 @@ model BuyerOrderItem {
 }
 
 model BuyerOrderEvent {
-  id           String              @id @default(uuid()) @db.Char(36)
-  buyerOrderId String              @map("buyer_order_id") @db.Char(36)
+  id           String                   @id @default(uuid()) @db.Char(36)
+  buyerOrderId String                   @map("buyer_order_id") @db.Char(36)
   event        BuyerOrderEventType
-  fromStatus   BuyerOrderStatus?   @map("from_status")
-  toStatus     BuyerOrderStatus    @map("to_status")
+  fromStatus   BuyerOrderStatus?        @map("from_status")
+  toStatus     BuyerOrderStatus         @map("to_status")
   version      Int
   snapshot     Json
-  actorType    BuyerOrderType      @map("actor_type")
-  actorId      String              @map("actor_id") @db.Char(36)
-  requestId    String              @map("request_id") @db.VarChar(128)
-  occurredAt   DateTime            @default(now()) @map("occurred_at") @db.DateTime(3)
-  buyerOrder   BuyerOrder          @relation(fields: [buyerOrderId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  actorType    BuyerOrderEventActorType @map("actor_type")
+  actorId      String                   @map("actor_id") @db.Char(36)
+  requestId    String                   @map("request_id") @db.VarChar(128)
+  occurredAt   DateTime                 @default(now()) @map("occurred_at") @db.DateTime(3)
+  buyerOrder   BuyerOrder               @relation(fields: [buyerOrderId], references: [id], onDelete: Restrict, onUpdate: Cascade)
 
   @@unique([buyerOrderId, version], map: "buyer_order_event_order_version_key")
   @@index([buyerOrderId, occurredAt], map: "buyer_order_event_order_time_idx")
@@ -1215,39 +1236,39 @@ model BuyerOrderEvent {
 }
 
 model PaymentTransaction {
-  id                    String                   @id @default(uuid()) @db.Char(36)
-  orderId               String                   @unique(map: "payment_transaction_order_key") @map("order_id") @db.Char(36)
-  channel               PaymentChannel           @default(WECHAT_PAY)
-  amount                Int
-  outTradeNo            String                   @unique(map: "payment_transaction_out_trade_no_key") @map("out_trade_no") @db.VarChar(32)
-  wechatTransactionId   String?                  @unique(map: "payment_transaction_wechat_transaction_key") @map("wechat_transaction_id") @db.VarChar(64)
-  status                PaymentTransactionStatus @default(CREATED)
-  notifyVerifiedAt      DateTime?                @map("notify_verified_at") @db.DateTime(3)
-  paidAt                DateTime?                @map("paid_at") @db.DateTime(3)
-  closedAt              DateTime?                @map("closed_at") @db.DateTime(3)
-  idempotencyKey        String                   @map("idempotency_key") @db.VarChar(128)
-  requestHash           String                   @map("request_hash") @db.Char(64)
-  version               Int                      @default(0)
-  createdAt             DateTime                 @default(now()) @map("created_at") @db.DateTime(3)
-  updatedAt             DateTime                 @updatedAt @map("updated_at") @db.DateTime(3)
-  order                 BuyerOrder               @relation(fields: [orderId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "payment_transaction_order_fkey")
-  attempts              PaymentAttempt[]
-  notifications         PaymentNotification[]
+  id                  String                   @id @default(uuid()) @db.Char(36)
+  orderId             String                   @unique(map: "payment_transaction_order_key") @map("order_id") @db.Char(36)
+  channel             PaymentChannel           @default(WECHAT_PAY)
+  amount              Int
+  outTradeNo          String                   @unique(map: "payment_transaction_out_trade_no_key") @map("out_trade_no") @db.VarChar(32)
+  wechatTransactionId String?                  @unique(map: "payment_transaction_wechat_transaction_key") @map("wechat_transaction_id") @db.VarChar(64)
+  status              PaymentTransactionStatus @default(CREATED)
+  notifyVerifiedAt    DateTime?                @map("notify_verified_at") @db.DateTime(3)
+  paidAt              DateTime?                @map("paid_at") @db.DateTime(3)
+  closedAt            DateTime?                @map("closed_at") @db.DateTime(3)
+  idempotencyKey      String                   @map("idempotency_key") @db.VarChar(128)
+  requestHash         String                   @map("request_hash") @db.Char(64)
+  version             Int                      @default(0)
+  createdAt           DateTime                 @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt           DateTime                 @updatedAt @map("updated_at") @db.DateTime(3)
+  order               BuyerOrder               @relation(fields: [orderId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "payment_transaction_order_fkey")
+  attempts            PaymentAttempt[]
+  notifications       PaymentNotification[]
 
   @@index([status, createdAt], map: "payment_transaction_status_time_idx")
   @@map("payment_transaction")
 }
 
 model PaymentAttempt {
-  id                    String               @id @default(uuid()) @db.Char(36)
-  paymentTransactionId  String               @map("payment_transaction_id") @db.Char(36)
-  idempotencyKey        String               @map("idempotency_key") @db.VarChar(128)
-  requestHash           String               @map("request_hash") @db.Char(64)
-  status                PaymentAttemptStatus @default(CREATED)
-  responseSnapshot      Json?                @map("response_snapshot")
-  createdAt             DateTime             @default(now()) @map("created_at") @db.DateTime(3)
-  completedAt           DateTime?            @map("completed_at") @db.DateTime(3)
-  paymentTransaction    PaymentTransaction   @relation(fields: [paymentTransactionId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "payment_attempt_transaction_fkey")
+  id                   String               @id @default(uuid()) @db.Char(36)
+  paymentTransactionId String               @map("payment_transaction_id") @db.Char(36)
+  idempotencyKey       String               @map("idempotency_key") @db.VarChar(128)
+  requestHash          String               @map("request_hash") @db.Char(64)
+  status               PaymentAttemptStatus @default(CREATED)
+  responseSnapshot     Json?                @map("response_snapshot")
+  createdAt            DateTime             @default(now()) @map("created_at") @db.DateTime(3)
+  completedAt          DateTime?            @map("completed_at") @db.DateTime(3)
+  paymentTransaction   PaymentTransaction   @relation(fields: [paymentTransactionId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "payment_attempt_transaction_fkey")
 
   @@unique([paymentTransactionId, idempotencyKey], map: "payment_attempt_transaction_key")
   @@map("payment_attempt")
@@ -1269,36 +1290,76 @@ model OrderPaymentAllocation {
 }
 
 model PaymentNotification {
-  id                    String                    @id @default(uuid()) @db.Char(36)
-  paymentTransactionId  String                    @map("payment_transaction_id") @db.Char(36)
-  notificationId        String                    @unique(map: "payment_notification_notification_key") @map("notification_id") @db.VarChar(128)
-  rawBodyHash           String                    @map("raw_body_hash") @db.Char(64)
-  outTradeNo            String                    @map("out_trade_no") @db.VarChar(32)
-  wechatTransactionId   String                    @map("wechat_transaction_id") @db.VarChar(64)
-  amount                Int
-  result                PaymentNotificationResult
-  verifiedAt            DateTime                  @map("verified_at") @db.DateTime(3)
-  createdAt             DateTime                  @default(now()) @map("created_at") @db.DateTime(3)
-  paymentTransaction    PaymentTransaction        @relation(fields: [paymentTransactionId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "payment_notification_transaction_fkey")
+  id                   String                    @id @default(uuid()) @db.Char(36)
+  paymentTransactionId String                    @map("payment_transaction_id") @db.Char(36)
+  notificationId       String                    @unique(map: "payment_notification_notification_key") @map("notification_id") @db.VarChar(128)
+  rawBodyHash          String                    @map("raw_body_hash") @db.Char(64)
+  outTradeNo           String                    @map("out_trade_no") @db.VarChar(32)
+  wechatTransactionId  String                    @map("wechat_transaction_id") @db.VarChar(64)
+  amount               Int
+  result               PaymentNotificationResult
+  verifiedAt           DateTime                  @map("verified_at") @db.DateTime(3)
+  createdAt            DateTime                  @default(now()) @map("created_at") @db.DateTime(3)
+  paymentTransaction   PaymentTransaction        @relation(fields: [paymentTransactionId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "payment_notification_transaction_fkey")
 
   @@index([paymentTransactionId, createdAt], map: "payment_notification_transaction_time_idx")
   @@map("payment_notification")
 }
 
 model PaymentOutbox {
-  id             String              @id @default(uuid()) @db.Char(36)
-  buyerOrderId   String              @map("buyer_order_id") @db.Char(36)
-  eventType      String              @map("event_type") @db.VarChar(64)
-  eventVersion   Int                 @map("event_version")
-  payload        Json
-  status         PaymentOutboxStatus @default(PENDING)
-  createdAt      DateTime            @default(now()) @map("created_at") @db.DateTime(3)
-  publishedAt    DateTime?           @map("published_at") @db.DateTime(3)
-  buyerOrder     BuyerOrder          @relation(fields: [buyerOrderId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "payment_outbox_order_fkey")
+  id           String              @id @default(uuid()) @db.Char(36)
+  buyerOrderId String              @map("buyer_order_id") @db.Char(36)
+  eventType    String              @map("event_type") @db.VarChar(64)
+  eventVersion Int                 @map("event_version")
+  payload      Json
+  status       PaymentOutboxStatus @default(PENDING)
+  createdAt    DateTime            @default(now()) @map("created_at") @db.DateTime(3)
+  publishedAt  DateTime?           @map("published_at") @db.DateTime(3)
+  buyerOrder   BuyerOrder          @relation(fields: [buyerOrderId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "payment_outbox_order_fkey")
 
   @@unique([buyerOrderId, eventType, eventVersion], map: "payment_outbox_order_event_version_key")
   @@index([status, createdAt], map: "payment_outbox_status_time_idx")
   @@map("payment_outbox")
+}
+
+model EnterpriseRemittanceSubmission {
+  id                          String                      @id @default(uuid()) @db.Char(36)
+  buyerOrderId                String                      @map("buyer_order_id") @db.Char(36)
+  submissionVersion           Int                         @map("submission_version")
+  amount                      Int
+  proofObjectKey              String                      @map("proof_object_key") @db.VarChar(512)
+  submittedByEnterpriseUserId String                      @map("submitted_by_enterprise_user_id") @db.Char(36)
+  idempotencyKey              String                      @map("idempotency_key") @db.VarChar(128)
+  requestHash                 String                      @map("request_hash") @db.Char(64)
+  status                      EnterpriseRemittanceStatus  @default(PENDING_REVIEW)
+  version                     Int                         @default(0)
+  submittedAt                 DateTime                    @default(now()) @map("submitted_at") @db.DateTime(3)
+  reviewedAt                  DateTime?                   @map("reviewed_at") @db.DateTime(3)
+  buyerOrder                  BuyerOrder                  @relation(fields: [buyerOrderId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "enterprise_remittance_order_fkey")
+  review                      EnterpriseRemittanceReview?
+
+  @@unique([buyerOrderId, submissionVersion], map: "enterprise_remittance_order_version_key")
+  @@unique([buyerOrderId, idempotencyKey], map: "enterprise_remittance_order_idempotency_key")
+  @@index([status, submittedAt], map: "enterprise_remittance_status_time_idx")
+  @@map("enterprise_remittance_submission")
+}
+
+model EnterpriseRemittanceReview {
+  id                          String                         @id @default(uuid()) @db.Char(36)
+  submissionId                String                         @unique(map: "enterprise_remittance_review_submission_key") @map("submission_id") @db.Char(36)
+  decision                    EnterpriseRemittanceDecision
+  reviewedAmount              Int                            @map("reviewed_amount")
+  reason                      String                         @db.VarChar(500)
+  reviewerFunctionalAccountId String                         @map("reviewer_functional_account_id") @db.Char(36)
+  reviewerIdentityId          String                         @map("reviewer_identity_id") @db.Char(36)
+  idempotencyKey              String                         @map("idempotency_key") @db.VarChar(128)
+  requestHash                 String                         @map("request_hash") @db.Char(64)
+  submissionVersion           Int                            @map("submission_version")
+  createdAt                   DateTime                       @default(now()) @map("created_at") @db.DateTime(3)
+  submission                  EnterpriseRemittanceSubmission @relation(fields: [submissionId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "enterprise_remittance_review_submission_fkey")
+
+  @@unique([submissionId, idempotencyKey], map: "enterprise_remittance_review_idempotency_key")
+  @@map("enterprise_remittance_review")
 }
 
 model InventoryBalance {

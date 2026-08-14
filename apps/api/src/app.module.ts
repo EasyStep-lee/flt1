@@ -108,6 +108,18 @@ import {
 } from './orders/order.repository.js';
 import { OrderService } from './orders/order.service.js';
 import { PrismaOrderRepository } from './orders/prisma-order.repository.js';
+import {
+  COMPANY_FINANCE_ACTOR_RESOLVER,
+  DenyCompanyFinanceActorResolver,
+  type CompanyFinanceActorResolver,
+} from './enterprise-remittances/enterprise-remittance.actor.js';
+import { CompanyFinanceSessionActorResolver } from './enterprise-remittances/company-finance-session-actor.resolver.js';
+import {
+  ENTERPRISE_REMITTANCE_REPOSITORY,
+  type EnterpriseRemittanceRepository,
+} from './enterprise-remittances/enterprise-remittance.repository.js';
+import { EnterpriseRemittanceService } from './enterprise-remittances/enterprise-remittance.service.js';
+import { PrismaEnterpriseRemittanceRepository } from './enterprise-remittances/prisma-enterprise-remittance.repository.js';
 import { PaymentService } from './payments/payment.service.js';
 import { PrismaPaymentRepository } from './payments/prisma-payment.repository.js';
 import {
@@ -251,6 +263,8 @@ export interface AppModuleOptions {
   readonly supplierInventoryActorResolver?: SupplierInventoryActorResolver;
   readonly orderRepository?: OrderRepository;
   readonly orderActorResolver?: OrderActorResolver;
+  readonly enterpriseRemittanceRepository?: EnterpriseRemittanceRepository;
+  readonly companyFinanceActorResolver?: CompanyFinanceActorResolver;
   readonly paymentRepository?: PaymentRepository;
   readonly wechatPaymentAdapter?: WechatPaymentAdapter;
 }
@@ -311,13 +325,17 @@ export class AppModule {
       PriceChangeService,
       PrismaInventoryRepository,
       PrismaOrderRepository,
+      PrismaEnterpriseRemittanceRepository,
       PrismaPaymentRepository,
       UnavailableWechatPaymentAdapter,
       DenyOrderActorResolver,
+      DenyCompanyFinanceActorResolver,
+      CompanyFinanceSessionActorResolver,
       DenySupplierInventoryActorResolver,
       SupplierInventorySessionActorResolver,
       InventoryService,
       OrderService,
+      EnterpriseRemittanceService,
       PaymentService,
       DenyCompanyProductApprovalActorResolver,
       CompanyProductApprovalSessionActorResolver,
@@ -347,6 +365,12 @@ export class AppModule {
       options.orderActorResolver
         ? { provide: ORDER_ACTOR_RESOLVER, useValue: options.orderActorResolver }
         : { provide: ORDER_ACTOR_RESOLVER, useExisting: DenyOrderActorResolver },
+      options.enterpriseRemittanceRepository
+        ? { provide: ENTERPRISE_REMITTANCE_REPOSITORY, useValue: options.enterpriseRemittanceRepository }
+        : { provide: ENTERPRISE_REMITTANCE_REPOSITORY, useExisting: PrismaEnterpriseRemittanceRepository },
+      options.companyFinanceActorResolver
+        ? { provide: COMPANY_FINANCE_ACTOR_RESOLVER, useValue: options.companyFinanceActorResolver }
+        : { provide: COMPANY_FINANCE_ACTOR_RESOLVER, useExisting: CompanyFinanceSessionActorResolver },
       options.paymentRepository
         ? { provide: PAYMENT_REPOSITORY, useValue: options.paymentRepository }
         : { provide: PAYMENT_REPOSITORY, useExisting: PrismaPaymentRepository },

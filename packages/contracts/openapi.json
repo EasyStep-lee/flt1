@@ -98,16 +98,19 @@
               "INVENTORY_RESERVATION_CONFLICT",
               "INVENTORY_STATE_INVALID",
               "INVENTORY_VERSION_CONFLICT",
+              "AMOUNT_MISMATCH",
               "EXTERNAL_SERVICE_UNAVAILABLE",
               "ORDER_NOT_FOUND",
               "PAYMENT_AMOUNT_MISMATCH",
               "PAYMENT_CONCURRENT_CONFLICT",
               "PAYMENT_IDEMPOTENCY_CONFLICT",
               "PAYMENT_IDENTITY_MISMATCH",
+              "PAYMENT_METHOD_INVALID",
               "PAYMENT_NOTIFICATION_INVALID",
               "PAYMENT_STATE_INVALID",
               "PAYMENT_TRANSACTION_CONFLICT",
-              "PAYMENT_TRANSACTION_NOT_FOUND"
+              "PAYMENT_TRANSACTION_NOT_FOUND",
+              "REMITTANCE_ALREADY_SUBMITTED"
             ],
             "example": "RESOURCE_NOT_FOUND",
             "type": "string"
@@ -1853,6 +1856,143 @@
           "media",
           "skus",
           "detailModules"
+        ],
+        "type": "object"
+      },
+      "EnterpriseRemittanceProofRequestDto": {
+        "properties": {
+          "amount": {
+            "description": "Declared company remittance amount in integer cents",
+            "minimum": 1,
+            "type": "number"
+          },
+          "proofObjectKey": {
+            "maxLength": 512,
+            "type": "string"
+          }
+        },
+        "required": [
+          "amount",
+          "proofObjectKey"
+        ],
+        "type": "object"
+      },
+      "EnterpriseRemittanceResponseDto": {
+        "properties": {
+          "checkoutMode": {
+            "enum": [
+              "COMPANY_UNIFIED"
+            ],
+            "type": "string"
+          },
+          "orderId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "orderNo": {
+            "maxLength": 32,
+            "type": "string"
+          },
+          "orderStatus": {
+            "enum": [
+              "PENDING_PAYMENT",
+              "PAID"
+            ],
+            "type": "string"
+          },
+          "paymentMethod": {
+            "enum": [
+              "BANK_TRANSFER"
+            ],
+            "type": "string"
+          },
+          "paymentStatus": {
+            "enum": [
+              "PENDING",
+              "PAID"
+            ],
+            "type": "string"
+          },
+          "remittanceId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "remittanceStatus": {
+            "enum": [
+              "PENDING_REVIEW",
+              "CONFIRMED",
+              "REJECTED"
+            ],
+            "type": "string"
+          },
+          "reviewedAt": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "sellerName": {
+            "example": "江苏福礼团供应链科技有限公司",
+            "type": "string"
+          },
+          "submittedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "totalAmount": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "version": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "remittanceId",
+          "orderId",
+          "orderNo",
+          "sellerName",
+          "checkoutMode",
+          "paymentMethod",
+          "totalAmount",
+          "paymentStatus",
+          "orderStatus",
+          "remittanceStatus",
+          "version",
+          "submittedAt",
+          "reviewedAt"
+        ],
+        "type": "object"
+      },
+      "EnterpriseRemittanceReviewRequestDto": {
+        "properties": {
+          "amount": {
+            "description": "Reviewed amount in integer cents",
+            "minimum": 1,
+            "type": "number"
+          },
+          "decision": {
+            "enum": [
+              "CONFIRM",
+              "REJECT"
+            ],
+            "type": "string"
+          },
+          "reason": {
+            "maxLength": 500,
+            "minLength": 2,
+            "type": "string"
+          },
+          "version": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "decision",
+          "amount",
+          "version",
+          "reason"
         ],
         "type": "object"
       },
@@ -5804,8 +5944,18 @@
             ],
             "type": "string"
           },
+          "checkoutMode": {
+            "enum": [
+              "COMPANY_UNIFIED"
+            ],
+            "type": "string"
+          },
           "clientPayment": {
             "$ref": "#/components/schemas/MiniappPaymentPayloadDto"
+          },
+          "collectorName": {
+            "example": "江苏福礼团供应链科技有限公司",
+            "type": "string"
           },
           "orderId": {
             "format": "uuid",
@@ -5834,6 +5984,8 @@
           "orderId",
           "channel",
           "status",
+          "collectorName",
+          "checkoutMode",
           "amount",
           "outTradeNo",
           "prepayId",
@@ -7573,6 +7725,97 @@
         ]
       }
     },
+    "/v1/company/enterprise-orders/{orderId}/remittance-review": {
+      "post": {
+        "operationId": "enterpriseRemittance.reviewProof",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnterpriseRemittanceReviewRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnterpriseRemittanceResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Review enterprise remittance in the company finance workspace",
+        "tags": [
+          "company-enterprise-remittance"
+        ]
+      }
+    },
     "/v1/company/price-reviews": {
       "get": {
         "operationId": "companyInitialPriceReviews.list",
@@ -8858,6 +9101,97 @@
         "summary": "Create one company enterprise order across suppliers",
         "tags": [
           "enterprise-orders"
+        ]
+      }
+    },
+    "/v1/enterprise/orders/{orderId}/remittance-proof": {
+      "post": {
+        "operationId": "enterpriseRemittance.submitProof",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnterpriseRemittanceProofRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnterpriseRemittanceResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Submit company bank-remittance proof for an enterprise order",
+        "tags": [
+          "enterprise-remittance"
         ]
       }
     },

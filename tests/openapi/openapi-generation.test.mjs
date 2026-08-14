@@ -138,6 +138,7 @@ test('generated contract exposes foundation, identity, onboarding and catalog AP
     '/v1/company/categories/{categoryId}/template-versions',
     '/v1/company/category-template-versions/{templateId}',
     '/v1/company/category-template-versions/{templateId}/publish',
+    '/v1/company/enterprise-orders/{orderId}/remittance-review',
     '/v1/company/price-reviews',
     '/v1/company/price-reviews/supply-price-changes',
     '/v1/company/price-reviews/supply-price-changes/{taskId}/decision',
@@ -154,6 +155,7 @@ test('generated contract exposes foundation, identity, onboarding and catalog AP
     '/v1/enterprise/catalog/products',
     '/v1/enterprise/catalog/products/{productId}',
     '/v1/enterprise/orders',
+    '/v1/enterprise/orders/{orderId}/remittance-proof',
     '/v1/orders/{orderId}/wechat-prepay',
     '/v1/payment-notifications/wechat',
     '/v1/public/merchant-profile',
@@ -189,6 +191,14 @@ test('generated contract exposes foundation, identity, onboarding and catalog AP
   assert.equal(
     spec.paths['/v1/payment-notifications/wechat'].post.operationId,
     'payments.confirmWechatNotification',
+  );
+  assert.equal(
+    spec.paths['/v1/enterprise/orders/{orderId}/remittance-proof'].post.operationId,
+    'enterpriseRemittance.submitProof',
+  );
+  assert.equal(
+    spec.paths['/v1/company/enterprise-orders/{orderId}/remittance-review'].post.operationId,
+    'enterpriseRemittance.reviewProof',
   );
   assert.equal(
     spec.paths['/v1/public/merchant-profile'].get.operationId,
@@ -365,6 +375,9 @@ test('generated contract exposes foundation, identity, onboarding and catalog AP
       'EnterpriseCatalogQueryDto',
       'EnterpriseFoodSkuResponseDto',
       'EnterpriseProductDetailResponseDto',
+      'EnterpriseRemittanceProofRequestDto',
+      'EnterpriseRemittanceResponseDto',
+      'EnterpriseRemittanceReviewRequestDto',
       'FoundationDependencyCheckDto',
       'FunctionalAccountPageResponseDto',
       'FunctionalAccountQueryDto',

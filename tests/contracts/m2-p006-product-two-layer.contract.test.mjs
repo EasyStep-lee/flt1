@@ -136,9 +136,9 @@ test('M2-P006 and M2-P007 retain merged-main evidence after M2-P008 starts local
   assert.equal(m2.EvidenceStatus, 'CI_PASS');
 
   assert.equal(projectStatus.execution.status, 'M3_IN_PROGRESS');
-  assert.equal(projectStatus.execution.currentTask, 'M3-P024');
+  assert.equal(projectStatus.execution.currentTask, 'M3-P025');
   assert.equal(projectStatus.execution.nextAllowedTask, projectStatus.execution.currentTask);
-  assert.equal(projectStatus.execution.lastCompletedTask, 'M3-P023');
+  assert.equal(projectStatus.execution.lastCompletedTask, 'M3-P024');
   assert.equal(projectStatus.execution.activeTaskCount, 1);
   assert.equal(
     projectStatus.github.currentTaskDelivery.taskId,
@@ -159,10 +159,10 @@ test('M2-P006 and M2-P007 retain merged-main evidence after M2-P008 starts local
   assert.equal(projectStatus.github.currentTaskDelivery.mainPostMergeCi, 'NOT_EXECUTED');
   assert.equal(
     projectStatus.github.currentTaskDelivery.blockingExternalItem,
-    'REAL_WECHAT_MERCHANT_CONFIGURATION_AND_STAGING',
+    'REAL_WECHAT_BANK_AND_STAGING_EVIDENCE',
   );
   assert.equal(projectStatus.github.currentTaskDelivery.nextTaskUnlocked, false);
-  assert.equal(projectStatus.evidence.ci, 'CI_PASS_M3_P024_HEAD_7091344');
+  assert.equal(projectStatus.evidence.ci, 'CI_PASS_M3_P025_HEAD_0948176');
 
   for (const evidence of [contract, handoff]) {
     assert.match(evidence, /P0-006/u);
