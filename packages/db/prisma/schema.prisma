@@ -181,6 +181,38 @@ enum SupplierFulfillmentOrderStatus {
 
 enum BuyerOrderEventType {
   CREATED
+  PAYMENT_CONFIRMED
+}
+
+enum PaymentChannel {
+  WECHAT_PAY
+}
+
+enum PaymentTransactionStatus {
+  CREATED
+  PREPAY_CREATED
+  PAID
+  CLOSED
+  UNKNOWN
+  FAILED
+}
+
+enum PaymentAttemptStatus {
+  CREATED
+  SUCCEEDED
+  FAILED
+}
+
+enum PaymentNotificationResult {
+  PAID
+  REPLAYED
+  REJECTED
+}
+
+enum PaymentOutboxStatus {
+  PENDING
+  PUBLISHED
+  FAILED
 }
 
 enum SupplyPriceChangeStatus {
@@ -1106,6 +1138,9 @@ model BuyerOrder {
   items                 BuyerOrderItem[]
   supplierFulfillments  SupplierFulfillmentOrder[]
   events                BuyerOrderEvent[]
+  paymentTransactions   PaymentTransaction[]
+  paymentAllocations    OrderPaymentAllocation[]
+  paymentOutboxes       PaymentOutbox[]
 
   @@unique([idempotencyScope, idempotencyKey], map: "buyer_order_idempotency_scope_key")
   @@index([companyId, orderType, createdAt], map: "buyer_order_company_type_time_idx")
@@ -1152,6 +1187,7 @@ model BuyerOrderItem {
   supplier                   Supplier                   @relation(fields: [supplierId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   product                    Product                    @relation(fields: [productId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   sku                        Sku                        @relation(fields: [skuId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  paymentAllocation          OrderPaymentAllocation?
 
   @@unique([buyerOrderId, lineNo], map: "buyer_order_item_order_line_key")
   @@index([supplierFulfillmentOrderId], map: "buyer_order_item_fulfillment_idx")
@@ -1176,6 +1212,93 @@ model BuyerOrderEvent {
   @@unique([buyerOrderId, version], map: "buyer_order_event_order_version_key")
   @@index([buyerOrderId, occurredAt], map: "buyer_order_event_order_time_idx")
   @@map("buyer_order_event")
+}
+
+model PaymentTransaction {
+  id                    String                   @id @default(uuid()) @db.Char(36)
+  orderId               String                   @unique(map: "payment_transaction_order_key") @map("order_id") @db.Char(36)
+  channel               PaymentChannel           @default(WECHAT_PAY)
+  amount                Int
+  outTradeNo            String                   @unique(map: "payment_transaction_out_trade_no_key") @map("out_trade_no") @db.VarChar(32)
+  wechatTransactionId   String?                  @unique(map: "payment_transaction_wechat_transaction_key") @map("wechat_transaction_id") @db.VarChar(64)
+  status                PaymentTransactionStatus @default(CREATED)
+  notifyVerifiedAt      DateTime?                @map("notify_verified_at") @db.DateTime(3)
+  paidAt                DateTime?                @map("paid_at") @db.DateTime(3)
+  closedAt              DateTime?                @map("closed_at") @db.DateTime(3)
+  idempotencyKey        String                   @map("idempotency_key") @db.VarChar(128)
+  requestHash           String                   @map("request_hash") @db.Char(64)
+  version               Int                      @default(0)
+  createdAt             DateTime                 @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt             DateTime                 @updatedAt @map("updated_at") @db.DateTime(3)
+  order                 BuyerOrder               @relation(fields: [orderId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "payment_transaction_order_fkey")
+  attempts              PaymentAttempt[]
+  notifications         PaymentNotification[]
+
+  @@index([status, createdAt], map: "payment_transaction_status_time_idx")
+  @@map("payment_transaction")
+}
+
+model PaymentAttempt {
+  id                    String               @id @default(uuid()) @db.Char(36)
+  paymentTransactionId  String               @map("payment_transaction_id") @db.Char(36)
+  idempotencyKey        String               @map("idempotency_key") @db.VarChar(128)
+  requestHash           String               @map("request_hash") @db.Char(64)
+  status                PaymentAttemptStatus @default(CREATED)
+  responseSnapshot      Json?                @map("response_snapshot")
+  createdAt             DateTime             @default(now()) @map("created_at") @db.DateTime(3)
+  completedAt           DateTime?            @map("completed_at") @db.DateTime(3)
+  paymentTransaction    PaymentTransaction   @relation(fields: [paymentTransactionId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "payment_attempt_transaction_fkey")
+
+  @@unique([paymentTransactionId, idempotencyKey], map: "payment_attempt_transaction_key")
+  @@map("payment_attempt")
+}
+
+model OrderPaymentAllocation {
+  id                    String         @id @default(uuid()) @db.Char(36)
+  orderId               String         @map("order_id") @db.Char(36)
+  orderItemId           String         @unique(map: "order_payment_allocation_item_key") @map("order_item_id") @db.Char(36)
+  welfareCardAmount     Int            @default(0) @map("welfare_card_amount")
+  cashAmount            Int            @map("cash_amount")
+  allocationRuleVersion Int            @default(1) @map("allocation_rule_version")
+  createdAt             DateTime       @default(now()) @map("created_at") @db.DateTime(3)
+  order                 BuyerOrder     @relation(fields: [orderId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "order_payment_allocation_order_fkey")
+  orderItem             BuyerOrderItem @relation(fields: [orderItemId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "order_payment_allocation_item_fkey")
+
+  @@index([orderId], map: "order_payment_allocation_order_idx")
+  @@map("order_payment_allocation")
+}
+
+model PaymentNotification {
+  id                    String                    @id @default(uuid()) @db.Char(36)
+  paymentTransactionId  String                    @map("payment_transaction_id") @db.Char(36)
+  notificationId        String                    @unique(map: "payment_notification_notification_key") @map("notification_id") @db.VarChar(128)
+  rawBodyHash           String                    @map("raw_body_hash") @db.Char(64)
+  outTradeNo            String                    @map("out_trade_no") @db.VarChar(32)
+  wechatTransactionId   String                    @map("wechat_transaction_id") @db.VarChar(64)
+  amount                Int
+  result                PaymentNotificationResult
+  verifiedAt            DateTime                  @map("verified_at") @db.DateTime(3)
+  createdAt             DateTime                  @default(now()) @map("created_at") @db.DateTime(3)
+  paymentTransaction    PaymentTransaction        @relation(fields: [paymentTransactionId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "payment_notification_transaction_fkey")
+
+  @@index([paymentTransactionId, createdAt], map: "payment_notification_transaction_time_idx")
+  @@map("payment_notification")
+}
+
+model PaymentOutbox {
+  id             String              @id @default(uuid()) @db.Char(36)
+  buyerOrderId   String              @map("buyer_order_id") @db.Char(36)
+  eventType      String              @map("event_type") @db.VarChar(64)
+  eventVersion   Int                 @map("event_version")
+  payload        Json
+  status         PaymentOutboxStatus @default(PENDING)
+  createdAt      DateTime            @default(now()) @map("created_at") @db.DateTime(3)
+  publishedAt    DateTime?           @map("published_at") @db.DateTime(3)
+  buyerOrder     BuyerOrder          @relation(fields: [buyerOrderId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "payment_outbox_order_fkey")
+
+  @@unique([buyerOrderId, eventType, eventVersion], map: "payment_outbox_order_event_version_key")
+  @@index([status, createdAt], map: "payment_outbox_status_time_idx")
+  @@map("payment_outbox")
 }
 
 model InventoryBalance {

@@ -154,6 +154,8 @@ test('generated contract exposes foundation, identity, onboarding and catalog AP
     '/v1/enterprise/catalog/products',
     '/v1/enterprise/catalog/products/{productId}',
     '/v1/enterprise/orders',
+    '/v1/orders/{orderId}/wechat-prepay',
+    '/v1/payment-notifications/wechat',
     '/v1/public/merchant-profile',
     '/v1/supplier-auth/login',
     '/v1/supplier-auth/workspace/current',
@@ -180,6 +182,14 @@ test('generated contract exposes foundation, identity, onboarding and catalog AP
   ]);
   assert.equal(spec.paths['/health/live'].get.operationId, 'health.getLiveness');
   assert.equal(spec.paths['/health/ready'].get.operationId, 'health.getReadiness');
+  assert.equal(
+    spec.paths['/v1/orders/{orderId}/wechat-prepay'].post.operationId,
+    'payments.createWechatPrepay',
+  );
+  assert.equal(
+    spec.paths['/v1/payment-notifications/wechat'].post.operationId,
+    'payments.confirmWechatNotification',
+  );
   assert.equal(
     spec.paths['/v1/public/merchant-profile'].get.operationId,
     'publicMerchant.getProfile',
@@ -371,6 +381,7 @@ test('generated contract exposes foundation, identity, onboarding and catalog AP
       'InitialPricesResponseDto',
       'ListedSkuPriceDto',
       'ListedSkuPricePageDto',
+      'MiniappPaymentPayloadDto',
       'ProductApprovalDecisionRequestDto',
       'ProductApprovalDecisionResponseDto',
       'ProductChannelVisibilityHistoryItemDto',
@@ -458,6 +469,10 @@ test('generated contract exposes foundation, identity, onboarding and catalog AP
       'TemplateSkuDimensionDto',
       'TemplateSkuDimensionsDto',
       'TemplateValidationRuleDto',
+      'WechatNotificationAcknowledgementDto',
+      'WechatPaymentNotificationDto',
+      'WechatPrepayRequestDto',
+      'WechatPrepayResponseDto',
       'WorkspaceChoiceDto',
       'WorkspaceChoiceResponseDto',
     ],
