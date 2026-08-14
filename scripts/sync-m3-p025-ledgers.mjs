@@ -4,11 +4,16 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const pack = path.join(root, '福礼社Codex5.6开发执行包V1.1');
-const updatedAt = '2026-08-14T10:09:04Z';
+const updatedAt = '2026-08-14T10:55:05Z';
 const p024AuthorizedHead = '04ba1bf61ed2e4537ae449e6373f6482b55e28e5';
 const p024Merge = '1b15d5c4a019fe2868726284761c315454af2d5f';
 const implementationCommit = 'e0423d5062f871d31314f8bdcf0c4283f341a226';
-const verifiedHead = 'e1407aad12d2739722ba52fe4f9e195f5b78cc88';
+const verifiedHead = '09481763d3c6f0b48608a8529ecd58621ce707f2';
+const pullRequest = 86;
+const pullRequestUrl = 'https://github.com/EasyStep-lee/flt1/pull/86';
+const pullRequestCiRun = 31793575894;
+const pullRequestCiJob = 94745630852;
+const pullRequestCiUrl = `https://github.com/EasyStep-lee/flt1/actions/runs/${pullRequestCiRun}`;
 
 const parseLine = (line) => {
   const values = [];
@@ -71,11 +76,11 @@ await updateCsv('03-任务台账.csv', (row) => {
   };
   if (row.TaskID === 'M3-P025') return {
     ...row,
-    Status: 'IN_PROGRESS', EvidenceStatus: 'LOCAL_PASS', Owner: 'CODEX',
+    Status: 'IN_PROGRESS', EvidenceStatus: 'CI_PASS', Owner: 'CODEX',
     GitHubIssue: 'https://github.com/EasyStep-lee/flt1/issues/85',
     Branch: 'codex/m3-company-unified-checkout', CommitSHA: verifiedHead,
-    PullRequest: '', CI: 'LOCAL_PASS', UpdatedAt: updatedAt,
-    Notes: 'RED：API-050/API-051端点404，3/3失败。GREEN：Prisma仓储3/3、Supertest 7/7、迁移契约1/1、P0 E2E2/2；pnpm verify 17/17通过。公司微信配置仅服务端派生；企业转账仅企业提交、公司财务确认；不创建配送。福利卡与真实资金/staging未执行，等待Draft PR精确head CI。',
+    PullRequest: pullRequestUrl, CI: 'CI_PASS', UpdatedAt: updatedAt,
+    Notes: 'RED：API-050/API-051端点404，3/3失败。GREEN：Prisma仓储3/3、Supertest 7/7、迁移契约1/1、P0 E2E2/2；本地pnpm verify 17/17通过。Draft PR #86精确head 0948176 Actions run 31793575894/job 94745630852成功。公司微信配置仅服务端派生；企业转账仅企业提交、公司财务确认；不创建配送。福利卡与真实资金/staging未执行，等待人工合并与post-merge main CI。',
   };
   if (row.TaskID === 'M3-P026') return {
     ...row,
@@ -97,9 +102,9 @@ await updateCsv('04-P0-1至P0-119验收矩阵.csv', (row) => {
     ...row,
     CurrentEvidenceStatus: 'NOT_EXECUTED',
     AutomatedTestID: 'NEG-M3-P025-01|NEG-M3-P025-02|NEG-M3-P025-03|apps/api/test/unit/prisma-enterprise-remittance-repository.test.mjs|apps/api/test/supertest/company-unified-checkout-api.test.mjs|apps/api/test/supertest/payment-idempotency-api.test.mjs|tests/e2e/p0/p0-025-company-unified-checkout.spec.ts',
-    EvidenceLink: 'docs/contracts/m3/M3-P025-company-unified-checkout.md|packages/db/prisma/migrations/20260814092000_m3_company_unified_checkout/migration.sql|packages/contracts/openapi.json',
-    LastVerifiedCommit: verifiedHead, Verifier: 'CODEX', VerifiedAt: updatedAt,
-    Notes: '本地自动化子行为LOCAL_PASS：个人/企业微信只使用公司商户配置；企业转账仅由企业提交、公司财务确认；供应商不收款；ALIPAY/客户端归属被拒绝；确认幂等且不创建配送。福利卡由公司统一发行记账尚未实现，Draft PR/CI/staging/真实资金未执行，P0整项保持NOT_EXECUTED。',
+    EvidenceLink: `docs/contracts/m3/M3-P025-company-unified-checkout.md|packages/db/prisma/migrations/20260814092000_m3_company_unified_checkout/migration.sql|packages/contracts/openapi.json|${pullRequestUrl}|${pullRequestCiUrl}`,
+    LastVerifiedCommit: verifiedHead, Verifier: 'GITHUB_ACTIONS+CODEX', VerifiedAt: updatedAt,
+    Notes: '自动化子行为在Draft PR #86精确head 0948176取得CI_PASS：个人/企业微信只使用公司商户配置；企业转账仅由企业提交、公司财务确认；供应商不收款；ALIPAY/客户端归属被拒绝；确认幂等且不创建配送。福利卡由公司统一发行记账、人工合并、post-merge main CI、staging和真实资金未执行，P0整项保持NOT_EXECUTED。',
   };
   return null;
 });
@@ -114,16 +119,16 @@ await updateCsv('10-测试证据登记.csv', (row) => {
   };
   if (row.EvidenceID === 'EVD-025') return {
     ...row,
-    CurrentStatus: 'LOCAL_PASS',
+    CurrentStatus: 'CI_PASS',
     CommandOrProcedure: 'RED Supertest 3/3预期201/422实际404；GREEN Prisma仓储3/3、Supertest 7/7、迁移契约1/1、P0 E2E2/2；prisma validate/migrate dry-run；OpenAPI generate/check/oasdiff；pnpm verify 17/17',
     Actual: '公司微信预支付从Company.wechatPayConfigRef派生且不向客户端暴露；企业转账只由本企业提交，公司财务精确金额/版本确认；重复/并发只确认一次订单、库存、履约和outbox；供应商不收款，不创建配送，ALIPAY被拒绝。',
     Environment: 'LOCAL_WINDOWS_NODE22_DOCKER_MYSQL84+DETERMINISTIC_WECHAT_AND_REMITTANCE_ADAPTERS',
-    ExecutedAt: updatedAt, CommitSHA: verifiedHead, CIRunURL: '',
+    ExecutedAt: updatedAt, CommitSHA: verifiedHead, CIRunURL: pullRequestCiUrl,
     ArtifactOrScreenshot: 'docs/contracts/m3/M3-P025-company-unified-checkout.md|artifacts/test-results/verification/pnpm-verify.json',
-    Executor: 'CODEX', Freshness: 'FRESH_LOCAL_HEAD',
-    FailureOrBlocker: 'Draft PR/CI、人工合并、post-merge main CI未执行；福利卡发行记账、真实微信/银行、staging/真机/production未执行',
+    Executor: 'GITHUB_ACTIONS+CODEX', Freshness: 'FRESH_PR_HEAD',
+    FailureOrBlocker: '人工合并、post-merge main CI未执行；福利卡发行记账、真实微信/银行、staging/真机/production未执行',
     RetestRequired: 'YES',
-    Notes: '本地子行为LOCAL_PASS；Mock不能升级为真实资金或CI_PASS；P0-025整体保持NOT_EXECUTED；M3-P026锁定。',
+    Notes: '自动化子行为在Draft PR #86精确head 0948176取得CI_PASS；Mock不能升级为真实资金、STAGING_PASS或整项P0通过；P0-025整体保持NOT_EXECUTED；M3-P026锁定。',
   };
   return null;
 });
@@ -250,8 +255,8 @@ await updateCsv('07-权限与数据可见矩阵.csv', (row) => {
 
 await updateCsv(path.join('data', '阶段门禁.csv'), (row) => row.Stage === 'M3' ? {
   ...row,
-  Status: 'IN_PROGRESS', EvidenceStatus: 'LOCAL_PASS',
-  Notes: 'M3-P024已由PR #84合并且main run 31786009896成功。M3-P025 local head e1407aa pnpm verify 17/17通过；等待Draft PR精确head CI、人工合并和post-merge main CI。P0-025整体因福利卡与真实资金/staging保持NOT_EXECUTED；M3-P026及后续锁定。',
+  Status: 'IN_PROGRESS', EvidenceStatus: 'CI_PASS',
+  Notes: 'M3-P024已由PR #84合并且main run 31786009896成功。M3-P025 Draft PR #86精确head 0948176 Actions run 31793575894/job 94745630852成功；等待人工合并和post-merge main CI。P0-025整体因福利卡与真实资金/staging保持NOT_EXECUTED；M3-P026及后续锁定。',
 } : null);
 
 const statusPath = path.join(pack, '16-项目状态.json');
@@ -268,21 +273,21 @@ status.execution = {
 };
 status.github = {
   ...status.github,
-  pullRequest: null, pullRequestUrl: null, pullRequestState: 'NOT_CREATED', pullRequestMerged: false,
-  mergeCommitSha: null, mergedAt: null, lastVerifiedPullRequestHead: null,
-  pullRequestCi: { status: 'NOT_EXECUTED', runId: null, jobId: null, runUrl: null, headSha: null, completedAt: null },
+  pullRequest, pullRequestUrl, pullRequestState: 'DRAFT', pullRequestMerged: false,
+  mergeCommitSha: null, mergedAt: null, lastVerifiedPullRequestHead: verifiedHead,
+  pullRequestCi: { status: 'CI_PASS', runId: pullRequestCiRun, jobId: pullRequestCiJob, runUrl: pullRequestCiUrl, headSha: verifiedHead, completedAt: updatedAt },
   latestCi: {
-    scope: 'M3_P024_MAIN_POST_MERGE', status: 'CI_PASS', runId: 31786009896, jobId: 94721950214,
-    runUrl: 'https://github.com/EasyStep-lee/flt1/actions/runs/31786009896', headSha: p024Merge,
-    event: 'push', completedAt: '2026-08-14T09:05:06Z',
+    scope: 'M3_P025_PR_HEAD', status: 'CI_PASS', runId: pullRequestCiRun, jobId: pullRequestCiJob,
+    runUrl: pullRequestCiUrl, headSha: verifiedHead,
+    event: 'pull_request', completedAt: updatedAt,
   },
   currentTaskDelivery: {
     taskId: 'M3-P025', issue: 85, issueUrl: 'https://github.com/EasyStep-lee/flt1/issues/85',
     branch: 'codex/m3-company-unified-checkout', baseCommit: p024Merge, implementationCommit, verifiedHead,
-    status: 'LOCAL_PASS_PENDING_DRAFT_PR', localRedTest: 'API_BUILD_0_EXPECTED_201_OR_422_ACTUAL_404_3_OF_3',
+    status: 'CI_PASS_PENDING_HUMAN_MERGE', localRedTest: 'API_BUILD_0_EXPECTED_201_OR_422_ACTUAL_404_3_OF_3',
     localFocusedTest: 'LOCAL_PASS_REPOSITORY_3_API_7_MIGRATION_1_P0_E2E_2',
-    localFullVerify: 'PASS_17_OF_17_HEAD_E1407AA', pullRequest: null, pullRequestState: 'NOT_CREATED', exactHeadCi: 'NOT_EXECUTED',
-    review: 'PENDING_SELF_REVIEW', merge: 'NOT_EXECUTED', mainPostMergeCi: 'NOT_EXECUTED',
+    localFullVerify: 'PASS_17_OF_17_HEAD_0948176', pullRequest, pullRequestState: 'DRAFT', exactHeadCi: 'CI_PASS_RUN_31793575894_JOB_94745630852',
+    review: 'DOCUMENTED_SELF_REVIEW_HEAD_0948176_REVIEW_4936438409', merge: 'NOT_EXECUTED', mainPostMergeCi: 'NOT_EXECUTED',
     blockingExternalItem: 'REAL_WECHAT_BANK_AND_STAGING_EVIDENCE', nextTaskUnlocked: false,
   },
   previousTaskDelivery: {
@@ -290,10 +295,10 @@ status.github = {
     exactHead: p024AuthorizedHead, mergeCommit: p024Merge, mainPostMergeCiRun: 31786009896,
     mainPostMergeCiJob: 94721950214, status: 'CI_PASS',
   },
-  note: 'M3-P025本地17/17门禁通过；等待Draft PR及精确head CI。福利卡发行记账与真实资金证据未进入本切片，P0-025整体保持NOT_EXECUTED；M3-P026锁定。',
+  note: 'M3-P025 Draft PR #86精确head 0948176 CI通过并已记录自审；等待人工合并及post-merge main CI。福利卡发行记账与真实资金证据未进入本切片，P0-025整体保持NOT_EXECUTED；M3-P026锁定。',
 };
 status.evidence = {
-  local: 'LOCAL_PASS_M3_P025_FULL_VERIFY', ci: 'NOT_EXECUTED_M3_P025',
+  local: 'LOCAL_PASS_M3_P025_FULL_VERIFY', ci: 'CI_PASS_M3_P025_HEAD_0948176',
   staging: 'NOT_EXECUTED', device: 'NOT_EXECUTED', production: 'NOT_EXECUTED',
 };
 status.counts = {

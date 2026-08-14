@@ -1,14 +1,14 @@
 # 2026-08-14 M3-P025 公司统一对客结账交接
 
-阶段结论：`IN_PROGRESS / LOCAL_PASS`。M3-P024 已由 PR #84 按精确 head `04ba1bf61ed2e4537ae449e6373f6482b55e28e5` 合并到 `main@1b15d5c4a019fe2868726284761c315454af2d5f`，合并后 Actions run `31786009896` / job `94721950214` 成功。本切片已在本地实现公司统一收款边界并完成 `pnpm verify` 17/17；Draft PR、精确 head CI、人工合并与 post-merge main CI 尚未执行。福利卡由公司统一发行记账及真实微信、银行、staging 证据不在本切片内，故 P0-025 整项保持 `NOT_EXECUTED`，不得宣称完整通过。
+阶段结论：`IN_PROGRESS / CI_PASS`。M3-P024 已由 PR #84 按精确 head `04ba1bf61ed2e4537ae449e6373f6482b55e28e5` 合并到 `main@1b15d5c4a019fe2868726284761c315454af2d5f`，合并后 Actions run `31786009896` / job `94721950214` 成功。本切片已在本地实现公司统一收款边界并完成 `pnpm verify` 17/17；Draft PR #86 的精确 head `09481763d3c6f0b48608a8529ecd58621ce707f2` 在 Actions run `31793575894` / job `94745630852` 成功。人工合并与 post-merge main CI 尚未执行。福利卡由公司统一发行记账及真实微信、银行、staging 证据不在本切片内，故 P0-025 整项保持 `NOT_EXECUTED`，不得宣称完整通过。
 
 ## 基线、范围与 Git
 
 - 唯一方案 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`；基线脚本通过。
 - 当前阶段/任务：M3 / M3-P025；P0-025 的公司统一微信配置和企业线下转账确认子行为；MIG-012B；API-050/API-051；无页面切片。
 - 分支：`codex/m3-company-unified-checkout`；基线：`main@1b15d5c4a019fe2868726284761c315454af2d5f`。
-- 实现提交：`e0423d5062f871d31314f8bdcf0c4283f341a226`；合同与测试提交：`e1407aad12d2739722ba52fe4f9e195f5b78cc88`。
-- GitHub：Issue #85；Draft PR 尚未创建；精确 head CI、review、合并与 post-merge main CI 均为 `NOT_EXECUTED`。
+- 实现提交：`e0423d5062f871d31314f8bdcf0c4283f341a226`；合同与测试提交：`e1407aad12d2739722ba52fe4f9e195f5b78cc88`；精确 CI 验证 head：`09481763d3c6f0b48608a8529ecd58621ce707f2`。
+- GitHub：Issue #85；Draft PR #86；精确 head Actions run `31793575894` / job `94745630852` 为 `CI_PASS`；head 绑定自审 review `4936438409`；人工合并与 post-merge main CI 为 `NOT_EXECUTED`。
 - 用户既有未跟踪文件和 `.codex-*` 临时证据均保留且未暂存。
 
 ## 完成范围
@@ -55,16 +55,16 @@
 | `pnpm test` | 退出码 0；API workspace 38 文件/199 测试通过 |
 | 合同回归 | M3 新字段首次暴露冻结生成器枚举/字段计数游标；补齐后 88/88 通过 |
 | `pnpm verify` | `e1407aa` 退出码 0；17/17 PASS；报告 `artifacts/test-results/verification/pnpm-verify.json` |
-| 工作簿 | 12 个工作表逐页目视检查；公式错误扫描 0；M3-P025 为 `IN_PROGRESS/LOCAL_PASS`，P0-025 为 `NOT_EXECUTED` |
-| PR CI | `NOT_EXECUTED`；Draft PR 尚未创建 |
+| 工作簿 | 12 个工作表逐页目视检查；公式错误扫描 0；M3-P025 为 `IN_PROGRESS/CI_PASS`，P0-025 为 `NOT_EXECUTED` |
+| PR CI | Draft PR #86 head `0948176`；Actions run `31793575894` / job `94745630852`，退出结论 `SUCCESS` |
 
 首次 `pnpm verify` 在 OpenAPI 生成物尚未提交时被确定性 diff 门禁拒绝；提交生成物后，第二次在 OpenAPI 路径/DTO 精确名单回归中失败，补齐合同后 focused 4/4 通过。一次 360 秒执行器超时终止了仍在正常运行的回归，不计作通过。证据工作簿提交后的交付 head 又由全量门禁发现 manifest 哈希和历史交接的动态当前任务游标仍停在 M3-P024；同步哈希与 P025 本地证据边界后，focused 交接合同 15/15 通过。全合同复核进一步发现 M3 冻结生成器未识别新增汇款枚举和字段计数；只扩展确定性格式映射和动态游标后 88/88 通过。最终完整结果以随后自然完成的 `pnpm verify` 报告为准。
 
 ## P0 与环境边界
 
-- P0-025 自动化子行为：`LOCAL_PASS`。公司微信商户配置仅服务端派生；企业转账仅企业提交、公司财务确认；供应商不收款；非微信个人在线现金方式及客户端归属字段被拒绝；确认幂等且不创建配送。
+- P0-025 自动化子行为：`CI_PASS`（绑定 Draft PR #86 head `0948176`）。公司微信商户配置仅服务端派生；企业转账仅企业提交、公司财务确认；供应商不收款；非微信个人在线现金方式及客户端归属字段被拒绝；确认幂等且不创建配送。
 - P0-025 整项：`NOT_EXECUTED`。福利卡由公司统一发行记账尚未实现；真实公司微信商户、银行凭证、staging 及财务人工核验未执行。
-- LOCAL：`LOCAL_PASS`；CI/STAGING/DEVICE/PRODUCTION：`NOT_EXECUTED`。
+- LOCAL：`LOCAL_PASS`；CI：`CI_PASS`；STAGING/DEVICE/PRODUCTION：`NOT_EXECUTED`。
 - 外部边界：真实微信商户配置、证书/APIv3 密钥、回调域名、银行流水/凭证、staging 和财务核验必须由授权人工配置/执行；任何秘密、银行账号、真实凭证或敏感个人数据不得进入仓库或聊天。
 
 ## 风险与回滚
@@ -77,4 +77,4 @@
 
 ## 下一步门禁
 
-下一动作仅限创建/更新 M3-P025 Draft PR、修复其精确 head CI 和处理同一 PR 评论。只有人工按最新精确 head 授权转 Ready/合并且合并后 main CI 成功，才能开始 M3-P026。当前明确禁止福利卡后续、退款、门户后续切片、M4、M5、M6 和任何真实资金/生产操作。
+下一动作仅限更新 M3-P025 Draft PR、修复其精确 head CI 和处理同一 PR 评论。只有人工按最新精确 head 授权转 Ready/合并且合并后 main CI 成功，才能开始 M3-P026。当前明确禁止福利卡后续、退款、门户后续切片、M4、M5、M6 和任何真实资金/生产操作。
