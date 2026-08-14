@@ -145,6 +145,11 @@ export class RefundService {
           requestId,
         );
       } catch (error) {
+        current = await this.repository.recordWelfareResult(
+          current.refundId,
+          'UNKNOWN',
+          requestId,
+        );
         return mapAdapterError(error);
       }
       if (current.status === 'UNKNOWN') {
@@ -187,6 +192,11 @@ export class RefundService {
           wechatResult.externalRefundNo,
         );
       } catch (error) {
+        current = await this.repository.recordWechatResult(
+          current.refundId,
+          'UNKNOWN',
+          requestId,
+        );
         return mapAdapterError(error);
       }
     }

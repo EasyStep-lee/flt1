@@ -17,6 +17,7 @@
 - 使用原 `OrderPaymentAllocation` 和累计历史退款进行整数分分配，支持多次部分退款的确定性余数，累计不超过原福利卡/微信分配与批准金额。
 - 福利卡目标固定为原福利卡账户，微信目标固定为原 `PaymentTransaction`；默认适配器失败关闭，测试使用确定性适配器桩。
 - 每个通道以乐观锁先认领后外呼，防止并发重复；福利卡未知或处理中时不启动微信；外部未知持久化为 `UNKNOWN` 且重放不再次外呼。
+- 同阶段自审补强：通道认领后适配器抛出异常时先持久化 `UNKNOWN` 再返回安全错误，福利卡和微信重放均不再次外呼，避免永久卡在 `PROCESSING`。
 - 原子追加退款交易、状态事件及 `FINANCIAL`、`INVENTORY`、`RECONCILIATION` 三类影响；库存影响只记录待售后决定，不在 M3 修改可售库存。
 - 公司订单客服固定职能页面新增真实退款发起表单和 loading/success/duplicate/unknown/error 状态；金额和目标数据不可输入。
 - OpenAPI 与生成类型新增 API-043，DTO 白名单和错误码已纳入确定性生成。
@@ -35,6 +36,7 @@
 | RED：API-043 Supertest | 3/3 按预期失败：期望 201/401/202，实际 404 |
 | 退款分配 unit | 2/2 通过；1801/3999 两次 2900 退款得到 900/2000 与 901/1999 |
 | 退款 API + 公司 workspace focused | 9/9 通过 |
+| 适配器异常恢复 focused | 福利卡与微信异常后均持久化 `UNKNOWN`；重放不再次外呼 |
 | MIG-013 contract + OpenAPI contract | 通过 |
 | 公司后台 lint/typecheck/build | 退出码 0；仅有 Vite 大 chunk 非阻断警告 |
 | P0-026 API/页面 Playwright | 2/2 通过 |

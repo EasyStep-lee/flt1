@@ -3,6 +3,7 @@ import request from 'supertest';
 
 import { createApplication } from '../../dist/bootstrap.js';
 import { loadRuntimeConfig } from '../../dist/config/runtime-config.js';
+import { RefundAdapterError } from '../../dist/refunds/refund.adapter.js';
 
 const afterSaleId = '86000000-0000-4000-8000-000000000001';
 const orderId = '87000000-0000-4000-8000-000000000001';
@@ -74,7 +75,11 @@ class RecordingRefundRepository {
   }
 
   async recordWelfareResult(_refundId, result) {
-    this.transaction = { ...this.transaction, welfareChannelStatus: result };
+    this.transaction = {
+      ...this.transaction,
+      welfareChannelStatus: result,
+      ...(result === 'UNKNOWN' ? { status: 'UNKNOWN' } : {}),
+    };
     return this.transaction;
   }
 
@@ -99,14 +104,30 @@ class RecordingWelfareRefundAdapter {
 }
 
 class RecordingWechatRefundAdapter {
-  constructor(unknown = false) { this.unknown = unknown; this.calls = []; }
-  async refund(command) { this.calls.push(command); return { kind: this.unknown ? 'UNKNOWN' : 'SUCCEEDED' }; }
+  constructor(unknown = false, unavailable = false) {
+    this.unknown = unknown;
+    this.unavailable = unavailable;
+    this.calls = [];
+  }
+  async refund(command) {
+    this.calls.push(command);
+    if (this.unavailable) {
+      throw new RefundAdapterError(
+        'EXTERNAL_SERVICE_UNAVAILABLE',
+        'WeChat refund result could not be confirmed',
+      );
+    }
+    return { kind: this.unknown ? 'UNKNOWN' : 'SUCCEEDED' };
+  }
 }
 
 const createFixture = async (options = {}) => {
   const refundRepository = new RecordingRefundRepository(options);
   const welfareRefundAdapter = new RecordingWelfareRefundAdapter();
-  const wechatRefundAdapter = new RecordingWechatRefundAdapter(options.unknownWechat);
+  const wechatRefundAdapter = new RecordingWechatRefundAdapter(
+    options.unknownWechat,
+    options.unavailableWechat,
+  );
   const app = await createApplication({
     config: config(), probes: probes(), logger: false,
     refundRepository, refundActorResolver: actorResolver,
@@ -188,7 +209,7 @@ describe('P0-026 original payment structure refund', () => {
     } finally { await fixture.app.close(); }
   });
 
-  it('rejects cumulative over-refund and fails closed when channel adapters are unavailable', async () => {
+  it('rejects cumulative over-refund and persists adapter exceptions as unknown without retrying', async () => {
     const overpaid = await createFixture({ overpaid: true });
     try {
       await refund(overpaid.app).expect(409)
@@ -207,12 +228,26 @@ describe('P0-026 original payment structure refund', () => {
         .expect(({ body }) => expect(body.code).toBe('EXTERNAL_SERVICE_UNAVAILABLE'));
       await refund(app).expect(200)
         .expect(({ body }) => {
-          expect(body.status).toBe('PROCESSING');
-          expect(body.welfareChannelStatus).toBe('PROCESSING');
+          expect(body.status).toBe('UNKNOWN');
+          expect(body.welfareChannelStatus).toBe('UNKNOWN');
           expect(body.wechatChannelStatus).toBe('PENDING');
         });
       expect(refundRepository.effects.transaction).toBe(1);
     } finally { await app.close(); }
+
+    const wechatFailure = await createFixture({ unavailableWechat: true });
+    try {
+      await refund(wechatFailure.app).expect(503)
+        .expect(({ body }) => expect(body.code).toBe('EXTERNAL_SERVICE_UNAVAILABLE'));
+      await refund(wechatFailure.app).expect(200)
+        .expect(({ body }) => {
+          expect(body.status).toBe('UNKNOWN');
+          expect(body.welfareChannelStatus).toBe('SUCCEEDED');
+          expect(body.wechatChannelStatus).toBe('UNKNOWN');
+        });
+      expect(wechatFailure.welfareRefundAdapter.calls).toHaveLength(1);
+      expect(wechatFailure.wechatRefundAdapter.calls).toHaveLength(1);
+    } finally { await wechatFailure.app.close(); }
   });
 
   it('claims each channel before external calls so concurrent duplicate requests never double-refund', async () => {
