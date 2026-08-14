@@ -27,6 +27,10 @@ import {
   SupplierListedPricingController,
   SupplierSupplyPriceChangeController,
 } from '../price-changes/price-change.controller.js';
+import {
+  ConsumerOrderController,
+  EnterpriseOrderController,
+} from '../orders/order.controller.js';
 
 export const OPENAPI_CONTROLLERS = Object.freeze([
   AuditLogController,
@@ -52,4 +56,6 @@ export const OPENAPI_CONTROLLERS = Object.freeze([
   SupplierListedPricingController,
   SupplierSupplyPriceChangeController,
   CompanySupplyPriceReviewController,
+  ConsumerOrderController,
+  EnterpriseOrderController,
 ]);

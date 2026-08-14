@@ -513,6 +513,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/consumer/orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create one company consumer order across suppliers */
+        post: operations["orders.createConsumerOrder"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/enterprise/catalog/products": {
         parameters: {
             query?: never;
@@ -541,6 +558,23 @@ export interface paths {
         get: operations["enterpriseCatalog.getProductDetail"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/enterprise/orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create one company enterprise order across suppliers */
+        post: operations["orders.createEnterpriseOrder"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1012,6 +1046,22 @@ export interface components {
             /** @default 20 */
             pageSize: number;
         };
+        BuyerOrderItemResponseDto: {
+            /** Format: uuid */
+            orderItemId: string;
+            /** Format: uuid */
+            productId: string;
+            productName: string;
+            quantity: number;
+            /** @description Channel sale price snapshot in integer cents */
+            salePrice: number;
+            /** Format: uuid */
+            skuId: string;
+            /** Format: uuid */
+            supplierId: string;
+            /** @description Line amount in integer cents */
+            totalAmount: number;
+        };
         CatalogMediaResponseDto: {
             alt: string;
             /** Format: uri */
@@ -1283,6 +1333,27 @@ export interface components {
             /** @enum {string} */
             status: "UNSELECTED";
         };
+        CreateBuyerOrderResponseDto: {
+            /** @enum {string} */
+            checkoutMode: "COMPANY_UNIFIED";
+            deliveryFee: number;
+            discountAmount: number;
+            goodsAmount: number;
+            items: components["schemas"]["BuyerOrderItemResponseDto"][];
+            /** Format: uuid */
+            orderId: string;
+            orderNo: string;
+            /** @enum {string} */
+            orderStatus: "PENDING_PAYMENT";
+            /** @enum {string} */
+            orderType: "CONSUMER" | "ENTERPRISE";
+            /** @enum {string} */
+            paymentStatus: "PENDING";
+            /** @example 江苏福礼团供应链科技有限公司 */
+            sellerName: string;
+            supplierFulfillments: components["schemas"]["SupplierFulfillmentOrderResponseDto"][];
+            totalAmount: number;
+        };
         CreateFunctionalAccountRequestDto: {
             /** @enum {string} */
             accountTypeCode: "SUPPLIER_ACCOUNT_ADMIN" | "SUPPLIER_PRODUCT" | "SUPPLIER_PRICING" | "SUPPLIER_INVENTORY" | "SUPPLIER_FULFILLMENT" | "SUPPLIER_AFTERSALES" | "SUPPLIER_FINANCE" | "SUPPLIER_AUDIT" | "COMPANY_SUPER_ADMIN" | "COMPANY_SUPPLIER_OPS" | "COMPANY_PRODUCT_OPS" | "COMPANY_PRICE_REVIEW" | "COMPANY_ORDER_SERVICE" | "COMPANY_WELFARE_CARD" | "COMPANY_FINANCE" | "COMPANY_LOGISTICS" | "COMPANY_CONTENT" | "COMPANY_AUDIT";
@@ -1293,6 +1364,14 @@ export interface components {
             inviteeMobile: string;
             inviteeName: string;
             secondVerificationCode?: string;
+        };
+        CreateOrderItemRequestDto: {
+            quantity: number;
+            /** Format: uuid */
+            skuId: string;
+        };
+        CreateOrderRequestDto: {
+            items: components["schemas"]["CreateOrderItemRequestDto"][];
         };
         CreateSensitiveApprovalRequestDto: {
             reason: string;
@@ -1826,6 +1905,17 @@ export interface components {
             /** Format: uuid */
             requestId: string;
             version: number;
+        };
+        SupplierFulfillmentOrderResponseDto: {
+            /** Format: uuid */
+            fulfillmentOrderId: string;
+            /** @description Supplier group sale amount in integer cents */
+            goodsAmount: number;
+            itemCount: number;
+            /** @enum {string} */
+            status: "PENDING_PAYMENT";
+            /** Format: uuid */
+            supplierId: string;
         };
         SupplierInitialPriceSkuDto: {
             /** Format: uuid */
@@ -4105,6 +4195,55 @@ export interface operations {
             };
         };
     };
+    "orders.createConsumerOrder": {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateOrderRequestDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreateBuyerOrderResponseDto"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
     "enterpriseCatalog.listProducts": {
         parameters: {
             query?: {
@@ -4179,6 +4318,55 @@ export interface operations {
                 };
             };
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
+    "orders.createEnterpriseOrder": {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateOrderRequestDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreateBuyerOrderResponseDto"];
+                };
+            };
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };

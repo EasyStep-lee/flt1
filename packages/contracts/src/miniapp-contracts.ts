@@ -16,6 +16,23 @@ type SuccessJsonResponse<TOperation extends { readonly responses: object }> =
     ? TBody
     : never;
 
+type CreatedJsonResponse<TOperation extends { readonly responses: object }> =
+  TOperation['responses'] extends {
+    readonly 201: {
+      readonly content: { readonly 'application/json': infer TBody };
+    };
+  }
+    ? TBody
+    : never;
+
+type JsonRequestBody<TOperation> = TOperation extends {
+  readonly requestBody: {
+    readonly content: { readonly 'application/json': infer TBody };
+  };
+}
+  ? TBody
+  : never;
+
 type OperationById<TOperationId extends string> =
   TOperationId extends keyof operations ? operations[TOperationId] : never;
 
@@ -41,5 +58,9 @@ export type FoundationMiniappContracts = {
   readonly 'catalog.listProducts': {
     readonly requestBody: undefined;
     readonly responseBody: SuccessJsonResponse<OperationById<'catalog.listProducts'>>;
+  };
+  readonly 'orders.createConsumerOrder': {
+    readonly requestBody: JsonRequestBody<OperationById<'orders.createConsumerOrder'>>;
+    readonly responseBody: CreatedJsonResponse<OperationById<'orders.createConsumerOrder'>>;
   };
 };

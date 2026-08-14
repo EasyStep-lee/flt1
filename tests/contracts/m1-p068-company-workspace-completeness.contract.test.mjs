@@ -67,12 +67,12 @@ test('M1-P068 remains bound to merged evidence after P070 starts', async () => {
   assert.deepEqual(evidence.migration.newMigrations, []);
 
   assert.equal(state.execution.status, 'M3_IN_PROGRESS');
-  assert.equal(state.execution.currentTask, 'M3-P020');
-  assert.equal(state.execution.nextAllowedTask, 'M3-P020');
-  assert.equal(state.execution.lastCompletedTask, 'M3-000');
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M3-P020');
-  assert.equal(state.github.currentTaskDelivery.issue, 77);
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M3-P020.*M3-P022/u);
+  assert.equal(state.execution.currentTask, 'M3-P022');
+  assert.equal(state.execution.nextAllowedTask, 'M3-P022');
+  assert.equal(state.execution.lastCompletedTask, 'M3-P020');
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M3-P022');
+  assert.equal(state.github.currentTaskDelivery.issue, 79);
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M3-P022.*M3-P023/u);
 
   assert.match(tasks, /M1-P067[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(tasks, /M1-P068[^\r\n]*DONE[^\r\n]*CI_PASS/u);
