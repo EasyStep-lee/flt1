@@ -110,7 +110,14 @@
               "PAYMENT_STATE_INVALID",
               "PAYMENT_TRANSACTION_CONFLICT",
               "PAYMENT_TRANSACTION_NOT_FOUND",
-              "REMITTANCE_ALREADY_SUBMITTED"
+              "REMITTANCE_ALREADY_SUBMITTED",
+              "REFUND_ALLOCATION_INVALID",
+              "REFUND_AUTHORIZATION_NOT_FOUND",
+              "REFUND_CHANNEL_REJECTED",
+              "REFUND_DUPLICATE",
+              "REFUND_OVERPAID",
+              "REFUND_STATE_CONFLICT",
+              "SAME_NATURAL_PERSON_REVIEW_FORBIDDEN"
             ],
             "example": "RESOURCE_NOT_FOUND",
             "type": "string"
@@ -3308,6 +3315,102 @@
         ],
         "type": "object"
       },
+      "RefundCreateRequestDto": {
+        "properties": {
+          "authorizationVersion": {
+            "description": "Server-issued approved refund authorization version",
+            "minimum": 1,
+            "type": "number"
+          },
+          "reason": {
+            "maxLength": 500,
+            "minLength": 2,
+            "type": "string"
+          }
+        },
+        "required": [
+          "authorizationVersion",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "RefundResponseDto": {
+        "properties": {
+          "afterSaleId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "cashRefundAmount": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "orderId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "orderItemId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "refundId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "refundNo": {
+            "maxLength": 32,
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "PROCESSING",
+              "PARTIAL_CHANNEL_DONE",
+              "SUCCEEDED",
+              "UNKNOWN",
+              "FAILED"
+            ],
+            "type": "string"
+          },
+          "wechatChannelStatus": {
+            "enum": [
+              "NOT_REQUIRED",
+              "PENDING",
+              "PROCESSING",
+              "SUCCEEDED",
+              "UNKNOWN",
+              "FAILED"
+            ],
+            "type": "string"
+          },
+          "welfareCardRefundAmount": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "welfareChannelStatus": {
+            "enum": [
+              "NOT_REQUIRED",
+              "PENDING",
+              "PROCESSING",
+              "SUCCEEDED",
+              "UNKNOWN",
+              "FAILED"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "refundId",
+          "afterSaleId",
+          "orderId",
+          "orderItemId",
+          "refundNo",
+          "status",
+          "welfareCardRefundAmount",
+          "cashRefundAmount",
+          "welfareChannelStatus",
+          "wechatChannelStatus"
+        ],
+        "type": "object"
+      },
       "RegulatedCategoryControlPageDto": {
         "properties": {
           "items": {
@@ -6151,6 +6254,116 @@
         "summary": "Readiness probe",
         "tags": [
           "health"
+        ]
+      }
+    },
+    "/v1/aftersales/{afterSaleId}/refund": {
+      "post": {
+        "operationId": "refunds.createOriginalStructureRefund",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "afterSaleId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefundCreateRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefundResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefundResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Initiate an approved refund using immutable original payment allocations",
+        "tags": [
+          "refunds"
         ]
       }
     },

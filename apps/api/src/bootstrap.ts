@@ -34,6 +34,12 @@ import type { CompanyFinanceActorResolver } from './enterprise-remittances/enter
 import type { EnterpriseRemittanceRepository } from './enterprise-remittances/enterprise-remittance.repository.js';
 import type { PaymentRepository } from './payments/payment.repository.js';
 import type { WechatPaymentAdapter } from './payments/wechat-payment.adapter.js';
+import type { RefundActorResolver } from './refunds/refund.actor.js';
+import type { RefundRepository } from './refunds/refund.repository.js';
+import type {
+  WelfareRefundAdapter,
+  WechatRefundAdapter,
+} from './refunds/refund.adapter.js';
 import { SafeJsonLogger } from './logging/safe-json.logger.js';
 import type { SingleMerchantRepository } from './merchant/single-merchant.repository.js';
 import type { SensitiveApprovalRepository } from './sensitive-approval/sensitive-approval.repository.js';
@@ -104,6 +110,10 @@ export interface CreateApplicationOptions {
   readonly companyFinanceActorResolver?: CompanyFinanceActorResolver;
   readonly paymentRepository?: PaymentRepository;
   readonly wechatPaymentAdapter?: WechatPaymentAdapter;
+  readonly refundRepository?: RefundRepository;
+  readonly refundActorResolver?: RefundActorResolver;
+  readonly welfareRefundAdapter?: WelfareRefundAdapter;
+  readonly wechatRefundAdapter?: WechatRefundAdapter;
   readonly logger?: LoggerService | false;
 }
 
@@ -238,6 +248,18 @@ export const createApplication = async (
       : {}),
     ...(options.wechatPaymentAdapter
       ? { wechatPaymentAdapter: options.wechatPaymentAdapter }
+      : {}),
+    ...(options.refundRepository
+      ? { refundRepository: options.refundRepository }
+      : {}),
+    ...(options.refundActorResolver
+      ? { refundActorResolver: options.refundActorResolver }
+      : {}),
+    ...(options.welfareRefundAdapter
+      ? { welfareRefundAdapter: options.welfareRefundAdapter }
+      : {}),
+    ...(options.wechatRefundAdapter
+      ? { wechatRefundAdapter: options.wechatRefundAdapter }
       : {}),
   };
   const logger = options.logger === false ? false : options.logger ?? new SafeJsonLogger();

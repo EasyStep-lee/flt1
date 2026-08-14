@@ -26,7 +26,7 @@ const expectedModuleKeys = {
   COMPANY_SUPPLIER_OPS: ['onboarding-review', 'supplier-profiles', 'qualification-alerts'],
   COMPANY_PRODUCT_OPS: ['category-templates', 'product-material-review', 'enterprise-shelf'],
   COMPANY_PRICE_REVIEW: ['initial-price-review', 'supply-price-change-review', 'price-history'],
-  COMPANY_ORDER_SERVICE: ['personal-orders', 'enterprise-orders', 'after-sales-cases'],
+  COMPANY_ORDER_SERVICE: ['personal-orders', 'enterprise-orders', 'refund-initiation', 'after-sales-cases'],
   COMPANY_WELFARE_CARD: ['welfare-plans', 'card-batches', 'account-ledger'],
   COMPANY_FINANCE: ['payment-reconciliation', 'refund-review', 'supplier-statements'],
   COMPANY_LOGISTICS: ['runner-operations', 'personal-deliveries', 'enterprise-deliveries'],

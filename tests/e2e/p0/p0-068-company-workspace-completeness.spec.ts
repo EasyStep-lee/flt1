@@ -20,13 +20,13 @@ const moduleKeys = {
   COMPANY_SUPPLIER_OPS: ['onboarding-review', 'supplier-profiles', 'qualification-alerts'],
   COMPANY_PRODUCT_OPS: ['category-templates', 'product-material-review', 'enterprise-shelf'],
   COMPANY_PRICE_REVIEW: ['initial-price-review', 'supply-price-change-review', 'price-history'],
-  COMPANY_ORDER_SERVICE: ['personal-orders', 'enterprise-orders', 'after-sales-cases'],
+  COMPANY_ORDER_SERVICE: ['personal-orders', 'enterprise-orders', 'refund-initiation', 'after-sales-cases'],
   COMPANY_WELFARE_CARD: ['welfare-plans', 'card-batches', 'account-ledger'],
   COMPANY_FINANCE: ['payment-reconciliation', 'refund-review', 'supplier-statements'],
   COMPANY_LOGISTICS: ['runner-operations', 'personal-deliveries', 'enterprise-deliveries'],
   COMPANY_CONTENT: ['content-tree', 'content-preview', 'publication-history'],
   COMPANY_AUDIT: ['audit-events', 'login-events', 'sensitive-exports'],
-} as const satisfies Record<(typeof workspaces)[number][0], readonly [string, string, string]>;
+} as const satisfies Record<(typeof workspaces)[number][0], readonly string[]>;
 
 const moduleLabel = (key: string) => `模块 ${key}`;
 
@@ -159,7 +159,9 @@ test('NEG-M1-068-02 all company pages keep list, detail and timeline in their ow
     await expect(completeness).toBeVisible();
     await expect(completeness).toHaveAttribute('data-workspace-role', workspace[0]);
     await expect(completeness.getByRole('heading', { name: '职能工作台' })).toBeVisible();
-    await expect(completeness.locator('[data-workspace-module]')).toHaveCount(3);
+    await expect(completeness.locator('[data-workspace-module]')).toHaveCount(
+      moduleKeys[workspace[0]].length,
+    );
     await expect(completeness).toContainText(moduleLabel(moduleKeys[workspace[0]][0]));
 
     await completeness.getByRole('button', { name: '查看详情' }).first().click();

@@ -122,6 +122,7 @@ test('generated contract exposes foundation, identity, onboarding and catalog AP
   assert.deepEqual(Object.keys(spec.paths), [
     '/health/live',
     '/health/ready',
+    '/v1/aftersales/{afterSaleId}/refund',
     '/v1/audit/events',
     '/v1/audit/sensitive-export-approvals',
     '/v1/audit/sensitive-export-approvals/{taskId}/claim',
@@ -199,6 +200,10 @@ test('generated contract exposes foundation, identity, onboarding and catalog AP
   assert.equal(
     spec.paths['/v1/company/enterprise-orders/{orderId}/remittance-review'].post.operationId,
     'enterpriseRemittance.reviewProof',
+  );
+  assert.equal(
+    spec.paths['/v1/aftersales/{afterSaleId}/refund'].post.operationId,
+    'refunds.createOriginalStructureRefund',
   );
   assert.equal(
     spec.paths['/v1/public/merchant-profile'].get.operationId,

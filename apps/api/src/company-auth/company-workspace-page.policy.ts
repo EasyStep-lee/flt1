@@ -154,6 +154,15 @@ export const COMPANY_WORKSPACE_PAGE_MODULES = Object.freeze({
       sections: ['企业订单列表', '主订单详情', '收货时间线'],
     }),
     module({
+      moduleKey: 'refund-initiation',
+      label: '退款执行',
+      description: '按已批准授权和原支付分配快照发起退款。',
+      deliveryStage: 'M3',
+      availability: 'AVAILABLE',
+      dataBoundary: '只展示退款状态和渠道金额摘要，不返回原福利卡账户、微信交易号、供应价或结算信息。',
+      sections: ['已批准退款', '原结构金额摘要', '退款状态时间线'],
+    }),
+    module({
       moduleKey: 'after-sales-cases',
       label: '售后工单',
       description: '公司统一售后受理与责任协同在 M5 实现。',

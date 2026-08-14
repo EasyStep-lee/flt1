@@ -131,6 +131,26 @@ import {
   WECHAT_PAYMENT_ADAPTER,
   type WechatPaymentAdapter,
 } from './payments/wechat-payment.adapter.js';
+import { CompanyOrderServiceSessionActorResolver } from './refunds/company-order-service-session-actor.resolver.js';
+import {
+  DenyRefundActorResolver,
+  REFUND_ACTOR_RESOLVER,
+  type RefundActorResolver,
+} from './refunds/refund.actor.js';
+import {
+  UnavailableWechatRefundAdapter,
+  UnavailableWelfareRefundAdapter,
+  WECHAT_REFUND_ADAPTER,
+  WELFARE_REFUND_ADAPTER,
+  type WechatRefundAdapter,
+  type WelfareRefundAdapter,
+} from './refunds/refund.adapter.js';
+import { PrismaRefundRepository } from './refunds/prisma-refund.repository.js';
+import {
+  REFUND_REPOSITORY,
+  type RefundRepository,
+} from './refunds/refund.repository.js';
+import { RefundService } from './refunds/refund.service.js';
 import { PrismaSingleMerchantRepository } from './merchant/prisma-single-merchant.repository.js';
 import {
   SINGLE_MERCHANT_REPOSITORY,
@@ -267,6 +287,10 @@ export interface AppModuleOptions {
   readonly companyFinanceActorResolver?: CompanyFinanceActorResolver;
   readonly paymentRepository?: PaymentRepository;
   readonly wechatPaymentAdapter?: WechatPaymentAdapter;
+  readonly refundRepository?: RefundRepository;
+  readonly refundActorResolver?: RefundActorResolver;
+  readonly welfareRefundAdapter?: WelfareRefundAdapter;
+  readonly wechatRefundAdapter?: WechatRefundAdapter;
 }
 
 @Module({})
@@ -328,6 +352,12 @@ export class AppModule {
       PrismaEnterpriseRemittanceRepository,
       PrismaPaymentRepository,
       UnavailableWechatPaymentAdapter,
+      PrismaRefundRepository,
+      DenyRefundActorResolver,
+      CompanyOrderServiceSessionActorResolver,
+      UnavailableWelfareRefundAdapter,
+      UnavailableWechatRefundAdapter,
+      RefundService,
       DenyOrderActorResolver,
       DenyCompanyFinanceActorResolver,
       CompanyFinanceSessionActorResolver,
@@ -377,6 +407,18 @@ export class AppModule {
       options.wechatPaymentAdapter
         ? { provide: WECHAT_PAYMENT_ADAPTER, useValue: options.wechatPaymentAdapter }
         : { provide: WECHAT_PAYMENT_ADAPTER, useExisting: UnavailableWechatPaymentAdapter },
+      options.refundRepository
+        ? { provide: REFUND_REPOSITORY, useValue: options.refundRepository }
+        : { provide: REFUND_REPOSITORY, useExisting: PrismaRefundRepository },
+      options.refundActorResolver
+        ? { provide: REFUND_ACTOR_RESOLVER, useValue: options.refundActorResolver }
+        : { provide: REFUND_ACTOR_RESOLVER, useExisting: CompanyOrderServiceSessionActorResolver },
+      options.welfareRefundAdapter
+        ? { provide: WELFARE_REFUND_ADAPTER, useValue: options.welfareRefundAdapter }
+        : { provide: WELFARE_REFUND_ADAPTER, useExisting: UnavailableWelfareRefundAdapter },
+      options.wechatRefundAdapter
+        ? { provide: WECHAT_REFUND_ADAPTER, useValue: options.wechatRefundAdapter }
+        : { provide: WECHAT_REFUND_ADAPTER, useExisting: UnavailableWechatRefundAdapter },
       options.supplierInventoryActorResolver
         ? { provide: SUPPLIER_INVENTORY_ACTOR_RESOLVER, useValue: options.supplierInventoryActorResolver }
         : { provide: SUPPLIER_INVENTORY_ACTOR_RESOLVER, useExisting: SupplierInventorySessionActorResolver },
