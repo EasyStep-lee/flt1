@@ -66,6 +66,7 @@ const enumFormats = {
   'RefundTransaction.status': 'CREATED|PROCESSING|PARTIAL_CHANNEL_DONE|SUCCEEDED|UNKNOWN|FAILED', 'EnterpriseProcurementProfile.status': 'DRAFT|ACTIVE|SUSPENDED',
   'EnterpriseProcurementOrder.paymentMethod': 'WECHAT_PAY|BANK_TRANSFER', 'EnterpriseProcurementOrder.remittanceReviewStatus': 'NOT_SUBMITTED|PENDING_REVIEW|CONFIRMED|REJECTED',
   'EnterpriseProcurementOrder.status': 'DRAFT|PENDING_PAYMENT|PAYMENT_CONFIRMING|PAID|FULFILLING|COMPLETED|CANCELLED',
+  'EnterpriseRemittanceSubmission.status': 'PENDING_REVIEW|CONFIRMED|REJECTED', 'EnterpriseRemittanceReview.decision': 'CONFIRM|REJECT',
   'SupplierFulfillmentSubOrder.channelType': 'CONSUMER|ENTERPRISE', 'SupplierFulfillmentSubOrder.preparationStatus': 'PENDING|ACCEPTED|PREPARING|READY_FOR_HANDOVER|HANDED_OVER|COMPLETED|CANCELLED',
   'SupplierFulfillmentSubOrder.handoverStatus': 'NOT_READY|READY|HANDED_OVER', 'SupplierFulfillmentSubOrder.settlementStatus': 'NOT_RECONCILED|PENDING_STATEMENT|IN_STATEMENT|ADJUSTED',
 };
@@ -81,6 +82,7 @@ const resolveType = (row) => {
   if (/^String\(\d+\)$/u.test(row.SuggestedType)) return row.SuggestedType;
   if (/^Enum<[^>]+>$/u.test(row.SuggestedType)) return row.SuggestedType;
   if (/^Decimal\(\d+,\d+\)$/u.test(row.SuggestedType)) return row.SuggestedType;
+  if (/^DateTime\(\d+\)\??$/u.test(row.SuggestedType)) return row.SuggestedType;
   if (['Boolean', 'DateTime', 'Int', 'Json', 'Decimal'].includes(row.SuggestedType)) return row.SuggestedType;
   throw new Error(`M3_FIELD_TYPE_UNRESOLVED:${key}:${row.SuggestedType}`);
 };
@@ -90,7 +92,7 @@ const resolveFormat = (row, type) => {
   if (type === 'String(36)') return `${row.Required === 'NO' ? 'nullable; ' : ''}UUID v4`;
   if (type.startsWith('String(')) return `UTF-8; max ${type.slice(7, -1)} chars`;
   if (type === 'Decimal(10,7)') return row.Field === 'lat' ? '-90..90; 7 decimal places' : '-180..180; 7 decimal places';
-  if (type === 'DateTime') return `${row.Required === 'NO' ? 'nullable; ' : ''}UTC ISO-8601`;
+  if (type === 'DateTime' || /^DateTime\(\d+\)\??$/u.test(type)) return `${row.Required === 'NO' ? 'nullable; ' : ''}UTC ISO-8601`;
   if (type === 'Boolean') return 'true|false';
   if (type === 'Json') return 'canonical schema-versioned JSON';
   if (type === 'Int' && /amount|price|balance|fee|value/i.test(row.Field)) return 'integer cents; >=0';
@@ -120,7 +122,7 @@ const m3Fields = fields.filter(({ Stage }) => Stage === 'M3').map((row) => {
   if (!mappedP0?.length) throw new Error(`M3_FIELD_P0_MISSING:${row.Entity}.${row.Field}`);
   return { entity: row.Entity, name: row.Field, type, required: row.Required === 'YES', format: resolveFormat(row, type), sensitivity: row.Sensitivity, visibility: row.Visibility, forbiddenExposure: row.ForbiddenExposure, validation: resolveValidation(row), historyRule: row.HistoryRule, p0Ids: mappedP0 };
 });
-if (m3Fields.length !== 232) throw new Error(`M3_FIELD_COUNT:${m3Fields.length}`);
+if (m3Fields.length !== 255) throw new Error(`M3_FIELD_COUNT:${m3Fields.length}`);
 const groupedFields = [...new Set(m3Fields.map(({ entity }) => entity))].map((entity) => ({
   entity,
   fields: m3Fields

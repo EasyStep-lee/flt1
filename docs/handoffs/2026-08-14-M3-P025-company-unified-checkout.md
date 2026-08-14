@@ -53,11 +53,12 @@
 | OpenAPI generate/check/oasdiff | 退出码 0；字节稳定、0 breaking errors |
 | `pnpm typecheck` | 退出码 0 |
 | `pnpm test` | 退出码 0；API workspace 38 文件/199 测试通过 |
+| 合同回归 | M3 新字段首次暴露冻结生成器枚举/字段计数游标；补齐后 88/88 通过 |
 | `pnpm verify` | `e1407aa` 退出码 0；17/17 PASS；报告 `artifacts/test-results/verification/pnpm-verify.json` |
 | 工作簿 | 12 个工作表逐页目视检查；公式错误扫描 0；M3-P025 为 `IN_PROGRESS/LOCAL_PASS`，P0-025 为 `NOT_EXECUTED` |
 | PR CI | `NOT_EXECUTED`；Draft PR 尚未创建 |
 
-首次 `pnpm verify` 在 OpenAPI 生成物尚未提交时被确定性 diff 门禁拒绝；提交生成物后，第二次在 OpenAPI 路径/DTO 精确名单回归中失败，补齐合同后 focused 4/4 通过。一次 360 秒执行器超时终止了仍在正常运行的回归，不计作通过。证据工作簿提交后的交付 head 又由全量门禁发现 manifest 哈希和历史交接的动态当前任务游标仍停在 M3-P024；同步哈希与 P025 本地证据边界后，focused 交接合同 15/15 通过。最终完整结果以随后自然完成的 `pnpm verify` 报告为准。
+首次 `pnpm verify` 在 OpenAPI 生成物尚未提交时被确定性 diff 门禁拒绝；提交生成物后，第二次在 OpenAPI 路径/DTO 精确名单回归中失败，补齐合同后 focused 4/4 通过。一次 360 秒执行器超时终止了仍在正常运行的回归，不计作通过。证据工作簿提交后的交付 head 又由全量门禁发现 manifest 哈希和历史交接的动态当前任务游标仍停在 M3-P024；同步哈希与 P025 本地证据边界后，focused 交接合同 15/15 通过。全合同复核进一步发现 M3 冻结生成器未识别新增汇款枚举和字段计数；只扩展确定性格式映射和动态游标后 88/88 通过。最终完整结果以随后自然完成的 `pnpm verify` 报告为准。
 
 ## P0 与环境边界
 
