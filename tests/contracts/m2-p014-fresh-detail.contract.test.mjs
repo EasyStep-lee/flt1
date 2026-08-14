@@ -63,10 +63,10 @@ test('M2-P014 historical evidence remains while the current M2 slice advances', 
     ]);
 
   assert.equal(state.execution.status, 'M3_IN_PROGRESS');
-  assert.equal(state.execution.currentTask, 'M3-000');
+  assert.equal(state.execution.currentTask, 'M3-P020');
   assert.equal(state.execution.nextAllowedTask, state.execution.currentTask);
-  assert.equal(state.execution.lastCompletedTask, 'M2-GATE');
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M3-000.*M3-P020/u);
+  assert.equal(state.execution.lastCompletedTask, 'M3-000');
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M3-P020.*M3-P022/u);
   assert.equal(state.github.currentTaskDelivery.taskId, state.execution.currentTask);
   assert.ok(
     state.github.currentTaskDelivery.exactHeadCi === 'NOT_EXECUTED' ||
@@ -75,7 +75,7 @@ test('M2-P014 historical evidence remains while the current M2 slice advances', 
   assert.equal(state.github.currentTaskDelivery.merge, 'NOT_EXECUTED');
   assert.equal(state.github.currentTaskDelivery.mainPostMergeCi, 'NOT_EXECUTED');
   assert.equal(state.github.currentTaskDelivery.blockingExternalItem, null);
-  assert.equal(state.github.currentTaskDelivery.m3Unlocked, false);
+  assert.equal(state.github.currentTaskDelivery.nextTaskUnlocked, false);
   assert.equal(state.github.previousTaskDelivery.status, 'CI_PASS');
   assert.equal(evidence.taskId, 'M2-P014');
   assert.equal(evidence.status, 'LOCAL_PASS');

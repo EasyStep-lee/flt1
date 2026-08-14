@@ -91,6 +91,7 @@
               "TEMPLATE_SCHEMA_INVALID",
               "TEMPLATE_VERSION_INACTIVE",
               "TEMPLATE_VERSION_IMMUTABLE",
+              "REGION_UNAVAILABLE",
               "SENSITIVE_FIELD_LEAK",
               "INVENTORY_NEGATIVE",
               "INVENTORY_STATE_INVALID",
@@ -1190,6 +1191,143 @@
           "pageId",
           "workspaceRoute",
           "menuItems"
+        ],
+        "type": "object"
+      },
+      "ConsumerCatalogPageResponseDto": {
+        "properties": {
+          "checkoutMode": {
+            "enum": [
+              "COMPANY_UNIFIED"
+            ],
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ConsumerCatalogProductResponseDto"
+            },
+            "type": "array"
+          },
+          "page": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "pageSize": {
+            "maximum": 50,
+            "minimum": 1,
+            "type": "number"
+          },
+          "region": {
+            "$ref": "#/components/schemas/ConsumerCatalogRegionResponseDto"
+          },
+          "sellerName": {
+            "example": "江苏福礼团供应链科技有限公司",
+            "type": "string"
+          },
+          "total": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "sellerName",
+          "checkoutMode",
+          "region",
+          "page",
+          "pageSize",
+          "total",
+          "items"
+        ],
+        "type": "object"
+      },
+      "ConsumerCatalogProductResponseDto": {
+        "properties": {
+          "activeSkuCount": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "categoryId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "media": {
+            "items": {
+              "$ref": "#/components/schemas/CatalogMediaResponseDto"
+            },
+            "type": "array"
+          },
+          "name": {
+            "maxLength": 200,
+            "type": "string"
+          },
+          "productId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "retailSalePrice": {
+            "description": "Minimum active SKU retail price in integer cents",
+            "minimum": 0,
+            "type": "number"
+          },
+          "supplierId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "productId",
+          "supplierId",
+          "categoryId",
+          "name",
+          "retailSalePrice",
+          "activeSkuCount",
+          "media"
+        ],
+        "type": "object"
+      },
+      "ConsumerCatalogQueryDto": {
+        "properties": {
+          "page": {
+            "default": 1,
+            "maximum": 10000,
+            "minimum": 1,
+            "type": "number"
+          },
+          "pageSize": {
+            "default": 20,
+            "maximum": 50,
+            "minimum": 1,
+            "type": "number"
+          },
+          "regionCode": {
+            "description": "Reserved for a server-verified delivery region; arbitrary client scope is rejected",
+            "maxLength": 64,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ConsumerCatalogRegionResponseDto": {
+        "properties": {
+          "code": {
+            "nullable": true,
+            "type": "string"
+          },
+          "label": {
+            "example": "请选择配送区域",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "UNSELECTED"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "label",
+          "status"
         ],
         "type": "object"
       },
@@ -5939,6 +6077,91 @@
         "summary": "Approve or reject after second verification",
         "tags": [
           "sensitive-approval"
+        ]
+      }
+    },
+    "/v1/catalog/products": {
+      "get": {
+        "operationId": "catalog.listProducts",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "maximum": 10000,
+              "minimum": 1,
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "pageSize",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 50,
+              "minimum": 1,
+              "type": "number"
+            }
+          },
+          {
+            "description": "Reserved for a server-verified delivery region; arbitrary client scope is rejected",
+            "in": "query",
+            "name": "regionCode",
+            "required": false,
+            "schema": {
+              "maxLength": 64,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsumerCatalogPageResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "List guest-safe retail products from the unified company shelf",
+        "tags": [
+          "public-catalog"
         ]
       }
     },

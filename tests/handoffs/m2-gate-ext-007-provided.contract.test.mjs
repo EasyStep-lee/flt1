@@ -143,7 +143,7 @@ test('normalized first-phase policy preserves the approved category tree and loc
   assert.equal(policy.afterSales.qualityIssueAlwaysAccepted, true);
 });
 
-test('EXT-007 historical evidence remains valid after exact-head merge unlocks M3-000', async () => {
+test('EXT-007 historical evidence remains valid after exact-head merges advance M3', async () => {
   const [externals, tasks, stages, state, evidence, handoff] = await Promise.all([
     readFile(path.join(pack, '09-外部依赖与人工事项.csv'), 'utf8').then(parseCsv),
     readFile(path.join(pack, '03-任务台账.csv'), 'utf8').then(parseCsv),
@@ -174,8 +174,8 @@ test('EXT-007 historical evidence remains valid after exact-head merge unlocks M
   assert.equal(m3.Status, 'IN_PROGRESS');
   assert.equal(m3.EvidenceStatus, 'LOCAL_PASS');
   assert.equal(state.execution.status, 'M3_IN_PROGRESS');
-  assert.equal(state.execution.currentTask, 'M3-000');
-  assert.equal(state.execution.nextAllowedTask, 'M3-000');
+  assert.equal(state.execution.currentTask, 'M3-P020');
+  assert.equal(state.execution.nextAllowedTask, 'M3-P020');
   assert.equal(state.execution.activeTaskCount, 1);
   assert.equal(state.execution.lastPassedGate, 'M2-GATE');
 

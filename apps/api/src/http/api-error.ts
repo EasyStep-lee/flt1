@@ -33,6 +33,7 @@ export const SUPPLIER_ONBOARDING_ERROR_CODES = Object.freeze([
 ] as const);
 
 export const CUSTOMER_CATALOG_ERROR_CODES = Object.freeze([
+  'REGION_UNAVAILABLE',
   'SENSITIVE_FIELD_LEAK',
 ] as const);
 

@@ -78,12 +78,13 @@ test('M3 client boundaries and negative behavior plans are explicit', async () =
 test('M3 frozen artifact generation is deterministic and side-effect free', async () => {
   const output = await mkdtemp(path.join(os.tmpdir(), 'fulishe-m3-freeze-'));
   try {
+    const frozenArtifact = await readFile(artifact, 'utf8');
     const first = path.join(output, 'first.json');
     const second = path.join(output, 'second.json');
     execFileSync(process.execPath, [generator, '--output', first], { cwd: root });
     execFileSync(process.execPath, [generator, '--output', second], { cwd: root });
     assert.equal(await readFile(first, 'utf8'), await readFile(second, 'utf8'));
-    assert.equal(await readFile(first, 'utf8'), await readFile(artifact, 'utf8'));
+    assert.equal(await readFile(artifact, 'utf8'), frozenArtifact);
   } finally {
     await rm(output, { recursive: true, force: true });
   }

@@ -1,6 +1,26 @@
 {
-  "pages": ["pages/shell/index", "pages/product-detail/index", "pages/supplier-products/index"],
+  "pages": [
+    "pages/home/index",
+    "pages/category/index",
+    "pages/cart/index",
+    "pages/profile/index",
+    "pages/shell/index",
+    "pages/product-detail/index",
+    "pages/supplier-products/index"
+  ],
   "sitemapLocation": "sitemap.json",
+  "tabBar": {
+    "color": "#66757B",
+    "selectedColor": "#9A5B00",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "black",
+    "list": [
+      { "pagePath": "pages/home/index", "text": "首页" },
+      { "pagePath": "pages/category/index", "text": "分类" },
+      { "pagePath": "pages/cart/index", "text": "购物车" },
+      { "pagePath": "pages/profile/index", "text": "我的" }
+    ]
+  },
   "window": {
     "backgroundColor": "#FFF8E8",
     "navigationBarBackgroundColor": "#FFCC33",

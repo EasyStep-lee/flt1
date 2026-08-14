@@ -497,6 +497,7 @@ type JsonValue =
         isActiveSupplierSource: async () => false,
         findSellableProductDetail: async () => null,
         findSellableRetailProducts: async () => ({ items: [], total: 0 }),
+        findSellableRetailCatalogProducts: async () => ({ items: [], total: 0 }),
         findSellableEnterpriseProducts: async () => ({ items: [], total: 0 }),
       } satisfies PublicCatalogRepository,
     },

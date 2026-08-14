@@ -1,0 +1,31 @@
+.home { min-height: 100vh; padding-bottom: 36rpx; background: #fffaf0; color: #1f2d32; }
+.hero { padding: 30rpx 28rpx 36rpx; background: linear-gradient(145deg, #ffd520, #ffbd18); }
+.hero-topline { display: flex; align-items: center; justify-content: space-between; gap: 24rpx; }
+.brand { font-size: 46rpx; font-weight: 800; letter-spacing: 2rpx; }
+.region { max-width: 430rpx; overflow: hidden; font-size: 26rpx; text-overflow: ellipsis; white-space: nowrap; }
+.search { margin-top: 28rpx; padding: 26rpx 30rpx; border-radius: 26rpx; background: #fff; color: #77858a; font-size: 28rpx; box-shadow: 0 12rpx 30rpx rgba(126, 82, 0, .13); }
+.entrance-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18rpx; margin: 24rpx; }
+.entrance { min-height: 150rpx; padding: 22rpx 14rpx; border-radius: 22rpx; background: #fff; text-align: center; box-shadow: 0 8rpx 22rpx rgba(91, 73, 28, .08); }
+.entrance-icon { display: inline-flex; align-items: center; justify-content: center; width: 54rpx; height: 54rpx; border-radius: 18rpx; background: #fff0b0; color: #8c5700; font-weight: 800; }
+.entrance-label { margin-top: 12rpx; font-size: 27rpx; font-weight: 700; }
+.entrance-description { margin-top: 6rpx; color: #738187; font-size: 21rpx; line-height: 1.4; }
+.welfare-card { display: flex; align-items: center; justify-content: space-between; gap: 20rpx; margin: 24rpx; padding: 30rpx; border-radius: 28rpx; background: linear-gradient(120deg, #c9352b, #ff6547); color: #fff; }
+.welfare-title { font-size: 34rpx; font-weight: 800; }
+.welfare-copy { max-width: 440rpx; margin-top: 10rpx; font-size: 22rpx; line-height: 1.5; }
+.welfare-action { flex: 0 0 auto; padding: 16rpx 20rpx; border-radius: 30rpx; background: #fff; color: #b5261f; font-size: 23rpx; font-weight: 700; }
+.service-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14rpx; margin: 24rpx; }
+.service { min-height: 96rpx; padding: 20rpx 16rpx; border: 2rpx solid #f3dfab; border-radius: 18rpx; background: #fff; color: #768287; font-size: 21rpx; line-height: 1.5; }
+.service-title { color: #27383d; font-size: 25rpx; font-weight: 700; }
+.section-heading { display: flex; align-items: flex-end; justify-content: space-between; margin: 36rpx 24rpx 20rpx; }
+.section-title { font-size: 36rpx; font-weight: 800; }
+.section-subtitle { margin-top: 6rpx; color: #748187; font-size: 22rpx; }
+.orders-link { color: #8e5700; font-size: 24rpx; font-weight: 700; }
+.state-card { margin: 24rpx; padding: 54rpx 30rpx; border-radius: 24rpx; background: #fff; text-align: center; }
+.state-title { color: #536368; font-size: 27rpx; line-height: 1.6; }
+.retry-button, .secondary-action { display: inline-block; margin-top: 24rpx; padding: 18rpx 34rpx; border: 0; border-radius: 36rpx; background: #ffd520; color: #372800; font-size: 25rpx; }
+.product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18rpx; margin: 0 24rpx; }
+.product { overflow: hidden; border-radius: 22rpx; background: #fff; box-shadow: 0 8rpx 22rpx rgba(91, 73, 28, .08); }
+.product-image { display: flex; align-items: center; justify-content: center; width: 100%; height: 260rpx; background: #f6f0df; color: #9b6b16; }
+.product-name { padding: 20rpx 18rpx 0; font-size: 28rpx; font-weight: 700; }
+.product-source { padding: 10rpx 18rpx 0; color: #16926f; font-size: 21rpx; }
+.product-price { padding: 12rpx 18rpx 22rpx; color: #c9352b; font-size: 32rpx; font-weight: 800; }

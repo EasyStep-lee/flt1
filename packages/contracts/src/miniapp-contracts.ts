@@ -38,4 +38,8 @@ export type FoundationMiniappContracts = {
     readonly requestBody: undefined;
     readonly responseBody: SuccessJsonResponse<OperationById<'catalog.getProductDetail'>>;
   };
+  readonly 'catalog.listProducts': {
+    readonly requestBody: undefined;
+    readonly responseBody: SuccessJsonResponse<OperationById<'catalog.listProducts'>>;
+  };
 };

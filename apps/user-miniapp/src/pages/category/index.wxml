@@ -1,0 +1,1 @@
+<view class="placeholder" data-page-id="{{pageId}}"><view class="title">{{title}}</view><view class="message">{{message}}</view></view>
