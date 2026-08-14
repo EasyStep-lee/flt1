@@ -57,7 +57,7 @@
 | 工作簿 | 12 个工作表逐页目视检查；公式错误扫描 0；M3-P025 为 `IN_PROGRESS/LOCAL_PASS`，P0-025 为 `NOT_EXECUTED` |
 | PR CI | `NOT_EXECUTED`；Draft PR 尚未创建 |
 
-首次 `pnpm verify` 在 OpenAPI 生成物尚未提交时被确定性 diff 门禁拒绝；提交生成物后，第二次在 OpenAPI 路径/DTO 精确名单回归中失败，补齐合同后 focused 4/4 通过。一次 360 秒执行器超时终止了仍在正常运行的回归，不计作通过；随后延长时限的 `pnpm test` 和 `pnpm verify` 均自然退出 0。
+首次 `pnpm verify` 在 OpenAPI 生成物尚未提交时被确定性 diff 门禁拒绝；提交生成物后，第二次在 OpenAPI 路径/DTO 精确名单回归中失败，补齐合同后 focused 4/4 通过。一次 360 秒执行器超时终止了仍在正常运行的回归，不计作通过。证据工作簿提交后的交付 head 又由全量门禁发现 manifest 哈希和历史交接的动态当前任务游标仍停在 M3-P024；同步哈希与 P025 本地证据边界后，focused 交接合同 15/15 通过。最终完整结果以随后自然完成的 `pnpm verify` 报告为准。
 
 ## P0 与环境边界
 

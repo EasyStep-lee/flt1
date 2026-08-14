@@ -217,7 +217,7 @@ test('M1 ledgers retain the exact-head gate while M2 advances one slice at a tim
   assert.equal(m2Stage.Status, 'GATE_PASSED');
   assert.equal(m2Stage.EvidenceStatus, 'CI_PASS');
   assert.equal(m3Stage.Status, 'IN_PROGRESS');
-  assert.equal(m3Stage.EvidenceStatus, 'CI_PASS');
+  assert.equal(m3Stage.EvidenceStatus, 'LOCAL_PASS');
 
   const m2Contract = tasks.find(({ TaskID }) => TaskID === 'M2-000');
   const m2BusinessTasks = tasks
@@ -289,10 +289,10 @@ test('project status records M1 gate success while historical blocked handoff st
 
   assert.equal(projectStatus.execution.currentStage, 'M3');
   assert.equal(projectStatus.execution.nextAllowedTask, projectStatus.execution.currentTask);
-  assert.equal(projectStatus.execution.lastCompletedTask, 'M3-P023');
+  assert.equal(projectStatus.execution.lastCompletedTask, 'M3-P024');
   assert.equal(projectStatus.execution.lastPassedGate, 'M2-GATE');
   assert.equal(
-    projectStatus.execution.prohibitedUntilGate.some((item) => /M3-P024/u.test(item)),
+    projectStatus.execution.prohibitedUntilGate.some((item) => /M3-P025/u.test(item)),
     true,
   );
   assert.equal(
@@ -309,17 +309,17 @@ test('project status records M1 gate success while historical blocked handoff st
     projectStatus.execution.currentTask,
   );
   assert.equal(projectStatus.execution.status, 'M3_IN_PROGRESS');
-  assert.equal(projectStatus.execution.currentTask, 'M3-P024');
+  assert.equal(projectStatus.execution.currentTask, 'M3-P025');
   assert.equal(projectStatus.execution.activeTaskCount, 1);
   assert.equal(
     projectStatus.github.currentTaskDelivery.status,
-    'CI_PASS_PENDING_HUMAN_MERGE',
+    'LOCAL_PASS_PENDING_DRAFT_PR',
   );
   assert.equal(projectStatus.github.currentTaskDelivery.merge, 'NOT_EXECUTED');
   assert.equal(projectStatus.github.currentTaskDelivery.mainPostMergeCi, 'NOT_EXECUTED');
   assert.equal(projectStatus.github.previousTaskDelivery.status, 'CI_PASS');
-  assert.equal(projectStatus.evidence.local, 'LOCAL_PASS_M3_P024_FULL_VERIFY');
-  assert.equal(projectStatus.evidence.ci, 'CI_PASS_M3_P024_HEAD_7091344');
+  assert.equal(projectStatus.evidence.local, 'LOCAL_PASS_M3_P025_FULL_VERIFY');
+  assert.equal(projectStatus.evidence.ci, 'NOT_EXECUTED_M3_P025');
   assert.equal(projectStatus.evidence.staging, 'NOT_EXECUTED');
   assert.equal(projectStatus.evidence.device, 'NOT_EXECUTED');
   assert.equal(projectStatus.evidence.production, 'NOT_EXECUTED');

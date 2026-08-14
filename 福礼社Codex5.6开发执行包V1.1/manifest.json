@@ -10,18 +10,18 @@
   "counts": {
     "tasks": 149,
     "p0": 119,
-    "fields": 688,
-    "stateTransitions": 109,
+    "fields": 711,
+    "stateTransitions": 112,
     "permissions": 22,
     "pages": 80,
     "externalDependencies": 28,
-    "migrations": 24,
+    "migrations": 25,
     "apiContracts": 100,
     "githubIssues": 149
   },
   "workbook": {
     "status": "VERIFIED",
-    "sha256": "C43448F63365AAE6AE3D9E34EFBE311ED308E2C810856DCD542712756A54725D"
+    "sha256": "6037EE6F5E1196BED87063E6F5A5FF1D943C0401F0DB5A460AC3E55BD5E12C4F"
   },
   "sourceOfTruth": [
     "综合方案HTML",
