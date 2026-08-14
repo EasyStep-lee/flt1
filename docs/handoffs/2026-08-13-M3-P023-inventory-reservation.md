@@ -1,13 +1,13 @@
 # 2026-08-13 M3-P023 跨供应商库存原子预扣交接
 
-阶段结论：`IN_PROGRESS / LOCAL_PASS`。M3-P022 已由 PR #80 合并为 `main@7cfde37b1e7946ee8241fbf9d08151850ec39838`，合并后 Actions run `31763921395` 成功。本切片的库存子行为已完成实现、focused 验证和 `pnpm verify` 17/17；Draft PR 精确 head CI、人工合并及合并后 main CI 尚待执行。P0-023 还包含福利卡冻结释放，当前没有实现，因此 P0-023 整项保持 `NOT_EXECUTED`，不得宣称完整通过。
+阶段结论：`IN_PROGRESS / CI_PASS`。M3-P022 已由 PR #80 合并为 `main@7cfde37b1e7946ee8241fbf9d08151850ec39838`，合并后 Actions run `31763921395` 成功。本切片库存子行为的代码 head `c2fec070cbeb47f3b556240236ec54fd7c82b2f0` 已完成 focused、本地 `pnpm verify` 17/17 和 PR #82 Actions run `31769514599`；PR 仍为 Draft，证据提交自身 CI、人工合并及合并后 main CI尚待执行。P0-023 还包含福利卡冻结释放，当前没有实现，因此 P0-023 整项保持 `NOT_EXECUTED`，不得宣称完整通过。
 
 ## 基线、范围与 GitHub
 
 - 方案 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`。
 - 仓库：`EasyStep-lee/flt1`；基线：`main@7cfde37b1e7946ee8241fbf9d08151850ec39838`。
 - 当前任务：M3-P023；P0-023 的库存子行为；API-036/API-048；无新增迁移。
-- Issue：[#81](https://github.com/EasyStep-lee/flt1/issues/81)；分支：`codex/m3-inventory-reservation`；实现提交：`f11bc6272c1a8b5371315cfce2f6e0de892eeeac`；PR：待创建。
+- Issue：[#81](https://github.com/EasyStep-lee/flt1/issues/81)；分支：`codex/m3-inventory-reservation`；实现提交：`f11bc6272c1a8b5371315cfce2f6e0de892eeeac`；代码 head：`c2fec070cbeb47f3b556240236ec54fd7c82b2f0`；Draft PR：[#82](https://github.com/EasyStep-lee/flt1/pull/82)。
 - 唯一目标：个人和企业跨供应商主订单在同一数据库事务中原子预扣每个 SKU 的唯一共享库存；任一 SKU 失败则整单回滚；重试不重复占用；明确取消、失败或超时可幂等释放；支付结果 `UNKNOWN` 时禁止释放。
 - 非目标：福利卡冻结、福利卡账本、微信支付/回调/退款、库存确认、配送、售后和对账；M3-P024 及后续保持锁定。
 
@@ -33,6 +33,10 @@
 - 第一次全量：`pnpm verify` 因 `p0-023-inventory-reservation.spec.ts` 严格类型检查发现数组项可能为 `undefined` 而失败；增加显式夹具断言后，focused P0 1/1 与全仓 typecheck 通过。
 - 第二次全量：回归测试发现历史交接/合同的当前任务游标仍停在 M3-P020/M3-P022，且总控工作簿更新后 manifest 哈希未同步；只推进动态项目状态断言和工作簿清单哈希，保留历史 SHA、PR 和阶段结论，focused 交接 29/29、合同 88/88 通过。
 - 第三次全量：`pnpm verify` 于 `2026-08-14T03:32:40.339Z` 至 `2026-08-14T03:50:33.734Z` 执行，退出码 0，17/17 步骤通过；报告：`artifacts/test-results/verification/pnpm-verify.json`。既有 Vite 页面状态测试在未启动 API 时仍记录代理 `ECONNREFUSED`，Ant Design/Vite 记录弃用和 chunk-size 警告，但聚合门禁结果为 PASS。
+- PR #82 首次 CI：head `d5c9caf48ab670b963c4631fae8c327ddd04a12a`、run `31768384279` 失败；干净 CI 在 typecheck 时没有 `apps/api/dist`，P0 测试的静态 dist 导入暴露本地残留构建产物掩盖的问题。
+- CI 修复：保留真实 `OrderService` 行为测试，只把 dist 模块改为 P0 门禁完成 API 构建后的延迟运行时导入；无增量 tests tsconfig typecheck、API 构建、focused P0 1/1 和 ESLint 通过。
+- 修复后全量：`pnpm verify` 于 `2026-08-14T04:03:05Z` 至 `2026-08-14T04:18:55Z` 再次执行，退出码 0，17/17 步骤通过。
+- PR #82 代码 head CI：`c2fec070cbeb47f3b556240236ec54fd7c82b2f0` 对应 Actions run `31769514599`、job `94672373547`，于 `2026-08-14T04:27:30Z` 成功；PR 当时为 Draft、CLEAN/MERGEABLE、无评论和评审。
 
 ## 数据、状态机、权限与错误码
 
@@ -46,7 +50,7 @@
 
 - 当前证据：库存子切片 `LOCAL_PASS`，Windows / Node 22.23.1 / pnpm 10.12.1 / Docker MySQL 8.4 rehearsal / 本地 mock 会话与外部依赖。
 - P0-023 整项：`NOT_EXECUTED`；福利卡冻结/释放尚未实现，不能升级为 `LOCAL_PASS`。
-- 当前切片 `CI_PASS`：`NOT_EXECUTED`；PR 尚未创建。
+- 当前切片库存代码 head：`CI_PASS`；PR #82 仍为 Draft，证据提交的新 head CI 尚待执行，未获人工合并授权。
 - `STAGING_PASS`、`DEVICE_PASS`、`PRODUCTION_PASS`：`NOT_EXECUTED`。
 - 本切片不要求真实支付或真机交互；Mock 结果不得升级为 staging、真机或生产证据。
 
@@ -55,4 +59,4 @@
 - 风险：当前只完成订单创建时的库存占用和内部释放契约，尚未把真实支付生命周期接入释放调用；在 M3-P024 及后续资金切片完成前不能启用真实交易流量。
 - 并发风险：采用固定 SKU 顺序、乐观版本条件和 `Serializable` 事务；数据库 `P2034` 映射为可重试冲突，但仍需 PR CI 和后续压力证据。
 - 回滚：回退本切片应用、契约和文档提交；没有新增迁移。若已产生测试数据，只通过测试环境清理，不能修改历史库存日志冒充回滚。
-- 下一步：完成全量门禁、自审、原子证据提交、推送并创建 Draft PR，读取精确 head Actions 与未解决评论。只有人工按精确 head 授权合并且合并后 main CI 成功，才可开始 M3-P024。
+- 下一步：提交并推送本交接/台账证据，读取最终 PR head Actions 与未解决评论。只有最终 head CI 成功、人工按该精确 head 授权合并且合并后 main CI 成功，才可开始 M3-P024。

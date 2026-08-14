@@ -159,7 +159,7 @@ test('M2-P006 and M2-P007 retain merged-main evidence after M2-P008 starts local
   assert.equal(projectStatus.github.currentTaskDelivery.mainPostMergeCi, 'NOT_EXECUTED');
   assert.equal(projectStatus.github.currentTaskDelivery.blockingExternalItem, null);
   assert.equal(projectStatus.github.currentTaskDelivery.nextTaskUnlocked, false);
-  assert.equal(projectStatus.evidence.ci, 'CI_PASS_M3_P022_ONLY');
+  assert.equal(projectStatus.evidence.ci, 'CI_PASS_M3_P023_CODE_HEAD');
 
   for (const evidence of [contract, handoff]) {
     assert.match(evidence, /P0-006/u);

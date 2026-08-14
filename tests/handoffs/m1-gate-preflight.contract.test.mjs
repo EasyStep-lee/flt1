@@ -217,7 +217,7 @@ test('M1 ledgers retain the exact-head gate while M2 advances one slice at a tim
   assert.equal(m2Stage.Status, 'GATE_PASSED');
   assert.equal(m2Stage.EvidenceStatus, 'CI_PASS');
   assert.equal(m3Stage.Status, 'IN_PROGRESS');
-  assert.equal(m3Stage.EvidenceStatus, 'LOCAL_PASS');
+  assert.equal(m3Stage.EvidenceStatus, 'CI_PASS');
 
   const m2Contract = tasks.find(({ TaskID }) => TaskID === 'M2-000');
   const m2BusinessTasks = tasks
@@ -313,13 +313,13 @@ test('project status records M1 gate success while historical blocked handoff st
   assert.equal(projectStatus.execution.activeTaskCount, 1);
   assert.equal(
     projectStatus.github.currentTaskDelivery.status,
-    'LOCAL_PASS_PENDING_PR_CI_AND_MERGE',
+    'CI_PASS_PENDING_HUMAN_MERGE',
   );
   assert.equal(projectStatus.github.currentTaskDelivery.merge, 'NOT_EXECUTED');
   assert.equal(projectStatus.github.currentTaskDelivery.mainPostMergeCi, 'NOT_EXECUTED');
   assert.equal(projectStatus.github.previousTaskDelivery.status, 'CI_PASS');
   assert.equal(projectStatus.evidence.local, 'LOCAL_PASS_M3_P023');
-  assert.equal(projectStatus.evidence.ci, 'CI_PASS_M3_P022_ONLY');
+  assert.equal(projectStatus.evidence.ci, 'CI_PASS_M3_P023_CODE_HEAD');
   assert.equal(projectStatus.evidence.staging, 'NOT_EXECUTED');
   assert.equal(projectStatus.evidence.device, 'NOT_EXECUTED');
   assert.equal(projectStatus.evidence.production, 'NOT_EXECUTED');
