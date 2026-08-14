@@ -28,6 +28,8 @@ import { requestIdMiddleware } from './http/request-id.middleware.js';
 import type { InfrastructureProbe } from './infrastructure/probe.js';
 import type { SupplierInventoryActorResolver } from './inventory/inventory.actor.js';
 import type { InventoryRepository } from './inventory/inventory.repository.js';
+import type { OrderActorResolver } from './orders/order.actor.js';
+import type { OrderRepository } from './orders/order.repository.js';
 import { SafeJsonLogger } from './logging/safe-json.logger.js';
 import type { SingleMerchantRepository } from './merchant/single-merchant.repository.js';
 import type { SensitiveApprovalRepository } from './sensitive-approval/sensitive-approval.repository.js';
@@ -92,6 +94,8 @@ export interface CreateApplicationOptions {
   readonly priceEffectScheduler?: PriceEffectScheduler;
   readonly inventoryRepository?: InventoryRepository;
   readonly supplierInventoryActorResolver?: SupplierInventoryActorResolver;
+  readonly orderRepository?: OrderRepository;
+  readonly orderActorResolver?: OrderActorResolver;
   readonly logger?: LoggerService | false;
 }
 
@@ -208,6 +212,12 @@ export const createApplication = async (
       : {}),
     ...(options.supplierInventoryActorResolver
       ? { supplierInventoryActorResolver: options.supplierInventoryActorResolver }
+      : {}),
+    ...(options.orderRepository
+      ? { orderRepository: options.orderRepository }
+      : {}),
+    ...(options.orderActorResolver
+      ? { orderActorResolver: options.orderActorResolver }
       : {}),
   };
   const logger = options.logger === false ? false : options.logger ?? new SafeJsonLogger();

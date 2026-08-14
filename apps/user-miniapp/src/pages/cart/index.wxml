@@ -1,1 +1,31 @@
-<view class="placeholder" data-page-id="{{pageId}}"><view class="title">{{title}}</view><view class="message">{{message}}</view></view>
+<view class="page" data-page-id="{{pageId}}">
+  <view class="header">
+    <view class="title">购物车</view>
+    <view class="seller">统一由江苏福礼团供应链科技有限公司结账</view>
+  </view>
+
+  <view wx:if="{{state === 'loading'}}" class="state-card">正在读取购物车…</view>
+  <view wx:elif="{{state === 'empty'}}" class="state-card">{{message}}</view>
+
+  <block wx:else>
+    <view wx:for="{{groups}}" wx:key="supplierId" class="supplier-card">
+      <view class="supplier-title">{{item.supplierLabel}}</view>
+      <view wx:for="{{item.items}}" wx:for-item="product" wx:key="skuId" class="product-row">
+        <view class="product-main">
+          <view class="product-name">{{product.productName}}</view>
+          <view class="product-price">{{product.priceLabel}} × {{product.quantity}}</view>
+        </view>
+        <view class="line-amount">{{product.lineAmountLabel}}</view>
+      </view>
+    </view>
+
+    <view wx:if="{{message}}" class="message {{state === 'unknown' ? 'warning' : ''}}">{{message}}</view>
+    <view wx:if="{{state === 'success'}}" class="order-no">订单号：{{orderNo}}</view>
+    <view class="checkout-bar">
+      <view><view class="checkout-label">公司统一应付</view><view class="total">{{totalAmountLabel}}</view></view>
+      <button class="submit" disabled="{{state === 'submitting' || state === 'success'}}" bindtap="submitOrder">
+        {{state === 'submitting' ? '提交中…' : state === 'unknown' ? '确认结果/重试' : state === 'success' ? '已创建' : '提交订单'}}
+      </button>
+    </view>
+  </block>
+</view>

@@ -86,6 +86,15 @@ import {
   type InventoryRepository,
 } from '../inventory/inventory.repository.js';
 import {
+  DenyOrderActorResolver,
+  ORDER_ACTOR_RESOLVER,
+} from '../orders/order.actor.js';
+import {
+  ORDER_REPOSITORY,
+  type OrderRepository,
+} from '../orders/order.repository.js';
+import { OrderService } from '../orders/order.service.js';
+import {
   SENSITIVE_APPROVAL_REPOSITORY,
   type SensitiveApprovalRepository,
 } from '../sensitive-approval/sensitive-approval.repository.js';
@@ -344,7 +353,9 @@ type JsonValue =
     SupplierPricingService,
     PriceChangeService,
     InventoryService,
+    OrderService,
     DenySupplierInventoryActorResolver,
+    DenyOrderActorResolver,
     NoopPriceEffectScheduler,
     CompanyProductApprovalService,
     PublicCatalogService,
@@ -394,6 +405,17 @@ type JsonValue =
     {
       provide: SUPPLIER_INVENTORY_ACTOR_RESOLVER,
       useExisting: DenySupplierInventoryActorResolver,
+    },
+    {
+      provide: ORDER_REPOSITORY,
+      useValue: {
+        findOrderableSkus: async () => [],
+        createOrder: async () => { throw new Error('OPENAPI_GENERATION_ONLY'); },
+      } satisfies OrderRepository,
+    },
+    {
+      provide: ORDER_ACTOR_RESOLVER,
+      useExisting: DenyOrderActorResolver,
     },
     {
       provide: SUPPLIER_PRODUCT_REPOSITORY,

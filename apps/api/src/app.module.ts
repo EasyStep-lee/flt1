@@ -97,6 +97,17 @@ import {
   INVENTORY_REPOSITORY,
   type InventoryRepository,
 } from './inventory/inventory.repository.js';
+import {
+  DenyOrderActorResolver,
+  ORDER_ACTOR_RESOLVER,
+  type OrderActorResolver,
+} from './orders/order.actor.js';
+import {
+  ORDER_REPOSITORY,
+  type OrderRepository,
+} from './orders/order.repository.js';
+import { OrderService } from './orders/order.service.js';
+import { PrismaOrderRepository } from './orders/prisma-order.repository.js';
 import { PrismaSingleMerchantRepository } from './merchant/prisma-single-merchant.repository.js';
 import {
   SINGLE_MERCHANT_REPOSITORY,
@@ -227,6 +238,8 @@ export interface AppModuleOptions {
   readonly priceEffectScheduler?: PriceEffectScheduler;
   readonly inventoryRepository?: InventoryRepository;
   readonly supplierInventoryActorResolver?: SupplierInventoryActorResolver;
+  readonly orderRepository?: OrderRepository;
+  readonly orderActorResolver?: OrderActorResolver;
 }
 
 @Module({})
@@ -284,9 +297,12 @@ export class AppModule {
       PrismaPriceChangeRepository,
       PriceChangeService,
       PrismaInventoryRepository,
+      PrismaOrderRepository,
+      DenyOrderActorResolver,
       DenySupplierInventoryActorResolver,
       SupplierInventorySessionActorResolver,
       InventoryService,
+      OrderService,
       DenyCompanyProductApprovalActorResolver,
       CompanyProductApprovalSessionActorResolver,
       CompanyProductApprovalService,
@@ -309,6 +325,12 @@ export class AppModule {
       options.inventoryRepository
         ? { provide: INVENTORY_REPOSITORY, useValue: options.inventoryRepository }
         : { provide: INVENTORY_REPOSITORY, useExisting: PrismaInventoryRepository },
+      options.orderRepository
+        ? { provide: ORDER_REPOSITORY, useValue: options.orderRepository }
+        : { provide: ORDER_REPOSITORY, useExisting: PrismaOrderRepository },
+      options.orderActorResolver
+        ? { provide: ORDER_ACTOR_RESOLVER, useValue: options.orderActorResolver }
+        : { provide: ORDER_ACTOR_RESOLVER, useExisting: DenyOrderActorResolver },
       options.supplierInventoryActorResolver
         ? { provide: SUPPLIER_INVENTORY_ACTOR_RESOLVER, useValue: options.supplierInventoryActorResolver }
         : { provide: SUPPLIER_INVENTORY_ACTOR_RESOLVER, useExisting: SupplierInventorySessionActorResolver },

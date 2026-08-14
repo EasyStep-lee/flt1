@@ -304,6 +304,55 @@
         },
         "type": "object"
       },
+      "BuyerOrderItemResponseDto": {
+        "properties": {
+          "orderItemId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "productId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "productName": {
+            "maxLength": 200,
+            "type": "string"
+          },
+          "quantity": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "salePrice": {
+            "description": "Channel sale price snapshot in integer cents",
+            "minimum": 0,
+            "type": "number"
+          },
+          "skuId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "supplierId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "totalAmount": {
+            "description": "Line amount in integer cents",
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "orderItemId",
+          "productId",
+          "skuId",
+          "supplierId",
+          "productName",
+          "quantity",
+          "salePrice",
+          "totalAmount"
+        ],
+        "type": "object"
+      },
       "CatalogMediaResponseDto": {
         "properties": {
           "alt": {
@@ -1331,6 +1380,91 @@
         ],
         "type": "object"
       },
+      "CreateBuyerOrderResponseDto": {
+        "properties": {
+          "checkoutMode": {
+            "enum": [
+              "COMPANY_UNIFIED"
+            ],
+            "type": "string"
+          },
+          "deliveryFee": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "discountAmount": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "goodsAmount": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/BuyerOrderItemResponseDto"
+            },
+            "type": "array"
+          },
+          "orderId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "orderNo": {
+            "maxLength": 32,
+            "type": "string"
+          },
+          "orderStatus": {
+            "enum": [
+              "PENDING_PAYMENT"
+            ],
+            "type": "string"
+          },
+          "orderType": {
+            "enum": [
+              "CONSUMER",
+              "ENTERPRISE"
+            ],
+            "type": "string"
+          },
+          "paymentStatus": {
+            "enum": [
+              "PENDING"
+            ],
+            "type": "string"
+          },
+          "sellerName": {
+            "example": "江苏福礼团供应链科技有限公司",
+            "type": "string"
+          },
+          "supplierFulfillments": {
+            "items": {
+              "$ref": "#/components/schemas/SupplierFulfillmentOrderResponseDto"
+            },
+            "type": "array"
+          },
+          "totalAmount": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "orderId",
+          "orderNo",
+          "orderType",
+          "sellerName",
+          "checkoutMode",
+          "goodsAmount",
+          "deliveryFee",
+          "discountAmount",
+          "totalAmount",
+          "paymentStatus",
+          "orderStatus",
+          "items",
+          "supplierFulfillments"
+        ],
+        "type": "object"
+      },
       "CreateFunctionalAccountRequestDto": {
         "properties": {
           "accountTypeCode": {
@@ -1385,6 +1519,40 @@
           "accountTypeCode",
           "inviteeName",
           "inviteeMobile"
+        ],
+        "type": "object"
+      },
+      "CreateOrderItemRequestDto": {
+        "properties": {
+          "quantity": {
+            "maximum": 9999,
+            "minimum": 1,
+            "type": "number"
+          },
+          "skuId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "skuId",
+          "quantity"
+        ],
+        "type": "object"
+      },
+      "CreateOrderRequestDto": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CreateOrderItemRequestDto"
+            },
+            "maxItems": 100,
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "items"
         ],
         "type": "object"
       },
@@ -3329,6 +3497,41 @@
         "required": [
           "version",
           "requestId"
+        ],
+        "type": "object"
+      },
+      "SupplierFulfillmentOrderResponseDto": {
+        "properties": {
+          "fulfillmentOrderId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "goodsAmount": {
+            "description": "Supplier group sale amount in integer cents",
+            "minimum": 0,
+            "type": "number"
+          },
+          "itemCount": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "status": {
+            "enum": [
+              "PENDING_PAYMENT"
+            ],
+            "type": "string"
+          },
+          "supplierId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "fulfillmentOrderId",
+          "supplierId",
+          "itemCount",
+          "goodsAmount",
+          "status"
         ],
         "type": "object"
       },
@@ -8230,6 +8433,77 @@
         "x-fulishe-response-policy": "NEVER_RETURN_INTERNAL_PRICING"
       }
     },
+    "/v1/consumer/orders": {
+      "post": {
+        "operationId": "orders.createConsumerOrder",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrderRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateBuyerOrderResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Create one company consumer order across suppliers",
+        "tags": [
+          "consumer-orders"
+        ]
+      }
+    },
     "/v1/enterprise/catalog/products": {
       "get": {
         "operationId": "enterpriseCatalog.listProducts",
@@ -8382,6 +8656,77 @@
         "summary": "Get an enterprise-only product detail with the procurement selling price",
         "tags": [
           "enterprise-catalog"
+        ]
+      }
+    },
+    "/v1/enterprise/orders": {
+      "post": {
+        "operationId": "orders.createEnterpriseOrder",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrderRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateBuyerOrderResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Create one company enterprise order across suppliers",
+        "tags": [
+          "enterprise-orders"
         ]
       }
     },
