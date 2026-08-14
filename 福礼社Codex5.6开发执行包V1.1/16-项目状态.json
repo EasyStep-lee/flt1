@@ -65,8 +65,14 @@
       "status": "NOT_EXECUTED"
     },
     "latestCi": {
-      "scope": "M3_P026_LOCAL",
-      "status": "NOT_EXECUTED"
+      "scope": "M3_P025_POST_MERGE_MAIN",
+      "status": "CI_PASS",
+      "runId": 31796060635,
+      "jobId": 94753324144,
+      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31796060635",
+      "headSha": "c4ab850ef7d6f6693376097350e2d0ddc27c6755",
+      "event": "push",
+      "completedAt": "2026-08-14T11:34:03Z"
     },
     "currentTaskDelivery": {
       "taskId": "M3-P026",

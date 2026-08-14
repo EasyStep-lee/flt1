@@ -1,4 +1,5 @@
 import { readFile, writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -188,7 +189,7 @@ await updateCsv('08-页面路由接口P0映射.csv', (row) => row.PageID === 'PA
 } : null);
 
 await updateCsv(path.join('data', '阶段门禁.csv'), (row) => row.Stage === 'M3' ? {
-  ...row, Status: 'IN_PROGRESS', EvidenceStatus: ciRun ? 'CI_PASS' : 'LOCAL_PASS',
+  ...row, Status: 'IN_PROGRESS', EvidenceStatus: 'CI_PASS',
   Notes: `M3-P025由PR #86合并且main run 31796060635成功。M3-P026原支付结构退款自动化子行为${ciRun ? `在Draft PR精确head ${commit.slice(0, 7)}取得CI_PASS` : '本地LOCAL_PASS'}；真实福利卡账本、微信退款与staging未执行，P0-026整体NOT_EXECUTED。M3-P027及后续锁定。`,
 } : null);
 
@@ -209,7 +210,7 @@ status.github = {
   pullRequest: pullRequest ? Number(pullRequest) : null, pullRequestUrl: pullRequestUrl || null, pullRequestState: pullRequest ? 'DRAFT' : 'NOT_CREATED', pullRequestMerged: false,
   mergeCommitSha: null, mergedAt: null, lastVerifiedPullRequestHead: ciRun ? commit : null,
   pullRequestCi: ciRun ? { status: 'CI_PASS', runId: Number(ciRun), jobId: Number(ciJob), runUrl: ciUrl, headSha: commit, completedAt: updatedAt } : { status: 'NOT_EXECUTED' },
-  latestCi: ciRun ? { scope: 'M3_P026_PR_HEAD', status: 'CI_PASS', runId: Number(ciRun), jobId: Number(ciJob), runUrl: ciUrl, headSha: commit, event: 'pull_request', completedAt: updatedAt } : { scope: 'M3_P026_LOCAL', status: 'NOT_EXECUTED' },
+  latestCi: ciRun ? { scope: 'M3_P026_PR_HEAD', status: 'CI_PASS', runId: Number(ciRun), jobId: Number(ciJob), runUrl: ciUrl, headSha: commit, event: 'pull_request', completedAt: updatedAt } : { scope: 'M3_P025_POST_MERGE_MAIN', status: 'CI_PASS', runId: 31796060635, jobId: 94753324144, runUrl: 'https://github.com/EasyStep-lee/flt1/actions/runs/31796060635', headSha: 'c4ab850ef7d6f6693376097350e2d0ddc27c6755', event: 'push', completedAt: '2026-08-14T11:34:03Z' },
   currentTaskDelivery: {
     taskId: 'M3-P026', issue: 87, issueUrl: 'https://github.com/EasyStep-lee/flt1/issues/87', branch: 'codex/m3-structured-refund',
     baseCommit: 'c4ab850ef7d6f6693376097350e2d0ddc27c6755', verifiedHead: commit, status: ciRun ? 'CI_PASS_PENDING_HUMAN_MERGE' : 'LOCAL_PASS_PENDING_DRAFT_PR',
@@ -234,5 +235,20 @@ status.counts = {
   migrations: await countCsvRows('11-数据库迁移台账.csv'),
 };
 await writeFile(statusPath, `${JSON.stringify(status, null, 2)}\n`, 'utf8');
+
+const manifestPath = path.join(pack, 'manifest.json');
+const workbookPath = path.join(pack, '17-福礼社Codex5.6执行总控工作簿.xlsx');
+const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+manifest.counts = {
+  ...manifest.counts,
+  fields: await countCsvRows('05-字段字典初始版.csv'),
+  stateTransitions: await countCsvRows('06-状态机总表.csv'),
+  migrations: await countCsvRows('11-数据库迁移台账.csv'),
+};
+manifest.workbook = {
+  status: 'VERIFIED',
+  sha256: createHash('sha256').update(await readFile(workbookPath)).digest('hex').toUpperCase(),
+};
+await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
 
 process.stdout.write(`M3_P026_LEDGERS_SYNCED:${commit}:${ciStatus}\n`);
