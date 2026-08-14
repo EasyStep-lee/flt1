@@ -80,7 +80,9 @@ test('P0-023 cross-supplier submission reserves all shared SKU inventory or none
   expect([...repository.stock.entries()]).toEqual(before);
   expect([...repository.reservations.values()]).toEqual([0, 0, 0]);
 
-  repository.stock.set(records[2].skuId, 5);
+  const exhaustedSku = records[2];
+  if (!exhaustedSku) throw new Error('P0-023 fixture must contain the third supplier SKU');
+  repository.stock.set(exhaustedSku.skuId, 5);
   const result = await service.createConsumer(actor, body, 'p0-023-success-0001', 'p0-023-success');
   expect([...repository.stock.values()]).toEqual([4, 4, 4]);
   expect([...repository.reservations.values()]).toEqual([1, 1, 1]);

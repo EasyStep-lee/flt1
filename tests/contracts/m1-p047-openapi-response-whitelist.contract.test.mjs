@@ -43,12 +43,12 @@ test('M1-P047 evidence remains closed after PR 20 merge as the project advances'
   assert.equal(evidence.fullVerification.status, 'PASS_17_OF_17');
   assert.equal(evidence.negativeTests.length, 4);
   assert.ok(evidence.negativeTests.every(({ status }) => status === 'PASS'));
-  assert.equal(state.execution.lastCompletedTask, 'M3-P020');
+  assert.equal(state.execution.lastCompletedTask, 'M3-P022');
   assert.equal(state.execution.status, 'M3_IN_PROGRESS');
-  assert.equal(state.execution.currentTask, 'M3-P022');
+  assert.equal(state.execution.currentTask, 'M3-P023');
   assert.equal(state.execution.nextAllowedTask, state.execution.currentTask);
   assert.equal(state.execution.activeTaskCount, 1);
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M3-P022.*M3-P023/u);
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M3-P023.*M3-P024/u);
   assert.ok(state.github.pullRequest === null || Number.isInteger(state.github.pullRequest));
   assert.ok(['NOT_CREATED', 'DRAFT'].includes(state.github.pullRequestState));
   assert.equal(state.github.pullRequestMerged, false);
@@ -67,8 +67,8 @@ test('M1-P047 evidence remains closed after PR 20 merge as the project advances'
   assert.equal(state.github.currentTaskDelivery.merge, 'NOT_EXECUTED');
   assert.equal(state.github.currentTaskDelivery.mainPostMergeCi, 'NOT_EXECUTED');
   assert.equal(state.github.previousTaskDelivery.status, 'CI_PASS');
-  assert.equal(state.evidence.local, 'LOCAL_PASS_M3_P022_FULL');
-  assert.equal(state.evidence.ci, 'CI_PASS_M3_P020_ONLY');
+  assert.equal(state.evidence.local, 'LOCAL_PASS_M3_P023');
+  assert.equal(state.evidence.ci, 'CI_PASS_M3_P022_ONLY');
   assert.match(taskLedger, /M1-P047[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(taskLedger, /M1-P066[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(p0Ledger, /P0-047[^\r\n]*CI_PASS/u);
