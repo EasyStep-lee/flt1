@@ -1,6 +1,5 @@
 import { expect, test } from '@playwright/test';
 
-import { OrderService } from '../../../apps/api/dist/orders/order.service.js';
 import type { CreateOrderCommand } from '../../../apps/api/src/orders/order.repository.js';
 
 const companyId = '10000000-0000-4000-8000-000000000001';
@@ -69,6 +68,9 @@ class AtomicInventoryOrderRepository {
 }
 
 test('P0-023 cross-supplier submission reserves all shared SKU inventory or none', async () => {
+  const { OrderService } = await import(
+    new URL('../../../apps/api/dist/orders/order.service.js', import.meta.url).href
+  );
   const repository = new AtomicInventoryOrderRepository();
   const service = new OrderService(repository);
   const actor = { kind: 'CONSUMER' as const, companyId, consumerUserId, status: 'ACTIVE' as const };
