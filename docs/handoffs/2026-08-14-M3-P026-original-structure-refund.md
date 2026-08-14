@@ -1,12 +1,12 @@
 # 2026-08-14 M3-P026 按原支付结构退款交接
 
-阶段结论：`IN_PROGRESS / LOCAL_PASS`。M3-P025 已由 PR #86 按精确 head `cd4b9ea32499793ea947bb646778db307a9c4acd` 合并到 `main@c4ab850ef7d6f6693376097350e2d0ddc27c6755`，合并后 Actions run `31796060635` / job `94753324144` 成功。本切片实现提交为 `b80d348`，OpenAPI 名单修复为 `a30d94a`，职能页回归修复为 `87f3bd3`；`pnpm verify` 在 `87f3bd396b518ed9fb9bdf44b37c339bfbab1edd` 上 17/17 通过。Draft PR、PR CI、人工合并和 post-merge main CI 尚未执行；真实福利卡账本、真实微信退款及 staging 未执行，所以 P0-026 整项保持 `NOT_EXECUTED`。
+阶段结论：`IN_PROGRESS / LOCAL_PASS`。M3-P025 已由 PR #86 按精确 head `cd4b9ea32499793ea947bb646778db307a9c4acd` 合并到 `main@c4ab850ef7d6f6693376097350e2d0ddc27c6755`，合并后 Actions run `31796060635` / job `94753324144` 成功。本切片实现提交为 `b80d348`，OpenAPI 名单修复为 `a30d94a`，职能页回归修复为 `87f3bd3`，证据游标提交为 `f3c60d8`；`pnpm verify` 在 `f3c60d88208194fa5d2733e7a48faf940310b831` 上 17/17 通过。Draft PR、PR CI、人工合并和 post-merge main CI 尚未执行；真实福利卡账本、真实微信退款及 staging 未执行，所以 P0-026 整项保持 `NOT_EXECUTED`。
 
 ## 基线、范围与 Git
 
 - 唯一方案 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`；基线校验通过，仅有执行包冻结副本的已知提示。
 - 当前阶段/任务：M3 / M3-P026；API-043；MIG-013；公司订单客服退款发起页。
-- 分支：`codex/m3-structured-refund`；基线：`main@c4ab850ef7d6f6693376097350e2d0ddc27c6755`；当前验证 head：`87f3bd396b518ed9fb9bdf44b37c339bfbab1edd`。
+- 分支：`codex/m3-structured-refund`；基线：`main@c4ab850ef7d6f6693376097350e2d0ddc27c6755`；当前验证 head：`f3c60d88208194fa5d2733e7a48faf940310b831`。
 - GitHub：Issue #87；Draft PR 尚未创建；PR CI、评论、人工合并和 post-merge main CI 均为 `NOT_EXECUTED`。
 - 用户既有未跟踪文件和 `.codex-*` 临时证据均保留且未暂存。
 
@@ -42,7 +42,7 @@
 | `pnpm prisma:migrate:dry-run` | 退出码 0；empty=2、upgrade=2、restore=2、product=28、cleanup=PASS |
 | OpenAPI generate/check/breaking | 字节稳定；breaking 0 errors；新增全局错误枚举产生兼容性 warning，但门禁通过 |
 | 首次 `pnpm verify` | `FAIL`：实现尚未提交时 `openapi-diff` 正确检测到生成物相对 HEAD 有差异；没有跳过门禁 |
-| 最终 `pnpm verify` | `87f3bd3` 退出码 0；17/17 PASS；58 项 P0 E2E 通过；报告 `artifacts/test-results/verification/pnpm-verify.json` |
+| 最终 `pnpm verify` | `f3c60d8` 退出码 0；17/17 PASS；58 项 P0 E2E 通过；报告 `artifacts/test-results/verification/pnpm-verify.json` |
 
 ## P0 与环境边界
 

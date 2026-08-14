@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-14T12:40:59Z",
+  "updatedAt": "2026-08-14T13:06:50Z",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -80,7 +80,7 @@
       "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/87",
       "branch": "codex/m3-structured-refund",
       "baseCommit": "c4ab850ef7d6f6693376097350e2d0ddc27c6755",
-      "verifiedHead": "87f3bd396b518ed9fb9bdf44b37c339bfbab1edd",
+      "verifiedHead": "f3c60d88208194fa5d2733e7a48faf940310b831",
       "status": "LOCAL_PASS_PENDING_DRAFT_PR",
       "localRedTest": "API_043_EXPECTED_201_401_202_ACTUAL_404_3_OF_3",
       "localFocusedTest": "LOCAL_PASS_UNIT_API_MIGRATION_OPENAPI_P0_E2E",

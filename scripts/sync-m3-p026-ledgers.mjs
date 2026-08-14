@@ -74,7 +74,7 @@ await updateCsv('03-任务台账.csv', (row) => {
     Status: 'IN_PROGRESS', EvidenceStatus: 'LOCAL_PASS', Owner: 'CODEX',
     GitHubIssue: 'https://github.com/EasyStep-lee/flt1/issues/87', Branch: 'codex/m3-structured-refund',
     CommitSHA: commit, PullRequest: pullRequestUrl, CI: ciStatus, UpdatedAt: updatedAt,
-    Notes: `RED：API-043实际404，3/3失败。GREEN：退款API、原支付分配、并发认领、未知结果恢复、迁移/OpenAPI、公司订单客服页面与P0 E2E通过；pnpm verify通过。福利卡真实账本、真实微信退款、staging/真机/production未执行，P0-026整体保持NOT_EXECUTED。${ciRun ? ` Draft PR精确head ${commit.slice(0, 7)} Actions run ${ciRun}/job ${ciJob}成功。` : ' 等待提交、Draft PR与CI。'}`,
+    Notes: `RED：API-043实际404，3/3失败。GREEN：退款API、原支付分配、并发认领、未知结果恢复、迁移/OpenAPI、公司订单客服页面与P0 E2E通过；pnpm verify通过。福利卡真实账本、真实微信退款、staging/真机/production未执行，P0-026整体保持NOT_EXECUTED。${ciRun ? ` Draft PR精确head ${commit.slice(0, 7)} Actions run ${ciRun}/job ${ciJob}成功。` : ' 等待Draft PR与CI。'}`,
   };
   if (row.TaskID === 'M3-P027') return {
     ...row, Status: 'LOCKED', EvidenceStatus: 'NOT_EXECUTED', Owner: 'UNASSIGNED',
