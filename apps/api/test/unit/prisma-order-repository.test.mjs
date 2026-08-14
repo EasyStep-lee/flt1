@@ -45,11 +45,36 @@ const command = () => ({
   ],
 });
 
-const fixture = () => {
-  const writes = { order: null, fulfillments: null, items: null, event: null };
+const fixture = ({ firstAvailableQty = 5, secondAvailableQty = 5 } = {}) => {
+  const writes = {
+    order: null,
+    fulfillments: null,
+    items: null,
+    event: null,
+    inventoryLogs: [],
+    inventoryCommands: [],
+    balances: new Map([
+      ['30000000-0000-4000-8000-000000000001', {
+        id: '60000000-0000-4000-8000-000000000001', skuId: '30000000-0000-4000-8000-000000000001',
+        availableQty: firstAvailableQty, reservedQty: 0, soldQty: 0, damagedQty: 0, version: 0,
+      }],
+      ['30000000-0000-4000-8000-000000000002', {
+        id: '60000000-0000-4000-8000-000000000002', skuId: '30000000-0000-4000-8000-000000000002',
+        availableQty: secondAvailableQty, reservedQty: 0, soldQty: 0, damagedQty: 0, version: 0,
+      }],
+    ]),
+  };
+  let transactionTail = Promise.resolve();
   const tx = {
     buyerOrder: {
-      findUnique: async () => null,
+      findUnique: async ({ where }) => {
+        if (where.id) {
+          return writes.order
+            ? { ...writes.order, items: clone(writes.items ?? []), events: [] }
+            : null;
+        }
+        return null;
+      },
       create: async ({ data }) => { writes.order = clone(data); },
       findUniqueOrThrow: async () => ({
         ...writes.order,
@@ -62,16 +87,73 @@ const fixture = () => {
     supplierFulfillmentOrder: { createMany: async ({ data }) => { writes.fulfillments = clone(data); } },
     buyerOrderItem: { createMany: async ({ data }) => { writes.items = clone(data); } },
     buyerOrderEvent: { create: async ({ data }) => { writes.event = clone(data); } },
+    inventoryBalance: {
+      findUnique: async ({ where }) => clone(writes.balances.get(where.skuId) ?? null),
+      updateMany: async ({ where, data }) => {
+        const balance = [...writes.balances.values()].find((item) => item.id === where.id);
+        const minimumAvailable = typeof where.availableQty === 'object' ? where.availableQty.gte : where.availableQty;
+        if (!balance || balance.version !== where.version || balance.availableQty < minimumAvailable) return { count: 0 };
+        balance.availableQty += data.availableQty?.increment ?? 0;
+        balance.availableQty -= data.availableQty?.decrement ?? 0;
+        balance.reservedQty += data.reservedQty?.increment ?? 0;
+        balance.reservedQty -= data.reservedQty?.decrement ?? 0;
+        balance.version += data.version?.increment ?? 0;
+        return { count: 1 };
+      },
+    },
+    inventoryChangeLog: {
+      findFirst: async ({ where }) => writes.inventoryLogs.find((item) =>
+        item.skuId === where.skuId && item.referenceType === where.referenceType && item.referenceId === where.referenceId,
+      ) ?? null,
+      create: async ({ data }) => {
+        writes.inventoryLogs.push(clone(data));
+        return clone(data);
+      },
+    },
+    inventoryCommand: {
+      findUnique: async ({ where }) => writes.inventoryCommands.find((item) =>
+        item.scope === where.scope_idempotencyKey.scope && item.idempotencyKey === where.scope_idempotencyKey.idempotencyKey,
+      ) ?? null,
+      create: async ({ data }) => { writes.inventoryCommands.push(clone(data)); },
+    },
   };
   const prisma = {
-    $transaction: async (callback) => callback(tx),
+    $transaction: async (callback) => {
+      const previous = transactionTail;
+      let unlock;
+      transactionTail = new Promise((resolve) => { unlock = resolve; });
+      await previous;
+      const before = clone({
+        order: writes.order,
+        fulfillments: writes.fulfillments,
+        items: writes.items,
+        event: writes.event,
+        inventoryLogs: writes.inventoryLogs,
+        inventoryCommands: writes.inventoryCommands,
+        balances: [...writes.balances.entries()],
+      });
+      try {
+        return await callback(tx);
+      } catch (error) {
+        writes.order = before.order;
+        writes.fulfillments = before.fulfillments;
+        writes.items = before.items;
+        writes.event = before.event;
+        writes.inventoryLogs = before.inventoryLogs;
+        writes.inventoryCommands = before.inventoryCommands;
+        writes.balances = new Map(before.balances);
+        throw error;
+      } finally {
+        unlock();
+      }
+    },
     buyerOrder: { findUnique: async () => null },
     sku: { findMany: async () => [] },
   };
   return { prisma, writes };
 };
 
-test('M3-P022 Prisma repository writes one aggregate, internal supply snapshots and a public-safe immutable event', async () => {
+test('M3-P023 Prisma repository atomically reserves every order SKU and appends immutable inventory evidence', async () => {
   const { prisma, writes } = fixture();
   const repository = new PrismaOrderRepository(prisma);
   const result = await repository.createOrder(command());
@@ -84,7 +166,82 @@ test('M3-P022 Prisma repository writes one aggregate, internal supply snapshots 
   assert.equal(writes.event.toStatus, 'PENDING_PAYMENT');
   assert.doesNotMatch(JSON.stringify(writes.event.snapshot), /supply|margin|payable/iu);
   assert.equal(result.order.items[0].supplyPrice, 700);
-  assert.equal('inventoryBalance' in writes, false);
+  assert.deepEqual(
+    [...writes.balances.values()].map(({ availableQty, reservedQty, version }) => ({ availableQty, reservedQty, version })),
+    [
+      { availableQty: 4, reservedQty: 1, version: 1 },
+      { availableQty: 3, reservedQty: 2, version: 1 },
+    ],
+  );
+  assert.deepEqual(writes.inventoryLogs.map(({ type, availableDelta, reservedDelta }) => ({ type, availableDelta, reservedDelta })), [
+    { type: 'RESERVE', availableDelta: -1, reservedDelta: 1 },
+    { type: 'RESERVE', availableDelta: -2, reservedDelta: 2 },
+  ]);
+  assert.equal(writes.inventoryCommands.length, 1);
+  assert.equal(writes.inventoryCommands[0].scope, 'order-reserve');
+});
+
+test('M3-P023 insufficient inventory rolls back the entire order and every earlier reservation', async () => {
+  const { prisma, writes } = fixture({ secondAvailableQty: 1 });
+  const repository = new PrismaOrderRepository(prisma);
+  const result = await repository.createOrder(command());
+  assert.deepEqual(result, {
+    kind: 'INVENTORY_INSUFFICIENT',
+    skuId: '30000000-0000-4000-8000-000000000002',
+  });
+  assert.equal(writes.order, null);
+  assert.equal(writes.inventoryLogs.length, 0);
+  assert.deepEqual(
+    [...writes.balances.values()].map(({ availableQty, reservedQty, version }) => ({ availableQty, reservedQty, version })),
+    [
+      { availableQty: 5, reservedQty: 0, version: 0 },
+      { availableQty: 1, reservedQty: 0, version: 0 },
+    ],
+  );
+});
+
+test('M3-P023 concurrent orders cannot oversell the same shared SKU balance', async () => {
+  const { prisma, writes } = fixture({ firstAvailableQty: 1, secondAvailableQty: 2 });
+  const repository = new PrismaOrderRepository(prisma);
+  const competing = { ...command(), idempotencyKey: 'repository-order-0002', requestHash: 'b'.repeat(64) };
+  const results = await Promise.all([repository.createOrder(command()), repository.createOrder(competing)]);
+  assert.deepEqual(results.map(({ kind }) => kind).sort(), ['CREATED', 'INVENTORY_INSUFFICIENT']);
+  assert.deepEqual(
+    [...writes.balances.values()].map(({ availableQty, reservedQty }) => ({ availableQty, reservedQty })),
+    [{ availableQty: 0, reservedQty: 1 }, { availableQty: 0, reservedQty: 2 }],
+  );
+  assert.equal(writes.inventoryLogs.filter(({ type }) => type === 'RESERVE').length, 2);
+});
+
+test('M3-P023 explicit timeout release is atomic and idempotent while UNKNOWN payment state is fail-closed', async () => {
+  const first = fixture();
+  const repository = new PrismaOrderRepository(first.prisma);
+  const created = await repository.createOrder(command());
+  assert.equal(created.kind, 'CREATED');
+  const releaseCommand = {
+    orderId: created.order.orderId,
+    reason: 'PAYMENT_TIMEOUT',
+    idempotencyKey: 'release-timeout-0001',
+  };
+  assert.deepEqual(await repository.releaseOrderInventory(releaseCommand), { kind: 'RELEASED' });
+  assert.deepEqual(await repository.releaseOrderInventory(releaseCommand), { kind: 'REPLAY' });
+  assert.deepEqual(
+    [...first.writes.balances.values()].map(({ availableQty, reservedQty }) => ({ availableQty, reservedQty })),
+    [{ availableQty: 5, reservedQty: 0 }, { availableQty: 5, reservedQty: 0 }],
+  );
+
+  const unknown = fixture();
+  const unknownRepository = new PrismaOrderRepository(unknown.prisma);
+  const unknownCreated = await unknownRepository.createOrder(command());
+  unknown.writes.order.paymentStatus = 'UNKNOWN';
+  assert.deepEqual(
+    await unknownRepository.releaseOrderInventory({ ...releaseCommand, orderId: unknownCreated.order.orderId }),
+    { kind: 'STATE_CONFLICT' },
+  );
+  assert.deepEqual(
+    [...unknown.writes.balances.values()].map(({ availableQty, reservedQty }) => ({ availableQty, reservedQty })),
+    [{ availableQty: 4, reservedQty: 1 }, { availableQty: 3, reservedQty: 2 }],
+  );
 });
 
 test('M3-P022 Prisma orderable query derives company and active scopes server-side', async () => {

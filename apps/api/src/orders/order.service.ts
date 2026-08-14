@@ -230,6 +230,12 @@ export class OrderService {
     if (result.kind === 'IDEMPOTENCY_CONFLICT') {
       throw new SafeApiError(409, 'IDEMPOTENCY_CONFLICT', 'Idempotency-Key conflicts with the original order');
     }
+    if (result.kind === 'INVENTORY_INSUFFICIENT') {
+      throw new SafeApiError(409, 'INVENTORY_INSUFFICIENT', 'One or more products do not have enough inventory');
+    }
+    if (result.kind === 'INVENTORY_RESERVATION_CONFLICT') {
+      throw new SafeApiError(409, 'INVENTORY_RESERVATION_CONFLICT', 'Inventory changed while the order was submitted');
+    }
     return { body: toCustomerResponse(result.order), replayed: result.kind === 'REPLAY' };
   }
 }

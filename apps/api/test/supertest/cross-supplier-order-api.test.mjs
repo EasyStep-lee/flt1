@@ -87,6 +87,13 @@ class RecordingOrderRepository {
   }
 }
 
+class InsufficientInventoryOrderRepository extends RecordingOrderRepository {
+  async createOrder(command) {
+    this.commands.push(clone(command));
+    return { kind: 'INVENTORY_INSUFFICIENT', skuId: command.items.at(-1).skuId };
+  }
+}
+
 const actorResolver = {
   resolveConsumer: async (cookie) =>
     cookie === '__Host-fulishe-consumer=consumer-session'
@@ -261,6 +268,29 @@ describe('P0-022 personal and enterprise cross-supplier company orders', () => {
           }),
         );
       expect(repository.commands).toHaveLength(0);
+    } finally {
+      await app.close();
+    }
+  });
+
+  it('returns an explicit inventory conflict without exposing internal inventory or creating a partial order', async () => {
+    const repository = new InsufficientInventoryOrderRepository();
+    const { app } = await createFixture(repository);
+    try {
+      await request(app.getHttpServer())
+        .post('/v1/consumer/orders')
+        .set('Cookie', '__Host-fulishe-consumer=consumer-session')
+        .set('Idempotency-Key', 'consumer-insufficient-inventory-0001')
+        .set('x-request-id', 'neg-m3-p023-inventory')
+        .send({ items: requestItems })
+        .expect(409)
+        .expect(({ body }) => {
+          expect(body).toMatchObject({
+            code: 'INVENTORY_INSUFFICIENT',
+            requestId: 'neg-m3-p023-inventory',
+          });
+          expect(JSON.stringify(body)).not.toMatch(/availableQty|reservedQty|version|supplierId/iu);
+        });
     } finally {
       await app.close();
     }

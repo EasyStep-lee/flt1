@@ -93,7 +93,9 @@
               "TEMPLATE_VERSION_IMMUTABLE",
               "REGION_UNAVAILABLE",
               "SENSITIVE_FIELD_LEAK",
+              "INVENTORY_INSUFFICIENT",
               "INVENTORY_NEGATIVE",
+              "INVENTORY_RESERVATION_CONFLICT",
               "INVENTORY_STATE_INVALID",
               "INVENTORY_VERSION_CONFLICT"
             ],
