@@ -17,6 +17,7 @@ export interface WechatRefundCommand {
   readonly originalPaymentTransactionId: string;
   readonly originalWechatOutTradeNo: string;
   readonly originalWechatTransactionId: string;
+  readonly originalWechatTotalAmount: number;
 }
 
 export type RefundAdapterResult =

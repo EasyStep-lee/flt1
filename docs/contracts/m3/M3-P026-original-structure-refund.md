@@ -14,6 +14,8 @@
 - `RefundAuthorization` 是已批准、版本化的退款权限快照。本切片不创建批准权限，只消费 `APPROVED` 快照；同一 `identityType + identityId` 的批准人与发起人不得为同一自然人。
 - `OrderPaymentAllocation` 是原支付结构的唯一来源。退款分配采用整数分和累计已退金额计算，保证多次部分退款最终余数准确且福利卡/微信累计不超过原始分配。
 - 福利卡退款目标从订单原账户快照读取；微信退款目标从订单原 `PaymentTransaction` 读取。任何缺失、归属不一致或金额不守恒都失败关闭。
+- 微信退款适配器命令必须携带服务端从原 `PaymentTransaction.amount` 读取的 `originalWechatTotalAmount`，对应微信支付退款请求必填的原交易总额；该金额须与订单 `cashAmount` 一致、不得小于本次微信退款金额，不接受客户端覆盖且不进入对客 DTO。
+- 原福利卡账户与原微信交易标识/总额必须在通道认领前完成校验；校验失败保持通道 `PENDING` 且零外呼，重复请求继续失败关闭，不能遗留伪 `PROCESSING`。
 
 ## 数据与历史
 

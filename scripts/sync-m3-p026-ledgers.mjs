@@ -96,7 +96,7 @@ await updateCsv('04-P0-1至P0-119验收矩阵.csv', (row) => {
     AutomatedTestID: 'apps/api/test/unit/refund-allocation-policy.test.mjs|apps/api/test/unit/refund-workspace-policy.test.mjs|apps/api/test/supertest/original-structure-refund-api.test.mjs|tests/migrations/m3-p026-original-structure-refund-migration.contract.test.mjs|tests/openapi/m3-p026-original-structure-refund.contract.test.mjs|tests/e2e/p0/p0-026-original-structure-refund.spec.ts|tests/e2e/p0/p0-026-refund-company-page.spec.ts',
     EvidenceLink: `docs/contracts/m3/M3-P026-original-structure-refund.md|packages/db/prisma/migrations/20260814123000_m3_original_structure_refund/migration.sql|packages/contracts/openapi.json${pullRequestUrl ? `|${pullRequestUrl}` : ''}${ciUrl ? `|${ciUrl}` : ''}`,
     LastVerifiedCommit: commit, Verifier: ciRun ? 'GITHUB_ACTIONS+CODEX' : 'CODEX', VerifiedAt: updatedAt,
-    Notes: '自动化子行为LOCAL_PASS：福利卡/微信按原支付分配、累计不超额、原账户/原交易目标、同自然人禁自退、幂等/并发、未知结果不重发、资金/库存/对账影响追加。真实福利卡账本、真实微信退款及required STAGING_PASS未执行，P0整项保持NOT_EXECUTED。',
+    Notes: '自动化子行为LOCAL_PASS：福利卡/微信按原支付分配、累计不超额、原账户/原交易目标及微信原交易总额、同自然人禁自退、幂等/并发、前置失败关闭、未知结果不重发、资金/库存/对账影响追加。真实福利卡账本、真实微信退款及required STAGING_PASS未执行，P0整项保持NOT_EXECUTED。',
   };
   return null;
 });

@@ -18,6 +18,7 @@ export interface RefundRecord {
   readonly originalPaymentTransactionId: string | null;
   readonly originalWechatOutTradeNo: string | null;
   readonly originalWechatTransactionId: string | null;
+  readonly originalWechatTotalAmount: number | null;
   readonly idempotencyKey: string;
   readonly requestHash: string;
 }

@@ -124,20 +124,21 @@ export class RefundService {
 
     let current = begin.refund;
     if (current.welfareCardRefundAmount > 0 && current.welfareChannelStatus === 'PENDING') {
+      const originalWelfareCardAccountId = current.originalWelfareCardAccountId;
+      if (!originalWelfareCardAccountId) {
+        throw new SafeApiError(409, 'REFUND_ALLOCATION_INVALID', 'Original welfare-card account is missing');
+      }
       const claim = await this.repository.claimChannel(current.refundId, 'WELFARE');
       current = claim.refund;
       if (claim.kind !== 'CLAIMED') {
         return { body: response(current), replayed: true, accepted: current.status === 'PROCESSING' };
-      }
-      if (!current.originalWelfareCardAccountId) {
-        throw new SafeApiError(409, 'REFUND_ALLOCATION_INVALID', 'Original welfare-card account is missing');
       }
       try {
         const welfareResult = await this.welfareAdapter.refund({
           refundId: current.refundId,
           refundNo: current.refundNo,
           refundAmount: current.welfareCardRefundAmount,
-          originalWelfareCardAccountId: current.originalWelfareCardAccountId,
+          originalWelfareCardAccountId,
         });
         current = await this.repository.recordWelfareResult(
           current.refundId,
@@ -164,26 +165,34 @@ export class RefundService {
     }
 
     if (current.cashRefundAmount > 0 && current.wechatChannelStatus === 'PENDING') {
+      const originalPaymentTransactionId = current.originalPaymentTransactionId;
+      const originalWechatOutTradeNo = current.originalWechatOutTradeNo;
+      const originalWechatTransactionId = current.originalWechatTransactionId;
+      const originalWechatTotalAmount = current.originalWechatTotalAmount;
+      if (
+        !originalPaymentTransactionId ||
+        !originalWechatOutTradeNo ||
+        !originalWechatTransactionId ||
+        !Number.isSafeInteger(originalWechatTotalAmount) ||
+        Number(originalWechatTotalAmount) <= 0 ||
+        current.cashRefundAmount > Number(originalWechatTotalAmount)
+      ) {
+        throw new SafeApiError(409, 'REFUND_ALLOCATION_INVALID', 'Original WeChat payment transaction is missing or amount-invalid');
+      }
       const claim = await this.repository.claimChannel(current.refundId, 'WECHAT');
       current = claim.refund;
       if (claim.kind !== 'CLAIMED') {
         return { body: response(current), replayed: true, accepted: current.status === 'PROCESSING' || current.status === 'PARTIAL_CHANNEL_DONE' };
-      }
-      if (
-        !current.originalPaymentTransactionId ||
-        !current.originalWechatOutTradeNo ||
-        !current.originalWechatTransactionId
-      ) {
-        throw new SafeApiError(409, 'REFUND_ALLOCATION_INVALID', 'Original WeChat payment transaction is missing');
       }
       try {
         const wechatResult = await this.wechatAdapter.refund({
           refundId: current.refundId,
           refundNo: current.refundNo,
           refundAmount: current.cashRefundAmount,
-          originalPaymentTransactionId: current.originalPaymentTransactionId,
-          originalWechatOutTradeNo: current.originalWechatOutTradeNo,
-          originalWechatTransactionId: current.originalWechatTransactionId,
+          originalPaymentTransactionId,
+          originalWechatOutTradeNo,
+          originalWechatTransactionId,
+          originalWechatTotalAmount: Number(originalWechatTotalAmount),
         });
         current = await this.repository.recordWechatResult(
           current.refundId,

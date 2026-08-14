@@ -13,6 +13,7 @@ import type {
 const afterSaleId = '86000000-0000-4000-8000-000000000026';
 const originalWelfareCardAccountId = '89000000-0000-4000-8000-000000000026';
 const originalPaymentTransactionId = '8a000000-0000-4000-8000-000000000026';
+const originalWechatTotalAmount = 4000;
 
 class P0RefundRepository {
   refund: RefundRecord | null = null;
@@ -41,6 +42,7 @@ class P0RefundRepository {
       originalWelfareCardAccountId, originalPaymentTransactionId,
       originalWechatOutTradeNo: 'WP2026081400000000000000000026',
       originalWechatTransactionId: 'wechat-transaction-original-0026',
+      originalWechatTotalAmount,
       idempotencyKey: command.idempotencyKey, requestHash: command.requestHash,
     };
     this.impacts.add('FINANCIAL');
@@ -113,11 +115,12 @@ test('P0-026 company refund returns each channel to its immutable original targe
   expect(wechatCalls).toEqual([expect.objectContaining({
     refundAmount: 2000, originalPaymentTransactionId,
     originalWechatTransactionId: 'wechat-transaction-original-0026',
+    originalWechatTotalAmount,
   })]);
   expect([...repository.impacts].sort()).toEqual([
     'FINANCIAL', 'INVENTORY:PENDING_AFTERSALE_DECISION', 'RECONCILIATION',
   ]);
   expect(JSON.stringify(replay.body)).not.toMatch(
-    /originalWelfareCardAccountId|originalPaymentTransactionId|wechatTransactionId|supplyPrice/iu,
+    /originalWelfareCardAccountId|originalPaymentTransactionId|originalWechatTotalAmount|wechatTransactionId|supplyPrice/iu,
   );
 });

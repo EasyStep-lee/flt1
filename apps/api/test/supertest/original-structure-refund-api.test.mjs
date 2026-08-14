@@ -11,6 +11,7 @@ const orderItemId = '88000000-0000-4000-8000-000000000001';
 const companyId = '10000000-0000-4000-8000-000000000001';
 const originalWelfareCardAccountId = '89000000-0000-4000-8000-000000000001';
 const originalPaymentTransactionId = '8a000000-0000-4000-8000-000000000001';
+const originalWechatTotalAmount = 4000;
 
 const config = () =>
   loadRuntimeConfig({
@@ -43,7 +44,8 @@ const actorResolver = {
 };
 
 class RecordingRefundRepository {
-  constructor({ unknownWechat = false, overpaid = false } = {}) {
+  constructor({ invalidWechatTotal = false, unknownWechat = false, overpaid = false } = {}) {
+    this.invalidWechatTotal = invalidWechatTotal;
     this.unknownWechat = unknownWechat;
     this.overpaid = overpaid;
     this.transaction = null;
@@ -68,6 +70,7 @@ class RecordingRefundRepository {
       originalWelfareCardAccountId, originalPaymentTransactionId,
       originalWechatOutTradeNo: 'WP2026081400000000000000000001',
       originalWechatTransactionId: 'wechat-transaction-original-0001',
+      originalWechatTotalAmount: this.invalidWechatTotal ? 1500 : originalWechatTotalAmount,
       idempotencyKey: command.idempotencyKey, requestHash: command.requestHash,
     };
     this.effects = { transaction: 1, financial: 1, inventory: 1, reconciliation: 1 };
@@ -167,11 +170,12 @@ describe('P0-026 original payment structure refund', () => {
       expect(fixture.wechatRefundAdapter.calls).toEqual([expect.objectContaining({
         refundAmount: 2000, originalPaymentTransactionId,
         originalWechatTransactionId: 'wechat-transaction-original-0001',
+        originalWechatTotalAmount,
       })]);
       expect(fixture.refundRepository.effects).toEqual({
         transaction: 1, financial: 1, inventory: 1, reconciliation: 1,
       });
-      expect(JSON.stringify(first.body)).not.toMatch(/companyId|identityId|accountId|paymentTransactionId|supplyPrice/iu);
+      expect(JSON.stringify(first.body)).not.toMatch(/companyId|identityId|accountId|paymentTransactionId|originalWechatTotalAmount|supplyPrice/iu);
     } finally { await fixture.app.close(); }
   });
 
@@ -206,6 +210,18 @@ describe('P0-026 original payment structure refund', () => {
       expect(replay.body).toEqual(first.body);
       expect(fixture.welfareRefundAdapter.calls).toHaveLength(1);
       expect(fixture.wechatRefundAdapter.calls).toHaveLength(1);
+    } finally { await fixture.app.close(); }
+  });
+
+  it('fails closed on an invalid server-owned WeChat total before claiming or calling the channel', async () => {
+    const fixture = await createFixture({ invalidWechatTotal: true });
+    try {
+      await refund(fixture.app).expect(409)
+        .expect(({ body }) => expect(body.code).toBe('REFUND_ALLOCATION_INVALID'));
+      await refund(fixture.app).expect(409)
+        .expect(({ body }) => expect(body.code).toBe('REFUND_ALLOCATION_INVALID'));
+      expect(fixture.refundRepository.transaction.wechatChannelStatus).toBe('PENDING');
+      expect(fixture.wechatRefundAdapter.calls).toHaveLength(0);
     } finally { await fixture.app.close(); }
   });
 

@@ -28,7 +28,7 @@ type RefundWithSources = Prisma.RefundTransactionGetPayload<{
     authorization: true;
     order: { select: { welfareCardAccountId: true } };
     originalPaymentTransaction: {
-      select: { id: true; outTradeNo: true; wechatTransactionId: true };
+      select: { id: true; amount: true; outTradeNo: true; wechatTransactionId: true };
     };
   };
 }>;
@@ -49,6 +49,7 @@ const toRecord = (refund: RefundWithSources): RefundRecord => ({
   originalPaymentTransactionId: refund.originalPaymentTransaction?.id ?? null,
   originalWechatOutTradeNo: refund.originalPaymentTransaction?.outTradeNo ?? null,
   originalWechatTransactionId: refund.originalPaymentTransaction?.wechatTransactionId ?? null,
+  originalWechatTotalAmount: refund.originalPaymentTransaction?.amount ?? null,
   idempotencyKey: refund.idempotencyKey,
   requestHash: refund.requestHash,
 });
@@ -57,7 +58,7 @@ const includeSources = {
   authorization: true,
   order: { select: { welfareCardAccountId: true } },
   originalPaymentTransaction: {
-    select: { id: true, outTradeNo: true, wechatTransactionId: true },
+    select: { id: true, amount: true, outTradeNo: true, wechatTransactionId: true },
   },
 } as const;
 
@@ -159,6 +160,8 @@ export class PrismaRefundRepository implements RefundRepository {
           ? authorization.order.paymentTransactions.find((candidate) =>
               candidate.channel === 'WECHAT_PAY' &&
               candidate.status === 'PAID' &&
+              candidate.amount === authorization.order.cashAmount &&
+              candidate.amount > 0 &&
               Boolean(candidate.wechatTransactionId),
             )
           : undefined;
