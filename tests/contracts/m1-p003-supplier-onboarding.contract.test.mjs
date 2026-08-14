@@ -197,6 +197,6 @@ test('M1-P003 retains its local evidence after PR and main CI closure', async ()
   assert.equal(state.github.previousTaskDelivery.taskId, 'M3-P023');
   assert.equal(state.github.previousTaskDelivery.pullRequest, 82);
   assert.match(m2p008?.Status, /^(?:IN_PROGRESS|DONE)$/u);
-  assert.equal(state.evidence.local, 'LOCAL_PASS_M3_P024_FOCUSED');
+  assert.equal(state.evidence.local, 'LOCAL_PASS_M3_P024_FULL_VERIFY');
   assert.equal(state.evidence.ci, 'CI_PASS_M3_P023_MAIN');
 });

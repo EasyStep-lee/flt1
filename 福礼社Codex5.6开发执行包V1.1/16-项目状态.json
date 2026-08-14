@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-14T05:49:12Z",
+  "updatedAt": "2026-08-14T07:25:12Z",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -85,12 +85,12 @@
       "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/83",
       "branch": "codex/m3-payment-idempotency",
       "baseCommit": "fa8439fe9926f4bd8ee690f922e2531aa2eff57b",
-      "implementationCommit": null,
-      "deliveryHead": null,
+      "implementationCommit": "de2fc200998956b7dd6f8e9800fa8bef67c6cccc",
+      "deliveryHead": "28718604e5f36b77845856f3cbb354af34b9971e",
       "status": "LOCAL_PASS_PR_NOT_CREATED",
       "localRedTest": "API_BUILD_0_EXPECTED_201_ACTUAL_404",
       "localFocusedTest": "LOCAL_PASS_REPOSITORY_3_API_4_MIGRATION_1_P0_E2E_1",
-      "localFullVerify": "NOT_EXECUTED",
+      "localFullVerify": "PASS_17_OF_17_HEAD_2871860",
       "pullRequest": null,
       "pullRequestState": "NOT_CREATED",
       "exactHeadCi": "NOT_EXECUTED",
@@ -110,10 +110,10 @@
       "mainPostMergeCiJob": 94680259802,
       "status": "CI_PASS"
     },
-    "note": "M3-P023已在main完成。M3-P024纯微信支付幂等本地focused/迁移/OpenAPI通过；福利卡账本及真实微信证据未进入本切片，P0-024整体保持NOT_EXECUTED；M3-P025锁定。"
+    "note": "M3-P023已在main完成。M3-P024纯微信支付幂等本地focused及pnpm verify 17/17通过；福利卡账本及真实微信证据未进入本切片，P0-024整体保持NOT_EXECUTED；M3-P025锁定。"
   },
   "evidence": {
-    "local": "LOCAL_PASS_M3_P024_FOCUSED",
+    "local": "LOCAL_PASS_M3_P024_FULL_VERIFY",
     "ci": "CI_PASS_M3_P023_MAIN",
     "staging": "NOT_EXECUTED",
     "device": "NOT_EXECUTED",

@@ -70,7 +70,7 @@ test('M1-P047 evidence remains closed after PR 20 merge as the project advances'
   assert.equal(state.github.currentTaskDelivery.merge, 'NOT_EXECUTED');
   assert.equal(state.github.currentTaskDelivery.mainPostMergeCi, 'NOT_EXECUTED');
   assert.equal(state.github.previousTaskDelivery.status, 'CI_PASS');
-  assert.equal(state.evidence.local, 'LOCAL_PASS_M3_P024_FOCUSED');
+  assert.equal(state.evidence.local, 'LOCAL_PASS_M3_P024_FULL_VERIFY');
   assert.equal(state.evidence.ci, 'CI_PASS_M3_P023_MAIN');
   assert.match(taskLedger, /M1-P047[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(taskLedger, /M1-P066[^\r\n]*DONE[^\r\n]*CI_PASS/u);

@@ -318,7 +318,7 @@ test('project status records M1 gate success while historical blocked handoff st
   assert.equal(projectStatus.github.currentTaskDelivery.merge, 'NOT_EXECUTED');
   assert.equal(projectStatus.github.currentTaskDelivery.mainPostMergeCi, 'NOT_EXECUTED');
   assert.equal(projectStatus.github.previousTaskDelivery.status, 'CI_PASS');
-  assert.equal(projectStatus.evidence.local, 'LOCAL_PASS_M3_P024_FOCUSED');
+  assert.equal(projectStatus.evidence.local, 'LOCAL_PASS_M3_P024_FULL_VERIFY');
   assert.equal(projectStatus.evidence.ci, 'CI_PASS_M3_P023_MAIN');
   assert.equal(projectStatus.evidence.staging, 'NOT_EXECUTED');
   assert.equal(projectStatus.evidence.device, 'NOT_EXECUTED');
