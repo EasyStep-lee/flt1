@@ -419,6 +419,8 @@ test('generated contract exposes foundation, identity, onboarding and catalog AP
       'PublicMerchantSubjectsDto',
       'PublicProductCardResponseDto',
       'PublicProductPageResponseDto',
+      'RefundCreateRequestDto',
+      'RefundResponseDto',
       'RegulatedCategoryControlPageDto',
       'RegulatedCategoryControlResponseDto',
       'RegulatedCategoryDisableRequestDto',
