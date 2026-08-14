@@ -59,19 +59,22 @@ test('M2-P015 remains closed after later M2 slices advance', async () => {
     ]);
 
   assert.equal(state.execution.status, 'M3_IN_PROGRESS');
-  assert.equal(state.execution.currentTask, 'M3-P023');
-  assert.equal(state.execution.nextAllowedTask, 'M3-P023');
-  assert.equal(state.execution.lastCompletedTask, 'M3-P022');
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M3-P023.*M3-P024/u);
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M3-P023');
-  assert.equal(state.github.currentTaskDelivery.issue, 81);
-  assert.equal(state.github.currentTaskDelivery.blockingExternalItem, null);
+  assert.equal(state.execution.currentTask, 'M3-P024');
+  assert.equal(state.execution.nextAllowedTask, 'M3-P024');
+  assert.equal(state.execution.lastCompletedTask, 'M3-P023');
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M3-P024.*M3-P025/u);
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M3-P024');
+  assert.equal(state.github.currentTaskDelivery.issue, 83);
+  assert.equal(
+    state.github.currentTaskDelivery.blockingExternalItem,
+    'REAL_WECHAT_MERCHANT_CONFIGURATION_AND_STAGING',
+  );
   assert.equal(state.github.currentTaskDelivery.nextTaskUnlocked, false);
-  assert.equal(state.github.previousTaskDelivery.taskId, 'M3-P022');
-  assert.equal(state.github.previousTaskDelivery.pullRequest, 80);
-  assert.equal(state.github.previousTaskDelivery.exactHead, 'c0b97a7235b452f833c05d6e7aeba313d4332eb7');
-  assert.equal(state.github.previousTaskDelivery.mergeCommit, '7cfde37b1e7946ee8241fbf9d08151850ec39838');
-  assert.equal(state.github.previousTaskDelivery.mainPostMergeCiRun, 31763921395);
+  assert.equal(state.github.previousTaskDelivery.taskId, 'M3-P023');
+  assert.equal(state.github.previousTaskDelivery.pullRequest, 82);
+  assert.equal(state.github.previousTaskDelivery.exactHead, '1d16a0a9399ac095ca3d524f1c6f1a154aa142f7');
+  assert.equal(state.github.previousTaskDelivery.mergeCommit, 'fa8439fe9926f4bd8ee690f922e2531aa2eff57b');
+  assert.equal(state.github.previousTaskDelivery.mainPostMergeCiRun, 31772198473);
   assert.equal(state.github.previousTaskDelivery.status, 'CI_PASS');
   assert.equal(evidence.taskId, 'M2-P015');
   assert.equal(evidence.status, 'CI_PASS');
