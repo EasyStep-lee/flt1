@@ -162,7 +162,7 @@ test('M2-P006 and M2-P007 retain merged-main evidence after M2-P008 starts local
     'REAL_WELFARE_LEDGER_WECHAT_REFUND_AND_STAGING_EVIDENCE',
   );
   assert.equal(projectStatus.github.currentTaskDelivery.nextTaskUnlocked, false);
-  assert.equal(projectStatus.evidence.ci, 'CI_PASS_M3_P026_HEAD_87917f8');
+  assert.equal(projectStatus.evidence.ci, 'CI_PASS_M3_P026_HEAD_4506968');
 
   for (const evidence of [contract, handoff]) {
     assert.match(evidence, /P0-006/u);
