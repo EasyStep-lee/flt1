@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-14T07:25:12Z",
+  "updatedAt": "2026-08-14T08:02:12Z",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -39,9 +39,9 @@
     "authenticationConfirmed": true,
     "writeAllowed": true,
     "connectorAccessConfirmed": true,
-    "pullRequest": null,
-    "pullRequestUrl": null,
-    "pullRequestState": "NOT_CREATED",
+    "pullRequest": 84,
+    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/84",
+    "pullRequestState": "DRAFT",
     "pullRequestMerged": false,
     "mergeCommitSha": null,
     "mergedAt": null,
@@ -60,14 +60,14 @@
       "currentHeadReviewRequired": true,
       "authorizationExactHead": false
     },
-    "lastVerifiedPullRequestHead": null,
+    "lastVerifiedPullRequestHead": "7091344735f308a10d76862134be327b4d4debd2",
     "pullRequestCi": {
-      "status": "NOT_EXECUTED",
-      "runId": null,
-      "jobId": null,
-      "runUrl": null,
-      "headSha": null,
-      "completedAt": null
+      "status": "CI_PASS",
+      "runId": 31781670809,
+      "jobId": 94708575623,
+      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31781670809",
+      "headSha": "7091344735f308a10d76862134be327b4d4debd2",
+      "completedAt": "2026-08-14T08:02:12Z"
     },
     "latestCi": {
       "scope": "M3_P023_MAIN_POST_MERGE",
@@ -86,15 +86,15 @@
       "branch": "codex/m3-payment-idempotency",
       "baseCommit": "fa8439fe9926f4bd8ee690f922e2531aa2eff57b",
       "implementationCommit": "de2fc200998956b7dd6f8e9800fa8bef67c6cccc",
-      "deliveryHead": "28718604e5f36b77845856f3cbb354af34b9971e",
-      "status": "LOCAL_PASS_PR_NOT_CREATED",
+      "deliveryHead": "7091344735f308a10d76862134be327b4d4debd2",
+      "status": "CI_PASS_PENDING_HUMAN_MERGE",
       "localRedTest": "API_BUILD_0_EXPECTED_201_ACTUAL_404",
       "localFocusedTest": "LOCAL_PASS_REPOSITORY_3_API_4_MIGRATION_1_P0_E2E_1",
-      "localFullVerify": "PASS_17_OF_17_HEAD_2871860",
-      "pullRequest": null,
-      "pullRequestState": "NOT_CREATED",
-      "exactHeadCi": "NOT_EXECUTED",
-      "review": "NOT_EXECUTED",
+      "localFullVerify": "PASS_17_OF_17_HEAD_7091344",
+      "pullRequest": 84,
+      "pullRequestState": "DRAFT",
+      "exactHeadCi": "CI_PASS_RUN_31781670809",
+      "review": "DOCUMENTED_SELF_REVIEW_HEAD_7091344",
       "merge": "NOT_EXECUTED",
       "mainPostMergeCi": "NOT_EXECUTED",
       "blockingExternalItem": "REAL_WECHAT_MERCHANT_CONFIGURATION_AND_STAGING",
@@ -110,11 +110,11 @@
       "mainPostMergeCiJob": 94680259802,
       "status": "CI_PASS"
     },
-    "note": "M3-P023已在main完成。M3-P024纯微信支付幂等本地focused及pnpm verify 17/17通过；福利卡账本及真实微信证据未进入本切片，P0-024整体保持NOT_EXECUTED；M3-P025锁定。"
+    "note": "M3-P024 PR #84 exact-head 7091344 CI通过并已记录自审；等待人工合并及post-merge main CI。福利卡账本及真实微信证据未进入本切片，P0-024整体保持NOT_EXECUTED；M3-P025锁定。"
   },
   "evidence": {
     "local": "LOCAL_PASS_M3_P024_FULL_VERIFY",
-    "ci": "CI_PASS_M3_P023_MAIN",
+    "ci": "CI_PASS_M3_P024_HEAD_7091344",
     "staging": "NOT_EXECUTED",
     "device": "NOT_EXECUTED",
     "production": "NOT_EXECUTED"

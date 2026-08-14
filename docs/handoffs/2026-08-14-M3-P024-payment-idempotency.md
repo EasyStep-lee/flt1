@@ -1,6 +1,6 @@
 # 2026-08-14 M3-P024 支付幂等交接
 
-阶段结论：`IN_PROGRESS / LOCAL_PASS`。M3-P023 已由 PR #82 合并到 `main@fa8439fe9926f4bd8ee690f922e2531aa2eff57b`，合并后 Actions run `31772198473` 成功。本切片纯微信支付幂等子行为已在 `28718604e5f36b77845856f3cbb354af34b9971e` 完成 focused 测试和本地 `pnpm verify` 17/17；Draft PR、精确 head CI、人工合并和合并后 main CI 尚未执行。P0-024 还要求福利卡扣减维度及真实微信/staging 证据，因此 P0-024 整项保持 `NOT_EXECUTED`，不得宣称完整通过。
+阶段结论：`IN_PROGRESS / CI_PASS`。M3-P023 已由 PR #82 合并到 `main@fa8439fe9926f4bd8ee690f922e2531aa2eff57b`，合并后 Actions run `31772198473` 成功。本切片纯微信支付幂等子行为已在 Draft PR #84 的精确 head `7091344735f308a10d76862134be327b4d4debd2` 完成本地 `pnpm verify` 17/17，并由 Actions run `31781670809` / job `94708575623` 取得 `CI_PASS`。PR 仍为 Draft，人工合并和合并后 main CI 尚未执行。P0-024 还要求福利卡扣减维度及真实微信/staging 证据，因此 P0-024 整项保持 `NOT_EXECUTED`，不得宣称完整通过。
 
 ## 基线、范围与 Git
 
@@ -8,7 +8,7 @@
 - 当前阶段/任务：M3 / M3-P024；P0-024 的纯微信支付子行为；MIG-012A；API-041/API-042；无页面切片。
 - 分支：`codex/m3-payment-idempotency`；基线：`main@fa8439fe9926f4bd8ee690f922e2531aa2eff57b`。
 - 实现提交：`de2fc200998956b7dd6f8e9800fa8bef67c6cccc`；OpenAPI/交接/合同回归提交：`9af9e1c`、`d1d281b`、`2871860`。
-- GitHub：Issue #83；PR 尚未创建；最新远程证据仍是 M3-P023 的 main CI run `31772198473`。
+- GitHub：Issue #83；Draft PR #84；精确 head `7091344735f308a10d76862134be327b4d4debd2`；Actions run `31781670809` / job `94708575623` 成功；自审评论 `#issuecomment-5290997723`；0 review、0 unresolved thread；`MERGEABLE/CLEAN`；未合并。
 - 用户既有未跟踪文件和 `.codex-*` 临时证据均保留且未暂存。
 
 ## 完成范围
@@ -52,7 +52,8 @@
 | 交接回归 | 首轮发现工作簿哈希和动态游标过期；修复后 29/29 通过 |
 | 合同回归 | 首轮发现 18 个动态游标过期；修复后 88/88 通过 |
 | `pnpm test` | 退出码 0；根级回归链通过，API workspace 37 文件/196 测试通过 |
-| `pnpm verify` | `2871860` 上退出码 0；17/17 PASS；报告 `artifacts/test-results/verification/pnpm-verify.json` |
+| `pnpm verify` | `2871860` 与最终交付 head `7091344` 均退出码 0；17/17 PASS；报告 `artifacts/test-results/verification/pnpm-verify.json` |
+| PR CI | head `7091344`；Actions run `31781670809` / job `94708575623`；退出成功 |
 
 一次 `pnpm verify` 在回归失败后如实记录 FAIL；另一次在 20 分钟执行器上限被终止，未作为通过证据。最终成功执行使用更长时限，耗时约 950 秒。
 
@@ -60,7 +61,7 @@
 
 - P0-024 自动化子行为：`LOCAL_PASS`。纯微信订单重复/并发回调不会重复确认订单、共享库存、履约或 outbox，也不会提前创建配送对象。
 - P0-024 整项：`NOT_EXECUTED`。福利卡账本尚未实现，无法证明“不重复扣福利卡”；RequiredEvidenceLevel 所需 staging/真实微信也未执行。
-- LOCAL：`LOCAL_PASS`；CI：当前切片 `NOT_EXECUTED`；STAGING/DEVICE/PRODUCTION：`NOT_EXECUTED`。
+- LOCAL：`LOCAL_PASS`；CI：PR #84 head `7091344` 为 `CI_PASS`；STAGING/DEVICE/PRODUCTION：`NOT_EXECUTED`。
 - 外部边界：真实微信商户配置、证书/APIv3 密钥、回调域名、staging 和真机支付必须由授权人工配置/执行；任何秘密不得进入仓库或聊天。
 
 ## 风险与回滚
@@ -72,4 +73,4 @@
 
 ## 下一步门禁
 
-推送当前分支并创建 Draft PR，读取精确 head Actions 和未解决评论。只有人工按精确 head 授权转 Ready/合并且合并后 main CI 成功，才能开始 M3-P025。当前明确禁止福利卡后续、退款、门户后续切片、M4、M5、M6 和任何真实资金/生产操作。
+PR #84 保持 Draft。只有人工按最新精确 head 授权转 Ready/合并且合并后 main CI 成功，才能开始 M3-P025。当前明确禁止福利卡后续、退款、门户后续切片、M4、M5、M6 和任何真实资金/生产操作。

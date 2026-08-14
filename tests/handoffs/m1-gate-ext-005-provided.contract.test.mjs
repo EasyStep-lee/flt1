@@ -144,7 +144,7 @@ test('historical EXT-005 evidence stays locked while current state advances only
   assert.equal(projectStatus.execution.currentTask, 'M3-P024');
   assert.equal(projectStatus.execution.activeTaskCount, 1);
   assert.equal(currentTask.Status, 'IN_PROGRESS');
-  assert.equal(currentTask.EvidenceStatus, 'LOCAL_PASS');
+  assert.equal(currentTask.EvidenceStatus, 'CI_PASS');
   assert.equal(projectStatus.github.previousTaskDelivery.status, 'CI_PASS');
 
   assert.equal(m1Gate.Status, 'DONE');
