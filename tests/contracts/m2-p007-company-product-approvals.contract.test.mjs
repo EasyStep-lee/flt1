@@ -83,7 +83,7 @@ test('M2-P007 retains evidence while the current M2 slice advances through its d
   );
   assert.equal(state.github.currentTaskDelivery.nextTaskUnlocked, false);
   assert.equal(state.evidence.local, 'LOCAL_PASS_M3_P026_FULL_VERIFY');
-  assert.equal(state.evidence.ci, 'CI_PASS_M3_P026_HEAD_77a2bf3');
+  assert.equal(state.evidence.ci, 'CI_PASS_M3_P026_HEAD_87917f8');
   assert.match(taskLedger, /M2-P007[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(taskLedger, /M2-P008[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(taskLedger, /M2-P009[^\r\n]*DONE[^\r\n]*CI_PASS/u);

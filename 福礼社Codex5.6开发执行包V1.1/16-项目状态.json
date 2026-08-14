@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-14T13:23:45Z",
+  "updatedAt": "2026-08-14T14:10:50Z",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -60,24 +60,24 @@
       "currentHeadReviewRequired": true,
       "authorizationExactHead": false
     },
-    "lastVerifiedPullRequestHead": "77a2bf38e4baab4109cca2c03c9e3307cc903e55",
+    "lastVerifiedPullRequestHead": "87917f8c131b04ce810d76b9d74406c2d0276ec3",
     "pullRequestCi": {
       "status": "CI_PASS",
-      "runId": 31803746732,
-      "jobId": 94777572246,
-      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31803746732",
-      "headSha": "77a2bf38e4baab4109cca2c03c9e3307cc903e55",
-      "completedAt": "2026-08-14T13:23:45Z"
+      "runId": 31807427052,
+      "jobId": 94789600099,
+      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31807427052",
+      "headSha": "87917f8c131b04ce810d76b9d74406c2d0276ec3",
+      "completedAt": "2026-08-14T14:10:50Z"
     },
     "latestCi": {
       "scope": "M3_P026_PR_HEAD",
       "status": "CI_PASS",
-      "runId": 31803746732,
-      "jobId": 94777572246,
-      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31803746732",
-      "headSha": "77a2bf38e4baab4109cca2c03c9e3307cc903e55",
+      "runId": 31807427052,
+      "jobId": 94789600099,
+      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31807427052",
+      "headSha": "87917f8c131b04ce810d76b9d74406c2d0276ec3",
       "event": "pull_request",
-      "completedAt": "2026-08-14T13:23:45Z"
+      "completedAt": "2026-08-14T14:10:50Z"
     },
     "currentTaskDelivery": {
       "taskId": "M3-P026",
@@ -85,14 +85,14 @@
       "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/87",
       "branch": "codex/m3-structured-refund",
       "baseCommit": "c4ab850ef7d6f6693376097350e2d0ddc27c6755",
-      "verifiedHead": "77a2bf38e4baab4109cca2c03c9e3307cc903e55",
+      "verifiedHead": "87917f8c131b04ce810d76b9d74406c2d0276ec3",
       "status": "CI_PASS_PENDING_HUMAN_MERGE",
       "localRedTest": "API_043_EXPECTED_201_401_202_ACTUAL_404_3_OF_3",
       "localFocusedTest": "LOCAL_PASS_UNIT_API_MIGRATION_OPENAPI_P0_E2E",
       "localFullVerify": "PASS_17_OF_17",
       "pullRequest": 88,
       "pullRequestState": "DRAFT",
-      "exactHeadCi": "CI_PASS_RUN_31803746732_JOB_94777572246",
+      "exactHeadCi": "CI_PASS_RUN_31807427052_JOB_94789600099",
       "review": "NOT_EXECUTED",
       "merge": "NOT_EXECUTED",
       "mainPostMergeCi": "NOT_EXECUTED",
@@ -113,7 +113,7 @@
   },
   "evidence": {
     "local": "LOCAL_PASS_M3_P026_FULL_VERIFY",
-    "ci": "CI_PASS_M3_P026_HEAD_77a2bf3",
+    "ci": "CI_PASS_M3_P026_HEAD_87917f8",
     "staging": "NOT_EXECUTED",
     "device": "NOT_EXECUTED",
     "production": "NOT_EXECUTED"

@@ -1,13 +1,13 @@
 # 2026-08-14 M3-P026 按原支付结构退款交接
 
-阶段结论：`IN_PROGRESS / CI_PASS`。M3-P025 已由 PR #86 按精确 head `cd4b9ea32499793ea947bb646778db307a9c4acd` 合并到 `main@c4ab850ef7d6f6693376097350e2d0ddc27c6755`，合并后 Actions run `31796060635` / job `94753324144` 成功。本切片实现提交为 `b80d348`，OpenAPI 名单修复为 `a30d94a`，职能页回归修复为 `87f3bd3`，证据游标提交为 `f3c60d8`；`pnpm verify` 在 `f3c60d88208194fa5d2733e7a48faf940310b831` 上 17/17 通过。Draft PR #88 的精确 head `77a2bf38e4baab4109cca2c03c9e3307cc903e55` 已由 Actions run `31803746732` / job `94777572246` 验证成功；人工合并和 post-merge main CI 尚未执行。真实福利卡账本、真实微信退款及 staging 未执行，所以 P0-026 整项保持 `NOT_EXECUTED`。
+阶段结论：`IN_PROGRESS / CI_PASS`。M3-P025 已由 PR #86 按精确 head `cd4b9ea32499793ea947bb646778db307a9c4acd` 合并到 `main@c4ab850ef7d6f6693376097350e2d0ddc27c6755`，合并后 Actions run `31796060635` / job `94753324144` 成功。本切片实现提交为 `b80d348`，OpenAPI 名单修复为 `a30d94a`，职能页回归修复为 `87f3bd3`，异常恢复补强为 `87917f8`；包含异常恢复修复的本地 `pnpm verify` 17/17 通过。Draft PR #88 的精确 head `87917f8c131b04ce810d76b9d74406c2d0276ec3` 已由 Actions run `31807427052` / job `94789600099` 验证成功；人工合并和 post-merge main CI 尚未执行。真实福利卡账本、真实微信退款及 staging 未执行，所以 P0-026 整项保持 `NOT_EXECUTED`。
 
 ## 基线、范围与 Git
 
 - 唯一方案 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`；基线校验通过，仅有执行包冻结副本的已知提示。
 - 当前阶段/任务：M3 / M3-P026；API-043；MIG-013；公司订单客服退款发起页。
-- 分支：`codex/m3-structured-refund`；基线：`main@c4ab850ef7d6f6693376097350e2d0ddc27c6755`；当前已验证 PR head：`77a2bf38e4baab4109cca2c03c9e3307cc903e55`。
-- GitHub：Issue #87；Draft PR #88；PR CI 为 `CI_PASS`（run `31803746732` / job `94777572246`）；人工合并和 post-merge main CI 为 `NOT_EXECUTED`。
+- 分支：`codex/m3-structured-refund`；基线：`main@c4ab850ef7d6f6693376097350e2d0ddc27c6755`；当前已验证 PR head：`87917f8c131b04ce810d76b9d74406c2d0276ec3`。
+- GitHub：Issue #87；Draft PR #88；PR CI 为 `CI_PASS`（run `31807427052` / job `94789600099`）；人工合并和 post-merge main CI 为 `NOT_EXECUTED`。
 - 用户既有未跟踪文件和 `.codex-*` 临时证据均保留且未暂存。
 
 ## 完成范围
@@ -45,7 +45,8 @@
 | OpenAPI generate/check/breaking | 字节稳定；breaking 0 errors；新增全局错误枚举产生兼容性 warning，但门禁通过 |
 | 首次 `pnpm verify` | `FAIL`：实现尚未提交时 `openapi-diff` 正确检测到生成物相对 HEAD 有差异；没有跳过门禁 |
 | 最终 `pnpm verify` | `f3c60d8` 退出码 0；17/17 PASS；58 项 P0 E2E 通过；报告 `artifacts/test-results/verification/pnpm-verify.json` |
-| Draft PR exact-head CI | `77a2bf3`；Actions run `31803746732` / job `94777572246`；SUCCESS |
+| 自审补强后的 `pnpm verify` | 包含 `87917f8` 修复的本地工作树，退出码 0；17/17 PASS |
+| Draft PR exact-head CI | `87917f8`；Actions run `31807427052` / job `94789600099`；SUCCESS |
 
 ## P0 与环境边界
 
