@@ -1,4 +1,5 @@
 export const PLATFORM_NAME = '福礼社' as const;
+export const PUBLIC_DISPLAY_NAME = '福礼团' as const;
 export const COMPANY_LEGAL_NAME = '江苏福礼团供应链科技有限公司' as const;
 export const CUSTOMER_COUNTERPARTY_TYPE = 'COMPANY' as const;
 

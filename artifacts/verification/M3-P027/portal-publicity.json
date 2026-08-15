@@ -1,0 +1,123 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "M3-P027",
+  "stage": "M3",
+  "title": "门户宣传与公开SEO",
+  "baselineSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+  "environment": "LOCAL_WINDOWS_NODE22_NEXTJS16_PLAYWRIGHT_CHROMIUM",
+  "evidenceStatus": "LOCAL_PASS",
+  "commit": "LOCAL_WORKTREE",
+  "baseCommit": "bf017ad3f06e602394b9087213877984b51789f0",
+  "branch": "codex/m3-portal-publicity",
+  "github": {
+    "repository": "EasyStep-lee/flt1",
+    "issue": 89,
+    "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/89",
+    "pullRequest": null,
+    "pullRequestState": "NOT_CREATED",
+    "exactHeadCi": "NOT_EXECUTED",
+    "review": "NOT_EXECUTED",
+    "merge": "NOT_EXECUTED",
+    "mainPostMergeCi": "NOT_EXECUTED"
+  },
+  "scope": {
+    "p0": ["P0-027"],
+    "routes": [
+      "/",
+      "/about",
+      "/capabilities",
+      "/cases",
+      "/cases/enterprise-welfare-service",
+      "/supplier-cooperation",
+      "/news",
+      "/news/community-procurement-boundary",
+      "/contact"
+    ],
+    "publicRendering": "STATIC_OR_SSG_WITH_300_SECOND_ISR",
+    "privateRendering": "DYNAMIC_NOINDEX_PRIVATE_NO_STORE_UNCHANGED"
+  },
+  "red": {
+    "command": "pnpm --filter @fulishe/portal-web test:publicity",
+    "status": "EXPECTED_FAIL",
+    "reason": "The first behavioral run expected /about to return 200 but the route returned 404 before implementation."
+  },
+  "focused": [
+    {
+      "command": "pnpm --filter @fulishe/portal-web lint",
+      "status": "PASS",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm --filter @fulishe/portal-web typecheck",
+      "status": "PASS",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm --filter @fulishe/portal-web build",
+      "status": "PASS",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm --filter @fulishe/portal-web test:publicity",
+      "status": "PASS",
+      "passed": 1,
+      "failed": 0
+    },
+    {
+      "command": "pnpm --filter @fulishe/portal-web test",
+      "status": "PASS",
+      "passed": 3,
+      "failed": 0
+    },
+    {
+      "command": "pnpm exec playwright test tests/e2e/p0/p0-027-portal-publicity.spec.ts tests/e2e/p0/p0-001-single-merchant.spec.ts tests/e2e/p0/p0-009-no-supplier-storefront.spec.ts --config playwright.p0.config.ts",
+      "status": "PASS",
+      "passed": 12,
+      "failed": 0
+    },
+    {
+      "command": "node --test --test-reporter=spec tests/contracts/*.test.mjs",
+      "status": "PASS",
+      "passed": 88,
+      "failed": 0
+    }
+  ],
+  "fullVerification": {
+    "command": "pnpm verify",
+    "status": "PASS",
+    "exitCode": 0,
+    "stepsPassed": 17,
+    "stepsFailed": 0,
+    "startedAt": "2026-08-15T03:18:08.146Z",
+    "endedAt": "2026-08-15T03:33:17.243Z",
+    "report": "artifacts/test-results/verification/pnpm-verify.json",
+    "stdout": "artifacts/test-results/m3-p027-final-tracked-verify.stdout.log",
+    "stderr": "artifacts/test-results/m3-p027-final-tracked-verify.stderr.log",
+    "p0E2e": "68/68 PASS",
+    "migrationRehearsal": "PASS",
+    "secretScan": "877 tracked files checked"
+  },
+  "invariants": [
+    "江苏福礼团供应链科技有限公司 remains the sole customer-facing seller, payee and refund operator.",
+    "The approved public display name is 福礼团 and the customer-service mobile is masked as 189****9999.",
+    "Supplier cooperation is an upstream onboarding path and does not create a supplier storefront.",
+    "Community procurement is ordinary enterprise procurement and contains no group-buying activity semantics.",
+    "Public HTML, metadata, JSON-LD, sitemap and robots expose no supply price or settlement fields.",
+    "Authenticated enterprise transaction routes remain dynamic, noindex and private/no-store."
+  ],
+  "notExecuted": [
+    "M5 PortalContent/CMS and API-075 through API-078",
+    "real domain, DNS, TLS and ICP filing",
+    "authorized customer cases and production news materials",
+    "staging, device and production acceptance",
+    "Excel execution-pack mirror update because the mandatory Spreadsheet skill operation marker is unavailable"
+  ],
+  "workbookMirror": {
+    "status": "NOT_EXECUTED_TOOL_MARKER_UNAVAILABLE",
+    "sourceLedgers": "CSV_AND_JSON_UPDATED",
+    "workbookBytesChanged": false
+  },
+  "risk": "The configured example origin is intentionally non-production; production canonical URLs must not be enabled until an authorized HTTPS domain and filing are ready.",
+  "rollback": "Revert the M3-P027 application and ledger commit. No database migration or OpenAPI rollback is required.",
+  "nextGate": "Create a Draft PR, obtain exact-head CI, request human exact-head Ready/merge authorization, then verify post-merge main CI before unlocking M3-P028."
+}

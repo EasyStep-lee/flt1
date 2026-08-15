@@ -43,12 +43,12 @@ test('M1-P047 evidence remains closed after PR 20 merge as the project advances'
   assert.equal(evidence.fullVerification.status, 'PASS_17_OF_17');
   assert.equal(evidence.negativeTests.length, 4);
   assert.ok(evidence.negativeTests.every(({ status }) => status === 'PASS'));
-  assert.equal(state.execution.lastCompletedTask, 'M3-P025');
+  assert.equal(state.execution.lastCompletedTask, 'M3-P026');
   assert.equal(state.execution.status, 'M3_IN_PROGRESS');
-  assert.equal(state.execution.currentTask, 'M3-P026');
+  assert.equal(state.execution.currentTask, 'M3-P027');
   assert.equal(state.execution.nextAllowedTask, state.execution.currentTask);
   assert.equal(state.execution.activeTaskCount, 1);
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M3-P026.*M3-P027/u);
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M3-P027.*M3-P028/u);
   assert.ok(state.github.pullRequest === null || Number.isInteger(state.github.pullRequest));
   assert.ok(['NOT_CREATED', 'DRAFT'].includes(state.github.pullRequestState));
   assert.equal(state.github.pullRequestMerged, false);
@@ -56,11 +56,11 @@ test('M1-P047 evidence remains closed after PR 20 merge as the project advances'
   assert.equal(state.github.currentTaskDelivery.taskId, state.execution.currentTask);
   assert.equal(
     state.github.currentTaskDelivery.status,
-    'CI_PASS_PENDING_HUMAN_MERGE',
+    'LOCAL_PASS_PENDING_DRAFT_PR',
   );
   assert.equal(
     state.github.currentTaskDelivery.blockingExternalItem,
-    'REAL_WELFARE_LEDGER_WECHAT_REFUND_AND_STAGING_EVIDENCE',
+    'REAL_DOMAIN_DNS_TLS_ICP_AND_AUTHORIZED_CUSTOMER_CONTENT',
   );
   assert.equal(state.github.currentTaskDelivery.nextTaskUnlocked, false);
   assert.ok(
@@ -70,8 +70,8 @@ test('M1-P047 evidence remains closed after PR 20 merge as the project advances'
   assert.equal(state.github.currentTaskDelivery.merge, 'NOT_EXECUTED');
   assert.equal(state.github.currentTaskDelivery.mainPostMergeCi, 'NOT_EXECUTED');
   assert.equal(state.github.previousTaskDelivery.status, 'CI_PASS');
-  assert.equal(state.evidence.local, 'LOCAL_PASS_M3_P026_FULL_VERIFY');
-  assert.equal(state.evidence.ci, 'CI_PASS_M3_P026_HEAD_4506968');
+  assert.equal(state.evidence.local, 'LOCAL_PASS_M3_P027_FULL_VERIFY');
+  assert.equal(state.evidence.ci, 'NOT_EXECUTED');
   assert.match(taskLedger, /M1-P047[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(taskLedger, /M1-P066[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(p0Ledger, /P0-047[^\r\n]*CI_PASS/u);
