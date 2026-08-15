@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-15T06:30:00Z",
+  "updatedAt": "2026/8/15 7:29:33",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -85,11 +85,11 @@
       "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/91",
       "branch": "codex/m3-enterprise-registration",
       "baseCommit": "0691ae492771df9fa39422460501a41ad174c605",
-      "verifiedHead": "LOCAL_WORKTREE",
+      "verifiedHead": "323152c85cd766d572a80d68dbc1f6c3e4d40815",
       "status": "LOCAL_PASS_PENDING_DRAFT_PR",
       "localRedTest": "ENTERPRISE_REGISTRATION_EXPECTED_SAFE_DEFAULT_503_ACTUAL_404",
       "localFocusedTest": "LOCAL_PASS_API_9_MIGRATION_PORTAL_COMPANY_AND_P0_E2E",
-      "localFullVerify": "NOT_EXECUTED",
+      "localFullVerify": "PASS_17_OF_17",
       "pullRequest": null,
       "pullRequestState": "NOT_CREATED",
       "exactHeadCi": "NOT_EXECUTED",
@@ -112,7 +112,7 @@
     "note": "M3-P028企业注册认证自动化技术行为LOCAL_PASS；EXT-013、真实短信/对象存储、P0-077完整页面、staging/production未执行；M3-P029锁定。"
   },
   "evidence": {
-    "local": "LOCAL_FOCUSED_PASS_FULL_VERIFY_NOT_EXECUTED",
+    "local": "LOCAL_PASS_M3_P028_FULL_VERIFY",
     "ci": "NOT_EXECUTED",
     "staging": "NOT_EXECUTED",
     "device": "NOT_EXECUTED",
