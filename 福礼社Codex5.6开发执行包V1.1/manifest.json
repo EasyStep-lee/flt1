@@ -21,13 +21,13 @@
   },
   "workbook": {
     "status": "VERIFIED",
-    "sha256": "777CD2F298C9A39AA7EBC89DC4432DC11131C449B6F4593A18EAE29538191DE8",
+    "sha256": "CBF1834477951C256C5064C76B60CF63A528DBB11CCA685510DAE0BD485B5718",
     "currentTaskMirror": {
-      "taskId": "M3-P029",
-      "status": "NOT_EXECUTED_TOOL_MARKER_UNAVAILABLE",
-      "sourceLedgers": "CSV_AND_JSON_UPDATED",
-      "reason": "Repository task ledgers are CSV/JSON sources; workbook bytes intentionally preserved in this slice.",
-      "checkedAt": "2026-08-15T09:45:41.309Z"
+      "taskId": "M3-P030",
+      "status": "LOCAL_PASS",
+      "sourceLedgers": "CSV_JSON_AND_WORKBOOK_UPDATED",
+      "reason": "Artifact-tool updated the relevant task, P0, page, evidence and stage-gate rows; formula scan and rendered visual review passed.",
+      "checkedAt": "2026-08-15T12:10:00.862Z"
     }
   },
   "sourceOfTruth": [

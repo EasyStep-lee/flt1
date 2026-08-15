@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "1.0",
+  "taskId": "M3-P030",
+  "p0": ["P0-030"],
+  "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+  "scope": "Public ISR community-procurement entry that leads ordinary enterprises to registration, login and the enterprise procurement shelf without activity-group-buying semantics",
+  "evidenceStatus": "LOCAL_PASS",
+  "implementationCommit": "78c5a734a81d1c38aa34a3f62687f8cfea52771c",
+  "red": [
+    {
+      "command": "portal production build and GET /enterprise-procurement runtime behavior test",
+      "actual": "Expected HTTP 200, received HTTP 404 before the route existed"
+    },
+    {
+      "command": "mobile viewport visual and bounding-box check",
+      "actual": "The first navigation item began at x=-72.5 and was clipped before mobile navigation alignment was corrected"
+    }
+  ],
+  "green": [
+    "Community-procurement contract test: 1 passed",
+    "Portal runtime test: 1 passed",
+    "Portal package tests: 4 passed",
+    "P0-027 and P0-030 Playwright tests: 12 passed",
+    "Portal lint and typecheck passed",
+    "Prisma schema validation passed",
+    "MySQL migration dry-run empty=2 upgrade=2 restore=2 product=30 cleanup=PASS",
+    "OpenAPI deterministic generation and byte-identical check passed",
+    "pnpm verify with base 4e164abe7bc343fdc977998982649e124caf6d90: 17 of 17 steps passed; API 217/217; P0 Chromium 72/72; 926 tracked files scanned for secrets"
+  ],
+  "invariants": [
+    "Community procurement is ordinary enterprise procurement, not an activity, group threshold, leader or designated-community workflow",
+    "No enterprise internal OA, budget or procurement approval model is introduced",
+    "The public entry is force-static with five-minute ISR, canonical metadata, structured data and sitemap inclusion",
+    "Enterprise login and transaction routes remain noindex and private/no-store",
+    "No supply price, internal ownership field or private enterprise data is rendered by the public page",
+    "The page links only to existing registration, login and authenticated enterprise procurement shelf routes"
+  ],
+  "database": "N/A: no schema or migration change",
+  "api": "N/A: no API, DTO or error-code change",
+  "screenshots": [
+    {
+      "path": "artifacts/verification/M3-P030/community-procurement-desktop.png",
+      "sha256": "820A13ADCA25F15A84E7C506F42A33D9B2EEC4BB3F621690441800E2F0896994"
+    },
+    {
+      "path": "artifacts/verification/M3-P030/community-procurement-mobile.png",
+      "sha256": "F9B78323C19EC17D0C196E942862A629862041DDDBE6C546C62C3A06A370D48B"
+    }
+  ],
+  "environment": {
+    "local": "LOCAL_PASS",
+    "ci": "NOT_EXECUTED",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_EXECUTED",
+    "production": "NOT_EXECUTED"
+  },
+  "limitations": [
+    "P0-030 complete enterprise registration, authenticated shelf and transaction delivery remain covered by their own slices and are not upgraded by this public-entry evidence",
+    "Real domain, DNS, TLS, ICP filing, CMS publication, staging and production validation remain NOT_EXECUTED",
+    "M3-P031 and later tasks remain locked until the exact-head PR CI passes, a human explicitly authorizes merge, and post-merge main CI passes"
+  ]
+}
