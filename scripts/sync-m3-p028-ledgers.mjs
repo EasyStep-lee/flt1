@@ -122,7 +122,7 @@ await updateCsv('08-页面路由接口P0映射.csv', (row) => row.PageID === 'PA
   ImplementationStatus: 'IMPLEMENTED_M3_P028_INITIAL_REGISTRATION',
   AcceptanceStatus: `P0-028_${ciStatus};P0-077_PARTIAL_LOCAL_PASS`,
   RouteTest: 'apps/portal-web/test/seo-cache-boundary.test.mjs|tests/e2e/p0/p0-028-enterprise-registration.spec.ts',
-  Notes: 'Next.js动态私有页完成主体、证照引用、联系人、开票、收货和首次提交；使用生成契约/openapi-fetch；noindex、private/no-store、PC+mobile响应式。完整预览、持久化进度、字段级补正与暂停说明由M3-P077继续，当前不得宣称P0-077完成。',
+  Notes: 'Next.js动态注册页完成主体、证照引用、联系人、开票、收货和首次提交；使用生成契约/openapi-fetch；禁止索引和公共缓存，PC+mobile响应式。完整预览、持久化进度、字段级补正与暂停说明由M3-P077继续，当前不得宣称P0-077完成。',
 } : null);
 
 await updateCsv('10-测试证据登记.csv', (row) => row.EvidenceID === 'EVD-028' ? {
@@ -160,7 +160,7 @@ await updateCsv('12-OpenAPI-DTO-错误码台账.csv', (row) => {
     ErrorCodes: row.ContractID === 'API-044'
       ? 'VALIDATION_FAILED|FIELD_FORBIDDEN|IDEMPOTENCY_KEY_REQUIRED|IDEMPOTENCY_CONFLICT|CREDIT_CODE_DUPLICATE|SERVICE_UNAVAILABLE'
       : 'AUTHENTICATION_REQUIRED|ACCESS_DENIED|ENTERPRISE_NOT_FOUND|STATE_TRANSITION_INVALID|APPROVAL_VERSION_CONFLICT|SELF_APPROVAL_FORBIDDEN|IDEMPOTENCY_CONFLICT',
-    SensitiveFieldPolicy: 'DTO_WHITE_LIST; mobile/creditCode/taxNumber/bankAccount masked; no companyId/identityId/verificationCode/supplyPrice/internal snapshot',
+    SensitiveFieldPolicy: 'NEVER_RETURN_SUPPLY_PRICE; DTO_WHITE_LIST; mobile/creditCode/taxNumber/bankAccount masked; no companyId/identityId/verificationCode/internal snapshot',
     MoneyRule: 'N/A_NO_MONEY_MUTATION',
     OpenAPIStatus: 'GENERATED', DTOStatus: 'IMPLEMENTED', ErrorCodeStatus: 'IMPLEMENTED',
     ContractTest: 'apps/api/test/supertest/enterprise-registration-api.test.mjs|packages/contracts/openapi.json|tests/openapi/openapi-generation.test.mjs',

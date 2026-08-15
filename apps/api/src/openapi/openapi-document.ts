@@ -117,7 +117,7 @@ import {
   UnavailableEnterpriseRegistrationVerifier,
 } from '../enterprise-onboarding/enterprise-registration.verifier.js';
 import {
-  ENTERPRISE_REGISTRATION_SIGNING_KEY,
+  ENTERPRISE_REGISTRATION_HMAC_PROVIDER,
   EnterpriseRegistrationTokenService,
 } from '../enterprise-onboarding/enterprise-registration-token.service.js';
 import { PaymentService } from '../payments/payment.service.js';
@@ -512,7 +512,7 @@ type JsonValue =
       useExisting: UnavailableEnterpriseRegistrationVerifier,
     },
     {
-      provide: ENTERPRISE_REGISTRATION_SIGNING_KEY,
+      provide: ENTERPRISE_REGISTRATION_HMAC_PROVIDER,
       useValue: `development-only-${'x'.repeat(32)}`,
     },
     {

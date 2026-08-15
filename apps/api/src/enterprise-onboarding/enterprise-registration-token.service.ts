@@ -4,8 +4,8 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { SafeApiError } from '../http/api-error.js';
 
-export const ENTERPRISE_REGISTRATION_SIGNING_KEY = Symbol(
-  'ENTERPRISE_REGISTRATION_SIGNING_KEY',
+export const ENTERPRISE_REGISTRATION_HMAC_PROVIDER = Symbol(
+  'ENTERPRISE_REGISTRATION_HMAC_PROVIDER',
 );
 
 interface RegistrationTokenPayload {
@@ -21,7 +21,7 @@ const decode = (value: string): string => Buffer.from(value, 'base64url').toStri
 @Injectable()
 export class EnterpriseRegistrationTokenService {
   constructor(
-    @Inject(ENTERPRISE_REGISTRATION_SIGNING_KEY)
+    @Inject(ENTERPRISE_REGISTRATION_HMAC_PROVIDER)
     private readonly signingKey: string,
   ) {}
 

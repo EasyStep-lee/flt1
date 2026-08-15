@@ -30,7 +30,7 @@ import {
   type EnterpriseRegistrationVerifier,
 } from './enterprise-onboarding/enterprise-registration.verifier.js';
 import {
-  ENTERPRISE_REGISTRATION_SIGNING_KEY,
+  ENTERPRISE_REGISTRATION_HMAC_PROVIDER,
   EnterpriseRegistrationTokenService,
 } from './enterprise-onboarding/enterprise-registration-token.service.js';
 import { PrismaPublicCatalogRepository } from './catalog/prisma-public-catalog.repository.js';
@@ -487,7 +487,7 @@ export class AppModule {
             useExisting: UnavailableSupplierRegistrationVerifier,
           },
       {
-        provide: ENTERPRISE_REGISTRATION_SIGNING_KEY,
+        provide: ENTERPRISE_REGISTRATION_HMAC_PROVIDER,
         useValue: options.config.supplierAuthSessionSigningKey,
       },
       options.enterpriseOnboardingRepository
