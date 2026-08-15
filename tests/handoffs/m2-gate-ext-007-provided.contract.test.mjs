@@ -174,8 +174,8 @@ test('EXT-007 historical evidence remains valid after exact-head merges advance 
   assert.equal(m3.Status, 'IN_PROGRESS');
   assert.equal(m3.EvidenceStatus, 'CI_PASS');
   assert.equal(state.execution.status, 'M3_IN_PROGRESS');
-  assert.equal(state.execution.currentTask, 'M3-P029');
-  assert.equal(state.execution.nextAllowedTask, 'M3-P029');
+  assert.equal(state.execution.currentTask, 'M3-P030');
+  assert.equal(state.execution.nextAllowedTask, 'M3-P030');
   assert.equal(state.execution.activeTaskCount, 1);
   assert.equal(state.execution.lastPassedGate, 'M2-GATE');
 
