@@ -58,6 +58,13 @@ const fixture = () => {
       paymentStatus: 'PENDING',
       orderStatus: 'PENDING_PAYMENT',
       version: 1,
+      enterpriseProcurementOrder: {
+        buyerOrderId: orderId,
+        paymentMethod: 'BANK_TRANSFER',
+        remittanceReviewStatus: 'PENDING_REVIEW',
+        status: 'PAYMENT_CONFIRMING',
+        version: 1,
+      },
       paymentTransactions: [],
       items: [
         { id: '72000000-0000-4000-8000-000000000001', skuId: '30000000-0000-4000-8000-000000000001', supplierId: '20000000-0000-4000-8000-000000000011', quantity: 1 },
@@ -126,6 +133,21 @@ const fixture = () => {
         return { count: 1 };
       },
     },
+    enterpriseProcurementOrder: {
+      updateMany: async ({ where, data }) => {
+        const procurement = state.order.enterpriseProcurementOrder;
+        if (
+          procurement.buyerOrderId !== where.buyerOrderId ||
+          procurement.version !== where.version ||
+          procurement.status !== where.status ||
+          (where.remittanceReviewStatus && procurement.remittanceReviewStatus !== where.remittanceReviewStatus)
+        ) return { count: 0 };
+        if (data.status) procurement.status = data.status;
+        if (data.remittanceReviewStatus) procurement.remittanceReviewStatus = data.remittanceReviewStatus;
+        procurement.version += data.version.increment;
+        return { count: 1 };
+      },
+    },
     supplierFulfillmentOrder: {
       updateMany: async ({ data }) => {
         for (const fulfillment of state.order.supplierFulfillments) fulfillment.status = data.status;
@@ -157,6 +179,8 @@ test('M3-P025 Prisma company confirmation atomically confirms company receivable
   assert.equal(result.remittance.sellerName, '江苏福礼团供应链科技有限公司');
   assert.equal(state.submission.status, 'CONFIRMED');
   assert.equal(state.order.paymentStatus, 'PAID');
+  assert.equal(state.order.enterpriseProcurementOrder.status, 'PAID');
+  assert.equal(state.order.enterpriseProcurementOrder.remittanceReviewStatus, 'CONFIRMED');
   assert.deepEqual([...state.balances.values()].map(({ reservedQty, soldQty }) => ({ reservedQty, soldQty })), [
     { reservedQty: 0, soldQty: 1 },
     { reservedQty: 0, soldQty: 2 },

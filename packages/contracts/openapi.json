@@ -96,6 +96,7 @@
               "CREDIT_CODE_DUPLICATE",
               "ENTERPRISE_NOT_FOUND",
               "ENTERPRISE_NOT_ACTIVE",
+              "ENTERPRISE_PROFILE_INCOMPLETE",
               "ENTERPRISE_SCOPE_FORBIDDEN",
               "INVENTORY_INSUFFICIENT",
               "INVENTORY_NEGATIVE",
@@ -1491,6 +1492,129 @@
         ],
         "type": "object"
       },
+      "CreateEnterpriseOrderRequestDto": {
+        "properties": {
+          "enterpriseAddressId": {
+            "description": "Omit all checkout fields to use the active enterprise defaults",
+            "format": "uuid",
+            "type": "string"
+          },
+          "invoiceProfileId": {
+            "description": "Omit all checkout fields to use the active enterprise defaults",
+            "format": "uuid",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CreateOrderItemRequestDto"
+            },
+            "maxItems": 100,
+            "minItems": 1,
+            "type": "array"
+          },
+          "paymentMethod": {
+            "description": "Defaults to WECHAT_PAY only when all checkout fields are omitted",
+            "enum": [
+              "WECHAT_PAY",
+              "BANK_TRANSFER"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "type": "object"
+      },
+      "CreateEnterpriseOrderResponseDto": {
+        "properties": {
+          "checkoutMode": {
+            "enum": [
+              "COMPANY_UNIFIED"
+            ],
+            "type": "string"
+          },
+          "deliveryFee": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "discountAmount": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "enterpriseProcurement": {
+            "$ref": "#/components/schemas/EnterpriseProcurementResponseDto"
+          },
+          "goodsAmount": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/BuyerOrderItemResponseDto"
+            },
+            "type": "array"
+          },
+          "orderId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "orderNo": {
+            "maxLength": 32,
+            "type": "string"
+          },
+          "orderStatus": {
+            "enum": [
+              "PENDING_PAYMENT"
+            ],
+            "type": "string"
+          },
+          "orderType": {
+            "enum": [
+              "CONSUMER",
+              "ENTERPRISE"
+            ],
+            "type": "string"
+          },
+          "paymentStatus": {
+            "enum": [
+              "PENDING"
+            ],
+            "type": "string"
+          },
+          "sellerName": {
+            "example": "江苏福礼团供应链科技有限公司",
+            "type": "string"
+          },
+          "supplierFulfillments": {
+            "items": {
+              "$ref": "#/components/schemas/SupplierFulfillmentOrderResponseDto"
+            },
+            "type": "array"
+          },
+          "totalAmount": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "orderId",
+          "orderNo",
+          "orderType",
+          "sellerName",
+          "checkoutMode",
+          "goodsAmount",
+          "deliveryFee",
+          "discountAmount",
+          "totalAmount",
+          "paymentStatus",
+          "orderStatus",
+          "items",
+          "supplierFulfillments",
+          "enterpriseProcurement"
+        ],
+        "type": "object"
+      },
       "CreateFunctionalAccountRequestDto": {
         "properties": {
           "accountTypeCode": {
@@ -1825,6 +1949,71 @@
         },
         "type": "object"
       },
+      "EnterpriseCheckoutAddressResponseDto": {
+        "properties": {
+          "consignee": {
+            "type": "string"
+          },
+          "deliveryNote": {
+            "nullable": true,
+            "type": "string"
+          },
+          "fullAddress": {
+            "type": "string"
+          },
+          "mobileMasked": {
+            "example": "138****8000",
+            "type": "string"
+          },
+          "region": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "consignee",
+          "mobileMasked",
+          "region",
+          "fullAddress",
+          "deliveryNote"
+        ],
+        "type": "object"
+      },
+      "EnterpriseCheckoutInvoiceResponseDto": {
+        "properties": {
+          "bankAccountMasked": {
+            "nullable": true,
+            "type": "string"
+          },
+          "bankName": {
+            "nullable": true,
+            "type": "string"
+          },
+          "registeredAddress": {
+            "nullable": true,
+            "type": "string"
+          },
+          "registeredPhoneMasked": {
+            "nullable": true,
+            "type": "string"
+          },
+          "taxNumberMasked": {
+            "example": "9132********2D3X",
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "taxNumberMasked",
+          "registeredAddress",
+          "registeredPhoneMasked",
+          "bankName",
+          "bankAccountMasked"
+        ],
+        "type": "object"
+      },
       "EnterpriseFoodSkuResponseDto": {
         "properties": {
           "enterpriseSalePrice": {
@@ -1916,6 +2105,66 @@
           "id",
           "title",
           "taxNumberMasked"
+        ],
+        "type": "object"
+      },
+      "EnterpriseProcurementResponseDto": {
+        "properties": {
+          "address": {
+            "$ref": "#/components/schemas/EnterpriseCheckoutAddressResponseDto"
+          },
+          "enterpriseOrderId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "invoiceProfile": {
+            "$ref": "#/components/schemas/EnterpriseCheckoutInvoiceResponseDto"
+          },
+          "nextAction": {
+            "enum": [
+              "SUBMIT_REMITTANCE_PROOF",
+              "START_WECHAT_PAYMENT",
+              "WAIT_FOR_PAYMENT_CONFIRMATION",
+              "VIEW_ORDER"
+            ],
+            "type": "string"
+          },
+          "paymentMethod": {
+            "enum": [
+              "WECHAT_PAY",
+              "BANK_TRANSFER"
+            ],
+            "type": "string"
+          },
+          "remittanceReviewStatus": {
+            "enum": [
+              "NOT_SUBMITTED",
+              "PENDING_REVIEW",
+              "CONFIRMED",
+              "REJECTED"
+            ],
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "PENDING_PAYMENT",
+              "PAYMENT_CONFIRMING",
+              "PAID",
+              "FULFILLING",
+              "COMPLETED",
+              "CANCELLED"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "enterpriseOrderId",
+          "paymentMethod",
+          "remittanceReviewStatus",
+          "status",
+          "nextAction",
+          "address",
+          "invoiceProfile"
         ],
         "type": "object"
       },
@@ -10029,7 +10278,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateOrderRequestDto"
+                "$ref": "#/components/schemas/CreateEnterpriseOrderRequestDto"
               }
             }
           },
@@ -10040,7 +10289,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CreateBuyerOrderResponseDto"
+                  "$ref": "#/components/schemas/CreateEnterpriseOrderResponseDto"
                 }
               }
             },

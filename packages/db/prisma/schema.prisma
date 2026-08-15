@@ -318,6 +318,27 @@ enum EnterpriseRemittanceDecision {
   REJECT
 }
 
+enum EnterpriseProcurementPaymentMethod {
+  WECHAT_PAY
+  BANK_TRANSFER
+}
+
+enum EnterpriseRemittanceReviewStatus {
+  NOT_SUBMITTED
+  PENDING_REVIEW
+  CONFIRMED
+  REJECTED
+}
+
+enum EnterpriseProcurementOrderStatus {
+  PENDING_PAYMENT
+  PAYMENT_CONFIRMING
+  PAID
+  FULFILLING
+  COMPLETED
+  CANCELLED
+}
+
 enum SupplyPriceChangeStatus {
   SUBMITTED
   APPROVED
@@ -647,6 +668,7 @@ model EnterpriseCustomer {
   statusHistory          EnterpriseCustomerStatusHistory[]
   certificationSnapshots EnterpriseCertificationSnapshot[]
   procurementProfile     EnterpriseProcurementProfile?
+  procurementOrders      EnterpriseProcurementOrder[]
 
   @@index([companyId, status, createdAt], map: "enterprise_customer_company_status_time_idx")
   @@index([contactMobile, status], map: "enterprise_customer_mobile_status_idx")
@@ -666,6 +688,7 @@ model EnterpriseUser {
   createdAt            DateTime             @default(now()) @map("created_at") @db.DateTime(3)
   updatedAt            DateTime             @updatedAt @map("updated_at") @db.DateTime(3)
   enterpriseCustomer   EnterpriseCustomer   @relation(fields: [enterpriseCustomerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  procurementOrders    EnterpriseProcurementOrder[]
 
   @@unique([enterpriseCustomerId, mobile], map: "enterprise_user_enterprise_mobile_key")
   @@unique([enterpriseCustomerId, identityId], map: "enterprise_user_enterprise_identity_key")
@@ -1400,12 +1423,35 @@ model BuyerOrder {
   enterpriseRemittances EnterpriseRemittanceSubmission[]
   refundAuthorizations  RefundAuthorization[]
   refundTransactions    RefundTransaction[]
+  enterpriseProcurementOrder EnterpriseProcurementOrder?
 
   @@unique([idempotencyScope, idempotencyKey], map: "buyer_order_idempotency_scope_key")
   @@index([companyId, orderType, createdAt], map: "buyer_order_company_type_time_idx")
   @@index([consumerUserId, createdAt], map: "buyer_order_consumer_time_idx")
   @@index([enterpriseCustomerId, createdAt], map: "buyer_order_enterprise_time_idx")
   @@map("buyer_order")
+}
+
+model EnterpriseProcurementOrder {
+  id                       String                              @id @default(uuid()) @db.Char(36)
+  buyerOrderId             String                              @unique @map("buyer_order_id") @db.Char(36)
+  enterpriseCustomerId     String                              @map("enterprise_customer_id") @db.Char(36)
+  purchaserUserId          String                              @map("purchaser_user_id") @db.Char(36)
+  invoiceProfileSnapshot   Json                                @map("invoice_profile_snapshot")
+  enterpriseAddressSnapshot Json                               @map("enterprise_address_snapshot")
+  paymentMethod            EnterpriseProcurementPaymentMethod @map("payment_method")
+  remittanceReviewStatus   EnterpriseRemittanceReviewStatus    @default(NOT_SUBMITTED) @map("remittance_review_status")
+  status                   EnterpriseProcurementOrderStatus    @default(PENDING_PAYMENT)
+  version                  Int                                 @default(0)
+  createdAt                DateTime                            @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt                DateTime                            @updatedAt @map("updated_at") @db.DateTime(3)
+  buyerOrder               BuyerOrder                          @relation(fields: [buyerOrderId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  enterpriseCustomer       EnterpriseCustomer                  @relation(fields: [enterpriseCustomerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  purchaserUser            EnterpriseUser                      @relation(fields: [purchaserUserId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([enterpriseCustomerId, status, createdAt], map: "enterprise_procurement_order_customer_status_idx")
+  @@index([purchaserUserId, createdAt], map: "enterprise_procurement_order_purchaser_time_idx")
+  @@map("enterprise_procurement_order")
 }
 
 model SupplierFulfillmentOrder {

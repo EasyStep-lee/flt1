@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-15T08:00:02Z",
+  "updatedAt": "2026-08-15T09:15:26.578Z",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -14,15 +14,15 @@
   "execution": {
     "status": "M3_IN_PROGRESS",
     "currentStage": "M3",
-    "currentTask": "M3-P028",
-    "nextAllowedTask": "M3-P028",
+    "currentTask": "M3-P029",
+    "nextAllowedTask": "M3-P029",
     "activeTaskCount": 1,
-    "lastCompletedTask": "M3-P027",
-    "lastCompletedCommit": "0691ae492771df9fa39422460501a41ad174c605",
+    "lastCompletedTask": "M3-P028",
+    "lastCompletedCommit": "fa083beb195c769cc4168dcac38e817e3df2a873",
     "lastPassedGate": "M2-GATE",
     "prohibitedUntilGate": [
-      "M3-P028 Draft PR精确head CI成功、人工合并且post-merge main CI成功前不得开始M3-P029",
-      "P0-077完整页面体验、M4及后续保持锁定"
+      "M3-P029 Draft PR精确head CI成功、人工合并且post-merge main CI成功前不得开始M3-P030",
+      "P0-029后续页面/配送/售后/发票、M4及后续保持锁定"
     ],
     "persistentRestrictions": [
       "M3-GATE通过前M4及以后阶段保持LOCKED/NOT_EXECUTED",
@@ -39,9 +39,9 @@
     "authenticationConfirmed": true,
     "writeAllowed": true,
     "connectorAccessConfirmed": true,
-    "pullRequest": 92,
-    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/92",
-    "pullRequestState": "DRAFT",
+    "pullRequest": null,
+    "pullRequestUrl": null,
+    "pullRequestState": "NOT_CREATED",
     "pullRequestMerged": false,
     "mergeCommitSha": null,
     "mergedAt": null,
@@ -60,14 +60,14 @@
       "currentHeadReviewRequired": true,
       "authorizationExactHead": false
     },
-    "lastVerifiedPullRequestHead": "542b50e565133ea2afcfc463b27fd15b0edbfc5f",
+    "lastVerifiedPullRequestHead": null,
     "pullRequestCi": {
-      "status": "CI_PASS",
-      "runId": 31872929851,
-      "jobId": 94984210698,
-      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31872929851",
-      "headSha": "542b50e565133ea2afcfc463b27fd15b0edbfc5f",
-      "completedAt": "2026-08-15T08:00:02Z"
+      "status": "NOT_EXECUTED",
+      "runId": null,
+      "jobId": null,
+      "runUrl": null,
+      "headSha": null,
+      "completedAt": null
     },
     "latestCi": {
       "scope": "M3_P028_PR_HEAD",
@@ -80,40 +80,40 @@
       "completedAt": "2026-08-15T08:00:02Z"
     },
     "currentTaskDelivery": {
-      "taskId": "M3-P028",
-      "issue": 91,
-      "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/91",
-      "branch": "codex/m3-enterprise-registration",
-      "baseCommit": "0691ae492771df9fa39422460501a41ad174c605",
-      "verifiedHead": "542b50e565133ea2afcfc463b27fd15b0edbfc5f",
-      "status": "CI_PASS_PENDING_HUMAN_MERGE",
-      "localRedTest": "ENTERPRISE_REGISTRATION_EXPECTED_SAFE_DEFAULT_503_ACTUAL_404",
-      "localFocusedTest": "LOCAL_PASS_API_9_MIGRATION_PORTAL_COMPANY_AND_P0_E2E",
-      "localFullVerify": "PASS_17_OF_17",
-      "pullRequest": 92,
-      "pullRequestState": "DRAFT",
-      "exactHeadCi": "CI_PASS_RUN_31872929851_JOB_94984210698",
+      "taskId": "M3-P029",
+      "issue": 93,
+      "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/93",
+      "branch": "codex/m3-enterprise-procurement",
+      "baseCommit": "fa083beb195c769cc4168dcac38e817e3df2a873",
+      "verifiedHead": "LOCAL_WORKTREE",
+      "status": "LOCAL_PASS_PENDING_DRAFT_PR",
+      "localRedTest": "ENTERPRISE_CHECKOUT_EXPECTED_201_ACTUAL_422",
+      "localFocusedTest": "LOCAL_PASS_API_9_PRISMA_13_MIGRATION_AND_P0_E2E",
+      "localFullVerify": "NOT_EXECUTED",
+      "pullRequest": null,
+      "pullRequestState": "NOT_CREATED",
+      "exactHeadCi": "NOT_EXECUTED",
       "review": "NOT_EXECUTED",
       "merge": "NOT_EXECUTED",
       "mainPostMergeCi": "NOT_EXECUTED",
-      "blockingExternalItem": "EXT_013_LEGAL_FINANCE_SMS_OBJECT_STORAGE_STAGING_PRODUCTION",
+      "blockingExternalItem": "P0_029_FULL_UI_DELIVERY_RECEIPT_AFTERSALES_INVOICE_REAL_PAYMENT_STAGING_DEVICE_PRODUCTION",
       "nextTaskUnlocked": false
     },
     "previousTaskDelivery": {
-      "taskId": "M3-P027",
-      "pullRequest": 90,
-      "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/90",
-      "exactHead": "e17e25f58c8bda46e80dfc6175a2f60b4a3a9fbb",
-      "mergeCommit": "0691ae492771df9fa39422460501a41ad174c605",
-      "mainPostMergeCiRun": 31867042679,
-      "mainPostMergeCiJob": 94969678834,
+      "taskId": "M3-P028",
+      "pullRequest": 92,
+      "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/92",
+      "exactHead": "ee7fdff5170de7e06ae24da77abaf60e2eee89c2",
+      "mergeCommit": "fa083beb195c769cc4168dcac38e817e3df2a873",
+      "mainPostMergeCiRun": 31874947792,
+      "mainPostMergeCiJob": 94989178288,
       "status": "CI_PASS"
     },
-    "note": "M3-P028企业注册认证自动化技术行为Draft PR精确head CI_PASS；EXT-013、真实短信/对象存储、P0-077完整页面、staging/production未执行；M3-P029锁定。"
+    "note": "M3-P029统一企业订单技术切片LOCAL_PASS；完整P0-029与真实外部环境未宣称完成；M3-P030锁定。"
   },
   "evidence": {
-    "local": "LOCAL_PASS_M3_P028_FULL_VERIFY",
-    "ci": "CI_PASS_M3_P028_HEAD_542b50e",
+    "local": "LOCAL_FOCUSED_PASS_FULL_VERIFY_NOT_EXECUTED",
+    "ci": "NOT_EXECUTED",
     "staging": "NOT_EXECUTED",
     "device": "NOT_EXECUTED",
     "production": "NOT_EXECUTED"

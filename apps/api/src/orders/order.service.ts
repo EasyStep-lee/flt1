@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
 
 import { SafeApiError } from '../http/api-error.js';
+import { maskMobile, maskTaxNumber } from '../enterprise-onboarding/enterprise-onboarding.policy.js';
 import type { ConsumerOrderActor, EnterpriseOrderActor } from './order.actor.js';
 import {
   ORDER_REPOSITORY,
@@ -18,14 +19,23 @@ const SELLER_NAME = '江苏福礼团供应链科技有限公司' as const;
 
 interface NormalizedOrderBody {
   readonly items: readonly { readonly skuId: string; readonly quantity: number }[];
+  readonly enterpriseAddressId?: string;
+  readonly invoiceProfileId?: string;
+  readonly paymentMethod?: 'WECHAT_PAY' | 'BANK_TRANSFER';
 }
 
-const normalizeBody = (value: unknown): NormalizedOrderBody => {
+const normalizeBody = (
+  value: unknown,
+  orderType: BuyerOrderType,
+): NormalizedOrderBody => {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     throw new SafeApiError(422, 'VALIDATION_FAILED', 'Order body must be an object');
   }
   const body = value as Record<string, unknown>;
-  if (Object.keys(body).some((key) => key !== 'items')) {
+  const permittedFields = orderType === 'CONSUMER'
+    ? new Set(['items'])
+    : new Set(['items', 'enterpriseAddressId', 'invoiceProfileId', 'paymentMethod']);
+  if (Object.keys(body).some((key) => !permittedFields.has(key))) {
     throw new SafeApiError(422, 'FIELD_FORBIDDEN', 'Client-owned scope fields are forbidden');
   }
   if (!Array.isArray(body.items) || body.items.length < 1 || body.items.length > 100) {
@@ -52,6 +62,24 @@ const normalizeBody = (value: unknown): NormalizedOrderBody => {
     seen.add(item.skuId);
     return { skuId: item.skuId, quantity: Number(item.quantity) };
   });
+  if (orderType === 'ENTERPRISE') {
+    const hasCheckoutSelection = body.enterpriseAddressId !== undefined ||
+      body.invoiceProfileId !== undefined || body.paymentMethod !== undefined;
+    if (!hasCheckoutSelection) return { items };
+    if (
+      typeof body.enterpriseAddressId !== 'string' || !UUID.test(body.enterpriseAddressId) ||
+      typeof body.invoiceProfileId !== 'string' || !UUID.test(body.invoiceProfileId) ||
+      (body.paymentMethod !== 'WECHAT_PAY' && body.paymentMethod !== 'BANK_TRANSFER')
+    ) {
+      throw new SafeApiError(422, 'VALIDATION_FAILED', 'Enterprise checkout profile and payment method are required');
+    }
+    return {
+      items,
+      enterpriseAddressId: body.enterpriseAddressId,
+      invoiceProfileId: body.invoiceProfileId,
+      paymentMethod: body.paymentMethod,
+    };
+  }
   return { items };
 };
 
@@ -68,6 +96,19 @@ const safeMultiply = (left: number, right: number): number => {
     throw new SafeApiError(422, 'VALIDATION_FAILED', 'Order amount exceeds the supported range');
   }
   return value;
+};
+
+const enterpriseNextAction = (
+  order: NonNullable<OrderAggregateRecord['enterpriseProcurement']>,
+): 'SUBMIT_REMITTANCE_PROOF' | 'START_WECHAT_PAYMENT' | 'WAIT_FOR_PAYMENT_CONFIRMATION' | 'VIEW_ORDER' => {
+  if (order.status === 'PENDING_PAYMENT') {
+    return order.paymentMethod === 'BANK_TRANSFER'
+      ? 'SUBMIT_REMITTANCE_PROOF'
+      : 'START_WECHAT_PAYMENT';
+  }
+  return order.status === 'PAYMENT_CONFIRMING'
+    ? 'WAIT_FOR_PAYMENT_CONFIRMATION'
+    : 'VIEW_ORDER';
 };
 
 const toCustomerResponse = (order: OrderAggregateRecord) => ({
@@ -99,6 +140,34 @@ const toCustomerResponse = (order: OrderAggregateRecord) => ({
     goodsAmount: fulfillment.goodsAmount,
     status: fulfillment.status,
   })),
+  ...(order.enterpriseProcurement
+    ? {
+        enterpriseProcurement: {
+          enterpriseOrderId: order.enterpriseProcurement.enterpriseOrderId,
+          paymentMethod: order.enterpriseProcurement.paymentMethod,
+          remittanceReviewStatus: order.enterpriseProcurement.remittanceReviewStatus,
+          status: order.enterpriseProcurement.status,
+          nextAction: enterpriseNextAction(order.enterpriseProcurement),
+          address: {
+            consignee: order.enterpriseProcurement.address.consignee,
+            mobileMasked: maskMobile(order.enterpriseProcurement.address.mobile),
+            region: order.enterpriseProcurement.address.region,
+            fullAddress: order.enterpriseProcurement.address.fullAddress,
+            deliveryNote: order.enterpriseProcurement.address.deliveryNote,
+          },
+          invoiceProfile: {
+            title: order.enterpriseProcurement.invoiceProfile.title,
+            taxNumberMasked: maskTaxNumber(order.enterpriseProcurement.invoiceProfile.taxNumber),
+            registeredAddress: order.enterpriseProcurement.invoiceProfile.registeredAddress,
+            registeredPhoneMasked: order.enterpriseProcurement.invoiceProfile.registeredPhone
+              ? maskMobile(order.enterpriseProcurement.invoiceProfile.registeredPhone)
+              : null,
+            bankName: order.enterpriseProcurement.invoiceProfile.bankName,
+            bankAccountMasked: order.enterpriseProcurement.invoiceProfile.bankAccountMasked,
+          },
+        },
+      }
+    : {}),
 });
 
 @Injectable()
@@ -135,7 +204,8 @@ export class OrderService {
     idempotencyKeyValue: unknown,
     requestId: string,
   ) {
-    const body = normalizeBody(bodyValue);
+    const orderType: BuyerOrderType = actor.kind;
+    const body = normalizeBody(bodyValue, orderType);
     const idempotencyKey = requireIdempotencyKey(idempotencyKeyValue);
     const records = await this.repository.findOrderableSkus(
       actor.companyId,
@@ -145,7 +215,6 @@ export class OrderService {
     if (records.length !== body.items.length) {
       throw new SafeApiError(409, 'PRODUCT_NOT_SALEABLE', 'One or more products are not saleable');
     }
-    const orderType: BuyerOrderType = actor.kind;
     const items = body.items.map((item) => {
       const record = recordBySku.get(item.skuId);
       const channelAllowed = actor.kind === 'CONSUMER'
@@ -199,6 +268,13 @@ export class OrderService {
     const canonical = JSON.stringify({
       orderType,
       buyerId,
+      ...(actor.kind === 'ENTERPRISE'
+        ? {
+            enterpriseAddressId: body.enterpriseAddressId,
+            invoiceProfileId: body.invoiceProfileId,
+            paymentMethod: body.paymentMethod,
+          }
+        : {}),
       items: [...body.items].sort((left, right) => left.skuId.localeCompare(right.skuId)),
     });
     const command: CreateOrderCommand = {
@@ -212,6 +288,7 @@ export class OrderService {
       totalAmount: goodsAmount,
       welfareCardAmount: 0,
       cashAmount: goodsAmount,
+      externalPaymentMethod: actor.kind === 'ENTERPRISE' ? body.paymentMethod ?? 'WECHAT_PAY' : null,
       paymentStatus: 'PENDING',
       orderStatus: 'PENDING_PAYMENT',
       idempotencyScope: `${orderType}:${buyerId}`,
@@ -225,6 +302,14 @@ export class OrderService {
         ...value,
         status: 'PENDING_PAYMENT' as const,
       })),
+      enterpriseProcurement: actor.kind === 'ENTERPRISE'
+        ? {
+            enterpriseAddressId: body.enterpriseAddressId ?? null,
+            invoiceProfileId: body.invoiceProfileId ?? null,
+            paymentMethod: body.paymentMethod ?? 'WECHAT_PAY',
+            purchaserUserId: actor.enterpriseUserId,
+          }
+        : null,
     };
     const result = await this.repository.createOrder(command);
     if (result.kind === 'IDEMPOTENCY_CONFLICT') {
@@ -235,6 +320,15 @@ export class OrderService {
     }
     if (result.kind === 'INVENTORY_RESERVATION_CONFLICT') {
       throw new SafeApiError(409, 'INVENTORY_RESERVATION_CONFLICT', 'Inventory changed while the order was submitted');
+    }
+    if (result.kind === 'ENTERPRISE_NOT_ACTIVE') {
+      throw new SafeApiError(403, 'ENTERPRISE_NOT_ACTIVE', 'Enterprise customer is not active');
+    }
+    if (result.kind === 'ENTERPRISE_SCOPE_FORBIDDEN') {
+      throw new SafeApiError(403, 'ENTERPRISE_SCOPE_FORBIDDEN', 'Enterprise checkout profile belongs to another enterprise');
+    }
+    if (result.kind === 'ENTERPRISE_PROFILE_INCOMPLETE') {
+      throw new SafeApiError(409, 'ENTERPRISE_PROFILE_INCOMPLETE', 'Enterprise checkout profile is incomplete');
     }
     return { body: toCustomerResponse(result.order), replayed: result.kind === 'REPLAY' };
   }

@@ -10,6 +10,8 @@ const companyId = '10000000-0000-4000-8000-000000000001';
 const consumerUserId = '10000000-0000-4000-8000-000000000002';
 const enterpriseCustomerId = '10000000-0000-4000-8000-000000000003';
 const enterpriseUserId = '10000000-0000-4000-8000-000000000004';
+const enterpriseAddressId = '10000000-0000-4000-8000-000000000005';
+const invoiceProfileId = '10000000-0000-4000-8000-000000000006';
 const suppliers = [
   '20000000-0000-4000-8000-000000000001',
   '20000000-0000-4000-8000-000000000002',
@@ -81,6 +83,29 @@ class RecordingOrderRepository {
         ...item,
         fulfillmentOrderId: randomUUID(),
       })),
+      enterpriseProcurement: command.enterpriseProcurement
+        ? {
+            enterpriseOrderId: randomUUID(),
+            paymentMethod: command.enterpriseProcurement.paymentMethod,
+            remittanceReviewStatus: 'NOT_SUBMITTED',
+            status: 'PENDING_PAYMENT',
+            address: {
+              consignee: '企业收货人',
+              mobile: '13800138000',
+              region: '江苏省南京市',
+              fullAddress: '企业收货地址',
+              deliveryNote: null,
+            },
+            invoiceProfile: {
+              title: '企业发票抬头',
+              taxNumber: '91320100MA1ABC2D3X',
+              registeredAddress: null,
+              registeredPhone: null,
+              bankName: null,
+              bankAccountMasked: null,
+            },
+          }
+        : null,
     };
     this.replays.set(replayKey, { requestHash: command.requestHash, order });
     return { kind: 'CREATED', order };
@@ -125,6 +150,12 @@ const createFixture = async (repository = new RecordingOrderRepository()) => {
 };
 
 const requestItems = skus.map(({ skuId }, index) => ({ skuId, quantity: index + 1 }));
+const enterpriseOrderBody = () => ({
+  items: requestItems,
+  enterpriseAddressId,
+  invoiceProfileId,
+  paymentMethod: 'WECHAT_PAY',
+});
 
 describe('P0-022 personal and enterprise cross-supplier company orders', () => {
   it('creates one consumer main order and exactly one fulfillment per supplier using retail prices', async () => {
@@ -173,7 +204,7 @@ describe('P0-022 personal and enterprise cross-supplier company orders', () => {
         .post('/v1/enterprise/orders')
         .set('Cookie', '__Host-fulishe-enterprise-portal=enterprise-session')
         .set('Idempotency-Key', 'enterprise-three-suppliers-0001')
-        .send({ items: requestItems })
+        .send(enterpriseOrderBody())
         .expect(201);
 
       expect(response.headers['x-robots-tag']).toBe('noindex, nofollow');
@@ -259,7 +290,7 @@ describe('P0-022 personal and enterprise cross-supplier company orders', () => {
         .set('Cookie', '__Host-fulishe-enterprise-portal=enterprise-session')
         .set('Idempotency-Key', 'enterprise-missing-sku-0001')
         .set('x-request-id', 'neg-m3-p022-product')
-        .send({ items: requestItems })
+        .send(enterpriseOrderBody())
         .expect(409)
         .expect(({ body }) =>
           expect(body).toMatchObject({

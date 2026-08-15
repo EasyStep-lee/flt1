@@ -23,7 +23,7 @@ class RemittanceMutationFailure extends Error {
 }
 
 const remittanceInclude = Prisma.validator<Prisma.EnterpriseRemittanceSubmissionInclude>()({
-  buyerOrder: true,
+  buyerOrder: { include: { enterpriseProcurementOrder: true } },
   review: true,
 });
 
@@ -74,6 +74,7 @@ export class PrismaEnterpriseRemittanceRepository implements EnterpriseRemittanc
           include: {
             paymentTransactions: { select: { id: true }, take: 1 },
             enterpriseRemittances: { orderBy: { submissionVersion: 'desc' }, take: 1 },
+            enterpriseProcurementOrder: true,
           },
         });
         if (!order) return { kind: 'NOT_FOUND' as const };
@@ -90,7 +91,9 @@ export class PrismaEnterpriseRemittanceRepository implements EnterpriseRemittanc
         if (
           order.welfareCardAmount !== 0 ||
           order.externalPaymentMethod === 'WECHAT_PAY' ||
-          order.paymentTransactions.length > 0
+          order.paymentTransactions.length > 0 ||
+          order.enterpriseProcurementOrder?.paymentMethod !== 'BANK_TRANSFER' ||
+          order.enterpriseProcurementOrder.status !== 'PENDING_PAYMENT'
         ) {
           return { kind: 'PAYMENT_METHOD_INVALID' as const };
         }
@@ -130,6 +133,20 @@ export class PrismaEnterpriseRemittanceRepository implements EnterpriseRemittanc
           },
         });
         if (changed.count !== 1) throw new RemittanceMutationFailure('CONCURRENT_CONFLICT');
+        const procurementChanged = await tx.enterpriseProcurementOrder.updateMany({
+          where: {
+            buyerOrderId: order.id,
+            version: order.enterpriseProcurementOrder.version,
+            paymentMethod: 'BANK_TRANSFER',
+            status: 'PENDING_PAYMENT',
+          },
+          data: {
+            remittanceReviewStatus: 'PENDING_REVIEW',
+            status: 'PAYMENT_CONFIRMING',
+            version: { increment: 1 },
+          },
+        });
+        if (procurementChanged.count !== 1) throw new RemittanceMutationFailure('CONCURRENT_CONFLICT');
         await tx.buyerOrderEvent.create({
           data: {
             buyerOrderId: order.id,
@@ -193,6 +210,7 @@ export class PrismaEnterpriseRemittanceRepository implements EnterpriseRemittanc
                 items: { orderBy: { skuId: 'asc' } },
                 supplierFulfillments: { orderBy: { supplierId: 'asc' } },
                 paymentTransactions: { select: { id: true }, take: 1 },
+                enterpriseProcurementOrder: true,
               },
             },
           },
@@ -223,7 +241,10 @@ export class PrismaEnterpriseRemittanceRepository implements EnterpriseRemittanc
           order.paymentStatus !== 'PENDING' ||
           order.orderStatus !== 'PENDING_PAYMENT' ||
           order.welfareCardAmount !== 0 ||
-          order.paymentTransactions.length > 0
+          order.paymentTransactions.length > 0 ||
+          order.enterpriseProcurementOrder?.paymentMethod !== 'BANK_TRANSFER' ||
+          order.enterpriseProcurementOrder.status !== 'PAYMENT_CONFIRMING' ||
+          order.enterpriseProcurementOrder.remittanceReviewStatus !== 'PENDING_REVIEW'
         ) {
           return { kind: 'STATE_CONFLICT' as const };
         }
@@ -325,6 +346,20 @@ export class PrismaEnterpriseRemittanceRepository implements EnterpriseRemittanc
             },
           });
           if (orderChanged.count !== 1) throw new RemittanceMutationFailure('CONCURRENT_CONFLICT');
+          const procurementChanged = await tx.enterpriseProcurementOrder.updateMany({
+            where: {
+              buyerOrderId: order.id,
+              version: order.enterpriseProcurementOrder.version,
+              status: 'PAYMENT_CONFIRMING',
+              remittanceReviewStatus: 'PENDING_REVIEW',
+            },
+            data: {
+              status: 'PAID',
+              remittanceReviewStatus: 'CONFIRMED',
+              version: { increment: 1 },
+            },
+          });
+          if (procurementChanged.count !== 1) throw new RemittanceMutationFailure('CONCURRENT_CONFLICT');
           await tx.supplierFulfillmentOrder.updateMany({
             where: { buyerOrderId: order.id, status: 'PENDING_PAYMENT' },
             data: { status: 'PENDING_PREPARATION' },
@@ -379,6 +414,20 @@ export class PrismaEnterpriseRemittanceRepository implements EnterpriseRemittanc
             data: { version: { increment: 1 } },
           });
           if (orderChanged.count !== 1) throw new RemittanceMutationFailure('CONCURRENT_CONFLICT');
+          const procurementChanged = await tx.enterpriseProcurementOrder.updateMany({
+            where: {
+              buyerOrderId: order.id,
+              version: order.enterpriseProcurementOrder.version,
+              status: 'PAYMENT_CONFIRMING',
+              remittanceReviewStatus: 'PENDING_REVIEW',
+            },
+            data: {
+              status: 'PENDING_PAYMENT',
+              remittanceReviewStatus: 'REJECTED',
+              version: { increment: 1 },
+            },
+          });
+          if (procurementChanged.count !== 1) throw new RemittanceMutationFailure('CONCURRENT_CONFLICT');
           await tx.buyerOrderEvent.create({
             data: {
               buyerOrderId: order.id,

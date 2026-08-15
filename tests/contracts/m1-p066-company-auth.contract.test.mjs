@@ -52,8 +52,8 @@ test('M1-P066 remains bound to its merged exact-head and post-merge CI evidence'
   assert.ok(evidence.negativeTests.every(({ status }) => status === 'PASS'));
 
   assert.equal(state.execution.status, 'M3_IN_PROGRESS');
-  assert.equal(state.execution.currentTask, 'M3-P028');
-  assert.equal(state.execution.nextAllowedTask, 'M3-P028');
+  assert.equal(state.execution.currentTask, 'M3-P029');
+  assert.equal(state.execution.nextAllowedTask, 'M3-P029');
   assert.equal(state.execution.lastPassedGate, 'M2-GATE');
   assert.equal(
     state.execution.prohibitedUntilGate.some((item) => item.includes('M1-P066')),
