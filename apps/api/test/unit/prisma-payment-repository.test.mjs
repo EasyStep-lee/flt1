@@ -16,7 +16,7 @@ const notification = (overrides = {}) => ({
   ...overrides,
 });
 
-const fixture = () => {
+const fixture = ({ enterprise = false, paymentMethod = 'WECHAT_PAY' } = {}) => {
   let tail = Promise.resolve();
   const state = {
     payment: {
@@ -28,9 +28,13 @@ const fixture = () => {
     order: {
       id: '70000000-0000-4000-8000-000000000001',
       companyId: '10000000-0000-4000-8000-000000000001',
-      consumerUserId: '10000000-0000-4000-8000-000000000002', enterpriseCustomerId: null,
-      orderType: 'CONSUMER', cashAmount: 5800, totalAmount: 5800, welfareCardAmount: 0,
+      consumerUserId: enterprise ? null : '10000000-0000-4000-8000-000000000002',
+      enterpriseCustomerId: enterprise ? '10000000-0000-4000-8000-000000000029' : null,
+      orderType: enterprise ? 'ENTERPRISE' : 'CONSUMER', cashAmount: 5800, totalAmount: 5800, welfareCardAmount: 0,
       paymentStatus: 'PENDING', orderStatus: 'PENDING_PAYMENT', version: 0,
+      enterpriseProcurementOrder: enterprise
+        ? { buyerOrderId: '70000000-0000-4000-8000-000000000001', paymentMethod, remittanceReviewStatus: 'NOT_SUBMITTED', status: 'PENDING_PAYMENT', version: 0 }
+        : null,
       items: [
         { id: '72000000-0000-4000-8000-000000000001', skuId: '30000000-0000-4000-8000-000000000001', supplierId: '20000000-0000-4000-8000-000000000001', quantity: 1 },
         { id: '72000000-0000-4000-8000-000000000002', skuId: '30000000-0000-4000-8000-000000000002', supplierId: '20000000-0000-4000-8000-000000000002', quantity: 2 },
@@ -101,6 +105,15 @@ const fixture = () => {
           externalPaymentMethod: data.externalPaymentMethod, paymentStatus: data.paymentStatus,
           orderStatus: data.orderStatus, version: state.order.version + data.version.increment,
         });
+        return { count: 1 };
+      },
+    },
+    enterpriseProcurementOrder: {
+      updateMany: async ({ where, data }) => {
+        const procurement = state.order.enterpriseProcurementOrder;
+        if (!procurement || procurement.buyerOrderId !== where.buyerOrderId || procurement.version !== where.version || procurement.status !== where.status || procurement.paymentMethod !== where.paymentMethod) return { count: 0 };
+        procurement.status = data.status;
+        procurement.version += data.version.increment;
         return { count: 1 };
       },
     },
@@ -193,4 +206,20 @@ test('M3-P024 amount and transaction conflicts fail closed before any order or i
   assert.equal(first.state.payment.status, 'PREPAY_CREATED');
   assert.equal(first.state.logs.filter(({ referenceType }) => referenceType === 'ORDER_CONFIRM').length, 0);
   assert.equal(first.state.outboxes.length, 0);
+});
+
+test('M3-P029 enterprise WeChat callback follows the frozen payment route and advances the procurement aggregate', async () => {
+  const accepted = fixture({ enterprise: true, paymentMethod: 'WECHAT_PAY' });
+  const repository = new PrismaPaymentRepository(accepted.prisma);
+  assert.equal((await repository.confirmWechatPayment({ notification: notification(), requestId: 'enterprise-wechat-paid' })).kind, 'PAID');
+  assert.equal(accepted.state.order.enterpriseProcurementOrder.status, 'PAID');
+
+  const rejected = fixture({ enterprise: true, paymentMethod: 'BANK_TRANSFER' });
+  const rejectedRepository = new PrismaPaymentRepository(rejected.prisma);
+  assert.deepEqual(
+    await rejectedRepository.confirmWechatPayment({ notification: notification(), requestId: 'enterprise-wrong-route' }),
+    { kind: 'STATE_CONFLICT' },
+  );
+  assert.equal(rejected.state.order.enterpriseProcurementOrder.status, 'PENDING_PAYMENT');
+  assert.equal(rejected.state.logs.filter(({ referenceType }) => referenceType === 'ORDER_CONFIRM').length, 0);
 });

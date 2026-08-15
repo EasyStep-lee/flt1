@@ -44,12 +44,16 @@ const orderInclude = Prisma.validator<Prisma.BuyerOrderInclude>()({
   items: { orderBy: { lineNo: 'asc' } },
   supplierFulfillments: { orderBy: { supplierId: 'asc' } },
   events: { where: { event: 'CREATED' }, orderBy: { version: 'asc' }, take: 1 },
+  enterpriseProcurementOrder: true,
 });
 
 type StoredOrder = Prisma.BuyerOrderGetPayload<{ include: typeof orderInclude }>;
 
 const toAggregate = (order: StoredOrder): OrderAggregateRecord => {
   const event = order.events[0];
+  const enterpriseProcurement = order.enterpriseProcurementOrder;
+  const address = asObject(enterpriseProcurement?.enterpriseAddressSnapshot);
+  const invoiceProfile = asObject(enterpriseProcurement?.invoiceProfileSnapshot);
   return {
     orderId: order.id,
     orderNo: order.orderNo,
@@ -63,6 +67,7 @@ const toAggregate = (order: StoredOrder): OrderAggregateRecord => {
     totalAmount: order.totalAmount,
     welfareCardAmount: 0,
     cashAmount: order.cashAmount,
+    externalPaymentMethod: order.externalPaymentMethod,
     paymentStatus: 'PENDING',
     orderStatus: 'PENDING_PAYMENT',
     idempotencyScope: order.idempotencyScope,
@@ -94,6 +99,29 @@ const toAggregate = (order: StoredOrder): OrderAggregateRecord => {
       goodsAmount: fulfillment.goodsAmount,
       status: 'PENDING_PAYMENT',
     })),
+    enterpriseProcurement: enterpriseProcurement
+      ? {
+          enterpriseOrderId: enterpriseProcurement.id,
+          paymentMethod: enterpriseProcurement.paymentMethod,
+          remittanceReviewStatus: 'NOT_SUBMITTED',
+          status: 'PENDING_PAYMENT',
+          address: {
+            consignee: typeof address.consignee === 'string' ? address.consignee : '',
+            mobile: typeof address.mobile === 'string' ? address.mobile : '',
+            region: typeof address.region === 'string' ? address.region : '',
+            fullAddress: typeof address.fullAddress === 'string' ? address.fullAddress : '',
+            deliveryNote: typeof address.deliveryNote === 'string' ? address.deliveryNote : null,
+          },
+          invoiceProfile: {
+            title: typeof invoiceProfile.title === 'string' ? invoiceProfile.title : '',
+            taxNumber: typeof invoiceProfile.taxNumber === 'string' ? invoiceProfile.taxNumber : '',
+            registeredAddress: typeof invoiceProfile.registeredAddress === 'string' ? invoiceProfile.registeredAddress : null,
+            registeredPhone: typeof invoiceProfile.registeredPhone === 'string' ? invoiceProfile.registeredPhone : null,
+            bankName: typeof invoiceProfile.bankName === 'string' ? invoiceProfile.bankName : null,
+            bankAccountMasked: typeof invoiceProfile.bankAccountMasked === 'string' ? invoiceProfile.bankAccountMasked : null,
+          },
+        }
+      : null,
   };
 };
 
@@ -174,6 +202,121 @@ export class PrismaOrderRepository implements OrderRepository {
           return existing.requestHash === command.requestHash
             ? { kind: 'REPLAY', order: toAggregate(existing) }
             : { kind: 'IDEMPOTENCY_CONFLICT' };
+        }
+
+        let enterpriseCheckout:
+          | {
+              address: {
+                consignee: string;
+                mobile: string;
+                region: string;
+                fullAddress: string;
+                deliveryNote: string | null;
+              };
+              invoiceProfile: {
+                title: string;
+                taxNumber: string;
+                registeredAddress: string | null;
+                registeredPhone: string | null;
+                bankName: string | null;
+                bankAccountMasked: string | null;
+              };
+            }
+          | undefined;
+        if (command.orderType === 'ENTERPRISE') {
+          if (!command.enterpriseCustomerId || !command.enterpriseProcurement) {
+            return { kind: 'ENTERPRISE_PROFILE_INCOMPLETE' };
+          }
+          const [enterprise, purchaser] = await Promise.all([
+            tx.enterpriseCustomer.findUnique({
+              where: { id: command.enterpriseCustomerId },
+              select: {
+                companyId: true,
+                status: true,
+                procurementProfile: {
+                  select: { status: true, defaultAddressId: true, defaultInvoiceProfileId: true },
+                },
+              },
+            }),
+            tx.enterpriseUser.findUnique({
+              where: { id: command.enterpriseProcurement.purchaserUserId },
+              select: { enterpriseCustomerId: true, role: true, status: true },
+            }),
+          ]);
+          if (!enterprise || enterprise.companyId !== command.companyId || enterprise.status !== 'ACTIVE') {
+            return { kind: 'ENTERPRISE_NOT_ACTIVE' };
+          }
+          if (
+            !purchaser ||
+            purchaser.enterpriseCustomerId !== command.enterpriseCustomerId ||
+            purchaser.status !== 'ACTIVE' ||
+            (purchaser.role !== 'ENTERPRISE_ADMIN' && purchaser.role !== 'ENTERPRISE_PURCHASER')
+          ) {
+            return { kind: 'ENTERPRISE_SCOPE_FORBIDDEN' };
+          }
+          if (enterprise.procurementProfile?.status !== 'ACTIVE') {
+            return { kind: 'ENTERPRISE_PROFILE_INCOMPLETE' };
+          }
+          const addressId = command.enterpriseProcurement.enterpriseAddressId ??
+            enterprise.procurementProfile.defaultAddressId;
+          const invoiceProfileId = command.enterpriseProcurement.invoiceProfileId ??
+            enterprise.procurementProfile.defaultInvoiceProfileId;
+          if (!addressId || !invoiceProfileId) {
+            return { kind: 'ENTERPRISE_PROFILE_INCOMPLETE' };
+          }
+          const [address, invoiceProfile] = await Promise.all([
+            tx.enterpriseAddress.findUnique({
+              where: { id: addressId },
+              select: {
+                enterpriseCustomerId: true,
+                consignee: true,
+                mobile: true,
+                region: true,
+                fullAddress: true,
+                deliveryNote: true,
+              },
+            }),
+            tx.enterpriseInvoiceProfile.findUnique({
+              where: { id: invoiceProfileId },
+              select: {
+                enterpriseCustomerId: true,
+                title: true,
+                taxNumber: true,
+                registeredAddress: true,
+                registeredPhone: true,
+                bankName: true,
+                bankAccountMasked: true,
+              },
+            }),
+          ]);
+          if (
+            (address && address.enterpriseCustomerId !== command.enterpriseCustomerId) ||
+            (invoiceProfile && invoiceProfile.enterpriseCustomerId !== command.enterpriseCustomerId)
+          ) {
+            return { kind: 'ENTERPRISE_SCOPE_FORBIDDEN' };
+          }
+          if (!address || !invoiceProfile) {
+            return { kind: 'ENTERPRISE_PROFILE_INCOMPLETE' };
+          }
+          enterpriseCheckout = {
+            address: {
+              consignee: address.consignee,
+              mobile: address.mobile,
+              region: address.region,
+              fullAddress: address.fullAddress,
+              deliveryNote: address.deliveryNote,
+            },
+            invoiceProfile: {
+              title: invoiceProfile.title,
+              taxNumber: invoiceProfile.taxNumber,
+              registeredAddress: invoiceProfile.registeredAddress,
+              registeredPhone: invoiceProfile.registeredPhone,
+              bankName: invoiceProfile.bankName,
+              bankAccountMasked: invoiceProfile.bankAccountMasked,
+            },
+          };
+        } else if (command.enterpriseProcurement || command.enterpriseCustomerId) {
+          return { kind: 'ENTERPRISE_SCOPE_FORBIDDEN' };
         }
 
         const orderId = randomUUID();
@@ -268,6 +411,7 @@ export class PrismaOrderRepository implements OrderRepository {
             totalAmount: command.totalAmount,
             welfareCardAmount: command.welfareCardAmount,
             cashAmount: command.cashAmount,
+            externalPaymentMethod: command.externalPaymentMethod,
             paymentStatus: command.paymentStatus,
             orderStatus: command.orderStatus,
             idempotencyScope: command.idempotencyScope,
@@ -275,6 +419,24 @@ export class PrismaOrderRepository implements OrderRepository {
             requestHash: command.requestHash,
           },
         });
+        if (command.enterpriseProcurement && enterpriseCheckout && command.enterpriseCustomerId) {
+          await tx.enterpriseProcurementOrder.create({
+            data: {
+              buyerOrderId: orderId,
+              enterpriseCustomerId: command.enterpriseCustomerId,
+              purchaserUserId: command.enterpriseProcurement.purchaserUserId,
+              invoiceProfileSnapshot: json({
+                schemaVersion: 1,
+                ...enterpriseCheckout.invoiceProfile,
+              }),
+              enterpriseAddressSnapshot: json({
+                schemaVersion: 1,
+                ...enterpriseCheckout.address,
+              }),
+              paymentMethod: command.enterpriseProcurement.paymentMethod,
+            },
+          });
+        }
         await tx.supplierFulfillmentOrder.createMany({
           data: command.supplierFulfillments.map((item) => ({
             id: fulfillmentIds.get(item.supplierId)!,

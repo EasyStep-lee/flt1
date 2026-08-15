@@ -28,7 +28,12 @@ import {
   ORDER_ACTOR_RESOLVER,
   type OrderActorResolver,
 } from './order.actor.js';
-import { CreateBuyerOrderResponseDto, CreateOrderRequestDto } from './order.dto.js';
+import {
+  CreateBuyerOrderResponseDto,
+  CreateEnterpriseOrderRequestDto,
+  CreateEnterpriseOrderResponseDto,
+  CreateOrderRequestDto,
+} from './order.dto.js';
 import { OrderService } from './order.service.js';
 
 interface RequestContext {
@@ -85,7 +90,11 @@ export class ConsumerOrderController {
 }
 
 @ApiTags('enterprise-orders')
-@ApiExtraModels(ApiErrorResponseDto, CreateOrderRequestDto, CreateBuyerOrderResponseDto)
+@ApiExtraModels(
+  ApiErrorResponseDto,
+  CreateEnterpriseOrderRequestDto,
+  CreateEnterpriseOrderResponseDto,
+)
 @Controller('v1/enterprise/orders')
 export class EnterpriseOrderController {
   constructor(
@@ -97,8 +106,8 @@ export class EnterpriseOrderController {
   @HttpCode(201)
   @ApiOperation({ operationId: 'orders.createEnterpriseOrder', summary: 'Create one company enterprise order across suppliers' })
   @ApiHeader({ name: 'Idempotency-Key', required: true })
-  @ApiBody({ type: CreateOrderRequestDto })
-  @ApiCreatedResponse({ type: CreateBuyerOrderResponseDto })
+  @ApiBody({ type: CreateEnterpriseOrderRequestDto })
+  @ApiCreatedResponse({ type: CreateEnterpriseOrderResponseDto })
   @ApiUnauthorizedResponse({ type: ApiErrorResponseDto })
   @ApiConflictResponse({ type: ApiErrorResponseDto })
   @ApiUnprocessableEntityResponse({ type: ApiErrorResponseDto })
@@ -106,8 +115,8 @@ export class EnterpriseOrderController {
     @Req() request: RequestContext,
     @Res({ passthrough: true }) response: Response,
     @Headers('idempotency-key') idempotencyKey: string | undefined,
-    @Body() body: CreateOrderRequestDto,
-  ): Promise<CreateBuyerOrderResponseDto> {
+    @Body() body: CreateEnterpriseOrderRequestDto,
+  ): Promise<CreateEnterpriseOrderResponseDto> {
     setPrivateResponse(response);
     const actor = await this.actors.resolveEnterprise(cookieHeader(request));
     if (!actor) throw new SafeApiError(401, 'AUTHENTICATION_REQUIRED', 'Enterprise session is required');
@@ -118,6 +127,12 @@ export class EnterpriseOrderController {
       request.requestId ?? 'request-id-unavailable',
     );
     if (result.replayed) response.status(200);
-    return result.body;
+    if (!result.body.enterpriseProcurement) {
+      throw new Error('ENTERPRISE_PROCUREMENT_AGGREGATE_MISSING');
+    }
+    return {
+      ...result.body,
+      enterpriseProcurement: result.body.enterpriseProcurement,
+    };
   }
 }

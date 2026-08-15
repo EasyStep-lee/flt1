@@ -66,17 +66,17 @@ test('M1-P069 remains recorded after its exact-head merge and P070 takeover', as
   ]);
 
   assert.equal(state.execution.status, 'M3_IN_PROGRESS');
-  assert.equal(state.execution.currentTask, 'M3-P028');
-  assert.equal(state.execution.nextAllowedTask, 'M3-P028');
-  assert.equal(state.execution.lastCompletedTask, 'M3-P027');
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M3-P028');
-  assert.equal(state.github.currentTaskDelivery.issue, 91);
-  assert.equal(state.github.previousTaskDelivery.taskId, 'M3-P027');
+  assert.equal(state.execution.currentTask, 'M3-P029');
+  assert.equal(state.execution.nextAllowedTask, 'M3-P029');
+  assert.equal(state.execution.lastCompletedTask, 'M3-P028');
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M3-P029');
+  assert.equal(state.github.currentTaskDelivery.issue, 93);
+  assert.equal(state.github.previousTaskDelivery.taskId, 'M3-P028');
   assert.equal(
     state.github.previousTaskDelivery.exactHead,
-    'e17e25f58c8bda46e80dfc6175a2f60b4a3a9fbb',
+    'ee7fdff5170de7e06ae24da77abaf60e2eee89c2',
   );
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M3-P028.*M3-P029/u);
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M3-P029.*M3-P030/u);
 
   assert.match(tasks, /M1-P068[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(tasks, /M1-P069[^\r\n]*DONE[^\r\n]*CI_PASS/u);

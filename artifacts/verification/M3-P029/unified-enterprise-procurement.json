@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "1.0",
+  "taskId": "M3-P029",
+  "p0": ["P0-029"],
+  "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+  "scope": "Unified enterprise buyer order with immutable address and invoice snapshots and one frozen payment route",
+  "evidenceStatus": "LOCAL_PASS",
+  "commit": "8d1d67ad451e4e41e7341e2730915721b3fe0c78",
+  "red": {
+    "command": "pnpm --filter @fulishe/api build && pnpm exec vitest run apps/api/test/supertest/unified-enterprise-procurement-api.test.mjs",
+    "actual": "Expected HTTP 201, received HTTP 422 before enterprise checkout DTO and aggregate implementation"
+  },
+  "green": [
+    "Prisma schema valid",
+    "MIG-015 MySQL dry-run empty=2 upgrade=2 restore=2 product=30 cleanup=PASS",
+    "Unified enterprise procurement and legacy cross-supplier API tests: 10 passed",
+    "Prisma order, payment and remittance repository tests: 13 passed",
+    "OpenAPI deterministic generation/check passed",
+    "pnpm verify: 17 of 17 steps passed"
+  ],
+  "invariants": [
+    "Company remains the only seller and collector",
+    "enterpriseCustomerId and purchaserUserId are derived from the verified session",
+    "Selected address and invoice are ownership-checked and snapshotted in the order transaction",
+    "Enterprise checkout permits only WECHAT_PAY or BANK_TRANSFER",
+    "Supply price and raw sensitive profile values are absent from buyer DTOs",
+    "No DeliveryTask is created by this slice"
+  ],
+  "negativeTests": ["NEG-M3-P029-01", "NEG-M3-P029-02", "NEG-M3-P029-03"],
+  "environment": {
+    "local": "LOCAL_PASS",
+    "ci": "NOT_EXECUTED",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_EXECUTED",
+    "production": "NOT_EXECUTED"
+  },
+  "limitations": [
+    "P0-029 complete portal UI, delivery, receipt, after-sales and invoice execution remain NOT_EXECUTED",
+    "Real WeChat and bank-transfer evidence remain BLOCKED_EXTERNAL",
+    "M3-P030 and later tasks remain locked until this PR is merged and post-merge main CI passes"
+  ]
+}

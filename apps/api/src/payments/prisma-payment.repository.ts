@@ -99,6 +99,7 @@ export class PrismaPaymentRepository implements PaymentRepository {
           include: {
             items: { orderBy: { lineNo: 'asc' } },
             company: { select: { legalName: true, wechatPayConfigRef: true } },
+            enterpriseProcurementOrder: true,
           },
         });
         if (!order) return { kind: 'NOT_FOUND' as const };
@@ -112,6 +113,13 @@ export class PrismaPaymentRepository implements PaymentRepository {
           order.cashAmount <= 0 ||
           order.company.legalName !== COLLECTOR_NAME ||
           !order.company.wechatPayConfigRef?.trim()
+        ) {
+          return { kind: 'STATE_CONFLICT' as const };
+        }
+        if (
+          order.orderType === 'ENTERPRISE' &&
+          (order.enterpriseProcurementOrder?.paymentMethod !== 'WECHAT_PAY' ||
+            order.enterpriseProcurementOrder.status !== 'PENDING_PAYMENT')
         ) {
           return { kind: 'STATE_CONFLICT' as const };
         }
@@ -274,6 +282,7 @@ export class PrismaPaymentRepository implements PaymentRepository {
               include: {
                 items: { orderBy: { skuId: 'asc' } },
                 supplierFulfillments: { orderBy: { supplierId: 'asc' } },
+                enterpriseProcurementOrder: true,
               },
             },
           },
@@ -310,7 +319,10 @@ export class PrismaPaymentRepository implements PaymentRepository {
           payment.order.paymentStatus !== 'PENDING' ||
           payment.order.orderStatus !== 'PENDING_PAYMENT' ||
           payment.order.welfareCardAmount !== 0 ||
-          payment.order.cashAmount !== payment.order.totalAmount
+          payment.order.cashAmount !== payment.order.totalAmount ||
+          (payment.order.orderType === 'ENTERPRISE' &&
+            (payment.order.enterpriseProcurementOrder?.paymentMethod !== 'WECHAT_PAY' ||
+              payment.order.enterpriseProcurementOrder.status !== 'PENDING_PAYMENT'))
         ) {
           return { kind: 'STATE_CONFLICT' as const };
         }
@@ -384,6 +396,18 @@ export class PrismaPaymentRepository implements PaymentRepository {
           },
         });
         if (orderChanged.count !== 1) throw new PaymentMutationFailure('CONCURRENT_CONFLICT');
+        if (payment.order.enterpriseProcurementOrder) {
+          const procurementChanged = await tx.enterpriseProcurementOrder.updateMany({
+            where: {
+              buyerOrderId: payment.orderId,
+              version: payment.order.enterpriseProcurementOrder.version,
+              paymentMethod: 'WECHAT_PAY',
+              status: 'PENDING_PAYMENT',
+            },
+            data: { status: 'PAID', version: { increment: 1 } },
+          });
+          if (procurementChanged.count !== 1) throw new PaymentMutationFailure('CONCURRENT_CONFLICT');
+        }
         await tx.supplierFulfillmentOrder.updateMany({
           where: { buyerOrderId: payment.orderId, status: 'PENDING_PAYMENT' },
           data: { status: 'PENDING_PREPARATION' },
