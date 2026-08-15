@@ -5,17 +5,24 @@
   "title": "门户宣传与公开SEO",
   "baselineSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
   "environment": "LOCAL_WINDOWS_NODE22_NEXTJS16_PLAYWRIGHT_CHROMIUM",
-  "evidenceStatus": "LOCAL_PASS",
-  "commit": "LOCAL_WORKTREE",
+  "evidenceStatus": "CI_PASS",
+  "commit": "512beedcb48ee90aa8e02386608e73cf614e2e48",
   "baseCommit": "bf017ad3f06e602394b9087213877984b51789f0",
   "branch": "codex/m3-portal-publicity",
   "github": {
     "repository": "EasyStep-lee/flt1",
     "issue": 89,
     "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/89",
-    "pullRequest": null,
-    "pullRequestState": "NOT_CREATED",
-    "exactHeadCi": "NOT_EXECUTED",
+    "pullRequest": 90,
+    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/90",
+    "pullRequestState": "DRAFT",
+    "exactHeadCi": {
+      "status": "CI_PASS",
+      "runId": 31862256846,
+      "jobId": 94957563390,
+      "headSha": "512beedcb48ee90aa8e02386608e73cf614e2e48",
+      "completedAt": "2026-08-15T03:46:27Z"
+    },
     "review": "NOT_EXECUTED",
     "merge": "NOT_EXECUTED",
     "mainPostMergeCi": "NOT_EXECUTED"
@@ -119,5 +126,5 @@
   },
   "risk": "The configured example origin is intentionally non-production; production canonical URLs must not be enabled until an authorized HTTPS domain and filing are ready.",
   "rollback": "Revert the M3-P027 application and ledger commit. No database migration or OpenAPI rollback is required.",
-  "nextGate": "Create a Draft PR, obtain exact-head CI, request human exact-head Ready/merge authorization, then verify post-merge main CI before unlocking M3-P028."
+  "nextGate": "Run CI for the evidence-only head, then request human exact-head Ready/merge authorization and verify post-merge main CI before unlocking M3-P028."
 }

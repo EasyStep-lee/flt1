@@ -162,7 +162,7 @@ test('M2-P006 and M2-P007 retain merged-main evidence after M2-P008 starts local
     'REAL_DOMAIN_DNS_TLS_ICP_AND_AUTHORIZED_CUSTOMER_CONTENT',
   );
   assert.equal(projectStatus.github.currentTaskDelivery.nextTaskUnlocked, false);
-  assert.equal(projectStatus.evidence.ci, 'NOT_EXECUTED');
+  assert.equal(projectStatus.evidence.ci, 'CI_PASS_M3_P027_HEAD_512beed');
 
   for (const evidence of [contract, handoff]) {
     assert.match(evidence, /P0-006/u);

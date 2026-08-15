@@ -1,13 +1,13 @@
 # 2026-08-14 M3-P027 门户宣传与公开 SEO 交接
 
-阶段结论：`IN_PROGRESS / LOCAL_PASS`。M3-P026 已由 PR #88 按精确 head `5aecd0fd8ab4a6bb4e6c4533da9403e90bb22ad0` 合并到 `main@bf017ad3f06e602394b9087213877984b51789f0`，合并后 Actions run `31856335920` / job `94941699332` 成功。本切片的 focused 测试、12 项代表性 P0 E2E、88 项契约测试和本地 `pnpm verify` 17/17 均通过；Issue #89 已创建，Draft PR、PR CI、人工合并和 post-merge main CI 尚未执行，因此 M3-P028 保持锁定。
+阶段结论：`IN_PROGRESS / CI_PASS`。M3-P026 已由 PR #88 按精确 head `5aecd0fd8ab4a6bb4e6c4533da9403e90bb22ad0` 合并到 `main@bf017ad3f06e602394b9087213877984b51789f0`，合并后 Actions run `31856335920` / job `94941699332` 成功。本切片的 focused 测试、12 项代表性 P0 E2E、88 项契约测试和本地 `pnpm verify` 17/17 均通过；Draft PR #90 的代码 head `512beedcb48ee90aa8e02386608e73cf614e2e48` 已由 Actions run `31862256846` / job `94957563390` 验证成功。证据提交、人工合并和 post-merge main CI 尚未执行，因此 M3-P028 保持锁定。
 
 ## 基线、范围与 Git
 
 - 唯一方案 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`；基线校验通过。
 - 当前阶段/任务：M3 / M3-P027；对应 P0-027，公开门户 PAGE-025、PAGE-026、PAGE-027、PAGE-028、PAGE-029、PAGE-043、PAGE-044、PAGE-045、PAGE-046。
-- 分支：`codex/m3-portal-publicity`；基线：`main@bf017ad3f06e602394b9087213877984b51789f0`；当前证据绑定本地工作树，提交待创建。
-- GitHub：仓库 `EasyStep-lee/flt1`；Issue #89；PR 未创建；CI、评论、合并均 `NOT_EXECUTED`。
+- 分支：`codex/m3-portal-publicity`；基线：`main@bf017ad3f06e602394b9087213877984b51789f0`；当前已验证代码 head：`512beedcb48ee90aa8e02386608e73cf614e2e48`。
+- GitHub：仓库 `EasyStep-lee/flt1`；Issue #89；Draft PR #90；代码 head CI 为 `CI_PASS`（run `31862256846` / job `94957563390`）；评论、人工合并和 post-merge main CI 尚未执行。
 - 用户既有未跟踪文件、`outputs/` 和 `.codex-*` 临时证据均保留且不会暂存。
 
 ## 完成范围
@@ -41,13 +41,14 @@
 | 独立 `pnpm test` | 退出码 0；约 395.5 秒 |
 | 最终 `pnpm verify` | 退出码 0；17/17 PASS；P0 E2E 68/68；迁移演练通过；秘密扫描 877 个已跟踪文件 |
 | 聚合证据 | `artifacts/test-results/verification/pnpm-verify.json`，开始 `2026-08-15T03:18:08Z`，结束 `2026-08-15T03:33:17Z` |
+| Draft PR 代码 head CI | `512beed`；Actions run `31862256846` / job `94957563390`；SUCCESS |
 
 历史失败保留：首次全量验证因 P0 E2E 测试使用浏览器 `document` 全局导致根级 typecheck 失败；第二次被单次工具调用 120 秒终止；第三次发现 5 个旧交接状态断言；第四次发现 18 个旧契约当前任务断言；第五次外层工具在 904 秒终止。修复类型和当前任务指针后，最终通过隐藏后台进程完成同一 `pnpm verify` 的全部 17 步，没有跳过或拆分门禁。
 
 ## P0 与环境边界
 
 - P0-027 自动化子行为：`LOCAL_PASS`；公开服务端 HTML、响应式、SEO、抓取边界、未知 slug 404、公开字段白名单均有新鲜行为证据。
-- LOCAL：`LOCAL_PASS`；PR CI/STAGING/DEVICE/PRODUCTION：`NOT_EXECUTED`。
+- LOCAL：`LOCAL_PASS`；PR 代码 head CI：`CI_PASS`；STAGING/DEVICE/PRODUCTION：`NOT_EXECUTED`。
 - 实际运行环境：Windows、Node 22.23.1、pnpm 10.12.1、Next.js 16.2.12、Playwright Chromium、Docker MySQL 8 迁移演练。
 - 真实域名/DNS/TLS/ICP备案、授权客户案例与正式新闻素材仍需授权人工提供；不得把证书私钥、账号密码或真实敏感资料放入仓库或聊天。
 - Spreadsheet skill 要求在编辑工作簿前运行 artifact-operation marker，但当前已安装 runtime 中不存在该标记器。因而 12 个 sheet 已只读导入、渲染并检查，CSV/JSON 源台账已同步，而 `17-福礼社Codex5.6执行总控工作簿.xlsx` 字节未修改，状态为 `NOT_EXECUTED_TOOL_MARKER_UNAVAILABLE`，不能把旧镜像宣称为本切片已更新。
