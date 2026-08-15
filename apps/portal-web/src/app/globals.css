@@ -951,6 +951,7 @@ a {
   }
 
   .site-nav {
+    justify-content: flex-start;
     order: 3;
     width: 100%;
   }
