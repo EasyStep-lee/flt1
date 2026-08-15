@@ -113,6 +113,21 @@ import {
   WECHAT_PAYMENT_ADAPTER,
 } from '../payments/wechat-payment.adapter.js';
 import {
+  DenyRefundActorResolver,
+  REFUND_ACTOR_RESOLVER,
+} from '../refunds/refund.actor.js';
+import {
+  UnavailableWechatRefundAdapter,
+  UnavailableWelfareRefundAdapter,
+  WECHAT_REFUND_ADAPTER,
+  WELFARE_REFUND_ADAPTER,
+} from '../refunds/refund.adapter.js';
+import {
+  REFUND_REPOSITORY,
+  type RefundRepository,
+} from '../refunds/refund.repository.js';
+import { RefundService } from '../refunds/refund.service.js';
+import {
   SENSITIVE_APPROVAL_REPOSITORY,
   type SensitiveApprovalRepository,
 } from '../sensitive-approval/sensitive-approval.repository.js';
@@ -375,6 +390,10 @@ type JsonValue =
     EnterpriseRemittanceService,
     PaymentService,
     UnavailableWechatPaymentAdapter,
+    RefundService,
+    DenyRefundActorResolver,
+    UnavailableWelfareRefundAdapter,
+    UnavailableWechatRefundAdapter,
     DenySupplierInventoryActorResolver,
     DenyOrderActorResolver,
     DenyCompanyFinanceActorResolver,
@@ -462,6 +481,27 @@ type JsonValue =
     {
       provide: WECHAT_PAYMENT_ADAPTER,
       useExisting: UnavailableWechatPaymentAdapter,
+    },
+    {
+      provide: REFUND_REPOSITORY,
+      useValue: {
+        begin: async () => ({ kind: 'NOT_FOUND' }),
+        claimChannel: async () => { throw new Error('OPENAPI_GENERATION_ONLY'); },
+        recordWelfareResult: async () => { throw new Error('OPENAPI_GENERATION_ONLY'); },
+        recordWechatResult: async () => { throw new Error('OPENAPI_GENERATION_ONLY'); },
+      } satisfies RefundRepository,
+    },
+    {
+      provide: REFUND_ACTOR_RESOLVER,
+      useExisting: DenyRefundActorResolver,
+    },
+    {
+      provide: WELFARE_REFUND_ADAPTER,
+      useExisting: UnavailableWelfareRefundAdapter,
+    },
+    {
+      provide: WECHAT_REFUND_ADAPTER,
+      useExisting: UnavailableWechatRefundAdapter,
     },
     {
       provide: SUPPLIER_PRODUCT_REPOSITORY,

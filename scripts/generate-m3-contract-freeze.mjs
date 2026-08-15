@@ -63,7 +63,15 @@ const enumFormats = {
   'Order.orderType': 'CONSUMER|ENTERPRISE', 'Order.externalPaymentMethod': 'WECHAT_PAY',
   'Order.paymentStatus': 'NOT_REQUIRED|PENDING|PAID|FAILED|CLOSED|UNKNOWN', 'Order.orderStatus': 'DRAFT|PENDING_PAYMENT|PAID|FULFILLING|PARTIALLY_DELIVERED|COMPLETED|CANCELLED',
   'OrderItem.refundStatus': 'NONE|REQUESTED|PROCESSING|PARTIAL|REFUNDED|REJECTED', 'PaymentTransaction.status': 'CREATED|PREPAY_CREATED|PAID|CLOSED|UNKNOWN|FAILED',
-  'RefundTransaction.status': 'CREATED|PROCESSING|PARTIAL_CHANNEL_DONE|SUCCEEDED|UNKNOWN|FAILED', 'EnterpriseProcurementProfile.status': 'DRAFT|ACTIVE|SUSPENDED',
+  'RefundAuthorization.status': 'APPROVED|CONSUMED|REVOKED',
+  'RefundTransaction.status': 'CREATED|PROCESSING|PARTIAL_CHANNEL_DONE|SUCCEEDED|UNKNOWN|FAILED',
+  'RefundTransaction.welfareChannelStatus': 'NOT_REQUIRED|PENDING|PROCESSING|SUCCEEDED|FAILED|UNKNOWN',
+  'RefundTransaction.wechatChannelStatus': 'NOT_REQUIRED|PENDING|PROCESSING|SUCCEEDED|FAILED|UNKNOWN',
+  'RefundTransactionEvent.fromStatus': 'nullable; CREATED|PROCESSING|PARTIAL_CHANNEL_DONE|SUCCEEDED|UNKNOWN|FAILED',
+  'RefundTransactionEvent.toStatus': 'CREATED|PROCESSING|PARTIAL_CHANNEL_DONE|SUCCEEDED|UNKNOWN|FAILED',
+  'RefundImpactRecord.impactType': 'FINANCIAL|INVENTORY|RECONCILIATION',
+  'RefundImpactRecord.status': 'PENDING|APPLIED',
+  'EnterpriseProcurementProfile.status': 'DRAFT|ACTIVE|SUSPENDED',
   'EnterpriseProcurementOrder.paymentMethod': 'WECHAT_PAY|BANK_TRANSFER', 'EnterpriseProcurementOrder.remittanceReviewStatus': 'NOT_SUBMITTED|PENDING_REVIEW|CONFIRMED|REJECTED',
   'EnterpriseProcurementOrder.status': 'DRAFT|PENDING_PAYMENT|PAYMENT_CONFIRMING|PAID|FULFILLING|COMPLETED|CANCELLED',
   'EnterpriseRemittanceSubmission.status': 'PENDING_REVIEW|CONFIRMED|REJECTED', 'EnterpriseRemittanceReview.decision': 'CONFIRM|REJECT',
@@ -80,7 +88,7 @@ const resolveType = (row) => {
   if (row.SuggestedType === 'String') return 'String(191)';
   if (row.SuggestedType === 'Int(分)') return 'Int';
   if (/^String\(\d+\)$/u.test(row.SuggestedType)) return row.SuggestedType;
-  if (/^Enum<[^>]+>$/u.test(row.SuggestedType)) return row.SuggestedType;
+  if (/^Enum<[^>]+>\??$/u.test(row.SuggestedType)) return row.SuggestedType;
   if (/^Decimal\(\d+,\d+\)$/u.test(row.SuggestedType)) return row.SuggestedType;
   if (/^DateTime\(\d+\)\??$/u.test(row.SuggestedType)) return row.SuggestedType;
   if (['Boolean', 'DateTime', 'Int', 'Json', 'Decimal'].includes(row.SuggestedType)) return row.SuggestedType;
@@ -122,7 +130,7 @@ const m3Fields = fields.filter(({ Stage }) => Stage === 'M3').map((row) => {
   if (!mappedP0?.length) throw new Error(`M3_FIELD_P0_MISSING:${row.Entity}.${row.Field}`);
   return { entity: row.Entity, name: row.Field, type, required: row.Required === 'YES', format: resolveFormat(row, type), sensitivity: row.Sensitivity, visibility: row.Visibility, forbiddenExposure: row.ForbiddenExposure, validation: resolveValidation(row), historyRule: row.HistoryRule, p0Ids: mappedP0 };
 });
-if (m3Fields.length !== 255) throw new Error(`M3_FIELD_COUNT:${m3Fields.length}`);
+if (m3Fields.length !== 292) throw new Error(`M3_FIELD_COUNT:${m3Fields.length}`);
 const groupedFields = [...new Set(m3Fields.map(({ entity }) => entity))].map((entity) => ({
   entity,
   fields: m3Fields

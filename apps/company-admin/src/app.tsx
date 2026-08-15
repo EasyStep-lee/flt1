@@ -31,6 +31,7 @@ import {
   CompanyInitialPriceReviewPage,
   CompanyProductMaterialReviewPage,
 } from './company-product-approval-pages.js';
+import { CompanyRefundInitiationPage } from './company-refund-initiation-page.js';
 
 type SupplierRow = components['schemas']['SupplierResponseDto'];
 type SupplierStatus = SupplierRow['status'];
@@ -753,6 +754,8 @@ export function CompanyAdminShell() {
             (workspace) => <CompanyProductMaterialReviewPage workspace={workspace} />
           ) : currentPath === '/company-admin/workspaces/price-review' ? (
             (workspace) => <CompanyInitialPriceReviewPage workspace={workspace} />
+          ) : currentPath === '/company-admin/workspaces/order-service' ? (
+            (workspace) => <CompanyRefundInitiationPage workspace={workspace} />
           ) : undefined
         }
         route={currentPath}

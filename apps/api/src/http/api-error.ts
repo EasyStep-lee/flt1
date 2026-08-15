@@ -61,6 +61,16 @@ export const PAYMENT_ERROR_CODES = Object.freeze([
   'REMITTANCE_ALREADY_SUBMITTED',
 ] as const);
 
+export const REFUND_ERROR_CODES = Object.freeze([
+  'REFUND_ALLOCATION_INVALID',
+  'REFUND_AUTHORIZATION_NOT_FOUND',
+  'REFUND_CHANNEL_REJECTED',
+  'REFUND_DUPLICATE',
+  'REFUND_OVERPAID',
+  'REFUND_STATE_CONFLICT',
+  'SAME_NATURAL_PERSON_REVIEW_FORBIDDEN',
+] as const);
+
 export const COMPANY_AUTH_ERROR_CODES = Object.freeze([
   'ACCOUNT_SUSPENDED',
   'AUTH_INVALID',
@@ -143,6 +153,7 @@ export const API_ERROR_CODES = Object.freeze([
   ...CUSTOMER_CATALOG_ERROR_CODES,
   ...INVENTORY_ERROR_CODES,
   ...PAYMENT_ERROR_CODES,
+  ...REFUND_ERROR_CODES,
 ] as const);
 
 export type ApiErrorCode = (typeof API_ERROR_CODES)[number];
