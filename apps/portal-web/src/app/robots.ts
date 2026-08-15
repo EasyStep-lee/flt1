@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 
-const shellOrigin = 'https://fulishe.example.invalid';
+import { siteOrigin } from '../public-content';
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
       disallow: ['/enterprise/', '/company-admin/', '/supplier/'],
       userAgent: '*',
     },
-    sitemap: `${shellOrigin}/sitemap.xml`,
+    sitemap: new URL('/sitemap.xml', siteOrigin).href,
   };
 }

@@ -289,10 +289,10 @@ test('project status records M1 gate success while historical blocked handoff st
 
   assert.equal(projectStatus.execution.currentStage, 'M3');
   assert.equal(projectStatus.execution.nextAllowedTask, projectStatus.execution.currentTask);
-  assert.equal(projectStatus.execution.lastCompletedTask, 'M3-P025');
+  assert.equal(projectStatus.execution.lastCompletedTask, 'M3-P026');
   assert.equal(projectStatus.execution.lastPassedGate, 'M2-GATE');
   assert.equal(
-    projectStatus.execution.prohibitedUntilGate.some((item) => /M3-P026/u.test(item)),
+    projectStatus.execution.prohibitedUntilGate.some((item) => /M3-P027.*M3-P028/u.test(item)),
     true,
   );
   assert.equal(
@@ -309,7 +309,7 @@ test('project status records M1 gate success while historical blocked handoff st
     projectStatus.execution.currentTask,
   );
   assert.equal(projectStatus.execution.status, 'M3_IN_PROGRESS');
-  assert.equal(projectStatus.execution.currentTask, 'M3-P026');
+  assert.equal(projectStatus.execution.currentTask, 'M3-P027');
   assert.equal(projectStatus.execution.activeTaskCount, 1);
   assert.equal(
     projectStatus.github.currentTaskDelivery.status,
@@ -318,8 +318,8 @@ test('project status records M1 gate success while historical blocked handoff st
   assert.equal(projectStatus.github.currentTaskDelivery.merge, 'NOT_EXECUTED');
   assert.equal(projectStatus.github.currentTaskDelivery.mainPostMergeCi, 'NOT_EXECUTED');
   assert.equal(projectStatus.github.previousTaskDelivery.status, 'CI_PASS');
-  assert.equal(projectStatus.evidence.local, 'LOCAL_PASS_M3_P026_FULL_VERIFY');
-  assert.equal(projectStatus.evidence.ci, 'CI_PASS_M3_P026_HEAD_4506968');
+  assert.equal(projectStatus.evidence.local, 'LOCAL_PASS_M3_P027_FULL_VERIFY');
+  assert.equal(projectStatus.evidence.ci, 'CI_PASS_M3_P027_HEAD_512beed');
   assert.equal(projectStatus.evidence.staging, 'NOT_EXECUTED');
   assert.equal(projectStatus.evidence.device, 'NOT_EXECUTED');
   assert.equal(projectStatus.evidence.production, 'NOT_EXECUTED');

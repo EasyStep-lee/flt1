@@ -61,9 +61,9 @@ test('M2-P007 retains evidence while the current M2 slice advances through its d
     ]);
 
   assert.equal(state.execution.status, 'M3_IN_PROGRESS');
-  assert.equal(state.execution.currentTask, 'M3-P026');
+  assert.equal(state.execution.currentTask, 'M3-P027');
   assert.equal(state.execution.nextAllowedTask, state.execution.currentTask);
-  assert.equal(state.execution.lastCompletedTask, 'M3-P025');
+  assert.equal(state.execution.lastCompletedTask, 'M3-P026');
   assert.equal(state.execution.activeTaskCount, 1);
   assert.equal(state.github.currentTaskDelivery.taskId, state.execution.currentTask);
   assert.ok(
@@ -79,11 +79,11 @@ test('M2-P007 retains evidence while the current M2 slice advances through its d
   assert.equal(state.github.currentTaskDelivery.mainPostMergeCi, 'NOT_EXECUTED');
   assert.equal(
     state.github.currentTaskDelivery.blockingExternalItem,
-    'REAL_WELFARE_LEDGER_WECHAT_REFUND_AND_STAGING_EVIDENCE',
+    'REAL_DOMAIN_DNS_TLS_ICP_AND_AUTHORIZED_CUSTOMER_CONTENT',
   );
   assert.equal(state.github.currentTaskDelivery.nextTaskUnlocked, false);
-  assert.equal(state.evidence.local, 'LOCAL_PASS_M3_P026_FULL_VERIFY');
-  assert.equal(state.evidence.ci, 'CI_PASS_M3_P026_HEAD_4506968');
+  assert.equal(state.evidence.local, 'LOCAL_PASS_M3_P027_FULL_VERIFY');
+  assert.equal(state.evidence.ci, 'CI_PASS_M3_P027_HEAD_512beed');
   assert.match(taskLedger, /M2-P007[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(taskLedger, /M2-P008[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(taskLedger, /M2-P009[^\r\n]*DONE[^\r\n]*CI_PASS/u);

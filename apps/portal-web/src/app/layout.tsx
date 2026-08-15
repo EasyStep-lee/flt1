@@ -2,13 +2,15 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 
 import { Providers } from './providers';
+import { siteOrigin } from '../public-content';
 import './globals.css';
 
 export const metadata: Metadata = {
-  description: '福礼社企业宣传与企业采购门户应用壳。',
+  description: '福礼团企业福利、供应链服务与企业采购门户。',
+  metadataBase: siteOrigin,
   title: {
-    default: '福礼社企业门户',
-    template: '%s｜福礼社企业门户',
+    default: '福礼团企业门户',
+    template: '%s｜福礼团企业门户',
   },
 };
 

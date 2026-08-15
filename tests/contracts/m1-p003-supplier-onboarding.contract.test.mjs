@@ -179,24 +179,24 @@ test('M1-P003 retains its local evidence after PR and main CI closure', async ()
   assert.equal(state.execution.currentStage, 'M3');
   assert.equal(state.execution.currentTask, state.execution.nextAllowedTask);
   assert.equal(state.execution.status, 'M3_IN_PROGRESS');
-  assert.equal(state.execution.currentTask, 'M3-P026');
+  assert.equal(state.execution.currentTask, 'M3-P027');
   assert.equal(state.execution.activeTaskCount, active.length);
-  assert.equal(state.execution.lastCompletedTask, 'M3-P025');
+  assert.equal(state.execution.lastCompletedTask, 'M3-P026');
   assert.equal(state.execution.lastPassedGate, 'M2-GATE');
   assert.equal(state.github.repository, 'EasyStep-lee/flt1');
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M3-P026');
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M3-P027');
   assert.equal(
     state.github.currentTaskDelivery.status,
     'CI_PASS_PENDING_HUMAN_MERGE',
   );
   assert.equal(
     state.github.currentTaskDelivery.blockingExternalItem,
-    'REAL_WELFARE_LEDGER_WECHAT_REFUND_AND_STAGING_EVIDENCE',
+    'REAL_DOMAIN_DNS_TLS_ICP_AND_AUTHORIZED_CUSTOMER_CONTENT',
   );
   assert.equal(state.github.currentTaskDelivery.nextTaskUnlocked, false);
-  assert.equal(state.github.previousTaskDelivery.taskId, 'M3-P025');
-  assert.equal(state.github.previousTaskDelivery.pullRequest, 86);
+  assert.equal(state.github.previousTaskDelivery.taskId, 'M3-P026');
+  assert.equal(state.github.previousTaskDelivery.pullRequest, 88);
   assert.match(m2p008?.Status, /^(?:IN_PROGRESS|DONE)$/u);
-  assert.equal(state.evidence.local, 'LOCAL_PASS_M3_P026_FULL_VERIFY');
-  assert.equal(state.evidence.ci, 'CI_PASS_M3_P026_HEAD_4506968');
+  assert.equal(state.evidence.local, 'LOCAL_PASS_M3_P027_FULL_VERIFY');
+  assert.equal(state.evidence.ci, 'CI_PASS_M3_P027_HEAD_512beed');
 });
