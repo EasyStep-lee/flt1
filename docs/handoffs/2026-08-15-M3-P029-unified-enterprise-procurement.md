@@ -23,10 +23,10 @@
 ## 新鲜测试证据
 
 - RED：实现前新增企业结算字段后预期 201，实际 422。
-- GREEN focused：统一企业采购 + 旧跨供应商 API 共 9 tests PASS。
+- GREEN focused：统一企业采购 + 旧跨供应商 API 共 10 tests PASS。
 - Prisma 仓储：订单、微信支付、企业转账共 13 tests PASS。
 - Prisma validate PASS；MIG-015 真实 MySQL 8 dry-run `empty=2 upgrade=2 restore=2 product=30 cleanup=PASS`。
-- OpenAPI generate/check PASS；完整 `pnpm verify` 待最终台账同步后执行。
+- OpenAPI generate/check PASS；`pnpm verify` 17/17 PASS（含 API 217/217、P0 E2E 70/70、真实 MySQL 迁移演练、构建与秘密扫描）。
 
 ## P0 与环境边界
 

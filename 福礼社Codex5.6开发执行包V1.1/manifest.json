@@ -27,7 +27,7 @@
       "status": "NOT_EXECUTED_TOOL_MARKER_UNAVAILABLE",
       "sourceLedgers": "CSV_AND_JSON_UPDATED",
       "reason": "Repository task ledgers are CSV/JSON sources; workbook bytes intentionally preserved in this slice.",
-      "checkedAt": "2026-08-15T09:15:26.578Z"
+      "checkedAt": "2026-08-15T09:45:41.309Z"
     }
   },
   "sourceOfTruth": [

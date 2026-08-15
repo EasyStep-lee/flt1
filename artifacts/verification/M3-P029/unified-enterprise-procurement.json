@@ -5,7 +5,7 @@
   "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
   "scope": "Unified enterprise buyer order with immutable address and invoice snapshots and one frozen payment route",
   "evidenceStatus": "LOCAL_PASS",
-  "commit": "LOCAL_WORKTREE",
+  "commit": "8d1d67ad451e4e41e7341e2730915721b3fe0c78",
   "red": {
     "command": "pnpm --filter @fulishe/api build && pnpm exec vitest run apps/api/test/supertest/unified-enterprise-procurement-api.test.mjs",
     "actual": "Expected HTTP 201, received HTTP 422 before enterprise checkout DTO and aggregate implementation"
@@ -13,9 +13,10 @@
   "green": [
     "Prisma schema valid",
     "MIG-015 MySQL dry-run empty=2 upgrade=2 restore=2 product=30 cleanup=PASS",
-    "Unified enterprise procurement and legacy cross-supplier API tests: 9 passed",
+    "Unified enterprise procurement and legacy cross-supplier API tests: 10 passed",
     "Prisma order, payment and remittance repository tests: 13 passed",
-    "OpenAPI deterministic generation/check passed"
+    "OpenAPI deterministic generation/check passed",
+    "pnpm verify: 17 of 17 steps passed"
   ],
   "invariants": [
     "Company remains the only seller and collector",
@@ -39,4 +40,3 @@
     "M3-P030 and later tasks remain locked until this PR is merged and post-merge main CI passes"
   ]
 }
-

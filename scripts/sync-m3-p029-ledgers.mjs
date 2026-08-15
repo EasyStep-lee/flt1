@@ -88,7 +88,7 @@ await updateCsv('06-状态机总表.csv', (row) => row.StateMachine === 'Enterpr
 
 await updateCsv('10-测试证据登记.csv', (row) => row.EvidenceID === 'EVD-029' ? {
   ...row, CurrentStatus: evidenceStatus,
-  CommandOrProcedure: 'RED Supertest；GREEN API 9 tests、Prisma order/payment/remittance 13 tests、MIG-015 contract、P0-029 Playwright、prisma validate/migrate dry-run、OpenAPI generate/check、pnpm verify',
+  CommandOrProcedure: 'RED Supertest；GREEN API 10 tests、Prisma order/payment/remittance 13 tests、MIG-015 contract、P0-029 Playwright、prisma validate/migrate dry-run、OpenAPI generate/check、pnpm verify',
   Actual: '企业跨供应商主订单、地址/发票快照、付款路由、幂等、权限/归属、脱敏及微信/转账状态联动通过。',
   Environment: 'LOCAL_WINDOWS_NODE22_MYSQL8_DOCKER_PLAYWRIGHT_CHROMIUM',
   AppOrBrowserVersion: 'Node 22.23.1; pnpm 10.12.1; Prisma 6.19.2; Playwright Chromium',
@@ -144,7 +144,7 @@ status.github = {
     taskId: 'M3-P029', issue: 93, issueUrl: 'https://github.com/EasyStep-lee/flt1/issues/93', branch: 'codex/m3-enterprise-procurement',
     baseCommit: 'fa083beb195c769cc4168dcac38e817e3df2a873', verifiedHead: commit,
     status: ciRun ? 'CI_PASS_PENDING_HUMAN_MERGE' : 'LOCAL_PASS_PENDING_DRAFT_PR',
-    localRedTest: 'ENTERPRISE_CHECKOUT_EXPECTED_201_ACTUAL_422', localFocusedTest: 'LOCAL_PASS_API_9_PRISMA_13_MIGRATION_AND_P0_E2E', localFullVerify: fullVerify,
+    localRedTest: 'ENTERPRISE_CHECKOUT_EXPECTED_201_ACTUAL_422', localFocusedTest: 'LOCAL_PASS_API_10_PRISMA_13_MIGRATION_AND_P0_E2E', localFullVerify: fullVerify,
     pullRequest: pullRequest ? Number(pullRequest) : null, pullRequestState: pullRequest ? 'DRAFT' : 'NOT_CREATED',
     exactHeadCi: ciRun ? `CI_PASS_RUN_${ciRun}_JOB_${ciJob}` : 'NOT_EXECUTED', review: 'NOT_EXECUTED', merge: 'NOT_EXECUTED', mainPostMergeCi: 'NOT_EXECUTED',
     blockingExternalItem: 'P0_029_FULL_UI_DELIVERY_RECEIPT_AFTERSALES_INVOICE_REAL_PAYMENT_STAGING_DEVICE_PRODUCTION', nextTaskUnlocked: false,
