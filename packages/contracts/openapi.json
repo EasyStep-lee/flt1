@@ -93,6 +93,10 @@
               "TEMPLATE_VERSION_IMMUTABLE",
               "REGION_UNAVAILABLE",
               "SENSITIVE_FIELD_LEAK",
+              "CREDIT_CODE_DUPLICATE",
+              "ENTERPRISE_NOT_FOUND",
+              "ENTERPRISE_NOT_ACTIVE",
+              "ENTERPRISE_SCOPE_FORBIDDEN",
               "INVENTORY_INSUFFICIENT",
               "INVENTORY_NEGATIVE",
               "INVENTORY_RESERVATION_CONFLICT",
@@ -1630,6 +1634,80 @@
         ],
         "type": "object"
       },
+      "EnterpriseAddressInputDto": {
+        "properties": {
+          "consignee": {
+            "maxLength": 128,
+            "type": "string"
+          },
+          "deliveryNote": {
+            "maxLength": 500,
+            "type": "string"
+          },
+          "fullAddress": {
+            "maxLength": 500,
+            "type": "string"
+          },
+          "isDefault": {
+            "type": "boolean"
+          },
+          "mobile": {
+            "maxLength": 16,
+            "type": "string"
+          },
+          "region": {
+            "maxLength": 64,
+            "type": "string"
+          }
+        },
+        "required": [
+          "consignee",
+          "mobile",
+          "region",
+          "fullAddress",
+          "isDefault"
+        ],
+        "type": "object"
+      },
+      "EnterpriseAddressResponseDto": {
+        "properties": {
+          "consignee": {
+            "maxLength": 128,
+            "type": "string"
+          },
+          "deliveryNote": {
+            "maxLength": 500,
+            "type": "string"
+          },
+          "fullAddress": {
+            "maxLength": 500,
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "isDefault": {
+            "type": "boolean"
+          },
+          "mobileMasked": {
+            "type": "string"
+          },
+          "region": {
+            "maxLength": 64,
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "consignee",
+          "mobileMasked",
+          "region",
+          "fullAddress",
+          "isDefault"
+        ],
+        "type": "object"
+      },
       "EnterpriseCatalogPageResponseDto": {
         "properties": {
           "checkoutMode": {
@@ -1772,6 +1850,75 @@
         ],
         "type": "object"
       },
+      "EnterpriseInvoiceProfileInputDto": {
+        "properties": {
+          "bankAccount": {
+            "maxLength": 64,
+            "type": "string",
+            "writeOnly": true
+          },
+          "bankName": {
+            "maxLength": 191,
+            "type": "string"
+          },
+          "registeredAddress": {
+            "maxLength": 500,
+            "type": "string"
+          },
+          "registeredPhone": {
+            "maxLength": 32,
+            "type": "string"
+          },
+          "taxNumber": {
+            "maxLength": 32,
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 191,
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "taxNumber"
+        ],
+        "type": "object"
+      },
+      "EnterpriseInvoiceProfileResponseDto": {
+        "properties": {
+          "bankAccountMasked": {
+            "type": "string"
+          },
+          "bankName": {
+            "maxLength": 191,
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "registeredAddress": {
+            "maxLength": 500,
+            "type": "string"
+          },
+          "registeredPhoneMasked": {
+            "type": "string"
+          },
+          "taxNumberMasked": {
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 191,
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "taxNumberMasked"
+        ],
+        "type": "object"
+      },
       "EnterpriseProductDetailResponseDto": {
         "properties": {
           "brand": {
@@ -1863,6 +2010,319 @@
           "media",
           "skus",
           "detailModules"
+        ],
+        "type": "object"
+      },
+      "EnterpriseRegistrationCreatedResponseDto": {
+        "properties": {
+          "nextAction": {
+            "enum": [
+              "COMPLETE_PROFILE"
+            ],
+            "type": "string"
+          },
+          "registrationAccessExpiresAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "registrationAccessToken": {
+            "description": "Short-lived registration credential returned only to the creating client",
+            "type": "string"
+          },
+          "registrationId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "DRAFT",
+              "PENDING_REVIEW",
+              "CORRECTION_REQUIRED",
+              "ACTIVE",
+              "SUSPENDED",
+              "REJECTED"
+            ],
+            "type": "string"
+          },
+          "version": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "registrationId",
+          "status",
+          "version",
+          "registrationAccessToken",
+          "registrationAccessExpiresAt",
+          "nextAction"
+        ],
+        "type": "object"
+      },
+      "EnterpriseRegistrationPageResponseDto": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/EnterpriseRegistrationResponseDto"
+            },
+            "type": "array"
+          },
+          "page": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "pageSize": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "total": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "page",
+          "pageSize",
+          "total"
+        ],
+        "type": "object"
+      },
+      "EnterpriseRegistrationPatchRequestDto": {
+        "properties": {
+          "addresses": {
+            "items": {
+              "$ref": "#/components/schemas/EnterpriseAddressInputDto"
+            },
+            "type": "array"
+          },
+          "administratorEmail": {
+            "maxLength": 254,
+            "type": "string"
+          },
+          "administratorName": {
+            "maxLength": 128,
+            "type": "string"
+          },
+          "administratorTitle": {
+            "maxLength": 128,
+            "type": "string"
+          },
+          "creditCode": {
+            "maxLength": 18,
+            "minLength": 18,
+            "type": "string"
+          },
+          "enterpriseType": {
+            "maxLength": 64,
+            "type": "string"
+          },
+          "invoiceProfile": {
+            "$ref": "#/components/schemas/EnterpriseInvoiceProfileInputDto"
+          },
+          "legalName": {
+            "maxLength": 191,
+            "type": "string"
+          },
+          "licenseObjectKey": {
+            "maxLength": 255,
+            "type": "string",
+            "writeOnly": true
+          },
+          "licenseValidUntil": {
+            "format": "date",
+            "nullable": true,
+            "type": "string"
+          },
+          "registeredAddress": {
+            "maxLength": 500,
+            "type": "string"
+          },
+          "version": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "version"
+        ],
+        "type": "object"
+      },
+      "EnterpriseRegistrationRequestDto": {
+        "properties": {
+          "addresses": {
+            "items": {
+              "$ref": "#/components/schemas/EnterpriseAddressInputDto"
+            },
+            "type": "array"
+          },
+          "administratorEmail": {
+            "maxLength": 254,
+            "type": "string"
+          },
+          "administratorMobile": {
+            "maxLength": 16,
+            "type": "string"
+          },
+          "administratorName": {
+            "maxLength": 128,
+            "type": "string"
+          },
+          "administratorTitle": {
+            "maxLength": 128,
+            "type": "string"
+          },
+          "agreementVersion": {
+            "maxLength": 64,
+            "type": "string"
+          },
+          "creditCode": {
+            "maxLength": 18,
+            "minLength": 18,
+            "type": "string"
+          },
+          "enterpriseType": {
+            "maxLength": 64,
+            "type": "string"
+          },
+          "invoiceProfile": {
+            "$ref": "#/components/schemas/EnterpriseInvoiceProfileInputDto"
+          },
+          "legalName": {
+            "maxLength": 191,
+            "type": "string"
+          },
+          "licenseObjectKey": {
+            "maxLength": 255,
+            "type": "string",
+            "writeOnly": true
+          },
+          "licenseValidUntil": {
+            "format": "date",
+            "nullable": true,
+            "type": "string"
+          },
+          "registeredAddress": {
+            "maxLength": 500,
+            "type": "string"
+          },
+          "verificationCode": {
+            "maxLength": 8,
+            "minLength": 4,
+            "type": "string",
+            "writeOnly": true
+          }
+        },
+        "required": [
+          "legalName",
+          "creditCode",
+          "administratorName",
+          "administratorMobile",
+          "verificationCode",
+          "agreementVersion"
+        ],
+        "type": "object"
+      },
+      "EnterpriseRegistrationResponseDto": {
+        "properties": {
+          "addresses": {
+            "items": {
+              "$ref": "#/components/schemas/EnterpriseAddressResponseDto"
+            },
+            "type": "array"
+          },
+          "administratorEmailMasked": {
+            "type": "string"
+          },
+          "administratorMobileMasked": {
+            "type": "string"
+          },
+          "administratorName": {
+            "type": "string"
+          },
+          "businessLicenseProvided": {
+            "type": "boolean"
+          },
+          "businessLicenseReference": {
+            "maxLength": 255,
+            "type": "string"
+          },
+          "correctionFields": {
+            "items": {
+              "enum": [
+                "LEGAL_NAME",
+                "CREDIT_CODE",
+                "REGISTERED_ADDRESS",
+                "ENTERPRISE_TYPE",
+                "BUSINESS_LICENSE",
+                "CONTACT",
+                "INVOICE_PROFILE",
+                "SHIPPING_ADDRESS",
+                "AGREEMENT"
+              ],
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "creditCodeMasked": {
+            "type": "string"
+          },
+          "enterpriseType": {
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "invoiceProfile": {
+            "$ref": "#/components/schemas/EnterpriseInvoiceProfileResponseDto"
+          },
+          "legalName": {
+            "maxLength": 191,
+            "type": "string"
+          },
+          "licenseValidUntil": {
+            "format": "date",
+            "type": "string"
+          },
+          "nextAction": {
+            "type": "string"
+          },
+          "registeredAddress": {
+            "type": "string"
+          },
+          "reviewOpinion": {
+            "maxLength": 1000,
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "DRAFT",
+              "PENDING_REVIEW",
+              "CORRECTION_REQUIRED",
+              "ACTIVE",
+              "SUSPENDED",
+              "REJECTED"
+            ],
+            "type": "string"
+          },
+          "version": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "legalName",
+          "creditCodeMasked",
+          "status",
+          "version",
+          "administratorName",
+          "administratorMobileMasked",
+          "businessLicenseProvided",
+          "addresses",
+          "correctionFields",
+          "nextAction"
         ],
         "type": "object"
       },
@@ -1998,6 +2458,80 @@
         "required": [
           "decision",
           "amount",
+          "version",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "EnterpriseReviewRequestDto": {
+        "properties": {
+          "correctionFields": {
+            "items": {
+              "enum": [
+                "LEGAL_NAME",
+                "CREDIT_CODE",
+                "REGISTERED_ADDRESS",
+                "ENTERPRISE_TYPE",
+                "BUSINESS_LICENSE",
+                "CONTACT",
+                "INVOICE_PROFILE",
+                "SHIPPING_ADDRESS",
+                "AGREEMENT"
+              ],
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "decision": {
+            "enum": [
+              "REQUEST_CORRECTION",
+              "APPROVE",
+              "REJECT"
+            ],
+            "type": "string"
+          },
+          "opinion": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "type": "string"
+          },
+          "version": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "decision",
+          "version",
+          "opinion"
+        ],
+        "type": "object"
+      },
+      "EnterpriseSubmitReviewRequestDto": {
+        "properties": {
+          "version": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "version"
+        ],
+        "type": "object"
+      },
+      "EnterpriseSuspendRequestDto": {
+        "properties": {
+          "reason": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "type": "string"
+          },
+          "version": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
           "version",
           "reason"
         ],
@@ -8029,6 +8563,238 @@
         ]
       }
     },
+    "/v1/company/enterprise-registrations": {
+      "get": {
+        "operationId": "companyEnterpriseRegistration.list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnterpriseRegistrationPageResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "List enterprise certifications for the fixed company reviewer workspace",
+        "tags": [
+          "company-enterprise-certification"
+        ]
+      }
+    },
+    "/v1/company/enterprise-registrations/{enterpriseId}/review": {
+      "post": {
+        "operationId": "companyEnterpriseRegistration.review",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "enterpriseId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnterpriseReviewRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnterpriseRegistrationResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Request correction, approve, or reject an enterprise certification",
+        "tags": [
+          "company-enterprise-certification"
+        ]
+      }
+    },
+    "/v1/company/enterprise-registrations/{enterpriseId}/suspend": {
+      "post": {
+        "operationId": "companyEnterpriseRegistration.suspend",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "enterpriseId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnterpriseSuspendRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnterpriseRegistrationResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Suspend an active enterprise without rewriting certification history",
+        "tags": [
+          "company-enterprise-certification"
+        ]
+      }
+    },
     "/v1/company/price-reviews": {
       "get": {
         "operationId": "companyInitialPriceReviews.list",
@@ -9405,6 +10171,334 @@
         "summary": "Submit company bank-remittance proof for an enterprise order",
         "tags": [
           "enterprise-remittance"
+        ]
+      }
+    },
+    "/v1/enterprise/registrations": {
+      "post": {
+        "operationId": "enterpriseRegistration.create",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnterpriseRegistrationRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnterpriseRegistrationCreatedResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "428": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Create an enterprise certification draft after mobile verification",
+        "tags": [
+          "enterprise-registration"
+        ]
+      }
+    },
+    "/v1/enterprise/registrations/me": {
+      "get": {
+        "operationId": "enterpriseRegistration.getOwn",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnterpriseRegistrationResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Read the enterprise certification bound to a registration credential",
+        "tags": [
+          "enterprise-registration"
+        ]
+      },
+      "patch": {
+        "operationId": "enterpriseRegistration.patchOwn",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnterpriseRegistrationPatchRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnterpriseRegistrationResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Save enterprise certification draft or correction fields",
+        "tags": [
+          "enterprise-registration"
+        ]
+      }
+    },
+    "/v1/enterprise/registrations/me/submit-review": {
+      "post": {
+        "operationId": "enterpriseRegistration.submitOwn",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnterpriseSubmitReviewRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnterpriseRegistrationResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Submit or resubmit an enterprise certification for company review",
+        "tags": [
+          "enterprise-registration"
         ]
       }
     },

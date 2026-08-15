@@ -11,6 +11,9 @@ import type {
   CompanySecondVerifier,
 } from './company-auth/company-auth.security.js';
 import type { CompanyFunctionalAccountRepository } from './company-functional-accounts/company-functional-account.repository.js';
+import type { EnterpriseOnboardingActorResolver } from './enterprise-onboarding/enterprise-onboarding.actor.js';
+import type { EnterpriseOnboardingRepository } from './enterprise-onboarding/enterprise-onboarding.repository.js';
+import type { EnterpriseRegistrationVerifier } from './enterprise-onboarding/enterprise-registration.verifier.js';
 import type { CompanyProductApprovalActorResolver } from './company-product-approvals/company-product-approval.actor.js';
 import type { PublicCatalogRepository } from './catalog/public-catalog.repository.js';
 import type { EnterpriseCatalogViewerResolver } from './catalog/enterprise-catalog-viewer.resolver.js';
@@ -77,6 +80,9 @@ export interface CreateApplicationOptions {
   readonly supplierOnboardingRepository?: SupplierOnboardingRepository;
   readonly supplierOnboardingActorResolver?: SupplierOnboardingActorResolver;
   readonly supplierRegistrationVerifier?: SupplierRegistrationVerifier;
+  readonly enterpriseOnboardingRepository?: EnterpriseOnboardingRepository;
+  readonly enterpriseOnboardingActorResolver?: EnterpriseOnboardingActorResolver;
+  readonly enterpriseRegistrationVerifier?: EnterpriseRegistrationVerifier;
   readonly functionalAccountRepository?: SupplierFunctionalAccountRepository;
   readonly functionalAccountActorResolver?: FunctionalAccountActorResolver;
   readonly functionalAccountSecondVerifier?: FunctionalAccountSecondVerifier;
@@ -143,6 +149,18 @@ export const createApplication = async (
       : {}),
     ...(options.supplierRegistrationVerifier
       ? { supplierRegistrationVerifier: options.supplierRegistrationVerifier }
+      : {}),
+    ...(options.enterpriseOnboardingRepository
+      ? { enterpriseOnboardingRepository: options.enterpriseOnboardingRepository }
+      : {}),
+    ...(options.enterpriseOnboardingActorResolver
+      ? {
+          enterpriseOnboardingActorResolver:
+            options.enterpriseOnboardingActorResolver,
+        }
+      : {}),
+    ...(options.enterpriseRegistrationVerifier
+      ? { enterpriseRegistrationVerifier: options.enterpriseRegistrationVerifier }
       : {}),
     ...(options.functionalAccountRepository
       ? { functionalAccountRepository: options.functionalAccountRepository }

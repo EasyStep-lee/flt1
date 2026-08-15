@@ -1,0 +1,129 @@
+{
+  "schemaVersion": "1.0.0",
+  "taskId": "M3-P028",
+  "stage": "M3",
+  "title": "企业注册认证",
+  "baselineSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+  "environment": "LOCAL_WINDOWS_NODE22_MYSQL8_DOCKER_NEXTJS16_PLAYWRIGHT_CHROMIUM",
+  "evidenceStatus": "CI_PASS",
+  "commit": "542b50e565133ea2afcfc463b27fd15b0edbfc5f",
+  "baseCommit": "0691ae492771df9fa39422460501a41ad174c605",
+  "branch": "codex/m3-enterprise-registration",
+  "github": {
+    "repository": "EasyStep-lee/flt1",
+    "issue": 91,
+    "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/91",
+    "pullRequest": 92,
+    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/92",
+    "pullRequestState": "DRAFT",
+    "exactHeadCi": {
+      "status": "CI_PASS",
+      "runId": 31872929851,
+      "jobId": 94984210698,
+      "headSha": "542b50e565133ea2afcfc463b27fd15b0edbfc5f",
+      "completedAt": "2026-08-15T08:00:02Z"
+    },
+    "review": "NOT_EXECUTED",
+    "merge": "NOT_EXECUTED",
+    "mainPostMergeCi": "NOT_EXECUTED"
+  },
+  "scope": {
+    "primaryP0": ["P0-028"],
+    "partialP0": ["P0-077"],
+    "portalRoute": "/enterprise/register",
+    "companyWorkspace": "/company-admin/workspaces/supplier-ops",
+    "migration": "20260815020000_m3_enterprise_identity_profile",
+    "openApiContracts": ["API-044", "API-046"]
+  },
+  "red": {
+    "command": "node --test apps/api/test/supertest/enterprise-registration-api.test.mjs",
+    "status": "EXPECTED_FAIL",
+    "reason": "POST /v1/enterprise/registrations was expected to fail closed with 503 before an external verifier was configured, but the route returned 404 before implementation."
+  },
+  "focused": [
+    {
+      "command": "node --test apps/api/test/unit/enterprise-onboarding-policy.test.mjs",
+      "status": "PASS",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "command": "node --test apps/api/test/supertest/enterprise-registration-api.test.mjs",
+      "status": "PASS",
+      "passed": 7,
+      "failed": 0
+    },
+    {
+      "command": "node --test tests/migrations/m3-p028-enterprise-registration-migration.contract.test.mjs",
+      "status": "PASS",
+      "passed": 1,
+      "failed": 0
+    },
+    {
+      "command": "node --test apps/company-admin/test/shell-build.test.mjs",
+      "status": "PASS",
+      "passed": 3,
+      "failed": 0
+    },
+    {
+      "command": "node --test apps/portal-web/test/seo-cache-boundary.test.mjs",
+      "status": "PASS",
+      "passed": 1,
+      "failed": 0
+    },
+    {
+      "command": "pnpm exec playwright test tests/e2e/p0/p0-028-enterprise-registration.spec.ts --config playwright.p0.config.ts",
+      "status": "PASS",
+      "passed": 1,
+      "failed": 0
+    },
+    {
+      "command": "pnpm prisma:migrate:dry-run",
+      "status": "PASS",
+      "result": "empty=2;upgrade=2;restore=2;product=29;cleanup=PASS"
+    }
+  ],
+  "fullVerification": {
+    "command": "pnpm verify",
+    "status": "PASS",
+    "exitCode": 0,
+    "stepsPassed": 17,
+    "stepsFailed": 0,
+    "startedAt": "2026-08-15T07:33:42.430Z",
+    "endedAt": "2026-08-15T07:48:04.547Z",
+    "report": "artifacts/test-results/verification/pnpm-verify.json",
+    "migrationRehearsal": "PASS",
+    "secretScan": "917 tracked files checked"
+  },
+  "invariants": [
+    "江苏福礼团供应链科技有限公司 remains the sole merchant and companyId is derived on the server.",
+    "Enterprise ownership and the active company functional account are derived from signed credentials or verified sessions, never client owner fields.",
+    "The default phone verifier fails closed with SERVICE_UNAVAILABLE and performs zero writes.",
+    "Natural-person identity separation prevents the submitter from approving the same certification through another functional account.",
+    "Idempotency, credit-code uniqueness and optimistic versions prevent duplicate or concurrent certification decisions.",
+    "Certification snapshots and status history are append-only; rejected transitions produce no partial write.",
+    "Customer-facing DTOs never return supply price and mask mobile, credit code, tax number and bank account.",
+    "The registration page is dynamic, noindex and private/no-store; credentials are stored only in browser sessionStorage."
+  ],
+  "knownFailedRuns": [
+    "The first full verify failed in the frozen OpenAPI path list after the six additive enterprise registration routes were generated.",
+    "The next regression run found historical gate tests still pinned to M3-P027 and PR 88 evidence.",
+    "A later full verify passed 16 of 17 steps and failed only because the secret scanner interpreted a Symbol dependency-injection name as a credential assignment.",
+    "All three causes were corrected without deleting tests or weakening business assertions; the final committed code head passed all 17 steps."
+  ],
+  "notExecuted": [
+    "EXT-013 contract, agreement, bank-transfer and invoice legal/finance acceptance",
+    "real SMS and object-storage provider accounts",
+    "P0-077 full preview, durable progress, field-correction and suspension user experience",
+    "staging, device and production acceptance",
+    "Excel execution-pack mirror update because the mandatory Spreadsheet skill operation marker is unavailable"
+  ],
+  "workbookMirror": {
+    "status": "NOT_EXECUTED_TOOL_MARKER_UNAVAILABLE",
+    "sourceLedgers": "CSV_AND_JSON_UPDATED",
+    "workbookBytesChanged": false
+  },
+  "risk": "The local verifier and object references prove only technical behavior. They do not prove real SMS delivery, document custody, legal approval, bank-transfer verification or invoice compliance.",
+  "rollback": "Revert the M3-P028 application, migration, generated contract, tests and ledger commits. If MIG-011 has been applied outside disposable local databases, deploy a forward corrective migration and preserve append-only certification evidence; do not edit published migration SQL or delete audit history.",
+  "nextGate": "Verify the evidence-only Draft PR head and unresolved comments, then wait for explicit exact-head Ready/merge authorization. M3-P029 remains locked until post-merge main CI succeeds."
+}

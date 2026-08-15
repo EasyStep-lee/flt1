@@ -23,11 +23,11 @@
     "status": "VERIFIED",
     "sha256": "777CD2F298C9A39AA7EBC89DC4432DC11131C449B6F4593A18EAE29538191DE8",
     "currentTaskMirror": {
-      "taskId": "M3-P027",
+      "taskId": "M3-P028",
       "status": "NOT_EXECUTED_TOOL_MARKER_UNAVAILABLE",
       "sourceLedgers": "CSV_AND_JSON_UPDATED",
       "reason": "Spreadsheet skill mandatory artifact-operation marker is unavailable in the installed runtime; workbook bytes were not changed.",
-      "checkedAt": "2026-08-15T03:46:27Z"
+      "checkedAt": "2026-08-15T08:00:02Z"
     }
   },
   "sourceOfTruth": [

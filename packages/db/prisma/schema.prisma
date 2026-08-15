@@ -24,6 +24,7 @@ enum SupplierStatus {
 
 enum ApprovalType {
   SUPPLIER_ONBOARDING
+  ENTERPRISE_CERTIFICATION
   FUNCTIONAL_ACCOUNT_CHANGE
   SENSITIVE_EXPORT
   SUPPLIER_SENSITIVE_CHANGE
@@ -33,6 +34,7 @@ enum ApprovalType {
 
 enum ApprovalObjectType {
   SUPPLIER
+  ENTERPRISE_CUSTOMER
   FUNCTIONAL_ACCOUNT
   EXPORT_JOB
   SUPPLIER_PRODUCT
@@ -41,6 +43,7 @@ enum ApprovalObjectType {
 enum ApprovalApplicantType {
   COMPANY_USER
   SUPPLIER_USER
+  ENTERPRISE_USER
 }
 
 enum ApprovalTaskStatus {
@@ -66,6 +69,50 @@ enum ApprovalAccountTypeCode {
   SUPPLIER_ACCOUNT_ADMIN
   COMPANY_PRODUCT_OPS
   COMPANY_PRICE_REVIEW
+}
+
+enum EnterpriseCustomerStatus {
+  DRAFT
+  PENDING_REVIEW
+  CORRECTION_REQUIRED
+  ACTIVE
+  SUSPENDED
+  REJECTED
+}
+
+enum EnterpriseAgreementStatus {
+  NOT_SIGNED
+  ACTIVE
+  EXPIRED
+  TERMINATED
+}
+
+enum EnterpriseUserRole {
+  ENTERPRISE_ADMIN
+  ENTERPRISE_PURCHASER
+}
+
+enum EnterpriseUserStatus {
+  INVITED
+  ACTIVE
+  SUSPENDED
+  DISABLED
+}
+
+enum EnterpriseCustomerStatusEvent {
+  CREATE
+  SUBMIT_CERTIFICATION
+  REQUEST_CORRECTION
+  RESUBMIT
+  APPROVE
+  REJECT
+  SUSPEND
+}
+
+enum EnterpriseProcurementProfileStatus {
+  DRAFT
+  ACTIVE
+  SUSPENDED
 }
 
 enum SupplierProductStatus {
@@ -478,6 +525,7 @@ model Company {
   priceEffectOutboxes       PriceEffectOutbox[]
   buyerOrders               BuyerOrder[]
   refundAuthorizations      RefundAuthorization[]
+  enterpriseCustomers       EnterpriseCustomer[]
 
   @@map("company")
 }
@@ -568,6 +616,157 @@ model SupplierUser {
   @@unique([supplierId, mobile], map: "supplier_user_supplier_mobile_key")
   @@index([supplierId, status], map: "supplier_user_supplier_status_idx")
   @@map("supplier_user")
+}
+
+model EnterpriseCustomer {
+  id                     String                       @id @default(uuid()) @db.Char(36)
+  companyId              String                       @map("company_id") @db.Char(36)
+  legalName              String                       @map("legal_name") @db.VarChar(191)
+  creditCode             String                       @unique @map("credit_code") @db.Char(18)
+  registeredAddress      String?                      @map("registered_address") @db.VarChar(500)
+  enterpriseType         String?                      @map("enterprise_type") @db.VarChar(64)
+  licenseObjectKey       String?                      @map("license_object_key") @db.VarChar(255)
+  licenseValidUntil      DateTime?                    @map("license_valid_until") @db.DateTime(3)
+  contactName            String                       @map("contact_name") @db.VarChar(128)
+  contactMobile          String                       @map("contact_mobile") @db.VarChar(16)
+  contactEmail           String?                      @map("contact_email") @db.VarChar(254)
+  contactTitle           String?                      @map("contact_title") @db.VarChar(128)
+  agreementVersion       String                       @map("agreement_version") @db.VarChar(64)
+  agreementStatus        EnterpriseAgreementStatus    @default(NOT_SIGNED) @map("agreement_status")
+  status                 EnterpriseCustomerStatus     @default(DRAFT)
+  correctionFields       Json                         @map("correction_fields")
+  reviewOpinion          String?                      @map("review_opinion") @db.VarChar(1000)
+  version                Int                          @default(0)
+  submittedAt            DateTime?                    @map("submitted_at") @db.DateTime(3)
+  createdAt              DateTime                     @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt              DateTime                     @updatedAt @map("updated_at") @db.DateTime(3)
+  company                Company                      @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  users                  EnterpriseUser[]
+  addresses              EnterpriseAddress[]
+  invoiceProfiles        EnterpriseInvoiceProfile[]
+  statusHistory          EnterpriseCustomerStatusHistory[]
+  certificationSnapshots EnterpriseCertificationSnapshot[]
+  procurementProfile     EnterpriseProcurementProfile?
+
+  @@index([companyId, status, createdAt], map: "enterprise_customer_company_status_time_idx")
+  @@index([contactMobile, status], map: "enterprise_customer_mobile_status_idx")
+  @@map("enterprise_customer")
+}
+
+model EnterpriseUser {
+  id                   String               @id @default(uuid()) @db.Char(36)
+  enterpriseCustomerId String               @map("enterprise_customer_id") @db.Char(36)
+  identityId           String               @map("identity_id") @db.Char(36)
+  role                 EnterpriseUserRole   @default(ENTERPRISE_ADMIN)
+  name                 String               @db.VarChar(128)
+  mobile               String               @db.VarChar(16)
+  email                String?              @db.VarChar(254)
+  title                String?              @db.VarChar(128)
+  status               EnterpriseUserStatus @default(INVITED)
+  createdAt            DateTime             @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt            DateTime             @updatedAt @map("updated_at") @db.DateTime(3)
+  enterpriseCustomer   EnterpriseCustomer   @relation(fields: [enterpriseCustomerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@unique([enterpriseCustomerId, mobile], map: "enterprise_user_enterprise_mobile_key")
+  @@unique([enterpriseCustomerId, identityId], map: "enterprise_user_enterprise_identity_key")
+  @@index([identityId, status], map: "enterprise_user_identity_status_idx")
+  @@map("enterprise_user")
+}
+
+model EnterpriseAddress {
+  id                   String             @id @default(uuid()) @db.Char(36)
+  enterpriseCustomerId String             @map("enterprise_customer_id") @db.Char(36)
+  consignee            String             @db.VarChar(128)
+  mobile               String             @db.VarChar(16)
+  region               String             @db.VarChar(64)
+  fullAddress          String             @map("full_address") @db.VarChar(500)
+  deliveryNote         String?            @map("delivery_note") @db.VarChar(500)
+  lat                  Decimal?           @db.Decimal(10, 7)
+  lng                  Decimal?           @db.Decimal(10, 7)
+  isDefault            Boolean            @default(false) @map("is_default")
+  version              Int                @default(0)
+  createdAt            DateTime           @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt            DateTime           @updatedAt @map("updated_at") @db.DateTime(3)
+  enterpriseCustomer   EnterpriseCustomer @relation(fields: [enterpriseCustomerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([enterpriseCustomerId, isDefault], map: "enterprise_address_enterprise_default_idx")
+  @@map("enterprise_address")
+}
+
+model EnterpriseInvoiceProfile {
+  id                   String             @id @default(uuid()) @db.Char(36)
+  enterpriseCustomerId String             @map("enterprise_customer_id") @db.Char(36)
+  title                String             @db.VarChar(191)
+  taxNumber            String             @map("tax_number") @db.VarChar(32)
+  registeredAddress    String?            @map("registered_address") @db.VarChar(500)
+  registeredPhone      String?            @map("registered_phone") @db.VarChar(32)
+  bankName             String?            @map("bank_name") @db.VarChar(191)
+  bankAccountMasked    String?            @map("bank_account_masked") @db.VarChar(64)
+  isDefault            Boolean            @default(true) @map("is_default")
+  version              Int                @default(0)
+  createdAt            DateTime           @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt            DateTime           @updatedAt @map("updated_at") @db.DateTime(3)
+  enterpriseCustomer   EnterpriseCustomer @relation(fields: [enterpriseCustomerId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "enterprise_invoice_enterprise_customer_id_fkey")
+
+  @@index([enterpriseCustomerId, isDefault], map: "enterprise_invoice_enterprise_default_idx")
+  @@map("enterprise_invoice_profile")
+}
+
+model EnterpriseCustomerStatusHistory {
+  id              String                        @id @default(uuid()) @db.Char(36)
+  enterpriseId    String                        @map("enterprise_id") @db.Char(36)
+  fromStatus      EnterpriseCustomerStatus?     @map("from_status")
+  toStatus        EnterpriseCustomerStatus      @map("to_status")
+  event           EnterpriseCustomerStatusEvent
+  actorIdentityId String                        @map("actor_identity_id") @db.Char(36)
+  version         Int
+  occurredAt      DateTime                      @default(now()) @map("occurred_at") @db.DateTime(3)
+  enterprise      EnterpriseCustomer            @relation(fields: [enterpriseId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "enterprise_status_history_enterprise_id_fkey")
+
+  @@unique([enterpriseId, version], map: "enterprise_status_history_enterprise_version_key")
+  @@index([enterpriseId, occurredAt], map: "enterprise_status_history_enterprise_time_idx")
+  @@map("enterprise_customer_status_history")
+}
+
+model EnterpriseCertificationSnapshot {
+  id              String             @id @default(uuid()) @db.Char(36)
+  enterpriseId    String             @map("enterprise_id") @db.Char(36)
+  event           String             @db.VarChar(64)
+  actorIdentityId String             @map("actor_identity_id") @db.Char(36)
+  payload         Json
+  version         Int
+  createdAt       DateTime           @default(now()) @map("created_at") @db.DateTime(3)
+  enterprise      EnterpriseCustomer @relation(fields: [enterpriseId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "enterprise_cert_snapshot_enterprise_id_fkey")
+
+  @@unique([enterpriseId, version], map: "enterprise_cert_snapshot_enterprise_version_key")
+  @@index([enterpriseId, createdAt], map: "enterprise_cert_snapshot_enterprise_time_idx")
+  @@map("enterprise_certification_snapshot")
+}
+
+model EnterpriseProcurementProfile {
+  id                      String                             @id @default(uuid()) @db.Char(36)
+  enterpriseCustomerId    String                             @unique @map("enterprise_customer_id") @db.Char(36)
+  defaultInvoiceProfileId String?                            @map("default_invoice_profile_id") @db.Char(36)
+  defaultAddressId        String?                            @map("default_address_id") @db.Char(36)
+  status                  EnterpriseProcurementProfileStatus @default(DRAFT)
+  version                 Int                                @default(0)
+  createdAt               DateTime                           @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt               DateTime                           @updatedAt @map("updated_at") @db.DateTime(3)
+  enterpriseCustomer      EnterpriseCustomer                 @relation(fields: [enterpriseCustomerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@map("enterprise_procurement_profile")
+}
+
+model EnterpriseOnboardingCommand {
+  id               String   @id @default(uuid()) @db.Char(36)
+  scope            String   @db.VarChar(191)
+  idempotencyKey   String   @map("idempotency_key") @db.VarChar(128)
+  requestHash      String   @map("request_hash") @db.Char(64)
+  responseSnapshot Json     @map("response_snapshot")
+  createdAt        DateTime @default(now()) @map("created_at") @db.DateTime(3)
+
+  @@unique([scope, idempotencyKey], map: "enterprise_onboarding_command_scope_key")
+  @@map("enterprise_onboarding_command")
 }
 
 model FunctionalAccount {
