@@ -33,7 +33,8 @@
     "firstFocusedRecovery": "PASS: affected handoff tests 12/12 after binding currentTask=M3-P030 and lastCompletedTask=M3-P029",
     "secondEvidenceHeadRun": "FAIL: eighteen historical contract assertions still expected the former current/previous delivery",
     "secondFocusedRecovery": "PASS: full contract suite 90/90 after updating current, previous, issue, PR and exact-head evidence assertions",
-    "finalFullRun": "PASS: exact head 3e1672b8b6b93b1207549e0e882ff35a66635ee3 completed all 17 verification steps"
+    "finalFullRun": "PASS: exact head 3e1672b8b6b93b1207549e0e882ff35a66635ee3 completed all 17 verification steps",
+    "baselineVerifierFollowUp": "FAIL then PASS: PAGE-030 public-page note contained the private/no-store counting token and was misclassified as an eleventh private portal page; wording was corrected without changing runtime behavior or cache policy"
   },
   "invariants": [
     "Community procurement is ordinary enterprise procurement, not an activity, group threshold, leader or designated-community workflow",

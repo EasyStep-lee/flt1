@@ -37,6 +37,7 @@
 - 证据台账推进后的第一次全量复跑在 regression 步骤 FAIL：4 个历史 handoff 契约仍固定旧任务位置；修正后 focused handoff 12/12 PASS。
 - 第二次全量复跑在 contract 步骤 FAIL：18 个历史契约仍固定旧 current/previous delivery；逐项更新后完整 contract 90/90 PASS。最终精确 head 全量复跑 17/17 PASS。
 - Draft PR #96 首轮精确 head Actions run `31885709995` / job `95014596327` 在 `3e1672b8b6b93b1207549e0e882ff35a66635ee3` 成功；本次证据同步提交后仍须以新 head 的最终 CI 为准。
+- 后续只读基线复核发现执行包自检将 PAGE-030 备注中的 `private/no-store` 字面量误计为第 11 个私有门户页并 FAIL；已将公开页备注改为“登录交易页执行专用私有禁缓存策略”。运行时、缓存策略和产品边界均未改变，修复后必须重新通过执行包自检、产品基线和 PR 最新 head CI。
 
 截图：
 
@@ -45,7 +46,7 @@
 
 ## 台账与工作簿
 
-任务、P0、PAGE-030、EVD-030、M3 门禁和项目状态 CSV/JSON 已同步。总控工作簿只更新对应镜像行及看板计数，公式错误扫描 0 项，关键区域渲染复核通过；工作簿 SHA-256 为 `CA6DF120E155B6D37BE7A6A41A0FB2735CD9AD48D0EC9B637166077DB88A1522`。
+任务、P0、PAGE-030、EVD-030、M3 门禁和项目状态 CSV/JSON 已同步。总控工作簿只更新对应镜像行及看板计数，公式错误扫描 0 项，关键区域渲染复核通过；工作簿 SHA-256 为 `152C5E8B5E2590577886A4C49D6330F7FBC745362F661DD32F9B5C3FB8C57DBD`。
 
 ## P0 与环境边界
 
