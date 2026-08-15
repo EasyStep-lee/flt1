@@ -27,7 +27,7 @@
       "status": "NOT_EXECUTED_TOOL_MARKER_UNAVAILABLE",
       "sourceLedgers": "CSV_AND_JSON_UPDATED",
       "reason": "Spreadsheet skill mandatory artifact-operation marker is unavailable in the installed runtime; workbook bytes were not changed.",
-      "checkedAt": "2026/8/15 7:29:33"
+      "checkedAt": "2026-08-15T08:00:02Z"
     }
   },
   "sourceOfTruth": [

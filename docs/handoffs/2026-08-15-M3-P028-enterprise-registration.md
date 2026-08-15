@@ -1,13 +1,13 @@
 # 2026-08-15 M3-P028 企业注册认证交接
 
-阶段结论：`IN_PROGRESS / LOCAL_PASS`。M3-P027 已由 PR #90 按精确 head `e17e25f58c8bda46e80dfc6175a2f60b4a3a9fbb` 合并到 `main@0691ae492771df9fa39422460501a41ad174c605`，合并后 Actions run `31867042679` / job `94969678834` 成功。本切片的失败测试、focused 行为测试、迁移演练和本地 `pnpm verify` 17/17 已通过；Draft PR、精确 head CI、人工合并及 post-merge main CI 尚未执行，因此 M3-P029 保持锁定。
+阶段结论：`IN_PROGRESS / CI_PASS`。M3-P027 已由 PR #90 按精确 head `e17e25f58c8bda46e80dfc6175a2f60b4a3a9fbb` 合并到 `main@0691ae492771df9fa39422460501a41ad174c605`，合并后 Actions run `31867042679` / job `94969678834` 成功。本切片的失败测试、focused 行为测试、迁移演练和本地 `pnpm verify` 17/17 已通过；Draft PR #92 的 head `542b50e565133ea2afcfc463b27fd15b0edbfc5f` 已由 Actions run `31872929851` / job `94984210698` 验证成功。证据追加 head、人工合并及 post-merge main CI 尚未完成，因此 M3-P029 保持锁定。
 
 ## 基线、范围与 Git
 
 - 唯一方案 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`；产品基线与执行包自检通过。
 - 当前阶段/任务：M3 / M3-P028；主验收 P0-028，PAGE-031 只提供 P0-077 的初始页面证据，P0-077 仍为 `NOT_EXECUTED`。
-- 分支：`codex/m3-enterprise-registration`；基线：`main@0691ae492771df9fa39422460501a41ad174c605`；本地完整验证代码 head：`323152c85cd766d572a80d68dbc1f6c3e4d40815`。
-- GitHub：仓库 `EasyStep-lee/flt1`；Issue #91；PR 尚未创建；CI、评论、人工合并和 post-merge main CI 均 `NOT_EXECUTED`。
+- 分支：`codex/m3-enterprise-registration`；基线：`main@0691ae492771df9fa39422460501a41ad174c605`；本地与 CI 已验证 head：`542b50e565133ea2afcfc463b27fd15b0edbfc5f`。
+- GitHub：仓库 `EasyStep-lee/flt1`；Issue #91；Draft PR #92；代码/证据 head CI 为 `CI_PASS`（run `31872929851` / job `94984210698`）；评论、人工合并和 post-merge main CI 尚未执行。
 - 用户既有未跟踪文件、`outputs/` 和 `.codex-*` 临时证据均保留且不会暂存。
 
 ## 完成范围
@@ -48,8 +48,9 @@
 | P0-028 focused Playwright | 1/1 PASS |
 | 迁移 dry-run | PASS：空库/升级/恢复/产品 schema/清理全部成功 |
 | 产品基线与执行包自检 | PASS；方案 SHA-256 与锁定值一致 |
-| 最终 `pnpm verify` | 退出码 0；17/17 PASS；开始 `2026-08-15T07:13:53Z`，结束 `2026-08-15T07:29:33Z` |
-| 聚合报告 | `artifacts/test-results/verification/pnpm-verify.json`，提交 `323152c85cd766d572a80d68dbc1f6c3e4d40815` |
+| 最终 `pnpm verify` | 退出码 0；17/17 PASS；开始 `2026-08-15T07:33:42Z`，结束 `2026-08-15T07:48:04Z` |
+| 聚合报告 | `artifacts/test-results/verification/pnpm-verify.json`，提交 `542b50e565133ea2afcfc463b27fd15b0edbfc5f` |
+| Draft PR head CI | `542b50e`；Actions run `31872929851` / job `94984210698`；SUCCESS |
 
 历史失败证据如实保留：OpenAPI 冻结列表遗漏新路由；历史门禁契约仍指向 P027/PR #88；秘密扫描将依赖注入 Symbol 名称误判为凭据赋值。均已在不删除测试、不降低业务断言的前提下修复，最终完整门禁通过。
 
@@ -57,7 +58,7 @@
 
 - P0-028 自动化技术行为：`LOCAL_PASS`；默认失败关闭、归属隔离、信用代码唯一、幂等、补正/复审/激活、同自然人自审拒绝、并发审核、历史追加和敏感字段脱敏均有新鲜证据。
 - P0-077：`NOT_EXECUTED`；本切片只有首次注册、响应式和缓存/索引边界的部分证据，不升级为整项完成。
-- LOCAL：`LOCAL_PASS`；CI/STAGING/DEVICE/PRODUCTION：`NOT_EXECUTED`。
+- LOCAL：`LOCAL_PASS`；PR head CI：`CI_PASS`；STAGING/DEVICE/PRODUCTION：`NOT_EXECUTED`。
 - 实际环境：Windows、Node 22.23.1、pnpm 10.12.1、Prisma 6.19.2、MySQL 8 Docker、Next.js 16.2.12、Playwright Chromium。
 - EXT-013 企业合同/协议、对公转账和开票法务财务口径，以及真实短信/对象存储账号均为 `BLOCKED_EXTERNAL`；本地替身不能冒充外部验收。
 - Spreadsheet skill 要求的 artifact-operation marker 在当前 runtime 不可用，因此只同步 CSV/JSON 源台账，工作簿字节未修改，保持 `NOT_EXECUTED_TOOL_MARKER_UNAVAILABLE`。
@@ -71,4 +72,4 @@
 
 ## 下一步门禁
 
-下一动作仅限创建 M3-P028 Draft PR、读取精确 head Actions 和未解决评论并修复当前切片。PR 最新 head CI 成功后，仍须用户按精确 head 授权转 Ready/合并；合并后 `main` 最新 CI 成功前不得开始 M3-P029。当前明确禁止 M3-P029、M4、M5、M6、真实外部服务启用和任何生产发布。
+下一动作仅限验证 M3-P028 Draft PR 的证据追加 head、读取未解决评论并修复当前切片。PR 最新 head CI 成功后，仍须用户按精确 head 授权转 Ready/合并；合并后 `main` 最新 CI 成功前不得开始 M3-P029。当前明确禁止 M3-P029、M4、M5、M6、真实外部服务启用和任何生产发布。

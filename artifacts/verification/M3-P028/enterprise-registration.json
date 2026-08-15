@@ -5,17 +5,24 @@
   "title": "企业注册认证",
   "baselineSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
   "environment": "LOCAL_WINDOWS_NODE22_MYSQL8_DOCKER_NEXTJS16_PLAYWRIGHT_CHROMIUM",
-  "evidenceStatus": "LOCAL_PASS",
-  "commit": "323152c85cd766d572a80d68dbc1f6c3e4d40815",
+  "evidenceStatus": "CI_PASS",
+  "commit": "542b50e565133ea2afcfc463b27fd15b0edbfc5f",
   "baseCommit": "0691ae492771df9fa39422460501a41ad174c605",
   "branch": "codex/m3-enterprise-registration",
   "github": {
     "repository": "EasyStep-lee/flt1",
     "issue": 91,
     "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/91",
-    "pullRequest": null,
-    "pullRequestState": "NOT_CREATED",
-    "exactHeadCi": "NOT_EXECUTED",
+    "pullRequest": 92,
+    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/92",
+    "pullRequestState": "DRAFT",
+    "exactHeadCi": {
+      "status": "CI_PASS",
+      "runId": 31872929851,
+      "jobId": 94984210698,
+      "headSha": "542b50e565133ea2afcfc463b27fd15b0edbfc5f",
+      "completedAt": "2026-08-15T08:00:02Z"
+    },
     "review": "NOT_EXECUTED",
     "merge": "NOT_EXECUTED",
     "mainPostMergeCi": "NOT_EXECUTED"
@@ -82,11 +89,11 @@
     "exitCode": 0,
     "stepsPassed": 17,
     "stepsFailed": 0,
-    "startedAt": "2026-08-15T07:13:53.311Z",
-    "endedAt": "2026-08-15T07:29:33.205Z",
+    "startedAt": "2026-08-15T07:33:42.430Z",
+    "endedAt": "2026-08-15T07:48:04.547Z",
     "report": "artifacts/test-results/verification/pnpm-verify.json",
     "migrationRehearsal": "PASS",
-    "secretScan": "915 tracked files checked"
+    "secretScan": "917 tracked files checked"
   },
   "invariants": [
     "江苏福礼团供应链科技有限公司 remains the sole merchant and companyId is derived on the server.",
@@ -118,5 +125,5 @@
   },
   "risk": "The local verifier and object references prove only technical behavior. They do not prove real SMS delivery, document custody, legal approval, bank-transfer verification or invoice compliance.",
   "rollback": "Revert the M3-P028 application, migration, generated contract, tests and ledger commits. If MIG-011 has been applied outside disposable local databases, deploy a forward corrective migration and preserve append-only certification evidence; do not edit published migration SQL or delete audit history.",
-  "nextGate": "Create a Draft PR, verify its exact-head Actions and unresolved comments, then wait for explicit exact-head Ready/merge authorization. M3-P029 remains locked until post-merge main CI succeeds."
+  "nextGate": "Verify the evidence-only Draft PR head and unresolved comments, then wait for explicit exact-head Ready/merge authorization. M3-P029 remains locked until post-merge main CI succeeds."
 }
