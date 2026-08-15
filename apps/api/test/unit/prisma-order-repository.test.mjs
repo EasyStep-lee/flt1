@@ -68,27 +68,39 @@ const fixture = ({ firstAvailableQty = 5, secondAvailableQty = 5 } = {}) => {
     ]),
   };
   let transactionTail = Promise.resolve();
+  const storedOrder = () => writes.order
+    ? {
+        ...writes.order,
+        createdAt: new Date(), updatedAt: new Date(),
+        items: (writes.items ?? []).map((item) => ({ ...item, createdAt: new Date() })),
+        supplierFulfillments: (writes.fulfillments ?? []).map((item) => ({
+          ...item, createdAt: new Date(), updatedAt: new Date(),
+        })),
+        events: writes.event
+          ? [{ ...writes.event, id: '70000000-0000-4000-8000-000000000001', occurredAt: new Date() }]
+          : [],
+        enterpriseProcurementOrder: writes.procurementOrder
+          ? { ...writes.procurementOrder, createdAt: new Date(), updatedAt: new Date() }
+          : null,
+      }
+    : null;
   const tx = {
     buyerOrder: {
       findUnique: async ({ where }) => {
         if (where.id) {
-          return writes.order
-            ? { ...writes.order, items: clone(writes.items ?? []), events: [] }
+          return writes.order?.id === where.id ? storedOrder() : null;
+        }
+        if (where.idempotencyScope_idempotencyKey) {
+          const key = where.idempotencyScope_idempotencyKey;
+          return writes.order?.idempotencyScope === key.idempotencyScope
+            && writes.order?.idempotencyKey === key.idempotencyKey
+            ? storedOrder()
             : null;
         }
         return null;
       },
       create: async ({ data }) => { writes.order = clone(data); },
-      findUniqueOrThrow: async () => ({
-        ...writes.order,
-        createdAt: new Date(), updatedAt: new Date(),
-        items: writes.items.map((item) => ({ ...item, createdAt: new Date() })),
-        supplierFulfillments: writes.fulfillments.map((item) => ({ ...item, createdAt: new Date(), updatedAt: new Date() })),
-        events: [{ ...writes.event, id: '70000000-0000-4000-8000-000000000001', occurredAt: new Date() }],
-        enterpriseProcurementOrder: writes.procurementOrder
-          ? { ...writes.procurementOrder, createdAt: new Date(), updatedAt: new Date() }
-          : null,
-      }),
+      findUniqueOrThrow: async () => storedOrder(),
     },
     enterpriseCustomer: {
       findUnique: async () => ({ companyId: command().companyId, status: 'ACTIVE', procurementProfile: { status: 'ACTIVE', defaultAddressId: '10000000-0000-4000-8000-000000000229', defaultInvoiceProfileId: '10000000-0000-4000-8000-000000000329' } }),
@@ -244,6 +256,38 @@ test('M3-P029 Prisma repository atomically freezes enterprise owner, address, in
   assert.equal(writes.procurementOrder.invoiceProfileSnapshot.schemaVersion, 1);
   assert.equal(result.order.enterpriseProcurement.paymentMethod, 'BANK_TRANSFER');
   assert.equal(result.order.enterpriseProcurement.address.mobile, '13800138000');
+});
+
+test('M3-P029 idempotency replay returns the original enterprise checkout result after payment advances', async () => {
+  const { prisma, writes } = fixture();
+  const repository = new PrismaOrderRepository(prisma);
+  const enterpriseCommand = {
+    ...command(),
+    consumerUserId: null,
+    enterpriseCustomerId: '10000000-0000-4000-8000-000000000029',
+    orderType: 'ENTERPRISE',
+    externalPaymentMethod: 'BANK_TRANSFER',
+    idempotencyScope: 'ENTERPRISE:10000000-0000-4000-8000-000000000029',
+    actorId: '10000000-0000-4000-8000-000000000129',
+    enterpriseProcurement: {
+      enterpriseAddressId: '10000000-0000-4000-8000-000000000229',
+      invoiceProfileId: '10000000-0000-4000-8000-000000000329',
+      paymentMethod: 'BANK_TRANSFER',
+      purchaserUserId: '10000000-0000-4000-8000-000000000129',
+    },
+  };
+  const created = await repository.createOrder(enterpriseCommand);
+  assert.equal(created.kind, 'CREATED');
+
+  writes.order.paymentStatus = 'PAID';
+  writes.order.orderStatus = 'PAID';
+  writes.fulfillments.forEach((fulfillment) => { fulfillment.status = 'PENDING_PREPARATION'; });
+  writes.procurementOrder.remittanceReviewStatus = 'CONFIRMED';
+  writes.procurementOrder.status = 'PAID';
+
+  const replay = await repository.createOrder(enterpriseCommand);
+  assert.equal(replay.kind, 'REPLAY');
+  assert.deepEqual(replay.order, created.order);
 });
 
 test('M3-P023 insufficient inventory rolls back the entire order and every earlier reservation', async () => {

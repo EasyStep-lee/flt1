@@ -103,8 +103,8 @@ const toAggregate = (order: StoredOrder): OrderAggregateRecord => {
       ? {
           enterpriseOrderId: enterpriseProcurement.id,
           paymentMethod: enterpriseProcurement.paymentMethod,
-          remittanceReviewStatus: enterpriseProcurement.remittanceReviewStatus,
-          status: enterpriseProcurement.status,
+          remittanceReviewStatus: 'NOT_SUBMITTED',
+          status: 'PENDING_PAYMENT',
           address: {
             consignee: typeof address.consignee === 'string' ? address.consignee : '',
             mobile: typeof address.mobile === 'string' ? address.mobile : '',
