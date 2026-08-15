@@ -33,6 +33,8 @@
 - portal lint、typecheck PASS；Prisma validate PASS；MySQL 迁移演练 `empty=2 upgrade=2 restore=2 product=30 cleanup=PASS`。
 - OpenAPI generate/check PASS；`pnpm verify -- --base-ref 4e164abe7bc343fdc977998982649e124caf6d90` 17/17 PASS，API 217/217、P0 Chromium 72/72、秘密扫描 926 个跟踪文件。
 - 初次误用符号基线 `origin/main` 被门禁以 `VERIFY_BASE_REF_INVALID` 拒绝；改用精确 40 位基线 SHA 后通过。该项是命令参数错误，不是产品失败。
+- 证据台账推进后的第一次全量复跑在 regression 步骤 FAIL：4 个历史 handoff 契约仍固定旧任务位置；修正后 focused handoff 12/12 PASS。
+- 第二次全量复跑在 contract 步骤 FAIL：18 个历史契约仍固定旧 current/previous delivery；逐项更新后完整 contract 90/90 PASS。最终精确 head 全量复跑仍须执行，不能用 focused 结果替代。
 
 截图：
 

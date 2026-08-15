@@ -63,10 +63,10 @@ test('M2-P014 historical evidence remains while the current M2 slice advances', 
     ]);
 
   assert.equal(state.execution.status, 'M3_IN_PROGRESS');
-  assert.equal(state.execution.currentTask, 'M3-P029');
+  assert.equal(state.execution.currentTask, 'M3-P030');
   assert.equal(state.execution.nextAllowedTask, state.execution.currentTask);
-  assert.equal(state.execution.lastCompletedTask, 'M3-P028');
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M3-P029.*M3-P030/u);
+  assert.equal(state.execution.lastCompletedTask, 'M3-P029');
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M3-P030.*M3-P031/u);
   assert.equal(state.github.currentTaskDelivery.taskId, state.execution.currentTask);
   assert.ok(
     state.github.currentTaskDelivery.exactHeadCi === 'NOT_EXECUTED' ||
@@ -76,7 +76,7 @@ test('M2-P014 historical evidence remains while the current M2 slice advances', 
   assert.equal(state.github.currentTaskDelivery.mainPostMergeCi, 'NOT_EXECUTED');
   assert.equal(
     state.github.currentTaskDelivery.blockingExternalItem,
-    'P0_029_FULL_UI_DELIVERY_RECEIPT_AFTERSALES_INVOICE_REAL_PAYMENT_STAGING_DEVICE_PRODUCTION',
+    'REAL_DOMAIN_DNS_TLS_ICP_M5_CMS_STAGING_PRODUCTION',
   );
   assert.equal(state.github.currentTaskDelivery.nextTaskUnlocked, false);
   assert.equal(state.github.previousTaskDelivery.status, 'CI_PASS');

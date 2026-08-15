@@ -27,6 +27,13 @@
     "OpenAPI deterministic generation and byte-identical check passed",
     "pnpm verify with base 4e164abe7bc343fdc977998982649e124caf6d90: 17 of 17 steps passed; API 217/217; P0 Chromium 72/72; 926 tracked files scanned for secrets"
   ],
+  "verificationRemediation": {
+    "firstEvidenceHeadRun": "FAIL: four historical handoff assertions still expected M3-P028/M3-P029 ledger positions",
+    "firstFocusedRecovery": "PASS: affected handoff tests 12/12 after binding currentTask=M3-P030 and lastCompletedTask=M3-P029",
+    "secondEvidenceHeadRun": "FAIL: eighteen historical contract assertions still expected the former current/previous delivery",
+    "secondFocusedRecovery": "PASS: full contract suite 90/90 after updating current, previous, issue, PR and exact-head evidence assertions",
+    "finalFullRun": "PENDING"
+  },
   "invariants": [
     "Community procurement is ordinary enterprise procurement, not an activity, group threshold, leader or designated-community workflow",
     "No enterprise internal OA, budget or procurement approval model is introduced",
