@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-15T12:10:00Z",
+  "updatedAt": "2026-08-15T13:03:22Z",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -39,9 +39,9 @@
     "authenticationConfirmed": true,
     "writeAllowed": true,
     "connectorAccessConfirmed": true,
-    "pullRequest": null,
-    "pullRequestUrl": null,
-    "pullRequestState": "NOT_CREATED",
+    "pullRequest": 96,
+    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/96",
+    "pullRequestState": "DRAFT",
     "pullRequestMerged": false,
     "mergeCommitSha": null,
     "mergedAt": null,
@@ -60,24 +60,24 @@
       "currentHeadReviewRequired": true,
       "authorizationExactHead": false
     },
-    "lastVerifiedPullRequestHead": null,
+    "lastVerifiedPullRequestHead": "3e1672b8b6b93b1207549e0e882ff35a66635ee3",
     "pullRequestCi": {
-      "status": "NOT_EXECUTED",
-      "runId": null,
-      "jobId": null,
-      "runUrl": null,
-      "headSha": null,
-      "completedAt": null
+      "status": "CI_PASS",
+      "runId": 31885709995,
+      "jobId": 95014596327,
+      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31885709995",
+      "headSha": "3e1672b8b6b93b1207549e0e882ff35a66635ee3",
+      "completedAt": "2026-08-15T13:03:22Z"
     },
     "latestCi": {
-      "scope": "M3_P028_PR_HEAD",
+      "scope": "M3_P030_PR_HEAD",
       "status": "CI_PASS",
-      "runId": 31872929851,
-      "jobId": 94984210698,
-      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31872929851",
-      "headSha": "542b50e565133ea2afcfc463b27fd15b0edbfc5f",
+      "runId": 31885709995,
+      "jobId": 95014596327,
+      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31885709995",
+      "headSha": "3e1672b8b6b93b1207549e0e882ff35a66635ee3",
       "event": "pull_request",
-      "completedAt": "2026-08-15T08:00:02Z"
+      "completedAt": "2026-08-15T13:03:22Z"
     },
     "currentTaskDelivery": {
       "taskId": "M3-P030",
@@ -85,14 +85,14 @@
       "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/95",
       "branch": "codex/m3-community-procurement-boundary",
       "baseCommit": "4e164abe7bc343fdc977998982649e124caf6d90",
-      "verifiedHead": "78c5a734a81d1c38aa34a3f62687f8cfea52771c",
-      "status": "LOCAL_PASS_PENDING_DRAFT_PR",
+      "verifiedHead": "3e1672b8b6b93b1207549e0e882ff35a66635ee3",
+      "status": "CI_PASS_PENDING_HUMAN_MERGE",
       "localRedTest": "PUBLIC_ENTRY_EXPECTED_200_ACTUAL_404;MOBILE_HOME_LINK_X_NEGATIVE_72_5",
       "localFocusedTest": "LOCAL_PASS_PORTAL_4_P0_FOCUSED_12_CONTRACT_1",
       "localFullVerify": "PASS_17_OF_17",
-      "pullRequest": null,
-      "pullRequestState": "NOT_CREATED",
-      "exactHeadCi": "NOT_EXECUTED",
+      "pullRequest": 96,
+      "pullRequestState": "DRAFT",
+      "exactHeadCi": "CI_PASS_RUN_31885709995_JOB_95014596327",
       "review": "NOT_EXECUTED",
       "merge": "NOT_EXECUTED",
       "mainPostMergeCi": "NOT_EXECUTED",
@@ -109,11 +109,11 @@
       "mainPostMergeCiJob": 95006093704,
       "status": "CI_PASS"
     },
-    "note": "M3-P030社区集采边界LOCAL_PASS；真实域名/备案、M5 CMS、staging/production未执行；M3-P031锁定。"
+    "note": "M3-P030社区集采边界Draft PR精确head CI_PASS；真实域名/备案、M5 CMS、staging/production未执行；M3-P031锁定。"
   },
   "evidence": {
     "local": "LOCAL_PASS_M3_P030_FULL_VERIFY",
-    "ci": "NOT_EXECUTED",
+    "ci": "CI_PASS_M3_P030_HEAD_3e1672b",
     "staging": "NOT_EXECUTED",
     "device": "NOT_EXECUTED",
     "production": "NOT_EXECUTED"

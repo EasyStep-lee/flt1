@@ -1,13 +1,14 @@
 # M3-P030 社区集采边界切片交接
 
-- 结论：LOCAL_PASS（尚未取得 Draft PR 精确 head CI，未合并）
+- 结论：CI_PASS（Draft PR 精确 head CI 已通过，未获人工合并授权、未合并）
 - 方案 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`
 - 仓库：`EasyStep-lee/flt1`
 - 基线：`main@4e164abe7bc343fdc977998982649e124caf6d90`
 - 分支：`codex/m3-community-procurement-boundary`
 - 实现提交：`78c5a734a81d1c38aa34a3f62687f8cfea52771c`
+- 已验证证据 head：`3e1672b8b6b93b1207549e0e882ff35a66635ee3`
 - Issue：[#95](https://github.com/EasyStep-lee/flt1/issues/95)
-- PR：待创建；不得转 Ready 或合并
+- PR：[#96](https://github.com/EasyStep-lee/flt1/pull/96)，Draft；不得自行转 Ready 或合并
 
 ## 唯一目标与非目标
 
@@ -31,10 +32,11 @@
 - GREEN 2：移动导航改为左对齐后，P0-030 Playwright 1/1 PASS，截图复核无裁切。
 - 契约测试 1/1 PASS；门户包测试 4/4 PASS；P0-027 + P0-030 Playwright 12/12 PASS。
 - portal lint、typecheck PASS；Prisma validate PASS；MySQL 迁移演练 `empty=2 upgrade=2 restore=2 product=30 cleanup=PASS`。
-- OpenAPI generate/check PASS；`pnpm verify -- --base-ref 4e164abe7bc343fdc977998982649e124caf6d90` 17/17 PASS，API 217/217、P0 Chromium 72/72、秘密扫描 926 个跟踪文件。
+- OpenAPI generate/check PASS；在 head `3e1672b8b6b93b1207549e0e882ff35a66635ee3` 执行 `pnpm verify -- --base-ref 4e164abe7bc343fdc977998982649e124caf6d90` 17/17 PASS，API 217/217、P0 Chromium 72/72、秘密扫描 936 个跟踪文件。
 - 初次误用符号基线 `origin/main` 被门禁以 `VERIFY_BASE_REF_INVALID` 拒绝；改用精确 40 位基线 SHA 后通过。该项是命令参数错误，不是产品失败。
 - 证据台账推进后的第一次全量复跑在 regression 步骤 FAIL：4 个历史 handoff 契约仍固定旧任务位置；修正后 focused handoff 12/12 PASS。
-- 第二次全量复跑在 contract 步骤 FAIL：18 个历史契约仍固定旧 current/previous delivery；逐项更新后完整 contract 90/90 PASS。最终精确 head 全量复跑仍须执行，不能用 focused 结果替代。
+- 第二次全量复跑在 contract 步骤 FAIL：18 个历史契约仍固定旧 current/previous delivery；逐项更新后完整 contract 90/90 PASS。最终精确 head 全量复跑 17/17 PASS。
+- Draft PR #96 首轮精确 head Actions run `31885709995` / job `95014596327` 在 `3e1672b8b6b93b1207549e0e882ff35a66635ee3` 成功；本次证据同步提交后仍须以新 head 的最终 CI 为准。
 
 截图：
 
@@ -43,11 +45,11 @@
 
 ## 台账与工作簿
 
-任务、P0、PAGE-030、EVD-030、M3 门禁和项目状态 CSV/JSON 已同步。总控工作簿只更新对应镜像行及看板计数，公式错误扫描 0 项，关键区域渲染复核通过；工作簿 SHA-256 为 `CBF1834477951C256C5064C76B60CF63A528DBB11CCA685510DAE0BD485B5718`。
+任务、P0、PAGE-030、EVD-030、M3 门禁和项目状态 CSV/JSON 已同步。总控工作簿只更新对应镜像行及看板计数，公式错误扫描 0 项，关键区域渲染复核通过；工作簿 SHA-256 为 `CA6DF120E155B6D37BE7A6A41A0FB2735CD9AD48D0EC9B637166077DB88A1522`。
 
 ## P0 与环境边界
 
-P0-030 当前仅为本地技术证据 `LOCAL_PASS`。完整企业注册、认证后采购货架及交易执行由既有/后续切片分别验收，不因本公开入口自动升级。真实域名、DNS、TLS、ICP备案、CMS 发布、staging、真机和 production 均为 `NOT_EXECUTED`；没有新鲜证据时不得升级。
+P0-030 当前取得本地与 Draft PR 技术证据 `CI_PASS`。完整企业注册、认证后采购货架及交易执行由既有/后续切片分别验收，不因本公开入口自动升级。真实域名、DNS、TLS、ICP备案、CMS 发布、staging、真机和 production 均为 `NOT_EXECUTED`；没有新鲜证据时不得升级。
 
 ## 风险与回滚
 
@@ -57,4 +59,4 @@ P0-030 当前仅为本地技术证据 `LOCAL_PASS`。完整企业注册、认证
 
 ## 下一门禁
 
-先创建 Draft PR 并取得最新精确 head CI。只有人工明确授权合并且合并后的 `main` CI 成功后，M3-P031 才可解锁；在此之前 M3-P031、M4-M6 均禁止进入。
+证据同步提交后先取得 PR #96 最新精确 head CI。只有人工对该精确 head 明确授权合并且合并后的 `main` CI 成功后，M3-P031 才可解锁；在此之前 M3-P031、M4-M6 均禁止进入。
