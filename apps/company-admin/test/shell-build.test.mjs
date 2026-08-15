@@ -33,3 +33,17 @@ test('P0-066 bundle contains the independent login and server-bound account sele
   assert.doesNotMatch(javascript, /公司注册|注册公司账号|主体名称.*上传凭证/iu);
   assert.doesNotMatch(javascript, /手工输入.*accountId|手工输入.*ownerId/iu);
 });
+
+test('P0-028 supplier-ops workspace contains the company enterprise certification review panel', () => {
+  const assetsDir = path.join(packageRoot, 'dist', 'assets');
+  const javascript = readdirSync(assetsDir)
+    .filter((file) => file.endsWith('.js'))
+    .map((file) => readFileSync(path.join(assetsDir, file), 'utf8'))
+    .join('\n');
+
+  assert.match(javascript, /企业采购认证审核/u);
+  assert.match(javascript, /COMPANY_SUPPLIER_OPS/u);
+  assert.match(javascript, /\/v1\/company\/enterprise-registrations/u);
+  assert.match(javascript, /要求补正开票资料/u);
+  assert.doesNotMatch(javascript, /supplierWallet|自动打款|供应商直接收款/iu);
+});

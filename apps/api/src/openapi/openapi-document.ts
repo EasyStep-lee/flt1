@@ -103,6 +103,23 @@ import {
   type EnterpriseRemittanceRepository,
 } from '../enterprise-remittances/enterprise-remittance.repository.js';
 import { EnterpriseRemittanceService } from '../enterprise-remittances/enterprise-remittance.service.js';
+import {
+  DenyEnterpriseOnboardingActorResolver,
+  ENTERPRISE_ONBOARDING_ACTOR_RESOLVER,
+} from '../enterprise-onboarding/enterprise-onboarding.actor.js';
+import {
+  ENTERPRISE_ONBOARDING_REPOSITORY,
+  type EnterpriseOnboardingRepository,
+} from '../enterprise-onboarding/enterprise-onboarding.repository.js';
+import { EnterpriseOnboardingService } from '../enterprise-onboarding/enterprise-onboarding.service.js';
+import {
+  ENTERPRISE_REGISTRATION_VERIFIER,
+  UnavailableEnterpriseRegistrationVerifier,
+} from '../enterprise-onboarding/enterprise-registration.verifier.js';
+import {
+  ENTERPRISE_REGISTRATION_SIGNING_KEY,
+  EnterpriseRegistrationTokenService,
+} from '../enterprise-onboarding/enterprise-registration-token.service.js';
 import { PaymentService } from '../payments/payment.service.js';
 import {
   PAYMENT_REPOSITORY,
@@ -388,6 +405,10 @@ type JsonValue =
     InventoryService,
     OrderService,
     EnterpriseRemittanceService,
+    EnterpriseOnboardingService,
+    EnterpriseRegistrationTokenService,
+    DenyEnterpriseOnboardingActorResolver,
+    UnavailableEnterpriseRegistrationVerifier,
     PaymentService,
     UnavailableWechatPaymentAdapter,
     RefundService,
@@ -469,6 +490,30 @@ type JsonValue =
     {
       provide: COMPANY_FINANCE_ACTOR_RESOLVER,
       useExisting: DenyCompanyFinanceActorResolver,
+    },
+    {
+      provide: ENTERPRISE_ONBOARDING_REPOSITORY,
+      useValue: {
+        register: async () => ({ kind: 'COMPANY_INVARIANT' }),
+        findById: async () => null,
+        patch: async () => ({ kind: 'NOT_FOUND' }),
+        submit: async () => ({ kind: 'NOT_FOUND' }),
+        review: async () => ({ kind: 'NOT_FOUND' }),
+        suspend: async () => ({ kind: 'NOT_FOUND' }),
+        list: async () => ({ items: [], total: 0 }),
+      } satisfies EnterpriseOnboardingRepository,
+    },
+    {
+      provide: ENTERPRISE_ONBOARDING_ACTOR_RESOLVER,
+      useExisting: DenyEnterpriseOnboardingActorResolver,
+    },
+    {
+      provide: ENTERPRISE_REGISTRATION_VERIFIER,
+      useExisting: UnavailableEnterpriseRegistrationVerifier,
+    },
+    {
+      provide: ENTERPRISE_REGISTRATION_SIGNING_KEY,
+      useValue: `development-only-${'x'.repeat(32)}`,
     },
     {
       provide: PAYMENT_REPOSITORY,

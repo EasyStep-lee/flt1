@@ -343,6 +343,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/company/enterprise-registrations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List enterprise certifications for the fixed company reviewer workspace */
+        get: operations["companyEnterpriseRegistration.list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/company/enterprise-registrations/{enterpriseId}/review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Request correction, approve, or reject an enterprise certification */
+        post: operations["companyEnterpriseRegistration.review"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/company/enterprise-registrations/{enterpriseId}/suspend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Suspend an active enterprise without rewriting certification history */
+        post: operations["companyEnterpriseRegistration.suspend"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/company/price-reviews": {
         parameters: {
             query?: never;
@@ -626,6 +677,58 @@ export interface paths {
         put?: never;
         /** Submit company bank-remittance proof for an enterprise order */
         post: operations["enterpriseRemittance.submitProof"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/enterprise/registrations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create an enterprise certification draft after mobile verification */
+        post: operations["enterpriseRegistration.create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/enterprise/registrations/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read the enterprise certification bound to a registration credential */
+        get: operations["enterpriseRegistration.getOwn"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Save enterprise certification draft or correction fields */
+        patch: operations["enterpriseRegistration.patchOwn"];
+        trace?: never;
+    };
+    "/v1/enterprise/registrations/me/submit-review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit or resubmit an enterprise certification for company review */
+        post: operations["enterpriseRegistration.submitOwn"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1068,7 +1171,7 @@ export interface components {
              * @example RESOURCE_NOT_FOUND
              * @enum {string}
              */
-            code: "ACCESS_DENIED" | "AUTHENTICATION_REQUIRED" | "INTERNAL_ERROR" | "REQUEST_INVALID" | "RESOURCE_NOT_FOUND" | "SERVICE_UNAVAILABLE" | "FORBIDDEN_CAPABILITY" | "PAYEE_FORBIDDEN" | "SELLER_IDENTITY_FORBIDDEN" | "SINGLE_MERCHANT_VIOLATION" | "ACTOR_SPOOFED" | "ACCOUNT_TYPE_INVALID" | "APPROVAL_VERSION_CONFLICT" | "DATA_SCOPE_FORBIDDEN" | "FIELD_FORBIDDEN" | "IDEMPOTENCY_CONFLICT" | "SECOND_VERIFICATION_REQUIRED" | "STATE_TRANSITION_INVALID" | "SUPPLIER_DUPLICATE" | "SUPPLIER_SCOPE_FORBIDDEN" | "VALIDATION_FAILED" | "VERSION_CONFLICT" | "WORKSPACE_FORBIDDEN" | "ACCOUNT_SUSPENDED" | "AUTH_INVALID" | "AUTH_SESSION_REVOKED" | "RATE_LIMITED" | "SUPPLIER_NOT_ACTIVE" | "WORKSPACE_MENU_VIOLATION" | "WORKSPACE_MODULE_NOT_FOUND" | "WORKSPACE_SELECTION_REQUIRED" | "WORKSPACE_SESSION_CONFLICT" | "AUDIT_IMMUTABLE" | "AUDIT_REQUIRED" | "EXPORT_APPROVAL_REQUIRED" | "REQUEST_ID_REQUIRED" | "SAME_NATURAL_PERSON_REVIEW" | "SECOND_REVIEW_REQUIRED" | "APPROVAL_NOT_FOUND" | "APPROVAL_STATE_INVALID" | "IDEMPOTENCY_KEY_CONFLICT" | "IDEMPOTENCY_KEY_REQUIRED" | "APPAREL_HISTORY_REWRITE" | "APPAREL_REQUIRED_FIELD_MISSING" | "BUNDLE_SCHEMA_INVALID" | "DIGITAL_HISTORY_REWRITE" | "DIGITAL_MODEL_DUPLICATE" | "DIGITAL_REQUIRED_FIELD_MISSING" | "CATEGORY_DISABLED" | "CATEGORY_DUPLICATE" | "CATEGORY_LEVEL_INVALID" | "CATEGORY_NOT_FOUND" | "CATEGORY_NOT_LEAF" | "CATEGORY_PARENT_INVALID" | "CATEGORY_REFERENCED" | "CATEGORY_TEMPLATE_INVALID" | "DUPLICATE_CATALOG_RESOURCE" | "PRICE_FIELD_FORBIDDEN" | "PRICE_INVALID" | "INITIAL_PRICE_REVIEW_PENDING" | "INITIAL_PRICE_STATE_INVALID" | "PRICE_CHANGE_PENDING" | "PRICE_EFFECT_SCHEDULE_FAILED" | "SUPPLY_PRICE_REVIEW_REQUIRED" | "PRODUCT_APPROVAL_INCOMPLETE" | "PRODUCT_NOT_FOUND" | "PRODUCT_NOT_SALEABLE" | "SUPPLIER_INACTIVE" | "SUPPLIER_PRODUCT_DUPLICATE" | "SUPPLIER_PRODUCT_NOT_FOUND" | "SUPPLIER_SKU_DUPLICATE" | "SELF_APPROVAL_FORBIDDEN" | "SKU_DIMENSION_DUPLICATE" | "FRESH_HISTORY_REWRITE" | "FRESH_REQUIRED_FIELD_MISSING" | "FRESH_WEIGHT_RULE_INVALID" | "REGULATORY_WARNING_REQUIRED" | "REGULATED_CATEGORY_DISABLED" | "QUALIFICATION_REQUIRED" | "TEMPLATE_DATA_INVALID" | "TEMPLATE_DRAFT_EXISTS" | "TEMPLATE_IMMUTABLE" | "TEMPLATE_NOT_FOUND" | "TEMPLATE_SCHEMA_INVALID" | "TEMPLATE_VERSION_INACTIVE" | "TEMPLATE_VERSION_IMMUTABLE" | "REGION_UNAVAILABLE" | "SENSITIVE_FIELD_LEAK" | "INVENTORY_INSUFFICIENT" | "INVENTORY_NEGATIVE" | "INVENTORY_RESERVATION_CONFLICT" | "INVENTORY_STATE_INVALID" | "INVENTORY_VERSION_CONFLICT" | "AMOUNT_MISMATCH" | "EXTERNAL_SERVICE_UNAVAILABLE" | "ORDER_NOT_FOUND" | "PAYMENT_AMOUNT_MISMATCH" | "PAYMENT_CONCURRENT_CONFLICT" | "PAYMENT_IDEMPOTENCY_CONFLICT" | "PAYMENT_IDENTITY_MISMATCH" | "PAYMENT_METHOD_INVALID" | "PAYMENT_NOTIFICATION_INVALID" | "PAYMENT_STATE_INVALID" | "PAYMENT_TRANSACTION_CONFLICT" | "PAYMENT_TRANSACTION_NOT_FOUND" | "REMITTANCE_ALREADY_SUBMITTED" | "REFUND_ALLOCATION_INVALID" | "REFUND_AUTHORIZATION_NOT_FOUND" | "REFUND_CHANNEL_REJECTED" | "REFUND_DUPLICATE" | "REFUND_OVERPAID" | "REFUND_STATE_CONFLICT" | "SAME_NATURAL_PERSON_REVIEW_FORBIDDEN";
+            code: "ACCESS_DENIED" | "AUTHENTICATION_REQUIRED" | "INTERNAL_ERROR" | "REQUEST_INVALID" | "RESOURCE_NOT_FOUND" | "SERVICE_UNAVAILABLE" | "FORBIDDEN_CAPABILITY" | "PAYEE_FORBIDDEN" | "SELLER_IDENTITY_FORBIDDEN" | "SINGLE_MERCHANT_VIOLATION" | "ACTOR_SPOOFED" | "ACCOUNT_TYPE_INVALID" | "APPROVAL_VERSION_CONFLICT" | "DATA_SCOPE_FORBIDDEN" | "FIELD_FORBIDDEN" | "IDEMPOTENCY_CONFLICT" | "SECOND_VERIFICATION_REQUIRED" | "STATE_TRANSITION_INVALID" | "SUPPLIER_DUPLICATE" | "SUPPLIER_SCOPE_FORBIDDEN" | "VALIDATION_FAILED" | "VERSION_CONFLICT" | "WORKSPACE_FORBIDDEN" | "ACCOUNT_SUSPENDED" | "AUTH_INVALID" | "AUTH_SESSION_REVOKED" | "RATE_LIMITED" | "SUPPLIER_NOT_ACTIVE" | "WORKSPACE_MENU_VIOLATION" | "WORKSPACE_MODULE_NOT_FOUND" | "WORKSPACE_SELECTION_REQUIRED" | "WORKSPACE_SESSION_CONFLICT" | "AUDIT_IMMUTABLE" | "AUDIT_REQUIRED" | "EXPORT_APPROVAL_REQUIRED" | "REQUEST_ID_REQUIRED" | "SAME_NATURAL_PERSON_REVIEW" | "SECOND_REVIEW_REQUIRED" | "APPROVAL_NOT_FOUND" | "APPROVAL_STATE_INVALID" | "IDEMPOTENCY_KEY_CONFLICT" | "IDEMPOTENCY_KEY_REQUIRED" | "APPAREL_HISTORY_REWRITE" | "APPAREL_REQUIRED_FIELD_MISSING" | "BUNDLE_SCHEMA_INVALID" | "DIGITAL_HISTORY_REWRITE" | "DIGITAL_MODEL_DUPLICATE" | "DIGITAL_REQUIRED_FIELD_MISSING" | "CATEGORY_DISABLED" | "CATEGORY_DUPLICATE" | "CATEGORY_LEVEL_INVALID" | "CATEGORY_NOT_FOUND" | "CATEGORY_NOT_LEAF" | "CATEGORY_PARENT_INVALID" | "CATEGORY_REFERENCED" | "CATEGORY_TEMPLATE_INVALID" | "DUPLICATE_CATALOG_RESOURCE" | "PRICE_FIELD_FORBIDDEN" | "PRICE_INVALID" | "INITIAL_PRICE_REVIEW_PENDING" | "INITIAL_PRICE_STATE_INVALID" | "PRICE_CHANGE_PENDING" | "PRICE_EFFECT_SCHEDULE_FAILED" | "SUPPLY_PRICE_REVIEW_REQUIRED" | "PRODUCT_APPROVAL_INCOMPLETE" | "PRODUCT_NOT_FOUND" | "PRODUCT_NOT_SALEABLE" | "SUPPLIER_INACTIVE" | "SUPPLIER_PRODUCT_DUPLICATE" | "SUPPLIER_PRODUCT_NOT_FOUND" | "SUPPLIER_SKU_DUPLICATE" | "SELF_APPROVAL_FORBIDDEN" | "SKU_DIMENSION_DUPLICATE" | "FRESH_HISTORY_REWRITE" | "FRESH_REQUIRED_FIELD_MISSING" | "FRESH_WEIGHT_RULE_INVALID" | "REGULATORY_WARNING_REQUIRED" | "REGULATED_CATEGORY_DISABLED" | "QUALIFICATION_REQUIRED" | "TEMPLATE_DATA_INVALID" | "TEMPLATE_DRAFT_EXISTS" | "TEMPLATE_IMMUTABLE" | "TEMPLATE_NOT_FOUND" | "TEMPLATE_SCHEMA_INVALID" | "TEMPLATE_VERSION_INACTIVE" | "TEMPLATE_VERSION_IMMUTABLE" | "REGION_UNAVAILABLE" | "SENSITIVE_FIELD_LEAK" | "CREDIT_CODE_DUPLICATE" | "ENTERPRISE_NOT_FOUND" | "ENTERPRISE_NOT_ACTIVE" | "ENTERPRISE_SCOPE_FORBIDDEN" | "INVENTORY_INSUFFICIENT" | "INVENTORY_NEGATIVE" | "INVENTORY_RESERVATION_CONFLICT" | "INVENTORY_STATE_INVALID" | "INVENTORY_VERSION_CONFLICT" | "AMOUNT_MISMATCH" | "EXTERNAL_SERVICE_UNAVAILABLE" | "ORDER_NOT_FOUND" | "PAYMENT_AMOUNT_MISMATCH" | "PAYMENT_CONCURRENT_CONFLICT" | "PAYMENT_IDEMPOTENCY_CONFLICT" | "PAYMENT_IDENTITY_MISMATCH" | "PAYMENT_METHOD_INVALID" | "PAYMENT_NOTIFICATION_INVALID" | "PAYMENT_STATE_INVALID" | "PAYMENT_TRANSACTION_CONFLICT" | "PAYMENT_TRANSACTION_NOT_FOUND" | "REMITTANCE_ALREADY_SUBMITTED" | "REFUND_ALLOCATION_INVALID" | "REFUND_AUTHORIZATION_NOT_FOUND" | "REFUND_CHANNEL_REJECTED" | "REFUND_DUPLICATE" | "REFUND_OVERPAID" | "REFUND_STATE_CONFLICT" | "SAME_NATURAL_PERSON_REVIEW_FORBIDDEN";
             /** @example Resource was not found */
             message: string;
             /** @example /missing */
@@ -1470,6 +1573,24 @@ export interface components {
             secondVerificationCode: string;
             version: number;
         };
+        EnterpriseAddressInputDto: {
+            consignee: string;
+            deliveryNote?: string;
+            fullAddress: string;
+            isDefault: boolean;
+            mobile: string;
+            region: string;
+        };
+        EnterpriseAddressResponseDto: {
+            consignee: string;
+            deliveryNote?: string;
+            fullAddress: string;
+            /** Format: uuid */
+            id: string;
+            isDefault: boolean;
+            mobileMasked: string;
+            region: string;
+        };
         EnterpriseCatalogPageResponseDto: {
             /** @enum {string} */
             checkoutMode: "COMPANY_UNIFIED";
@@ -1508,6 +1629,24 @@ export interface components {
             skuId: string;
             specifications: components["schemas"]["PublicFoodDetailFieldResponseDto"][];
         };
+        EnterpriseInvoiceProfileInputDto: {
+            bankAccount?: string;
+            bankName?: string;
+            registeredAddress?: string;
+            registeredPhone?: string;
+            taxNumber: string;
+            title: string;
+        };
+        EnterpriseInvoiceProfileResponseDto: {
+            bankAccountMasked?: string;
+            bankName?: string;
+            /** Format: uuid */
+            id: string;
+            registeredAddress?: string;
+            registeredPhoneMasked?: string;
+            taxNumberMasked: string;
+            title: string;
+        };
         EnterpriseProductDetailResponseDto: {
             brand: string | null;
             bundleItems?: components["schemas"]["PublicGiftBoxItemResponseDto"][];
@@ -1530,6 +1669,80 @@ export interface components {
             /** @enum {string} */
             templateProfile: "FOOD" | "FRESH" | "APPAREL" | "DIGITAL" | "GIFT_BOX";
             templateVersion: number;
+        };
+        EnterpriseRegistrationCreatedResponseDto: {
+            /** @enum {string} */
+            nextAction: "COMPLETE_PROFILE";
+            /** Format: date-time */
+            registrationAccessExpiresAt: string;
+            /** @description Short-lived registration credential returned only to the creating client */
+            registrationAccessToken: string;
+            /** Format: uuid */
+            registrationId: string;
+            /** @enum {string} */
+            status: "DRAFT" | "PENDING_REVIEW" | "CORRECTION_REQUIRED" | "ACTIVE" | "SUSPENDED" | "REJECTED";
+            version: number;
+        };
+        EnterpriseRegistrationPageResponseDto: {
+            items: components["schemas"]["EnterpriseRegistrationResponseDto"][];
+            page: number;
+            pageSize: number;
+            total: number;
+        };
+        EnterpriseRegistrationPatchRequestDto: {
+            addresses?: components["schemas"]["EnterpriseAddressInputDto"][];
+            administratorEmail?: string;
+            administratorName?: string;
+            administratorTitle?: string;
+            creditCode?: string;
+            enterpriseType?: string;
+            invoiceProfile?: components["schemas"]["EnterpriseInvoiceProfileInputDto"];
+            legalName?: string;
+            licenseObjectKey?: string;
+            /** Format: date */
+            licenseValidUntil?: string | null;
+            registeredAddress?: string;
+            version: number;
+        };
+        EnterpriseRegistrationRequestDto: {
+            addresses?: components["schemas"]["EnterpriseAddressInputDto"][];
+            administratorEmail?: string;
+            administratorMobile: string;
+            administratorName: string;
+            administratorTitle?: string;
+            agreementVersion: string;
+            creditCode: string;
+            enterpriseType?: string;
+            invoiceProfile?: components["schemas"]["EnterpriseInvoiceProfileInputDto"];
+            legalName: string;
+            licenseObjectKey?: string;
+            /** Format: date */
+            licenseValidUntil?: string | null;
+            registeredAddress?: string;
+            verificationCode: string;
+        };
+        EnterpriseRegistrationResponseDto: {
+            addresses: components["schemas"]["EnterpriseAddressResponseDto"][];
+            administratorEmailMasked?: string;
+            administratorMobileMasked: string;
+            administratorName: string;
+            businessLicenseProvided: boolean;
+            businessLicenseReference?: string;
+            correctionFields: ("LEGAL_NAME" | "CREDIT_CODE" | "REGISTERED_ADDRESS" | "ENTERPRISE_TYPE" | "BUSINESS_LICENSE" | "CONTACT" | "INVOICE_PROFILE" | "SHIPPING_ADDRESS" | "AGREEMENT")[];
+            creditCodeMasked: string;
+            enterpriseType?: string;
+            /** Format: uuid */
+            id: string;
+            invoiceProfile?: components["schemas"]["EnterpriseInvoiceProfileResponseDto"];
+            legalName: string;
+            /** Format: date */
+            licenseValidUntil?: string;
+            nextAction: string;
+            registeredAddress?: string;
+            reviewOpinion?: string;
+            /** @enum {string} */
+            status: "DRAFT" | "PENDING_REVIEW" | "CORRECTION_REQUIRED" | "ACTIVE" | "SUSPENDED" | "REJECTED";
+            version: number;
         };
         EnterpriseRemittanceProofRequestDto: {
             /** @description Declared company remittance amount in integer cents */
@@ -1566,6 +1779,20 @@ export interface components {
             amount: number;
             /** @enum {string} */
             decision: "CONFIRM" | "REJECT";
+            reason: string;
+            version: number;
+        };
+        EnterpriseReviewRequestDto: {
+            correctionFields?: ("LEGAL_NAME" | "CREDIT_CODE" | "REGISTERED_ADDRESS" | "ENTERPRISE_TYPE" | "BUSINESS_LICENSE" | "CONTACT" | "INVOICE_PROFILE" | "SHIPPING_ADDRESS" | "AGREEMENT")[];
+            /** @enum {string} */
+            decision: "REQUEST_CORRECTION" | "APPROVE" | "REJECT";
+            opinion: string;
+            version: number;
+        };
+        EnterpriseSubmitReviewRequestDto: {
+            version: number;
+        };
+        EnterpriseSuspendRequestDto: {
             reason: string;
             version: number;
         };
@@ -3863,6 +4090,167 @@ export interface operations {
             };
         };
     };
+    "companyEnterpriseRegistration.list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EnterpriseRegistrationPageResponseDto"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
+    "companyEnterpriseRegistration.review": {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                enterpriseId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EnterpriseReviewRequestDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EnterpriseRegistrationResponseDto"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
+    "companyEnterpriseRegistration.suspend": {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                enterpriseId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EnterpriseSuspendRequestDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EnterpriseRegistrationResponseDto"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
     "companyInitialPriceReviews.list": {
         parameters: {
             query?: never;
@@ -4751,6 +5139,232 @@ export interface operations {
                 };
             };
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
+    "enterpriseRegistration.create": {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EnterpriseRegistrationRequestDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EnterpriseRegistrationCreatedResponseDto"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
+    "enterpriseRegistration.getOwn": {
+        parameters: {
+            query?: never;
+            header: {
+                Authorization: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EnterpriseRegistrationResponseDto"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
+    "enterpriseRegistration.patchOwn": {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                Authorization: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EnterpriseRegistrationPatchRequestDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EnterpriseRegistrationResponseDto"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
+    "enterpriseRegistration.submitOwn": {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                Authorization: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EnterpriseSubmitReviewRequestDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EnterpriseRegistrationResponseDto"];
+                };
+            };
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };

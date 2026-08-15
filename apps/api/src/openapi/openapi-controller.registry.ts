@@ -40,6 +40,10 @@ import {
   EnterpriseRemittanceController,
 } from '../enterprise-remittances/enterprise-remittance.controller.js';
 import { RefundController } from '../refunds/refund.controller.js';
+import {
+  CompanyEnterpriseRegistrationController,
+  EnterpriseRegistrationController,
+} from '../enterprise-onboarding/enterprise-onboarding.controller.js';
 
 export const OPENAPI_CONTROLLERS = Object.freeze([
   AuditLogController,
@@ -72,4 +76,6 @@ export const OPENAPI_CONTROLLERS = Object.freeze([
   WechatPrepayController,
   WechatPaymentNotificationController,
   RefundController,
+  EnterpriseRegistrationController,
+  CompanyEnterpriseRegistrationController,
 ]);

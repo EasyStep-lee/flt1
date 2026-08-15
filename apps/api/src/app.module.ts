@@ -13,6 +13,26 @@ import { AuditLogService } from './audit/audit-log.service.js';
 import { AuditSessionActorResolver } from './audit/audit-session-actor.resolver.js';
 import { PrismaAuditLogRepository } from './audit/prisma-audit-log.repository.js';
 import { CompanyAuthService } from './company-auth/company-auth.service.js';
+import {
+  ENTERPRISE_ONBOARDING_ACTOR_RESOLVER,
+  type EnterpriseOnboardingActorResolver,
+} from './enterprise-onboarding/enterprise-onboarding.actor.js';
+import { CompanyEnterpriseOnboardingSessionActorResolver } from './enterprise-onboarding/company-enterprise-onboarding-session-actor.resolver.js';
+import {
+  ENTERPRISE_ONBOARDING_REPOSITORY,
+  type EnterpriseOnboardingRepository,
+} from './enterprise-onboarding/enterprise-onboarding.repository.js';
+import { EnterpriseOnboardingService } from './enterprise-onboarding/enterprise-onboarding.service.js';
+import { PrismaEnterpriseOnboardingRepository } from './enterprise-onboarding/prisma-enterprise-onboarding.repository.js';
+import {
+  ENTERPRISE_REGISTRATION_VERIFIER,
+  UnavailableEnterpriseRegistrationVerifier,
+  type EnterpriseRegistrationVerifier,
+} from './enterprise-onboarding/enterprise-registration.verifier.js';
+import {
+  ENTERPRISE_REGISTRATION_SIGNING_KEY,
+  EnterpriseRegistrationTokenService,
+} from './enterprise-onboarding/enterprise-registration-token.service.js';
 import { PrismaPublicCatalogRepository } from './catalog/prisma-public-catalog.repository.js';
 import {
   PUBLIC_CATALOG_REPOSITORY,
@@ -254,6 +274,9 @@ export interface AppModuleOptions {
   readonly supplierOnboardingRepository?: SupplierOnboardingRepository;
   readonly supplierOnboardingActorResolver?: SupplierOnboardingActorResolver;
   readonly supplierRegistrationVerifier?: SupplierRegistrationVerifier;
+  readonly enterpriseOnboardingRepository?: EnterpriseOnboardingRepository;
+  readonly enterpriseOnboardingActorResolver?: EnterpriseOnboardingActorResolver;
+  readonly enterpriseRegistrationVerifier?: EnterpriseRegistrationVerifier;
   readonly functionalAccountRepository?: SupplierFunctionalAccountRepository;
   readonly functionalAccountActorResolver?: FunctionalAccountActorResolver;
   readonly functionalAccountSecondVerifier?: FunctionalAccountSecondVerifier;
@@ -314,6 +337,11 @@ export class AppModule {
       DenySupplierOnboardingActorResolver,
       UnavailableSupplierRegistrationVerifier,
       SupplierOnboardingService,
+      PrismaEnterpriseOnboardingRepository,
+      CompanyEnterpriseOnboardingSessionActorResolver,
+      UnavailableEnterpriseRegistrationVerifier,
+      EnterpriseRegistrationTokenService,
+      EnterpriseOnboardingService,
       PrismaSupplierFunctionalAccountRepository,
       DenyFunctionalAccountActorResolver,
       UnavailableFunctionalAccountSecondVerifier,
@@ -457,6 +485,37 @@ export class AppModule {
         : {
             provide: SUPPLIER_REGISTRATION_VERIFIER,
             useExisting: UnavailableSupplierRegistrationVerifier,
+          },
+      {
+        provide: ENTERPRISE_REGISTRATION_SIGNING_KEY,
+        useValue: options.config.supplierAuthSessionSigningKey,
+      },
+      options.enterpriseOnboardingRepository
+        ? {
+            provide: ENTERPRISE_ONBOARDING_REPOSITORY,
+            useValue: options.enterpriseOnboardingRepository,
+          }
+        : {
+            provide: ENTERPRISE_ONBOARDING_REPOSITORY,
+            useExisting: PrismaEnterpriseOnboardingRepository,
+          },
+      options.enterpriseOnboardingActorResolver
+        ? {
+            provide: ENTERPRISE_ONBOARDING_ACTOR_RESOLVER,
+            useValue: options.enterpriseOnboardingActorResolver,
+          }
+        : {
+            provide: ENTERPRISE_ONBOARDING_ACTOR_RESOLVER,
+            useExisting: CompanyEnterpriseOnboardingSessionActorResolver,
+          },
+      options.enterpriseRegistrationVerifier
+        ? {
+            provide: ENTERPRISE_REGISTRATION_VERIFIER,
+            useValue: options.enterpriseRegistrationVerifier,
+          }
+        : {
+            provide: ENTERPRISE_REGISTRATION_VERIFIER,
+            useExisting: UnavailableEnterpriseRegistrationVerifier,
           },
       options.functionalAccountRepository
         ? {

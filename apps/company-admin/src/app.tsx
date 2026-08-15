@@ -32,6 +32,7 @@ import {
   CompanyProductMaterialReviewPage,
 } from './company-product-approval-pages.js';
 import { CompanyRefundInitiationPage } from './company-refund-initiation-page.js';
+import { EnterpriseCertificationReviewPanel } from './enterprise-certification-review-panel.js';
 
 type SupplierRow = components['schemas']['SupplierResponseDto'];
 type SupplierStatus = SupplierRow['status'];
@@ -266,6 +267,8 @@ function CompanySupplierOpsPage({
           </div>
 
           <CompanyWorkspacePagePanel workspace={workspace} />
+
+          <EnterpriseCertificationReviewPanel />
 
           <div className="metric-grid">
             <Card bordered={false}>

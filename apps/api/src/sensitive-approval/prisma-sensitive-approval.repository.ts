@@ -29,12 +29,12 @@ const requestDetails = (snapshot: Prisma.JsonValue | null): {
 const toRecord = (task: {
   readonly id: string;
   readonly approvalType: string;
-  readonly applicantType: 'COMPANY_USER' | 'SUPPLIER_USER';
+  readonly applicantType: 'COMPANY_USER' | 'SUPPLIER_USER' | 'ENTERPRISE_USER';
   readonly applicantId: string;
   readonly applicantFunctionalAccountId: string | null;
   readonly supplierId: string | null;
   readonly status: 'PENDING' | 'IN_REVIEW' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
-  readonly reviewedByType: 'COMPANY_USER' | 'SUPPLIER_USER' | null;
+  readonly reviewedByType: 'COMPANY_USER' | 'SUPPLIER_USER' | 'ENTERPRISE_USER' | null;
   readonly reviewedBy: string | null;
   readonly reviewerFunctionalAccountId: string | null;
   readonly reviewOpinion: string | null;
@@ -43,6 +43,12 @@ const toRecord = (task: {
   readonly createdAt: Date;
   readonly updatedAt: Date;
 }): SensitiveApprovalRecord => {
+  if (
+    task.applicantType === 'ENTERPRISE_USER' ||
+    task.reviewedByType === 'ENTERPRISE_USER'
+  ) {
+    throw new Error('SENSITIVE_APPROVAL_IDENTITY_TYPE_INVALID');
+  }
   const details = requestDetails(task.requestSnapshot);
   return {
     id: task.id,

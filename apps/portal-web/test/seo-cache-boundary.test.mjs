@@ -65,6 +65,7 @@ test('built portal keeps public ISR separate from private no-store/noindex route
 
   for (const [route, marker] of [
     ['/enterprise/login', 'portal-auth-shell'],
+    ['/enterprise/register', 'enterprise-registration'],
     ['/enterprise/workspace', 'portal-private-shell'],
   ]) {
     const response = await fetch(`${origin}${route}`);
@@ -74,6 +75,15 @@ test('built portal keeps public ISR separate from private no-store/noindex route
     assert.match(response.headers.get('cache-control') ?? '', /private/u);
     assert.match(response.headers.get('cache-control') ?? '', /no-store/u);
     assert.match(response.headers.get('x-robots-tag') ?? '', /noindex/u);
+    if (route === '/enterprise/register') {
+      assert.match(html, /data-p0="P0-028"/u);
+      assert.match(html, /data-p0-partial="P0-077"/u);
+      assert.match(html, /企业认证资料/u);
+      assert.doesNotMatch(
+        html,
+        /p0-028-signed-registration-token|91320100MA1ABC2D3X|6222020202020202020/iu,
+      );
+    }
   }
 
   const robotsText = await (await fetch(`${origin}/robots.txt`)).text();
@@ -81,4 +91,5 @@ test('built portal keeps public ISR separate from private no-store/noindex route
   const sitemapText = await (await fetch(`${origin}/sitemap.xml`)).text();
   assert.match(sitemapText, /fulishe\.example\.invalid/u);
   assert.doesNotMatch(sitemapText, /enterprise\/workspace/u);
+  assert.doesNotMatch(sitemapText, /enterprise\/register/u);
 });
