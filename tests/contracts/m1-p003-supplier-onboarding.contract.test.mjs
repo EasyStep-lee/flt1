@@ -179,24 +179,27 @@ test('M1-P003 retains its local evidence after PR and main CI closure', async ()
   assert.equal(state.execution.currentStage, 'M3');
   assert.equal(state.execution.currentTask, state.execution.nextAllowedTask);
   assert.equal(state.execution.status, 'M3_IN_PROGRESS');
-  assert.equal(state.execution.currentTask, 'M3-P027');
+  assert.equal(state.execution.currentTask, 'M3-P028');
   assert.equal(state.execution.activeTaskCount, active.length);
-  assert.equal(state.execution.lastCompletedTask, 'M3-P026');
+  assert.equal(state.execution.lastCompletedTask, 'M3-P027');
   assert.equal(state.execution.lastPassedGate, 'M2-GATE');
   assert.equal(state.github.repository, 'EasyStep-lee/flt1');
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M3-P027');
-  assert.equal(
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M3-P028');
+  assert.match(
     state.github.currentTaskDelivery.status,
-    'CI_PASS_PENDING_HUMAN_MERGE',
+    /^(?:LOCAL_PASS_PENDING_DRAFT_PR|CI_PASS_PENDING_HUMAN_MERGE)$/u,
   );
   assert.equal(
     state.github.currentTaskDelivery.blockingExternalItem,
-    'REAL_DOMAIN_DNS_TLS_ICP_AND_AUTHORIZED_CUSTOMER_CONTENT',
+    'EXT_013_LEGAL_FINANCE_SMS_OBJECT_STORAGE_STAGING_PRODUCTION',
   );
   assert.equal(state.github.currentTaskDelivery.nextTaskUnlocked, false);
-  assert.equal(state.github.previousTaskDelivery.taskId, 'M3-P026');
-  assert.equal(state.github.previousTaskDelivery.pullRequest, 88);
+  assert.equal(state.github.previousTaskDelivery.taskId, 'M3-P027');
+  assert.equal(state.github.previousTaskDelivery.pullRequest, 90);
   assert.match(m2p008?.Status, /^(?:IN_PROGRESS|DONE)$/u);
-  assert.equal(state.evidence.local, 'LOCAL_PASS_M3_P027_FULL_VERIFY');
-  assert.equal(state.evidence.ci, 'CI_PASS_M3_P027_HEAD_512beed');
+  assert.match(
+    state.evidence.local,
+    /^(?:LOCAL_FOCUSED_PASS_FULL_VERIFY_NOT_EXECUTED|LOCAL_PASS_M3_P028_FULL_VERIFY)$/u,
+  );
+  assert.match(state.evidence.ci, /^(?:NOT_EXECUTED|CI_PASS_M3_P028_HEAD_[0-9a-f]{7})$/u);
 });

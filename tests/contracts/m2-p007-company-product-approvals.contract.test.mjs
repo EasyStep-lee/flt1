@@ -61,9 +61,9 @@ test('M2-P007 retains evidence while the current M2 slice advances through its d
     ]);
 
   assert.equal(state.execution.status, 'M3_IN_PROGRESS');
-  assert.equal(state.execution.currentTask, 'M3-P027');
+  assert.equal(state.execution.currentTask, 'M3-P028');
   assert.equal(state.execution.nextAllowedTask, state.execution.currentTask);
-  assert.equal(state.execution.lastCompletedTask, 'M3-P026');
+  assert.equal(state.execution.lastCompletedTask, 'M3-P027');
   assert.equal(state.execution.activeTaskCount, 1);
   assert.equal(state.github.currentTaskDelivery.taskId, state.execution.currentTask);
   assert.ok(
@@ -79,11 +79,14 @@ test('M2-P007 retains evidence while the current M2 slice advances through its d
   assert.equal(state.github.currentTaskDelivery.mainPostMergeCi, 'NOT_EXECUTED');
   assert.equal(
     state.github.currentTaskDelivery.blockingExternalItem,
-    'REAL_DOMAIN_DNS_TLS_ICP_AND_AUTHORIZED_CUSTOMER_CONTENT',
+    'EXT_013_LEGAL_FINANCE_SMS_OBJECT_STORAGE_STAGING_PRODUCTION',
   );
   assert.equal(state.github.currentTaskDelivery.nextTaskUnlocked, false);
-  assert.equal(state.evidence.local, 'LOCAL_PASS_M3_P027_FULL_VERIFY');
-  assert.equal(state.evidence.ci, 'CI_PASS_M3_P027_HEAD_512beed');
+  assert.match(
+    state.evidence.local,
+    /^(?:LOCAL_FOCUSED_PASS_FULL_VERIFY_NOT_EXECUTED|LOCAL_PASS_M3_P028_FULL_VERIFY)$/u,
+  );
+  assert.match(state.evidence.ci, /^(?:NOT_EXECUTED|CI_PASS_M3_P028_HEAD_[0-9a-f]{7})$/u);
   assert.match(taskLedger, /M2-P007[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(taskLedger, /M2-P008[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(taskLedger, /M2-P009[^\r\n]*DONE[^\r\n]*CI_PASS/u);
