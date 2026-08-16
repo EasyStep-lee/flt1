@@ -72,6 +72,7 @@ export interface CreateSupplierFulfillmentCommand {
   readonly supplierId: string;
   readonly itemCount: number;
   readonly goodsAmount: number;
+  readonly supplyAmount: number;
   readonly status: 'PENDING_PAYMENT';
 }
 
@@ -117,7 +118,8 @@ export type CreateOrderResult =
   | { readonly kind: 'INVENTORY_RESERVATION_CONFLICT' }
   | { readonly kind: 'ENTERPRISE_NOT_ACTIVE' }
   | { readonly kind: 'ENTERPRISE_SCOPE_FORBIDDEN' }
-  | { readonly kind: 'ENTERPRISE_PROFILE_INCOMPLETE' };
+  | { readonly kind: 'ENTERPRISE_PROFILE_INCOMPLETE' }
+  | { readonly kind: 'SUPPLIER_PICKUP_POINT_INCOMPLETE' };
 
 export type ReleaseOrderInventoryReason = 'USER_CANCELLED' | 'PAYMENT_FAILED' | 'PAYMENT_TIMEOUT';
 

@@ -409,8 +409,8 @@ export class PrismaPaymentRepository implements PaymentRepository {
           if (procurementChanged.count !== 1) throw new PaymentMutationFailure('CONCURRENT_CONFLICT');
         }
         await tx.supplierFulfillmentOrder.updateMany({
-          where: { buyerOrderId: payment.orderId, status: 'PENDING_PAYMENT' },
-          data: { status: 'PENDING_PREPARATION' },
+          where: { buyerOrderId: payment.orderId, activationStatus: 'PENDING_PAYMENT' },
+          data: { activationStatus: 'ACTIVE' },
         });
         const paymentChanged = await tx.paymentTransaction.updateMany({
           where: { id: payment.id, version: payment.version, status: payment.status },

@@ -97,6 +97,7 @@ const toAggregate = (order: StoredOrder): OrderAggregateRecord => {
       supplierId: fulfillment.supplierId,
       itemCount: fulfillment.itemCount,
       goodsAmount: fulfillment.goodsAmount,
+      supplyAmount: fulfillment.supplyAmount,
       status: 'PENDING_PAYMENT',
     })),
     enterpriseProcurement: enterpriseProcurement
@@ -320,10 +321,23 @@ export class PrismaOrderRepository implements OrderRepository {
         }
 
         const orderId = randomUUID();
+        const enterpriseProcurementOrderId = command.enterpriseProcurement ? randomUUID() : null;
         const fulfillmentIds = new Map(
           command.supplierFulfillments.map((item) => [item.supplierId, randomUUID()]),
         );
         const orderNo = `FS${Date.now()}${randomUUID().replaceAll('-', '').slice(0, 8).toUpperCase()}`;
+        const supplierPickupPoints = new Map(
+          (await tx.supplier.findMany({
+            where: { id: { in: command.supplierFulfillments.map(({ supplierId }) => supplierId) }, status: 'ACTIVE' },
+            select: { id: true, pickupAddress: true, pickupLat: true, pickupLng: true },
+          })).map((supplier) => [supplier.id, supplier]),
+        );
+        if (
+          supplierPickupPoints.size !== command.supplierFulfillments.length ||
+          [...supplierPickupPoints.values()].some((supplier) => !supplier.pickupAddress || supplier.pickupLat === null || supplier.pickupLng === null)
+        ) {
+          return { kind: 'SUPPLIER_PICKUP_POINT_INCOMPLETE' };
+        }
         for (const item of [...command.items].sort((left, right) => left.skuId.localeCompare(right.skuId))) {
           const before = await tx.inventoryBalance.findUnique({
             where: { skuId: item.skuId },
@@ -422,6 +436,7 @@ export class PrismaOrderRepository implements OrderRepository {
         if (command.enterpriseProcurement && enterpriseCheckout && command.enterpriseCustomerId) {
           await tx.enterpriseProcurementOrder.create({
             data: {
+              id: enterpriseProcurementOrderId!,
               buyerOrderId: orderId,
               enterpriseCustomerId: command.enterpriseCustomerId,
               purchaserUserId: command.enterpriseProcurement.purchaserUserId,
@@ -438,13 +453,26 @@ export class PrismaOrderRepository implements OrderRepository {
           });
         }
         await tx.supplierFulfillmentOrder.createMany({
-          data: command.supplierFulfillments.map((item) => ({
+          data: command.supplierFulfillments.map((item, index) => ({
             id: fulfillmentIds.get(item.supplierId)!,
             buyerOrderId: orderId,
+            enterpriseProcurementOrderId,
             supplierId: item.supplierId,
+            subOrderNo: `${orderNo}-${String(index + 1).padStart(2, '0')}`,
             goodsAmount: item.goodsAmount,
+            supplyAmount: item.supplyAmount,
             itemCount: item.itemCount,
-            status: item.status,
+            channelType: command.orderType,
+            activationStatus: item.status,
+            preparationStatus: 'PENDING',
+            handoverStatus: 'NOT_READY',
+            settlementStatus: 'NOT_RECONCILED',
+            pickupPointSnapshot: json({
+              schemaVersion: 1,
+              address: supplierPickupPoints.get(item.supplierId)!.pickupAddress,
+              lat: supplierPickupPoints.get(item.supplierId)!.pickupLat!.toString(),
+              lng: supplierPickupPoints.get(item.supplierId)!.pickupLng!.toString(),
+            }),
           })),
         });
         await tx.buyerOrderItem.createMany({

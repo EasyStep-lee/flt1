@@ -256,12 +256,19 @@ export class OrderService {
       }
       return value;
     }, 0);
-    const grouped = new Map<string, { itemCount: number; goodsAmount: number }>();
+    const grouped = new Map<string, { itemCount: number; goodsAmount: number; supplyAmount: number }>();
     for (const item of items) {
-      const current = grouped.get(item.supplierId) ?? { itemCount: 0, goodsAmount: 0 };
+      const current = grouped.get(item.supplierId) ?? { itemCount: 0, goodsAmount: 0, supplyAmount: 0 };
+      const supplyLineAmount = safeMultiply(item.supplyPrice, item.quantity);
+      const supplierGoodsAmount = current.goodsAmount + item.totalAmount;
+      const supplierSupplyAmount = current.supplyAmount + supplyLineAmount;
+      if (!Number.isSafeInteger(supplierGoodsAmount) || !Number.isSafeInteger(supplierSupplyAmount)) {
+        throw new SafeApiError(422, 'VALIDATION_FAILED', 'Supplier fulfillment amount exceeds the supported range');
+      }
       grouped.set(item.supplierId, {
         itemCount: current.itemCount + 1,
-        goodsAmount: current.goodsAmount + item.totalAmount,
+        goodsAmount: supplierGoodsAmount,
+        supplyAmount: supplierSupplyAmount,
       });
     }
     const buyerId = actor.kind === 'CONSUMER' ? actor.consumerUserId : actor.enterpriseCustomerId;
@@ -329,6 +336,9 @@ export class OrderService {
     }
     if (result.kind === 'ENTERPRISE_PROFILE_INCOMPLETE') {
       throw new SafeApiError(409, 'ENTERPRISE_PROFILE_INCOMPLETE', 'Enterprise checkout profile is incomplete');
+    }
+    if (result.kind === 'SUPPLIER_PICKUP_POINT_INCOMPLETE') {
+      throw new SafeApiError(409, 'PRODUCT_NOT_SALEABLE', 'One or more suppliers do not have an approved pickup point');
     }
     return { body: toCustomerResponse(result.order), replayed: result.kind === 'REPLAY' };
   }

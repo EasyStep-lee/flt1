@@ -361,8 +361,8 @@ export class PrismaEnterpriseRemittanceRepository implements EnterpriseRemittanc
           });
           if (procurementChanged.count !== 1) throw new RemittanceMutationFailure('CONCURRENT_CONFLICT');
           await tx.supplierFulfillmentOrder.updateMany({
-            where: { buyerOrderId: order.id, status: 'PENDING_PAYMENT' },
-            data: { status: 'PENDING_PREPARATION' },
+            where: { buyerOrderId: order.id, activationStatus: 'PENDING_PAYMENT' },
+            data: { activationStatus: 'ACTIVE' },
           });
           await tx.inventoryCommand.create({
             data: {

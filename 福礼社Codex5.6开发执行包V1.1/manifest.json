@@ -15,19 +15,19 @@
     "permissions": 22,
     "pages": 80,
     "externalDependencies": 28,
-    "migrations": 25,
+    "migrations": 26,
     "apiContracts": 100,
     "githubIssues": 149
   },
   "workbook": {
     "status": "VERIFIED",
-    "sha256": "152C5E8B5E2590577886A4C49D6330F7FBC745362F661DD32F9B5C3FB8C57DBD",
+    "sha256": "22026B35741C9639EA1101B1D021AE7E11F0E156A72025A24CCF7EDF3E5DE0A9",
     "currentTaskMirror": {
-      "taskId": "M3-P030",
+      "taskId": "M3-P031",
       "status": "CI_PASS",
       "sourceLedgers": "CSV_JSON_AND_WORKBOOK_UPDATED",
       "reason": "Artifact-tool updated the relevant task, P0, page, evidence and stage-gate rows; formula scan and rendered visual review passed.",
-      "checkedAt": "2026-08-15T13:21:21Z"
+      "checkedAt": "2026-08-16T02:48:14Z"
     }
   },
   "sourceOfTruth": [

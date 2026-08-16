@@ -41,8 +41,8 @@ const command = () => ({
     },
   ],
   supplierFulfillments: [
-    { supplierId: '20000000-0000-4000-8000-000000000001', itemCount: 1, goodsAmount: 1200, status: 'PENDING_PAYMENT' },
-    { supplierId: '20000000-0000-4000-8000-000000000002', itemCount: 1, goodsAmount: 4600, status: 'PENDING_PAYMENT' },
+    { supplierId: '20000000-0000-4000-8000-000000000001', itemCount: 1, goodsAmount: 1200, supplyAmount: 700, status: 'PENDING_PAYMENT' },
+    { supplierId: '20000000-0000-4000-8000-000000000002', itemCount: 1, goodsAmount: 4600, supplyAmount: 2800, status: 'PENDING_PAYMENT' },
   ],
   enterpriseProcurement: null,
 });
@@ -129,6 +129,14 @@ const fixture = ({ firstAvailableQty = 5, secondAvailableQty = 5 } = {}) => {
         };
         return clone(writes.procurementOrder);
       },
+    },
+    supplier: {
+      findMany: async ({ where }) => where.id.in.map((id, index) => ({
+        id,
+        pickupAddress: `江苏省连云港市示例取货点${index + 1}`,
+        pickupLat: { toString: () => `34.600000${index}` },
+        pickupLng: { toString: () => `119.200000${index}` },
+      })),
     },
     supplierFulfillmentOrder: { createMany: async ({ data }) => { writes.fulfillments = clone(data); } },
     buyerOrderItem: { createMany: async ({ data }) => { writes.items = clone(data); } },

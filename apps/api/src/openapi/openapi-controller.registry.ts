@@ -11,6 +11,7 @@ import {
 import { HealthController } from '../health/health.controller.js';
 import { SingleMerchantController } from '../merchant/single-merchant.controller.js';
 import { InventoryController } from '../inventory/inventory.controller.js';
+import { SupplierFulfillmentController } from '../supplier-fulfillment/supplier-fulfillment.controller.js';
 import { SensitiveApprovalController } from '../sensitive-approval/sensitive-approval.controller.js';
 import { RegulatedCategoryController } from '../regulated-categories/regulated-category.controller.js';
 import { SupplierAuthController } from '../supplier-auth/supplier-auth.controller.js';
@@ -58,6 +59,7 @@ export const OPENAPI_CONTROLLERS = Object.freeze([
   HealthController,
   SingleMerchantController,
   InventoryController,
+  SupplierFulfillmentController,
   SensitiveApprovalController,
   SupplierAuthController,
   SupplierFunctionalAccountController,

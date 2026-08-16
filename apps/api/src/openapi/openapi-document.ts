@@ -86,6 +86,15 @@ import {
   type InventoryRepository,
 } from '../inventory/inventory.repository.js';
 import {
+  DenySupplierFulfillmentActorResolver,
+  SUPPLIER_FULFILLMENT_ACTOR_RESOLVER,
+} from '../supplier-fulfillment/supplier-fulfillment.actor.js';
+import { SupplierFulfillmentService } from '../supplier-fulfillment/supplier-fulfillment.service.js';
+import {
+  SUPPLIER_FULFILLMENT_REPOSITORY,
+  type SupplierFulfillmentRepository,
+} from '../supplier-fulfillment/supplier-fulfillment.repository.js';
+import {
   DenyOrderActorResolver,
   ORDER_ACTOR_RESOLVER,
 } from '../orders/order.actor.js';
@@ -403,6 +412,7 @@ type JsonValue =
     SupplierPricingService,
     PriceChangeService,
     InventoryService,
+    SupplierFulfillmentService,
     OrderService,
     EnterpriseRemittanceService,
     EnterpriseOnboardingService,
@@ -416,6 +426,7 @@ type JsonValue =
     UnavailableWelfareRefundAdapter,
     UnavailableWechatRefundAdapter,
     DenySupplierInventoryActorResolver,
+    DenySupplierFulfillmentActorResolver,
     DenyOrderActorResolver,
     DenyCompanyFinanceActorResolver,
     NoopPriceEffectScheduler,
@@ -467,6 +478,17 @@ type JsonValue =
     {
       provide: SUPPLIER_INVENTORY_ACTOR_RESOLVER,
       useExisting: DenySupplierInventoryActorResolver,
+    },
+    {
+      provide: SUPPLIER_FULFILLMENT_REPOSITORY,
+      useValue: {
+        list: async () => [],
+        appendNode: async () => ({ kind: 'NOT_FOUND' }),
+      } satisfies SupplierFulfillmentRepository,
+    },
+    {
+      provide: SUPPLIER_FULFILLMENT_ACTOR_RESOLVER,
+      useExisting: DenySupplierFulfillmentActorResolver,
     },
     {
       provide: ORDER_REPOSITORY,
