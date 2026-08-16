@@ -289,10 +289,10 @@ test('project status records M1 gate success while historical blocked handoff st
 
   assert.equal(projectStatus.execution.currentStage, 'M3');
   assert.equal(projectStatus.execution.nextAllowedTask, projectStatus.execution.currentTask);
-  assert.equal(projectStatus.execution.lastCompletedTask, 'M3-P029');
+  assert.equal(projectStatus.execution.lastCompletedTask, 'M3-P030');
   assert.equal(projectStatus.execution.lastPassedGate, 'M2-GATE');
   assert.equal(
-    projectStatus.execution.prohibitedUntilGate.some((item) => /M3-P030.*M3-P031/u.test(item)),
+    projectStatus.execution.prohibitedUntilGate.some((item) => /M3-P031.*M3-P051/u.test(item)),
     true,
   );
   assert.equal(
@@ -309,7 +309,7 @@ test('project status records M1 gate success while historical blocked handoff st
     projectStatus.execution.currentTask,
   );
   assert.equal(projectStatus.execution.status, 'M3_IN_PROGRESS');
-  assert.equal(projectStatus.execution.currentTask, 'M3-P030');
+  assert.equal(projectStatus.execution.currentTask, 'M3-P031');
   assert.equal(projectStatus.execution.activeTaskCount, 1);
   assert.match(
     projectStatus.github.currentTaskDelivery.status,

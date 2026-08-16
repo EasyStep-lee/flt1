@@ -31,6 +31,8 @@ import { requestIdMiddleware } from './http/request-id.middleware.js';
 import type { InfrastructureProbe } from './infrastructure/probe.js';
 import type { SupplierInventoryActorResolver } from './inventory/inventory.actor.js';
 import type { InventoryRepository } from './inventory/inventory.repository.js';
+import type { SupplierFulfillmentActorResolver } from './supplier-fulfillment/supplier-fulfillment.actor.js';
+import type { SupplierFulfillmentRepository } from './supplier-fulfillment/supplier-fulfillment.repository.js';
 import type { OrderActorResolver } from './orders/order.actor.js';
 import type { OrderRepository } from './orders/order.repository.js';
 import type { CompanyFinanceActorResolver } from './enterprise-remittances/enterprise-remittance.actor.js';
@@ -110,6 +112,8 @@ export interface CreateApplicationOptions {
   readonly priceEffectScheduler?: PriceEffectScheduler;
   readonly inventoryRepository?: InventoryRepository;
   readonly supplierInventoryActorResolver?: SupplierInventoryActorResolver;
+  readonly fulfillmentRepository?: SupplierFulfillmentRepository;
+  readonly supplierFulfillmentActorResolver?: SupplierFulfillmentActorResolver;
   readonly orderRepository?: OrderRepository;
   readonly orderActorResolver?: OrderActorResolver;
   readonly enterpriseRemittanceRepository?: EnterpriseRemittanceRepository;
@@ -248,6 +252,12 @@ export const createApplication = async (
       : {}),
     ...(options.supplierInventoryActorResolver
       ? { supplierInventoryActorResolver: options.supplierInventoryActorResolver }
+      : {}),
+    ...(options.fulfillmentRepository
+      ? { fulfillmentRepository: options.fulfillmentRepository }
+      : {}),
+    ...(options.supplierFulfillmentActorResolver
+      ? { supplierFulfillmentActorResolver: options.supplierFulfillmentActorResolver }
       : {}),
     ...(options.orderRepository
       ? { orderRepository: options.orderRepository }

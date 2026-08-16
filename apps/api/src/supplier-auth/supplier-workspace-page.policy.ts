@@ -89,9 +89,9 @@ export const SUPPLIER_WORKSPACE_PAGE_MODULES = Object.freeze({
     deferred('batch-expiry', '批次与效期', '批次效期和临期预警在 M2 实现。', 'M2', '仅当前供应商 SKU 数据，不加载价格审批或订单财务。', ['批次列表', '效期详情', '预警记录']),
   ]),
   SUPPLIER_FULFILLMENT: Object.freeze([
-    deferred('fulfillment-suborders', '履约子单', '本供应商履约子单和备货节点在 M3 实现。', 'M3', '不返回其他供应商商品、客户完整支付结构、供应价或应付金额。', ['待确认列表', '子单详情', '节点时间线']),
-    deferred('handover', '备货与移交', '确认、备货完成和移交在 M3 实现。', 'M3', '操作按状态机和版本校验，不能修改主订单财务。', ['备货列表', '移交详情', '操作记录']),
-    deferred('exceptions', '履约异常', '报缺和异常上报在 M3 实现。', 'M3', '只处理本供应商子单，不可查看其他供应商履约。', ['异常列表', '处置详情', '平台反馈']),
+    module({ moduleKey: 'fulfillment-suborders', label: '履约子单', description: '查看本供应商已激活子单、商品数量、取货点和追加节点。', deliveryStage: 'M3', availability: 'AVAILABLE', dataBoundary: '不返回其他供应商商品、客户完整支付结构、供应价或应付金额。', sections: ['待确认列表', '子单详情', '节点时间线'] }),
+    module({ moduleKey: 'handover', label: '备货与移交', description: '按版本确认、开始备货、标记待移交并记录渠道匹配的交接凭证。', deliveryStage: 'M3', availability: 'AVAILABLE', dataBoundary: '操作按状态机和版本校验，不能修改主订单财务或创建配送实体。', sections: ['备货列表', '移交详情', '操作记录'] }),
+    module({ moduleKey: 'exceptions', label: '履约异常', description: '追加本供应商订单项报缺，不覆盖订单、库存或历史。', deliveryStage: 'M3', availability: 'AVAILABLE', dataBoundary: '只处理本供应商子单，不可查看其他供应商履约。', sections: ['异常列表', '处置详情', '平台反馈'] }),
   ]),
   SUPPLIER_AFTERSALES: Object.freeze([
     deferred('aftersales-cases', '售后协同', '本供应商责任相关售后协同在 M5 实现。', 'M5', '供应商不直接向用户退款或承诺平台赔付。', ['待响应列表', '工单详情', '处理时间线']),

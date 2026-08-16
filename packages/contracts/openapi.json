@@ -103,6 +103,7 @@
               "INVENTORY_RESERVATION_CONFLICT",
               "INVENTORY_STATE_INVALID",
               "INVENTORY_VERSION_CONFLICT",
+              "FULFILLMENT_HANDOVER_PARTY_INVALID",
               "AMOUNT_MISMATCH",
               "EXTERNAL_SERVICE_UNAVAILABLE",
               "ORDER_NOT_FOUND",
@@ -2813,6 +2814,69 @@
         ],
         "type": "object"
       },
+      "FulfillmentNodeRequestDto": {
+        "properties": {
+          "expectedVersion": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "handoverParty": {
+            "enum": [
+              "RUNNER",
+              "COMPANY_LOGISTICS"
+            ],
+            "type": "string"
+          },
+          "handoverReference": {
+            "maxLength": 191,
+            "minLength": 2,
+            "type": "string"
+          },
+          "node": {
+            "enum": [
+              "ACCEPT",
+              "REPORT_SHORTAGE",
+              "START_PREPARING",
+              "MARK_READY",
+              "HANDOVER"
+            ],
+            "type": "string"
+          },
+          "reason": {
+            "maxLength": 1000,
+            "minLength": 2,
+            "type": "string"
+          },
+          "shortages": {
+            "items": {
+              "$ref": "#/components/schemas/FulfillmentShortageItemRequestDto"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "node",
+          "expectedVersion"
+        ],
+        "type": "object"
+      },
+      "FulfillmentShortageItemRequestDto": {
+        "properties": {
+          "orderItemId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "quantity": {
+            "minimum": 1,
+            "type": "number"
+          }
+        },
+        "required": [
+          "orderItemId",
+          "quantity"
+        ],
+        "type": "object"
+      },
       "FunctionalAccountPageResponseDto": {
         "properties": {
           "items": {
@@ -4568,6 +4632,68 @@
         ],
         "type": "object"
       },
+      "SupplierFulfillmentItemDto": {
+        "properties": {
+          "orderItemId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "productName": {
+            "type": "string"
+          },
+          "quantity": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "skuLabel": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "orderItemId",
+          "productName",
+          "skuLabel",
+          "quantity"
+        ],
+        "type": "object"
+      },
+      "SupplierFulfillmentNodeDto": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "node": {
+            "enum": [
+              "ACCEPT",
+              "REPORT_SHORTAGE",
+              "START_PREPARING",
+              "MARK_READY",
+              "HANDOVER"
+            ],
+            "type": "string"
+          },
+          "occurredAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "reason": {
+            "nullable": true,
+            "type": "string"
+          },
+          "resultingVersion": {
+            "minimum": 1,
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "node",
+          "resultingVersion",
+          "occurredAt"
+        ],
+        "type": "object"
+      },
       "SupplierFulfillmentOrderResponseDto": {
         "properties": {
           "fulfillmentOrderId": {
@@ -4600,6 +4726,17 @@
           "itemCount",
           "goodsAmount",
           "status"
+        ],
+        "type": "object"
+      },
+      "SupplierFulfillmentPickupPointDto": {
+        "properties": {
+          "address": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "address"
         ],
         "type": "object"
       },
@@ -5858,6 +5995,119 @@
           "accountTypeCode",
           "workspaceRoute",
           "expiresAt"
+        ],
+        "type": "object"
+      },
+      "SupplierSubOrderPageResponseDto": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SupplierSubOrderResponseDto"
+            },
+            "type": "array"
+          },
+          "page": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "pageSize": {
+            "maximum": 100,
+            "minimum": 1,
+            "type": "number"
+          },
+          "total": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "pageSize"
+        ],
+        "type": "object"
+      },
+      "SupplierSubOrderResponseDto": {
+        "properties": {
+          "channelType": {
+            "enum": [
+              "CONSUMER",
+              "ENTERPRISE"
+            ],
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "handoverStatus": {
+            "enum": [
+              "NOT_READY",
+              "READY",
+              "HANDED_OVER"
+            ],
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SupplierFulfillmentItemDto"
+            },
+            "type": "array"
+          },
+          "nodes": {
+            "items": {
+              "$ref": "#/components/schemas/SupplierFulfillmentNodeDto"
+            },
+            "type": "array"
+          },
+          "orderNo": {
+            "type": "string"
+          },
+          "pickupPoint": {
+            "$ref": "#/components/schemas/SupplierFulfillmentPickupPointDto"
+          },
+          "preparationStatus": {
+            "enum": [
+              "PENDING",
+              "ACCEPTED",
+              "PREPARING",
+              "READY_FOR_HANDOVER",
+              "HANDED_OVER",
+              "COMPLETED",
+              "CANCELLED"
+            ],
+            "type": "string"
+          },
+          "subOrderNo": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "orderNo",
+          "subOrderNo",
+          "channelType",
+          "preparationStatus",
+          "handoverStatus",
+          "pickupPoint",
+          "items",
+          "nodes",
+          "version",
+          "createdAt",
+          "updatedAt"
         ],
         "type": "object"
       },
@@ -11206,6 +11456,197 @@
         "x-fulishe-request-dto": "SupplierSelectWorkspaceRequestDto",
         "x-fulishe-response-dto": "SupplierSessionResponseDto",
         "x-fulishe-response-policy": "NEVER_RETURN_INTERNAL_PRICING"
+      }
+    },
+    "/v1/supplier/fulfillment-sub-orders": {
+      "get": {
+        "operationId": "supplierFulfillment.list",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "preparationStatus",
+            "required": false,
+            "schema": {
+              "enum": [
+                "PENDING",
+                "ACCEPTED",
+                "PREPARING",
+                "READY_FOR_HANDOVER",
+                "HANDED_OVER",
+                "COMPLETED",
+                "CANCELLED"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "channelType",
+            "required": false,
+            "schema": {
+              "enum": [
+                "CONSUMER",
+                "ENTERPRISE"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "pageSize",
+            "required": false,
+            "schema": {
+              "maximum": 100,
+              "minimum": 1,
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "minimum": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupplierSubOrderPageResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "List active fulfillment suborders in the current supplier scope",
+        "tags": [
+          "supplier-fulfillment"
+        ]
+      }
+    },
+    "/v1/supplier/fulfillment-sub-orders/{subOrderId}/nodes": {
+      "post": {
+        "operationId": "supplierFulfillment.appendNode",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "subOrderId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FulfillmentNodeRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupplierSubOrderResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Append one idempotent supplier preparation node",
+        "tags": [
+          "supplier-fulfillment"
+        ]
       }
     },
     "/v1/supplier/inventory": {

@@ -118,6 +118,18 @@ import {
   type InventoryRepository,
 } from './inventory/inventory.repository.js';
 import {
+  DenySupplierFulfillmentActorResolver,
+  SUPPLIER_FULFILLMENT_ACTOR_RESOLVER,
+  type SupplierFulfillmentActorResolver,
+} from './supplier-fulfillment/supplier-fulfillment.actor.js';
+import { SupplierFulfillmentSessionActorResolver } from './supplier-fulfillment/supplier-fulfillment-session-actor.resolver.js';
+import { SupplierFulfillmentService } from './supplier-fulfillment/supplier-fulfillment.service.js';
+import { PrismaSupplierFulfillmentRepository } from './supplier-fulfillment/prisma-supplier-fulfillment.repository.js';
+import {
+  SUPPLIER_FULFILLMENT_REPOSITORY,
+  type SupplierFulfillmentRepository,
+} from './supplier-fulfillment/supplier-fulfillment.repository.js';
+import {
   DenyOrderActorResolver,
   ORDER_ACTOR_RESOLVER,
   type OrderActorResolver,
@@ -304,6 +316,8 @@ export interface AppModuleOptions {
   readonly priceEffectScheduler?: PriceEffectScheduler;
   readonly inventoryRepository?: InventoryRepository;
   readonly supplierInventoryActorResolver?: SupplierInventoryActorResolver;
+  readonly fulfillmentRepository?: SupplierFulfillmentRepository;
+  readonly supplierFulfillmentActorResolver?: SupplierFulfillmentActorResolver;
   readonly orderRepository?: OrderRepository;
   readonly orderActorResolver?: OrderActorResolver;
   readonly enterpriseRemittanceRepository?: EnterpriseRemittanceRepository;
@@ -376,6 +390,7 @@ export class AppModule {
       PrismaPriceChangeRepository,
       PriceChangeService,
       PrismaInventoryRepository,
+      PrismaSupplierFulfillmentRepository,
       PrismaOrderRepository,
       PrismaEnterpriseRemittanceRepository,
       PrismaPaymentRepository,
@@ -391,7 +406,10 @@ export class AppModule {
       CompanyFinanceSessionActorResolver,
       DenySupplierInventoryActorResolver,
       SupplierInventorySessionActorResolver,
+      DenySupplierFulfillmentActorResolver,
+      SupplierFulfillmentSessionActorResolver,
       InventoryService,
+      SupplierFulfillmentService,
       OrderService,
       EnterpriseRemittanceService,
       PaymentService,
@@ -450,6 +468,12 @@ export class AppModule {
       options.supplierInventoryActorResolver
         ? { provide: SUPPLIER_INVENTORY_ACTOR_RESOLVER, useValue: options.supplierInventoryActorResolver }
         : { provide: SUPPLIER_INVENTORY_ACTOR_RESOLVER, useExisting: SupplierInventorySessionActorResolver },
+      options.fulfillmentRepository
+        ? { provide: SUPPLIER_FULFILLMENT_REPOSITORY, useValue: options.fulfillmentRepository }
+        : { provide: SUPPLIER_FULFILLMENT_REPOSITORY, useExisting: PrismaSupplierFulfillmentRepository },
+      options.supplierFulfillmentActorResolver
+        ? { provide: SUPPLIER_FULFILLMENT_ACTOR_RESOLVER, useValue: options.supplierFulfillmentActorResolver }
+        : { provide: SUPPLIER_FULFILLMENT_ACTOR_RESOLVER, useExisting: SupplierFulfillmentSessionActorResolver },
       options.merchantRepository
         ? {
             provide: SINGLE_MERCHANT_REPOSITORY,

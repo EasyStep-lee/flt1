@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "1.0",
+  "taskId": "M3-P031",
+  "p0Ids": ["P0-031", "P0-070"],
+  "baseline": {
+    "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+    "baseCommit": "bb4b03f94f818cf9c1002decce28933cf4f687a3",
+    "previousPullRequest": 96,
+    "previousMainCiRun": 31918397158
+  },
+  "scope": {
+    "goal": "供应商只在固定履约职能页面查看和推进本方已激活个人/企业履约子单",
+    "nonGoals": [
+      "DeliveryTask或跑腿大厅",
+      "EnterpriseDeliveryOrder或平台统一配送",
+      "收货、售后、对账、结算、钱包或生产部署"
+    ]
+  },
+  "red": {
+    "api": "3 tests failed: GET/POST returned 404",
+    "migration": "ENOENT: M3-P031 migration did not exist",
+    "page": "PAGE-020 did not contain the supplier fulfillment business panel"
+  },
+  "green": {
+    "api": "3/3 LOCAL_PASS",
+    "migrationContract": "1/1 LOCAL_PASS",
+    "pageChromium": "1/1 LOCAL_PASS",
+    "migrationRehearsal": "empty=2 upgrade=2 restore=2 product=31 cleanup=PASS",
+    "fullVerify": "NOT_EXECUTED"
+  },
+  "invariants": {
+    "singleSplit": "reuse supplier_fulfillment_order with unique buyer_order_id+supplier_id",
+    "ownerScope": "supplierId derives from verified SUPPLIER_FULFILLMENT session",
+    "financialWhitelist": "fulfillment DTO excludes goodsAmount, supplyAmount, settlement and payment fields",
+    "appendOnly": "node log and readiness outbox are append-only and versioned",
+    "deliveryBoundary": "no DeliveryTask or EnterpriseDeliveryOrder is created by M3-P031"
+  },
+  "environment": {
+    "local": "Windows; Node 22.23.1; pnpm 10.12.1; MySQL 8 via Docker; Playwright Chromium",
+    "ci": "NOT_EXECUTED",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_EXECUTED",
+    "production": "NOT_EXECUTED"
+  }
+}
