@@ -5599,7 +5599,7 @@
       "p0Id": "P0-031",
       "category": "M3_DELIVERY_CREATION",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "LOCAL_PASS"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P031-02",
@@ -5607,7 +5607,7 @@
       "p0Id": "P0-031",
       "category": "UNAUTHORIZED_OR_WRONG_OWNER",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "LOCAL_PASS"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P031-03",
@@ -5615,7 +5615,7 @@
       "p0Id": "P0-031",
       "category": "DUPLICATE_OR_STATE_CONFLICT",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "LOCAL_PASS"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P051-01",

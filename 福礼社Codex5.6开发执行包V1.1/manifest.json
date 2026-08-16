@@ -21,13 +21,13 @@
   },
   "workbook": {
     "status": "VERIFIED",
-    "sha256": "FD58ECF55BCA48869233BE21F6B4E903A9E4B7BAC7BA16072847B12D6E6A664E",
+    "sha256": "22026B35741C9639EA1101B1D021AE7E11F0E156A72025A24CCF7EDF3E5DE0A9",
     "currentTaskMirror": {
       "taskId": "M3-P031",
-      "status": "LOCAL_PASS",
+      "status": "CI_PASS",
       "sourceLedgers": "CSV_JSON_AND_WORKBOOK_UPDATED",
       "reason": "Artifact-tool updated the relevant task, P0, page, evidence and stage-gate rows; formula scan and rendered visual review passed.",
-      "checkedAt": "2026-08-16T02:37:21Z"
+      "checkedAt": "2026-08-16T02:48:14Z"
     }
   },
   "sourceOfTruth": [

@@ -518,5 +518,5 @@ test('machine control preserves the M2 freeze while later slices advance one gat
     projectStatus.evidence.local,
     /^(?:LOCAL_FOCUSED_PASS_FULL_VERIFY_NOT_EXECUTED|LOCAL_PASS_M3_P030_FULL_VERIFY|LOCAL_PASS_M3_P031_FULL_VERIFY)$/u,
   );
-  assert.match(projectStatus.evidence.ci, /^(?:NOT_EXECUTED|CI_PASS_M3_P030_HEAD_[0-9a-f]{7})$/u);
+  assert.match(projectStatus.evidence.ci, /^(?:NOT_EXECUTED|CI_PASS_M3_P03[01]_HEAD_[0-9a-f]{7})$/u);
 });

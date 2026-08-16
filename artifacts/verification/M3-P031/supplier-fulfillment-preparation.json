@@ -40,7 +40,7 @@
   },
   "environment": {
     "local": "Windows; Node 22.23.1; pnpm 10.12.1; MySQL 8 via Docker; Playwright Chromium",
-    "ci": "NOT_EXECUTED_PENDING_DRAFT_PR",
+    "ci": "CI_PASS_RUN_31922365208_JOB_95104212863_HEAD_188EB66",
     "staging": "NOT_EXECUTED",
     "device": "NOT_EXECUTED",
     "production": "NOT_EXECUTED"

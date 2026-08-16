@@ -1,13 +1,13 @@
 # M3-P031 供应商备货切片交接
 
-- 结论：LOCAL_PASS（Draft PR 尚未创建；CI、人工合并和 post-merge `main` CI 尚未执行）
+- 结论：CI_PASS_PENDING_HUMAN_MERGE（Draft PR；人工评审、合并和 post-merge `main` CI 尚未执行）
 - 方案 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`
 - 仓库：`EasyStep-lee/flt1`
 - 基线：`main@bb4b03f94f818cf9c1002decce28933cf4f687a3`
 - 分支：`codex/m3-supplier-fulfillment-preparation`
 - 实现提交：`fee4b9f`、`0526eba`、`7393dc9`、`c930b37`
 - Issue：[#97](https://github.com/EasyStep-lee/flt1/issues/97)
-- PR：尚未创建；只允许创建 Draft，不得自行转 Ready 或合并
+- PR：[#98](https://github.com/EasyStep-lee/flt1/pull/98)，Draft；首轮精确 head `188eb66c0e6e5c877284e13c030942360a1dbc7b` 的 Actions run `31922365208` / job `95104212863` 成功；不得自行转 Ready 或合并
 
 ## 唯一目标与非目标
 
@@ -55,18 +55,18 @@ PAGE-020 `/supplier/workspaces/fulfillment` 保持 `SUPPLIER_FULFILLMENT` 固定
 
 ## 台账、工作簿与 P0
 
-任务、P0-031、PAGE-020、EVD-031、API-052/API-053、MIG-015A、M3 门禁和项目状态已同步。总控工作簿更新对应镜像行和看板计数，公式错误扫描 0 项，关键区域完成渲染复核；工作簿 SHA-256 为 `FD58ECF55BCA48869233BE21F6B4E903A9E4B7BAC7BA16072847B12D6E6A664E`。
+任务、P0-031、PAGE-020、EVD-031、API-052/API-053、MIG-015A、M3 门禁和项目状态已同步。总控工作簿更新对应镜像行和看板计数，公式错误扫描 0 项，关键区域完成渲染复核；工作簿 SHA-256 为 `22026B35741C9639EA1101B1D021AE7E11F0E156A72025A24CCF7EDF3E5DE0A9`。
 
 P0-031 当前仅为 `LOCAL_PASS`。它证明本地技术切片符合本方数据域、备货状态机、幂等/版本控制、渠道隔离和字段白名单；不自动证明 M4 配送、真实移交/收货或正式验收。
 
 ## 环境边界、风险与回滚
 
 - LOCAL：Windows、Node 22.23.1、pnpm 10.12.1、Docker MySQL 8.4.11、Playwright Chromium。
-- CI：NOT_EXECUTED；STAGING：NOT_EXECUTED；DEVICE：NOT_EXECUTED；PRODUCTION：NOT_EXECUTED。
+- CI：首轮 exact-head CI_PASS（run `31922365208` / job `95104212863`）；STAGING：NOT_EXECUTED；DEVICE：NOT_EXECUTED；PRODUCTION：NOT_EXECUTED。
 - 风险：readiness outbox 只冻结 M4 消费契约，尚无真实配送消费者；取货点快照依赖 M1 已审核数据。M4 后续实现不得回改本迁移，只能向前演进。
 - 回滚：应用代码可原子 revert；迁移在未发布环境可从演练备份恢复，发布后不得修改历史迁移，必须以前向修复迁移处理。回退旧应用时保留新增列/表的兼容窗口。
 - 用户原有未跟踪文件保持原状，未纳入本切片。
 
 ## 下一门禁
 
-先提交本切片、推送分支、创建 Draft PR 并取得 PR 最新精确 head CI。只有人工对该精确 head 明确授权合并且合并后的 `main` CI 成功后，M3-P051 才可解锁；在此之前 M3-P051、M4-M6 均禁止进入。
+保持 PR #98 为 Draft，并要求证据同步后的最新 head 再次取得精确 CI。只有人工对该精确 head 明确授权合并且合并后的 `main` CI 成功后，M3-P051 才可解锁；在此之前 M3-P051、M4-M6 均禁止进入。
