@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-16T03:59:38.6643674Z",
+  "updatedAt": "2026-08-16T05:00:46Z",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -85,11 +85,11 @@
       "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/99",
       "branch": "codex/m3-welfare-plan-batches",
       "baseCommit": "5c0f09b37c1ddff91dd01816b09fed35464d9bb4",
-      "verifiedHead": "LOCAL_WORKTREE",
+      "verifiedHead": "0c92c1634159c2748bfafbb7082c046c2a33897b",
       "status": "LOCAL_PASS_PENDING_DRAFT_PR",
       "localRedTest": "API_3_OF_3_HTTP_404;MIGRATION_ENOENT;PAGE_008_PANEL_MISSING",
       "localFocusedTest": "LOCAL_PASS_API_3_MIGRATION_1_PAGE_1",
-      "localFullVerify": "NOT_EXECUTED",
+      "localFullVerify": "PASS_17_OF_17",
       "pullRequest": null,
       "pullRequestState": "NOT_CREATED",
       "exactHeadCi": "NOT_EXECUTED",
@@ -112,7 +112,7 @@
     "note": "M3-P051福利卡计划与批次LOCAL_PASS；EXT-012与真实发行、staging/device/production未执行；M3-P052锁定。"
   },
   "evidence": {
-    "local": "LOCAL_FOCUSED_PASS_FULL_VERIFY_NOT_EXECUTED",
+    "local": "LOCAL_PASS_M3_P051_FULL_VERIFY",
     "ci": "NOT_EXECUTED",
     "staging": "NOT_EXECUTED",
     "device": "NOT_EXECUTED",
