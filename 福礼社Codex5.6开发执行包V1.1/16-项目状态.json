@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-16T01:44:20.2796910Z",
+  "updatedAt": "2026-08-16T02:34:10.825Z",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -85,11 +85,11 @@
       "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/97",
       "branch": "codex/m3-supplier-fulfillment-preparation",
       "baseCommit": "bb4b03f94f818cf9c1002decce28933cf4f687a3",
-      "verifiedHead": "LOCAL_WORKTREE",
+      "verifiedHead": "c930b3727a2904736ee8121b05d812771aab0acb",
       "status": "LOCAL_PASS_PENDING_DRAFT_PR",
       "localRedTest": "API_3_OF_3_HTTP_404;MIGRATION_ENOENT;PAGE_020_PANEL_MISSING",
       "localFocusedTest": "LOCAL_PASS_API_3_MIGRATION_1_PAGE_1_REPOSITORY_14",
-      "localFullVerify": "NOT_EXECUTED",
+      "localFullVerify": "PASS_17_OF_17",
       "pullRequest": null,
       "pullRequestState": "NOT_CREATED",
       "exactHeadCi": "NOT_EXECUTED",
@@ -112,7 +112,7 @@
     "note": "M3-P031供应商备货LOCAL_PASS；M4配送、staging/device/production未执行；M3-P051锁定。"
   },
   "evidence": {
-    "local": "LOCAL_FOCUSED_PASS_FULL_VERIFY_NOT_EXECUTED",
+    "local": "LOCAL_PASS_M3_P031_FULL_VERIFY",
     "ci": "NOT_EXECUTED",
     "staging": "NOT_EXECUTED",
     "device": "NOT_EXECUTED",

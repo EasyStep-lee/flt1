@@ -5,7 +5,7 @@
 - 仓库：`EasyStep-lee/flt1`
 - 基线：`main@bb4b03f94f818cf9c1002decce28933cf4f687a3`
 - 分支：`codex/m3-supplier-fulfillment-preparation`
-- 实现提交：待创建
+- 实现提交：`fee4b9f`、`0526eba`、`7393dc9`、`c930b37`
 - Issue：[#97](https://github.com/EasyStep-lee/flt1/issues/97)
 - PR：尚未创建；只允许创建 Draft，不得自行转 Ready 或合并
 
@@ -40,7 +40,9 @@ PAGE-020 `/supplier/workspaces/fulfillment` 保持 `SUPPLIER_FULFILLMENT` 固定
 - `pnpm prisma:migrate:dry-run` 通过：`empty=2 upgrade=2 restore=2 product=31 cleanup=PASS`。
 - `pnpm openapi:generate` / `pnpm openapi:check`：通过且字节稳定。
 - `pnpm lint` / `pnpm typecheck` / supplier portal build：通过。
-- `pnpm verify`：待本交接与台账同步后执行并补记。
+- `pnpm verify -- --base-ref bb4b03f94f818cf9c1002decce28933cf4f687a3`：17/17 通过（证据提交 `c930b3727a2904736ee8121b05d812771aab0acb`）；API contract 220/220、foundation Playwright 3/3、P0 Chromium 73/73。
+- OpenAPI breaking 检查为 0 error、252 warning；warning 来自新增全局错误码枚举值，不是删除或收窄接口。
+- 验证收敛记录：首次预提交验证因预期的未提交 OpenAPI 生成差异停止；一次错误地给 Vitest 传入 `--runInBand`（参数不支持）后使用标准命令重跑通过；随后补齐 OpenAPI 路径清单、工作簿 manifest 哈希和随总控推进变化的历史状态断言，focused 合同最终 90/90。
 
 证据文件：
 
@@ -53,7 +55,7 @@ PAGE-020 `/supplier/workspaces/fulfillment` 保持 `SUPPLIER_FULFILLMENT` 固定
 
 ## 台账、工作簿与 P0
 
-任务、P0-031、PAGE-020、EVD-031、API-052/API-053、MIG-015A、M3 门禁和项目状态已同步。总控工作簿更新对应镜像行和看板计数，公式错误扫描 0 项，关键区域完成渲染复核。
+任务、P0-031、PAGE-020、EVD-031、API-052/API-053、MIG-015A、M3 门禁和项目状态已同步。总控工作簿更新对应镜像行和看板计数，公式错误扫描 0 项，关键区域完成渲染复核；工作簿 SHA-256 为 `FD58ECF55BCA48869233BE21F6B4E903A9E4B7BAC7BA16072847B12D6E6A664E`。
 
 P0-031 当前仅为 `LOCAL_PASS`。它证明本地技术切片符合本方数据域、备货状态机、幂等/版本控制、渠道隔离和字段白名单；不自动证明 M4 配送、真实移交/收货或正式验收。
 
