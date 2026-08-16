@@ -289,10 +289,10 @@ test('project status records M1 gate success while historical blocked handoff st
 
   assert.equal(projectStatus.execution.currentStage, 'M3');
   assert.equal(projectStatus.execution.nextAllowedTask, projectStatus.execution.currentTask);
-  assert.equal(projectStatus.execution.lastCompletedTask, 'M3-P030');
+  assert.equal(projectStatus.execution.lastCompletedTask, 'M3-P031');
   assert.equal(projectStatus.execution.lastPassedGate, 'M2-GATE');
   assert.equal(
-    projectStatus.execution.prohibitedUntilGate.some((item) => /M3-P031.*M3-P051/u.test(item)),
+    projectStatus.execution.prohibitedUntilGate.some((item) => /M3-P051.*M3-P052/u.test(item)),
     true,
   );
   assert.equal(
@@ -309,7 +309,7 @@ test('project status records M1 gate success while historical blocked handoff st
     projectStatus.execution.currentTask,
   );
   assert.equal(projectStatus.execution.status, 'M3_IN_PROGRESS');
-  assert.equal(projectStatus.execution.currentTask, 'M3-P031');
+  assert.equal(projectStatus.execution.currentTask, 'M3-P051');
   assert.equal(projectStatus.execution.activeTaskCount, 1);
   assert.match(
     projectStatus.github.currentTaskDelivery.status,
@@ -320,9 +320,9 @@ test('project status records M1 gate success while historical blocked handoff st
   assert.equal(projectStatus.github.previousTaskDelivery.status, 'CI_PASS');
   assert.match(
     projectStatus.evidence.local,
-    /^(?:LOCAL_FOCUSED_PASS_FULL_VERIFY_NOT_EXECUTED|LOCAL_PASS_M3_P030_FULL_VERIFY|LOCAL_PASS_M3_P031_FULL_VERIFY)$/u,
+    /^(?:LOCAL_FOCUSED_PASS_FULL_VERIFY_NOT_EXECUTED|LOCAL_PASS_M3_P030_FULL_VERIFY|LOCAL_PASS_M3_P031_FULL_VERIFY|LOCAL_PASS_M3_P051_FULL_VERIFY)$/u,
   );
-  assert.match(projectStatus.evidence.ci, /^(?:NOT_EXECUTED|CI_PASS_M3_P03[01]_HEAD_[0-9a-f]{7})$/u);
+  assert.match(projectStatus.evidence.ci, /^(?:NOT_EXECUTED|CI_PASS_M3_P(?:03[01]|051)_HEAD_[0-9a-f]{7})$/u);
   assert.equal(projectStatus.evidence.staging, 'NOT_EXECUTED');
   assert.equal(projectStatus.evidence.device, 'NOT_EXECUTED');
   assert.equal(projectStatus.evidence.production, 'NOT_EXECUTED');
