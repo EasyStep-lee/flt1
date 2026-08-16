@@ -6,8 +6,8 @@
     "P0-092_PARTIAL"
   ],
   "status": "LOCAL_PASS",
-  "commit": "LOCAL_WORKTREE",
-  "updatedAt": "2026-08-16T12:33:33.113Z",
+  "commit": "e1df027d53f2980e418e118bed22d15aa0832601",
+  "updatedAt": "2026-08-16T13:17:32.292Z",
   "baselineSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
   "scope": "read-only session-owned welfare account eligibility and maximum deduction",
   "red": [
@@ -22,7 +22,7 @@
     "MINIAPP_3_OF_3",
     "P0_CHROMIUM_1_OF_1"
   ],
-  "fullVerify": "NOT_EXECUTED",
+  "fullVerify": "PASS_17_OF_17",
   "migrations": "NOT_REQUIRED_EXISTING_SCHEMA_REUSED",
   "boundaries": {
     "moneyMutation": false,

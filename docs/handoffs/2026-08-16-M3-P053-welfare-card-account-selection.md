@@ -2,10 +2,10 @@
 
 ## 当前结论
 
-- 结论：`LOCAL_FOCUSED_PASS_FULL_VERIFY_PENDING`；不是 M3 阶段 PASS，也不是实际资金、真机、staging 或生产验收。
+- 结论：`LOCAL_PASS`；本切片完整 `pnpm verify` 17/17 通过，但不是 M3 阶段 PASS，也不是实际资金、真机、staging 或生产验收。
 - 基线方案 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`。
 - 基线：PR #102 head `d1143daac1658aa0876642525cc481b30437eed7` 已按授权合并为 `b186f6b680727318ddeb4d6573bcfa4090d2ad8b`；main Actions run `31946062202` / job `95162089803` 成功。
-- 当前：Issue [#103](https://github.com/EasyStep-lee/flt1/issues/103)，分支 `codex/m3-welfare-card-account-selection`；Draft PR、精确 head CI、评论和合并均未执行。
+- 当前：Issue [#103](https://github.com/EasyStep-lee/flt1/issues/103)，分支 `codex/m3-welfare-card-account-selection`，本地验证提交 `e1df027d53f2980e418e118bed22d15aa0832601`；Draft PR、精确 head CI、评论和合并均未执行。
 
 ## 实际变更
 
@@ -27,7 +27,9 @@
 | GREEN 小程序 | `welfare-card-selection-build.test.mjs` 3/3 |
 | GREEN OpenAPI | `m3-p053-welfare-card-eligibility.contract.test.mjs` 1/1 |
 | GREEN P0 | focused Chromium 1/1 |
-| 全量门禁 | `NOT_EXECUTED`，待本交接后执行 |
+| 全量门禁 | `pnpm verify` 17/17，exit 0；报告提交 `e1df027d53f2980e418e118bed22d15aa0832601` |
+
+完整门禁首次在未提交生成契约上按预期被 `openapi-diff` 拒绝；提交实现后又分别发现 PAGE-056、API-039 路径及三个 DTO 未登记到精确清单。上述约束均已补齐并保持原断言强度，最终报告为 `artifacts/test-results/verification/pnpm-verify.json`，时间 `2026-08-16T13:00:47.499Z` 至 `2026-08-16T13:16:55.939Z`。
 
 ## P0、环境、风险与回滚
 

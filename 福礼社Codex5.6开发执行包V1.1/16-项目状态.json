@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-16T12:33:33.113Z",
+  "updatedAt": "2026-08-16T13:17:32.292Z",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -85,11 +85,11 @@
       "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/103",
       "branch": "codex/m3-welfare-card-account-selection",
       "baseCommit": "b186f6b680727318ddeb4d6573bcfa4090d2ad8b",
-      "verifiedHead": "LOCAL_WORKTREE",
+      "verifiedHead": "e1df027d53f2980e418e118bed22d15aa0832601",
       "status": "LOCAL_PASS_PENDING_DRAFT_PR",
       "localRedTest": "API_3_OF_3_HTTP_404;OPENAPI_PATH_MISSING;MINIAPP_3_OF_3_PAGE_MISSING",
       "localFocusedTest": "LOCAL_PASS_API_3_PRISMA_1_OPENAPI_1_MINIAPP_3_P0_1",
-      "localFullVerify": "NOT_EXECUTED",
+      "localFullVerify": "PASS_17_OF_17",
       "pullRequest": null,
       "pullRequestState": "NOT_CREATED",
       "exactHeadCi": "NOT_EXECUTED",
@@ -112,7 +112,7 @@
     "note": "M3-P053福利卡账户选择 LOCAL_PASS；实际资金、真机、staging/device/production未执行；M3-P054锁定。"
   },
   "evidence": {
-    "local": "LOCAL_FOCUSED_PASS_FULL_VERIFY_NOT_EXECUTED",
+    "local": "LOCAL_PASS_M3_P053_FULL_VERIFY",
     "ci": "NOT_EXECUTED",
     "staging": "NOT_EXECUTED",
     "device": "NOT_EXECUTED",
