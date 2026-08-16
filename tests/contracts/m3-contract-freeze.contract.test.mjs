@@ -72,7 +72,10 @@ test('M3 client boundaries and negative behavior plans are explicit', async () =
   for (const required of ['PERSONAL_RECHARGE', 'NON_WECHAT_CONSUMER_CASH', 'DUPLICATE_CALLBACK', 'OUT_OF_ORDER_CALLBACK', 'REFUND_OVERPAID', 'CROSS_OWNER_ACCESS', 'SUPPLY_PRICE_LEAK', 'DIRECT_WX_REQUEST', 'PRIVATE_PUBLIC_CACHE', 'M3_DELIVERY_CREATION']) {
     assert.ok(categories.has(required), `missing negative category ${required}`);
   }
-  assert.equal(freeze.negativeTests.every(({ executionStatus }) => executionStatus === 'NOT_EXECUTED'), true);
+  const currentSlice = freeze.negativeTests.filter(({ taskId }) => taskId === 'M3-P031');
+  const deferred = freeze.negativeTests.filter(({ taskId }) => taskId !== 'M3-P031');
+  assert.equal(currentSlice.every(({ executionStatus }) => ['LOCAL_PASS', 'CI_PASS'].includes(executionStatus)), true);
+  assert.equal(deferred.every(({ executionStatus }) => executionStatus === 'NOT_EXECUTED'), true);
 });
 
 test('M3 frozen artifact generation is deterministic and side-effect free', async () => {

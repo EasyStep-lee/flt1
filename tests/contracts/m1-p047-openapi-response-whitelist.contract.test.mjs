@@ -43,12 +43,12 @@ test('M1-P047 evidence remains closed after PR 20 merge as the project advances'
   assert.equal(evidence.fullVerification.status, 'PASS_17_OF_17');
   assert.equal(evidence.negativeTests.length, 4);
   assert.ok(evidence.negativeTests.every(({ status }) => status === 'PASS'));
-  assert.equal(state.execution.lastCompletedTask, 'M3-P029');
+  assert.equal(state.execution.lastCompletedTask, 'M3-P030');
   assert.equal(state.execution.status, 'M3_IN_PROGRESS');
-  assert.equal(state.execution.currentTask, 'M3-P030');
+  assert.equal(state.execution.currentTask, 'M3-P031');
   assert.equal(state.execution.nextAllowedTask, state.execution.currentTask);
   assert.equal(state.execution.activeTaskCount, 1);
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M3-P030.*M3-P031/u);
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M3-P031.*M3-P051/u);
   assert.ok(state.github.pullRequest === null || Number.isInteger(state.github.pullRequest));
   assert.ok(['NOT_CREATED', 'DRAFT'].includes(state.github.pullRequestState));
   assert.equal(state.github.pullRequestMerged, false);
@@ -60,7 +60,7 @@ test('M1-P047 evidence remains closed after PR 20 merge as the project advances'
   );
   assert.equal(
     state.github.currentTaskDelivery.blockingExternalItem,
-    'REAL_DOMAIN_DNS_TLS_ICP_M5_CMS_STAGING_PRODUCTION',
+    'M4_DELIVERY_STAGING_DEVICE_PRODUCTION',
   );
   assert.equal(state.github.currentTaskDelivery.nextTaskUnlocked, false);
   assert.ok(
