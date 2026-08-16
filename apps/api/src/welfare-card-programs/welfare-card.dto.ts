@@ -67,3 +67,24 @@ export class WelfareProgramPageResponseDto {
   @ApiProperty({ type: () => [WelfareProgramResponseDto] }) readonly items!: readonly WelfareProgramResponseDto[];
   @ApiProperty({ minimum: 0, type: Number }) readonly total!: number;
 }
+
+export class WelfareCardBindRequestDto {
+  @ApiProperty({ enum: ['CARD_PASSWORD', 'REDEMPTION_CODE', 'SCAN_CODE'], type: String }) readonly method!: string;
+  @ApiProperty({ maxLength: 191, minLength: 4, type: String }) readonly cardNo!: string;
+  @ApiProperty({ description: 'Sensitive card credential; never persisted or returned in plaintext', maxLength: 191, minLength: 6, type: String }) readonly secret!: string;
+  @ApiProperty({ enum: [true], type: Boolean }) readonly agreementAccepted!: true;
+  @ApiProperty({ minimum: 1, type: Number }) readonly agreementVersion!: number;
+}
+
+export class WelfareCardAccountResponseDto {
+  @ApiProperty({ format: 'uuid', type: String }) readonly id!: string;
+  @ApiProperty({ type: String }) readonly programName!: string;
+  @ApiProperty({ type: String }) readonly batchNo!: string;
+  @ApiProperty({ description: 'Only the last four card characters are visible', type: String }) readonly maskedCardNo!: string;
+  @ApiProperty({ description: 'Integer cents', minimum: 0, type: Number }) readonly balanceAmount!: number;
+  @ApiProperty({ description: 'Integer cents', minimum: 0, type: Number }) readonly frozenAmount!: number;
+  @ApiProperty({ description: 'Integer cents', minimum: 0, type: Number }) readonly availableAmount!: number;
+  @ApiProperty({ enum: ['ACTIVE'], type: String }) readonly status!: 'ACTIVE';
+  @ApiProperty({ minimum: 0, type: Number }) readonly version!: number;
+  @ApiProperty({ format: 'date-time', type: String }) readonly claimedAt!: string;
+}

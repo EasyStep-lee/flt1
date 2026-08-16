@@ -1,14 +1,16 @@
 import { createHash } from 'node:crypto';
 
 import { SafeApiError } from '../http/api-error.js';
-import type { WelfareClaimMode, WelfareFundingType, WelfareProgramRecord } from './welfare-card.repository.js';
+import type { WelfareCardBindingMethod, WelfareClaimMode, WelfareFundingType, WelfareProgramRecord } from './welfare-card.repository.js';
 
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu;
 const programFields = new Set(['name', 'fundingType', 'scopeType', 'scopeRules', 'canPayDeliveryFee', 'refundPolicy']);
 const batchFields = new Set(['enterpriseCustomerId', 'batchNo', 'totalAmount', 'unitAmount', 'issueCount', 'claimMode', 'agreementVersion']);
+const bindingFields = new Set(['method', 'cardNo', 'secret', 'agreementAccepted', 'agreementVersion']);
 const fundingTypes = new Set<WelfareFundingType>(['ENTERPRISE_GRANT', 'COMPANY_GIFT', 'PHYSICAL_CARD_OR_CODE']);
 const scopeTypes = new Set<WelfareProgramRecord['scopeType']>(['ALL_PRODUCTS', 'CATEGORY', 'PRODUCT', 'SKU']);
 const claimModes = new Set<WelfareClaimMode>(['ENTERPRISE_ASSIGNED', 'COMPANY_ASSIGNED', 'PHYSICAL_CARD_OR_CODE']);
+const bindingMethods = new Set<WelfareCardBindingMethod>(['CARD_PASSWORD', 'REDEMPTION_CODE', 'SCAN_CODE']);
 
 const requireObject = (value: unknown): Record<string, unknown> => {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new SafeApiError(422, 'VALIDATION_FAILED', '请求体必须是对象');
@@ -76,6 +78,24 @@ export const normalizeBatch = (value: unknown, fundingType: WelfareFundingType) 
     unitAmount: body.unitAmount as number,
     issueCount: body.issueCount as number,
     claimMode: body.claimMode as WelfareClaimMode,
+    agreementVersion: body.agreementVersion as number,
+  };
+};
+
+export const normalizeWelfareCardBinding = (value: unknown) => {
+  const body = requireObject(value);
+  rejectUnknown(body, bindingFields);
+  if (typeof body.method !== 'string' || !bindingMethods.has(body.method as WelfareCardBindingMethod)) {
+    throw new SafeApiError(422, 'VALIDATION_FAILED', '福利卡绑定方式无效');
+  }
+  if (body.agreementAccepted !== true) throw new SafeApiError(422, 'VALIDATION_FAILED', '请先确认福利卡使用协议');
+  if (!Number.isSafeInteger(body.agreementVersion) || (body.agreementVersion as number) < 1) {
+    throw new SafeApiError(422, 'VALIDATION_FAILED', '福利卡协议版本无效');
+  }
+  return {
+    method: body.method as WelfareCardBindingMethod,
+    cardNo: text(body.cardNo, 4, 191, '卡号或兑换标识'),
+    secret: text(body.secret, 6, 191, '卡密'),
     agreementVersion: body.agreementVersion as number,
   };
 };

@@ -650,6 +650,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/consumer/welfare-card-accounts/bind": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Bind one issued welfare-card code to the verified consumer */
+        post: operations["consumerWelfareCard.bindAccount"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/enterprise/catalog/products": {
         parameters: {
             query?: never;
@@ -1240,7 +1257,7 @@ export interface components {
              * @example RESOURCE_NOT_FOUND
              * @enum {string}
              */
-            code: "ACCESS_DENIED" | "AUTHENTICATION_REQUIRED" | "INTERNAL_ERROR" | "REQUEST_INVALID" | "RESOURCE_NOT_FOUND" | "SERVICE_UNAVAILABLE" | "FORBIDDEN_CAPABILITY" | "PAYEE_FORBIDDEN" | "SELLER_IDENTITY_FORBIDDEN" | "SINGLE_MERCHANT_VIOLATION" | "ACTOR_SPOOFED" | "ACCOUNT_TYPE_INVALID" | "APPROVAL_VERSION_CONFLICT" | "DATA_SCOPE_FORBIDDEN" | "FIELD_FORBIDDEN" | "IDEMPOTENCY_CONFLICT" | "SECOND_VERIFICATION_REQUIRED" | "STATE_TRANSITION_INVALID" | "SUPPLIER_DUPLICATE" | "SUPPLIER_SCOPE_FORBIDDEN" | "VALIDATION_FAILED" | "VERSION_CONFLICT" | "WORKSPACE_FORBIDDEN" | "ACCOUNT_SUSPENDED" | "AUTH_INVALID" | "AUTH_SESSION_REVOKED" | "RATE_LIMITED" | "SUPPLIER_NOT_ACTIVE" | "WORKSPACE_MENU_VIOLATION" | "WORKSPACE_MODULE_NOT_FOUND" | "WORKSPACE_SELECTION_REQUIRED" | "WORKSPACE_SESSION_CONFLICT" | "AUDIT_IMMUTABLE" | "AUDIT_REQUIRED" | "EXPORT_APPROVAL_REQUIRED" | "REQUEST_ID_REQUIRED" | "SAME_NATURAL_PERSON_REVIEW" | "SECOND_REVIEW_REQUIRED" | "APPROVAL_NOT_FOUND" | "APPROVAL_STATE_INVALID" | "IDEMPOTENCY_KEY_CONFLICT" | "IDEMPOTENCY_KEY_REQUIRED" | "APPAREL_HISTORY_REWRITE" | "APPAREL_REQUIRED_FIELD_MISSING" | "BUNDLE_SCHEMA_INVALID" | "DIGITAL_HISTORY_REWRITE" | "DIGITAL_MODEL_DUPLICATE" | "DIGITAL_REQUIRED_FIELD_MISSING" | "CATEGORY_DISABLED" | "CATEGORY_DUPLICATE" | "CATEGORY_LEVEL_INVALID" | "CATEGORY_NOT_FOUND" | "CATEGORY_NOT_LEAF" | "CATEGORY_PARENT_INVALID" | "CATEGORY_REFERENCED" | "CATEGORY_TEMPLATE_INVALID" | "DUPLICATE_CATALOG_RESOURCE" | "PRICE_FIELD_FORBIDDEN" | "PRICE_INVALID" | "INITIAL_PRICE_REVIEW_PENDING" | "INITIAL_PRICE_STATE_INVALID" | "PRICE_CHANGE_PENDING" | "PRICE_EFFECT_SCHEDULE_FAILED" | "SUPPLY_PRICE_REVIEW_REQUIRED" | "PRODUCT_APPROVAL_INCOMPLETE" | "PRODUCT_NOT_FOUND" | "PRODUCT_NOT_SALEABLE" | "SUPPLIER_INACTIVE" | "SUPPLIER_PRODUCT_DUPLICATE" | "SUPPLIER_PRODUCT_NOT_FOUND" | "SUPPLIER_SKU_DUPLICATE" | "SELF_APPROVAL_FORBIDDEN" | "SKU_DIMENSION_DUPLICATE" | "FRESH_HISTORY_REWRITE" | "FRESH_REQUIRED_FIELD_MISSING" | "FRESH_WEIGHT_RULE_INVALID" | "REGULATORY_WARNING_REQUIRED" | "REGULATED_CATEGORY_DISABLED" | "QUALIFICATION_REQUIRED" | "TEMPLATE_DATA_INVALID" | "TEMPLATE_DRAFT_EXISTS" | "TEMPLATE_IMMUTABLE" | "TEMPLATE_NOT_FOUND" | "TEMPLATE_SCHEMA_INVALID" | "TEMPLATE_VERSION_INACTIVE" | "TEMPLATE_VERSION_IMMUTABLE" | "REGION_UNAVAILABLE" | "SENSITIVE_FIELD_LEAK" | "CREDIT_CODE_DUPLICATE" | "ENTERPRISE_NOT_FOUND" | "ENTERPRISE_NOT_ACTIVE" | "ENTERPRISE_PROFILE_INCOMPLETE" | "ENTERPRISE_SCOPE_FORBIDDEN" | "INVENTORY_INSUFFICIENT" | "INVENTORY_NEGATIVE" | "INVENTORY_RESERVATION_CONFLICT" | "INVENTORY_STATE_INVALID" | "INVENTORY_VERSION_CONFLICT" | "FULFILLMENT_HANDOVER_PARTY_INVALID" | "AMOUNT_MISMATCH" | "EXTERNAL_SERVICE_UNAVAILABLE" | "ORDER_NOT_FOUND" | "PAYMENT_AMOUNT_MISMATCH" | "PAYMENT_CONCURRENT_CONFLICT" | "PAYMENT_IDEMPOTENCY_CONFLICT" | "PAYMENT_IDENTITY_MISMATCH" | "PAYMENT_METHOD_INVALID" | "PAYMENT_NOTIFICATION_INVALID" | "PAYMENT_STATE_INVALID" | "PAYMENT_TRANSACTION_CONFLICT" | "PAYMENT_TRANSACTION_NOT_FOUND" | "REMITTANCE_ALREADY_SUBMITTED" | "REFUND_ALLOCATION_INVALID" | "REFUND_AUTHORIZATION_NOT_FOUND" | "REFUND_CHANNEL_REJECTED" | "REFUND_DUPLICATE" | "REFUND_OVERPAID" | "REFUND_STATE_CONFLICT" | "SAME_NATURAL_PERSON_REVIEW_FORBIDDEN" | "DUPLICATE_OR_STATE_CONFLICT" | "PERSONAL_RECHARGE_FORBIDDEN" | "WELFARE_BATCH_AMOUNT_MISMATCH" | "WELFARE_CLAIM_MODE_INVALID" | "WELFARE_FUNDING_SOURCE_INVALID" | "WELFARE_PROGRAM_NOT_FOUND";
+            code: "ACCESS_DENIED" | "AUTHENTICATION_REQUIRED" | "INTERNAL_ERROR" | "REQUEST_INVALID" | "RESOURCE_NOT_FOUND" | "SERVICE_UNAVAILABLE" | "FORBIDDEN_CAPABILITY" | "PAYEE_FORBIDDEN" | "SELLER_IDENTITY_FORBIDDEN" | "SINGLE_MERCHANT_VIOLATION" | "ACTOR_SPOOFED" | "ACCOUNT_TYPE_INVALID" | "APPROVAL_VERSION_CONFLICT" | "DATA_SCOPE_FORBIDDEN" | "FIELD_FORBIDDEN" | "IDEMPOTENCY_CONFLICT" | "SECOND_VERIFICATION_REQUIRED" | "STATE_TRANSITION_INVALID" | "SUPPLIER_DUPLICATE" | "SUPPLIER_SCOPE_FORBIDDEN" | "VALIDATION_FAILED" | "VERSION_CONFLICT" | "WORKSPACE_FORBIDDEN" | "ACCOUNT_SUSPENDED" | "AUTH_INVALID" | "AUTH_SESSION_REVOKED" | "RATE_LIMITED" | "SUPPLIER_NOT_ACTIVE" | "WORKSPACE_MENU_VIOLATION" | "WORKSPACE_MODULE_NOT_FOUND" | "WORKSPACE_SELECTION_REQUIRED" | "WORKSPACE_SESSION_CONFLICT" | "AUDIT_IMMUTABLE" | "AUDIT_REQUIRED" | "EXPORT_APPROVAL_REQUIRED" | "REQUEST_ID_REQUIRED" | "SAME_NATURAL_PERSON_REVIEW" | "SECOND_REVIEW_REQUIRED" | "APPROVAL_NOT_FOUND" | "APPROVAL_STATE_INVALID" | "IDEMPOTENCY_KEY_CONFLICT" | "IDEMPOTENCY_KEY_REQUIRED" | "APPAREL_HISTORY_REWRITE" | "APPAREL_REQUIRED_FIELD_MISSING" | "BUNDLE_SCHEMA_INVALID" | "DIGITAL_HISTORY_REWRITE" | "DIGITAL_MODEL_DUPLICATE" | "DIGITAL_REQUIRED_FIELD_MISSING" | "CATEGORY_DISABLED" | "CATEGORY_DUPLICATE" | "CATEGORY_LEVEL_INVALID" | "CATEGORY_NOT_FOUND" | "CATEGORY_NOT_LEAF" | "CATEGORY_PARENT_INVALID" | "CATEGORY_REFERENCED" | "CATEGORY_TEMPLATE_INVALID" | "DUPLICATE_CATALOG_RESOURCE" | "PRICE_FIELD_FORBIDDEN" | "PRICE_INVALID" | "INITIAL_PRICE_REVIEW_PENDING" | "INITIAL_PRICE_STATE_INVALID" | "PRICE_CHANGE_PENDING" | "PRICE_EFFECT_SCHEDULE_FAILED" | "SUPPLY_PRICE_REVIEW_REQUIRED" | "PRODUCT_APPROVAL_INCOMPLETE" | "PRODUCT_NOT_FOUND" | "PRODUCT_NOT_SALEABLE" | "SUPPLIER_INACTIVE" | "SUPPLIER_PRODUCT_DUPLICATE" | "SUPPLIER_PRODUCT_NOT_FOUND" | "SUPPLIER_SKU_DUPLICATE" | "SELF_APPROVAL_FORBIDDEN" | "SKU_DIMENSION_DUPLICATE" | "FRESH_HISTORY_REWRITE" | "FRESH_REQUIRED_FIELD_MISSING" | "FRESH_WEIGHT_RULE_INVALID" | "REGULATORY_WARNING_REQUIRED" | "REGULATED_CATEGORY_DISABLED" | "QUALIFICATION_REQUIRED" | "TEMPLATE_DATA_INVALID" | "TEMPLATE_DRAFT_EXISTS" | "TEMPLATE_IMMUTABLE" | "TEMPLATE_NOT_FOUND" | "TEMPLATE_SCHEMA_INVALID" | "TEMPLATE_VERSION_INACTIVE" | "TEMPLATE_VERSION_IMMUTABLE" | "REGION_UNAVAILABLE" | "SENSITIVE_FIELD_LEAK" | "CREDIT_CODE_DUPLICATE" | "ENTERPRISE_NOT_FOUND" | "ENTERPRISE_NOT_ACTIVE" | "ENTERPRISE_PROFILE_INCOMPLETE" | "ENTERPRISE_SCOPE_FORBIDDEN" | "INVENTORY_INSUFFICIENT" | "INVENTORY_NEGATIVE" | "INVENTORY_RESERVATION_CONFLICT" | "INVENTORY_STATE_INVALID" | "INVENTORY_VERSION_CONFLICT" | "FULFILLMENT_HANDOVER_PARTY_INVALID" | "AMOUNT_MISMATCH" | "EXTERNAL_SERVICE_UNAVAILABLE" | "ORDER_NOT_FOUND" | "PAYMENT_AMOUNT_MISMATCH" | "PAYMENT_CONCURRENT_CONFLICT" | "PAYMENT_IDEMPOTENCY_CONFLICT" | "PAYMENT_IDENTITY_MISMATCH" | "PAYMENT_METHOD_INVALID" | "PAYMENT_NOTIFICATION_INVALID" | "PAYMENT_STATE_INVALID" | "PAYMENT_TRANSACTION_CONFLICT" | "PAYMENT_TRANSACTION_NOT_FOUND" | "REMITTANCE_ALREADY_SUBMITTED" | "REFUND_ALLOCATION_INVALID" | "REFUND_AUTHORIZATION_NOT_FOUND" | "REFUND_CHANNEL_REJECTED" | "REFUND_DUPLICATE" | "REFUND_OVERPAID" | "REFUND_STATE_CONFLICT" | "SAME_NATURAL_PERSON_REVIEW_FORBIDDEN" | "CARD_ALREADY_CLAIMED" | "CARD_CODE_INVALID" | "CARD_RECIPIENT_MISMATCH" | "DUPLICATE_OR_STATE_CONFLICT" | "PERSONAL_RECHARGE_FORBIDDEN" | "WELFARE_BATCH_AMOUNT_MISMATCH" | "WELFARE_CLAIM_MODE_INVALID" | "WELFARE_FUNDING_SOURCE_INVALID" | "WELFARE_PROGRAM_NOT_FOUND";
             /** @example Resource was not found */
             message: string;
             /** @example /missing */
@@ -3097,6 +3114,35 @@ export interface components {
             totalAmount: number;
             unitAmount: number;
             version: number;
+        };
+        WelfareCardAccountResponseDto: {
+            /** @description Integer cents */
+            availableAmount: number;
+            /** @description Integer cents */
+            balanceAmount: number;
+            batchNo: string;
+            /** Format: date-time */
+            claimedAt: string;
+            /** @description Integer cents */
+            frozenAmount: number;
+            /** Format: uuid */
+            id: string;
+            /** @description Only the last four card characters are visible */
+            maskedCardNo: string;
+            programName: string;
+            /** @enum {string} */
+            status: "ACTIVE";
+            version: number;
+        };
+        WelfareCardBindRequestDto: {
+            /** @enum {boolean} */
+            agreementAccepted: true;
+            agreementVersion: number;
+            cardNo: string;
+            /** @enum {string} */
+            method: "CARD_PASSWORD" | "REDEMPTION_CODE" | "SCAN_CODE";
+            /** @description Sensitive card credential; never persisted or returned in plaintext */
+            secret: string;
         };
         WelfareHistoryResponseDto: {
             /** @enum {string} */
@@ -5328,6 +5374,72 @@ export interface operations {
                 };
             };
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
+    "consumerWelfareCard.bindAccount": {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WelfareCardBindRequestDto"];
+            };
+        };
+        responses: {
+            /** @description Exact idempotent replay */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WelfareCardAccountResponseDto"];
+                };
+            };
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WelfareCardAccountResponseDto"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };

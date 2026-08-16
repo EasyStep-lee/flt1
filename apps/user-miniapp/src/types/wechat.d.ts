@@ -5,6 +5,12 @@ declare global {
     getStorageSync<TValue = unknown>(key: string): TValue;
     setStorageSync(key: string, value: unknown): void;
     removeStorageSync(key: string): void;
+    scanCode(options: {
+      readonly fail?: (error: { readonly errMsg?: string }) => void;
+      readonly onlyFromCamera?: boolean;
+      readonly scanType?: readonly ['qrCode', 'barCode'];
+      readonly success: (result: { readonly result: string }) => void;
+    }): void;
   };
   const __FULISHE_API_BASE_URL__: string;
   function App<TDefinition extends Record<string, unknown>>(definition: TDefinition): void;

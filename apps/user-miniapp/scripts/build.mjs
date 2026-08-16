@@ -31,6 +31,8 @@ await build({
     path.join(sourceRoot, 'pages/shell/index.ts'),
     path.join(sourceRoot, 'pages/product-detail/index.ts'),
     path.join(sourceRoot, 'pages/supplier-products/index.ts'),
+    path.join(sourceRoot, 'pages/welfare-card/index.ts'),
+    path.join(sourceRoot, 'pages/welfare-card-bind/index.ts'),
   ],
   format: 'iife',
   logLevel: 'info',
@@ -65,6 +67,12 @@ for (const relativePath of [
   'pages/supplier-products/index.json',
   'pages/supplier-products/index.wxml',
   'pages/supplier-products/index.wxss',
+  'pages/welfare-card/index.json',
+  'pages/welfare-card/index.wxml',
+  'pages/welfare-card/index.wxss',
+  'pages/welfare-card-bind/index.json',
+  'pages/welfare-card-bind/index.wxml',
+  'pages/welfare-card-bind/index.wxss',
 ]) {
   const destination = path.join(outputRoot, relativePath);
   await mkdir(path.dirname(destination), { recursive: true });

@@ -1,0 +1,12 @@
+.page { min-height: 100vh; padding: 28rpx; box-sizing: border-box; background: #fff8e8; }
+.card-visual { padding: 34rpx; border-radius: 30rpx; color: #5a2c00; background: linear-gradient(135deg, #ffd54b, #ff9d21); box-shadow: 0 18rpx 48rpx rgba(137, 66, 0, .18); }
+.brand { font-size: 25rpx; font-weight: 800; }.card-title { margin-top: 16rpx; font-size: 40rpx; font-weight: 900; }.card-subtitle { margin-top: 18rpx; font-size: 24rpx; line-height: 1.6; }
+.form-card, .state-card, .success-card { margin-top: 28rpx; padding: 30rpx; border-radius: 24rpx; background: #fff; box-shadow: 0 10rpx 36rpx rgba(104, 67, 23, .09); }
+.method-tabs { display: flex; gap: 16rpx; }.method { flex: 1; color: #6f5b4f; background: #fff4d8; }.method.active { color: #8b2d1d; border: 2rpx solid #e94b35; background: #fff0ec; }
+.input { margin-top: 22rpx; padding: 24rpx; border-radius: 16rpx; background: #f8f5ef; }
+.agreement { display: flex; align-items: center; margin-top: 26rpx; color: #5f6c70; font-size: 25rpx; }
+.primary, .scan { margin-top: 24rpx; border-radius: 18rpx; font-weight: 800; }.primary { color: #fff; background: #e94b35; }.scan { color: #8b4c00; background: #ffdc65; }
+.message { margin-top: 22rpx; padding: 24rpx; border-radius: 18rpx; line-height: 1.6; }.message.error { color: #a43222; background: #fff0ec; }.message.unknown { color: #7a5200; background: #fff4d2; }
+.success-card { text-align: center; }.success-mark { margin: auto; width: 86rpx; height: 86rpx; border-radius: 50%; color: #fff; font-size: 56rpx; line-height: 86rpx; background: #37a66d; }.success-title { margin: 20rpx 0 28rpx; font-size: 38rpx; font-weight: 900; }
+.result-row { display: flex; justify-content: space-between; padding: 18rpx 0; border-top: 1rpx solid #f0e8dc; color: #536267; }.result-row.amount { color: #bd3c27; font-weight: 900; }
+.safety { margin: 26rpx 10rpx; color: #846c5d; font-size: 23rpx; line-height: 1.7; }

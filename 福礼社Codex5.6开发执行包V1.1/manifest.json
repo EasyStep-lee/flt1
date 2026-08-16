@@ -10,24 +10,24 @@
   "counts": {
     "tasks": 149,
     "p0": 119,
-    "fields": 748,
+    "fields": 758,
     "stateTransitions": 114,
     "permissions": 22,
     "pages": 80,
     "externalDependencies": 28,
-    "migrations": 26,
+    "migrations": 27,
     "apiContracts": 103,
     "githubIssues": 149
   },
   "workbook": {
     "status": "VERIFIED",
-    "sha256": "52A924B0F6DB195BBC3A3FD87E816C4DBBC228DB3F0A47BDD7CAA4FF683B88C5",
+    "sha256": "32CC1C4F0A2AACD678C55296F37242C943D5DD0D549F9971534B0BB60FCB2EC6",
     "currentTaskMirror": {
-      "taskId": "M3-P051",
-      "status": "CI_PASS_PENDING_HUMAN_MERGE",
+      "taskId": "M3-P052",
+      "status": "LOCAL_PASS_DRAFT_PR_CI_FIX_IN_PROGRESS",
       "sourceLedgers": "CSV_JSON_AND_WORKBOOK_UPDATED",
-      "reason": "Artifact-tool updated the relevant task, P0, page, evidence and stage-gate rows; formula scan and rendered visual review passed.",
-      "checkedAt": "2026-08-16T06:36:50Z"
+      "reason": "Artifact-tool updated the M3-P052 task, P0, page, evidence, migration and stage-gate rows; formula scan and rendered visual review passed. Draft PR #102 first CI exposed the stale manifest hash and the current branch fixes that evidence mismatch.",
+      "checkedAt": "2026-08-16T10:20:00Z"
     }
   },
   "sourceOfTruth": [

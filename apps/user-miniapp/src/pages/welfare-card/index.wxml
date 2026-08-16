@@ -1,0 +1,21 @@
+<view class="page" data-page-id="{{pageId}}">
+  <view class="hero">
+    <view class="eyebrow">福礼团 · 员工福利</view>
+    <view class="title">我的福利卡</view>
+    <view class="subtitle">福利额度由企业发放、公司赠送或实体卡/兑换码取得</view>
+  </view>
+  <view wx:if="{{state === 'loading'}}" class="state-card">正在读取本人福利卡账户…</view>
+  <view wx:elif="{{state === 'empty'}}" class="state-card">
+    <view class="state-title">还没有可显示的福利卡</view>
+    <view class="state-message">{{message}}</view>
+    <navigator class="primary" url="/pages/welfare-card-bind/index">绑定福利卡</navigator>
+  </view>
+  <view wx:elif="{{state === 'permission'}}" class="state-card">请先登录本人账号后再查看福利卡。</view>
+  <view wx:elif="{{state === 'offline'}}" class="state-card">当前网络不可用，请恢复网络后重试。</view>
+  <view wx:elif="{{state === 'unknown'}}" class="state-card">上次操作结果待确认，请回到绑定页使用原按钮重试。</view>
+  <view wx:elif="{{state === 'error'}}" class="state-card">
+    <view>福利卡账户暂时读取失败。</view><button bindtap="retry">重试</button>
+  </view>
+  <view wx:else class="state-card">绑定成功，请在结果页核对账户信息。</view>
+  <view class="safety">仅限本人使用 · 不可提现 · 不可转让 · 退款按原支付结构退回</view>
+</view>

@@ -12,8 +12,8 @@ test('M3-P020 ledgers and generated contract preserve the personal-only home bou
   const p0Ledger = read('福礼社Codex5.6开发执行包V1.1/04-P0-1至P0-119验收矩阵.csv');
   const apiLedger = read('福礼社Codex5.6开发执行包V1.1/12-OpenAPI-DTO-错误码台账.csv');
 
-  assert.equal(state.execution.currentTask, 'M3-P051');
-  assert.equal(state.execution.nextAllowedTask, 'M3-P051');
+  assert.equal(state.execution.currentTask, 'M3-P052');
+  assert.equal(state.execution.nextAllowedTask, 'M3-P052');
   assert.match(taskLedger, /M3-P020[^\r\n]+DONE,CI_PASS/u);
   assert.match(taskLedger, /M3-P022[^\r\n]+DONE,CI_PASS/u);
   assert.match(taskLedger, /M3-P023[^\r\n]+DONE,CI_PASS/u);
@@ -21,7 +21,8 @@ test('M3-P020 ledgers and generated contract preserve the personal-only home bou
   assert.match(taskLedger, /M3-P026[^\r\n]+DONE,CI_PASS/u);
   assert.match(taskLedger, /M3-P028[^\r\n]+DONE,CI_PASS/u);
   assert.match(taskLedger, /M3-P031[^\r\n]+DONE,CI_PASS/u);
-  assert.match(taskLedger, /M3-P051[^\r\n]+IN_PROGRESS,(?:LOCAL_PASS|CI_PASS)/u);
+  assert.match(taskLedger, /M3-P051[^\r\n]+DONE,CI_PASS/u);
+  assert.match(taskLedger, /M3-P052[^\r\n]+IN_PROGRESS,(?:LOCAL_PASS|CI_PASS)/u);
   assert.match(p0Ledger, /P0-020[^\r\n]+CI_PASS/u);
   assert.match(apiLedger, /API-029[^\r\n]+GENERATED,IMPLEMENTED,IMPLEMENTED/u);
 
