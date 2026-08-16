@@ -74,11 +74,11 @@ export function WelfareCardProgramsPage({ workspace }: { readonly workspace: Com
     <main className="supplier-ops-page" data-page-id="PAGE-008" data-role="COMPANY_WELFARE_CARD">
       <header className="admin-topbar"><div className="brand-mark">福</div><div><strong>福礼社 · 公司管理后台</strong><span>江苏福礼团供应链科技有限公司</span></div><Tag color="cyan">福利卡运营</Tag></header>
       <div className="admin-shell">
-        <aside className="admin-sidebar"><Typography.Text className="sidebar-label">当前独立页面</Typography.Text><div className="active-menu">福利卡运营</div><div className="boundary-note"><strong>COMPANY_WELFARE_CARD</strong><span>计划与批次保持草稿，真实发行须完成人工合规门禁</span></div></aside>
+        <aside className="admin-sidebar"><Typography.Text className="sidebar-label">当前独立页面</Typography.Text><div className="active-menu" data-workspace-menu>福利卡运营</div><div className="boundary-note"><strong>COMPANY_WELFARE_CARD</strong><span>计划与批次保持草稿，真实发行须完成人工合规门禁</span></div></aside>
         <section className="admin-content">
           <CompanyWorkspacePagePanel workspace={workspace} />
           <section data-m3-slice="M3-P051">
-            <div className="page-title-row"><div><Typography.Text className="eyebrow">WELFARE PROGRAMS</Typography.Text><Typography.Title level={1}>福利卡计划与批次</Typography.Title><Typography.Paragraph>金额以整数分保存；计划和批次创建后保持 DRAFT，并追加创建历史。</Typography.Paragraph></div><Space><Button onClick={() => void load()}>刷新</Button><Button onClick={() => setProgramOpen(true)} type="primary">新建福利卡计划</Button><Button disabled={!data?.items.length} onClick={() => setBatchOpen(true)}>新建发行批次</Button></Space></div>
+            <div className="page-title-row"><div><Typography.Text className="eyebrow">WELFARE PROGRAMS</Typography.Text><Typography.Title level={1}>福利卡运营</Typography.Title><Typography.Title level={2}>福利卡计划与批次</Typography.Title><Typography.Paragraph>金额以整数分保存；计划和批次创建后保持 DRAFT，并追加创建历史。</Typography.Paragraph></div><Space><Button onClick={() => void load()}>刷新</Button><Button onClick={() => setProgramOpen(true)} type="primary">新建福利卡计划</Button><Button disabled={!data?.items.length} onClick={() => setBatchOpen(true)}>新建发行批次</Button></Space></div>
             {error ? <Alert action={<Button onClick={() => void load()}>重试</Button>} message={error} showIcon type="error" /> : null}
             <Card bordered={false} className="supplier-table-card">
               <Table<ProgramRow> loading={loading} dataSource={rows} rowKey="key" pagination={false} locale={{ emptyText: <Empty description="暂无福利卡计划" /> }} columns={[
