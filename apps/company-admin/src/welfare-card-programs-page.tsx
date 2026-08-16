@@ -8,6 +8,9 @@ import { CompanyWorkspacePagePanel, type CompanyWorkspace } from './company-work
 type Program = components['schemas']['WelfareProgramResponseDto'];
 type Batch = components['schemas']['WelfareBatchResponseDto'];
 type ProgramPage = components['schemas']['WelfareProgramPageResponseDto'];
+
+const labelProgramDialog = (node: HTMLDivElement | null) => node?.setAttribute('aria-label', '新建福利卡计划');
+const labelBatchDialog = (node: HTMLDivElement | null) => node?.setAttribute('aria-label', '新建发行批次');
 type ProgramInput = components['schemas']['CreateWelfareProgramRequestDto'];
 type BatchInput = components['schemas']['CreateWelfareBatchRequestDto'];
 type ProgramRow = { readonly key: string; readonly program: Program; readonly batch?: Batch };
@@ -92,7 +95,7 @@ export function WelfareCardProgramsPage({ workspace }: { readonly workspace: Com
           </section>
         </section>
       </div>
-      <Modal confirmLoading={submitting} onCancel={() => setProgramOpen(false)} onOk={() => void createProgram()} open={programOpen} title="新建福利卡计划">
+      <Modal confirmLoading={submitting} onCancel={() => setProgramOpen(false)} onOk={() => void createProgram()} open={programOpen} panelRef={labelProgramDialog} title="新建福利卡计划">
         <Alert description="仅允许企业福利发放、公司活动赠送、实体卡或兑换码" message="资金来源固定白名单" showIcon type="warning" />
         <Form form={programForm} layout="vertical" initialValues={{ fundingType: 'ENTERPRISE_GRANT', refundPolicy: '按原福利卡账户退回，异常进入人工复核' }}>
           <Form.Item label="计划名称" name="name" rules={[{ required: true, min: 2 }]}><Input maxLength={191} /></Form.Item>
@@ -100,7 +103,7 @@ export function WelfareCardProgramsPage({ workspace }: { readonly workspace: Com
           <Form.Item label="退款规则" name="refundPolicy" rules={[{ required: true, min: 2 }]}><Input.TextArea maxLength={500} /></Form.Item>
         </Form>
       </Modal>
-      <Modal confirmLoading={submitting} onCancel={() => setBatchOpen(false)} onOk={() => void createBatch()} open={batchOpen} title="新建发行批次">
+      <Modal confirmLoading={submitting} onCancel={() => setBatchOpen(false)} onOk={() => void createBatch()} open={batchOpen} panelRef={labelBatchDialog} title="新建发行批次">
         <Form form={batchForm} layout="vertical">
           <Form.Item label="福利卡计划" name="programId" rules={[{ required: true }]}><Select options={(data?.items ?? []).map((item) => ({ value: item.id, label: item.name }))} /></Form.Item>
           {selectedProgram?.fundingType === 'ENTERPRISE_GRANT' ? <Form.Item label="企业客户编号" name="enterpriseCustomerId" rules={[{ required: true }]}><Input /></Form.Item> : null}

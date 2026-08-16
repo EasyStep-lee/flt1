@@ -47,7 +47,14 @@ test('P0-051 PAGE-008 shows company welfare programs and DRAFT batches without r
   await expect(panel.getByRole('button', { name: '新建福利卡计划' })).toBeVisible();
   await expect(panel.getByRole('button', { name: '新建发行批次' })).toBeVisible();
   await panel.getByRole('button', { name: '新建福利卡计划' }).click();
-  await expect(page.getByRole('dialog', { name: '新建福利卡计划' })).toContainText('仅允许企业福利发放、公司活动赠送、实体卡或兑换码');
+  const programDialog = page.getByRole('dialog', { name: '新建福利卡计划' });
+  await expect(programDialog).toHaveAttribute('aria-label', '新建福利卡计划');
+  await expect(programDialog).toContainText('仅允许企业福利发放、公司活动赠送、实体卡或兑换码');
+  await programDialog.getByRole('button', { name: 'Close' }).click();
+  await panel.getByRole('button', { name: '新建发行批次' }).click();
+  const batchDialog = page.getByRole('dialog', { name: '新建发行批次' });
+  await expect(batchDialog).toHaveAttribute('aria-label', '新建发行批次');
+  await batchDialog.getByRole('button', { name: 'Close' }).click();
   const text = await page.locator('body').textContent();
   expect(text).not.toMatch(/PERSONAL_RECHARGE|个人现金充值|供应价|supplierPrice|supplierPayable|companyId|identityId|functionalAccountId/iu);
   await page.screenshot({ fullPage: true, path: 'artifacts/verification/M3-P051/welfare-card-programs-batches-page.png' });
