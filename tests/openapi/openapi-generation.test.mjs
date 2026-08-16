@@ -155,6 +155,8 @@ test('generated contract exposes foundation, identity, onboarding and catalog AP
     '/v1/company/regulated-category-controls/{categoryId}/enable',
     '/v1/company/suppliers',
     '/v1/company/suppliers/{supplierId}/review',
+    '/v1/company/welfare-card/programs',
+    '/v1/company/welfare-card/programs/{programId}/batches',
     '/v1/consumer/orders',
     '/v1/enterprise/catalog/products',
     '/v1/enterprise/catalog/products/{productId}',
@@ -212,6 +214,18 @@ test('generated contract exposes foundation, identity, onboarding and catalog AP
   assert.equal(
     spec.paths['/v1/supplier/fulfillment-sub-orders/{subOrderId}/nodes'].post.operationId,
     'supplierFulfillment.appendNode',
+  );
+  assert.equal(
+    spec.paths['/v1/company/welfare-card/programs'].get.operationId,
+    'companyWelfareCard.listPrograms',
+  );
+  assert.equal(
+    spec.paths['/v1/company/welfare-card/programs'].post.operationId,
+    'companyWelfareCard.createProgram',
+  );
+  assert.equal(
+    spec.paths['/v1/company/welfare-card/programs/{programId}/batches'].post.operationId,
+    'companyWelfareCard.createBatch',
   );
   assert.equal(
     spec.paths['/v1/company/enterprise-orders/{orderId}/remittance-review'].post.operationId,
@@ -400,6 +414,8 @@ test('generated contract exposes foundation, identity, onboarding and catalog AP
       'CreateOrderItemRequestDto',
       'CreateOrderRequestDto',
       'CreateSensitiveApprovalRequestDto',
+      'CreateWelfareBatchRequestDto',
+      'CreateWelfareProgramRequestDto',
       'DecideSensitiveApprovalRequestDto',
       'EnterpriseAddressInputDto',
       'EnterpriseAddressResponseDto',
@@ -541,6 +557,11 @@ test('generated contract exposes foundation, identity, onboarding and catalog AP
       'WechatPaymentNotificationDto',
       'WechatPrepayRequestDto',
       'WechatPrepayResponseDto',
+      'WelfareBatchResponseDto',
+      'WelfareHistoryResponseDto',
+      'WelfareProgramPageResponseDto',
+      'WelfareProgramResponseDto',
+      'WelfareScopeRulesDto',
       'WorkspaceChoiceDto',
       'WorkspaceChoiceResponseDto',
     ],

@@ -66,6 +66,8 @@ import type { SupplierProductActorResolver } from './supplier-products/supplier-
 import type { SupplierProductRepository } from './supplier-products/supplier-product.repository.js';
 import type { SupplierPricingActorResolver } from './supplier-pricing/supplier-pricing.actor.js';
 import type { PriceChangeRepository } from './price-changes/price-change.repository.js';
+import type { WelfareCardActorResolver } from './welfare-card-programs/welfare-card.actor.js';
+import type { WelfareCardRepository } from './welfare-card-programs/welfare-card.repository.js';
 import { InMemoryPriceChangeRepository } from './price-changes/in-memory-price-change.repository.js';
 import {
   InMemoryPriceEffectScheduler,
@@ -124,6 +126,8 @@ export interface CreateApplicationOptions {
   readonly refundActorResolver?: RefundActorResolver;
   readonly welfareRefundAdapter?: WelfareRefundAdapter;
   readonly wechatRefundAdapter?: WechatRefundAdapter;
+  readonly welfareCardRepository?: WelfareCardRepository;
+  readonly welfareCardActorResolver?: WelfareCardActorResolver;
   readonly logger?: LoggerService | false;
 }
 
@@ -288,6 +292,12 @@ export const createApplication = async (
       : {}),
     ...(options.wechatRefundAdapter
       ? { wechatRefundAdapter: options.wechatRefundAdapter }
+      : {}),
+    ...(options.welfareCardRepository
+      ? { welfareCardRepository: options.welfareCardRepository }
+      : {}),
+    ...(options.welfareCardActorResolver
+      ? { welfareCardActorResolver: options.welfareCardActorResolver }
       : {}),
   };
   const logger = options.logger === false ? false : options.logger ?? new SafeJsonLogger();

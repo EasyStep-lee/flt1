@@ -45,6 +45,7 @@ import {
   CompanyEnterpriseRegistrationController,
   EnterpriseRegistrationController,
 } from '../enterprise-onboarding/enterprise-onboarding.controller.js';
+import { WelfareCardController } from '../welfare-card-programs/welfare-card.controller.js';
 
 export const OPENAPI_CONTROLLERS = Object.freeze([
   AuditLogController,
@@ -80,4 +81,5 @@ export const OPENAPI_CONTROLLERS = Object.freeze([
   RefundController,
   EnterpriseRegistrationController,
   CompanyEnterpriseRegistrationController,
+  WelfareCardController,
 ]);
