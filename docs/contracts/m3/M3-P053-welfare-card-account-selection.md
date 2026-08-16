@@ -12,7 +12,7 @@
 - 查询只接受成对的 `skuId[]` 与 `quantity[]`，最多 100 项；SKU 不得重复，数量为 1–9999 的整数。
 - `companyId`、`consumerUserId`、`buyerId`、价格、配送费、账户 ID 和抵扣金额均不得由客户端提交；未知字段返回 `FIELD_FORBIDDEN`。
 - 服务端从当前 ACTIVE 个人会话派生公司和用户，重新读取可售零售 SKU 与整数分零售价；缺失、跨公司、下架、关闭零售或非法价格均以 `PRODUCT_NOT_SALEABLE` 关闭失败。
-- 账户可用额为 `max(0, balanceAmount-frozenAmount)`；商品适用额按 `ALL_PRODUCTS|CATEGORY|PRODUCT|SKU` 及 `includedIds/excludedIds` 逐行计算。
+- 账户可用额为 `max(0, balanceAmount-frozenAmount)`；商品适用额按 `ALL_PRODUCTS|CATEGORY|PRODUCT|SKU` 及 `includedIds/excludedIds` 逐行计算；读取时再次校验规则版本、资源 ID、数量、重复项及 `ALL_PRODUCTS` 空名单约束，异常规则关闭失败且不展示。
 - 最大可抵扣额固定为 `min(可用额, 可适用商品金额 + 计划允许时的服务端配送费)`；本切片配送费仍为服务端固定 0，不接受客户端覆盖。
 - 仅返回最大可抵扣额大于 0 的账户；余额、冻结额或规则异常的账户关闭失败并不展示。
 

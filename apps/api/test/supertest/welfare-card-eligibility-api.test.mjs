@@ -71,6 +71,10 @@ const createWelfareRepository = () => {
     account({
       id: '60000000-0000-4000-8000-000000000006', cardNo: 'CARD-INVALID-0006', balanceAmount: -1,
     }),
+    account({
+      id: '60000000-0000-4000-8000-000000000007', cardNo: 'CARD-INVALID-SCOPE-0007', balanceAmount: 50_000,
+      scopeRules: { schemaVersion: 1, includedIds: [productA], excludedIds: [] },
+    }),
   ];
   let reads = 0;
   return {
@@ -147,7 +151,7 @@ describe('M3-P053 consumer welfare-card eligibility API', () => {
     const suspended = await fixture({ status: 'RESTRICTED' });
     await eligible(suspended.app).expect(403)
       .expect(({ body }) => expect(body.code).toBe('ACCOUNT_SUSPENDED'));
-    expect(active.welfareCardRepository.snapshot().accounts).toHaveLength(6);
+    expect(active.welfareCardRepository.snapshot().accounts).toHaveLength(7);
     expect(suspended.welfareCardRepository.snapshot().reads).toBe(0);
   });
 

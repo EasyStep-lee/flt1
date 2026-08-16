@@ -44,8 +44,17 @@ const scopeResourceId = (account: WelfareCardEligibilityAccountRecord, sku: Orde
   if (account.scopeType === 'PRODUCT') return sku.productId;
   return sku.skuId;
 };
+const scopeRulesAreValid = (account: WelfareCardEligibilityAccountRecord): boolean => {
+  const rules: unknown = account.scopeRules;
+  if (!rules || typeof rules !== 'object' || Array.isArray(rules)) return false;
+  const { schemaVersion, includedIds, excludedIds } = rules as Record<string, unknown>;
+  if (schemaVersion !== 1 || !Array.isArray(includedIds) || !Array.isArray(excludedIds)) return false;
+  const ids = [...includedIds, ...excludedIds];
+  if (ids.length > 1000 || new Set(ids).size !== ids.length || ids.some((id) => typeof id !== 'string' || !UUID.test(id))) return false;
+  return account.scopeType !== 'ALL_PRODUCTS' || ids.length === 0;
+};
 const lineIsEligible = (account: WelfareCardEligibilityAccountRecord, sku: OrderableSkuRecord): boolean => {
-  if (account.scopeRules.schemaVersion !== 1) return false;
+  if (!scopeRulesAreValid(account)) return false;
   if (account.scopeType === 'ALL_PRODUCTS') return true;
   const resourceId = scopeResourceId(account, sku);
   if (!resourceId || account.scopeRules.excludedIds.includes(resourceId)) return false;
