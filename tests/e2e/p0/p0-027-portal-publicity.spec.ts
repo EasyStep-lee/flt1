@@ -4,6 +4,7 @@ const pages = [
   ['/about', '关于福礼团'],
   ['/', '福礼社企业福利与供应链服务平台'],
   ['/capabilities', '一站式供应链服务能力'],
+  ['/enterprise-procurement', '社区集采，不是限时团购活动'],
   ['/cases', '服务场景'],
   ['/cases/enterprise-welfare-service', '企业福利采购服务路径'],
   ['/supplier-cooperation', '成为福礼团合作供应商'],

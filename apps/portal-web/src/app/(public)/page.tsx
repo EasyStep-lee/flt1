@@ -27,7 +27,7 @@ export const metadata = buildMetadata({
 });
 
 const services = [
-  ['企业采购', '持续开放的普通企业采购入口，支持跨供应来源统一向公司下单。', '了解社区集采', '#community-procurement'],
+  ['企业采购', '持续开放的普通企业采购入口，支持跨供应来源统一向公司下单。', '了解社区集采', '/enterprise-procurement'],
   ['企业福利服务', '围绕员工福利、节庆礼赠和日常关怀提供受控商品与服务说明。', '联系企业服务', '/contact'],
   ['供应商合作', '供应商作为上游供货协作方，按准入、审核、上架和履约流程合作。', '查看合作流程', '/supplier-cooperation'],
 ] as const;
@@ -58,9 +58,9 @@ export default function HomePage() {
         <PageHero
           actions={
             <>
-              <a className="button" href="#community-procurement">
+              <Link className="button" href="/enterprise-procurement">
                 了解社区集采
-              </a>
+              </Link>
               <Link className="button button--outline" href="/capabilities">
                 了解供应链能力
               </Link>

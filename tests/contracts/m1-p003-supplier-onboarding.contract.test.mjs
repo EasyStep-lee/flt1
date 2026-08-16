@@ -179,27 +179,27 @@ test('M1-P003 retains its local evidence after PR and main CI closure', async ()
   assert.equal(state.execution.currentStage, 'M3');
   assert.equal(state.execution.currentTask, state.execution.nextAllowedTask);
   assert.equal(state.execution.status, 'M3_IN_PROGRESS');
-  assert.equal(state.execution.currentTask, 'M3-P029');
+  assert.equal(state.execution.currentTask, 'M3-P030');
   assert.equal(state.execution.activeTaskCount, active.length);
-  assert.equal(state.execution.lastCompletedTask, 'M3-P028');
+  assert.equal(state.execution.lastCompletedTask, 'M3-P029');
   assert.equal(state.execution.lastPassedGate, 'M2-GATE');
   assert.equal(state.github.repository, 'EasyStep-lee/flt1');
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M3-P029');
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M3-P030');
   assert.match(
     state.github.currentTaskDelivery.status,
     /^(?:LOCAL_PASS_PENDING_DRAFT_PR|CI_PASS_PENDING_HUMAN_MERGE)$/u,
   );
   assert.equal(
     state.github.currentTaskDelivery.blockingExternalItem,
-    'P0_029_FULL_UI_DELIVERY_RECEIPT_AFTERSALES_INVOICE_REAL_PAYMENT_STAGING_DEVICE_PRODUCTION',
+    'REAL_DOMAIN_DNS_TLS_ICP_M5_CMS_STAGING_PRODUCTION',
   );
   assert.equal(state.github.currentTaskDelivery.nextTaskUnlocked, false);
-  assert.equal(state.github.previousTaskDelivery.taskId, 'M3-P028');
-  assert.equal(state.github.previousTaskDelivery.pullRequest, 92);
+  assert.equal(state.github.previousTaskDelivery.taskId, 'M3-P029');
+  assert.equal(state.github.previousTaskDelivery.pullRequest, 94);
   assert.match(m2p008?.Status, /^(?:IN_PROGRESS|DONE)$/u);
   assert.match(
     state.evidence.local,
-    /^(?:LOCAL_FOCUSED_PASS_FULL_VERIFY_NOT_EXECUTED|LOCAL_PASS_M3_P029_FULL_VERIFY)$/u,
+    /^(?:LOCAL_FOCUSED_PASS_FULL_VERIFY_NOT_EXECUTED|LOCAL_PASS_M3_P030_FULL_VERIFY)$/u,
   );
-  assert.match(state.evidence.ci, /^(?:NOT_EXECUTED|CI_PASS_M3_P029_HEAD_[0-9a-f]{7})$/u);
+  assert.match(state.evidence.ci, /^(?:NOT_EXECUTED|CI_PASS_M3_P030_HEAD_[0-9a-f]{7})$/u);
 });
