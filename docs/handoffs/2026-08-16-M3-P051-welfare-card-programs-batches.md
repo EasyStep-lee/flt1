@@ -2,7 +2,7 @@
 
 ## 结论与边界
 
-- 切片结论：`LOCAL_PASS`。这不是 M3 阶段 PASS，也不是 P0-051 的真实业务/合规验收通过。
+- 切片结论：`CI_PASS_PENDING_HUMAN_MERGE`。这不是 M3 阶段 PASS，也不是 P0-051 的真实业务/合规验收通过。
 - 唯一目标：`COMPANY_WELFARE_CARD` 固定职能在 PAGE-008 创建并查看福利卡计划与 DRAFT 发行批次。
 - 方案基线 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`，校验通过。
 - 方案章节：§3.2、§3.4、§9.1、§9.2、§9.8、§13；主验收项 `P0-051`。
@@ -17,9 +17,10 @@
 | 基线 | `main` / `5c0f09b37c1ddff91dd01816b09fed35464d9bb4` |
 | 分支 | `codex/m3-welfare-plan-batches` |
 | Issue | [#99](https://github.com/EasyStep-lee/flt1/issues/99) |
-| 本地完整验证提交 | `0c92c1634159c2748bfafbb7082c046c2a33897b` |
-| Draft PR | `NOT_CREATED`，完成本交接与最终本地验证后创建 |
-| PR CI / 评论 / 合并 | `NOT_EXECUTED` / `NOT_EXECUTED` / `NOT_EXECUTED` |
+| 本地完整验证提交 | `03fec7c3599602321a1bbc98f3f49f033097f601` |
+| Draft PR | [#100](https://github.com/EasyStep-lee/flt1/pull/100)，仍为 Draft |
+| PR CI | head `03fec7c3599602321a1bbc98f3f49f033097f601`，Actions run `31931396880` / job `95126676999`，`CI_PASS` |
+| 评论 / 合并 | 无评论、无评审；`NOT_MERGED`，等待精确最终 head 人工授权 |
 | 上一切片 | PR #98 head `dd508240b42e815e6acbda3510d0e40a44a7b353`，merge `5c0f09b37c1ddff91dd01816b09fed35464d9bb4`，main Actions `31924136232` 成功 |
 
 ## 实际实现
@@ -52,13 +53,14 @@
 | API 全量 | 43 个文件、223/223 | `LOCAL_PASS` |
 | P0 E2E | Chromium 74/74 | `LOCAL_PASS` |
 | 迁移演练 | `empty=2; upgrade=2; restore=2; product=32; cleanup=PASS` | `LOCAL_PASS` |
-| 秘密扫描 | 970 个跟踪文件，无命中 | `LOCAL_PASS` |
+| 秘密扫描 | 971 个跟踪文件，无命中 | `LOCAL_PASS` |
+| GitHub Actions | run `31931396880` / job `95126676999`，精确 head `03fec7c3599602321a1bbc98f3f49f033097f601` | `CI_PASS` |
 
 ## P0、环境与未执行项
 
 - `P0-051` 自动化技术子行为为 `LOCAL_PASS`，但 EXT-012 与真实发行未提供，因此不得宣称正式 P0 验收 PASS。
 - 本地环境：Windows、Node `22.23.1`、pnpm `10.12.1`、Docker MySQL `8.4.11`、Playwright Chromium。
-- CI：本交接生成时 `NOT_EXECUTED`；推送 Draft PR 后必须以精确 head Actions 为准。
+- CI：实现与可访问性修复 head `03fec7c3599602321a1bbc98f3f49f033097f601` 的 Actions run `31931396880` / job `95126676999` 已通过；证据同步提交仍须再次通过精确 head CI。
 - staging / DEVICE / PRODUCTION：全部 `NOT_EXECUTED`。
 
 ## 风险与回滚
@@ -66,6 +68,12 @@
 - 主要风险：EXT-012 未确认时不能激活真实计划或发行批次；后续 M3-P052 不得把个人现金充值带入模型。
 - 回滚：原子 revert 本切片提交；对未部署环境不执行数据库动作。若迁移已在非生产环境应用，先停止写入并按演练的恢复路径还原数据库，再回退应用；历史表不得通过手工更新伪造回滚。
 - API 为新增路径；回滚会移除 API-101/102/103 和 PAGE-008 业务面板，不影响既有 M3-P031 订单备货契约。
+
+## CI 修复记录与工作簿
+
+- 首次 PR head `9768c8d5373ad88795b2daffc5df78115683f1fa` 的 Actions run `31929587401` 在 Linux Chromium 失败：弹窗内容已显示，但实际 `role="dialog"` 节点缺少稳定可访问名称。
+- 修复使用 `panelRef` 给两个实际 dialog 节点设置明确 `aria-label`，并加强 P0-051 用例同时验证计划与批次弹窗；没有改用 CSS 定位、删除重试或降低业务断言。
+- 总控工作簿已从同步后的 CSV/JSON 真源更新，公式错误扫描 0 项；SHA-256 为 `52A924B0F6DB195BBC3A3FD87E816C4DBBC228DB3F0A47BDD7CAA4FF683B88C5`，manifest 已同步。
 
 ## 下一门禁
 
