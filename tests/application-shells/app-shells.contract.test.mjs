@@ -130,6 +130,7 @@ test('native mini-programs keep separate roots and independent phase-appropriate
     'pages/home/index',
     'pages/category/index',
     'pages/cart/index',
+    'pages/checkout/index',
     'pages/profile/index',
     'pages/shell/index',
     'pages/product-detail/index',
