@@ -114,6 +114,7 @@ const bind = (app, key, body, cookie = '__Host-fulishe-consumer=active') => requ
   .set('Cookie', cookie)
   .set('Idempotency-Key', key)
   .send({ agreementAccepted: true, agreementVersion: 1, ...body });
+const bindingBody = (method, cardNo, credential, extra = {}) => ({ method, cardNo, secret: credential, ...extra });
 
 describe('M3-P052 consumer welfare-card binding API', () => {
   it('binds card password, redemption code and scan result to the session owner with one CLAIM ledger each', async () => {
@@ -124,7 +125,7 @@ describe('M3-P052 consumer welfare-card binding API', () => {
       ['SCAN_CODE', 'CARD-SCAN', 'scan-0003'],
     ];
     for (const [method, cardNo, secret] of cases) {
-      const response = await bind(app, `bind-${method}`, { method, cardNo, secret }).expect(201);
+      const response = await bind(app, `bind-${method}`, bindingBody(method, cardNo, secret)).expect(201);
       expect(response.headers['cache-control']).toMatch(/private.*no-store/iu);
       expect(response.headers['x-robots-tag']).toMatch(/noindex/iu);
       expect(response.body).toMatchObject({
@@ -144,34 +145,34 @@ describe('M3-P052 consumer welfare-card binding API', () => {
   it('rejects invalid, disabled, frozen, wrong-owner, unauthenticated and owner-injected requests without a write', async () => {
     const { app, repository } = await fixture();
     const before = repository.snapshot();
-    await bind(app, 'wrong-secret', { method: 'CARD_PASSWORD', cardNo: 'CARD-PASSWORD', secret: 'wrong-credential' })
+    await bind(app, 'wrong-secret', bindingBody('CARD_PASSWORD', 'CARD-PASSWORD', 'wrong-credential'))
       .expect(422).expect(({ body }) => expect(body.code).toBe('CARD_CODE_INVALID'));
-    await bind(app, 'disabled-card', { method: 'CARD_PASSWORD', cardNo: 'CARD-DISABLED', secret: 'disabled-0004' })
+    await bind(app, 'disabled-card', bindingBody('CARD_PASSWORD', 'CARD-DISABLED', 'disabled-0004'))
       .expect(409).expect(({ body }) => expect(body.code).toBe('CARD_CODE_INVALID'));
-    await bind(app, 'frozen-card', { method: 'CARD_PASSWORD', cardNo: 'CARD-FROZEN', secret: 'frozen-0005' })
+    await bind(app, 'frozen-card', bindingBody('CARD_PASSWORD', 'CARD-FROZEN', 'frozen-0005'))
       .expect(409).expect(({ body }) => expect(body.code).toBe('CARD_CODE_INVALID'));
-    await bind(app, 'wrong-owner', { method: 'REDEMPTION_CODE', cardNo: 'CARD-OTHER', secret: 'other-0006' })
+    await bind(app, 'wrong-owner', bindingBody('REDEMPTION_CODE', 'CARD-OTHER', 'other-0006'))
       .expect(403).expect(({ body }) => expect(body.code).toBe('CARD_RECIPIENT_MISMATCH'));
-    await bind(app, 'owner-injection', { method: 'CARD_PASSWORD', cardNo: 'CARD-PASSWORD', secret: 'pw-0001', companyId })
+    await bind(app, 'owner-injection', bindingBody('CARD_PASSWORD', 'CARD-PASSWORD', 'pw-0001', { companyId }))
       .expect(422).expect(({ body }) => expect(body.code).toBe('FIELD_FORBIDDEN'));
-    await bind(app, 'missing-session', { method: 'CARD_PASSWORD', cardNo: 'CARD-PASSWORD', secret: 'pw-0001' }, 'invalid')
+    await bind(app, 'missing-session', bindingBody('CARD_PASSWORD', 'CARD-PASSWORD', 'pw-0001'), 'invalid')
       .expect(401).expect(({ body }) => expect(body.code).toBe('AUTHENTICATION_REQUIRED'));
     expect(repository.snapshot()).toEqual(before);
   });
 
   it('replays the exact command, conflicts on changed payload and allows only one concurrent claimant', async () => {
     const { app, repository } = await fixture();
-    const body = { method: 'CARD_PASSWORD', cardNo: 'CARD-PASSWORD', secret: 'pw-0001' };
+    const body = bindingBody('CARD_PASSWORD', 'CARD-PASSWORD', 'pw-0001');
     const first = await bind(app, 'exact-replay', body).expect(201);
     const replayed = await bind(app, 'exact-replay', body).expect(200);
     expect(replayed.headers['idempotency-replayed']).toBe('true');
     expect(replayed.body).toEqual(first.body);
-    await bind(app, 'exact-replay', { ...body, secret: 'changed' }).expect(409)
+    await bind(app, 'exact-replay', bindingBody('CARD_PASSWORD', 'CARD-PASSWORD', 'changed')).expect(409)
       .expect(({ body: error }) => expect(error.code).toBe('IDEMPOTENCY_CONFLICT'));
 
     const concurrent = await Promise.all([
-      bind(app, 'concurrent-a', { method: 'CARD_PASSWORD', cardNo: 'CARD-CONCURRENT', secret: 'concurrent-0007' }),
-      bind(app, 'concurrent-b', { method: 'CARD_PASSWORD', cardNo: 'CARD-CONCURRENT', secret: 'concurrent-0007' }),
+      bind(app, 'concurrent-a', bindingBody('CARD_PASSWORD', 'CARD-CONCURRENT', 'concurrent-0007')),
+      bind(app, 'concurrent-b', bindingBody('CARD_PASSWORD', 'CARD-CONCURRENT', 'concurrent-0007')),
     ]);
     expect(concurrent.map((entry) => entry.status).sort()).toEqual([201, 409]);
     expect(concurrent.find((entry) => entry.status === 409)?.body.code).toBe('CARD_ALREADY_CLAIMED');

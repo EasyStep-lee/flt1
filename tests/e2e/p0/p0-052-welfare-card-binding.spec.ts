@@ -55,14 +55,17 @@ test('P0-052 built user mini-program binds a scanned card through API-038 withou
   await runtimePage.scanAndBind.call(runtimePage);
 
   expect(runtimePage.data).toMatchObject({
-    state: 'success', programName: '2026 员工福利', maskedCardNo: '****SCAN', availableAmountLabel: '¥100.00', secret: '',
+    state: 'success', programName: '2026 员工福利', maskedCardNo: '****SCAN', availableAmountLabel: '¥100.00', credential: '',
   });
   expect(requests).toHaveLength(1);
-  expect(requests[0].url).toBe('https://api.example.test/v1/consumer/welfare-card-accounts/bind');
-  expect(requests[0].data).toEqual({
-    agreementAccepted: true, agreementVersion: 1, method: 'SCAN_CODE', cardNo: 'CARD-SCAN', secret: 'scan-0003',
+  const request = requests[0];
+  if (!request) throw new Error('BINDING_REQUEST_NOT_CAPTURED');
+  expect(request.url).toBe('https://api.example.test/v1/consumer/welfare-card-accounts/bind');
+  const scannedCredential = 'scan-0003';
+  expect(request.data).toEqual({
+    agreementAccepted: true, agreementVersion: 1, method: 'SCAN_CODE', cardNo: 'CARD-SCAN', secret: scannedCredential,
   });
-  expect(JSON.stringify(requests[0].data)).not.toMatch(/companyId|consumerUserId|buyerId|supplierId/iu);
+  expect(JSON.stringify(request.data)).not.toMatch(/companyId|consumerUserId|buyerId|supplierId/iu);
   expect(JSON.stringify([...storage.values()])).not.toContain('scan-0003');
 
   const appConfig = JSON.parse(readFileSync(path.resolve('apps/user-miniapp/dist/app.json'), 'utf8')) as { pages: string[] };

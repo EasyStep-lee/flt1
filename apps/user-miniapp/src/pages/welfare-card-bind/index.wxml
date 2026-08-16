@@ -17,7 +17,7 @@
     </view>
     <block wx:if="{{method === 'CARD_PASSWORD'}}">
       <input class="input" value="{{cardNo}}" placeholder="请输入福利卡卡号" maxlength="191" bindinput="updateCardNo" />
-      <input class="input" value="{{secret}}" password placeholder="请输入卡密" maxlength="191" bindinput="updateSecret" />
+      <input class="input" value="{{credential}}" password placeholder="请输入卡密" maxlength="191" bindinput="updateSecret" />
     </block>
     <input wx:elif="{{method === 'REDEMPTION_CODE'}}" class="input" value="{{redemptionCode}}" password placeholder="请输入公司发行的完整兑换码" maxlength="191" bindinput="updateRedemptionCode" />
     <checkbox-group bindchange="toggleAgreement">

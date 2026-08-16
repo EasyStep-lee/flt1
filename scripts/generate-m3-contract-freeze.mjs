@@ -124,7 +124,9 @@ const [fields, states, permissions, pages, apis, migrations] = await Promise.all
   readCsv('05-字段字典初始版.csv'), readCsv('06-状态机总表.csv'), readCsv('07-权限与数据可见矩阵.csv'),
   readCsv('08-页面路由接口P0映射.csv'), readCsv('12-OpenAPI-DTO-错误码台账.csv'), readCsv('11-数据库迁移台账.csv'),
 ]);
-const m3Fields = fields.filter(({ Stage }) => Stage === 'M3').map((row) => {
+const m3Fields = fields
+  .filter(({ Stage, Source }) => Stage === 'M3' && !String(Source).startsWith('M3-P052技术'))
+  .map((row) => {
   const type = resolveType(row);
   const mappedP0 = row.P0 && row.P0 !== '待切片细化' ? list(row.P0) : entityP0[row.Entity];
   if (!mappedP0?.length) throw new Error(`M3_FIELD_P0_MISSING:${row.Entity}.${row.Field}`);

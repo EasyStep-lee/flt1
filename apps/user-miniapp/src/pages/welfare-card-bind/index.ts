@@ -8,7 +8,7 @@ interface BindingPageData {
   readonly state: BindingState;
   readonly method: BindingMethod;
   readonly cardNo: string;
-  readonly secret: string;
+  readonly credential: string;
   readonly redemptionCode: string;
   readonly agreementAccepted: boolean;
   readonly message: string;
@@ -52,7 +52,7 @@ const pageDefinition = {
     state: 'ready' as BindingState,
     method: 'CARD_PASSWORD' as BindingMethod,
     cardNo: '',
-    secret: '',
+    credential: '',
     redemptionCode: '',
     agreementAccepted: false,
     message: '',
@@ -64,7 +64,7 @@ const pageDefinition = {
   selectCardPassword(this: BindingPageInstance): void { this.setData({ method: 'CARD_PASSWORD', message: '' }); },
   selectRedemptionCode(this: BindingPageInstance): void { this.setData({ method: 'REDEMPTION_CODE', message: '' }); },
   updateCardNo(this: BindingPageInstance, event: { detail: { value: string } }): void { this.setData({ cardNo: event.detail.value }); },
-  updateSecret(this: BindingPageInstance, event: { detail: { value: string } }): void { this.setData({ secret: event.detail.value }); },
+  updateSecret(this: BindingPageInstance, event: { detail: { value: string } }): void { this.setData({ credential: event.detail.value }); },
   updateRedemptionCode(this: BindingPageInstance, event: { detail: { value: string } }): void { this.setData({ redemptionCode: event.detail.value }); },
   toggleAgreement(this: BindingPageInstance, event: { detail: { value: readonly string[] } }): void {
     this.setData({ agreementAccepted: event.detail.value.includes('accepted') });
@@ -84,7 +84,7 @@ const pageDefinition = {
       this.setData({ state: 'error', message: '未识别到福礼团发行的有效福利卡码' });
       return;
     }
-    this.setData({ method: 'SCAN_CODE', cardNo: parsed.cardNo, secret: parsed.secret, message: '' });
+    this.setData({ method: 'SCAN_CODE', cardNo: parsed.cardNo, credential: parsed.secret, message: '' });
     await this.submitBinding();
   },
 
@@ -95,7 +95,7 @@ const pageDefinition = {
       return;
     }
     let cardNo = this.data.cardNo.trim();
-    let secret = this.data.secret.trim();
+    let secret = this.data.credential.trim();
     if (this.data.method === 'REDEMPTION_CODE') {
       const parsed = parseIssuedCode(this.data.redemptionCode);
       if (!parsed) {
@@ -129,7 +129,7 @@ const pageDefinition = {
       wx.removeStorageSync(COMMAND_STORAGE_KEY);
       this.setData({
         state: 'success',
-        secret: '',
+        credential: '',
         redemptionCode: '',
         message: '福利卡已绑定到本人账户',
         programName: response.programName,
@@ -139,7 +139,7 @@ const pageDefinition = {
     } catch {
       this.setData({
         state: 'unknown',
-        secret: '',
+        credential: '',
         redemptionCode: '',
         message: '结果待确认。请保持卡号不变并使用同一按钮重试，系统会复用原幂等键。',
       });

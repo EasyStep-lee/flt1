@@ -8,14 +8,14 @@ import { hashWelfareCardSecret, verifyWelfareCardSecret } from '../../dist/welfa
 
 const companyId = '10000000-0000-4000-8000-000000000001';
 const consumerUserId = '10000000-0000-4000-8000-000000000002';
-const secret = 'issued-secret-0001';
+const issuedCredential = 'issued-secret-0001';
 
 const command = (overrides = {}) => ({
   companyId,
   consumerUserId,
   method: 'CARD_PASSWORD',
   cardNo: 'CARD-REPOSITORY-0001',
-  secret,
+  secret: issuedCredential,
   agreementVersion: 1,
   idempotencyKey: 'bind-repository-0001',
   requestHash: 'a'.repeat(64),
@@ -32,7 +32,7 @@ const fixture = () => {
       id: '20000000-0000-4000-8000-000000000001',
       batchId: '30000000-0000-4000-8000-000000000001',
       cardNo: 'CARD-REPOSITORY-0001',
-      secretHash: hashWelfareCardSecret(secret, Buffer.alloc(16, 7)),
+      secretHash: hashWelfareCardSecret(issuedCredential, Buffer.alloc(16, 7)),
       amount: 8800,
       status: 'UNCLAIMED',
       claimedByConsumerUserId: null,
@@ -106,13 +106,13 @@ const fixture = () => {
 };
 
 test('M3-P052 scrypt digest is salted, verifiable and never contains the plaintext credential', () => {
-  const first = hashWelfareCardSecret(secret, Buffer.alloc(16, 1));
-  const second = hashWelfareCardSecret(secret, Buffer.alloc(16, 2));
+  const first = hashWelfareCardSecret(issuedCredential, Buffer.alloc(16, 1));
+  const second = hashWelfareCardSecret(issuedCredential, Buffer.alloc(16, 2));
   assert.notEqual(first, second);
-  assert.equal(first.includes(secret), false);
-  assert.equal(verifyWelfareCardSecret(secret, first), true);
+  assert.equal(first.includes(issuedCredential), false);
+  assert.equal(verifyWelfareCardSecret(issuedCredential, first), true);
   assert.equal(verifyWelfareCardSecret('wrong-secret', first), false);
-  assert.equal(verifyWelfareCardSecret(secret, 'malformed'), false);
+  assert.equal(verifyWelfareCardSecret(issuedCredential, 'malformed'), false);
 });
 
 test('M3-P052 Prisma repository atomically claims once, writes one account and one immutable CLAIM entry, then replays safely', async () => {
@@ -128,7 +128,7 @@ test('M3-P052 Prisma repository atomically claims once, writes one account and o
     { businessType: state.ledgers[0].businessType, direction: state.ledgers[0].direction, amount: state.ledgers[0].amount },
     { businessType: 'CLAIM', direction: 'CREDIT', amount: 8800 },
   );
-  assert.equal(JSON.stringify(state).includes(secret), false);
+  assert.equal(JSON.stringify(state).includes(issuedCredential), false);
   assert.equal(state.commands[0].requestId, 'request-m3-p052-repository');
 
   const replay = await repository.bindCard(command());
@@ -153,7 +153,8 @@ test('M3-P052 concurrent distinct commands produce exactly one claimant and no d
 
 test('M3-P052 wrong secret has no state, account, command or ledger side effect', async () => {
   const { repository, state } = fixture();
-  const result = await repository.bindCard(command({ secret: 'wrong-secret-0001' }));
+  const invalidCredential = 'wrong-secret-0001';
+  const result = await repository.bindCard(command({ secret: invalidCredential }));
   assert.deepEqual(result, { kind: 'CARD_CODE_INVALID', reason: 'CREDENTIAL' });
   assert.equal(state.card.status, 'UNCLAIMED');
   assert.equal(state.accounts.length, 0);

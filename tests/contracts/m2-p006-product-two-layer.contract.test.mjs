@@ -136,9 +136,9 @@ test('M2-P006 and M2-P007 retain merged-main evidence after M2-P008 starts local
   assert.equal(m2.EvidenceStatus, 'CI_PASS');
 
   assert.equal(projectStatus.execution.status, 'M3_IN_PROGRESS');
-  assert.equal(projectStatus.execution.currentTask, 'M3-P051');
+  assert.equal(projectStatus.execution.currentTask, 'M3-P052');
   assert.equal(projectStatus.execution.nextAllowedTask, projectStatus.execution.currentTask);
-  assert.equal(projectStatus.execution.lastCompletedTask, 'M3-P031');
+  assert.equal(projectStatus.execution.lastCompletedTask, 'M3-P051');
   assert.equal(projectStatus.execution.activeTaskCount, 1);
   assert.equal(
     projectStatus.github.currentTaskDelivery.taskId,
@@ -159,7 +159,7 @@ test('M2-P006 and M2-P007 retain merged-main evidence after M2-P008 starts local
   assert.equal(projectStatus.github.currentTaskDelivery.mainPostMergeCi, 'NOT_EXECUTED');
   assert.equal(
     projectStatus.github.currentTaskDelivery.blockingExternalItem,
-    'EXT-012_WELFARE_LEGAL_FINANCE_REAL_ISSUANCE',
+    'EXT-012_REAL_CARD_ISSUANCE_AND_DEVICE_SCAN',
   );
   assert.equal(projectStatus.github.currentTaskDelivery.nextTaskUnlocked, false);
   assert.match(projectStatus.evidence.ci, /^(?:NOT_EXECUTED|CI_PASS_M3_(?:P03[01]|P051)_HEAD_[0-9a-f]{7})$/u);
