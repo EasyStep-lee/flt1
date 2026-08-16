@@ -10,6 +10,7 @@ import type {
   CreateWelfareProgramCommand,
   WelfareBatchRecord,
   WelfareCardAccountRecord,
+  WelfareCardEligibilityAccountRecord,
   WelfareCardBindingResult,
   WelfareCardRepository,
   WelfareMutationResult,
@@ -86,6 +87,34 @@ export class PrismaWelfareCardRepository implements WelfareCardRepository {
   async listPrograms(companyId: string): Promise<readonly WelfareProgramRecord[]> {
     const rows = await this.prisma.welfareCardProgram.findMany({ where: { companyId }, orderBy: { createdAt: 'desc' } });
     return Promise.all(rows.map((entry) => this.loadProgram(entry.id)));
+  }
+
+  async listEligibilityAccounts(companyId: string, consumerUserId: string): Promise<readonly WelfareCardEligibilityAccountRecord[]> {
+    const rows = await this.prisma.welfareCardAccount.findMany({
+      where: {
+        consumerUserId,
+        status: 'ACTIVE',
+        program: { companyId, status: 'ACTIVE', complianceStatus: 'APPROVED' },
+        batch: { companyId, status: 'ISSUED' },
+      },
+      include: { program: true, batch: true, cardCode: true },
+      orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+    });
+    return rows.flatMap((row) => {
+      if (!row.cardCode.claimedAt) return [];
+      return [{
+        ...accountRecord(row, {
+          companyId,
+          programName: row.program.name,
+          batchNo: row.batch.batchNo,
+          cardNo: row.cardCode.cardNo,
+          claimedAt: row.cardCode.claimedAt,
+        }),
+        scopeType: row.program.scopeType as WelfareProgramRecord['scopeType'],
+        scopeRules: row.program.scopeRules as unknown as WelfareProgramRecord['scopeRules'],
+        canPayDeliveryFee: row.program.canPayDeliveryFee,
+      }];
+    });
   }
 
   private async replay<T extends WelfareProgramRecord | WelfareBatchRecord>(companyId: string, operation: string, key: string, hash: string): Promise<WelfareMutationResult<T> | undefined> {

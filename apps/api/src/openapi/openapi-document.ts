@@ -462,6 +462,7 @@ type JsonValue =
         createProgram: async () => ({ kind: 'NOT_FOUND' }),
         createBatch: async () => ({ kind: 'NOT_FOUND' }),
         bindCard: async () => ({ kind: 'CARD_CODE_INVALID', reason: 'CREDENTIAL' }),
+        listEligibilityAccounts: async () => [],
       } satisfies WelfareCardRepository,
     },
     {

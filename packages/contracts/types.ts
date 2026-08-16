@@ -667,6 +667,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/consumer/welfare-card-accounts/eligible": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List current consumer welfare-card accounts usable for the server-priced cart */
+        get: operations["consumerWelfareCard.listEligibleAccounts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/enterprise/catalog/products": {
         parameters: {
             query?: never;
@@ -1721,6 +1738,38 @@ export interface components {
             opinion: string;
             secondVerificationCode: string;
             version: number;
+        };
+        EligibleWelfareAccountResponseDto: {
+            /** @description Integer cents */
+            availableAmount: number;
+            /** @description Integer cents */
+            balanceAmount: number;
+            /** @description Server-priced eligible amount in integer cents */
+            eligibleAmount: number;
+            /** @description Integer cents */
+            frozenAmount: number;
+            /** Format: uuid */
+            id: string;
+            /** @description Only the last four card characters are visible */
+            maskedCardNo: string;
+            /** @description min(availableAmount, eligibleAmount) in integer cents */
+            maximumDeductibleAmount: number;
+            programName: string;
+            scopeDescription: string;
+            /** @enum {string} */
+            scopeType: "ALL_PRODUCTS" | "CATEGORY" | "PRODUCT" | "SKU";
+            /** @enum {string} */
+            status: "ACTIVE";
+            version: number;
+        };
+        EligibleWelfareAccountsResponseDto: {
+            accounts: components["schemas"]["EligibleWelfareAccountResponseDto"][];
+            /** @description Server-owned delivery fee in integer cents */
+            deliveryFee: number;
+            /** @description Server-priced goods amount in integer cents */
+            goodsAmount: number;
+            /** @description Server-priced total in integer cents */
+            totalAmount: number;
         };
         EnterpriseAddressInputDto: {
             consignee: string;
@@ -3143,6 +3192,10 @@ export interface components {
             method: "CARD_PASSWORD" | "REDEMPTION_CODE" | "SCAN_CODE";
             /** @description Sensitive card credential; never persisted or returned in plaintext */
             secret: string;
+        };
+        WelfareCardEligibilityQueryDto: {
+            quantity: number[];
+            skuId: string[];
         };
         WelfareHistoryResponseDto: {
             /** @enum {string} */
@@ -5429,6 +5482,60 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["WelfareCardAccountResponseDto"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
+    "consumerWelfareCard.listEligibleAccounts": {
+        parameters: {
+            query: {
+                quantity: number[];
+                skuId: string[];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EligibleWelfareAccountsResponseDto"];
                 };
             };
             401: {

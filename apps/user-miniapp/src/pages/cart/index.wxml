@@ -27,5 +27,6 @@
         {{state === 'submitting' ? '提交中…' : state === 'unknown' ? '确认结果/重试' : state === 'success' ? '已创建' : '提交订单'}}
       </button>
     </view>
+    <navigator class="welfare-preview" url="/pages/checkout/index">查看本单可用福利卡与最大抵扣额</navigator>
   </block>
 </view>

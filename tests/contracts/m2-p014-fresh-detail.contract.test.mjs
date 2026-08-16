@@ -63,10 +63,10 @@ test('M2-P014 historical evidence remains while the current M2 slice advances', 
     ]);
 
   assert.equal(state.execution.status, 'M3_IN_PROGRESS');
-  assert.equal(state.execution.currentTask, 'M3-P052');
+  assert.equal(state.execution.currentTask, 'M3-P053');
   assert.equal(state.execution.nextAllowedTask, state.execution.currentTask);
-  assert.equal(state.execution.lastCompletedTask, 'M3-P051');
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M3-P052.*M3-P053/u);
+  assert.equal(state.execution.lastCompletedTask, 'M3-P052');
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M3-P053.*M3-P054/u);
   assert.equal(state.github.currentTaskDelivery.taskId, state.execution.currentTask);
   assert.ok(
     state.github.currentTaskDelivery.exactHeadCi === 'NOT_EXECUTED' ||

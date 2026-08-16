@@ -93,6 +93,12 @@ export interface WelfareCardAccountRecord {
   readonly claimedAt: string;
 }
 
+export interface WelfareCardEligibilityAccountRecord extends WelfareCardAccountRecord {
+  readonly scopeType: WelfareProgramRecord['scopeType'];
+  readonly scopeRules: WelfareProgramRecord['scopeRules'];
+  readonly canPayDeliveryFee: boolean;
+}
+
 export interface BindWelfareCardCommand {
   readonly companyId: string;
   readonly consumerUserId: string;
@@ -121,4 +127,5 @@ export interface WelfareCardRepository {
   createProgram(command: CreateWelfareProgramCommand): Promise<WelfareMutationResult<WelfareProgramRecord>>;
   createBatch(command: CreateWelfareBatchCommand): Promise<WelfareMutationResult<WelfareBatchRecord>>;
   bindCard(command: BindWelfareCardCommand): Promise<WelfareCardBindingResult>;
+  listEligibilityAccounts(companyId: string, consumerUserId: string): Promise<readonly WelfareCardEligibilityAccountRecord[]>;
 }

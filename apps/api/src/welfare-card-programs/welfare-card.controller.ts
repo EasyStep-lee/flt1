@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Header, Headers, HttpCode, Inject, Param, Post, Query, Req, Res } from '@nestjs/common';
-import { ApiBody, ApiConflictResponse, ApiCreatedResponse, ApiExtraModels, ApiForbiddenResponse, ApiHeader, ApiOkResponse, ApiOperation, ApiParam, ApiTags, ApiUnauthorizedResponse, ApiUnprocessableEntityResponse } from '@nestjs/swagger';
+import { ApiBody, ApiConflictResponse, ApiCreatedResponse, ApiExtraModels, ApiForbiddenResponse, ApiHeader, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiTags, ApiUnauthorizedResponse, ApiUnprocessableEntityResponse } from '@nestjs/swagger';
 import type { Response } from 'express';
 
 import { ApiErrorResponseDto } from '../http/api-error.dto.js';
@@ -7,7 +7,7 @@ import { SafeApiError } from '../http/api-error.js';
 import type { RequestWithId } from '../http/request-id.middleware.js';
 import { ORDER_ACTOR_RESOLVER, type OrderActorResolver } from '../orders/order.actor.js';
 import { WELFARE_CARD_ACTOR_RESOLVER, type WelfareCardActorResolver } from './welfare-card.actor.js';
-import { CreateWelfareBatchRequestDto, CreateWelfareProgramRequestDto, WelfareBatchResponseDto, WelfareCardAccountResponseDto, WelfareCardBindRequestDto, WelfareProgramPageResponseDto, WelfareProgramResponseDto } from './welfare-card.dto.js';
+import { CreateWelfareBatchRequestDto, CreateWelfareProgramRequestDto, EligibleWelfareAccountsResponseDto, WelfareBatchResponseDto, WelfareCardAccountResponseDto, WelfareCardBindRequestDto, WelfareCardEligibilityQueryDto, WelfareProgramPageResponseDto, WelfareProgramResponseDto } from './welfare-card.dto.js';
 import { WelfareCardService } from './welfare-card.service.js';
 
 @ApiTags('company-welfare-card')
@@ -62,13 +62,34 @@ export class WelfareCardController {
 }
 
 @ApiTags('consumer-welfare-card')
-@ApiExtraModels(ApiErrorResponseDto, WelfareCardBindRequestDto, WelfareCardAccountResponseDto)
+@ApiExtraModels(ApiErrorResponseDto, WelfareCardBindRequestDto, WelfareCardAccountResponseDto, WelfareCardEligibilityQueryDto, EligibleWelfareAccountsResponseDto)
 @Controller('v1/consumer/welfare-card-accounts')
 export class ConsumerWelfareCardController {
   constructor(
     @Inject(WelfareCardService) private readonly service: WelfareCardService,
     @Inject(ORDER_ACTOR_RESOLVER) private readonly actors: OrderActorResolver,
   ) {}
+
+  @Get('eligible')
+  @Header('Cache-Control', 'private, no-store, max-age=0')
+  @Header('X-Robots-Tag', 'noindex, nofollow')
+  @ApiOperation({ operationId: 'consumerWelfareCard.listEligibleAccounts', summary: 'List current consumer welfare-card accounts usable for the server-priced cart' })
+  @ApiQuery({ format: 'uuid', isArray: true, name: 'skuId', required: true, type: String })
+  @ApiQuery({ isArray: true, name: 'quantity', required: true, type: Number })
+  @ApiOkResponse({ type: EligibleWelfareAccountsResponseDto })
+  @ApiUnauthorizedResponse({ type: ApiErrorResponseDto })
+  @ApiForbiddenResponse({ type: ApiErrorResponseDto })
+  @ApiConflictResponse({ type: ApiErrorResponseDto })
+  @ApiUnprocessableEntityResponse({ type: ApiErrorResponseDto })
+  async eligible(
+    @Req() request: RequestWithId,
+    @Query() query: WelfareCardEligibilityQueryDto & Record<string, unknown>,
+  ): Promise<EligibleWelfareAccountsResponseDto> {
+    const cookie = typeof request.headers.cookie === 'string' ? request.headers.cookie : undefined;
+    const actor = await this.actors.resolveConsumer(cookie);
+    if (!actor) throw new SafeApiError(401, 'AUTHENTICATION_REQUIRED', 'Consumer session is required');
+    return this.service.listEligibleAccounts(actor, query);
+  }
 
   @Post('bind')
   @HttpCode(201)
