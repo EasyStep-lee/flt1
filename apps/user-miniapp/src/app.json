@@ -3,6 +3,7 @@
     "pages/home/index",
     "pages/category/index",
     "pages/cart/index",
+    "pages/checkout/index",
     "pages/profile/index",
     "pages/shell/index",
     "pages/product-detail/index",

@@ -88,3 +88,32 @@ export class WelfareCardAccountResponseDto {
   @ApiProperty({ minimum: 0, type: Number }) readonly version!: number;
   @ApiProperty({ format: 'date-time', type: String }) readonly claimedAt!: string;
 }
+
+export class WelfareCardEligibilityQueryDto {
+  @ApiProperty({ format: 'uuid', isArray: true, maxItems: 100, minItems: 1, type: String })
+  readonly skuId!: readonly string[];
+  @ApiProperty({ isArray: true, items: { maximum: 9999, minimum: 1, type: 'integer' }, maxItems: 100, minItems: 1, type: Number })
+  readonly quantity!: readonly number[];
+}
+
+export class EligibleWelfareAccountResponseDto {
+  @ApiProperty({ format: 'uuid', type: String }) readonly id!: string;
+  @ApiProperty({ type: String }) readonly programName!: string;
+  @ApiProperty({ description: 'Only the last four card characters are visible', type: String }) readonly maskedCardNo!: string;
+  @ApiProperty({ description: 'Integer cents', minimum: 0, type: Number }) readonly balanceAmount!: number;
+  @ApiProperty({ description: 'Integer cents', minimum: 0, type: Number }) readonly frozenAmount!: number;
+  @ApiProperty({ description: 'Integer cents', minimum: 0, type: Number }) readonly availableAmount!: number;
+  @ApiProperty({ enum: ['ACTIVE'], type: String }) readonly status!: 'ACTIVE';
+  @ApiProperty({ minimum: 0, type: Number }) readonly version!: number;
+  @ApiProperty({ enum: ['ALL_PRODUCTS', 'CATEGORY', 'PRODUCT', 'SKU'], type: String }) readonly scopeType!: string;
+  @ApiProperty({ type: String }) readonly scopeDescription!: string;
+  @ApiProperty({ description: 'Server-priced eligible amount in integer cents', minimum: 0, type: Number }) readonly eligibleAmount!: number;
+  @ApiProperty({ description: 'min(availableAmount, eligibleAmount) in integer cents', minimum: 0, type: Number }) readonly maximumDeductibleAmount!: number;
+}
+
+export class EligibleWelfareAccountsResponseDto {
+  @ApiProperty({ description: 'Server-priced goods amount in integer cents', minimum: 0, type: Number }) readonly goodsAmount!: number;
+  @ApiProperty({ description: 'Server-owned delivery fee in integer cents', minimum: 0, type: Number }) readonly deliveryFee!: number;
+  @ApiProperty({ description: 'Server-priced total in integer cents', minimum: 0, type: Number }) readonly totalAmount!: number;
+  @ApiProperty({ type: () => [EligibleWelfareAccountResponseDto] }) readonly accounts!: readonly EligibleWelfareAccountResponseDto[];
+}

@@ -21,13 +21,13 @@
   },
   "workbook": {
     "status": "VERIFIED",
-    "sha256": "32CC1C4F0A2AACD678C55296F37242C943D5DD0D549F9971534B0BB60FCB2EC6",
+    "sha256": "A87D6DC31E71F2DF9CB64A0212E193AA88995273118021EE531454827B18246F",
     "currentTaskMirror": {
-      "taskId": "M3-P052",
-      "status": "LOCAL_PASS_DRAFT_PR_CI_FIX_IN_PROGRESS",
+      "taskId": "M3-P053",
+      "status": "LOCAL_PASS_PENDING_DRAFT_PR",
       "sourceLedgers": "CSV_JSON_AND_WORKBOOK_UPDATED",
-      "reason": "Artifact-tool updated the M3-P052 task, P0, page, evidence, migration and stage-gate rows; formula scan and rendered visual review passed. Draft PR #102 first CI exposed the stale manifest hash and the current branch fixes that evidence mismatch.",
-      "checkedAt": "2026-08-16T10:20:00Z"
+      "reason": "Artifact-tool updated the M3-P053 task, P0, page, evidence, API and stage-gate rows; pnpm verify passed 17/17 and the 12-sheet render review and formula scan passed. Draft PR exact-head CI remains pending.",
+      "checkedAt": "2026-08-16T13:17:32.292Z"
     }
   },
   "sourceOfTruth": [

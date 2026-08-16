@@ -1862,6 +1862,115 @@
         ],
         "type": "object"
       },
+      "EligibleWelfareAccountResponseDto": {
+        "properties": {
+          "availableAmount": {
+            "description": "Integer cents",
+            "minimum": 0,
+            "type": "number"
+          },
+          "balanceAmount": {
+            "description": "Integer cents",
+            "minimum": 0,
+            "type": "number"
+          },
+          "eligibleAmount": {
+            "description": "Server-priced eligible amount in integer cents",
+            "minimum": 0,
+            "type": "number"
+          },
+          "frozenAmount": {
+            "description": "Integer cents",
+            "minimum": 0,
+            "type": "number"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "maskedCardNo": {
+            "description": "Only the last four card characters are visible",
+            "type": "string"
+          },
+          "maximumDeductibleAmount": {
+            "description": "min(availableAmount, eligibleAmount) in integer cents",
+            "minimum": 0,
+            "type": "number"
+          },
+          "programName": {
+            "type": "string"
+          },
+          "scopeDescription": {
+            "type": "string"
+          },
+          "scopeType": {
+            "enum": [
+              "ALL_PRODUCTS",
+              "CATEGORY",
+              "PRODUCT",
+              "SKU"
+            ],
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "ACTIVE"
+            ],
+            "type": "string"
+          },
+          "version": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "programName",
+          "maskedCardNo",
+          "balanceAmount",
+          "frozenAmount",
+          "availableAmount",
+          "status",
+          "version",
+          "scopeType",
+          "scopeDescription",
+          "eligibleAmount",
+          "maximumDeductibleAmount"
+        ],
+        "type": "object"
+      },
+      "EligibleWelfareAccountsResponseDto": {
+        "properties": {
+          "accounts": {
+            "items": {
+              "$ref": "#/components/schemas/EligibleWelfareAccountResponseDto"
+            },
+            "type": "array"
+          },
+          "deliveryFee": {
+            "description": "Server-owned delivery fee in integer cents",
+            "minimum": 0,
+            "type": "number"
+          },
+          "goodsAmount": {
+            "description": "Server-priced goods amount in integer cents",
+            "minimum": 0,
+            "type": "number"
+          },
+          "totalAmount": {
+            "description": "Server-priced total in integer cents",
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "goodsAmount",
+          "deliveryFee",
+          "totalAmount",
+          "accounts"
+        ],
+        "type": "object"
+      },
       "EnterpriseAddressInputDto": {
         "properties": {
           "consignee": {
@@ -7402,6 +7511,34 @@
         ],
         "type": "object"
       },
+      "WelfareCardEligibilityQueryDto": {
+        "properties": {
+          "quantity": {
+            "items": {
+              "maximum": 9999,
+              "minimum": 1,
+              "type": "integer"
+            },
+            "maxItems": 100,
+            "minItems": 1,
+            "type": "array"
+          },
+          "skuId": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 100,
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "skuId",
+          "quantity"
+        ],
+        "type": "object"
+      },
       "WelfareHistoryResponseDto": {
         "properties": {
           "event": {
@@ -11046,6 +11183,92 @@
           }
         },
         "summary": "Bind one issued welfare-card code to the verified consumer",
+        "tags": [
+          "consumer-welfare-card"
+        ]
+      }
+    },
+    "/v1/consumer/welfare-card-accounts/eligible": {
+      "get": {
+        "operationId": "consumerWelfareCard.listEligibleAccounts",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "quantity",
+            "required": true,
+            "schema": {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "skuId",
+            "required": true,
+            "schema": {
+              "items": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "type": "array"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EligibleWelfareAccountsResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "List current consumer welfare-card accounts usable for the server-priced cart",
         "tags": [
           "consumer-welfare-card"
         ]

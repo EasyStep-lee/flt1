@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "taskId": "M3-P053",
+  "p0": [
+    "P0-053",
+    "P0-092_PARTIAL"
+  ],
+  "status": "LOCAL_PASS",
+  "commit": "e1df027d53f2980e418e118bed22d15aa0832601",
+  "updatedAt": "2026-08-16T13:17:32.292Z",
+  "baselineSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+  "scope": "read-only session-owned welfare account eligibility and maximum deduction",
+  "red": [
+    "API_3_OF_3_HTTP_404",
+    "OPENAPI_PATH_MISSING",
+    "MINIAPP_3_OF_3_PAGE_MISSING"
+  ],
+  "focused": [
+    "API_3_OF_3",
+    "PRISMA_1_OF_1",
+    "OPENAPI_1_OF_1",
+    "MINIAPP_3_OF_3",
+    "P0_CHROMIUM_1_OF_1"
+  ],
+  "fullVerify": "PASS_17_OF_17",
+  "migrations": "NOT_REQUIRED_EXISTING_SCHEMA_REUSED",
+  "boundaries": {
+    "moneyMutation": false,
+    "ledgerWrite": false,
+    "payment": false,
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_EXECUTED",
+    "production": "NOT_EXECUTED"
+  },
+  "github": {
+    "issue": 103,
+    "pullRequest": null,
+    "ciRun": null
+  }
+}

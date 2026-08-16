@@ -1,0 +1,34 @@
+<view class="page" data-page-id="{{pageId}}" data-states="loading empty error permission offline success">
+  <view class="header">
+    <view class="title">确认订单 · 福利卡</view>
+    <view class="subtitle">商品价格与可抵扣额均由服务端实时计算</view>
+  </view>
+
+  <view wx:if="{{state === 'loading'}}" class="state-card">{{message}}</view>
+  <view wx:elif="{{state === 'empty'}}" class="state-card">{{message}}</view>
+  <view wx:elif="{{state === 'permission'}}" class="state-card">{{message}}</view>
+  <view wx:elif="{{state === 'offline'}}" class="state-card"><view>{{message}}</view><button bindtap="retry">重试</button></view>
+  <view wx:elif="{{state === 'error'}}" class="state-card"><view>{{message}}</view><button bindtap="retry">重新计算</button></view>
+  <block wx:else>
+    <view class="summary-card">
+      <view><text>商品金额</text><text>{{goodsAmountLabel}}</text></view>
+      <view class="total"><text>本单合计</text><text>{{totalAmountLabel}}</text></view>
+    </view>
+    <view class="section-title">本单可用福利卡</view>
+    <view wx:if="{{accounts.length === 0}}" class="state-card">{{message}}</view>
+    <button
+      wx:for="{{accounts}}"
+      wx:key="id"
+      class="account-card {{selectedAccountId === item.id ? 'selected' : ''}}"
+      data-account-id="{{item.id}}"
+      bindtap="selectAccount"
+    >
+      <view class="account-head"><text>{{item.programName}}</text><text>{{item.maskedCardNo}}</text></view>
+      <view class="scope">{{item.scopeDescription}}</view>
+      <view class="money"><text>余额 {{item.balanceLabel}}</text><text>可用 {{item.availableLabel}}</text></view>
+      <view class="deduction">本单可适用 {{item.eligibleLabel}} · 自动最大抵扣 {{item.maximumDeductibleLabel}}</view>
+    </button>
+    <button class="no-card {{selectedAccountId === '' ? 'selected' : ''}}" bindtap="useNoWelfareCard">不使用福利卡</button>
+    <view class="notice">当前页面只确认账户选择，不执行冻结、扣款或支付；支付能力将在后续独立切片接入。</view>
+  </block>
+</view>

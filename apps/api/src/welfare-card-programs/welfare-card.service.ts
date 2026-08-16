@@ -2,9 +2,70 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { SafeApiError } from '../http/api-error.js';
 import type { ConsumerOrderActor } from '../orders/order.actor.js';
+import { ORDER_REPOSITORY, type OrderRepository, type OrderableSkuRecord } from '../orders/order.repository.js';
 import type { WelfareCardActor } from './welfare-card.actor.js';
 import { normalizeBatch, normalizeProgram, normalizeWelfareCardBinding, requireWelfareId, requireWelfareIdempotencyKey, welfareRequestHash } from './welfare-card.policy.js';
-import { WELFARE_CARD_REPOSITORY, type WelfareBatchRecord, type WelfareCardAccountRecord, type WelfareCardRepository, type WelfareMutationResult, type WelfareProgramRecord } from './welfare-card.repository.js';
+import { WELFARE_CARD_REPOSITORY, type WelfareBatchRecord, type WelfareCardAccountRecord, type WelfareCardEligibilityAccountRecord, type WelfareCardRepository, type WelfareMutationResult, type WelfareProgramRecord } from './welfare-card.repository.js';
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu;
+const eligibilityFields = new Set(['skuId', 'quantity']);
+const queryArray = (value: unknown): readonly unknown[] => Array.isArray(value) ? value : value === undefined ? [] : [value];
+const normalizeEligibilityQuery = (query: Record<string, unknown>) => {
+  if (Object.keys(query).some((key) => !eligibilityFields.has(key))) {
+    throw new SafeApiError(422, 'FIELD_FORBIDDEN', '福利卡资格查询不接受归属、价格或抵扣金额字段');
+  }
+  const skuIds = queryArray(query.skuId);
+  const quantities = queryArray(query.quantity);
+  if (skuIds.length < 1 || skuIds.length > 100 || skuIds.length !== quantities.length) {
+    throw new SafeApiError(422, 'VALIDATION_FAILED', '商品与数量必须一一对应且不超过 100 项');
+  }
+  const seen = new Set<string>();
+  const items = skuIds.map((skuId, index) => {
+    const quantityValue = quantities[index];
+    const quantity = typeof quantityValue === 'string' && /^\d+$/u.test(quantityValue) ? Number(quantityValue) : Number.NaN;
+    if (typeof skuId !== 'string' || !UUID.test(skuId) || seen.has(skuId) || !Number.isSafeInteger(quantity) || quantity < 1 || quantity > 9999) {
+      throw new SafeApiError(422, 'VALIDATION_FAILED', '商品或数量格式无效');
+    }
+    seen.add(skuId);
+    return { skuId, quantity };
+  });
+  return items;
+};
+const safeLineAmount = (price: number, quantity: number): number => {
+  const amount = price * quantity;
+  if (!Number.isSafeInteger(price) || price < 0 || !Number.isSafeInteger(amount)) {
+    throw new SafeApiError(409, 'PRODUCT_NOT_SALEABLE', '商品价格无效');
+  }
+  return amount;
+};
+const scopeResourceId = (account: WelfareCardEligibilityAccountRecord, sku: OrderableSkuRecord): string | null => {
+  if (account.scopeType === 'ALL_PRODUCTS') return null;
+  if (account.scopeType === 'CATEGORY') return sku.categoryId;
+  if (account.scopeType === 'PRODUCT') return sku.productId;
+  return sku.skuId;
+};
+const scopeRulesAreValid = (account: WelfareCardEligibilityAccountRecord): boolean => {
+  const rules: unknown = account.scopeRules;
+  if (!rules || typeof rules !== 'object' || Array.isArray(rules)) return false;
+  const { schemaVersion, includedIds, excludedIds } = rules as Record<string, unknown>;
+  if (schemaVersion !== 1 || !Array.isArray(includedIds) || !Array.isArray(excludedIds)) return false;
+  const ids = [...includedIds, ...excludedIds];
+  if (ids.length > 1000 || new Set(ids).size !== ids.length || ids.some((id) => typeof id !== 'string' || !UUID.test(id))) return false;
+  return account.scopeType !== 'ALL_PRODUCTS' || ids.length === 0;
+};
+const lineIsEligible = (account: WelfareCardEligibilityAccountRecord, sku: OrderableSkuRecord): boolean => {
+  if (!scopeRulesAreValid(account)) return false;
+  if (account.scopeType === 'ALL_PRODUCTS') return true;
+  const resourceId = scopeResourceId(account, sku);
+  if (!resourceId || account.scopeRules.excludedIds.includes(resourceId)) return false;
+  return account.scopeRules.includedIds.includes(resourceId);
+};
+const scopeDescription = (account: WelfareCardEligibilityAccountRecord): string => {
+  const fee = account.canPayDeliveryFee ? '含配送费' : '不含配送费';
+  if (account.scopeType === 'ALL_PRODUCTS') return `全部商品可用，${fee}`;
+  const labels = { CATEGORY: '指定分类', PRODUCT: '指定商品', SKU: '指定规格' } as const;
+  return `部分商品可用：${labels[account.scopeType]}，${fee}`;
+};
 
 const requireRole = (actor: WelfareCardActor): void => {
   if (actor.role !== 'COMPANY_WELFARE_CARD') throw new SafeApiError(403, 'WORKSPACE_FORBIDDEN', '当前职能无权访问福利卡计划与批次');
@@ -48,7 +109,10 @@ const mutationValue = <T extends WelfareProgramRecord | WelfareBatchRecord>(resu
 
 @Injectable()
 export class WelfareCardService {
-  constructor(@Inject(WELFARE_CARD_REPOSITORY) private readonly repository: WelfareCardRepository) {}
+  constructor(
+    @Inject(WELFARE_CARD_REPOSITORY) private readonly repository: WelfareCardRepository,
+    @Inject(ORDER_REPOSITORY) private readonly orderRepository: OrderRepository,
+  ) {}
 
   async list(actor: WelfareCardActor, query: Record<string, unknown> = {}) {
     requireRole(actor);
@@ -104,5 +168,57 @@ export class WelfareCardService {
       throw new SafeApiError(status, 'CARD_CODE_INVALID', result.reason === 'AGREEMENT' ? '福利卡协议版本已变化，请刷新后重试' : '福利卡卡密或当前状态无效');
     }
     return { body: accountDto(result.value), replayed: result.replayed };
+  }
+
+  async listEligibleAccounts(actor: ConsumerOrderActor, query: Record<string, unknown>) {
+    if (actor.status !== 'ACTIVE') throw new SafeApiError(403, 'ACCOUNT_SUSPENDED', '当前个人账号不可使用福利卡');
+    const items = normalizeEligibilityQuery(query);
+    const skuRows = await this.orderRepository.findOrderableSkus(actor.companyId, items.map(({ skuId }) => skuId));
+    const skuById = new Map(skuRows.map((row) => [row.skuId, row]));
+    if (skuRows.length !== items.length || skuRows.some((row) => row.companyId !== actor.companyId || row.status !== 'ACTIVE' || row.productStatus !== 'ACTIVE' || !row.isRetailEnabled)) {
+      throw new SafeApiError(409, 'PRODUCT_NOT_SALEABLE', '一个或多个商品当前不可结算');
+    }
+    const pricedItems = items.map((item) => {
+      const sku = skuById.get(item.skuId);
+      if (!sku) throw new SafeApiError(409, 'PRODUCT_NOT_SALEABLE', '一个或多个商品当前不可结算');
+      return { sku, lineAmount: safeLineAmount(sku.retailSalePrice, item.quantity) };
+    });
+    const goodsAmount = pricedItems.reduce((sum, item) => {
+      const next = sum + item.lineAmount;
+      if (!Number.isSafeInteger(next)) throw new SafeApiError(422, 'VALIDATION_FAILED', '结算金额超过支持范围');
+      return next;
+    }, 0);
+    const deliveryFee = 0;
+    const accounts = (await this.repository.listEligibilityAccounts(actor.companyId, actor.consumerUserId))
+      .filter((account) => account.companyId === actor.companyId
+        && account.consumerUserId === actor.consumerUserId
+        && account.status === 'ACTIVE'
+        && Number.isSafeInteger(account.balanceAmount)
+        && account.balanceAmount >= 0
+        && Number.isSafeInteger(account.frozenAmount)
+        && account.frozenAmount >= 0)
+      .flatMap((account) => {
+        const availableAmount = Math.max(0, account.balanceAmount - account.frozenAmount);
+        const goodsEligibleAmount = pricedItems.reduce((sum, item) => sum + (lineIsEligible(account, item.sku) ? item.lineAmount : 0), 0);
+        const eligibleAmount = goodsEligibleAmount + (account.canPayDeliveryFee ? deliveryFee : 0);
+        const maximumDeductibleAmount = Math.min(availableAmount, eligibleAmount);
+        if (maximumDeductibleAmount <= 0) return [];
+        return [{
+          id: account.id,
+          programName: account.programName,
+          maskedCardNo: maskCardNo(account.cardNo),
+          balanceAmount: account.balanceAmount,
+          frozenAmount: account.frozenAmount,
+          availableAmount,
+          status: 'ACTIVE' as const,
+          version: account.version,
+          scopeType: account.scopeType,
+          scopeDescription: scopeDescription(account),
+          eligibleAmount,
+          maximumDeductibleAmount,
+        }];
+      })
+      .sort((left, right) => right.maximumDeductibleAmount - left.maximumDeductibleAmount || left.id.localeCompare(right.id));
+    return { goodsAmount, deliveryFee, totalAmount: goodsAmount + deliveryFee, accounts };
   }
 }

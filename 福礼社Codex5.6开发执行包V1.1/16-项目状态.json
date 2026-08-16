@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-16T10:17:29.2950674Z",
+  "updatedAt": "2026-08-16T13:17:32.292Z",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -14,15 +14,15 @@
   "execution": {
     "status": "M3_IN_PROGRESS",
     "currentStage": "M3",
-    "currentTask": "M3-P052",
-    "nextAllowedTask": "M3-P052",
+    "currentTask": "M3-P053",
+    "nextAllowedTask": "M3-P053",
     "activeTaskCount": 1,
-    "lastCompletedTask": "M3-P051",
-    "lastCompletedCommit": "31839f8fd2daa8efb0910e7c7405cbc80fa9a752",
+    "lastCompletedTask": "M3-P052",
+    "lastCompletedCommit": "b186f6b680727318ddeb4d6573bcfa4090d2ad8b",
     "lastPassedGate": "M2-GATE",
     "prohibitedUntilGate": [
-      "M3-P052 Draft PR精确head CI成功、人工合并且post-merge main CI成功前不得开始M3-P053",
-      "EXT-012真实福利卡发行和真机扫码未完成；M4及后续保持锁定"
+      "M3-P053 Draft PR精确head CI成功、人工合并且post-merge main CI成功前不得开始M3-P054",
+      "真实福利卡资金/真机/staging/production未完成；M4及后续保持锁定"
     ],
     "persistentRestrictions": [
       "M3-GATE通过前M4及以后阶段保持LOCKED/NOT_EXECUTED",
@@ -39,9 +39,9 @@
     "authenticationConfirmed": true,
     "writeAllowed": true,
     "connectorAccessConfirmed": true,
-    "pullRequest": 102,
-    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/102",
-    "pullRequestState": "DRAFT",
+    "pullRequest": null,
+    "pullRequestUrl": null,
+    "pullRequestState": "NOT_CREATED",
     "pullRequestMerged": false,
     "mergeCommitSha": null,
     "mergedAt": null,
@@ -80,18 +80,18 @@
       "completedAt": "2026-08-16T02:47:35.508Z"
     },
     "currentTaskDelivery": {
-      "taskId": "M3-P052",
-      "issue": 101,
-      "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/101",
-      "branch": "codex/m3-welfare-card-binding",
-      "baseCommit": "31839f8fd2daa8efb0910e7c7405cbc80fa9a752",
-      "verifiedHead": "5c850db4a070e3b3955bfa121b006ca0689ae5c8",
+      "taskId": "M3-P053",
+      "issue": 103,
+      "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/103",
+      "branch": "codex/m3-welfare-card-account-selection",
+      "baseCommit": "b186f6b680727318ddeb4d6573bcfa4090d2ad8b",
+      "verifiedHead": "e1df027d53f2980e418e118bed22d15aa0832601",
       "status": "LOCAL_PASS_PENDING_DRAFT_PR",
-      "localRedTest": "API_3_OF_3_HTTP_404;MIGRATION_ENOENT;MINIAPP_3_OF_3_PAGES_MISSING",
-      "localFocusedTest": "LOCAL_PASS_API_3_REPOSITORY_4_MIGRATION_1_OPENAPI_1_MINIAPP_3_P0_1",
+      "localRedTest": "API_3_OF_3_HTTP_404;OPENAPI_PATH_MISSING;MINIAPP_3_OF_3_PAGE_MISSING",
+      "localFocusedTest": "LOCAL_PASS_API_3_PRISMA_1_OPENAPI_1_MINIAPP_3_P0_1",
       "localFullVerify": "PASS_17_OF_17",
-      "pullRequest": 102,
-      "pullRequestState": "DRAFT",
+      "pullRequest": null,
+      "pullRequestState": "NOT_CREATED",
       "exactHeadCi": "NOT_EXECUTED",
       "review": "NOT_EXECUTED",
       "merge": "NOT_EXECUTED",
@@ -100,19 +100,19 @@
       "nextTaskUnlocked": false
     },
     "previousTaskDelivery": {
-      "taskId": "M3-P051",
-      "pullRequest": 100,
-      "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/100",
-      "exactHead": "823672611b8ed291cf29ce02f99d6fd60ab44b9c",
-      "mergeCommit": "31839f8fd2daa8efb0910e7c7405cbc80fa9a752",
-      "mainPostMergeCiRun": 31935845317,
-      "mainPostMergeCiJob": 95137513626,
+      "taskId": "M3-P052",
+      "pullRequest": 102,
+      "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/102",
+      "exactHead": "d1143daac1658aa0876642525cc481b30437eed7",
+      "mergeCommit": "b186f6b680727318ddeb4d6573bcfa4090d2ad8b",
+      "mainPostMergeCiRun": 31946062202,
+      "mainPostMergeCiJob": 95162089803,
       "status": "CI_PASS"
     },
-    "note": "M3-P052福利卡绑定 LOCAL_PASS；真实发行、真机扫码、staging/device/production未执行；M3-P053锁定。"
+    "note": "M3-P053福利卡账户选择 LOCAL_PASS；实际资金、真机、staging/device/production未执行；M3-P054锁定。"
   },
   "evidence": {
-    "local": "LOCAL_PASS_M3_P052_FULL_VERIFY",
+    "local": "LOCAL_PASS_M3_P053_FULL_VERIFY",
     "ci": "NOT_EXECUTED",
     "staging": "NOT_EXECUTED",
     "device": "NOT_EXECUTED",
