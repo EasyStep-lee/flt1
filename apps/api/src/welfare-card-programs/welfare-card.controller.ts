@@ -1,11 +1,13 @@
-import { Body, Controller, Get, Header, Headers, Inject, Param, Post, Query, Req, Res } from '@nestjs/common';
-import { ApiBody, ApiConflictResponse, ApiCreatedResponse, ApiExtraModels, ApiHeader, ApiOkResponse, ApiOperation, ApiParam, ApiTags, ApiUnauthorizedResponse, ApiUnprocessableEntityResponse } from '@nestjs/swagger';
+import { Body, Controller, Get, Header, Headers, HttpCode, Inject, Param, Post, Query, Req, Res } from '@nestjs/common';
+import { ApiBody, ApiConflictResponse, ApiCreatedResponse, ApiExtraModels, ApiForbiddenResponse, ApiHeader, ApiOkResponse, ApiOperation, ApiParam, ApiTags, ApiUnauthorizedResponse, ApiUnprocessableEntityResponse } from '@nestjs/swagger';
 import type { Response } from 'express';
 
 import { ApiErrorResponseDto } from '../http/api-error.dto.js';
+import { SafeApiError } from '../http/api-error.js';
 import type { RequestWithId } from '../http/request-id.middleware.js';
+import { ORDER_ACTOR_RESOLVER, type OrderActorResolver } from '../orders/order.actor.js';
 import { WELFARE_CARD_ACTOR_RESOLVER, type WelfareCardActorResolver } from './welfare-card.actor.js';
-import { CreateWelfareBatchRequestDto, CreateWelfareProgramRequestDto, WelfareBatchResponseDto, WelfareProgramPageResponseDto, WelfareProgramResponseDto } from './welfare-card.dto.js';
+import { CreateWelfareBatchRequestDto, CreateWelfareProgramRequestDto, WelfareBatchResponseDto, WelfareCardAccountResponseDto, WelfareCardBindRequestDto, WelfareProgramPageResponseDto, WelfareProgramResponseDto } from './welfare-card.dto.js';
 import { WelfareCardService } from './welfare-card.service.js';
 
 @ApiTags('company-welfare-card')
@@ -55,6 +57,46 @@ export class WelfareCardController {
   async createBatch(@Req() request: RequestWithId, @Param('programId') programId: string, @Body() body: CreateWelfareBatchRequestDto & Record<string, unknown>, @Headers('idempotency-key') key: string | undefined, @Res({ passthrough: true }) response: Response): Promise<WelfareBatchResponseDto> {
     const result = await this.service.createBatch(await this.actorResolver.resolve(request), programId, body, key, request.requestId ?? 'request-id-unavailable', request.ip ?? null);
     if (result.replayed) response.setHeader('Idempotency-Replayed', 'true');
+    return result.body;
+  }
+}
+
+@ApiTags('consumer-welfare-card')
+@ApiExtraModels(ApiErrorResponseDto, WelfareCardBindRequestDto, WelfareCardAccountResponseDto)
+@Controller('v1/consumer/welfare-card-accounts')
+export class ConsumerWelfareCardController {
+  constructor(
+    @Inject(WelfareCardService) private readonly service: WelfareCardService,
+    @Inject(ORDER_ACTOR_RESOLVER) private readonly actors: OrderActorResolver,
+  ) {}
+
+  @Post('bind')
+  @HttpCode(201)
+  @Header('Cache-Control', 'private, no-store, max-age=0')
+  @Header('X-Robots-Tag', 'noindex, nofollow')
+  @ApiOperation({ operationId: 'consumerWelfareCard.bindAccount', summary: 'Bind one issued welfare-card code to the verified consumer' })
+  @ApiHeader({ name: 'Idempotency-Key', required: true })
+  @ApiBody({ type: WelfareCardBindRequestDto })
+  @ApiCreatedResponse({ type: WelfareCardAccountResponseDto })
+  @ApiOkResponse({ description: 'Exact idempotent replay', type: WelfareCardAccountResponseDto })
+  @ApiUnauthorizedResponse({ type: ApiErrorResponseDto })
+  @ApiForbiddenResponse({ type: ApiErrorResponseDto })
+  @ApiConflictResponse({ type: ApiErrorResponseDto })
+  @ApiUnprocessableEntityResponse({ type: ApiErrorResponseDto })
+  async bind(
+    @Req() request: RequestWithId,
+    @Body() body: WelfareCardBindRequestDto & Record<string, unknown>,
+    @Headers('idempotency-key') key: string | undefined,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<WelfareCardAccountResponseDto> {
+    const cookie = typeof request.headers.cookie === 'string' ? request.headers.cookie : undefined;
+    const actor = await this.actors.resolveConsumer(cookie);
+    if (!actor) throw new SafeApiError(401, 'AUTHENTICATION_REQUIRED', 'Consumer session is required');
+    const result = await this.service.bindCard(actor, body, key, request.requestId ?? 'request-id-unavailable');
+    if (result.replayed) {
+      response.status(200);
+      response.setHeader('Idempotency-Replayed', 'true');
+    }
     return result.body;
   }
 }

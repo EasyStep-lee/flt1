@@ -6,7 +6,9 @@
     "pages/profile/index",
     "pages/shell/index",
     "pages/product-detail/index",
-    "pages/supplier-products/index"
+    "pages/supplier-products/index",
+    "pages/welfare-card/index",
+    "pages/welfare-card-bind/index"
   ],
   "sitemapLocation": "sitemap.json",
   "tabBar": {

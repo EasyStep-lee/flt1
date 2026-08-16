@@ -5,13 +5,17 @@ import { Prisma } from '@fulishe/db';
 
 import { PrismaService } from '../infrastructure/prisma.service.js';
 import type {
+  BindWelfareCardCommand,
   CreateWelfareBatchCommand,
   CreateWelfareProgramCommand,
   WelfareBatchRecord,
+  WelfareCardAccountRecord,
+  WelfareCardBindingResult,
   WelfareCardRepository,
   WelfareMutationResult,
   WelfareProgramRecord,
 } from './welfare-card.repository.js';
+import { verifyWelfareCardSecret } from './welfare-card-secret.js';
 
 const json = (value: unknown): Prisma.InputJsonValue => value as Prisma.InputJsonValue;
 const history = (row: { event: string; resultingVersion: number; occurredAt: Date }) => ({
@@ -41,6 +45,24 @@ const programRecord = (row: {
   refundPolicy: row.refundPolicy, complianceStatus: row.complianceStatus as 'DRAFT', status: row.status as 'DRAFT',
   version: row.version, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString(),
   history: histories.map(history), batches,
+});
+const accountRecord = (row: {
+  id: string; consumerUserId: string; programId: string; batchId: string; balanceAmount: number;
+  frozenAmount: number; status: string; version: number;
+}, source: { companyId: string; programName: string; batchNo: string; cardNo: string; claimedAt: Date }): WelfareCardAccountRecord => ({
+  id: row.id,
+  companyId: source.companyId,
+  consumerUserId: row.consumerUserId,
+  programId: row.programId,
+  programName: source.programName,
+  batchId: row.batchId,
+  batchNo: source.batchNo,
+  cardNo: source.cardNo,
+  balanceAmount: row.balanceAmount,
+  frozenAmount: row.frozenAmount,
+  status: row.status as 'ACTIVE',
+  version: row.version,
+  claimedAt: source.claimedAt.toISOString(),
 });
 
 @Injectable()
@@ -145,5 +167,149 @@ export class PrismaWelfareCardRepository implements WelfareCardRepository {
       const after = await this.replay<WelfareBatchRecord>(command.companyId, 'CREATE_BATCH', command.idempotencyKey, command.requestHash);
       return after ?? { kind: 'DUPLICATE' };
     }
+  }
+
+  private async replayBinding(command: BindWelfareCardCommand): Promise<WelfareCardBindingResult | undefined> {
+    const previous = await this.prisma.welfareCardBindingCommand.findUnique({
+      where: {
+        companyId_consumerUserId_idempotencyKey: {
+          companyId: command.companyId,
+          consumerUserId: command.consumerUserId,
+          idempotencyKey: command.idempotencyKey,
+        },
+      },
+    });
+    if (!previous) return undefined;
+    if (previous.requestHash !== command.requestHash) return { kind: 'IDEMPOTENCY_CONFLICT' };
+    return { kind: 'OK', replayed: true, value: previous.responseSnapshot as unknown as WelfareCardAccountRecord };
+  }
+
+  async bindCard(command: BindWelfareCardCommand): Promise<WelfareCardBindingResult> {
+    const replay = await this.replayBinding(command);
+    if (replay) return replay;
+
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      try {
+        return await this.prisma.$transaction(async (tx): Promise<WelfareCardBindingResult> => {
+          const previous = await tx.welfareCardBindingCommand.findUnique({
+            where: {
+              companyId_consumerUserId_idempotencyKey: {
+                companyId: command.companyId,
+                consumerUserId: command.consumerUserId,
+                idempotencyKey: command.idempotencyKey,
+              },
+            },
+          });
+          if (previous) {
+            if (previous.requestHash !== command.requestHash) return { kind: 'IDEMPOTENCY_CONFLICT' };
+            return { kind: 'OK', replayed: true, value: previous.responseSnapshot as unknown as WelfareCardAccountRecord };
+          }
+
+          const card = await tx.welfareCardCode.findUnique({
+            where: { cardNo: command.cardNo },
+            include: { batch: { include: { program: true } } },
+          });
+          const secretMatches = verifyWelfareCardSecret(command.secret, card?.secretHash);
+          if (!card || card.batch.companyId !== command.companyId || !secretMatches) {
+            return { kind: 'CARD_CODE_INVALID', reason: 'CREDENTIAL' };
+          }
+          if (card.status === 'CLAIMED') {
+            return card.claimedByConsumerUserId === command.consumerUserId
+              ? { kind: 'CARD_ALREADY_CLAIMED' }
+              : { kind: 'CARD_RECIPIENT_MISMATCH' };
+          }
+          if (
+            card.status !== 'UNCLAIMED'
+            || card.batch.status !== 'ISSUED'
+            || card.batch.program.status !== 'ACTIVE'
+            || card.batch.program.complianceStatus !== 'APPROVED'
+          ) {
+            return { kind: 'CARD_CODE_INVALID', reason: 'STATE' };
+          }
+          if (card.batch.agreementVersion !== command.agreementVersion) {
+            return { kind: 'CARD_CODE_INVALID', reason: 'AGREEMENT' };
+          }
+
+          const claimedAt = new Date();
+          const claimed = await tx.welfareCardCode.updateMany({
+            where: { id: card.id, status: 'UNCLAIMED', version: card.version },
+            data: {
+              status: 'CLAIMED',
+              claimedByConsumerUserId: command.consumerUserId,
+              claimedAt,
+              version: { increment: 1 },
+            },
+          });
+          if (claimed.count !== 1) {
+            const current = await tx.welfareCardCode.findUnique({ where: { id: card.id } });
+            return current?.claimedByConsumerUserId === command.consumerUserId
+              ? { kind: 'CARD_ALREADY_CLAIMED' }
+              : { kind: 'CARD_RECIPIENT_MISMATCH' };
+          }
+
+          const account = await tx.welfareCardAccount.create({
+            data: {
+              id: randomUUID(),
+              consumerUserId: command.consumerUserId,
+              programId: card.batch.programId,
+              batchId: card.batchId,
+              cardCodeId: card.id,
+              balanceAmount: card.amount,
+              frozenAmount: 0,
+              status: 'ACTIVE',
+              version: 0,
+            },
+          });
+          await tx.welfareCardLedger.create({
+            data: {
+              id: randomUUID(),
+              accountId: account.id,
+              orderId: null,
+              refundId: null,
+              businessType: 'CLAIM',
+              direction: 'CREDIT',
+              amount: card.amount,
+              beforeBalance: 0,
+              afterBalance: card.amount,
+              beforeFrozen: 0,
+              afterFrozen: 0,
+              idempotencyKey: `CLAIM:${card.id}`,
+            },
+          });
+          const created = accountRecord(account, {
+            companyId: command.companyId,
+            programName: card.batch.program.name,
+            batchNo: card.batch.batchNo,
+            cardNo: card.cardNo,
+            claimedAt,
+          });
+          await tx.welfareCardBindingCommand.create({
+            data: {
+              id: randomUUID(),
+              companyId: command.companyId,
+              consumerUserId: command.consumerUserId,
+              idempotencyKey: command.idempotencyKey,
+              requestHash: command.requestHash,
+              requestId: command.requestId,
+              responseSnapshot: json(created),
+            },
+          });
+          return { kind: 'OK', replayed: false, value: created };
+        }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+      } catch (error) {
+        if (!(error instanceof Prisma.PrismaClientKnownRequestError)) throw error;
+        if (error.code === 'P2034' && attempt < 2) continue;
+        if (error.code === 'P2002') {
+          const after = await this.replayBinding(command);
+          if (after) return after;
+          const card = await this.prisma.welfareCardCode.findUnique({ where: { cardNo: command.cardNo } });
+          return card?.claimedByConsumerUserId === command.consumerUserId
+            ? { kind: 'CARD_ALREADY_CLAIMED' }
+            : { kind: 'CARD_RECIPIENT_MISMATCH' };
+        }
+        throw error;
+      }
+    }
+    throw new Error('WELFARE_CARD_BINDING_SERIALIZATION_RETRY_EXHAUSTED');
   }
 }

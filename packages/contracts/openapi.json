@@ -124,6 +124,9 @@
               "REFUND_OVERPAID",
               "REFUND_STATE_CONFLICT",
               "SAME_NATURAL_PERSON_REVIEW_FORBIDDEN",
+              "CARD_ALREADY_CLAIMED",
+              "CARD_CODE_INVALID",
+              "CARD_RECIPIENT_MISMATCH",
               "DUPLICATE_OR_STATE_CONFLICT",
               "PERSONAL_RECHARGE_FORBIDDEN",
               "WELFARE_BATCH_AMOUNT_MISMATCH",
@@ -7298,6 +7301,107 @@
         ],
         "type": "object"
       },
+      "WelfareCardAccountResponseDto": {
+        "properties": {
+          "availableAmount": {
+            "description": "Integer cents",
+            "minimum": 0,
+            "type": "number"
+          },
+          "balanceAmount": {
+            "description": "Integer cents",
+            "minimum": 0,
+            "type": "number"
+          },
+          "batchNo": {
+            "type": "string"
+          },
+          "claimedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "frozenAmount": {
+            "description": "Integer cents",
+            "minimum": 0,
+            "type": "number"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "maskedCardNo": {
+            "description": "Only the last four card characters are visible",
+            "type": "string"
+          },
+          "programName": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "ACTIVE"
+            ],
+            "type": "string"
+          },
+          "version": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "programName",
+          "batchNo",
+          "maskedCardNo",
+          "balanceAmount",
+          "frozenAmount",
+          "availableAmount",
+          "status",
+          "version",
+          "claimedAt"
+        ],
+        "type": "object"
+      },
+      "WelfareCardBindRequestDto": {
+        "properties": {
+          "agreementAccepted": {
+            "enum": [
+              true
+            ],
+            "type": "boolean"
+          },
+          "agreementVersion": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "cardNo": {
+            "maxLength": 191,
+            "minLength": 4,
+            "type": "string"
+          },
+          "method": {
+            "enum": [
+              "CARD_PASSWORD",
+              "REDEMPTION_CODE",
+              "SCAN_CODE"
+            ],
+            "type": "string"
+          },
+          "secret": {
+            "description": "Sensitive card credential; never persisted or returned in plaintext",
+            "maxLength": 191,
+            "minLength": 6,
+            "type": "string"
+          }
+        },
+        "required": [
+          "method",
+          "cardNo",
+          "secret",
+          "agreementAccepted",
+          "agreementVersion"
+        ],
+        "type": "object"
+      },
       "WelfareHistoryResponseDto": {
         "properties": {
           "event": {
@@ -10853,6 +10957,97 @@
         "summary": "Create one company consumer order across suppliers",
         "tags": [
           "consumer-orders"
+        ]
+      }
+    },
+    "/v1/consumer/welfare-card-accounts/bind": {
+      "post": {
+        "operationId": "consumerWelfareCard.bindAccount",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WelfareCardBindRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WelfareCardAccountResponseDto"
+                }
+              }
+            },
+            "description": "Exact idempotent replay"
+          },
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WelfareCardAccountResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Bind one issued welfare-card code to the verified consumer",
+        "tags": [
+          "consumer-welfare-card"
         ]
       }
     },

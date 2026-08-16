@@ -75,6 +75,43 @@ export interface CreateWelfareBatchCommand extends WelfareCommandBase {
   readonly agreementVersion: number;
 }
 
+export type WelfareCardBindingMethod = 'CARD_PASSWORD' | 'REDEMPTION_CODE' | 'SCAN_CODE';
+
+export interface WelfareCardAccountRecord {
+  readonly id: string;
+  readonly companyId: string;
+  readonly consumerUserId: string;
+  readonly programId: string;
+  readonly programName: string;
+  readonly batchId: string;
+  readonly batchNo: string;
+  readonly cardNo: string;
+  readonly balanceAmount: number;
+  readonly frozenAmount: number;
+  readonly status: 'ACTIVE';
+  readonly version: number;
+  readonly claimedAt: string;
+}
+
+export interface BindWelfareCardCommand {
+  readonly companyId: string;
+  readonly consumerUserId: string;
+  readonly method: WelfareCardBindingMethod;
+  readonly cardNo: string;
+  readonly secret: string;
+  readonly agreementVersion: number;
+  readonly idempotencyKey: string;
+  readonly requestHash: string;
+  readonly requestId: string;
+}
+
+export type WelfareCardBindingResult =
+  | { readonly kind: 'OK'; readonly value: WelfareCardAccountRecord; readonly replayed: boolean }
+  | { readonly kind: 'CARD_CODE_INVALID'; readonly reason: 'CREDENTIAL' | 'STATE' | 'AGREEMENT' }
+  | { readonly kind: 'CARD_ALREADY_CLAIMED' }
+  | { readonly kind: 'CARD_RECIPIENT_MISMATCH' }
+  | { readonly kind: 'IDEMPOTENCY_CONFLICT' };
+
 export type WelfareMutationResult<T> =
   | { readonly kind: 'OK'; readonly value: T | { readonly duplicate: true }; readonly replayed: boolean }
   | { readonly kind: 'NOT_FOUND' | 'IDEMPOTENCY_CONFLICT' | 'DUPLICATE' };
@@ -83,4 +120,5 @@ export interface WelfareCardRepository {
   listPrograms(companyId: string): Promise<readonly WelfareProgramRecord[]>;
   createProgram(command: CreateWelfareProgramCommand): Promise<WelfareMutationResult<WelfareProgramRecord>>;
   createBatch(command: CreateWelfareBatchCommand): Promise<WelfareMutationResult<WelfareBatchRecord>>;
+  bindCard(command: BindWelfareCardCommand): Promise<WelfareCardBindingResult>;
 }

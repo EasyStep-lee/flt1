@@ -1,0 +1,39 @@
+<view class="page" data-page-id="{{pageId}}">
+  <view class="card-visual">
+    <view class="brand">福礼团福利卡</view>
+    <view class="card-title">企业关怀 · 安心使用</view>
+    <view class="card-subtitle">卡密仅用于本次加密传输，服务端只保存安全摘要</view>
+  </view>
+
+  <view wx:if="{{state === 'loading'}}" class="state-card">正在加载绑定信息…</view>
+  <view wx:elif="{{state === 'permission'}}" class="state-card">请先完成本人账号登录与必要验证。</view>
+  <view wx:elif="{{state === 'offline'}}" class="state-card">当前离线，恢复网络后可使用原按钮重试。</view>
+  <view wx:elif="{{state === 'empty'}}" class="state-card">请输入公司发放的卡号、卡密或兑换码。</view>
+
+  <view wx:if="{{state !== 'success'}}" class="form-card">
+    <view class="method-tabs">
+      <button class="method {{method === 'CARD_PASSWORD' ? 'active' : ''}}" bindtap="selectCardPassword">卡号密码</button>
+      <button class="method {{method === 'REDEMPTION_CODE' ? 'active' : ''}}" bindtap="selectRedemptionCode">兑换码</button>
+    </view>
+    <block wx:if="{{method === 'CARD_PASSWORD'}}">
+      <input class="input" value="{{cardNo}}" placeholder="请输入福利卡卡号" maxlength="191" bindinput="updateCardNo" />
+      <input class="input" value="{{secret}}" password placeholder="请输入卡密" maxlength="191" bindinput="updateSecret" />
+    </block>
+    <input wx:elif="{{method === 'REDEMPTION_CODE'}}" class="input" value="{{redemptionCode}}" password placeholder="请输入公司发行的完整兑换码" maxlength="191" bindinput="updateRedemptionCode" />
+    <checkbox-group bindchange="toggleAgreement">
+      <label class="agreement"><checkbox value="accepted" checked="{{agreementAccepted}}" color="#e94b35" />我已阅读并同意福利卡使用协议</label>
+    </checkbox-group>
+    <button class="primary" loading="{{state === 'submitting'}}" disabled="{{state === 'submitting'}}" bindtap="submitBinding">确认绑定</button>
+    <button class="scan" disabled="{{state === 'submitting'}}" bindtap="scanAndBind">扫码绑定</button>
+  </view>
+
+  <view wx:if="{{state === 'error' || state === 'unknown'}}" class="message {{state}}">{{message}}</view>
+  <view wx:if="{{state === 'success'}}" class="success-card">
+    <view class="success-mark">✓</view><view class="success-title">绑定成功</view>
+    <view class="result-row"><text>福利计划</text><text>{{programName}}</text></view>
+    <view class="result-row"><text>卡号</text><text>{{maskedCardNo}}</text></view>
+    <view class="result-row amount"><text>当前可用</text><text>{{availableAmountLabel}}</text></view>
+    <navigator class="primary" url="/pages/welfare-card/index">返回我的福利卡</navigator>
+  </view>
+  <view class="safety">不支持个人现金充值、提现或转让；退款按原支付结构退回。</view>
+</view>

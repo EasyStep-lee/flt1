@@ -63,4 +63,8 @@ export type FoundationMiniappContracts = {
     readonly requestBody: JsonRequestBody<OperationById<'orders.createConsumerOrder'>>;
     readonly responseBody: CreatedJsonResponse<OperationById<'orders.createConsumerOrder'>>;
   };
+  readonly 'consumerWelfareCard.bindAccount': {
+    readonly requestBody: JsonRequestBody<OperationById<'consumerWelfareCard.bindAccount'>>;
+    readonly responseBody: CreatedJsonResponse<OperationById<'consumerWelfareCard.bindAccount'>>;
+  };
 };
