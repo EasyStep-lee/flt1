@@ -592,6 +592,9 @@ model Company {
   buyerOrders               BuyerOrder[]
   refundAuthorizations      RefundAuthorization[]
   enterpriseCustomers       EnterpriseCustomer[]
+  welfareCardPrograms       WelfareCardProgram[]
+  welfareCardBatches        WelfareCardBatch[]
+  welfareCardCommands       WelfareCardCommand[]
 
   @@map("company")
 }
@@ -714,6 +717,7 @@ model EnterpriseCustomer {
   certificationSnapshots EnterpriseCertificationSnapshot[]
   procurementProfile     EnterpriseProcurementProfile?
   procurementOrders      EnterpriseProcurementOrder[]
+  welfareCardBatches     WelfareCardBatch[]
 
   @@index([companyId, status, createdAt], map: "enterprise_customer_company_status_time_idx")
   @@index([contactMobile, status], map: "enterprise_customer_mobile_status_idx")
@@ -859,6 +863,8 @@ model FunctionalAccount {
   dataScopePolicy     DataScopePolicy?
   fieldAccessPolicies FieldAccessPolicy[]
   authSessions        AuthSession[]
+  createdWelfareCardPrograms WelfareCardProgram[]
+  createdWelfareCardBatches  WelfareCardBatch[]
 
   @@unique([supplierId, identityId, accountTypeId], map: "functional_account_supplier_identity_type_key")
   @@unique([companyId, identityId, accountTypeId], map: "functional_account_company_identity_type_key")
@@ -2048,4 +2054,106 @@ model AuditLog {
   @@index([supplierId, occurredAt], map: "audit_log_supplier_time_idx")
   @@index([functionalAccountId, occurredAt], map: "audit_log_functional_account_time_idx")
   @@map("audit_log")
+}
+
+model WelfareCardProgram {
+  id                    String   @id @default(uuid()) @db.Char(36)
+  companyId             String   @map("company_id") @db.Char(36)
+  name                  String   @db.VarChar(191)
+  fundingType           String   @map("funding_type") @db.VarChar(32)
+  issuerType            String   @default("COMPANY") @map("issuer_type") @db.VarChar(16)
+  scopeType             String   @map("scope_type") @db.VarChar(32)
+  scopeRules            Json     @map("scope_rules")
+  canPayDeliveryFee     Boolean  @default(false) @map("can_pay_delivery_fee")
+  refundPolicy          String   @map("refund_policy") @db.VarChar(500)
+  complianceStatus      String   @default("DRAFT") @map("compliance_status") @db.VarChar(32)
+  status                String   @default("DRAFT") @db.VarChar(32)
+  version               Int      @default(0)
+  createdByIdentityId   String   @map("created_by_identity_id") @db.Char(36)
+  functionalAccountId   String   @map("functional_account_id") @db.Char(36)
+  createdAt             DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt             DateTime @updatedAt @map("updated_at") @db.DateTime(3)
+  company               Company @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  functionalAccount     FunctionalAccount @relation(fields: [functionalAccountId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  batches               WelfareCardBatch[]
+  history               WelfareCardProgramHistory[]
+
+  @@unique([companyId, name], map: "welfare_card_program_company_name_key")
+  @@index([companyId, status, createdAt], map: "welfare_card_program_company_status_time_idx")
+  @@map("welfare_card_program")
+}
+
+model WelfareCardBatch {
+  id                    String    @id @default(uuid()) @db.Char(36)
+  companyId             String    @map("company_id") @db.Char(36)
+  programId             String    @map("program_id") @db.Char(36)
+  enterpriseCustomerId  String?   @map("enterprise_customer_id") @db.Char(36)
+  batchNo               String    @map("batch_no") @db.VarChar(64)
+  totalAmount           Int       @map("total_amount")
+  unitAmount            Int       @map("unit_amount")
+  issueCount            Int       @map("issue_count")
+  claimMode             String    @map("claim_mode") @db.VarChar(32)
+  agreementVersion      Int       @map("agreement_version")
+  status                String    @default("DRAFT") @db.VarChar(32)
+  version               Int       @default(0)
+  createdByIdentityId   String    @map("created_by_identity_id") @db.Char(36)
+  functionalAccountId   String    @map("functional_account_id") @db.Char(36)
+  createdAt             DateTime  @default(now()) @map("created_at") @db.DateTime(3)
+  company               Company @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  program               WelfareCardProgram @relation(fields: [programId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  enterpriseCustomer    EnterpriseCustomer? @relation(fields: [enterpriseCustomerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  functionalAccount     FunctionalAccount @relation(fields: [functionalAccountId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  history               WelfareCardBatchHistory[]
+
+  @@unique([companyId, batchNo], map: "welfare_card_batch_company_batch_no_key")
+  @@index([programId, status, createdAt], map: "welfare_card_batch_program_status_time_idx")
+  @@map("welfare_card_batch")
+}
+
+model WelfareCardProgramHistory {
+  id                    String   @id @default(uuid()) @db.Char(36)
+  programId             String   @map("program_id") @db.Char(36)
+  event                 String   @db.VarChar(64)
+  snapshot              Json
+  resultingVersion      Int      @map("resulting_version")
+  actorIdentityId       String   @map("actor_identity_id") @db.Char(36)
+  functionalAccountId   String   @map("functional_account_id") @db.Char(36)
+  requestId             String   @map("request_id") @db.VarChar(64)
+  ip                    String?  @db.VarChar(64)
+  occurredAt            DateTime @default(now()) @map("occurred_at") @db.DateTime(3)
+  program               WelfareCardProgram @relation(fields: [programId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([programId, occurredAt], map: "welfare_card_program_history_program_time_idx")
+  @@map("welfare_card_program_history")
+}
+
+model WelfareCardBatchHistory {
+  id                    String   @id @default(uuid()) @db.Char(36)
+  batchId               String   @map("batch_id") @db.Char(36)
+  event                 String   @db.VarChar(64)
+  snapshot              Json
+  resultingVersion      Int      @map("resulting_version")
+  actorIdentityId       String   @map("actor_identity_id") @db.Char(36)
+  functionalAccountId   String   @map("functional_account_id") @db.Char(36)
+  requestId             String   @map("request_id") @db.VarChar(64)
+  ip                    String?  @db.VarChar(64)
+  occurredAt            DateTime @default(now()) @map("occurred_at") @db.DateTime(3)
+  batch                 WelfareCardBatch @relation(fields: [batchId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([batchId, occurredAt], map: "welfare_card_batch_history_batch_time_idx")
+  @@map("welfare_card_batch_history")
+}
+
+model WelfareCardCommand {
+  id                    String   @id @default(uuid()) @db.Char(36)
+  companyId             String   @map("company_id") @db.Char(36)
+  operation             String   @db.VarChar(32)
+  idempotencyKey        String   @map("idempotency_key") @db.VarChar(128)
+  requestHash           String   @map("request_hash") @db.Char(64)
+  responseSnapshot      Json     @map("response_snapshot")
+  createdAt             DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  company               Company @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@unique([companyId, idempotencyKey], map: "welfare_card_command_company_key")
+  @@map("welfare_card_command")
 }

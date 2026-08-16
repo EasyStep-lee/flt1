@@ -123,7 +123,13 @@
               "REFUND_DUPLICATE",
               "REFUND_OVERPAID",
               "REFUND_STATE_CONFLICT",
-              "SAME_NATURAL_PERSON_REVIEW_FORBIDDEN"
+              "SAME_NATURAL_PERSON_REVIEW_FORBIDDEN",
+              "DUPLICATE_OR_STATE_CONFLICT",
+              "PERSONAL_RECHARGE_FORBIDDEN",
+              "WELFARE_BATCH_AMOUNT_MISMATCH",
+              "WELFARE_CLAIM_MODE_INVALID",
+              "WELFARE_FUNDING_SOURCE_INVALID",
+              "WELFARE_PROGRAM_NOT_FOUND"
             ],
             "example": "RESOURCE_NOT_FOUND",
             "type": "string"
@@ -1724,6 +1730,100 @@
         "required": [
           "resource",
           "reason"
+        ],
+        "type": "object"
+      },
+      "CreateWelfareBatchRequestDto": {
+        "properties": {
+          "agreementVersion": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "batchNo": {
+            "maxLength": 64,
+            "minLength": 2,
+            "type": "string"
+          },
+          "claimMode": {
+            "enum": [
+              "ENTERPRISE_ASSIGNED",
+              "COMPANY_ASSIGNED",
+              "PHYSICAL_CARD_OR_CODE"
+            ],
+            "type": "string"
+          },
+          "enterpriseCustomerId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "issueCount": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "totalAmount": {
+            "description": "Integer cents",
+            "minimum": 1,
+            "type": "number"
+          },
+          "unitAmount": {
+            "description": "Integer cents",
+            "minimum": 1,
+            "type": "number"
+          }
+        },
+        "required": [
+          "batchNo",
+          "totalAmount",
+          "unitAmount",
+          "issueCount",
+          "claimMode",
+          "agreementVersion"
+        ],
+        "type": "object"
+      },
+      "CreateWelfareProgramRequestDto": {
+        "properties": {
+          "canPayDeliveryFee": {
+            "type": "boolean"
+          },
+          "fundingType": {
+            "enum": [
+              "ENTERPRISE_GRANT",
+              "COMPANY_GIFT",
+              "PHYSICAL_CARD_OR_CODE"
+            ],
+            "type": "string"
+          },
+          "name": {
+            "maxLength": 191,
+            "minLength": 2,
+            "type": "string"
+          },
+          "refundPolicy": {
+            "maxLength": 500,
+            "minLength": 2,
+            "type": "string"
+          },
+          "scopeRules": {
+            "$ref": "#/components/schemas/WelfareScopeRulesDto"
+          },
+          "scopeType": {
+            "enum": [
+              "ALL_PRODUCTS",
+              "CATEGORY",
+              "PRODUCT",
+              "SKU"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "fundingType",
+          "scopeType",
+          "scopeRules",
+          "canPayDeliveryFee",
+          "refundPolicy"
         ],
         "type": "object"
       },
@@ -7129,6 +7229,246 @@
         ],
         "type": "object"
       },
+      "WelfareBatchResponseDto": {
+        "properties": {
+          "agreementVersion": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "batchNo": {
+            "type": "string"
+          },
+          "claimMode": {
+            "enum": [
+              "ENTERPRISE_ASSIGNED",
+              "COMPANY_ASSIGNED",
+              "PHYSICAL_CARD_OR_CODE"
+            ],
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "history": {
+            "items": {
+              "$ref": "#/components/schemas/WelfareHistoryResponseDto"
+            },
+            "type": "array"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "issueCount": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "status": {
+            "enum": [
+              "DRAFT"
+            ],
+            "type": "string"
+          },
+          "totalAmount": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "unitAmount": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "version": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "batchNo",
+          "totalAmount",
+          "unitAmount",
+          "issueCount",
+          "claimMode",
+          "agreementVersion",
+          "status",
+          "version",
+          "createdAt",
+          "history"
+        ],
+        "type": "object"
+      },
+      "WelfareHistoryResponseDto": {
+        "properties": {
+          "event": {
+            "enum": [
+              "PROGRAM_CREATED",
+              "BATCH_CREATED"
+            ],
+            "type": "string"
+          },
+          "occurredAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "resultingVersion": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "event",
+          "resultingVersion",
+          "occurredAt"
+        ],
+        "type": "object"
+      },
+      "WelfareProgramPageResponseDto": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/WelfareProgramResponseDto"
+            },
+            "type": "array"
+          },
+          "total": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ],
+        "type": "object"
+      },
+      "WelfareProgramResponseDto": {
+        "properties": {
+          "batches": {
+            "items": {
+              "$ref": "#/components/schemas/WelfareBatchResponseDto"
+            },
+            "type": "array"
+          },
+          "canPayDeliveryFee": {
+            "type": "boolean"
+          },
+          "complianceStatus": {
+            "enum": [
+              "DRAFT"
+            ],
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "fundingType": {
+            "enum": [
+              "ENTERPRISE_GRANT",
+              "COMPANY_GIFT",
+              "PHYSICAL_CARD_OR_CODE"
+            ],
+            "type": "string"
+          },
+          "history": {
+            "items": {
+              "$ref": "#/components/schemas/WelfareHistoryResponseDto"
+            },
+            "type": "array"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "issuerType": {
+            "enum": [
+              "COMPANY"
+            ],
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "refundPolicy": {
+            "type": "string"
+          },
+          "scopeRules": {
+            "$ref": "#/components/schemas/WelfareScopeRulesDto"
+          },
+          "scopeType": {
+            "enum": [
+              "ALL_PRODUCTS",
+              "CATEGORY",
+              "PRODUCT",
+              "SKU"
+            ],
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "DRAFT"
+            ],
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "fundingType",
+          "issuerType",
+          "scopeType",
+          "scopeRules",
+          "canPayDeliveryFee",
+          "refundPolicy",
+          "complianceStatus",
+          "status",
+          "version",
+          "createdAt",
+          "updatedAt",
+          "history",
+          "batches"
+        ],
+        "type": "object"
+      },
+      "WelfareScopeRulesDto": {
+        "properties": {
+          "excludedIds": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "includedIds": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "schemaVersion": {
+            "enum": [
+              1
+            ],
+            "type": "number"
+          }
+        },
+        "required": [
+          "schemaVersion",
+          "includedIds",
+          "excludedIds"
+        ],
+        "type": "object"
+      },
       "WorkspaceChoiceDto": {
         "properties": {
           "accountId": {
@@ -10283,6 +10623,166 @@
         "x-fulishe-request-dto": "SupplierReviewRequestDto",
         "x-fulishe-response-dto": "SupplierResponseDto",
         "x-fulishe-response-policy": "NEVER_RETURN_INTERNAL_PRICING"
+      }
+    },
+    "/v1/company/welfare-card/programs": {
+      "get": {
+        "operationId": "companyWelfareCard.listPrograms",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WelfareProgramPageResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "List company-owned welfare-card programs and draft batches",
+        "tags": [
+          "company-welfare-card"
+        ]
+      },
+      "post": {
+        "operationId": "companyWelfareCard.createProgram",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateWelfareProgramRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WelfareProgramResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Create one DRAFT company welfare-card program",
+        "tags": [
+          "company-welfare-card"
+        ]
+      }
+    },
+    "/v1/company/welfare-card/programs/{programId}/batches": {
+      "post": {
+        "operationId": "companyWelfareCard.createBatch",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "programId",
+            "required": true,
+            "schema": {
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateWelfareBatchRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WelfareBatchResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Create one amount-conserving DRAFT welfare-card batch",
+        "tags": [
+          "company-welfare-card"
+        ]
       }
     },
     "/v1/consumer/orders": {

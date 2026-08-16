@@ -228,6 +228,15 @@ import {
   applyM1OpenApiContracts,
   assertM1OpenApiContracts,
 } from './m1-openapi-contract.js';
+import {
+  DenyWelfareCardActorResolver,
+  WELFARE_CARD_ACTOR_RESOLVER,
+} from '../welfare-card-programs/welfare-card.actor.js';
+import {
+  WELFARE_CARD_REPOSITORY,
+  type WelfareCardRepository,
+} from '../welfare-card-programs/welfare-card.repository.js';
+import { WelfareCardService } from '../welfare-card-programs/welfare-card.service.js';
 
 type JsonValue =
   | boolean
@@ -444,6 +453,20 @@ type JsonValue =
     DenyCompanyProductApprovalActorResolver,
     DenySupplierProductActorResolver,
     DenySupplierPricingActorResolver,
+    WelfareCardService,
+    DenyWelfareCardActorResolver,
+    {
+      provide: WELFARE_CARD_REPOSITORY,
+      useValue: {
+        listPrograms: async () => [],
+        createProgram: async () => ({ kind: 'NOT_FOUND' }),
+        createBatch: async () => ({ kind: 'NOT_FOUND' }),
+      } satisfies WelfareCardRepository,
+    },
+    {
+      provide: WELFARE_CARD_ACTOR_RESOLVER,
+      useExisting: DenyWelfareCardActorResolver,
+    },
     {
       provide: PRICE_CHANGE_REPOSITORY,
       useValue: {

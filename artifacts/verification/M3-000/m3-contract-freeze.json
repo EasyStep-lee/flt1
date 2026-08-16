@@ -4556,7 +4556,7 @@
           "P0-067",
           "P0-068"
         ],
-        "implementationStatus": "NOT_IMPLEMENTED"
+        "implementationStatus": "IMPLEMENTED_M3_P051_PROGRAMS_BATCHES"
       },
       {
         "pageId": "PAGE-020",
@@ -5623,7 +5623,7 @@
       "p0Id": "P0-051",
       "category": "INVALID_INPUT",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "LOCAL_PASS"
     },
     {
       "id": "NEG-M3-P051-02",
@@ -5631,7 +5631,7 @@
       "p0Id": "P0-051",
       "category": "UNAUTHORIZED_OR_WRONG_OWNER",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "LOCAL_PASS"
     },
     {
       "id": "NEG-M3-P051-03",
@@ -5639,7 +5639,7 @@
       "p0Id": "P0-051",
       "category": "DUPLICATE_OR_STATE_CONFLICT",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "LOCAL_PASS"
     },
     {
       "id": "NEG-M3-P052-01",

@@ -278,6 +278,18 @@ import {
   PRICE_EFFECT_SCHEDULER,
   type PriceEffectScheduler,
 } from './price-changes/price-effect.scheduler.js';
+import {
+  DenyWelfareCardActorResolver,
+  WELFARE_CARD_ACTOR_RESOLVER,
+  type WelfareCardActorResolver,
+} from './welfare-card-programs/welfare-card.actor.js';
+import { CompanyWelfareCardSessionActorResolver } from './welfare-card-programs/company-welfare-card-session-actor.resolver.js';
+import {
+  WELFARE_CARD_REPOSITORY,
+  type WelfareCardRepository,
+} from './welfare-card-programs/welfare-card.repository.js';
+import { PrismaWelfareCardRepository } from './welfare-card-programs/prisma-welfare-card.repository.js';
+import { WelfareCardService } from './welfare-card-programs/welfare-card.service.js';
 
 export interface AppModuleOptions {
   readonly config: RuntimeConfig;
@@ -328,6 +340,8 @@ export interface AppModuleOptions {
   readonly refundActorResolver?: RefundActorResolver;
   readonly welfareRefundAdapter?: WelfareRefundAdapter;
   readonly wechatRefundAdapter?: WechatRefundAdapter;
+  readonly welfareCardRepository?: WelfareCardRepository;
+  readonly welfareCardActorResolver?: WelfareCardActorResolver;
 }
 
 @Module({})
@@ -426,6 +440,10 @@ export class AppModule {
       CategoryTemplateService,
       PrismaRegulatedCategoryRepository,
       RegulatedCategoryService,
+      PrismaWelfareCardRepository,
+      DenyWelfareCardActorResolver,
+      CompanyWelfareCardSessionActorResolver,
+      WelfareCardService,
       options.priceChangeRepository
         ? { provide: PRICE_CHANGE_REPOSITORY, useValue: options.priceChangeRepository }
         : { provide: PRICE_CHANGE_REPOSITORY, useExisting: PrismaPriceChangeRepository },
@@ -474,6 +492,12 @@ export class AppModule {
       options.supplierFulfillmentActorResolver
         ? { provide: SUPPLIER_FULFILLMENT_ACTOR_RESOLVER, useValue: options.supplierFulfillmentActorResolver }
         : { provide: SUPPLIER_FULFILLMENT_ACTOR_RESOLVER, useExisting: SupplierFulfillmentSessionActorResolver },
+      options.welfareCardRepository
+        ? { provide: WELFARE_CARD_REPOSITORY, useValue: options.welfareCardRepository }
+        : { provide: WELFARE_CARD_REPOSITORY, useExisting: PrismaWelfareCardRepository },
+      options.welfareCardActorResolver
+        ? { provide: WELFARE_CARD_ACTOR_RESOLVER, useValue: options.welfareCardActorResolver }
+        : { provide: WELFARE_CARD_ACTOR_RESOLVER, useExisting: CompanyWelfareCardSessionActorResolver },
       options.merchantRepository
         ? {
             provide: SINGLE_MERCHANT_REPOSITORY,
