@@ -170,6 +170,8 @@ test('generated contract exposes foundation, identity, onboarding and catalog AP
     '/v1/supplier-auth/workspace/current',
     '/v1/supplier-auth/workspace/page',
     '/v1/supplier-auth/workspaces/{accountId}/select',
+    '/v1/supplier/fulfillment-sub-orders',
+    '/v1/supplier/fulfillment-sub-orders/{subOrderId}/nodes',
     '/v1/supplier/inventory',
     '/v1/supplier/inventory/{skuId}/adjustments',
     '/v1/supplier/inventory/{skuId}/history',
@@ -202,6 +204,14 @@ test('generated contract exposes foundation, identity, onboarding and catalog AP
   assert.equal(
     spec.paths['/v1/enterprise/orders/{orderId}/remittance-proof'].post.operationId,
     'enterpriseRemittance.submitProof',
+  );
+  assert.equal(
+    spec.paths['/v1/supplier/fulfillment-sub-orders'].get.operationId,
+    'supplierFulfillment.list',
+  );
+  assert.equal(
+    spec.paths['/v1/supplier/fulfillment-sub-orders/{subOrderId}/nodes'].post.operationId,
+    'supplierFulfillment.appendNode',
   );
   assert.equal(
     spec.paths['/v1/company/enterprise-orders/{orderId}/remittance-review'].post.operationId,
@@ -415,6 +425,8 @@ test('generated contract exposes foundation, identity, onboarding and catalog AP
       'EnterpriseSubmitReviewRequestDto',
       'EnterpriseSuspendRequestDto',
       'FoundationDependencyCheckDto',
+      'FulfillmentNodeRequestDto',
+      'FulfillmentShortageItemRequestDto',
       'FunctionalAccountPageResponseDto',
       'FunctionalAccountQueryDto',
       'FunctionalAccountResponseDto',
@@ -464,7 +476,10 @@ test('generated contract exposes foundation, identity, onboarding and catalog AP
       'SessionResponseDto',
       'SubmitProductMaterialRequestDto',
       'SubmitReviewRequestDto',
+      'SupplierFulfillmentItemDto',
+      'SupplierFulfillmentNodeDto',
       'SupplierFulfillmentOrderResponseDto',
+      'SupplierFulfillmentPickupPointDto',
       'SupplierInitialPriceSkuDto',
       'SupplierInitialPricingPageDto',
       'SupplierInitialPricingProductDto',
@@ -495,6 +510,8 @@ test('generated contract exposes foundation, identity, onboarding and catalog AP
       'SupplierReviewRequestDto',
       'SupplierSelectWorkspaceRequestDto',
       'SupplierSessionResponseDto',
+      'SupplierSubOrderPageResponseDto',
+      'SupplierSubOrderResponseDto',
       'SupplierWorkspaceChoiceDto',
       'SupplierWorkspaceChoiceResponseDto',
       'SupplierWorkspaceMenuItemDto',
