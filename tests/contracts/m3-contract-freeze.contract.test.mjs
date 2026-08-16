@@ -72,8 +72,9 @@ test('M3 client boundaries and negative behavior plans are explicit', async () =
   for (const required of ['PERSONAL_RECHARGE', 'NON_WECHAT_CONSUMER_CASH', 'DUPLICATE_CALLBACK', 'OUT_OF_ORDER_CALLBACK', 'REFUND_OVERPAID', 'CROSS_OWNER_ACCESS', 'SUPPLY_PRICE_LEAK', 'DIRECT_WX_REQUEST', 'PRIVATE_PUBLIC_CACHE', 'M3_DELIVERY_CREATION']) {
     assert.ok(categories.has(required), `missing negative category ${required}`);
   }
-  const currentSlice = freeze.negativeTests.filter(({ taskId }) => taskId === 'M3-P031');
-  const deferred = freeze.negativeTests.filter(({ taskId }) => taskId !== 'M3-P031');
+  const implementedSlices = new Set(['M3-P031', 'M3-P051']);
+  const currentSlice = freeze.negativeTests.filter(({ taskId }) => implementedSlices.has(taskId));
+  const deferred = freeze.negativeTests.filter(({ taskId }) => !implementedSlices.has(taskId));
   assert.equal(currentSlice.every(({ executionStatus }) => ['LOCAL_PASS', 'CI_PASS'].includes(executionStatus)), true);
   assert.equal(deferred.every(({ executionStatus }) => executionStatus === 'NOT_EXECUTED'), true);
 });

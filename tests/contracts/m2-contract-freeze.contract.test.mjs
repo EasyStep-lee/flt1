@@ -509,10 +509,10 @@ test('machine control preserves the M2 freeze while later slices advance one gat
 
   assert.equal(projectStatus.execution.status, 'M3_IN_PROGRESS');
   assert.equal(projectStatus.execution.currentStage, 'M3');
-  assert.equal(projectStatus.execution.currentTask, 'M3-P031');
-  assert.equal(projectStatus.execution.nextAllowedTask, 'M3-P031');
+  assert.equal(projectStatus.execution.currentTask, 'M3-P051');
+  assert.equal(projectStatus.execution.nextAllowedTask, 'M3-P051');
   assert.equal(projectStatus.execution.activeTaskCount, 1);
-  assert.equal(projectStatus.execution.lastCompletedTask, 'M3-P030');
+  assert.equal(projectStatus.execution.lastCompletedTask, 'M3-P031');
   assert.equal(projectStatus.execution.lastPassedGate, 'M2-GATE');
   assert.match(
     projectStatus.evidence.local,
