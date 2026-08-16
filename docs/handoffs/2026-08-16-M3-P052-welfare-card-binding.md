@@ -2,7 +2,7 @@
 
 ## 结论与边界
 
-- 切片结论：`LOCAL_PASS_PENDING_DRAFT_PR_CI`。这不是 M3 阶段 PASS，也不是 P0-052 的真实发行、真机或正式业务验收通过。
+- 切片结论：`LOCAL_PASS_DRAFT_PR_CI_FIX_IN_PROGRESS`。这不是 M3 阶段 PASS，也不是 P0-052 的真实发行、真机或正式业务验收通过。
 - 唯一目标：个人用户通过卡号密码、完整兑换码或扫码结果，把一张有效福利卡幂等绑定到当前会话自然人对应的账户，并追加一笔 `CLAIM/CREDIT` 账本。
 - 方案基线 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`，2026-08-16 重新校验通过。
 - 方案章节：§7、§9.1、§9.2、§9.8、§13、§16；主验收项 `P0-052`。
@@ -18,8 +18,8 @@
 | 分支 | `codex/m3-welfare-card-binding` |
 | Issue | [#101](https://github.com/EasyStep-lee/flt1/issues/101) |
 | 实现提交 | `98334b981e37aefc0a8e957d1b945689250dfe5f` |
-| Draft PR | `PENDING_CREATION` |
-| PR CI | `NOT_EXECUTED` |
+| Draft PR | [#102](https://github.com/EasyStep-lee/flt1/pull/102)，保持 Draft |
+| PR CI | 首轮 Actions `31940900582` / job `95149828722` 在 head `5c850db4a070e3b3955bfa121b006ca0689ae5c8` 失败；唯一根因为工作簿已更新但 `manifest.json` 仍保留旧 SHA-256，当前分支已修复并等待新 head 复验 |
 | 评论 / 合并 | `NOT_REVIEWED` / `NOT_MERGED`；未经精确最终 head 人工授权不得转 Ready 或合并 |
 | 上一切片 | PR #100 head `823672611b8ed291cf29ce02f99d6fd60ab44b9c`，merge `31839f8fd2daa8efb0910e7c7405cbc80fa9a752`，main Actions `31935845317` / job `95137513626` 成功 |
 
@@ -57,7 +57,7 @@
 | 全量门禁 | `pnpm verify`，`PNPM_VERIFY_OK:steps=17:base=HEAD`，退出码 0 | `LOCAL_PASS` |
 | 迁移演练 | 首次因本机 MySQL 停止而 `P1001` 失败；`pnpm infra:up` 后 `empty=2; upgrade=2; restore=2; product=33; cleanup=PASS` | `LOCAL_PASS` |
 | 秘密扫描 | 989 个受跟踪文件，无命中 | `LOCAL_PASS` |
-| GitHub Actions | Draft PR 尚未创建 | `NOT_EXECUTED` |
+| GitHub Actions | Draft PR #102 首轮 head `5c850db4a070e3b3955bfa121b006ca0689ae5c8` 的 run `31940900582` / job `95149828722` 因工作簿 manifest 哈希过期失败；其余该回归组 28/29 通过 | `FAIL_FIXED_PENDING_RETEST` |
 
 ## 环境、P0 与未执行项
 
@@ -75,8 +75,8 @@
 ## 工作簿
 
 - 总控工作簿已由同步后的 CSV/JSON 事实源增量更新，12 个工作表全部渲染；公式错误扫描 0 项。
-- 工作簿 SHA-256：`DF802CC310F75F312F31D30D59002B2C6CBE2B09E29A20B32D7F131E272EC776`。
+- 工作簿 SHA-256：`32CC1C4F0A2AACD678C55296F37242C943D5DD0D549F9971534B0BB60FCB2EC6`；`manifest.json` 已同步为同一值。
 
 ## 下一门禁
 
-先提交并推送当前证据，创建 Draft PR，等待精确 head 的 Actions 与评论状态。只有 Draft PR 精确 head CI 成功、人工明确授权合并且合并后的 `main` CI 成功，M3-P053 才可解锁；M4-M6 继续禁止进入。
+先提交并推送当前证据修复，等待 Draft PR #102 新精确 head 的 Actions 与评论状态。只有 Draft PR 精确 head CI 成功、人工明确授权合并且合并后的 `main` CI 成功，M3-P053 才可解锁；M4-M6 继续禁止进入。
