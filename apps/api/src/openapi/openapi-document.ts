@@ -237,6 +237,11 @@ import {
   type WelfareCardRepository,
 } from '../welfare-card-programs/welfare-card.repository.js';
 import { WelfareCardService } from '../welfare-card-programs/welfare-card.service.js';
+import {
+  WELFARE_CARD_PAYMENT_REPOSITORY,
+  type WelfareCardPaymentRepository,
+} from '../welfare-card-payments/welfare-card-payment.repository.js';
+import { WelfareCardPaymentService } from '../welfare-card-payments/welfare-card-payment.service.js';
 
 type JsonValue =
   | boolean
@@ -454,6 +459,7 @@ type JsonValue =
     DenySupplierProductActorResolver,
     DenySupplierPricingActorResolver,
     WelfareCardService,
+    WelfareCardPaymentService,
     DenyWelfareCardActorResolver,
     {
       provide: WELFARE_CARD_REPOSITORY,
@@ -468,6 +474,12 @@ type JsonValue =
     {
       provide: WELFARE_CARD_ACTOR_RESOLVER,
       useExisting: DenyWelfareCardActorResolver,
+    },
+    {
+      provide: WELFARE_CARD_PAYMENT_REPOSITORY,
+      useValue: {
+        payFull: async () => ({ kind: 'NOT_FOUND' }),
+      } satisfies WelfareCardPaymentRepository,
     },
     {
       provide: PRICE_CHANGE_REPOSITORY,

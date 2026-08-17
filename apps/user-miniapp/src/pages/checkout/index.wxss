@@ -14,3 +14,7 @@
 .deduction { margin-top: 12rpx; color: #b8471b; font-weight: 700; }
 .no-card { text-align: center; }
 .notice { margin: 24rpx 8rpx; }
+.pay-button { margin-top: 28rpx; border-radius: 999rpx; background: #d64b35; color: #fff; font-weight: 700; }
+.pay-button[disabled] { background: #c9bcb5; }
+.unknown-state { margin-top: 18rpx; color: #9a4d16; line-height: 1.6; }
+.paid-state { color: #356b2f; font-weight: 700; }

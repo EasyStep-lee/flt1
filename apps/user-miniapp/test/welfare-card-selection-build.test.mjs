@@ -26,10 +26,20 @@ const response = {
   }],
 };
 
-const loadPage = ({ fail = false, responseBody = response } = {}) => {
+const paidResponse = {
+  orderId: '70000000-0000-4000-8000-000000000001', orderNo: 'FS202608170000000001',
+  paymentStatus: 'PAID', orderStatus: 'PAID', paymentMode: 'WELFARE_CARD',
+  welfareCardAmount: 7_000, cashAmount: 0, paidAt: '2026-08-17T03:00:00.000Z',
+  itemCount: 2, supplierFulfillmentCount: 2,
+};
+
+const loadPage = ({ fail = false, failPayment = false, responseBody = response } = {}) => {
   let definition;
   const requests = [];
-  const storage = new Map([['fulishe.pendingCartItems', structuredClone(cartItems)]]);
+  const storage = new Map([
+    ['fulishe.pendingCartItems', structuredClone(cartItems)],
+    ['fulishe.pendingBuyerOrder', { orderId: paidResponse.orderId, totalAmount: 7_000 }],
+  ]);
   const context = vm.createContext({
     console, Promise,
     getApp: () => ({ globalData: { apiBaseUrl: 'https://api.example.test' } }),
@@ -40,8 +50,9 @@ const loadPage = ({ fail = false, responseBody = response } = {}) => {
       removeStorageSync: (key) => storage.delete(key),
       request: (options) => {
         requests.push({ data: options.data, header: options.header, method: options.method, url: options.url });
-        if (fail) return options.fail({ errMsg: 'request:fail timeout' });
-        return options.success({ data: structuredClone(responseBody), statusCode: 200 });
+        if (fail || (failPayment && options.url.includes('/welfare-card-full-payment'))) return options.fail({ errMsg: 'request:fail timeout' });
+        const payment = options.url.includes('/welfare-card-full-payment');
+        return options.success({ data: structuredClone(payment ? paidResponse : responseBody), statusCode: payment ? 201 : 200 });
       },
     },
   });
@@ -89,13 +100,49 @@ test('P0-054 checkout renders the same server line reasons and delivery-fee rule
   assert.doesNotMatch(JSON.stringify(runtime.definition.data), /scopeRules|categoryIncludedIds|productExcludedIds/iu);
 });
 
-test('PAGE-056 exposes loading, empty, error, permission, offline and success states without payment claims', async () => {
+test('PAGE-056 exposes selection and payment recovery states without recharge or transfer claims', async () => {
   const app = JSON.parse(readFileSync(path.join(packageRoot, 'dist', 'app.json'), 'utf8'));
   assert.ok(app.pages.includes('pages/checkout/index'));
   const template = readFileSync(path.join(packageRoot, 'dist', 'pages', 'checkout', 'index.wxml'), 'utf8');
-  assert.match(template, /loading|empty|error|permission|offline|success/iu);
-  assert.doesNotMatch(template, /支付成功|已扣款|充值|提现|转让/iu);
+  assert.match(template, /loading|empty|error|permission|offline|success|paying|paid|unknown/iu);
+  assert.doesNotMatch(template, /充值|提现|转让/iu);
   const offline = loadPage({ fail: true });
   await offline.definition.onLoad.call(offline.definition);
   assert.equal(offline.definition.data.state, 'offline');
+});
+
+test('P0-055 checkout submits one selected full-balance account without owner or amount and reports paid only after the API result', async () => {
+  const runtime = loadPage();
+  await runtime.definition.onLoad.call(runtime.definition);
+  runtime.definition.selectAccount.call(runtime.definition, { currentTarget: { dataset: { accountId: response.accounts[0].id } } });
+  await runtime.definition.submitFullWelfarePayment.call(runtime.definition);
+  assert.equal(runtime.definition.data.state, 'paid');
+  assert.equal(runtime.definition.data.message, '福利卡支付成功');
+  const paymentRequest = runtime.requests.find(({ url }) => url.includes('/welfare-card-full-payment'));
+  assert.equal(paymentRequest.method, 'POST');
+  assert.match(paymentRequest.url, new RegExp(`/v1/consumer/orders/${paidResponse.orderId}/welfare-card-full-payment$`, 'u'));
+  assert.deepEqual({ ...paymentRequest.data }, { accountId: response.accounts[0].id });
+  assert.match(paymentRequest.header['Idempotency-Key'], /^welfare-full-/u);
+  assert.doesNotMatch(JSON.stringify(paymentRequest), /companyId|consumerUserId|buyerId|supplierId|price|amount/iu);
+});
+
+test('P0-055 checkout preserves the payment idempotency key after timeout and refuses partial-card submission', async () => {
+  const unknown = loadPage({ failPayment: true });
+  await unknown.definition.onLoad.call(unknown.definition);
+  unknown.definition.selectAccount.call(unknown.definition, { currentTarget: { dataset: { accountId: response.accounts[0].id } } });
+  await unknown.definition.submitFullWelfarePayment.call(unknown.definition);
+  assert.equal(unknown.definition.data.state, 'unknown');
+  const firstKey = unknown.requests.at(-1).header['Idempotency-Key'];
+  await unknown.definition.submitFullWelfarePayment.call(unknown.definition);
+  assert.equal(unknown.requests.at(-1).header['Idempotency-Key'], firstKey);
+
+  const partial = loadPage({ responseBody: {
+    ...response,
+    accounts: [{ ...response.accounts[0], maximumDeductibleAmount: 6_999 }],
+  } });
+  await partial.definition.onLoad.call(partial.definition);
+  partial.definition.selectAccount.call(partial.definition, { currentTarget: { dataset: { accountId: response.accounts[0].id } } });
+  await partial.definition.submitFullWelfarePayment.call(partial.definition);
+  assert.equal(partial.requests.filter(({ url }) => url.includes('/welfare-card-full-payment')).length, 0);
+  assert.match(partial.definition.data.message, /无法全额支付/u);
 });

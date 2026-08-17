@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "taskId": "M3-P055",
+  "p0": [
+    "P0-055",
+    "P0-059_PARTIAL",
+    "P0-092_PARTIAL"
+  ],
+  "status": "LOCAL_PASS",
+  "commit": "WORKTREE",
+  "updatedAt": "2026-08-17T03:11:29Z",
+  "baselineSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+  "scope": "atomic idempotent full welfare-card payment with zero external payable",
+  "red": [
+    "API_4_OF_4_ROUTE_404",
+    "MINIAPP_2_OF_2_PAYMENT_ACTION_MISSING"
+  ],
+  "focused": [
+    "REPOSITORY_5_OF_5",
+    "API_4_OF_4",
+    "MINIAPP_6_OF_6",
+    "MIGRATION_1_OF_1",
+    "OPENAPI_1_OF_1",
+    "P0_CHROMIUM_1_OF_1"
+  ],
+  "fullVerify": "FAIL_OPENAPI_DIFF_UNCOMMITTED",
+  "migrationRehearsal": "empty=2;upgrade=2;restore=2;product=34;cleanup=PASS",
+  "invariants": {
+    "cashAmount": 0,
+    "wechatAdapterCalls": 0,
+    "paymentTransactionsCreated": 0,
+    "freezeLedger": 1,
+    "captureLedger": 1,
+    "appendOnly": true,
+    "atomicRollback": true
+  },
+  "boundaries": {
+    "realFunds": "NOT_EXECUTED",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_EXECUTED",
+    "production": "NOT_EXECUTED",
+    "mixedPayment": "OUT_OF_SCOPE_M3_P056"
+  },
+  "github": {
+    "issue": 107,
+    "pullRequest": null,
+    "ciRun": null
+  }
+}
