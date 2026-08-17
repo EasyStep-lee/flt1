@@ -9,7 +9,7 @@
   ],
   "status": "LOCAL_PASS",
   "commit": "f87e6b7340ab2e1e0424c45c2dfdf3fba38b954c",
-  "updatedAt": "2026-08-17T09:58:58Z",
+  "updatedAt": "2026-08-17T10:07:11Z",
   "baselineSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
   "red": [
     "API_5_OF_5_ROUTE_404",
@@ -44,7 +44,9 @@
   },
   "github": {
     "issue": 111,
-    "pullRequest": null,
+    "pullRequest": 112,
+    "pullRequestState": "DRAFT",
+    "ciStatus": "IN_PROGRESS",
     "ciRun": null
   }
 }

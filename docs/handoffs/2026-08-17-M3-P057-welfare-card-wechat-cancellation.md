@@ -8,7 +8,7 @@
 - 基线：`origin/main@0aec3095150ff713d5805fc51b7f1d7e0e6920e6`，即 M3-P056 PR #110 合并提交；post-merge main CI run `32009415143` / job `95325570638` 成功。
 - 分支：`codex/m3-mixed-payment-cancel-release`；Issue：[#111](https://github.com/EasyStep-lee/flt1/issues/111)。
 - 实现及首个完整 17/17 本地验证提交：`f87e6b7340ab2e1e0424c45c2dfdf3fba38b954c`。
-- Draft PR / PR CI / 审查评论 / 合并：`NOT_EXECUTED`；创建 Draft PR 后必须以其最新精确 head 重新读取 Actions。
+- Draft PR：[#112](https://github.com/EasyStep-lee/flt1/pull/112)，保持 Draft；创建时 head 为 `e0f42578dc2f095b7db7b2f66e441bd08f7c7045`，本 GitHub 元数据提交推送后必须以新的精确 head 重新读取 Actions。审查评论与合并：`NOT_EXECUTED`。
 
 ## 唯一目标与非目标
 
@@ -49,7 +49,7 @@
 | 迁移演练 | `empty=2 / upgrade=2 / restore=2 / product=35 / cleanup=PASS` |
 | `pnpm verify` | 17/17 PASS，`base=HEAD`，`2026-08-17T09:44:01Z` 至 `2026-08-17T09:58:16Z` |
 | secrets | 1042 tracked files PASS |
-| 工作簿 | 12 表同步并渲染；公式错误 0；SHA-256 `C25CCDBE1E3F12A18956F38971EFCF68FCAD25EE9BE8F81F5332EBF90C3FE0F5` |
+| 工作簿 | 12 表同步并渲染；公式错误 0；SHA-256 `471A0C00F017FE5CC64D1E105094F87E8BBEC102FAE64F710ED30F2F26E03FDE` |
 
 全量门禁的失败与恢复如实保留：
 

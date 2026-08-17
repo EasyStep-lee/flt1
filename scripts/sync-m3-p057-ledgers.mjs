@@ -11,6 +11,10 @@ const commit = args.commit || 'WORKTREE';
 const evidenceStatus = args['evidence-status'] || 'LOCAL_PASS';
 const fullVerify = args['full-verify'] || 'NOT_EXECUTED';
 const updatedAt = args['updated-at'] || new Date().toISOString();
+const pullRequestNumber = Number(args['pull-request'] || 0) || null;
+const pullRequestUrl = pullRequestNumber ? `https://github.com/EasyStep-lee/flt1/pull/${pullRequestNumber}` : '';
+const pullRequestState = pullRequestNumber ? 'DRAFT' : 'NOT_CREATED';
+const pullRequestCi = args['pr-ci'] || 'NOT_EXECUTED';
 const p056Merge = '0aec3095150ff713d5805fc51b7f1d7e0e6920e6';
 const p056MainRun = '32009415143';
 const p056MainJob = '95325570638';
@@ -55,7 +59,7 @@ await upsertCsv('03-任务台账.csv', ['TaskID'], [
   },
   {
     TaskID: 'M3-P057', Status: 'IN_PROGRESS', EvidenceStatus: evidenceStatus, Owner: 'CODEX', GitHubIssue: 'https://github.com/EasyStep-lee/flt1/issues/111',
-    Branch: 'codex/m3-mixed-payment-cancel-release', CommitSHA: commit, PullRequest: '', CI: 'NOT_EXECUTED', UpdatedAt: updatedAt,
+    Branch: 'codex/m3-mixed-payment-cancel-release', CommitSHA: commit, PullRequest: pullRequestUrl, CI: pullRequestCi, UpdatedAt: updatedAt,
     Notes: `RED API 5/5路由404、小程序1项缺恢复动作；GREEN API 5/5、仓储3/3、小程序8/8、OpenAPI 2/2。服务端先查微信；NOTPAY成功关单或CLOSED/PAYERROR才原子释放；UNKNOWN/USERPAYING零释放。${fullVerify === 'PASS_17_OF_17' ? 'pnpm verify 17/17通过。' : '完整门禁待记录。'}真实微信/staging/真机未执行。`,
   },
   { TaskID: 'M3-P058', Status: 'LOCKED', EvidenceStatus: 'NOT_EXECUTED', Owner: 'UNASSIGNED', Notes: 'M3-P057 Draft PR精确head CI、人工合并和post-merge main CI全部通过前保持锁定。' },
@@ -146,10 +150,10 @@ const statusPath = path.join(pack, '16-项目状态.json');
 const status = JSON.parse(await readFile(statusPath, 'utf8'));
 status.updatedAt = updatedAt;
 status.execution = { ...status.execution, status: 'M3_IN_PROGRESS', currentStage: 'M3', currentTask: 'M3-P057', nextAllowedTask: 'M3-P057', activeTaskCount: 1, lastCompletedTask: 'M3-P056', lastCompletedCommit: p056Merge, lastPassedGate: 'M2-GATE', prohibitedUntilGate: ['M3-P057 Draft PR精确head CI成功、人工合并且post-merge main CI成功前不得开始M3-P058', '真实微信/staging/真机/真实资金未完成；M4及后续保持锁定'] };
-status.github = { ...status.github, pullRequest: null, pullRequestUrl: null, pullRequestState: 'NOT_CREATED', pullRequestMerged: false, mergeCommitSha: null, mergedAt: null, lastVerifiedPullRequestHead: null,
-  pullRequestCi: { status: 'NOT_EXECUTED', runId: null, jobId: null, runUrl: null, headSha: null, completedAt: null },
+status.github = { ...status.github, pullRequest: pullRequestNumber, pullRequestUrl: pullRequestUrl || null, pullRequestState, pullRequestMerged: false, mergeCommitSha: null, mergedAt: null, lastVerifiedPullRequestHead: null,
+  pullRequestCi: { status: pullRequestCi, runId: null, jobId: null, runUrl: null, headSha: null, completedAt: null },
   latestCi: { scope: 'M3_P056_POST_MERGE_MAIN', status: 'CI_PASS', runId: Number(p056MainRun), jobId: Number(p056MainJob), runUrl: `https://github.com/EasyStep-lee/flt1/actions/runs/${p056MainRun}`, headSha: p056Merge, event: 'push', completedAt: '2026-08-17T08:25:59Z' },
-  currentTaskDelivery: { taskId: 'M3-P057', issue: 111, issueUrl: 'https://github.com/EasyStep-lee/flt1/issues/111', branch: 'codex/m3-mixed-payment-cancel-release', baseCommit: p056Merge, verifiedHead: commit, status: 'LOCAL_PASS_PENDING_DRAFT_PR', localRedTest: 'API_5_OF_5_404;MINIAPP_RECOVERY_ACTION_MISSING', localFocusedTest: 'LOCAL_PASS_API_5_REPOSITORY_3_MINIAPP_8_OPENAPI_2_P0_1', localFullVerify: fullVerify, pullRequest: null, pullRequestState: 'NOT_CREATED', exactHeadCi: 'NOT_EXECUTED', review: 'NOT_EXECUTED', merge: 'NOT_EXECUTED', mainPostMergeCi: 'NOT_EXECUTED', blockingExternalItem: 'REAL_WECHAT_QUERY_CLOSE_STAGING_DEVICE', nextTaskUnlocked: false },
+  currentTaskDelivery: { taskId: 'M3-P057', issue: 111, issueUrl: 'https://github.com/EasyStep-lee/flt1/issues/111', branch: 'codex/m3-mixed-payment-cancel-release', baseCommit: p056Merge, verifiedHead: commit, status: pullRequestNumber ? 'DRAFT_PR_CI_PENDING' : 'LOCAL_PASS_PENDING_DRAFT_PR', localRedTest: 'API_5_OF_5_404;MINIAPP_RECOVERY_ACTION_MISSING', localFocusedTest: 'LOCAL_PASS_API_5_REPOSITORY_3_MINIAPP_8_OPENAPI_2_P0_1', localFullVerify: fullVerify, pullRequest: pullRequestNumber, pullRequestState, exactHeadCi: pullRequestCi, review: 'NOT_EXECUTED', merge: 'NOT_EXECUTED', mainPostMergeCi: 'NOT_EXECUTED', blockingExternalItem: 'REAL_WECHAT_QUERY_CLOSE_STAGING_DEVICE', nextTaskUnlocked: false },
   previousTaskDelivery: { taskId: 'M3-P056', pullRequest: 110, pullRequestUrl: 'https://github.com/EasyStep-lee/flt1/pull/110', exactHead: '3e81a84ebf7b6b6a02f822fbdc164c5448df05d2', mergeCommit: p056Merge, mainPostMergeCiRun: Number(p056MainRun), mainPostMergeCiJob: Number(p056MainJob), status: 'CI_PASS' },
   note: 'M3-P057混合支付取消与未知恢复LOCAL_PASS；真实微信查询/关单、staging/device/production未执行；P058锁定。' };
 status.evidence = { local: fullVerify === 'PASS_17_OF_17' ? 'LOCAL_PASS_M3_P057_FULL_VERIFY' : 'LOCAL_FOCUSED_PASS_FULL_VERIFY_NOT_EXECUTED', ci: 'NOT_EXECUTED', staging: 'NOT_EXECUTED', device: 'NOT_EXECUTED', production: 'NOT_EXECUTED' };
@@ -164,7 +168,7 @@ await writeFile(path.join(artifactDir, 'welfare-card-wechat-cancellation.json'),
   red: ['API_5_OF_5_ROUTE_404', 'MINIAPP_UNKNOWN_RECOVERY_ACTION_MISSING'], focused: ['API_5_OF_5', 'REPOSITORY_3_OF_3', 'MINIAPP_8_OF_8', 'OPENAPI_2_OF_2', 'P0_CHROMIUM_1_OF_1'], fullVerify,
   invariants: { queryBeforeRelease: true, unknownNeverReleases: true, explicitNotPaidRequiresClose: true, queriedPaidUsesConfirmationChain: true, welfareReleaseAppendOnly: true, inventoryReleaseAtomic: true, duplicateSkuLinesAggregated: true, duplicateCancellationSideEffectFree: true, lateFailureAtomicRollback: true, miniappNoSecondPrepayOrRequestPayment: true },
   boundaries: { realWechatQueryClose: 'NOT_EXECUTED', staging: 'NOT_EXECUTED', device: 'NOT_EXECUTED', production: 'NOT_EXECUTED', refund: 'OUT_OF_SCOPE_M3_P058' },
-  github: { issue: 111, pullRequest: null, ciRun: null },
+  github: { issue: 111, pullRequest: pullRequestNumber, pullRequestState, ciStatus: pullRequestCi, ciRun: null },
 }, null, 2)}\n`, 'utf8');
 
 process.stdout.write(`M3_P057_LEDGERS_SYNCED:${commit}:${evidenceStatus}\n`);

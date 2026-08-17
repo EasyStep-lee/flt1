@@ -56,7 +56,7 @@ test('M1-P047 evidence remains closed after PR 20 merge as the project advances'
   assert.equal(state.github.currentTaskDelivery.taskId, state.execution.currentTask);
   assert.match(
     state.github.currentTaskDelivery.status,
-    /^(?:LOCAL_PASS_PENDING_DRAFT_PR|CI_PASS_PENDING_HUMAN_MERGE)$/u,
+    /^(?:LOCAL_PASS_PENDING_DRAFT_PR|DRAFT_PR_CI_PENDING|CI_PASS_PENDING_HUMAN_MERGE)$/u,
   );
   assert.equal(
     state.github.currentTaskDelivery.blockingExternalItem,
@@ -65,6 +65,7 @@ test('M1-P047 evidence remains closed after PR 20 merge as the project advances'
   assert.equal(state.github.currentTaskDelivery.nextTaskUnlocked, false);
   assert.ok(
     state.github.currentTaskDelivery.exactHeadCi === 'NOT_EXECUTED' ||
+      state.github.currentTaskDelivery.exactHeadCi === 'IN_PROGRESS' ||
       state.github.currentTaskDelivery.exactHeadCi.startsWith('CI_PASS_RUN_'),
   );
   assert.equal(state.github.currentTaskDelivery.merge, 'NOT_EXECUTED');

@@ -187,7 +187,7 @@ test('M1-P003 retains its local evidence after PR and main CI closure', async ()
   assert.equal(state.github.currentTaskDelivery.taskId, 'M3-P057');
   assert.match(
     state.github.currentTaskDelivery.status,
-    /^(?:LOCAL_PASS_PENDING_DRAFT_PR|CI_PASS_PENDING_HUMAN_MERGE)$/u,
+    /^(?:LOCAL_PASS_PENDING_DRAFT_PR|DRAFT_PR_CI_PENDING|CI_PASS_PENDING_HUMAN_MERGE)$/u,
   );
   assert.equal(
     state.github.currentTaskDelivery.blockingExternalItem,

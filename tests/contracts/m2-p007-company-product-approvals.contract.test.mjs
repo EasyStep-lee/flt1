@@ -73,6 +73,7 @@ test('M2-P007 retains evidence while the current M2 slice advances through its d
   assert.ok(['NOT_CREATED', 'DRAFT'].includes(state.github.currentTaskDelivery.pullRequestState));
   assert.ok(
     state.github.currentTaskDelivery.exactHeadCi === 'NOT_EXECUTED' ||
+      state.github.currentTaskDelivery.exactHeadCi === 'IN_PROGRESS' ||
       state.github.currentTaskDelivery.exactHeadCi.startsWith('CI_PASS_RUN_'),
   );
   assert.equal(state.github.currentTaskDelivery.merge, 'NOT_EXECUTED');

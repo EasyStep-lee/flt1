@@ -302,7 +302,7 @@ test('project status records M1 gate success while historical blocked handoff st
   assert.equal(['NOT_CREATED', 'DRAFT'].includes(projectStatus.github.pullRequestState), true);
   assert.equal(projectStatus.github.pullRequestMerged, false);
   assert.equal(projectStatus.github.mergeCommitSha, null);
-  assert.equal(['NOT_EXECUTED', 'CI_PASS'].includes(projectStatus.github.pullRequestCi.status), true);
+  assert.equal(['NOT_EXECUTED', 'IN_PROGRESS', 'CI_PASS'].includes(projectStatus.github.pullRequestCi.status), true);
   assert.equal(projectStatus.github.latestCi.status, 'CI_PASS');
   assert.equal(
     projectStatus.github.currentTaskDelivery.taskId,
@@ -313,7 +313,7 @@ test('project status records M1 gate success while historical blocked handoff st
   assert.equal(projectStatus.execution.activeTaskCount, 1);
   assert.match(
     projectStatus.github.currentTaskDelivery.status,
-    /^(?:LOCAL_PASS_PENDING_DRAFT_PR|CI_PASS_PENDING_HUMAN_MERGE)$/u,
+    /^(?:LOCAL_PASS_PENDING_DRAFT_PR|DRAFT_PR_CI_PENDING|CI_PASS_PENDING_HUMAN_MERGE)$/u,
   );
   assert.equal(projectStatus.github.currentTaskDelivery.merge, 'NOT_EXECUTED');
   assert.equal(projectStatus.github.currentTaskDelivery.mainPostMergeCi, 'NOT_EXECUTED');

@@ -153,6 +153,7 @@ test('M2-P006 and M2-P007 retain merged-main evidence after M2-P008 starts local
   );
   assert.ok(
     projectStatus.github.currentTaskDelivery.exactHeadCi === 'NOT_EXECUTED' ||
+      projectStatus.github.currentTaskDelivery.exactHeadCi === 'IN_PROGRESS' ||
       projectStatus.github.currentTaskDelivery.exactHeadCi.startsWith('CI_PASS_RUN_'),
   );
   assert.equal(projectStatus.github.currentTaskDelivery.merge, 'NOT_EXECUTED');
