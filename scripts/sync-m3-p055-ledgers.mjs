@@ -138,9 +138,9 @@ await upsertCsv('11-数据库迁移台账.csv', ['MigrationID'], [{
 await upsertCsv('12-OpenAPI-DTO-错误码台账.csv', ['ContractID'], [{
   ContractID: 'API-104', Stage: 'M3', Domain: 'welfare-card-payment', Method: 'POST', Path: '/v1/consumer/orders/{orderId}/welfare-card-full-payment', Actor: 'CONSUMER', RequestDTO: 'WelfareCardFullPaymentRequestDto', ResponseDTO: 'WelfareCardFullPaymentResponseDto', CommonResponse: '显式白名单DTO；private/no-store；noindex',
   ErrorCodes: 'AUTHENTICATION_REQUIRED|ACCOUNT_SUSPENDED|FIELD_FORBIDDEN|VALIDATION_FAILED|IDEMPOTENCY_KEY_REQUIRED|ORDER_NOT_FOUND|ACCESS_DENIED|WELFARE_CARD_NOT_ELIGIBLE|WELFARE_CARD_INSUFFICIENT_BALANCE|PAYMENT_IDEMPOTENCY_CONFLICT|PAYMENT_STATE_INVALID|PAYMENT_CONCURRENT_CONFLICT',
-  Idempotency: 'Idempotency-Key scoped by session companyId+consumerUserId; unique successful command per order', SensitiveFieldPolicy: 'SESSION_OWNER_DERIVED; request only accountId; response excludes account/owner/balance/full card/supply price/config/secret; no public cache',
+  Idempotency: 'Idempotency-Key scoped by session companyId+consumerUserId; unique successful command per order', SensitiveFieldPolicy: 'NEVER_RETURN supplyPrice/account owner/full card/config/secret; SESSION_OWNER_DERIVED; request only accountId; no public cache',
   MoneyRule: 'integer cents; server-owned total; only full coverage; cashAmount=0; atomic FREEZE then CAPTURE; no PaymentTransaction or external adapter', P0: 'P0-055,P0-059,P0-092', OpenAPIStatus: 'GENERATED', DTOStatus: 'IMPLEMENTED', ErrorCodeStatus: 'IMPLEMENTED',
-  ContractTest: 'apps/api/test/supertest/welfare-card-full-payment-api.test.mjs|tests/openapi/m3-p055-welfare-card-full-payment.contract.test.mjs|packages/contracts/openapi.json', Owner: 'CODEX', Notes: '混合支付、取消/解冻、退款和真实资金不在P055。',
+  ContractTest: 'apps/api/test/supertest/welfare-card-full-payment-api.test.mjs|tests/openapi/m3-p055-welfare-card-full-payment.contract.test.mjs|packages/contracts/openapi.json', Owner: 'CODEX', Notes: '任务内契约细化：混合支付、取消/解冻、退款和真实资金不在P055。',
 }]);
 await upsertCsv(path.join('data', '阶段门禁.csv'), ['Stage'], [{
   Stage: 'M3', Status: 'IN_PROGRESS', EvidenceStatus: evidenceStatus,
