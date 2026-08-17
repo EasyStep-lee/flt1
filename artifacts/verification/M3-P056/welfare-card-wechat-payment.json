@@ -8,8 +8,8 @@
     "P0-093_PARTIAL"
   ],
   "status": "LOCAL_PASS",
-  "commit": "WORKTREE",
-  "updatedAt": "2026-08-17T05:45:00Z",
+  "commit": "904bb529e765dc0bfc83d8a8ec33f733182ee9a0",
+  "updatedAt": "2026-08-17T06:50:32Z",
   "baselineSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
   "red": [
     "API_3_OF_3_ROUTE_404",
@@ -23,7 +23,7 @@
     "OPENAPI_1_OF_1",
     "P0_CHROMIUM_1_OF_1"
   ],
-  "fullVerify": "NOT_EXECUTED",
+  "fullVerify": "PASS_17_OF_17",
   "invariants": {
     "automaticMaximumDeduction": true,
     "amountConservation": true,

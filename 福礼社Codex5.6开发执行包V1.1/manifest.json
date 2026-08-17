@@ -21,13 +21,13 @@
   },
   "workbook": {
     "status": "VERIFIED",
-    "sha256": "9C193436E7BD72DAC40D4FEAA329EEAC11DFE79D6B87E57B1CB725509808BF1C",
+    "sha256": "C431D636C3B9DD7189CA36F2B89C000808CBBF22B33DDB817445C2417C8CA10A",
     "currentTaskMirror": {
       "taskId": "M3-P056",
       "status": "LOCAL_PASS_PENDING_DRAFT_PR",
       "sourceLedgers": "CSV_JSON_AND_WORKBOOK_UPDATED",
       "reason": "P056 CSV/JSON ledgers and the artifact-tool workbook mirror were synchronized and visually inspected across all 12 sheets.",
-      "checkedAt": "2026-08-17T05:45:00Z"
+      "checkedAt": "2026-08-17T06:50:32Z"
     }
   },
   "sourceOfTruth": [
