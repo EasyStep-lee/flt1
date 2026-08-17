@@ -2,10 +2,10 @@
 
 ## 当前结论
 
-- 结论：`LOCAL_PASS`。本切片最终 `pnpm verify` 17/17、exit 0；这不是 M3 阶段 PASS，也不是实际福利卡资金、微信真机、staging 或 production 验收。
+- 结论：`CI_PASS`（绑定代码 head `6b3af8df6b2400d01081dd64c9bea7d27b4f04ba`）。本切片最终本地 `pnpm verify` 17/17、exit 0，且该代码 head 的 GitHub Actions 成功；这不是 M3 阶段 PASS，也不是实际福利卡资金、微信真机、staging 或 production 验收。
 - 唯一方案 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`，与锁定基线一致。
 - 前置切片：PR #104 head `24f1a03be05820970503a6af4a9b5492e252d3da` 已按精确授权合并为 `main@236285071ec6601b175cadaca341b0e46950d73d`；合并后 main Actions run `31980331613` / job `95245932370` 成功。
-- 当前 GitHub：仓库 `EasyStep-lee/flt1`；Issue [#105](https://github.com/EasyStep-lee/flt1/issues/105)；分支 `codex/m3-welfare-card-scope-rules`；实现提交 `71ea302`、交接契约修复 `a0007e1`、冻结契约推进 `485e9cc`。Draft PR、精确 head CI、评论、自审、人工合并和 post-merge main CI 尚未执行。
+- 当前 GitHub：仓库 `EasyStep-lee/flt1`；Issue [#105](https://github.com/EasyStep-lee/flt1/issues/105)；分支 `codex/m3-welfare-card-scope-rules`；Draft PR [#106](https://github.com/EasyStep-lee/flt1/pull/106)。实现与证据提交为 `71ea302`、`a0007e1`、`485e9cc`、`8c3279c`，兼容修复为 `6b3af8d`。Actions run `31985356527` / job `95259316934` 在精确代码 head `6b3af8df6b2400d01081dd64c9bea7d27b4f04ba` 成功；PR 无评论、无 review，保持 Draft、未合并。包含本交接的最终证据 head 仍须重新取得 CI 才能请求人工精确 head 授权。
 - M3-P055 保持 `LOCKED`；M4-M6 继续禁止进入。
 
 ## 目标、非目标与方案映射
@@ -38,7 +38,9 @@
 | 真实迁移演练 | `PRISMA_MIGRATION_REHEARSAL_OK:empty=2:upgrade=2:restore=2:product=33:cleanup=PASS` |
 | 最终全量 | `pnpm verify`：`PNPM_VERIFY_OK:steps=17`，exit 0；报告 `artifacts/test-results/verification/pnpm-verify.json` |
 
-完整门禁保留了真实失败过程：首次回归发现工作簿哈希及旧 M3 进度断言未同步；修复后第二轮发现 19 个冻结契约仍绑定 M3-P052/P053；再修复后第三轮业务/API/P0 已通过，但本机 Docker Desktop 未运行使迁移演练失败。启动 Docker Desktop 后单独演练通过，最终完整命令于 `2026-08-17T01:03:01.863Z` 至 `2026-08-17T01:17:05.460Z` 通过 17/17。未删除测试、未降低业务断言。
+完整门禁保留了真实失败过程：首次回归发现工作簿哈希及旧 M3 进度断言未同步；修复后第二轮发现 19 个冻结契约仍绑定 M3-P052/P053；再修复后第三轮业务/API/P0 已通过，但本机 Docker Desktop 未运行使迁移演练失败。启动 Docker Desktop 后单独演练通过，完整命令于 `2026-08-17T01:03:01.863Z` 至 `2026-08-17T01:17:05.460Z` 首次通过 17/17。
+
+PR #106 首次 Actions run `31984928553` / job `95258143141` 在 head `8c3279cb8d21b58102443baa40d6b4c7cf5e1417` 真实失败：oasdiff 报告旧响应字段 `includedIds`、`excludedIds` 变为可选。修复提交 `6b3af8d` 将请求/响应 DTO 分离，并让组合规则响应继续必填返回兼容字段；focused API 8/8、OpenAPI 21/21、oasdiff 0 error、typecheck 通过。修复后的本地完整命令于 `2026-08-17T01:34:34.080Z` 至 `2026-08-17T01:50:48.581Z` 再次通过 17/17，GitHub Actions run `31985356527` 同步通过。未删除测试、未降低业务断言。
 
 最终完整门禁包含：API 45 文件/231 项、P0 E2E 76/76、Prisma 33 条产品迁移演练、13 个 workspace 构建及 1008 个受跟踪文件秘密扫描。Vite 大包和 Ant Design deprecated 输出为非阻断警告；E2E 中的预期断网代理错误由失败恢复用例触发，测试通过。
 
@@ -47,7 +49,7 @@
 - P0-054 自动化技术行为：`LOCAL_PASS`。服务端范围裁决、黑名单优先、配送费计划标记、三页面一致消费、非法规则关闭失败、只读/并发确定性和 DTO 隔离有新鲜本地证据。
 - P0-053 保持已合并的 `CI_PASS`；P0-055 及支付/账本行为保持 `NOT_EXECUTED/LOCKED`。
 - LOCAL：Windows、Node `22.23.1`、pnpm `10.12.1`、Playwright Chromium、Docker Desktop `29.7.2`、Docker MySQL；`LOCAL_PASS`。
-- CI：当前切片 `NOT_EXECUTED`；STAGING、DEVICE、PRODUCTION：`NOT_EXECUTED`。
+- CI：代码 head `6b3af8d` 为 `CI_PASS`；包含最新台账/工作簿/交接的证据提交仍需精确 head CI。STAGING、DEVICE、PRODUCTION：`NOT_EXECUTED`。
 - 真实福利卡计划/商品与真机数据属于人工/外部输入，不影响本切片技术代码验证，但不得据此升级业务、真机或正式验收状态。
 
 ## 风险、工作区与回滚
@@ -58,4 +60,4 @@
 
 ## 下一唯一允许动作
 
-创建并推送本切片 Draft PR，记录当前精确 head 的自审、评论线程和 Actions。只有 Draft PR 最新 head 必需检查全部成功、用户对该精确 head 明确授权合并且合并后 `main` CI 成功，才允许进入 M3-P055；不得自行转 Ready 或合并。
+提交并推送本次 CI 证据更新，等待 Draft PR #106 最终精确 head 的必需检查全部成功。之后只能请求用户对该精确 head 明确授权转 Ready/合并；合并后还必须等待 `main` CI 成功，才允许进入 M3-P055。不得自行转 Ready、合并或提前进入下一切片。

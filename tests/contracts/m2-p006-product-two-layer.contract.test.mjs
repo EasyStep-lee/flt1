@@ -162,7 +162,7 @@ test('M2-P006 and M2-P007 retain merged-main evidence after M2-P008 starts local
     'REAL_WELFARE_PROGRAM_PRODUCT_AND_DEVICE_DATA',
   );
   assert.equal(projectStatus.github.currentTaskDelivery.nextTaskUnlocked, false);
-  assert.match(projectStatus.evidence.ci, /^(?:NOT_EXECUTED|CI_PASS_M3_(?:P03[01]|P05[13])_HEAD_[0-9a-f]{7})$/u);
+  assert.match(projectStatus.evidence.ci, /^(?:NOT_EXECUTED|CI_PASS_M3_(?:P03[01]|P05[134])_HEAD_[0-9a-f]{7})$/u);
 
   for (const evidence of [contract, handoff]) {
     assert.match(evidence, /P0-006/u);

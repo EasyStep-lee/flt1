@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-17T01:17:05.460Z",
+  "updatedAt": "2026-08-17T01:45:34Z",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -39,9 +39,9 @@
     "authenticationConfirmed": true,
     "writeAllowed": true,
     "connectorAccessConfirmed": true,
-    "pullRequest": null,
-    "pullRequestUrl": null,
-    "pullRequestState": "NOT_CREATED",
+    "pullRequest": 106,
+    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/106",
+    "pullRequestState": "DRAFT",
     "pullRequestMerged": false,
     "mergeCommitSha": null,
     "mergedAt": null,
@@ -60,14 +60,14 @@
       "currentHeadReviewRequired": true,
       "authorizationExactHead": false
     },
-    "lastVerifiedPullRequestHead": null,
+    "lastVerifiedPullRequestHead": "6b3af8df6b2400d01081dd64c9bea7d27b4f04ba",
     "pullRequestCi": {
-      "status": "NOT_EXECUTED",
-      "runId": null,
-      "jobId": null,
-      "runUrl": null,
-      "headSha": null,
-      "completedAt": null
+      "status": "CI_PASS",
+      "runId": 31985356527,
+      "jobId": 95259316934,
+      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31985356527",
+      "headSha": "6b3af8df6b2400d01081dd64c9bea7d27b4f04ba",
+      "completedAt": "2026-08-17T01:45:34Z"
     },
     "latestCi": {
       "scope": "M3_P031_PR_HEAD",
@@ -85,14 +85,14 @@
       "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/105",
       "branch": "codex/m3-welfare-card-scope-rules",
       "baseCommit": "236285071ec6601b175cadaca341b0e46950d73d",
-      "verifiedHead": "485e9cc7842b0bfdce9241c206daeab61f74ef6f",
-      "status": "LOCAL_PASS_PENDING_DRAFT_PR",
+      "verifiedHead": "6b3af8df6b2400d01081dd64c9bea7d27b4f04ba",
+      "status": "CI_PASS_PENDING_HUMAN_MERGE",
       "localRedTest": "API_COMPOSITE_ACCOUNT_MISSING;MINIAPP_3_SCOPE_HINTS_UNDEFINED",
       "localFocusedTest": "LOCAL_PASS_API_8_OPENAPI_2_MINIAPP_26_P0_1",
       "localFullVerify": "PASS_17_OF_17",
-      "pullRequest": null,
-      "pullRequestState": "NOT_CREATED",
-      "exactHeadCi": "NOT_EXECUTED",
+      "pullRequest": 106,
+      "pullRequestState": "DRAFT",
+      "exactHeadCi": "CI_PASS_RUN_31985356527_JOB_95259316934",
       "review": "NOT_EXECUTED",
       "merge": "NOT_EXECUTED",
       "mainPostMergeCi": "NOT_EXECUTED",
@@ -109,11 +109,11 @@
       "mainPostMergeCiJob": 95245932370,
       "status": "CI_PASS"
     },
-    "note": "M3-P054福利卡适用范围 LOCAL_PASS；真实计划/商品、真机、staging/device/production未执行；M3-P055锁定。"
+    "note": "M3-P054福利卡适用范围 Draft PR精确head CI_PASS；真实计划/商品、真机、staging/device/production未执行；M3-P055锁定。"
   },
   "evidence": {
     "local": "LOCAL_PASS_M3_P054_FULL_VERIFY",
-    "ci": "NOT_EXECUTED",
+    "ci": "CI_PASS_M3_P054_HEAD_6b3af8d",
     "staging": "NOT_EXECUTED",
     "device": "NOT_EXECUTED",
     "production": "NOT_EXECUTED"

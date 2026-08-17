@@ -5,9 +5,9 @@
     "P0-054",
     "P0-092_PARTIAL"
   ],
-  "status": "LOCAL_PASS",
-  "commit": "485e9cc7842b0bfdce9241c206daeab61f74ef6f",
-  "updatedAt": "2026-08-17T01:17:05.460Z",
+  "status": "CI_PASS",
+  "commit": "6b3af8df6b2400d01081dd64c9bea7d27b4f04ba",
+  "updatedAt": "2026-08-17T01:45:34Z",
   "baselineSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
   "scope": "server-owned composite welfare-card scope evaluation and three-page consistent presentation",
   "red": [
@@ -34,7 +34,7 @@
   },
   "github": {
     "issue": 105,
-    "pullRequest": null,
-    "ciRun": null
+    "pullRequest": 106,
+    "ciRun": 31985356527
   }
 }
