@@ -578,6 +578,7 @@ type JsonValue =
       provide: PAYMENT_REPOSITORY,
       useValue: {
         beginWechatPrepay: async () => ({ kind: 'NOT_FOUND' }),
+        beginWelfareCardWechatPrepay: async () => ({ kind: 'NOT_FOUND' }),
         completeWechatPrepay: async () => ({ kind: 'STATE_CONFLICT' }),
         confirmWechatPayment: async () => ({ kind: 'NOT_FOUND' }),
       } satisfies PaymentRepository,

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-17T04:03:43Z",
+  "updatedAt": "2026-08-17T05:45:00Z",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -14,15 +14,15 @@
   "execution": {
     "status": "M3_IN_PROGRESS",
     "currentStage": "M3",
-    "currentTask": "M3-P055",
-    "nextAllowedTask": "M3-P055",
+    "currentTask": "M3-P056",
+    "nextAllowedTask": "M3-P056",
     "activeTaskCount": 1,
-    "lastCompletedTask": "M3-P054",
-    "lastCompletedCommit": "b7cfd38383bedab10f6b4c894278d2cfc9b37715",
+    "lastCompletedTask": "M3-P055",
+    "lastCompletedCommit": "3dcd998d07d9a2af7675baaac02fa0ae413dd538",
     "lastPassedGate": "M2-GATE",
     "prohibitedUntilGate": [
-      "M3-P055 Draft PR精确head CI成功、人工合并且post-merge main CI成功前不得开始M3-P056",
-      "真实福利计划/资金/真机/staging/production未完成；M4及后续保持锁定"
+      "M3-P056 Draft PR精确head CI成功、人工合并且post-merge main CI成功前不得开始M3-P057",
+      "真实微信/staging/真机/真实资金未完成；M4及后续保持锁定"
     ],
     "persistentRestrictions": [
       "M3-GATE通过前M4及以后阶段保持LOCKED/NOT_EXECUTED",
@@ -70,49 +70,49 @@
       "completedAt": null
     },
     "latestCi": {
-      "scope": "M3_P031_PR_HEAD",
+      "scope": "M3_P055_POST_MERGE_MAIN",
       "status": "CI_PASS",
-      "runId": 31922365208,
-      "jobId": 95104212863,
-      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31922365208",
-      "headSha": "188eb66c0e6e5c877284e13c030942360a1dbc7b",
-      "event": "pull_request",
-      "completedAt": "2026-08-16T02:47:35.508Z"
+      "runId": 31997253059,
+      "jobId": 95290991988,
+      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/31997253059",
+      "headSha": "3dcd998d07d9a2af7675baaac02fa0ae413dd538",
+      "event": "push",
+      "completedAt": "2026-08-17T05:15:19Z"
     },
     "currentTaskDelivery": {
-      "taskId": "M3-P055",
-      "issue": 107,
-      "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/107",
-      "branch": "codex/m3-welfare-card-full-payment",
-      "baseCommit": "b7cfd38383bedab10f6b4c894278d2cfc9b37715",
-      "verifiedHead": "c3585dece3e0ef2ae89e7d2294a090853e2be9ad",
+      "taskId": "M3-P056",
+      "issue": 109,
+      "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/109",
+      "branch": "codex/m3-welfare-card-mixed-payment",
+      "baseCommit": "3dcd998d07d9a2af7675baaac02fa0ae413dd538",
+      "verifiedHead": "WORKTREE",
       "status": "LOCAL_PASS_PENDING_DRAFT_PR",
-      "localRedTest": "API_4_OF_4_404;MINIAPP_2_PAYMENT_ACTION_MISSING",
-      "localFocusedTest": "LOCAL_PASS_REPOSITORY_5_API_4_MINIAPP_6_MIGRATION_1_OPENAPI_1_P0_1",
-      "localFullVerify": "PASS_17_OF_17",
+      "localRedTest": "API_3_OF_3_404;MINIAPP_ACTION_MISSING",
+      "localFocusedTest": "LOCAL_PASS_BEGIN_1_CALLBACK_6_API_3_MINIAPP_7_OPENAPI_1_P0_1",
+      "localFullVerify": "NOT_EXECUTED",
       "pullRequest": null,
       "pullRequestState": "NOT_CREATED",
       "exactHeadCi": "NOT_EXECUTED",
       "review": "NOT_EXECUTED",
       "merge": "NOT_EXECUTED",
       "mainPostMergeCi": "NOT_EXECUTED",
-      "blockingExternalItem": "REAL_WELFARE_PROGRAM_FUNDS_AND_DEVICE",
+      "blockingExternalItem": "REAL_WECHAT_STAGING_DEVICE",
       "nextTaskUnlocked": false
     },
     "previousTaskDelivery": {
-      "taskId": "M3-P054",
-      "pullRequest": 106,
-      "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/106",
-      "exactHead": "0b6e9c63a474a39092d5151aac268acd3b478714",
-      "mergeCommit": "b7cfd38383bedab10f6b4c894278d2cfc9b37715",
-      "mainPostMergeCiRun": 31987603994,
-      "mainPostMergeCiJob": 95265195156,
+      "taskId": "M3-P055",
+      "pullRequest": 108,
+      "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/108",
+      "exactHead": "ecbb55573bf42ea32a1e1117e75958ba39ce38b1",
+      "mergeCommit": "3dcd998d07d9a2af7675baaac02fa0ae413dd538",
+      "mainPostMergeCiRun": 31997253059,
+      "mainPostMergeCiJob": 95290991988,
       "status": "CI_PASS"
     },
-    "note": "M3-P055福利卡全额支付 LOCAL_PASS；真实资金/真机/staging/device/production未执行；M3-P056锁定。"
+    "note": "M3-P056福利卡加微信成功闭环LOCAL_PASS；真实微信/staging/device/production未执行；P057锁定。"
   },
   "evidence": {
-    "local": "LOCAL_PASS_M3_P055_FULL_VERIFY",
+    "local": "LOCAL_FOCUSED_PASS_FULL_VERIFY_NOT_EXECUTED",
     "ci": "NOT_EXECUTED",
     "staging": "NOT_EXECUTED",
     "device": "NOT_EXECUTED",
@@ -127,7 +127,7 @@
     "pages": 80,
     "externalDependencies": 28,
     "migrations": 26,
-    "apiContracts": 103
+    "apiContracts": 105
   },
   "resumeProtocol": [
     "读取AGENTS.md、综合方案、00/01/02、project-status和当前任务行",

@@ -33,9 +33,18 @@ const paidResponse = {
   itemCount: 2, supplierFulfillmentCount: 2,
 };
 
-const loadPage = ({ fail = false, failPayment = false, responseBody = response } = {}) => {
+const mixedResponse = {
+  paymentTransactionId: '71000000-0000-4000-8000-000000000001', orderId: paidResponse.orderId,
+  channel: 'WECHAT_PAY', status: 'PREPAY_CREATED', collectorName: '江苏福礼团供应链科技有限公司',
+  checkoutMode: 'COMPANY_UNIFIED', paymentMode: 'WELFARE_CARD_WECHAT', welfareCardAmount: 4_000,
+  cashAmount: 3_000, totalAmount: 7_000, amount: 3_000, outTradeNo: 'WP2026081700000000000000000001',
+  prepayId: 'mixed-prepay-1', clientPayment: { timeStamp: '1786666666', nonceStr: 'nonce', package: 'prepay_id=mixed-prepay-1', signType: 'RSA', paySign: 'test-signature' },
+};
+
+const loadPage = ({ fail = false, failPayment = false, responseBody = response, requestPaymentResult = 'success' } = {}) => {
   let definition;
   const requests = [];
+  const requestPayments = [];
   const storage = new Map([
     ['fulishe.pendingCartItems', structuredClone(cartItems)],
     ['fulishe.pendingBuyerOrder', { orderId: paidResponse.orderId, totalAmount: 7_000 }],
@@ -51,14 +60,19 @@ const loadPage = ({ fail = false, failPayment = false, responseBody = response }
       request: (options) => {
         requests.push({ data: options.data, header: options.header, method: options.method, url: options.url });
         if (fail || (failPayment && options.url.includes('/welfare-card-full-payment'))) return options.fail({ errMsg: 'request:fail timeout' });
-        const payment = options.url.includes('/welfare-card-full-payment');
-        return options.success({ data: structuredClone(payment ? paidResponse : responseBody), statusCode: payment ? 201 : 200 });
+        const fullPayment = options.url.includes('/welfare-card-full-payment');
+        const mixedPayment = options.url.includes('/welfare-card-wechat-payment');
+        return options.success({ data: structuredClone(fullPayment ? paidResponse : mixedPayment ? mixedResponse : responseBody), statusCode: fullPayment || mixedPayment ? 201 : 200 });
+      },
+      requestPayment: (options) => {
+        requestPayments.push({ ...options });
+        return requestPaymentResult === 'success' ? options.success({ errMsg: 'requestPayment:ok' }) : options.fail({ errMsg: 'requestPayment:fail cancel' });
       },
     },
   });
   vm.runInContext(readFileSync(path.join(packageRoot, 'dist', 'pages', 'checkout', 'index.js'), 'utf8'), context);
   definition.setData = (patch) => Object.assign(definition.data, patch);
-  return { definition, requests, storage };
+  return { definition, requests, requestPayments, storage };
 };
 
 test('P0-053 checkout loads only server-priced eligible accounts through miniapp-kit and never sends owner or amount fields', async () => {
@@ -145,4 +159,26 @@ test('P0-055 checkout preserves the payment idempotency key after timeout and re
   await partial.definition.submitFullWelfarePayment.call(partial.definition);
   assert.equal(partial.requests.filter(({ url }) => url.includes('/welfare-card-full-payment')).length, 0);
   assert.match(partial.definition.data.message, /无法全额支付/u);
+});
+
+test('P0-056 checkout starts mixed payment from one user gesture with server amounts and one wx.requestPayment call', async () => {
+  const runtime = loadPage({ responseBody: {
+    ...response,
+    accounts: [{ ...response.accounts[0], availableAmount: 4_000, maximumDeductibleAmount: 4_000 }],
+  } });
+  await runtime.definition.onLoad.call(runtime.definition);
+  runtime.definition.selectAccount.call(runtime.definition, { currentTarget: { dataset: { accountId: response.accounts[0].id } } });
+  await runtime.definition.submitSelectedPayment.call(runtime.definition);
+  const request = runtime.requests.find(({ url }) => url.includes('/welfare-card-wechat-payment'));
+  assert.equal(request.method, 'POST');
+  assert.deepEqual({ ...request.data }, { accountId: response.accounts[0].id });
+  assert.match(request.header['Idempotency-Key'], /^welfare-wechat-/u);
+  assert.equal(runtime.requestPayments.length, 1);
+  assert.deepEqual(
+    (({ timeStamp, nonceStr, package: paymentPackage, signType, paySign }) => ({ timeStamp, nonceStr, package: paymentPackage, signType, paySign }))(runtime.requestPayments[0]),
+    mixedResponse.clientPayment,
+  );
+  assert.equal(runtime.definition.data.state, 'unknown');
+  assert.match(runtime.definition.data.message, /结果待确认/u);
+  assert.doesNotMatch(JSON.stringify(request), /companyId|consumerUserId|buyerId|supplierId|price|amount/iu);
 });

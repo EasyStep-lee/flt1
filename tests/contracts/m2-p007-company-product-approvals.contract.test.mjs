@@ -61,9 +61,9 @@ test('M2-P007 retains evidence while the current M2 slice advances through its d
     ]);
 
   assert.equal(state.execution.status, 'M3_IN_PROGRESS');
-  assert.equal(state.execution.currentTask, 'M3-P055');
+  assert.equal(state.execution.currentTask, 'M3-P056');
   assert.equal(state.execution.nextAllowedTask, state.execution.currentTask);
-  assert.equal(state.execution.lastCompletedTask, 'M3-P054');
+  assert.equal(state.execution.lastCompletedTask, 'M3-P055');
   assert.equal(state.execution.activeTaskCount, 1);
   assert.equal(state.github.currentTaskDelivery.taskId, state.execution.currentTask);
   assert.ok(
@@ -79,7 +79,7 @@ test('M2-P007 retains evidence while the current M2 slice advances through its d
   assert.equal(state.github.currentTaskDelivery.mainPostMergeCi, 'NOT_EXECUTED');
   assert.equal(
     state.github.currentTaskDelivery.blockingExternalItem,
-    'REAL_WELFARE_PROGRAM_FUNDS_AND_DEVICE',
+    'REAL_WECHAT_STAGING_DEVICE',
   );
   assert.equal(state.github.currentTaskDelivery.nextTaskUnlocked, false);
   assert.match(

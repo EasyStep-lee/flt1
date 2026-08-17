@@ -22,6 +22,8 @@ import {
   WechatPaymentNotificationDto,
   WechatPrepayRequestDto,
   WechatPrepayResponseDto,
+  WelfareCardWechatPaymentRequestDto,
+  WelfareCardWechatPaymentResponseDto,
 } from './payment.dto.js';
 import { PaymentService } from './payment.service.js';
 
@@ -70,6 +72,49 @@ export class WechatPrepayController {
       throw new SafeApiError(403, 'ACCESS_DENIED', 'Buyer cannot create payments');
     }
     const result = await this.service.createWechatPrepay(
+      actor,
+      orderId,
+      body,
+      idempotencyKey,
+      request.requestId ?? 'request-id-unavailable',
+    );
+    if (result.replayed) response.status(200);
+    return result.body;
+  }
+}
+
+@ApiTags('payments')
+@ApiExtraModels(ApiErrorResponseDto, WelfareCardWechatPaymentRequestDto, WelfareCardWechatPaymentResponseDto)
+@Controller('v1/consumer/orders')
+export class ConsumerWelfareCardWechatPaymentController {
+  constructor(
+    @Inject(ORDER_ACTOR_RESOLVER) private readonly actors: OrderActorResolver,
+    @Inject(PaymentService) private readonly service: PaymentService,
+  ) {}
+
+  @Post(':orderId/welfare-card-wechat-payment')
+  @HttpCode(201)
+  @ApiOperation({ operationId: 'payments.createWelfareCardWechatPayment', summary: 'Freeze the automatic welfare deduction and create one WeChat prepay for the difference' })
+  @ApiHeader({ name: 'Idempotency-Key', required: true })
+  @ApiBody({ type: WelfareCardWechatPaymentRequestDto })
+  @ApiCreatedResponse({ type: WelfareCardWechatPaymentResponseDto })
+  @ApiOkResponse({ description: 'Idempotent replay', type: WelfareCardWechatPaymentResponseDto })
+  @ApiUnauthorizedResponse({ type: ApiErrorResponseDto })
+  @ApiConflictResponse({ type: ApiErrorResponseDto })
+  @ApiUnprocessableEntityResponse({ type: ApiErrorResponseDto })
+  async create(
+    @Req() request: RequestContext,
+    @Res({ passthrough: true }) response: Response,
+    @Param('orderId') orderId: string,
+    @Headers('idempotency-key') idempotencyKey: string | undefined,
+    @Body() body: WelfareCardWechatPaymentRequestDto,
+  ): Promise<WelfareCardWechatPaymentResponseDto> {
+    response.setHeader('Cache-Control', 'private, no-store');
+    response.setHeader('X-Robots-Tag', 'noindex, nofollow');
+    const actor = await this.actors.resolveConsumer(cookieHeader(request));
+    if (!actor) throw new SafeApiError(401, 'AUTHENTICATION_REQUIRED', 'Consumer session is required');
+    if (actor.status !== 'ACTIVE') throw new SafeApiError(403, 'ACCOUNT_SUSPENDED', 'Consumer account is not active');
+    const result = await this.service.createWelfareCardWechatPrepay(
       actor,
       orderId,
       body,

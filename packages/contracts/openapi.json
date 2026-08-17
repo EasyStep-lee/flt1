@@ -134,6 +134,7 @@
               "WELFARE_FUNDING_SOURCE_INVALID",
               "WELFARE_CARD_INSUFFICIENT_BALANCE",
               "WELFARE_CARD_NOT_ELIGIBLE",
+              "WELFARE_CARD_MIXED_PAYMENT_NOT_APPLICABLE",
               "WELFARE_PROGRAM_NOT_FOUND"
             ],
             "example": "RESOURCE_NOT_FOUND",
@@ -7633,6 +7634,105 @@
         ],
         "type": "object"
       },
+      "WelfareCardWechatPaymentRequestDto": {
+        "properties": {
+          "accountId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "accountId"
+        ],
+        "type": "object"
+      },
+      "WelfareCardWechatPaymentResponseDto": {
+        "properties": {
+          "amount": {
+            "description": "WeChat amount in integer cents",
+            "minimum": 1,
+            "type": "number"
+          },
+          "cashAmount": {
+            "description": "WeChat difference in integer cents",
+            "minimum": 1,
+            "type": "number"
+          },
+          "channel": {
+            "enum": [
+              "WECHAT_PAY"
+            ],
+            "type": "string"
+          },
+          "checkoutMode": {
+            "enum": [
+              "COMPANY_UNIFIED"
+            ],
+            "type": "string"
+          },
+          "clientPayment": {
+            "$ref": "#/components/schemas/MiniappPaymentPayloadDto"
+          },
+          "collectorName": {
+            "example": "江苏福礼团供应链科技有限公司",
+            "type": "string"
+          },
+          "orderId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "outTradeNo": {
+            "maxLength": 32,
+            "type": "string"
+          },
+          "paymentMode": {
+            "enum": [
+              "WELFARE_CARD_WECHAT"
+            ],
+            "type": "string"
+          },
+          "paymentTransactionId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "prepayId": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "PREPAY_CREATED"
+            ],
+            "type": "string"
+          },
+          "totalAmount": {
+            "description": "Server-owned order total in integer cents",
+            "minimum": 2,
+            "type": "number"
+          },
+          "welfareCardAmount": {
+            "description": "Frozen welfare-card amount in integer cents",
+            "minimum": 1,
+            "type": "number"
+          }
+        },
+        "required": [
+          "paymentTransactionId",
+          "orderId",
+          "channel",
+          "status",
+          "collectorName",
+          "checkoutMode",
+          "amount",
+          "outTradeNo",
+          "prepayId",
+          "clientPayment",
+          "paymentMode",
+          "welfareCardAmount",
+          "cashAmount",
+          "totalAmount"
+        ],
+        "type": "object"
+      },
       "WelfareDeliveryFeeApplicabilityResponseDto": {
         "properties": {
           "eligible": {
@@ -11447,6 +11547,87 @@
         "summary": "Pay an owned consumer order fully with one eligible welfare-card account",
         "tags": [
           "consumer-welfare-card-payments"
+        ]
+      }
+    },
+    "/v1/consumer/orders/{orderId}/welfare-card-wechat-payment": {
+      "post": {
+        "operationId": "payments.createWelfareCardWechatPayment",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WelfareCardWechatPaymentRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WelfareCardWechatPaymentResponseDto"
+                }
+              }
+            },
+            "description": "Idempotent replay"
+          },
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WelfareCardWechatPaymentResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Freeze the automatic welfare deduction and create one WeChat prepay for the difference",
+        "tags": [
+          "payments"
         ]
       }
     },

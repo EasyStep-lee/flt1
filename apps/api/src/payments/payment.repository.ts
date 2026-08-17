@@ -16,6 +16,12 @@ export interface PaymentRecord {
   readonly response?: WechatPrepayResponse;
 }
 
+export interface WelfareCardWechatPaymentRecord extends PaymentRecord {
+  readonly welfareCardAmount: number;
+  readonly cashAmount: number;
+  readonly totalAmount: number;
+}
+
 export interface BeginWechatPrepayCommand {
   readonly orderId: string;
   readonly actor: PaymentActor;
@@ -29,6 +35,26 @@ export type BeginWechatPrepayResult =
   | { readonly kind: 'REPLAY'; readonly payment: PaymentRecord & { readonly response: WechatPrepayResponse } }
   | { readonly kind: 'NOT_FOUND' }
   | { readonly kind: 'ACCESS_DENIED' }
+  | { readonly kind: 'STATE_CONFLICT' }
+  | { readonly kind: 'IDEMPOTENCY_CONFLICT' }
+  | { readonly kind: 'CONCURRENT_CONFLICT' };
+
+export interface BeginWelfareCardWechatPrepayCommand {
+  readonly orderId: string;
+  readonly accountId: string;
+  readonly actor: ConsumerOrderActor;
+  readonly idempotencyKey: string;
+  readonly requestHash: string;
+  readonly requestId: string;
+}
+
+export type BeginWelfareCardWechatPrepayResult =
+  | { readonly kind: 'NEEDS_PREPAY'; readonly payment: WelfareCardWechatPaymentRecord }
+  | { readonly kind: 'REPLAY'; readonly payment: WelfareCardWechatPaymentRecord & { readonly response: WechatPrepayResponse } }
+  | { readonly kind: 'NOT_FOUND' }
+  | { readonly kind: 'ACCESS_DENIED' }
+  | { readonly kind: 'ACCOUNT_NOT_ELIGIBLE' }
+  | { readonly kind: 'NOT_APPLICABLE' }
   | { readonly kind: 'STATE_CONFLICT' }
   | { readonly kind: 'IDEMPOTENCY_CONFLICT' }
   | { readonly kind: 'CONCURRENT_CONFLICT' };
@@ -62,6 +88,7 @@ export type ConfirmWechatPaymentResult =
 
 export interface PaymentRepository {
   beginWechatPrepay(command: BeginWechatPrepayCommand): Promise<BeginWechatPrepayResult>;
+  beginWelfareCardWechatPrepay(command: BeginWelfareCardWechatPrepayCommand): Promise<BeginWelfareCardWechatPrepayResult>;
   completeWechatPrepay(command: CompleteWechatPrepayCommand): Promise<CompleteWechatPrepayResult>;
   confirmWechatPayment(command: ConfirmWechatPaymentCommand): Promise<ConfirmWechatPaymentResult>;
 }
