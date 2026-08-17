@@ -51,10 +51,27 @@ const response = () => ({
   ],
 });
 
+const eligibilityResponse = {
+  goodsAmount: 6990,
+  deliveryFee: 0,
+  totalAmount: 6990,
+  accounts: [{
+    id: '60000000-0000-4000-8000-000000000001',
+    itemApplicability: [{
+      skuId: '33333333-3333-4333-8333-333333333333',
+      eligible: true,
+      eligibleAmount: 6990,
+      reason: 'CATEGORY_INCLUDED',
+    }],
+    deliveryFeeApplicability: { eligible: false, eligibleAmount: 0 },
+  }],
+};
+
 const loadBuiltPage = (failuresBeforeSuccess = 0, responseBody = response()) => {
   let definition;
   let requestedUrl;
   let attempts = 0;
+  const requests = [];
   const context = vm.createContext({
     console,
     getApp: () => ({ globalData: { apiBaseUrl: 'https://api.example.test' } }),
@@ -66,11 +83,15 @@ const loadBuiltPage = (failuresBeforeSuccess = 0, responseBody = response()) => 
       request: (options) => {
         attempts += 1;
         requestedUrl = options.url;
+        requests.push(options.url);
         if (attempts <= failuresBeforeSuccess) {
           options.fail();
           return;
         }
-        options.success({ data: responseBody, statusCode: 200 });
+        options.success({
+          data: options.url.includes('/welfare-card-accounts/eligible') ? eligibilityResponse : responseBody,
+          statusCode: 200,
+        });
       },
     },
   });
@@ -80,7 +101,7 @@ const loadBuiltPage = (failuresBeforeSuccess = 0, responseBody = response()) => 
   );
   vm.runInContext(source, context);
   definition.setData = (patch) => Object.assign(definition.data, patch);
-  return { attempts: () => attempts, definition, requestedUrl: () => requestedUrl };
+  return { attempts: () => attempts, definition, requestedUrl: () => requestedUrl, requests };
 };
 
 test('P0-013 loads the generated food detail contract through miniapp-kit', async () => {
@@ -91,7 +112,17 @@ test('P0-013 loads the generated food detail contract through miniapp-kit', asyn
   assert.equal(runtime.definition.data.priceLabel, '¥69.90');
   assert.equal(runtime.definition.data.skus[0].specificationLabel, '口味：原味 · 净含量：5千克 · 包装数：1袋');
   assert.match(runtime.definition.data.detailModules.at(-1).notice, /实际包装标签/u);
-  assert.match(runtime.requestedUrl(), new RegExp(`/v1/catalog/products/${productId}`, 'u'));
+  assert.ok(runtime.requests.some((url) => new RegExp(`/v1/catalog/products/${productId}`, 'u').test(url)));
+});
+
+test('P0-054 product detail shows server-evaluated welfare applicability per SKU without exposing rules', async () => {
+  const runtime = loadBuiltPage();
+  await runtime.definition.onLoad.call(runtime.definition, { productId });
+  assert.equal(runtime.definition.data.state, 'success');
+  assert.equal(runtime.definition.data.welfareScopeSummary, '当前福利卡账户可用');
+  assert.equal(runtime.definition.data.skus[0].welfareEligibilityLabel, '福利卡可用');
+  assert.ok(runtime.requests.some((url) => url.includes('/v1/consumer/welfare-card-accounts/eligible?')));
+  assert.doesNotMatch(JSON.stringify(runtime.definition.data), /scopeRules|categoryIncludedIds|productExcludedIds/iu);
 });
 
 test('P0-021 retail miniapp state keeps only retail prices when transport data is tainted', async () => {
@@ -117,7 +148,7 @@ test('P0-013 exposes an honest offline error and retries the same product', asyn
   assert.equal(runtime.definition.data.errorMessage, '详情加载失败，请检查网络后重试');
   await runtime.definition.retry.call(runtime.definition);
   assert.equal(runtime.definition.data.state, 'success');
-  assert.equal(runtime.attempts(), 2);
+  assert.equal(runtime.requests.filter((url) => url.includes('/v1/catalog/products/')).length, 2);
 });
 
 test('P0-013 refuses an invalid product identifier before any request', async () => {
@@ -166,7 +197,7 @@ test('P0-014 renders FRESH traceability, weighing and company after-sales throug
   assert.equal(runtime.definition.data.priceLabel, '¥19.90');
   assert.match(runtime.definition.data.skus[0].specificationLabel, /重量档：500克档/u);
   assert.match(runtime.definition.data.detailModules.at(-1).notice, /江苏福礼团/u);
-  assert.match(runtime.requestedUrl(), new RegExp(`/v1/catalog/products/${productId}`, 'u'));
+  assert.ok(runtime.requests.some((url) => new RegExp(`/v1/catalog/products/${productId}`, 'u').test(url)));
 });
 
 test('P0-015 renders APPAREL size, material, care and company return rules through miniapp-kit', async () => {
@@ -213,7 +244,7 @@ test('P0-015 renders APPAREL size, material, care and company return rules throu
   assert.equal(runtime.definition.data.skus[0].specificationLabel, '颜色：暖红 · 尺码：M');
   assert.match(runtime.definition.data.detailModules[0].fields[1].value, /胸围100cm/u);
   assert.match(runtime.definition.data.detailModules.at(-1).notice, /江苏福礼团/u);
-  assert.match(runtime.requestedUrl(), new RegExp(`/v1/catalog/products/${productId}`, 'u'));
+  assert.ok(runtime.requests.some((url) => new RegExp(`/v1/catalog/products/${productId}`, 'u').test(url)));
 });
 
 test('P0-016 renders DIGITAL models, parameters, energy, package and company warranty through miniapp-kit', async () => {
@@ -268,7 +299,7 @@ test('P0-016 renders DIGITAL models, parameters, energy, package and company war
   );
   assert.equal(runtime.definition.data.detailModules[1].fields[0].value, '一级能效');
   assert.match(runtime.definition.data.detailModules.at(-1).notice, /江苏福礼团/u);
-  assert.match(runtime.requestedUrl(), new RegExp(`/v1/catalog/products/${productId}`, 'u'));
+  assert.ok(runtime.requests.some((url) => new RegExp(`/v1/catalog/products/${productId}`, 'u').test(url)));
 });
 
 test('P0-017 renders GIFT_BOX child quantities, specifications and minimum expiry through miniapp-kit', async () => {
@@ -314,5 +345,5 @@ test('P0-017 renders GIFT_BOX child quantities, specifications and minimum expir
     '套餐：经典套餐 · 档位：A档 · 定制版本：标准版',
   );
   assert.match(runtime.definition.data.detailModules.at(-1).notice, /江苏福礼团/u);
-  assert.match(runtime.requestedUrl(), new RegExp(`/v1/catalog/products/${productId}`, 'u'));
+  assert.ok(runtime.requests.some((url) => new RegExp(`/v1/catalog/products/${productId}`, 'u').test(url)));
 });

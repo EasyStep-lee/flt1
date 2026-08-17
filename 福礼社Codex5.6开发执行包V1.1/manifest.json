@@ -21,13 +21,13 @@
   },
   "workbook": {
     "status": "VERIFIED",
-    "sha256": "A87D6DC31E71F2DF9CB64A0212E193AA88995273118021EE531454827B18246F",
+    "sha256": "C16E4D4A7E522030BE407F88790368F913B17C119B4915B64ED4E1E8ACAB197B",
     "currentTaskMirror": {
-      "taskId": "M3-P053",
-      "status": "LOCAL_PASS_PENDING_DRAFT_PR",
+      "taskId": "M3-P054",
+      "status": "CI_PASS_ON_CODE_HEAD_PENDING_FINAL_EVIDENCE_CI",
       "sourceLedgers": "CSV_JSON_AND_WORKBOOK_UPDATED",
-      "reason": "Artifact-tool updated the M3-P053 task, P0, page, evidence, API and stage-gate rows; pnpm verify passed 17/17 and the 12-sheet render review and formula scan passed. Draft PR exact-head CI remains pending.",
-      "checkedAt": "2026-08-16T13:17:32.292Z"
+      "reason": "Artifact-tool updated the M3-P054 task, P0, page, evidence, API and stage-gate rows; local pnpm verify 17/17 and PR #106 code-head Actions run 31985356527 passed. This evidence-only update still requires exact-head CI before human merge authorization.",
+      "checkedAt": "2026-08-17T01:45:34Z"
     }
   },
   "sourceOfTruth": [

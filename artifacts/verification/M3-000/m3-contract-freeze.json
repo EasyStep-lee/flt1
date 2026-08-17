@@ -4739,7 +4739,7 @@
           "P0-021",
           "P0-088"
         ],
-        "implementationStatus": "NOT_IMPLEMENTED"
+        "implementationStatus": "IMPLEMENTED_M3_P054_SCOPE_PARTIAL"
       },
       {
         "pageId": "PAGE-054",
@@ -4757,7 +4757,7 @@
           "P0-022",
           "P0-090"
         ],
-        "implementationStatus": "NOT_IMPLEMENTED"
+        "implementationStatus": "IMPLEMENTED_M3_P054_SCOPE_PARTIAL"
       },
       {
         "pageId": "PAGE-056",
@@ -4766,7 +4766,7 @@
           "P0-091",
           "P0-092"
         ],
-        "implementationStatus": "IMPLEMENTED_M3_P053_WELFARE_SELECTION_PARTIAL"
+        "implementationStatus": "IMPLEMENTED_M3_P054_SCOPE_PARTIAL"
       },
       {
         "pageId": "PAGE-057",
@@ -5043,7 +5043,7 @@
           "P0-054",
           "P0-092"
         ],
-        "implementationStatus": "IMPLEMENTED_M3_P053"
+        "implementationStatus": "IMPLEMENTED_M3_P054"
       },
       {
         "contractId": "API-040",
@@ -5695,7 +5695,7 @@
       "p0Id": "P0-054",
       "category": "INVALID_INPUT",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P054-02",
@@ -5703,7 +5703,7 @@
       "p0Id": "P0-054",
       "category": "UNAUTHORIZED_OR_WRONG_OWNER",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P054-03",
@@ -5711,7 +5711,7 @@
       "p0Id": "P0-054",
       "category": "DUPLICATE_OR_STATE_CONFLICT",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P055-01",

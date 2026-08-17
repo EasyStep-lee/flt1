@@ -1,3 +1,5 @@
+import { MiniappTransportError } from '@fulishe/miniapp-kit';
+
 import { requestAdapter } from '../../request-adapter.js';
 
 type PageState = 'error' | 'loading' | 'success';
@@ -29,7 +31,9 @@ interface ProductDetailPageData {
     readonly skuId: string;
     readonly priceLabel: string;
     readonly specificationLabel: string;
+    readonly welfareEligibilityLabel: string;
   }[];
+  welfareScopeSummary: string;
   errorMessage: string;
 }
 
@@ -37,6 +41,7 @@ interface ProductDetailPageInstance {
   data: ProductDetailPageData;
   setData(patch: Partial<ProductDetailPageData>): void;
   loadProduct(): Promise<void>;
+  loadWelfareEligibility(): Promise<void>;
 }
 
 interface UserMiniappApplication {
@@ -60,6 +65,7 @@ const pageDefinition = {
     detailModules: [] as ProductDetailPageData['detailModules'],
     bundleItems: [] as ProductDetailPageData['bundleItems'],
     skus: [] as ProductDetailPageData['skus'],
+    welfareScopeSummary: '登录后查看福利卡适用范围',
     errorMessage: '',
   },
 
@@ -125,8 +131,10 @@ const pageDefinition = {
           specificationLabel: sku.specifications
             .map(({ label, value }) => `${label}：${value}`)
             .join(' · '),
+          welfareEligibilityLabel: '正在判断福利卡适用范围…',
         })),
       });
+      await this.loadWelfareEligibility();
     } catch {
       this.setData({
         state: 'error',
@@ -134,6 +142,42 @@ const pageDefinition = {
         bundleItems: [],
         skus: [],
         errorMessage: '详情加载失败，请检查网络后重试',
+      });
+    }
+  },
+
+  async loadWelfareEligibility(this: ProductDetailPageInstance): Promise<void> {
+    if (this.data.skus.length === 0) return;
+    try {
+      const application = getApp<UserMiniappApplication>();
+      const baseUrl = application.globalData.apiBaseUrl.replace(/\/$/u, '');
+      const query = this.data.skus
+        .flatMap(({ skuId }) => [`skuId=${encodeURIComponent(skuId)}`, 'quantity=1'])
+        .join('&');
+      const response = await requestAdapter.execute('consumerWelfareCard.listEligibleAccounts', {
+        method: 'GET',
+        url: `${baseUrl}/v1/consumer/welfare-card-accounts/eligible?${query}`,
+      });
+      const eligibleSkuIds = new Set(response.accounts.flatMap((account) => account.itemApplicability)
+        .filter(({ eligible }) => eligible)
+        .map(({ skuId }) => skuId));
+      const skus = this.data.skus.map((sku) => ({
+        ...sku,
+        welfareEligibilityLabel: eligibleSkuIds.has(sku.skuId) ? '福利卡可用' : '当前福利卡账户不可用',
+      }));
+      const eligibleCount = skus.filter(({ welfareEligibilityLabel }) => welfareEligibilityLabel === '福利卡可用').length;
+      this.setData({
+        skus,
+        welfareScopeSummary: eligibleCount === skus.length
+          ? '当前福利卡账户可用'
+          : eligibleCount > 0 ? '部分规格福利卡可用' : '当前福利卡账户不可用',
+      });
+    } catch (error) {
+      const permission = error instanceof MiniappTransportError && (error.statusCode === 401 || error.statusCode === 403);
+      const label = permission ? '登录后查看福利卡适用范围' : '福利卡适用范围暂时无法判断';
+      this.setData({
+        welfareScopeSummary: label,
+        skus: this.data.skus.map((sku) => ({ ...sku, welfareEligibilityLabel: label })),
       });
     }
   },

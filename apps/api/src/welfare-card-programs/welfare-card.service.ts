@@ -2,10 +2,11 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { SafeApiError } from '../http/api-error.js';
 import type { ConsumerOrderActor } from '../orders/order.actor.js';
-import { ORDER_REPOSITORY, type OrderRepository, type OrderableSkuRecord } from '../orders/order.repository.js';
+import { ORDER_REPOSITORY, type OrderRepository } from '../orders/order.repository.js';
 import type { WelfareCardActor } from './welfare-card.actor.js';
 import { normalizeBatch, normalizeProgram, normalizeWelfareCardBinding, requireWelfareId, requireWelfareIdempotencyKey, welfareRequestHash } from './welfare-card.policy.js';
 import { WELFARE_CARD_REPOSITORY, type WelfareBatchRecord, type WelfareCardAccountRecord, type WelfareCardEligibilityAccountRecord, type WelfareCardRepository, type WelfareMutationResult, type WelfareProgramRecord } from './welfare-card.repository.js';
+import { cloneWelfareScopeRules, evaluateWelfareScope, parseWelfareScopeRules } from './welfare-card-scope.policy.js';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu;
 const eligibilityFields = new Set(['skuId', 'quantity']);
@@ -38,32 +39,10 @@ const safeLineAmount = (price: number, quantity: number): number => {
   }
   return amount;
 };
-const scopeResourceId = (account: WelfareCardEligibilityAccountRecord, sku: OrderableSkuRecord): string | null => {
-  if (account.scopeType === 'ALL_PRODUCTS') return null;
-  if (account.scopeType === 'CATEGORY') return sku.categoryId;
-  if (account.scopeType === 'PRODUCT') return sku.productId;
-  return sku.skuId;
-};
-const scopeRulesAreValid = (account: WelfareCardEligibilityAccountRecord): boolean => {
-  const rules: unknown = account.scopeRules;
-  if (!rules || typeof rules !== 'object' || Array.isArray(rules)) return false;
-  const { schemaVersion, includedIds, excludedIds } = rules as Record<string, unknown>;
-  if (schemaVersion !== 1 || !Array.isArray(includedIds) || !Array.isArray(excludedIds)) return false;
-  const ids = [...includedIds, ...excludedIds];
-  if (ids.length > 1000 || new Set(ids).size !== ids.length || ids.some((id) => typeof id !== 'string' || !UUID.test(id))) return false;
-  return account.scopeType !== 'ALL_PRODUCTS' || ids.length === 0;
-};
-const lineIsEligible = (account: WelfareCardEligibilityAccountRecord, sku: OrderableSkuRecord): boolean => {
-  if (!scopeRulesAreValid(account)) return false;
-  if (account.scopeType === 'ALL_PRODUCTS') return true;
-  const resourceId = scopeResourceId(account, sku);
-  if (!resourceId || account.scopeRules.excludedIds.includes(resourceId)) return false;
-  return account.scopeRules.includedIds.includes(resourceId);
-};
 const scopeDescription = (account: WelfareCardEligibilityAccountRecord): string => {
   const fee = account.canPayDeliveryFee ? '含配送费' : '不含配送费';
   if (account.scopeType === 'ALL_PRODUCTS') return `全部商品可用，${fee}`;
-  const labels = { CATEGORY: '指定分类', PRODUCT: '指定商品', SKU: '指定规格' } as const;
+  const labels = { CATEGORY: '指定分类', PRODUCT: '指定商品', SKU: '指定规格', COMPOSITE: '组合白名单与黑名单' } as const;
   return `部分商品可用：${labels[account.scopeType]}，${fee}`;
 };
 
@@ -78,7 +57,7 @@ const batchDto = (record: WelfareBatchRecord) => ({
 });
 const programDto = (record: WelfareProgramRecord) => ({
   id: record.id, name: record.name, fundingType: record.fundingType, issuerType: record.issuerType,
-  scopeType: record.scopeType, scopeRules: { ...record.scopeRules, includedIds: [...record.scopeRules.includedIds], excludedIds: [...record.scopeRules.excludedIds] },
+  scopeType: record.scopeType, scopeRules: cloneWelfareScopeRules(record.scopeRules),
   canPayDeliveryFee: record.canPayDeliveryFee, refundPolicy: record.refundPolicy,
   complianceStatus: record.complianceStatus, status: record.status, version: record.version,
   createdAt: record.createdAt, updatedAt: record.updatedAt,
@@ -198,8 +177,19 @@ export class WelfareCardService {
         && Number.isSafeInteger(account.frozenAmount)
         && account.frozenAmount >= 0)
       .flatMap((account) => {
+        const rules = parseWelfareScopeRules(account.scopeType, account.scopeRules);
+        if (!rules) return [];
         const availableAmount = Math.max(0, account.balanceAmount - account.frozenAmount);
-        const goodsEligibleAmount = pricedItems.reduce((sum, item) => sum + (lineIsEligible(account, item.sku) ? item.lineAmount : 0), 0);
+        const itemApplicability = pricedItems.map((item) => {
+          const evaluation = evaluateWelfareScope(account.scopeType, rules, item.sku);
+          return {
+            skuId: item.sku.skuId,
+            eligible: evaluation.eligible,
+            eligibleAmount: evaluation.eligible ? item.lineAmount : 0,
+            reason: evaluation.reason,
+          };
+        });
+        const goodsEligibleAmount = itemApplicability.reduce((sum, item) => sum + item.eligibleAmount, 0);
         const eligibleAmount = goodsEligibleAmount + (account.canPayDeliveryFee ? deliveryFee : 0);
         const maximumDeductibleAmount = Math.min(availableAmount, eligibleAmount);
         if (maximumDeductibleAmount <= 0) return [];
@@ -214,6 +204,11 @@ export class WelfareCardService {
           version: account.version,
           scopeType: account.scopeType,
           scopeDescription: scopeDescription(account),
+          itemApplicability,
+          deliveryFeeApplicability: {
+            eligible: account.canPayDeliveryFee,
+            eligibleAmount: account.canPayDeliveryFee ? deliveryFee : 0,
+          },
           eligibleAmount,
           maximumDeductibleAmount,
         }];

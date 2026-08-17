@@ -1728,9 +1728,9 @@ export interface components {
             fundingType: "ENTERPRISE_GRANT" | "COMPANY_GIFT" | "PHYSICAL_CARD_OR_CODE";
             name: string;
             refundPolicy: string;
-            scopeRules: components["schemas"]["WelfareScopeRulesDto"];
+            scopeRules: components["schemas"]["WelfareScopeRulesRequestDto"];
             /** @enum {string} */
-            scopeType: "ALL_PRODUCTS" | "CATEGORY" | "PRODUCT" | "SKU";
+            scopeType: "ALL_PRODUCTS" | "CATEGORY" | "PRODUCT" | "SKU" | "COMPOSITE";
         };
         DecideSensitiveApprovalRequestDto: {
             /** @enum {string} */
@@ -1744,12 +1744,14 @@ export interface components {
             availableAmount: number;
             /** @description Integer cents */
             balanceAmount: number;
+            deliveryFeeApplicability: components["schemas"]["WelfareDeliveryFeeApplicabilityResponseDto"];
             /** @description Server-priced eligible amount in integer cents */
             eligibleAmount: number;
             /** @description Integer cents */
             frozenAmount: number;
             /** Format: uuid */
             id: string;
+            itemApplicability: components["schemas"]["WelfareItemApplicabilityResponseDto"][];
             /** @description Only the last four card characters are visible */
             maskedCardNo: string;
             /** @description min(availableAmount, eligibleAmount) in integer cents */
@@ -1757,7 +1759,7 @@ export interface components {
             programName: string;
             scopeDescription: string;
             /** @enum {string} */
-            scopeType: "ALL_PRODUCTS" | "CATEGORY" | "PRODUCT" | "SKU";
+            scopeType: "ALL_PRODUCTS" | "CATEGORY" | "PRODUCT" | "SKU" | "COMPOSITE";
             /** @enum {string} */
             status: "ACTIVE";
             version: number;
@@ -3197,12 +3199,26 @@ export interface components {
             quantity: number[];
             skuId: string[];
         };
+        WelfareDeliveryFeeApplicabilityResponseDto: {
+            eligible: boolean;
+            /** @description Server-owned eligible delivery fee in integer cents */
+            eligibleAmount: number;
+        };
         WelfareHistoryResponseDto: {
             /** @enum {string} */
             event: "PROGRAM_CREATED" | "BATCH_CREATED";
             /** Format: date-time */
             occurredAt: string;
             resultingVersion: number;
+        };
+        WelfareItemApplicabilityResponseDto: {
+            eligible: boolean;
+            /** @description Server-priced eligible line amount in integer cents */
+            eligibleAmount: number;
+            /** @enum {string} */
+            reason: "ALL_PRODUCTS" | "DEFAULT_INCLUDED" | "CATEGORY_INCLUDED" | "PRODUCT_INCLUDED" | "SKU_INCLUDED" | "CATEGORY_EXCLUDED" | "PRODUCT_EXCLUDED" | "SKU_EXCLUDED" | "OUTSIDE_WHITELIST";
+            /** Format: uuid */
+            skuId: string;
         };
         WelfareProgramPageResponseDto: {
             items: components["schemas"]["WelfareProgramResponseDto"][];
@@ -3226,7 +3242,7 @@ export interface components {
             refundPolicy: string;
             scopeRules: components["schemas"]["WelfareScopeRulesDto"];
             /** @enum {string} */
-            scopeType: "ALL_PRODUCTS" | "CATEGORY" | "PRODUCT" | "SKU";
+            scopeType: "ALL_PRODUCTS" | "CATEGORY" | "PRODUCT" | "SKU" | "COMPOSITE";
             /** @enum {string} */
             status: "DRAFT";
             /** Format: date-time */
@@ -3234,10 +3250,28 @@ export interface components {
             version: number;
         };
         WelfareScopeRulesDto: {
+            categoryExcludedIds?: string[];
+            categoryIncludedIds?: string[];
             excludedIds: string[];
             includedIds: string[];
+            productExcludedIds?: string[];
+            productIncludedIds?: string[];
             /** @enum {number} */
-            schemaVersion: 1;
+            schemaVersion: 1 | 2;
+            skuExcludedIds?: string[];
+            skuIncludedIds?: string[];
+        };
+        WelfareScopeRulesRequestDto: {
+            categoryExcludedIds?: string[];
+            categoryIncludedIds?: string[];
+            excludedIds?: string[];
+            includedIds?: string[];
+            productExcludedIds?: string[];
+            productIncludedIds?: string[];
+            /** @enum {number} */
+            schemaVersion: 1 | 2;
+            skuExcludedIds?: string[];
+            skuIncludedIds?: string[];
         };
         WorkspaceChoiceDto: {
             /** Format: uuid */

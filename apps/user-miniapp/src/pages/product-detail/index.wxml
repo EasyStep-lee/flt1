@@ -11,6 +11,7 @@
       <view class="brand">{{brand}}</view>
       <view class="price">{{priceLabel}}</view>
       <view class="seller">由{{sellerName}}{{checkoutLabel}}</view>
+      <view class="welfare-scope">{{welfareScopeSummary}}</view>
     </view>
 
     <view class="sku-card">
@@ -18,6 +19,7 @@
       <view wx:for="{{skus}}" wx:key="skuId" class="sku-row">
         <view class="sku-spec">{{item.specificationLabel}}</view>
         <view class="sku-price">{{item.priceLabel}}</view>
+        <view class="sku-welfare">{{item.welfareEligibilityLabel}}</view>
       </view>
     </view>
 

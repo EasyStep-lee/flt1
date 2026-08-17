@@ -49,7 +49,7 @@ const account = (overrides = {}) => ({
   canPayDeliveryFee: false, ...overrides,
 });
 
-const createWelfareRepository = () => {
+const createWelfareRepository = (extraAccounts = []) => {
   const accounts = [
     account(),
     account({
@@ -75,6 +75,7 @@ const createWelfareRepository = () => {
       id: '60000000-0000-4000-8000-000000000007', cardNo: 'CARD-INVALID-SCOPE-0007', balanceAmount: 50_000,
       scopeRules: { schemaVersion: 1, includedIds: [productA], excludedIds: [] },
     }),
+    ...extraAccounts,
   ];
   let reads = 0;
   return {
@@ -92,8 +93,8 @@ const createOrderRepository = (records = skus) => ({
 });
 
 const applications = [];
-const fixture = async ({ records = skus, status = 'ACTIVE' } = {}) => {
-  const welfareCardRepository = createWelfareRepository();
+const fixture = async ({ extraAccounts = [], records = skus, status = 'ACTIVE' } = {}) => {
+  const welfareCardRepository = createWelfareRepository(extraAccounts);
   const app = await createApplication({
     config: config(), probes: probes(), welfareCardRepository, orderRepository: createOrderRepository(records),
     orderActorResolver: {
@@ -167,5 +168,40 @@ describe('M3-P053 consumer welfare-card eligibility API', () => {
     expect(responses[1].body).toEqual(responses[0].body);
     expect(responses[2].body).toEqual(responses[0].body);
     expect(current.welfareCardRepository.snapshot().reads).toBe(3);
+  });
+
+  it('applies composite whitelist and blacklist priority per line and keeps delivery-fee policy server-owned', async () => {
+    const composite = account({
+      id: '60000000-0000-4000-8000-000000000008',
+      programName: '分类白名单与商品黑名单',
+      cardNo: 'CARD-COMPOSITE-0008',
+      balanceAmount: 20_000,
+      scopeType: 'COMPOSITE',
+      scopeRules: {
+        schemaVersion: 2,
+        categoryIncludedIds: [categoryA],
+        productIncludedIds: [productB],
+        skuIncludedIds: [],
+        categoryExcludedIds: [],
+        productExcludedIds: [productA],
+        skuExcludedIds: [],
+      },
+      canPayDeliveryFee: true,
+    });
+    const { app, welfareCardRepository } = await fixture({ extraAccounts: [composite] });
+    const response = await eligible(app).expect(200);
+    const selected = response.body.accounts.find(({ id }) => id === composite.id);
+    expect(selected).toMatchObject({
+      eligibleAmount: 3_000,
+      maximumDeductibleAmount: 3_000,
+      scopeType: 'COMPOSITE',
+      itemApplicability: [
+        { skuId: skuA, eligible: false, eligibleAmount: 0, reason: 'PRODUCT_EXCLUDED' },
+        { skuId: skuB, eligible: true, eligibleAmount: 3_000, reason: 'PRODUCT_INCLUDED' },
+      ],
+      deliveryFeeApplicability: { eligible: true, eligibleAmount: 0 },
+    });
+    expect(JSON.stringify(selected)).not.toMatch(/categoryIncludedIds|productExcludedIds|scopeRules|companyId|consumerUserId|supplyPrice/iu);
+    expect(welfareCardRepository.snapshot().reads).toBe(1);
   });
 });

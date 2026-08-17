@@ -14,7 +14,7 @@ test('API-039 freezes read-only owner-derived welfare-card eligibility without s
   const itemRef = response.properties.accounts.items.$ref;
   const item = document.components.schemas[itemRef.split('/').at(-1)];
   assert.deepEqual(item.required.sort(), [
-    'availableAmount', 'balanceAmount', 'eligibleAmount', 'frozenAmount', 'id', 'maskedCardNo',
+    'availableAmount', 'balanceAmount', 'deliveryFeeApplicability', 'eligibleAmount', 'frozenAmount', 'id', 'itemApplicability', 'maskedCardNo',
     'maximumDeductibleAmount', 'programName', 'scopeDescription', 'scopeType', 'status', 'version',
   ]);
   assert.doesNotMatch(JSON.stringify({ operation, response, item }), /"(?:companyId|consumerUserId|buyerId|programId|batchId|cardNo|supplyPrice|supplierPayable|secret)"\s*:/iu);

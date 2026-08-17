@@ -25,6 +25,10 @@
     >
       <view class="account-head"><text>{{item.programName}}</text><text>{{item.maskedCardNo}}</text></view>
       <view class="scope">{{item.scopeDescription}}</view>
+      <view wx:for="{{item.itemApplicability}}" wx:for-item="line" wx:key="skuId" class="scope-line">
+        <text>规格 {{line.skuId}}</text><text>{{line.eligibilityLabel}}</text>
+      </view>
+      <view class="delivery-scope">{{item.deliveryFeeApplicability.label}}</view>
       <view class="money"><text>余额 {{item.balanceLabel}}</text><text>可用 {{item.availableLabel}}</text></view>
       <view class="deduction">本单可适用 {{item.eligibleLabel}} · 自动最大抵扣 {{item.maximumDeductibleLabel}}</view>
     </button>

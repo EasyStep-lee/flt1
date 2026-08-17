@@ -136,9 +136,9 @@ test('M2-P006 and M2-P007 retain merged-main evidence after M2-P008 starts local
   assert.equal(m2.EvidenceStatus, 'CI_PASS');
 
   assert.equal(projectStatus.execution.status, 'M3_IN_PROGRESS');
-  assert.equal(projectStatus.execution.currentTask, 'M3-P053');
+  assert.equal(projectStatus.execution.currentTask, 'M3-P054');
   assert.equal(projectStatus.execution.nextAllowedTask, projectStatus.execution.currentTask);
-  assert.equal(projectStatus.execution.lastCompletedTask, 'M3-P052');
+  assert.equal(projectStatus.execution.lastCompletedTask, 'M3-P053');
   assert.equal(projectStatus.execution.activeTaskCount, 1);
   assert.equal(
     projectStatus.github.currentTaskDelivery.taskId,
@@ -159,10 +159,10 @@ test('M2-P006 and M2-P007 retain merged-main evidence after M2-P008 starts local
   assert.equal(projectStatus.github.currentTaskDelivery.mainPostMergeCi, 'NOT_EXECUTED');
   assert.equal(
     projectStatus.github.currentTaskDelivery.blockingExternalItem,
-    'EXT-012_REAL_CARD_ISSUANCE_AND_DEVICE_SCAN',
+    'REAL_WELFARE_PROGRAM_PRODUCT_AND_DEVICE_DATA',
   );
   assert.equal(projectStatus.github.currentTaskDelivery.nextTaskUnlocked, false);
-  assert.match(projectStatus.evidence.ci, /^(?:NOT_EXECUTED|CI_PASS_M3_(?:P03[01]|P05[13])_HEAD_[0-9a-f]{7})$/u);
+  assert.match(projectStatus.evidence.ci, /^(?:NOT_EXECUTED|CI_PASS_M3_(?:P03[01]|P05[134])_HEAD_[0-9a-f]{7})$/u);
 
   for (const evidence of [contract, handoff]) {
     assert.match(evidence, /P0-006/u);

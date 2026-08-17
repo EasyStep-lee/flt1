@@ -2,13 +2,14 @@ import { createHash } from 'node:crypto';
 
 import { SafeApiError } from '../http/api-error.js';
 import type { WelfareCardBindingMethod, WelfareClaimMode, WelfareFundingType, WelfareProgramRecord } from './welfare-card.repository.js';
+import { parseWelfareScopeRules } from './welfare-card-scope.policy.js';
 
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu;
 const programFields = new Set(['name', 'fundingType', 'scopeType', 'scopeRules', 'canPayDeliveryFee', 'refundPolicy']);
 const batchFields = new Set(['enterpriseCustomerId', 'batchNo', 'totalAmount', 'unitAmount', 'issueCount', 'claimMode', 'agreementVersion']);
 const bindingFields = new Set(['method', 'cardNo', 'secret', 'agreementAccepted', 'agreementVersion']);
 const fundingTypes = new Set<WelfareFundingType>(['ENTERPRISE_GRANT', 'COMPANY_GIFT', 'PHYSICAL_CARD_OR_CODE']);
-const scopeTypes = new Set<WelfareProgramRecord['scopeType']>(['ALL_PRODUCTS', 'CATEGORY', 'PRODUCT', 'SKU']);
+const scopeTypes = new Set<WelfareProgramRecord['scopeType']>(['ALL_PRODUCTS', 'CATEGORY', 'PRODUCT', 'SKU', 'COMPOSITE']);
 const claimModes = new Set<WelfareClaimMode>(['ENTERPRISE_ASSIGNED', 'COMPANY_ASSIGNED', 'PHYSICAL_CARD_OR_CODE']);
 const bindingMethods = new Set<WelfareCardBindingMethod>(['CARD_PASSWORD', 'REDEMPTION_CODE', 'SCAN_CODE']);
 
@@ -39,18 +40,15 @@ export const normalizeProgram = (value: unknown) => {
   if (body.fundingType === 'PERSONAL_RECHARGE') throw new SafeApiError(422, 'PERSONAL_RECHARGE_FORBIDDEN', '永久禁止个人现金充值');
   if (typeof body.fundingType !== 'string' || !fundingTypes.has(body.fundingType as WelfareFundingType)) throw new SafeApiError(422, 'WELFARE_FUNDING_SOURCE_INVALID', '福利卡资金来源不在固定白名单');
   if (typeof body.scopeType !== 'string' || !scopeTypes.has(body.scopeType as WelfareProgramRecord['scopeType'])) throw new SafeApiError(422, 'VALIDATION_FAILED', '适用范围类型无效');
-  const rules = requireObject(body.scopeRules);
-  if (Object.keys(rules).some((field) => !['schemaVersion', 'includedIds', 'excludedIds'].includes(field)) || rules.schemaVersion !== 1 || !Array.isArray(rules.includedIds) || !Array.isArray(rules.excludedIds)) throw new SafeApiError(422, 'VALIDATION_FAILED', '适用范围规则无效');
-  const ids = [...rules.includedIds, ...rules.excludedIds];
-  if (ids.some((id) => typeof id !== 'string' || !uuid.test(id))) throw new SafeApiError(422, 'VALIDATION_FAILED', '适用范围资源编号无效');
-  if (ids.length > 1000 || new Set(ids).size !== ids.length) throw new SafeApiError(422, 'VALIDATION_FAILED', '适用范围资源编号重复或超过上限');
-  if (body.scopeType === 'ALL_PRODUCTS' && ids.length > 0) throw new SafeApiError(422, 'VALIDATION_FAILED', '全商品范围不能附带资源编号');
+  const scopeType = body.scopeType as WelfareProgramRecord['scopeType'];
+  const scopeRules = parseWelfareScopeRules(scopeType, body.scopeRules);
+  if (!scopeRules) throw new SafeApiError(422, 'VALIDATION_FAILED', '适用范围规则无效');
   if (typeof body.canPayDeliveryFee !== 'boolean') throw new SafeApiError(422, 'VALIDATION_FAILED', '配送费适用标记无效');
   return {
     name: text(body.name, 2, 191, '计划名称'),
     fundingType: body.fundingType as WelfareFundingType,
-    scopeType: body.scopeType as WelfareProgramRecord['scopeType'],
-    scopeRules: { schemaVersion: 1 as const, includedIds: [...rules.includedIds] as string[], excludedIds: [...rules.excludedIds] as string[] },
+    scopeType,
+    scopeRules,
     canPayDeliveryFee: body.canPayDeliveryFee,
     refundPolicy: text(body.refundPolicy, 2, 500, '退款规则'),
   };
