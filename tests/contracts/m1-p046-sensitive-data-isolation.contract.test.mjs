@@ -90,11 +90,11 @@ test('M1-P046 evidence remains closed after the project advances to P070', async
   assert.equal(evidence.status, 'LOCAL_PASS');
   assert.equal(evidence.greenEvidence.fullVerify, 'PASS_17_OF_17');
   assert.equal(state.execution.status, 'M3_IN_PROGRESS');
-  assert.equal(state.execution.lastCompletedTask, 'M3-P052');
-  assert.equal(state.execution.currentTask, 'M3-P053');
-  assert.equal(state.execution.nextAllowedTask, 'M3-P053');
+  assert.equal(state.execution.lastCompletedTask, 'M3-P053');
+  assert.equal(state.execution.currentTask, 'M3-P054');
+  assert.equal(state.execution.nextAllowedTask, 'M3-P054');
   assert.equal(state.execution.activeTaskCount, 1);
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M3-P053.*M3-P054/u);
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M3-P054.*M3-P055/u);
   assert.match(taskLedger, /M1-P046[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(taskLedger, /M1-GATE[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(p0Ledger, /P0-046[^\r\n]*CI_PASS/u);
