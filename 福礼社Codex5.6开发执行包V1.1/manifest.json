@@ -21,13 +21,13 @@
   },
   "workbook": {
     "status": "VERIFIED",
-    "sha256": "6F70CED37ED8BBBD59A1A9F3B1A7D25CF6363CC3646EC188B8707A2D03812956",
+    "sha256": "AA0A3CAB4F8B6F6CA5F2A2C9041E5FC509A464D557B999285D4B77802D171550",
     "currentTaskMirror": {
       "taskId": "M3-P054",
       "status": "LOCAL_PASS_PENDING_DRAFT_PR",
       "sourceLedgers": "CSV_JSON_AND_WORKBOOK_UPDATED",
-      "reason": "Artifact-tool updated the M3-P054 task, P0, page, evidence, API and stage-gate rows; focused tests, the 12-sheet render review and formula scan passed. Full pnpm verify and Draft PR exact-head CI remain pending.",
-      "checkedAt": "2026-08-17T00:24:36.414Z"
+      "reason": "Artifact-tool updated the M3-P054 task, P0, page, evidence, API and stage-gate rows; focused tests, pnpm verify 17/17, the 12-sheet render review and formula scan passed. Draft PR exact-head CI remains pending.",
+      "checkedAt": "2026-08-17T01:17:05.460Z"
     }
   },
   "sourceOfTruth": [

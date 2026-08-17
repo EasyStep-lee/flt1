@@ -6,8 +6,8 @@
     "P0-092_PARTIAL"
   ],
   "status": "LOCAL_PASS",
-  "commit": "236285071ec6601b175cadaca341b0e46950d73d",
-  "updatedAt": "2026-08-17T00:24:36.414Z",
+  "commit": "485e9cc7842b0bfdce9241c206daeab61f74ef6f",
+  "updatedAt": "2026-08-17T01:17:05.460Z",
   "baselineSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
   "scope": "server-owned composite welfare-card scope evaluation and three-page consistent presentation",
   "red": [
@@ -22,7 +22,7 @@
     "MINIAPP_26_OF_26",
     "P0_CHROMIUM_1_OF_1"
   ],
-  "fullVerify": "NOT_EXECUTED",
+  "fullVerify": "PASS_17_OF_17",
   "migrations": "NOT_REQUIRED_JSON_SCHEMA_V2_BACKWARD_COMPATIBLE",
   "boundaries": {
     "moneyMutation": false,
