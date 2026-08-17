@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-17T09:15:00Z",
+  "updatedAt": "2026-08-17T09:58:58Z",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -85,11 +85,11 @@
       "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/111",
       "branch": "codex/m3-mixed-payment-cancel-release",
       "baseCommit": "0aec3095150ff713d5805fc51b7f1d7e0e6920e6",
-      "verifiedHead": "WORKTREE",
+      "verifiedHead": "f87e6b7340ab2e1e0424c45c2dfdf3fba38b954c",
       "status": "LOCAL_PASS_PENDING_DRAFT_PR",
       "localRedTest": "API_5_OF_5_404;MINIAPP_RECOVERY_ACTION_MISSING",
-      "localFocusedTest": "LOCAL_PASS_API_5_REPOSITORY_3_MINIAPP_8_OPENAPI_1_P0_1",
-      "localFullVerify": "NOT_EXECUTED",
+      "localFocusedTest": "LOCAL_PASS_API_5_REPOSITORY_3_MINIAPP_8_OPENAPI_2_P0_1",
+      "localFullVerify": "PASS_17_OF_17",
       "pullRequest": null,
       "pullRequestState": "NOT_CREATED",
       "exactHeadCi": "NOT_EXECUTED",
@@ -112,7 +112,7 @@
     "note": "M3-P057混合支付取消与未知恢复LOCAL_PASS；真实微信查询/关单、staging/device/production未执行；P058锁定。"
   },
   "evidence": {
-    "local": "LOCAL_FOCUSED_PASS_FULL_VERIFY_NOT_EXECUTED",
+    "local": "LOCAL_PASS_M3_P057_FULL_VERIFY",
     "ci": "NOT_EXECUTED",
     "staging": "NOT_EXECUTED",
     "device": "NOT_EXECUTED",

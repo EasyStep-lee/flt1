@@ -8,8 +8,8 @@
     "P0-093_PARTIAL"
   ],
   "status": "LOCAL_PASS",
-  "commit": "WORKTREE",
-  "updatedAt": "2026-08-17T09:15:00Z",
+  "commit": "f87e6b7340ab2e1e0424c45c2dfdf3fba38b954c",
+  "updatedAt": "2026-08-17T09:58:58Z",
   "baselineSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
   "red": [
     "API_5_OF_5_ROUTE_404",
@@ -19,10 +19,10 @@
     "API_5_OF_5",
     "REPOSITORY_3_OF_3",
     "MINIAPP_8_OF_8",
-    "OPENAPI_1_OF_1",
+    "OPENAPI_2_OF_2",
     "P0_CHROMIUM_1_OF_1"
   ],
-  "fullVerify": "NOT_EXECUTED",
+  "fullVerify": "PASS_17_OF_17",
   "invariants": {
     "queryBeforeRelease": true,
     "unknownNeverReleases": true,
