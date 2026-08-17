@@ -7634,6 +7634,65 @@
         ],
         "type": "object"
       },
+      "WelfareCardWechatCancellationRequestDto": {
+        "properties": {
+          "reason": {
+            "enum": [
+              "USER_CANCELLED",
+              "PAYMENT_TIMEOUT",
+              "PAYMENT_FAILED"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "type": "object"
+      },
+      "WelfareCardWechatCancellationResponseDto": {
+        "properties": {
+          "orderId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "orderStatus": {
+            "enum": [
+              "CANCELLED",
+              "PAID",
+              "PENDING_PAYMENT"
+            ],
+            "type": "string"
+          },
+          "paymentStatus": {
+            "enum": [
+              "CLOSED",
+              "PAID",
+              "UNKNOWN"
+            ],
+            "type": "string"
+          },
+          "resolution": {
+            "enum": [
+              "CANCELLED",
+              "PAID",
+              "UNKNOWN"
+            ],
+            "type": "string"
+          },
+          "retriable": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "resolution",
+          "orderId",
+          "paymentStatus",
+          "orderStatus",
+          "retriable"
+        ],
+        "type": "object"
+      },
       "WelfareCardWechatPaymentRequestDto": {
         "properties": {
           "accountId": {
@@ -11626,6 +11685,77 @@
           }
         },
         "summary": "Freeze the automatic welfare deduction and create one WeChat prepay for the difference",
+        "tags": [
+          "payments"
+        ]
+      }
+    },
+    "/v1/consumer/orders/{orderId}/welfare-card-wechat-payment/cancel": {
+      "post": {
+        "operationId": "payments.cancelWelfareCardWechatPayment",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WelfareCardWechatCancellationRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WelfareCardWechatCancellationResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Query WeChat before safely resolving a mixed-payment cancellation",
         "tags": [
           "payments"
         ]

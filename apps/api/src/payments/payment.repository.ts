@@ -12,7 +12,7 @@ export interface PaymentRecord {
   readonly collectorName: '江苏福礼团供应链科技有限公司';
   readonly amount: number;
   readonly outTradeNo: string;
-  readonly status: 'CREATED' | 'PREPAY_CREATED' | 'PAID';
+  readonly status: 'CREATED' | 'PREPAY_CREATED' | 'PAID' | 'CLOSED' | 'UNKNOWN';
   readonly response?: WechatPrepayResponse;
 }
 
@@ -86,9 +86,48 @@ export type ConfirmWechatPaymentResult =
   | { readonly kind: 'TRANSACTION_CONFLICT' }
   | { readonly kind: 'CONCURRENT_CONFLICT' };
 
+export type WelfareCardWechatCancellationReason = 'USER_CANCELLED' | 'PAYMENT_TIMEOUT' | 'PAYMENT_FAILED';
+
+export interface BeginWelfareCardWechatCancellationCommand {
+  readonly orderId: string;
+  readonly actor: ConsumerOrderActor;
+  readonly reason: WelfareCardWechatCancellationReason;
+  readonly idempotencyKey: string;
+  readonly requestHash: string;
+  readonly requestId: string;
+}
+
+export type BeginWelfareCardWechatCancellationResult =
+  | { readonly kind: 'QUERY_REQUIRED'; readonly payment: PaymentRecord }
+  | { readonly kind: 'REPLAY'; readonly resolution: 'CANCELLED' | 'PAID' | 'UNKNOWN'; readonly orderId: string; readonly paymentTransactionId: string }
+  | { readonly kind: 'NOT_FOUND' }
+  | { readonly kind: 'ACCESS_DENIED' }
+  | { readonly kind: 'STATE_CONFLICT' }
+  | { readonly kind: 'IDEMPOTENCY_CONFLICT' }
+  | { readonly kind: 'CONCURRENT_CONFLICT' };
+
+export interface ResolveWelfareCardWechatCancellationCommand {
+  readonly paymentTransactionId: string;
+  readonly idempotencyKey: string;
+  readonly requestHash: string;
+  readonly requestId: string;
+  readonly externalTradeState: string;
+}
+
+export type ResolveWelfareCardWechatCancellationResult =
+  | { readonly kind: 'CANCELLED'; readonly orderId: string; readonly paymentTransactionId: string }
+  | { readonly kind: 'UNKNOWN'; readonly orderId: string; readonly paymentTransactionId: string }
+  | { readonly kind: 'REPLAY'; readonly resolution: 'CANCELLED' | 'PAID' | 'UNKNOWN'; readonly orderId: string; readonly paymentTransactionId: string }
+  | { readonly kind: 'STATE_CONFLICT' }
+  | { readonly kind: 'IDEMPOTENCY_CONFLICT' }
+  | { readonly kind: 'CONCURRENT_CONFLICT' };
+
 export interface PaymentRepository {
   beginWechatPrepay(command: BeginWechatPrepayCommand): Promise<BeginWechatPrepayResult>;
   beginWelfareCardWechatPrepay(command: BeginWelfareCardWechatPrepayCommand): Promise<BeginWelfareCardWechatPrepayResult>;
   completeWechatPrepay(command: CompleteWechatPrepayCommand): Promise<CompleteWechatPrepayResult>;
   confirmWechatPayment(command: ConfirmWechatPaymentCommand): Promise<ConfirmWechatPaymentResult>;
+  beginWelfareCardWechatCancellation(command: BeginWelfareCardWechatCancellationCommand): Promise<BeginWelfareCardWechatCancellationResult>;
+  cancelWelfareCardWechatPayment(command: ResolveWelfareCardWechatCancellationCommand): Promise<ResolveWelfareCardWechatCancellationResult>;
+  markWelfareCardWechatPaymentUnknown(command: ResolveWelfareCardWechatCancellationCommand): Promise<ResolveWelfareCardWechatCancellationResult>;
 }

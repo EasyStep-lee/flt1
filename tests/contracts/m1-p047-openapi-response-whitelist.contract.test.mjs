@@ -43,12 +43,12 @@ test('M1-P047 evidence remains closed after PR 20 merge as the project advances'
   assert.equal(evidence.fullVerification.status, 'PASS_17_OF_17');
   assert.equal(evidence.negativeTests.length, 4);
   assert.ok(evidence.negativeTests.every(({ status }) => status === 'PASS'));
-  assert.equal(state.execution.lastCompletedTask, 'M3-P055');
+  assert.equal(state.execution.lastCompletedTask, 'M3-P056');
   assert.equal(state.execution.status, 'M3_IN_PROGRESS');
-  assert.equal(state.execution.currentTask, 'M3-P056');
+  assert.equal(state.execution.currentTask, 'M3-P057');
   assert.equal(state.execution.nextAllowedTask, state.execution.currentTask);
   assert.equal(state.execution.activeTaskCount, 1);
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M3-P056.*M3-P057/u);
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M3-P057.*M3-P058/u);
   assert.ok(state.github.pullRequest === null || Number.isInteger(state.github.pullRequest));
   assert.ok(['NOT_CREATED', 'DRAFT'].includes(state.github.pullRequestState));
   assert.equal(state.github.pullRequestMerged, false);
@@ -60,7 +60,7 @@ test('M1-P047 evidence remains closed after PR 20 merge as the project advances'
   );
   assert.equal(
     state.github.currentTaskDelivery.blockingExternalItem,
-    'REAL_WECHAT_STAGING_DEVICE',
+    'REAL_WECHAT_QUERY_CLOSE_STAGING_DEVICE',
   );
   assert.equal(state.github.currentTaskDelivery.nextTaskUnlocked, false);
   assert.ok(

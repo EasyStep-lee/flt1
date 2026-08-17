@@ -8,6 +8,8 @@ import { evaluateWelfareScope, parseWelfareScopeRules } from '../welfare-card-pr
 import type {
   BeginWelfareCardWechatPrepayCommand,
   BeginWelfareCardWechatPrepayResult,
+  BeginWelfareCardWechatCancellationCommand,
+  BeginWelfareCardWechatCancellationResult,
   BeginWechatPrepayCommand,
   BeginWechatPrepayResult,
   CompleteWechatPrepayCommand,
@@ -16,6 +18,8 @@ import type {
   ConfirmWechatPaymentResult,
   PaymentRecord,
   PaymentRepository,
+  ResolveWelfareCardWechatCancellationCommand,
+  ResolveWelfareCardWechatCancellationResult,
   WelfareCardWechatPaymentRecord,
 } from './payment.repository.js';
 import type { WechatPrepayResponse } from './wechat-payment.adapter.js';
@@ -48,6 +52,12 @@ const isPrepayResponse = (value: unknown): value is WechatPrepayResponse => {
   );
 };
 
+const cancellationResolution = (value: unknown): 'CANCELLED' | 'PAID' | 'UNKNOWN' | null => {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const resolution = (value as Record<string, unknown>).resolution;
+  return resolution === 'CANCELLED' || resolution === 'PAID' || resolution === 'UNKNOWN' ? resolution : null;
+};
+
 const paymentRecord = (
   payment: {
     readonly id: string;
@@ -65,7 +75,15 @@ const paymentRecord = (
   outTradeNo: payment.outTradeNo,
   merchantConfigRef: merchant.wechatPayConfigRef ?? '',
   collectorName: COLLECTOR_NAME,
-  status: payment.status === 'PAID' ? 'PAID' : payment.status === 'PREPAY_CREATED' ? 'PREPAY_CREATED' : 'CREATED',
+  status: payment.status === 'PAID'
+    ? 'PAID'
+    : payment.status === 'PREPAY_CREATED'
+      ? 'PREPAY_CREATED'
+      : payment.status === 'CLOSED'
+        ? 'CLOSED'
+        : payment.status === 'UNKNOWN'
+          ? 'UNKNOWN'
+          : 'CREATED',
   ...(response ? { response } : {}),
 });
 
@@ -444,6 +462,318 @@ export class PrismaPaymentRepository implements PaymentRepository {
     }
   }
 
+  async beginWelfareCardWechatCancellation(
+    command: BeginWelfareCardWechatCancellationCommand,
+  ): Promise<BeginWelfareCardWechatCancellationResult> {
+    try {
+      return await this.prisma.$transaction(async (tx): Promise<BeginWelfareCardWechatCancellationResult> => {
+        const payment = await tx.paymentTransaction.findUnique({
+          where: { orderId: command.orderId },
+          include: {
+            attempts: { orderBy: { createdAt: 'asc' } },
+            order: {
+              select: {
+                companyId: true, orderType: true, consumerUserId: true,
+                welfareCardAmount: true, welfareCardAccountId: true, cashAmount: true, totalAmount: true,
+                paymentStatus: true, orderStatus: true,
+                company: { select: { legalName: true, wechatPayConfigRef: true } },
+              },
+            },
+          },
+        });
+        if (!payment) return { kind: 'NOT_FOUND' };
+        if (
+          payment.order.companyId !== command.actor.companyId
+          || payment.order.orderType !== 'CONSUMER'
+          || payment.order.consumerUserId !== command.actor.consumerUserId
+        ) return { kind: 'ACCESS_DENIED' };
+        if (
+          payment.order.welfareCardAmount <= 0 || !payment.order.welfareCardAccountId
+          || payment.order.cashAmount <= 0
+          || payment.order.welfareCardAmount + payment.order.cashAmount !== payment.order.totalAmount
+          || payment.amount !== payment.order.cashAmount
+          || payment.order.company.legalName !== COLLECTOR_NAME
+          || !payment.order.company.wechatPayConfigRef?.trim()
+        ) return { kind: 'STATE_CONFLICT' };
+
+        const attempt = payment.attempts.find((item) => item.idempotencyKey === command.idempotencyKey);
+        const otherCancellationAttempt = payment.attempts.find((item) => item.idempotencyKey !== payment.idempotencyKey && item.idempotencyKey !== command.idempotencyKey);
+        if (otherCancellationAttempt) return { kind: 'IDEMPOTENCY_CONFLICT' };
+        if (attempt && attempt.requestHash !== command.requestHash) return { kind: 'IDEMPOTENCY_CONFLICT' };
+        if (attempt) {
+          const stored = cancellationResolution(attempt.responseSnapshot);
+          if (stored === 'CANCELLED' || stored === 'PAID') {
+            return { kind: 'REPLAY', resolution: stored, orderId: payment.orderId, paymentTransactionId: payment.id };
+          }
+          if (payment.status === 'PAID' && payment.order.paymentStatus === 'PAID') {
+            return { kind: 'REPLAY', resolution: 'PAID', orderId: payment.orderId, paymentTransactionId: payment.id };
+          }
+          if (payment.status === 'CLOSED' && payment.order.orderStatus === 'CANCELLED') {
+            return { kind: 'REPLAY', resolution: 'CANCELLED', orderId: payment.orderId, paymentTransactionId: payment.id };
+          }
+        }
+        if (
+          (payment.status !== 'PREPAY_CREATED' && payment.status !== 'UNKNOWN')
+          || (payment.order.paymentStatus !== 'PENDING' && payment.order.paymentStatus !== 'UNKNOWN')
+          || payment.order.orderStatus !== 'PENDING_PAYMENT'
+        ) return { kind: 'STATE_CONFLICT' };
+        if (!attempt) {
+          await tx.paymentAttempt.create({
+            data: {
+              paymentTransactionId: payment.id,
+              idempotencyKey: command.idempotencyKey,
+              requestHash: command.requestHash,
+              status: 'CREATED',
+            },
+          });
+        }
+        return {
+          kind: 'QUERY_REQUIRED',
+          payment: paymentRecord(payment, payment.order.company),
+        };
+      }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && (error.code === 'P2002' || error.code === 'P2034')) {
+        return { kind: 'CONCURRENT_CONFLICT' };
+      }
+      throw error;
+    }
+  }
+
+  async markWelfareCardWechatPaymentUnknown(
+    command: ResolveWelfareCardWechatCancellationCommand,
+  ): Promise<ResolveWelfareCardWechatCancellationResult> {
+    try {
+      return await this.prisma.$transaction(async (tx): Promise<ResolveWelfareCardWechatCancellationResult> => {
+        const payment = await tx.paymentTransaction.findUnique({
+          where: { id: command.paymentTransactionId },
+          include: { attempts: { where: { idempotencyKey: command.idempotencyKey }, take: 1 }, order: true },
+        });
+        if (!payment) return { kind: 'STATE_CONFLICT' };
+        const attempt = payment.attempts[0];
+        if (!attempt || attempt.requestHash !== command.requestHash) return { kind: 'IDEMPOTENCY_CONFLICT' };
+        const stored = cancellationResolution(attempt.responseSnapshot);
+        if (stored === 'CANCELLED' || stored === 'PAID') {
+          return { kind: 'REPLAY', resolution: stored, orderId: payment.orderId, paymentTransactionId: payment.id };
+        }
+        if (
+          (payment.status !== 'PREPAY_CREATED' && payment.status !== 'UNKNOWN')
+          || (payment.order.paymentStatus !== 'PENDING' && payment.order.paymentStatus !== 'UNKNOWN')
+          || payment.order.orderStatus !== 'PENDING_PAYMENT'
+        ) return { kind: 'STATE_CONFLICT' };
+
+        if (payment.status !== 'UNKNOWN' || payment.order.paymentStatus !== 'UNKNOWN') {
+          const paymentChanged = await tx.paymentTransaction.updateMany({
+            where: { id: payment.id, version: payment.version, status: payment.status },
+            data: { status: 'UNKNOWN', version: { increment: 1 } },
+          });
+          if (paymentChanged.count !== 1) throw new PaymentMutationFailure('CONCURRENT_CONFLICT');
+          const orderChanged = await tx.buyerOrder.updateMany({
+            where: {
+              id: payment.orderId, version: payment.order.version,
+              paymentStatus: payment.order.paymentStatus, orderStatus: 'PENDING_PAYMENT',
+            },
+            data: { paymentStatus: 'UNKNOWN', version: { increment: 1 } },
+          });
+          if (orderChanged.count !== 1) throw new PaymentMutationFailure('CONCURRENT_CONFLICT');
+          await tx.buyerOrderEvent.create({
+            data: {
+              buyerOrderId: payment.orderId,
+              event: 'PAYMENT_UNKNOWN',
+              fromStatus: 'PENDING_PAYMENT',
+              toStatus: 'PENDING_PAYMENT',
+              version: payment.order.version + 1,
+              snapshot: json({
+                paymentTransactionId: payment.id,
+                paymentMode: 'WELFARE_CARD_WECHAT',
+                externalTradeState: command.externalTradeState,
+                fundsAndInventoryReleased: false,
+              }),
+              actorType: 'CONSUMER',
+              actorId: payment.order.consumerUserId!,
+              requestId: command.requestId,
+            },
+          });
+        }
+        await tx.paymentAttempt.update({
+          where: { paymentTransactionId_idempotencyKey: { paymentTransactionId: payment.id, idempotencyKey: command.idempotencyKey } },
+          data: {
+            status: 'SUCCEEDED',
+            responseSnapshot: json({ resolution: 'UNKNOWN', externalTradeState: command.externalTradeState, released: false }),
+            completedAt: new Date(),
+          },
+        });
+        return { kind: 'UNKNOWN', orderId: payment.orderId, paymentTransactionId: payment.id };
+      }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+    } catch (error) {
+      if (error instanceof PaymentMutationFailure) return { kind: error.kind };
+      if (error instanceof Prisma.PrismaClientKnownRequestError && (error.code === 'P2002' || error.code === 'P2034')) {
+        return { kind: 'CONCURRENT_CONFLICT' };
+      }
+      throw error;
+    }
+  }
+
+  async cancelWelfareCardWechatPayment(
+    command: ResolveWelfareCardWechatCancellationCommand,
+  ): Promise<ResolveWelfareCardWechatCancellationResult> {
+    try {
+      return await this.prisma.$transaction(async (tx): Promise<ResolveWelfareCardWechatCancellationResult> => {
+        const payment = await tx.paymentTransaction.findUnique({
+          where: { id: command.paymentTransactionId },
+          include: {
+            attempts: { where: { idempotencyKey: command.idempotencyKey }, take: 1 },
+            order: { include: { items: { orderBy: { skuId: 'asc' } }, supplierFulfillments: true } },
+          },
+        });
+        if (!payment) return { kind: 'STATE_CONFLICT' };
+        const attempt = payment.attempts[0];
+        if (!attempt || attempt.requestHash !== command.requestHash) return { kind: 'IDEMPOTENCY_CONFLICT' };
+        const stored = cancellationResolution(attempt.responseSnapshot);
+        if (stored === 'CANCELLED' || stored === 'PAID') {
+          return { kind: 'REPLAY', resolution: stored, orderId: payment.orderId, paymentTransactionId: payment.id };
+        }
+        const order = payment.order;
+        if (
+          (payment.status !== 'PREPAY_CREATED' && payment.status !== 'UNKNOWN')
+          || (order.paymentStatus !== 'PENDING' && order.paymentStatus !== 'UNKNOWN')
+          || order.orderStatus !== 'PENDING_PAYMENT'
+          || order.orderType !== 'CONSUMER'
+          || order.welfareCardAmount <= 0 || !order.welfareCardAccountId
+          || order.cashAmount !== payment.amount
+          || order.welfareCardAmount + order.cashAmount !== order.totalAmount
+        ) return { kind: 'STATE_CONFLICT' };
+
+        const account = await tx.welfareCardAccount.findUnique({
+          where: { id: order.welfareCardAccountId },
+          select: { id: true, balanceAmount: true, frozenAmount: true, version: true },
+        });
+        if (!account || account.frozenAmount < order.welfareCardAmount) throw new PaymentMutationFailure('STATE_CONFLICT');
+        const releasedFunds = await tx.welfareCardAccount.updateMany({
+          where: {
+            id: account.id, version: account.version,
+            balanceAmount: account.balanceAmount, frozenAmount: account.frozenAmount,
+          },
+          data: { frozenAmount: { decrement: order.welfareCardAmount }, version: { increment: 1 } },
+        });
+        if (releasedFunds.count !== 1) throw new PaymentMutationFailure('CONCURRENT_CONFLICT');
+        await tx.welfareCardLedger.create({
+          data: {
+            id: randomUUID(), accountId: account.id, orderId: order.id, refundId: null,
+            businessType: 'RELEASE', direction: 'CREDIT', amount: order.welfareCardAmount,
+            beforeBalance: account.balanceAmount, afterBalance: account.balanceAmount,
+            beforeFrozen: account.frozenAmount, afterFrozen: account.frozenAmount - order.welfareCardAmount,
+            idempotencyKey: `ORDER:${order.id}:RELEASE`,
+          },
+        });
+
+        const inventoryReleases = new Map<string, { readonly skuId: string; readonly supplierId: string; quantity: number }>();
+        for (const item of order.items) {
+          const existing = inventoryReleases.get(item.skuId);
+          if (existing) {
+            if (existing.supplierId !== item.supplierId) throw new PaymentMutationFailure('STATE_CONFLICT');
+            existing.quantity += item.quantity;
+          } else {
+            inventoryReleases.set(item.skuId, {
+              skuId: item.skuId,
+              supplierId: item.supplierId,
+              quantity: item.quantity,
+            });
+          }
+        }
+        for (const item of inventoryReleases.values()) {
+          const reserved = await tx.inventoryChangeLog.findFirst({
+            where: { skuId: item.skuId, referenceType: 'ORDER_RESERVATION', referenceId: order.id }, select: { id: true },
+          });
+          const released = await tx.inventoryChangeLog.findFirst({
+            where: { skuId: item.skuId, referenceType: 'ORDER_RELEASE', referenceId: order.id }, select: { id: true },
+          });
+          if (!reserved || released) throw new PaymentMutationFailure('STATE_CONFLICT');
+          const before = await tx.inventoryBalance.findUnique({
+            where: { skuId: item.skuId },
+            select: { id: true, availableQty: true, reservedQty: true, soldQty: true, damagedQty: true, version: true },
+          });
+          if (!before || before.reservedQty < item.quantity) throw new PaymentMutationFailure('STATE_CONFLICT');
+          const inventoryChanged = await tx.inventoryBalance.updateMany({
+            where: { id: before.id, version: before.version, reservedQty: { gte: item.quantity } },
+            data: { availableQty: { increment: item.quantity }, reservedQty: { decrement: item.quantity }, version: { increment: 1 } },
+          });
+          if (inventoryChanged.count !== 1) throw new PaymentMutationFailure('CONCURRENT_CONFLICT');
+          await tx.inventoryChangeLog.create({
+            data: {
+              inventoryBalanceId: before.id, supplierId: item.supplierId, skuId: item.skuId,
+              type: 'RELEASE', availableDelta: item.quantity, reservedDelta: -item.quantity, soldDelta: 0, damagedDelta: 0,
+              beforeAvailableQty: before.availableQty, afterAvailableQty: before.availableQty + item.quantity,
+              beforeReservedQty: before.reservedQty, afterReservedQty: before.reservedQty - item.quantity,
+              beforeSoldQty: before.soldQty, afterSoldQty: before.soldQty,
+              beforeDamagedQty: before.damagedQty, afterDamagedQty: before.damagedQty,
+              resultingVersion: before.version + 1,
+              referenceType: 'ORDER_RELEASE', referenceId: order.id,
+              reason: 'WELFARE_WECHAT_PAYMENT_CANCELLED_AFTER_WECHAT_CLOSE',
+            },
+          });
+        }
+
+        const paymentChanged = await tx.paymentTransaction.updateMany({
+          where: { id: payment.id, version: payment.version, status: payment.status },
+          data: { status: 'CLOSED', closedAt: new Date(), version: { increment: 1 } },
+        });
+        if (paymentChanged.count !== 1) throw new PaymentMutationFailure('CONCURRENT_CONFLICT');
+        const orderChanged = await tx.buyerOrder.updateMany({
+          where: { id: order.id, version: order.version, paymentStatus: order.paymentStatus, orderStatus: 'PENDING_PAYMENT' },
+          data: { paymentStatus: 'CLOSED', orderStatus: 'CANCELLED', version: { increment: 1 } },
+        });
+        if (orderChanged.count !== 1) throw new PaymentMutationFailure('CONCURRENT_CONFLICT');
+        await tx.supplierFulfillmentOrder.updateMany({
+          where: { buyerOrderId: order.id, activationStatus: 'PENDING_PAYMENT' },
+          data: { activationStatus: 'CANCELLED', preparationStatus: 'CANCELLED' },
+        });
+        await tx.inventoryCommand.create({
+          data: {
+            scope: `order-release:${order.id}`,
+            idempotencyKey: payment.id,
+            requestHash: createHash('sha256').update(`${payment.id}:${command.externalTradeState}:release`).digest('hex'),
+            responseSnapshot: json({ orderId: order.id, status: 'RELEASED', skuCount: inventoryReleases.size }),
+          },
+        });
+        await tx.buyerOrderEvent.create({
+          data: {
+            buyerOrderId: order.id,
+            event: 'PAYMENT_CANCELLED',
+            fromStatus: 'PENDING_PAYMENT',
+            toStatus: 'CANCELLED',
+            version: order.version + 1,
+            snapshot: json({
+              paymentTransactionId: payment.id,
+              paymentMode: 'WELFARE_CARD_WECHAT',
+              externalTradeState: command.externalTradeState,
+              welfareCardAmount: order.welfareCardAmount,
+              inventorySkuCount: inventoryReleases.size,
+            }),
+            actorType: 'CONSUMER',
+            actorId: order.consumerUserId!,
+            requestId: command.requestId,
+          },
+        });
+        await tx.paymentAttempt.update({
+          where: { paymentTransactionId_idempotencyKey: { paymentTransactionId: payment.id, idempotencyKey: command.idempotencyKey } },
+          data: {
+            status: 'SUCCEEDED',
+            responseSnapshot: json({ resolution: 'CANCELLED', externalTradeState: command.externalTradeState, released: true }),
+            completedAt: new Date(),
+          },
+        });
+        return { kind: 'CANCELLED', orderId: order.id, paymentTransactionId: payment.id };
+      }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+    } catch (error) {
+      if (error instanceof PaymentMutationFailure) return { kind: error.kind };
+      if (error instanceof Prisma.PrismaClientKnownRequestError && (error.code === 'P2002' || error.code === 'P2034')) {
+        return { kind: 'CONCURRENT_CONFLICT' };
+      }
+      throw error;
+    }
+  }
+
   async completeWechatPrepay(command: CompleteWechatPrepayCommand): Promise<CompleteWechatPrepayResult> {
     return this.prisma.$transaction(async (tx) => {
       const payment = await tx.paymentTransaction.findUnique({
@@ -559,7 +889,7 @@ export class PrismaPaymentRepository implements PaymentRepository {
           && payment.order.welfareCardAmount + payment.order.cashAmount === payment.order.totalAmount;
         if (
           (payment.status !== 'PREPAY_CREATED' && payment.status !== 'UNKNOWN') ||
-          payment.order.paymentStatus !== 'PENDING' ||
+          (payment.order.paymentStatus !== 'PENDING' && payment.order.paymentStatus !== 'UNKNOWN') ||
           payment.order.orderStatus !== 'PENDING_PAYMENT' ||
           (!pureWechat && !mixedWechat) ||
           (payment.order.orderType === 'ENTERPRISE' &&
@@ -660,7 +990,7 @@ export class PrismaPaymentRepository implements PaymentRepository {
           where: {
             id: payment.orderId,
             version: payment.order.version,
-            paymentStatus: 'PENDING',
+            paymentStatus: payment.order.paymentStatus,
             orderStatus: 'PENDING_PAYMENT',
           },
           data: {

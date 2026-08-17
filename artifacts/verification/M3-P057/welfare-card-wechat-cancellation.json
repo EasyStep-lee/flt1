@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "taskId": "M3-P057",
+  "p0": [
+    "P0-057",
+    "P0-024_PARTIAL",
+    "P0-059_PARTIAL",
+    "P0-093_PARTIAL"
+  ],
+  "status": "LOCAL_PASS",
+  "commit": "WORKTREE",
+  "updatedAt": "2026-08-17T09:15:00Z",
+  "baselineSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+  "red": [
+    "API_5_OF_5_ROUTE_404",
+    "MINIAPP_UNKNOWN_RECOVERY_ACTION_MISSING"
+  ],
+  "focused": [
+    "API_5_OF_5",
+    "REPOSITORY_3_OF_3",
+    "MINIAPP_8_OF_8",
+    "OPENAPI_1_OF_1",
+    "P0_CHROMIUM_1_OF_1"
+  ],
+  "fullVerify": "NOT_EXECUTED",
+  "invariants": {
+    "queryBeforeRelease": true,
+    "unknownNeverReleases": true,
+    "explicitNotPaidRequiresClose": true,
+    "queriedPaidUsesConfirmationChain": true,
+    "welfareReleaseAppendOnly": true,
+    "inventoryReleaseAtomic": true,
+    "duplicateSkuLinesAggregated": true,
+    "duplicateCancellationSideEffectFree": true,
+    "lateFailureAtomicRollback": true,
+    "miniappNoSecondPrepayOrRequestPayment": true
+  },
+  "boundaries": {
+    "realWechatQueryClose": "NOT_EXECUTED",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_EXECUTED",
+    "production": "NOT_EXECUTED",
+    "refund": "OUT_OF_SCOPE_M3_P058"
+  },
+  "github": {
+    "issue": 111,
+    "pullRequest": null,
+    "ciRun": null
+  }
+}

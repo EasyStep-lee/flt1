@@ -59,6 +59,7 @@ interface CheckoutInstance {
   loadEligibility(): Promise<void>;
   submitFullWelfarePayment(): Promise<void>;
   submitSelectedPayment(): Promise<void>;
+  resolveMixedPaymentCancellation(): Promise<void>;
 }
 
 interface UserMiniappApplication {
@@ -92,6 +93,7 @@ const paymentKey = (orderId: string, accountId: string, mode: 'full' | 'mixed'):
   wx.setStorageSync(PAYMENT_COMMAND_STORAGE_KEY, { key, signature });
   return key;
 };
+const cancellationKey = (orderId: string): string => `welfare-wechat-cancel-${orderId}`;
 const cartItems = (): readonly StoredCartItem[] => {
   const raw = wx.getStorageSync<unknown>(CART_STORAGE_KEY);
   if (!Array.isArray(raw)) return [];
@@ -229,6 +231,7 @@ const pageDefinition = {
   async submitSelectedPayment(this: CheckoutInstance): Promise<void> {
     if (this.data.canPayFully) return this.submitFullWelfarePayment();
     if (!this.data.canPayMixed || (this.data.state !== 'success' && this.data.state !== 'unknown')) return;
+    if (this.data.state === 'unknown') return this.resolveMixedPaymentCancellation();
     const order = pendingOrder();
     const account = this.data.accounts.find(({ id }) => id === this.data.selectedAccountId);
     if (!order || !account || order.totalAmount !== this.data.totalAmount) {
@@ -269,6 +272,53 @@ const pageDefinition = {
         state: 'unknown',
         message: '支付结果待确认。请勿重复更换账户或金额，稍后从订单结果恢复。',
         paymentButtonLabel: '确认支付结果',
+      });
+    }
+  },
+
+  async resolveMixedPaymentCancellation(this: CheckoutInstance): Promise<void> {
+    const order = pendingOrder();
+    if (!order) {
+      this.setData({ state: 'unknown', message: '找不到原待支付订单，不能安全释放；请从订单列表恢复结果。' });
+      return;
+    }
+    this.setData({ state: 'paying', message: '正在向服务端查询微信状态；确认未支付并关单后才会释放…', paymentButtonLabel: '查询处理中…' });
+    try {
+      const application = getApp<UserMiniappApplication>();
+      const baseUrl = application.globalData.apiBaseUrl.replace(/\/$/u, '');
+      if (!/^https?:\/\//u.test(baseUrl)) throw new Error('API_BASE_URL_INVALID');
+      const response = await requestAdapter.execute('payments.cancelWelfareCardWechatPayment', {
+        method: 'POST',
+        url: `${baseUrl}/v1/consumer/orders/${order.orderId}/welfare-card-wechat-payment/cancel`,
+        headers: { 'Idempotency-Key': cancellationKey(order.orderId) },
+        body: { reason: 'PAYMENT_TIMEOUT' },
+      });
+      if (response.orderId !== order.orderId) throw new Error('PAYMENT_RESOLUTION_ORDER_MISMATCH');
+      if (response.resolution === 'PAID' && response.paymentStatus === 'PAID' && response.orderStatus === 'PAID') {
+        wx.removeStorageSync(PAYMENT_COMMAND_STORAGE_KEY);
+        wx.removeStorageSync(PENDING_ORDER_STORAGE_KEY);
+        this.setData({ state: 'paid', message: '支付已确认成功', paymentButtonLabel: '已支付' });
+        return;
+      }
+      if (response.resolution === 'CANCELLED' && response.paymentStatus === 'CLOSED' && response.orderStatus === 'CANCELLED') {
+        wx.removeStorageSync(PAYMENT_COMMAND_STORAGE_KEY);
+        wx.removeStorageSync(PENDING_ORDER_STORAGE_KEY);
+        this.setData({ state: 'empty', message: '微信确认未支付并已关单，福利卡和库存已安全释放', paymentButtonLabel: '订单已取消' });
+        return;
+      }
+      if (response.resolution !== 'UNKNOWN' || response.paymentStatus !== 'UNKNOWN' || response.orderStatus !== 'PENDING_PAYMENT') {
+        throw new Error('PAYMENT_RESOLUTION_INVALID');
+      }
+      this.setData({
+        state: 'unknown',
+        message: '微信支付状态仍待确认，福利卡和库存尚未释放；请稍后继续确认，勿重复支付。',
+        paymentButtonLabel: '继续确认支付结果',
+      });
+    } catch {
+      this.setData({
+        state: 'unknown',
+        message: '暂时无法确认微信状态，福利卡和库存尚未释放；请恢复网络后继续确认。',
+        paymentButtonLabel: '继续确认支付结果',
       });
     }
   },

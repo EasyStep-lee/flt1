@@ -32,12 +32,31 @@ export interface VerifiedWechatNotification {
   readonly rawBodyHash: string;
 }
 
+export interface WechatTransactionCommand {
+  readonly outTradeNo: string;
+  readonly merchantConfigRef: string;
+  readonly collectorLegalName: '江苏福礼团供应链科技有限公司';
+}
+
+export type WechatTransactionQueryResult =
+  | ({ readonly kind: 'PAID' } & Omit<VerifiedWechatNotification, 'notificationId' | 'tradeState'>)
+  | { readonly kind: 'NOT_PAID'; readonly tradeState: 'NOTPAY' | 'CLOSED' | 'PAYERROR' }
+  | { readonly kind: 'PENDING'; readonly tradeState: 'USERPAYING' }
+  | { readonly kind: 'UNKNOWN' };
+
+export type WechatTransactionCloseResult =
+  | { readonly kind: 'CLOSED' }
+  | ({ readonly kind: 'PAID' } & Omit<VerifiedWechatNotification, 'notificationId' | 'tradeState'>)
+  | { readonly kind: 'UNKNOWN' };
+
 export interface WechatPaymentAdapter {
   createPrepay(command: CreateWechatPrepayCommand): Promise<WechatPrepayResponse>;
   verifyNotification(
     headers: Readonly<Record<string, string | string[] | undefined>>,
     body: unknown,
   ): Promise<VerifiedWechatNotification>;
+  queryTransaction(command: WechatTransactionCommand): Promise<WechatTransactionQueryResult>;
+  closeTransaction(command: WechatTransactionCommand): Promise<WechatTransactionCloseResult>;
 }
 
 export class WechatPaymentAdapterError extends Error {
@@ -63,6 +82,20 @@ export class UnavailableWechatPaymentAdapter implements WechatPaymentAdapter {
   }
 
   async verifyNotification(): Promise<never> {
+    throw new WechatPaymentAdapterError(
+      'EXTERNAL_SERVICE_UNAVAILABLE',
+      'WeChat Pay adapter is not configured',
+    );
+  }
+
+  async queryTransaction(): Promise<never> {
+    throw new WechatPaymentAdapterError(
+      'EXTERNAL_SERVICE_UNAVAILABLE',
+      'WeChat Pay adapter is not configured',
+    );
+  }
+
+  async closeTransaction(): Promise<never> {
     throw new WechatPaymentAdapterError(
       'EXTERNAL_SERVICE_UNAVAILABLE',
       'WeChat Pay adapter is not configured',

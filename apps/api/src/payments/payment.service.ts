@@ -3,7 +3,13 @@ import { createHash } from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
 
 import { SafeApiError } from '../http/api-error.js';
-import type { PaymentActor, PaymentRecord, PaymentRepository, WelfareCardWechatPaymentRecord } from './payment.repository.js';
+import type {
+  PaymentActor,
+  PaymentRecord,
+  PaymentRepository,
+  WelfareCardWechatCancellationReason,
+  WelfareCardWechatPaymentRecord,
+} from './payment.repository.js';
 import { PAYMENT_REPOSITORY } from './payment.repository.js';
 import {
   WECHAT_PAYMENT_ADAPTER,
@@ -50,6 +56,28 @@ const requireAccountId = (value: unknown): string => {
   }
   return body.accountId;
 };
+
+const requireCancellationReason = (value: unknown): WelfareCardWechatCancellationReason => {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new SafeApiError(422, 'VALIDATION_FAILED', 'Cancellation body must be an object');
+  }
+  const body = value as Record<string, unknown>;
+  if (Object.keys(body).some((key) => key !== 'reason')) {
+    throw new SafeApiError(422, 'FIELD_FORBIDDEN', 'Buyer ownership and payment state are server-owned');
+  }
+  if (body.reason !== 'USER_CANCELLED' && body.reason !== 'PAYMENT_TIMEOUT' && body.reason !== 'PAYMENT_FAILED') {
+    throw new SafeApiError(422, 'VALIDATION_FAILED', 'Cancellation reason is invalid');
+  }
+  return body.reason;
+};
+
+const cancellationResponse = (resolution: 'CANCELLED' | 'PAID' | 'UNKNOWN', orderId: string) => ({
+  resolution,
+  orderId,
+  paymentStatus: resolution === 'CANCELLED' ? 'CLOSED' as const : resolution === 'PAID' ? 'PAID' as const : 'UNKNOWN' as const,
+  orderStatus: resolution === 'CANCELLED' ? 'CANCELLED' as const : resolution === 'PAID' ? 'PAID' as const : 'PENDING_PAYMENT' as const,
+  retriable: resolution === 'UNKNOWN',
+});
 
 const toResponse = (payment: PaymentRecord & { readonly response: NonNullable<PaymentRecord['response']> }) => ({
   paymentTransactionId: payment.paymentTransactionId,
@@ -215,5 +243,110 @@ export class PaymentService {
     if (result.kind === 'TRANSACTION_CONFLICT') throw new SafeApiError(409, 'PAYMENT_TRANSACTION_CONFLICT', 'WeChat transaction conflicts with another payment');
     if (result.kind === 'CONCURRENT_CONFLICT') throw new SafeApiError(409, 'PAYMENT_CONCURRENT_CONFLICT', 'Payment changed concurrently; WeChat may retry');
     return { code: 'SUCCESS' as const, message: '成功' as const };
+  }
+
+  async cancelWelfareCardWechatPayment(
+    actor: Extract<PaymentActor, { readonly kind: 'CONSUMER' }>,
+    orderIdValue: unknown,
+    bodyValue: unknown,
+    idempotencyKeyValue: unknown,
+    requestId: string,
+  ) {
+    const orderId = requireOrderId(orderIdValue);
+    const reason = requireCancellationReason(bodyValue);
+    const idempotencyKey = requireIdempotencyKey(idempotencyKeyValue);
+    const requestHash = createHash('sha256')
+      .update(JSON.stringify({ actorKind: actor.kind, consumerUserId: actor.consumerUserId, orderId, reason, mode: 'WELFARE_CARD_WECHAT_CANCEL' }))
+      .digest('hex');
+    const begin = await this.repository.beginWelfareCardWechatCancellation({
+      orderId, actor, reason, idempotencyKey, requestHash, requestId,
+    });
+    if (begin.kind === 'NOT_FOUND') throw new SafeApiError(404, 'ORDER_NOT_FOUND', 'Order was not found');
+    if (begin.kind === 'ACCESS_DENIED') throw new SafeApiError(403, 'ACCESS_DENIED', 'Order does not belong to this buyer');
+    if (begin.kind === 'STATE_CONFLICT') throw new SafeApiError(409, 'PAYMENT_STATE_INVALID', 'Payment cannot be cancelled in its current state');
+    if (begin.kind === 'IDEMPOTENCY_CONFLICT') throw new SafeApiError(409, 'PAYMENT_IDEMPOTENCY_CONFLICT', 'Idempotency-Key conflicts with the original cancellation');
+    if (begin.kind === 'CONCURRENT_CONFLICT') throw new SafeApiError(409, 'PAYMENT_CONCURRENT_CONFLICT', 'Payment changed concurrently; retry safely');
+    if (begin.kind === 'REPLAY') return cancellationResponse(begin.resolution, begin.orderId);
+
+    const resolveUnknown = async (externalTradeState: string) => {
+      const result = await this.repository.markWelfareCardWechatPaymentUnknown({
+        paymentTransactionId: begin.payment.paymentTransactionId,
+        idempotencyKey, requestHash, requestId, externalTradeState,
+      });
+      if (result.kind === 'STATE_CONFLICT' || result.kind === 'CONCURRENT_CONFLICT') {
+        throw new SafeApiError(409, 'PAYMENT_CONCURRENT_CONFLICT', 'Payment changed while resolving its state');
+      }
+      if (result.kind === 'IDEMPOTENCY_CONFLICT') {
+        throw new SafeApiError(409, 'PAYMENT_IDEMPOTENCY_CONFLICT', 'Idempotency-Key conflicts with the original cancellation');
+      }
+      return cancellationResponse(result.kind === 'REPLAY' ? result.resolution : 'UNKNOWN', result.orderId);
+    };
+    const resolveCancelled = async (externalTradeState: string) => {
+      const result = await this.repository.cancelWelfareCardWechatPayment({
+        paymentTransactionId: begin.payment.paymentTransactionId,
+        idempotencyKey, requestHash, requestId, externalTradeState,
+      });
+      if (result.kind === 'STATE_CONFLICT' || result.kind === 'CONCURRENT_CONFLICT') {
+        throw new SafeApiError(409, 'PAYMENT_CONCURRENT_CONFLICT', 'Payment changed while releasing the order');
+      }
+      if (result.kind === 'IDEMPOTENCY_CONFLICT') {
+        throw new SafeApiError(409, 'PAYMENT_IDEMPOTENCY_CONFLICT', 'Idempotency-Key conflicts with the original cancellation');
+      }
+      return cancellationResponse(result.kind === 'REPLAY' ? result.resolution : 'CANCELLED', result.orderId);
+    };
+    const resolvePaid = async (paid: {
+      readonly outTradeNo: string;
+      readonly wechatTransactionId: string;
+      readonly amount: number;
+      readonly verifiedAt: Date;
+      readonly rawBodyHash: string;
+    }) => {
+      const result = await this.repository.confirmWechatPayment({
+        notification: {
+          notificationId: `QUERY:${paid.rawBodyHash}`,
+          outTradeNo: paid.outTradeNo,
+          wechatTransactionId: paid.wechatTransactionId,
+          amount: paid.amount,
+          tradeState: 'SUCCESS',
+          verifiedAt: paid.verifiedAt,
+          rawBodyHash: paid.rawBodyHash,
+        },
+        requestId,
+      });
+      if (result.kind === 'PAID' || result.kind === 'REPLAY') return cancellationResponse('PAID', orderId);
+      if (result.kind === 'AMOUNT_MISMATCH') throw new SafeApiError(409, 'PAYMENT_AMOUNT_MISMATCH', 'Queried amount does not match the order');
+      throw new SafeApiError(409, 'PAYMENT_CONCURRENT_CONFLICT', 'Payment changed while confirming the queried result');
+    };
+
+    let query;
+    try {
+      query = await this.adapter.queryTransaction({
+        outTradeNo: begin.payment.outTradeNo,
+        merchantConfigRef: begin.payment.merchantConfigRef,
+        collectorLegalName: begin.payment.collectorName,
+      });
+    } catch (error) {
+      return resolveUnknown(error instanceof WechatPaymentAdapterError ? error.code : 'QUERY_ERROR');
+    }
+    if (query.kind === 'PAID') return resolvePaid(query);
+    if (query.kind === 'PENDING' || query.kind === 'UNKNOWN') {
+      return resolveUnknown(query.kind === 'PENDING' ? query.tradeState : 'UNKNOWN');
+    }
+    if (query.tradeState === 'CLOSED' || query.tradeState === 'PAYERROR') {
+      return resolveCancelled(query.tradeState);
+    }
+
+    let closed;
+    try {
+      closed = await this.adapter.closeTransaction({
+        outTradeNo: begin.payment.outTradeNo,
+        merchantConfigRef: begin.payment.merchantConfigRef,
+        collectorLegalName: begin.payment.collectorName,
+      });
+    } catch (error) {
+      return resolveUnknown(error instanceof WechatPaymentAdapterError ? error.code : 'CLOSE_ERROR');
+    }
+    if (closed.kind === 'PAID') return resolvePaid(closed);
+    return closed.kind === 'CLOSED' ? resolveCancelled('CLOSED') : resolveUnknown('CLOSE_UNKNOWN');
   }
 }
