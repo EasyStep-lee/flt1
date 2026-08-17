@@ -132,6 +132,8 @@
               "WELFARE_BATCH_AMOUNT_MISMATCH",
               "WELFARE_CLAIM_MODE_INVALID",
               "WELFARE_FUNDING_SOURCE_INVALID",
+              "WELFARE_CARD_INSUFFICIENT_BALANCE",
+              "WELFARE_CARD_NOT_ELIGIBLE",
               "WELFARE_PROGRAM_NOT_FOUND"
             ],
             "example": "RESOURCE_NOT_FOUND",
@@ -7552,6 +7554,85 @@
         ],
         "type": "object"
       },
+      "WelfareCardFullPaymentRequestDto": {
+        "properties": {
+          "accountId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "accountId"
+        ],
+        "type": "object"
+      },
+      "WelfareCardFullPaymentResponseDto": {
+        "properties": {
+          "cashAmount": {
+            "description": "External payable amount; always zero for this endpoint",
+            "enum": [
+              0
+            ],
+            "type": "number"
+          },
+          "itemCount": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "orderId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "orderNo": {
+            "maxLength": 32,
+            "type": "string"
+          },
+          "orderStatus": {
+            "enum": [
+              "PAID"
+            ],
+            "type": "string"
+          },
+          "paidAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "paymentMode": {
+            "enum": [
+              "WELFARE_CARD"
+            ],
+            "type": "string"
+          },
+          "paymentStatus": {
+            "enum": [
+              "PAID"
+            ],
+            "type": "string"
+          },
+          "supplierFulfillmentCount": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "welfareCardAmount": {
+            "description": "Captured welfare-card amount in integer cents",
+            "minimum": 1,
+            "type": "number"
+          }
+        },
+        "required": [
+          "orderId",
+          "orderNo",
+          "paymentStatus",
+          "orderStatus",
+          "paymentMode",
+          "welfareCardAmount",
+          "cashAmount",
+          "paidAt",
+          "itemCount",
+          "supplierFulfillmentCount"
+        ],
+        "type": "object"
+      },
       "WelfareDeliveryFeeApplicabilityResponseDto": {
         "properties": {
           "eligible": {
@@ -11276,6 +11357,96 @@
         "summary": "Create one company consumer order across suppliers",
         "tags": [
           "consumer-orders"
+        ]
+      }
+    },
+    "/v1/consumer/orders/{orderId}/welfare-card-full-payment": {
+      "post": {
+        "operationId": "consumerWelfareCard.payFullOrder",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orderId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WelfareCardFullPaymentRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WelfareCardFullPaymentResponseDto"
+                }
+              }
+            },
+            "description": "Exact idempotent replay"
+          },
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WelfareCardFullPaymentResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Pay an owned consumer order fully with one eligible welfare-card account",
+        "tags": [
+          "consumer-welfare-card-payments"
         ]
       }
     },

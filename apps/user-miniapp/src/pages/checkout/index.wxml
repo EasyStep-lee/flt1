@@ -1,4 +1,4 @@
-<view class="page" data-page-id="{{pageId}}" data-states="loading empty error permission offline success">
+<view class="page" data-page-id="{{pageId}}" data-states="loading empty error permission offline success paying paid unknown">
   <view class="header">
     <view class="title">确认订单 · 福利卡</view>
     <view class="subtitle">商品价格与可抵扣额均由服务端实时计算</view>
@@ -9,6 +9,7 @@
   <view wx:elif="{{state === 'permission'}}" class="state-card">{{message}}</view>
   <view wx:elif="{{state === 'offline'}}" class="state-card"><view>{{message}}</view><button bindtap="retry">重试</button></view>
   <view wx:elif="{{state === 'error'}}" class="state-card"><view>{{message}}</view><button bindtap="retry">重新计算</button></view>
+  <view wx:elif="{{state === 'paid'}}" class="state-card paid-state">{{message}}</view>
   <block wx:else>
     <view class="summary-card">
       <view><text>商品金额</text><text>{{goodsAmountLabel}}</text></view>
@@ -33,6 +34,8 @@
       <view class="deduction">本单可适用 {{item.eligibleLabel}} · 自动最大抵扣 {{item.maximumDeductibleLabel}}</view>
     </button>
     <button class="no-card {{selectedAccountId === '' ? 'selected' : ''}}" bindtap="useNoWelfareCard">不使用福利卡</button>
-    <view class="notice">当前页面只确认账户选择，不执行冻结、扣款或支付；支付能力将在后续独立切片接入。</view>
+    <button class="pay-button" disabled="{{!canPayFully || state === 'paying'}}" bindtap="submitFullWelfarePayment">{{paymentButtonLabel}}</button>
+    <view wx:if="{{state === 'unknown'}}" class="unknown-state">{{message}}</view>
+    <view class="notice">仅当所选福利卡可覆盖本单全部金额时执行；本入口不会调用微信支付，也不接受手工抵扣金额。</view>
   </block>
 </view>

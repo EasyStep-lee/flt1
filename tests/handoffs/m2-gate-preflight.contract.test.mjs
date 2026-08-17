@@ -78,10 +78,10 @@ test('M2 gate ledgers close only after exact-head merge and main CI evidence', a
   assert.equal(['LOCAL_PASS', 'CI_PASS'].includes(m3.EvidenceStatus), true);
   assert.equal(ext007.CurrentStatus, 'PROVIDED');
   assert.equal(ext007.BlocksFormalAcceptance, 'YES');
-  assert.equal(state.execution.currentTask, 'M3-P054');
-  assert.equal(state.execution.nextAllowedTask, 'M3-P054');
+  assert.equal(state.execution.currentTask, 'M3-P055');
+  assert.equal(state.execution.nextAllowedTask, 'M3-P055');
   assert.equal(state.execution.lastPassedGate, 'M2-GATE');
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M3-P054.*M3-P055/u);
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M3-P055.*M3-P056/u);
 });
 
 test('M2 gate handoff states the technical boundary without claiming PASS', async () => {

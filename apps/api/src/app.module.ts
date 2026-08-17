@@ -290,6 +290,12 @@ import {
 } from './welfare-card-programs/welfare-card.repository.js';
 import { PrismaWelfareCardRepository } from './welfare-card-programs/prisma-welfare-card.repository.js';
 import { WelfareCardService } from './welfare-card-programs/welfare-card.service.js';
+import { PrismaWelfareCardPaymentRepository } from './welfare-card-payments/prisma-welfare-card-payment.repository.js';
+import {
+  WELFARE_CARD_PAYMENT_REPOSITORY,
+  type WelfareCardPaymentRepository,
+} from './welfare-card-payments/welfare-card-payment.repository.js';
+import { WelfareCardPaymentService } from './welfare-card-payments/welfare-card-payment.service.js';
 
 export interface AppModuleOptions {
   readonly config: RuntimeConfig;
@@ -342,6 +348,7 @@ export interface AppModuleOptions {
   readonly wechatRefundAdapter?: WechatRefundAdapter;
   readonly welfareCardRepository?: WelfareCardRepository;
   readonly welfareCardActorResolver?: WelfareCardActorResolver;
+  readonly welfareCardPaymentRepository?: WelfareCardPaymentRepository;
 }
 
 @Module({})
@@ -444,6 +451,8 @@ export class AppModule {
       DenyWelfareCardActorResolver,
       CompanyWelfareCardSessionActorResolver,
       WelfareCardService,
+      PrismaWelfareCardPaymentRepository,
+      WelfareCardPaymentService,
       options.priceChangeRepository
         ? { provide: PRICE_CHANGE_REPOSITORY, useValue: options.priceChangeRepository }
         : { provide: PRICE_CHANGE_REPOSITORY, useExisting: PrismaPriceChangeRepository },
@@ -498,6 +507,9 @@ export class AppModule {
       options.welfareCardActorResolver
         ? { provide: WELFARE_CARD_ACTOR_RESOLVER, useValue: options.welfareCardActorResolver }
         : { provide: WELFARE_CARD_ACTOR_RESOLVER, useExisting: CompanyWelfareCardSessionActorResolver },
+      options.welfareCardPaymentRepository
+        ? { provide: WELFARE_CARD_PAYMENT_REPOSITORY, useValue: options.welfareCardPaymentRepository }
+        : { provide: WELFARE_CARD_PAYMENT_REPOSITORY, useExisting: PrismaWelfareCardPaymentRepository },
       options.merchantRepository
         ? {
             provide: SINGLE_MERCHANT_REPOSITORY,

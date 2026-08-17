@@ -10,24 +10,24 @@
   "counts": {
     "tasks": 149,
     "p0": 119,
-    "fields": 758,
+    "fields": 768,
     "stateTransitions": 114,
     "permissions": 22,
     "pages": 80,
     "externalDependencies": 28,
     "migrations": 27,
-    "apiContracts": 103,
+    "apiContracts": 104,
     "githubIssues": 149
   },
   "workbook": {
     "status": "VERIFIED",
-    "sha256": "C16E4D4A7E522030BE407F88790368F913B17C119B4915B64ED4E1E8ACAB197B",
+    "sha256": "81B6AAD04EFF0AEEE7BD487F1137374ABDA7DD6A16B043F8A0435B1BE6A3891F",
     "currentTaskMirror": {
-      "taskId": "M3-P054",
-      "status": "CI_PASS_ON_CODE_HEAD_PENDING_FINAL_EVIDENCE_CI",
+      "taskId": "M3-P055",
+      "status": "LOCAL_PASS_PENDING_DRAFT_PR",
       "sourceLedgers": "CSV_JSON_AND_WORKBOOK_UPDATED",
-      "reason": "Artifact-tool updated the M3-P054 task, P0, page, evidence, API and stage-gate rows; local pnpm verify 17/17 and PR #106 code-head Actions run 31985356527 passed. This evidence-only update still requires exact-head CI before human merge authorization.",
-      "checkedAt": "2026-08-17T01:45:34Z"
+      "reason": "Artifact-tool updated the M3-P055 task, P0, fields, state machine, permission, page, evidence, migration, API and stage-gate rows; exact-head Draft PR CI, human merge authorization and post-merge main CI are tracked separately.",
+      "checkedAt": "2026-08-17T04:03:43Z"
     }
   },
   "sourceOfTruth": [

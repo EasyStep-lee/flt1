@@ -114,7 +114,7 @@
     ]
   },
   "fieldContract": {
-    "count": 232,
+    "count": 302,
     "entities": [
       {
         "entity": "ConsumerUser",
@@ -1771,9 +1771,9 @@
           },
           {
             "name": "issuerType",
-            "type": "Boolean",
+            "type": "Enum<WelfareCardProgramissuerType>",
             "required": true,
-            "format": "true|false",
+            "format": "COMPANY",
             "sensitivity": "INTERNAL",
             "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
             "forbiddenExposure": "数据库实体不得直接序列化为响应",
@@ -1925,7 +1925,7 @@
           {
             "name": "enterpriseCustomerId",
             "type": "String(36)",
-            "required": true,
+            "required": false,
             "format": "UUID v4",
             "sensitivity": "INTERNAL",
             "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
@@ -1996,7 +1996,7 @@
             "name": "claimMode",
             "type": "Enum<WelfareCardBatchclaimMode>",
             "required": true,
-            "format": "ENTERPRISE_ASSIGNED|PHYSICAL_CARD_OR_CODE",
+            "format": "ENTERPRISE_ASSIGNED|COMPANY_ASSIGNED|PHYSICAL_CARD_OR_CODE",
             "sensitivity": "INTERNAL",
             "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
             "forbiddenExposure": "数据库实体不得直接序列化为响应",
@@ -2146,7 +2146,7 @@
           {
             "name": "claimedByConsumerUserId",
             "type": "String(36)",
-            "required": true,
+            "required": false,
             "format": "UUID v4",
             "sensitivity": "INTERNAL",
             "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
@@ -2161,7 +2161,7 @@
           {
             "name": "claimedAt",
             "type": "DateTime",
-            "required": true,
+            "required": false,
             "format": "UTC ISO-8601",
             "sensitivity": "INTERNAL",
             "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
@@ -2314,6 +2314,7 @@
             "validation": "server-owned identifier; owner scope checked before not-found disclosure",
             "historyRule": "追加/版本/快照，不覆盖已生效历史",
             "p0Ids": [
+              "P0-052",
               "P0-055",
               "P0-056",
               "P0-057",
@@ -2332,6 +2333,7 @@
             "validation": "server-owned identifier; owner scope checked before not-found disclosure",
             "historyRule": "追加/版本/快照，不覆盖已生效历史",
             "p0Ids": [
+              "P0-052",
               "P0-055",
               "P0-056",
               "P0-057",
@@ -2342,7 +2344,7 @@
           {
             "name": "orderId",
             "type": "String(36)",
-            "required": true,
+            "required": false,
             "format": "UUID v4",
             "sensitivity": "FINANCIAL",
             "visibility": "公司财务与必要业务职能；供应商仅本供应商结算视图",
@@ -2350,6 +2352,7 @@
             "validation": "server-owned identifier; owner scope checked before not-found disclosure",
             "historyRule": "追加/版本/快照，不覆盖已生效历史",
             "p0Ids": [
+              "P0-052",
               "P0-055",
               "P0-056",
               "P0-057",
@@ -2360,7 +2363,7 @@
           {
             "name": "refundId",
             "type": "String(36)",
-            "required": true,
+            "required": false,
             "format": "UUID v4",
             "sensitivity": "FINANCIAL",
             "visibility": "公司财务与必要业务职能；供应商仅本供应商结算视图",
@@ -2368,6 +2371,7 @@
             "validation": "server-owned identifier; owner scope checked before not-found disclosure",
             "historyRule": "追加/版本/快照，不覆盖已生效历史",
             "p0Ids": [
+              "P0-052",
               "P0-055",
               "P0-056",
               "P0-057",
@@ -2386,6 +2390,7 @@
             "validation": "DTO whitelist; required/type/range/ownership validation",
             "historyRule": "追加/版本/快照，不覆盖已生效历史",
             "p0Ids": [
+              "P0-052",
               "P0-055",
               "P0-056",
               "P0-057",
@@ -2404,6 +2409,7 @@
             "validation": "DTO whitelist; required/type/range/ownership validation",
             "historyRule": "追加/版本/快照，不覆盖已生效历史",
             "p0Ids": [
+              "P0-052",
               "P0-055",
               "P0-056",
               "P0-057",
@@ -2422,6 +2428,7 @@
             "validation": "integer cents; arithmetic and cumulative limits checked transactionally",
             "historyRule": "追加/版本/快照，不覆盖已生效历史",
             "p0Ids": [
+              "P0-052",
               "P0-055",
               "P0-056",
               "P0-057",
@@ -2440,6 +2447,7 @@
             "validation": "integer cents; arithmetic and cumulative limits checked transactionally",
             "historyRule": "追加/版本/快照，不覆盖已生效历史",
             "p0Ids": [
+              "P0-052",
               "P0-055",
               "P0-056",
               "P0-057",
@@ -2458,6 +2466,7 @@
             "validation": "integer cents; arithmetic and cumulative limits checked transactionally",
             "historyRule": "追加/版本/快照，不覆盖已生效历史",
             "p0Ids": [
+              "P0-052",
               "P0-055",
               "P0-056",
               "P0-057",
@@ -2467,15 +2476,16 @@
           },
           {
             "name": "beforeFrozen",
-            "type": "String(191)",
+            "type": "Int",
             "required": true,
-            "format": "UTF-8; max 191 chars",
+            "format": "integer",
             "sensitivity": "FINANCIAL",
             "visibility": "公司财务与必要业务职能；供应商仅本供应商结算视图",
             "forbiddenExposure": "消费者响应仅返回自身交易白名单字段",
             "validation": "DTO whitelist; required/type/range/ownership validation",
             "historyRule": "追加/版本/快照，不覆盖已生效历史",
             "p0Ids": [
+              "P0-052",
               "P0-055",
               "P0-056",
               "P0-057",
@@ -2485,15 +2495,16 @@
           },
           {
             "name": "afterFrozen",
-            "type": "String(191)",
+            "type": "Int",
             "required": true,
-            "format": "UTF-8; max 191 chars",
+            "format": "integer",
             "sensitivity": "FINANCIAL",
             "visibility": "公司财务与必要业务职能；供应商仅本供应商结算视图",
             "forbiddenExposure": "消费者响应仅返回自身交易白名单字段",
             "validation": "DTO whitelist; required/type/range/ownership validation",
             "historyRule": "追加/版本/快照，不覆盖已生效历史",
             "p0Ids": [
+              "P0-052",
               "P0-055",
               "P0-056",
               "P0-057",
@@ -2512,6 +2523,7 @@
             "validation": "DTO whitelist; required/type/range/ownership validation",
             "historyRule": "追加/版本/快照，不覆盖已生效历史",
             "p0Ids": [
+              "P0-052",
               "P0-055",
               "P0-056",
               "P0-057",
@@ -2530,6 +2542,7 @@
             "validation": "DTO whitelist; required/type/range/ownership validation",
             "historyRule": "追加/版本/快照，不覆盖已生效历史",
             "p0Ids": [
+              "P0-052",
               "P0-055",
               "P0-056",
               "P0-057",
@@ -3488,6 +3501,118 @@
               "P0-058",
               "P0-096"
             ]
+          },
+          {
+            "name": "afterSaleId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "公司订单客服/财务/审计按独立职能和company scope；对应买家仅经后续白名单查询",
+            "forbiddenExposure": "供应商/其他买家/公开DTO不可见；不得返回供应价或内部支付配置",
+            "validation": "server-owned identifier; owner scope checked before not-found disclosure",
+            "historyRule": "版本化/追加事件；禁止覆盖历史快照",
+            "p0Ids": [
+              "P0-026",
+              "P0-058",
+              "P0-096"
+            ]
+          },
+          {
+            "name": "requestHash",
+            "type": "String(64)",
+            "required": true,
+            "format": "UTF-8; max 64 chars",
+            "sensitivity": "INTERNAL",
+            "visibility": "公司订单客服/财务/审计按独立职能和company scope；对应买家仅经后续白名单查询",
+            "forbiddenExposure": "供应商/其他买家/公开DTO不可见；不得返回供应价或内部支付配置",
+            "validation": "encrypted or one-way hashed; masked DTO; never logged in plaintext",
+            "historyRule": "版本化/追加事件；禁止覆盖历史快照",
+            "p0Ids": [
+              "P0-026",
+              "P0-058",
+              "P0-096"
+            ]
+          },
+          {
+            "name": "welfareChannelStatus",
+            "type": "Enum<RefundTransactionwelfareChannelStatus>",
+            "required": true,
+            "format": "NOT_REQUIRED|PENDING|PROCESSING|SUCCEEDED|FAILED|UNKNOWN",
+            "sensitivity": "FINANCIAL",
+            "visibility": "公司订单客服/财务/审计按独立职能和company scope；对应买家仅经后续白名单查询",
+            "forbiddenExposure": "供应商/其他买家/公开DTO不可见；不得返回供应价或内部支付配置",
+            "validation": "legal state transition, optimistic version and audit required",
+            "historyRule": "版本化/追加事件；禁止覆盖历史快照",
+            "p0Ids": [
+              "P0-026",
+              "P0-058",
+              "P0-096"
+            ]
+          },
+          {
+            "name": "wechatChannelStatus",
+            "type": "Enum<RefundTransactionwechatChannelStatus>",
+            "required": true,
+            "format": "NOT_REQUIRED|PENDING|PROCESSING|SUCCEEDED|FAILED|UNKNOWN",
+            "sensitivity": "FINANCIAL",
+            "visibility": "公司订单客服/财务/审计按独立职能和company scope；对应买家仅经后续白名单查询",
+            "forbiddenExposure": "供应商/其他买家/公开DTO不可见；不得返回供应价或内部支付配置",
+            "validation": "legal state transition, optimistic version and audit required",
+            "historyRule": "版本化/追加事件；禁止覆盖历史快照",
+            "p0Ids": [
+              "P0-026",
+              "P0-058",
+              "P0-096"
+            ]
+          },
+          {
+            "name": "version",
+            "type": "Int",
+            "required": true,
+            "format": "integer",
+            "sensitivity": "INTERNAL",
+            "visibility": "公司订单客服/财务/审计按独立职能和company scope；对应买家仅经后续白名单查询",
+            "forbiddenExposure": "供应商/其他买家/公开DTO不可见；不得返回供应价或内部支付配置",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "版本化/追加事件；禁止覆盖历史快照",
+            "p0Ids": [
+              "P0-026",
+              "P0-058",
+              "P0-096"
+            ]
+          },
+          {
+            "name": "createdAt",
+            "type": "DateTime(3)",
+            "required": true,
+            "format": "UTC ISO-8601",
+            "sensitivity": "INTERNAL",
+            "visibility": "公司订单客服/财务/审计按独立职能和company scope；对应买家仅经后续白名单查询",
+            "forbiddenExposure": "供应商/其他买家/公开DTO不可见；不得返回供应价或内部支付配置",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "版本化/追加事件；禁止覆盖历史快照",
+            "p0Ids": [
+              "P0-026",
+              "P0-058",
+              "P0-096"
+            ]
+          },
+          {
+            "name": "updatedAt",
+            "type": "DateTime(3)",
+            "required": true,
+            "format": "UTC ISO-8601",
+            "sensitivity": "INTERNAL",
+            "visibility": "公司订单客服/财务/审计按独立职能和company scope；对应买家仅经后续白名单查询",
+            "forbiddenExposure": "供应商/其他买家/公开DTO不可见；不得返回供应价或内部支付配置",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "版本化/追加事件；禁止覆盖历史快照",
+            "p0Ids": [
+              "P0-026",
+              "P0-058",
+              "P0-096"
+            ]
           }
         ]
       },
@@ -3900,6 +4025,1012 @@
             ]
           }
         ]
+      },
+      {
+        "entity": "EnterpriseRemittanceSubmission",
+        "fields": [
+          {
+            "name": "id",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "本企业采购员与公司财务按会话数据域访问",
+            "forbiddenExposure": "供应商/其他企业/公开DTO不可见；proofObjectKey不进入响应",
+            "validation": "server-owned identifier; owner scope checked before not-found disclosure",
+            "historyRule": "按submissionVersion追加；已审核版本不可覆盖",
+            "p0Ids": [
+              "P0-025",
+              "P0-029"
+            ]
+          },
+          {
+            "name": "buyerOrderId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "本企业采购员与公司财务按会话数据域访问",
+            "forbiddenExposure": "供应商/其他企业/公开DTO不可见；proofObjectKey不进入响应",
+            "validation": "server-owned identifier; owner scope checked before not-found disclosure",
+            "historyRule": "按submissionVersion追加；已审核版本不可覆盖",
+            "p0Ids": [
+              "P0-025",
+              "P0-029"
+            ]
+          },
+          {
+            "name": "submissionVersion",
+            "type": "Int",
+            "required": true,
+            "format": "integer",
+            "sensitivity": "INTERNAL",
+            "visibility": "本企业采购员与公司财务按会话数据域访问",
+            "forbiddenExposure": "供应商/其他企业/公开DTO不可见；proofObjectKey不进入响应",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "按submissionVersion追加；已审核版本不可覆盖",
+            "p0Ids": [
+              "P0-025",
+              "P0-029"
+            ]
+          },
+          {
+            "name": "amount",
+            "type": "Int",
+            "required": true,
+            "format": "integer cents; >=0",
+            "sensitivity": "FINANCIAL",
+            "visibility": "本企业采购员与公司财务按会话数据域访问",
+            "forbiddenExposure": "供应商/其他企业/公开DTO不可见；proofObjectKey不进入响应",
+            "validation": "integer cents; arithmetic and cumulative limits checked transactionally",
+            "historyRule": "按submissionVersion追加；已审核版本不可覆盖",
+            "p0Ids": [
+              "P0-025",
+              "P0-029"
+            ]
+          },
+          {
+            "name": "proofObjectKey",
+            "type": "String(512)",
+            "required": true,
+            "format": "UTF-8; max 512 chars",
+            "sensitivity": "SENSITIVE",
+            "visibility": "本企业采购员与公司财务按会话数据域访问",
+            "forbiddenExposure": "供应商/其他企业/公开DTO不可见；proofObjectKey不进入响应",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "按submissionVersion追加；已审核版本不可覆盖",
+            "p0Ids": [
+              "P0-025",
+              "P0-029"
+            ]
+          },
+          {
+            "name": "submittedByEnterpriseUserId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "SENSITIVE",
+            "visibility": "本企业采购员与公司财务按会话数据域访问",
+            "forbiddenExposure": "供应商/其他企业/公开DTO不可见；proofObjectKey不进入响应",
+            "validation": "server-owned identifier; owner scope checked before not-found disclosure",
+            "historyRule": "按submissionVersion追加；已审核版本不可覆盖",
+            "p0Ids": [
+              "P0-025",
+              "P0-029"
+            ]
+          },
+          {
+            "name": "idempotencyKey",
+            "type": "String(128)",
+            "required": true,
+            "format": "UTF-8; max 128 chars",
+            "sensitivity": "INTERNAL",
+            "visibility": "本企业采购员与公司财务按会话数据域访问",
+            "forbiddenExposure": "供应商/其他企业/公开DTO不可见；proofObjectKey不进入响应",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "按submissionVersion追加；已审核版本不可覆盖",
+            "p0Ids": [
+              "P0-025",
+              "P0-029"
+            ]
+          },
+          {
+            "name": "requestHash",
+            "type": "String(64)",
+            "required": true,
+            "format": "UTF-8; max 64 chars",
+            "sensitivity": "INTERNAL",
+            "visibility": "本企业采购员与公司财务按会话数据域访问",
+            "forbiddenExposure": "供应商/其他企业/公开DTO不可见；proofObjectKey不进入响应",
+            "validation": "encrypted or one-way hashed; masked DTO; never logged in plaintext",
+            "historyRule": "按submissionVersion追加；已审核版本不可覆盖",
+            "p0Ids": [
+              "P0-025",
+              "P0-029"
+            ]
+          },
+          {
+            "name": "status",
+            "type": "Enum<EnterpriseRemittanceSubmissionstatus>",
+            "required": true,
+            "format": "PENDING_REVIEW|CONFIRMED|REJECTED",
+            "sensitivity": "FINANCIAL",
+            "visibility": "本企业采购员与公司财务按会话数据域访问",
+            "forbiddenExposure": "供应商/其他企业/公开DTO不可见；proofObjectKey不进入响应",
+            "validation": "legal state transition, optimistic version and audit required",
+            "historyRule": "按submissionVersion追加；已审核版本不可覆盖",
+            "p0Ids": [
+              "P0-025",
+              "P0-029"
+            ]
+          },
+          {
+            "name": "version",
+            "type": "Int",
+            "required": true,
+            "format": "integer",
+            "sensitivity": "INTERNAL",
+            "visibility": "本企业采购员与公司财务按会话数据域访问",
+            "forbiddenExposure": "供应商/其他企业/公开DTO不可见；proofObjectKey不进入响应",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "按submissionVersion追加；已审核版本不可覆盖",
+            "p0Ids": [
+              "P0-025",
+              "P0-029"
+            ]
+          },
+          {
+            "name": "submittedAt",
+            "type": "DateTime(3)",
+            "required": true,
+            "format": "UTC ISO-8601",
+            "sensitivity": "INTERNAL",
+            "visibility": "本企业采购员与公司财务按会话数据域访问",
+            "forbiddenExposure": "供应商/其他企业/公开DTO不可见；proofObjectKey不进入响应",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "按submissionVersion追加；已审核版本不可覆盖",
+            "p0Ids": [
+              "P0-025",
+              "P0-029"
+            ]
+          },
+          {
+            "name": "reviewedAt",
+            "type": "DateTime(3)?",
+            "required": false,
+            "format": "nullable; UTC ISO-8601",
+            "sensitivity": "INTERNAL",
+            "visibility": "本企业采购员与公司财务按会话数据域访问",
+            "forbiddenExposure": "供应商/其他企业/公开DTO不可见；proofObjectKey不进入响应",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "按submissionVersion追加；已审核版本不可覆盖",
+            "p0Ids": [
+              "P0-025",
+              "P0-029"
+            ]
+          }
+        ]
+      },
+      {
+        "entity": "EnterpriseRemittanceReview",
+        "fields": [
+          {
+            "name": "id",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "公司财务与审计职能",
+            "forbiddenExposure": "企业/供应商/公开DTO不返回审核人和内部原因",
+            "validation": "server-owned identifier; owner scope checked before not-found disclosure",
+            "historyRule": "只追加；数据库触发器禁止UPDATE/DELETE",
+            "p0Ids": [
+              "P0-025",
+              "P0-045",
+              "P0-072"
+            ]
+          },
+          {
+            "name": "submissionId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "公司财务与审计职能",
+            "forbiddenExposure": "企业/供应商/公开DTO不返回审核人和内部原因",
+            "validation": "server-owned identifier; owner scope checked before not-found disclosure",
+            "historyRule": "只追加；数据库触发器禁止UPDATE/DELETE",
+            "p0Ids": [
+              "P0-025",
+              "P0-045",
+              "P0-072"
+            ]
+          },
+          {
+            "name": "decision",
+            "type": "Enum<EnterpriseRemittanceReviewdecision>",
+            "required": true,
+            "format": "CONFIRM|REJECT",
+            "sensitivity": "FINANCIAL",
+            "visibility": "公司财务与审计职能",
+            "forbiddenExposure": "企业/供应商/公开DTO不返回审核人和内部原因",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "只追加；数据库触发器禁止UPDATE/DELETE",
+            "p0Ids": [
+              "P0-025",
+              "P0-045",
+              "P0-072"
+            ]
+          },
+          {
+            "name": "reviewedAmount",
+            "type": "Int",
+            "required": true,
+            "format": "integer cents; >=0",
+            "sensitivity": "FINANCIAL",
+            "visibility": "公司财务与审计职能",
+            "forbiddenExposure": "企业/供应商/公开DTO不返回审核人和内部原因",
+            "validation": "integer cents; arithmetic and cumulative limits checked transactionally",
+            "historyRule": "只追加；数据库触发器禁止UPDATE/DELETE",
+            "p0Ids": [
+              "P0-025",
+              "P0-045",
+              "P0-072"
+            ]
+          },
+          {
+            "name": "reason",
+            "type": "String(500)",
+            "required": true,
+            "format": "UTF-8; max 500 chars",
+            "sensitivity": "SENSITIVE",
+            "visibility": "公司财务与审计职能",
+            "forbiddenExposure": "企业/供应商/公开DTO不返回审核人和内部原因",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "只追加；数据库触发器禁止UPDATE/DELETE",
+            "p0Ids": [
+              "P0-025",
+              "P0-045",
+              "P0-072"
+            ]
+          },
+          {
+            "name": "reviewerFunctionalAccountId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "SENSITIVE",
+            "visibility": "公司财务与审计职能",
+            "forbiddenExposure": "企业/供应商/公开DTO不返回审核人和内部原因",
+            "validation": "server-owned identifier; owner scope checked before not-found disclosure",
+            "historyRule": "只追加；数据库触发器禁止UPDATE/DELETE",
+            "p0Ids": [
+              "P0-025",
+              "P0-045",
+              "P0-072"
+            ]
+          },
+          {
+            "name": "reviewerIdentityId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "SENSITIVE",
+            "visibility": "公司财务与审计职能",
+            "forbiddenExposure": "企业/供应商/公开DTO不返回审核人和内部原因",
+            "validation": "server-owned identifier; owner scope checked before not-found disclosure",
+            "historyRule": "只追加；数据库触发器禁止UPDATE/DELETE",
+            "p0Ids": [
+              "P0-025",
+              "P0-045",
+              "P0-072"
+            ]
+          },
+          {
+            "name": "idempotencyKey",
+            "type": "String(128)",
+            "required": true,
+            "format": "UTF-8; max 128 chars",
+            "sensitivity": "INTERNAL",
+            "visibility": "公司财务与审计职能",
+            "forbiddenExposure": "企业/供应商/公开DTO不返回审核人和内部原因",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "只追加；数据库触发器禁止UPDATE/DELETE",
+            "p0Ids": [
+              "P0-025",
+              "P0-045",
+              "P0-072"
+            ]
+          },
+          {
+            "name": "requestHash",
+            "type": "String(64)",
+            "required": true,
+            "format": "UTF-8; max 64 chars",
+            "sensitivity": "INTERNAL",
+            "visibility": "公司财务与审计职能",
+            "forbiddenExposure": "企业/供应商/公开DTO不返回审核人和内部原因",
+            "validation": "encrypted or one-way hashed; masked DTO; never logged in plaintext",
+            "historyRule": "只追加；数据库触发器禁止UPDATE/DELETE",
+            "p0Ids": [
+              "P0-025",
+              "P0-045",
+              "P0-072"
+            ]
+          },
+          {
+            "name": "submissionVersion",
+            "type": "Int",
+            "required": true,
+            "format": "integer",
+            "sensitivity": "INTERNAL",
+            "visibility": "公司财务与审计职能",
+            "forbiddenExposure": "企业/供应商/公开DTO不返回审核人和内部原因",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "只追加；数据库触发器禁止UPDATE/DELETE",
+            "p0Ids": [
+              "P0-025",
+              "P0-045",
+              "P0-072"
+            ]
+          },
+          {
+            "name": "createdAt",
+            "type": "DateTime(3)",
+            "required": true,
+            "format": "UTC ISO-8601",
+            "sensitivity": "INTERNAL",
+            "visibility": "公司财务与审计职能",
+            "forbiddenExposure": "企业/供应商/公开DTO不返回审核人和内部原因",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "只追加；数据库触发器禁止UPDATE/DELETE",
+            "p0Ids": [
+              "P0-025",
+              "P0-045",
+              "P0-072"
+            ]
+          }
+        ]
+      },
+      {
+        "entity": "RefundAuthorization",
+        "fields": [
+          {
+            "name": "id",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "公司订单客服/财务/审计按独立职能和company scope；对应买家仅经后续白名单查询",
+            "forbiddenExposure": "供应商/其他买家/公开DTO不可见；不得返回供应价或内部支付配置",
+            "validation": "server-owned identifier; owner scope checked before not-found disclosure",
+            "historyRule": "版本化/追加事件；禁止覆盖历史快照",
+            "p0Ids": [
+              "P0-026",
+              "P0-058",
+              "P0-096"
+            ]
+          },
+          {
+            "name": "companyId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "SENSITIVE",
+            "visibility": "公司订单客服/财务/审计按独立职能和company scope；对应买家仅经后续白名单查询",
+            "forbiddenExposure": "供应商/其他买家/公开DTO不可见；不得返回供应价或内部支付配置",
+            "validation": "derived from verified server session or owned aggregate; client owner input rejected",
+            "historyRule": "版本化/追加事件；禁止覆盖历史快照",
+            "p0Ids": [
+              "P0-026",
+              "P0-058",
+              "P0-096"
+            ]
+          },
+          {
+            "name": "orderId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "公司订单客服/财务/审计按独立职能和company scope；对应买家仅经后续白名单查询",
+            "forbiddenExposure": "供应商/其他买家/公开DTO不可见；不得返回供应价或内部支付配置",
+            "validation": "server-owned identifier; owner scope checked before not-found disclosure",
+            "historyRule": "版本化/追加事件；禁止覆盖历史快照",
+            "p0Ids": [
+              "P0-026",
+              "P0-058",
+              "P0-096"
+            ]
+          },
+          {
+            "name": "orderItemId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "公司订单客服/财务/审计按独立职能和company scope；对应买家仅经后续白名单查询",
+            "forbiddenExposure": "供应商/其他买家/公开DTO不可见；不得返回供应价或内部支付配置",
+            "validation": "server-owned identifier; owner scope checked before not-found disclosure",
+            "historyRule": "版本化/追加事件；禁止覆盖历史快照",
+            "p0Ids": [
+              "P0-026",
+              "P0-058",
+              "P0-096"
+            ]
+          },
+          {
+            "name": "approvedAmount",
+            "type": "Int",
+            "required": true,
+            "format": "integer cents; >=0",
+            "sensitivity": "FINANCIAL",
+            "visibility": "公司订单客服/财务/审计按独立职能和company scope；对应买家仅经后续白名单查询",
+            "forbiddenExposure": "供应商/其他买家/公开DTO不可见；不得返回供应价或内部支付配置",
+            "validation": "integer cents; arithmetic and cumulative limits checked transactionally",
+            "historyRule": "版本化/追加事件；禁止覆盖历史快照",
+            "p0Ids": [
+              "P0-026",
+              "P0-058",
+              "P0-096"
+            ]
+          },
+          {
+            "name": "approvedByIdentityType",
+            "type": "String(64)",
+            "required": true,
+            "format": "UTF-8; max 64 chars",
+            "sensitivity": "SENSITIVE",
+            "visibility": "公司订单客服/财务/审计按独立职能和company scope；对应买家仅经后续白名单查询",
+            "forbiddenExposure": "供应商/其他买家/公开DTO不可见；不得返回供应价或内部支付配置",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "版本化/追加事件；禁止覆盖历史快照",
+            "p0Ids": [
+              "P0-026",
+              "P0-058",
+              "P0-096"
+            ]
+          },
+          {
+            "name": "approvedByIdentityId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "SENSITIVE",
+            "visibility": "公司订单客服/财务/审计按独立职能和company scope；对应买家仅经后续白名单查询",
+            "forbiddenExposure": "供应商/其他买家/公开DTO不可见；不得返回供应价或内部支付配置",
+            "validation": "server-owned identifier; owner scope checked before not-found disclosure",
+            "historyRule": "版本化/追加事件；禁止覆盖历史快照",
+            "p0Ids": [
+              "P0-026",
+              "P0-058",
+              "P0-096"
+            ]
+          },
+          {
+            "name": "status",
+            "type": "Enum<RefundAuthorizationstatus>",
+            "required": true,
+            "format": "APPROVED|CONSUMED|REVOKED",
+            "sensitivity": "FINANCIAL",
+            "visibility": "公司订单客服/财务/审计按独立职能和company scope；对应买家仅经后续白名单查询",
+            "forbiddenExposure": "供应商/其他买家/公开DTO不可见；不得返回供应价或内部支付配置",
+            "validation": "legal state transition, optimistic version and audit required",
+            "historyRule": "版本化/追加事件；禁止覆盖历史快照",
+            "p0Ids": [
+              "P0-026",
+              "P0-058",
+              "P0-096"
+            ]
+          },
+          {
+            "name": "version",
+            "type": "Int",
+            "required": true,
+            "format": "integer",
+            "sensitivity": "INTERNAL",
+            "visibility": "公司订单客服/财务/审计按独立职能和company scope；对应买家仅经后续白名单查询",
+            "forbiddenExposure": "供应商/其他买家/公开DTO不可见；不得返回供应价或内部支付配置",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "版本化/追加事件；禁止覆盖历史快照",
+            "p0Ids": [
+              "P0-026",
+              "P0-058",
+              "P0-096"
+            ]
+          },
+          {
+            "name": "approvedAt",
+            "type": "DateTime(3)",
+            "required": true,
+            "format": "UTC ISO-8601",
+            "sensitivity": "INTERNAL",
+            "visibility": "公司订单客服/财务/审计按独立职能和company scope；对应买家仅经后续白名单查询",
+            "forbiddenExposure": "供应商/其他买家/公开DTO不可见；不得返回供应价或内部支付配置",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "版本化/追加事件；禁止覆盖历史快照",
+            "p0Ids": [
+              "P0-026",
+              "P0-058",
+              "P0-096"
+            ]
+          },
+          {
+            "name": "consumedAt",
+            "type": "DateTime(3)?",
+            "required": false,
+            "format": "nullable; UTC ISO-8601",
+            "sensitivity": "INTERNAL",
+            "visibility": "公司订单客服/财务/审计按独立职能和company scope；对应买家仅经后续白名单查询",
+            "forbiddenExposure": "供应商/其他买家/公开DTO不可见；不得返回供应价或内部支付配置",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "版本化/追加事件；禁止覆盖历史快照",
+            "p0Ids": [
+              "P0-026",
+              "P0-058",
+              "P0-096"
+            ]
+          },
+          {
+            "name": "createdAt",
+            "type": "DateTime(3)",
+            "required": true,
+            "format": "UTC ISO-8601",
+            "sensitivity": "INTERNAL",
+            "visibility": "公司订单客服/财务/审计按独立职能和company scope；对应买家仅经后续白名单查询",
+            "forbiddenExposure": "供应商/其他买家/公开DTO不可见；不得返回供应价或内部支付配置",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "版本化/追加事件；禁止覆盖历史快照",
+            "p0Ids": [
+              "P0-026",
+              "P0-058",
+              "P0-096"
+            ]
+          }
+        ]
+      },
+      {
+        "entity": "RefundTransactionEvent",
+        "fields": [
+          {
+            "name": "id",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "公司订单客服/财务/审计按独立职能和company scope；对应买家仅经后续白名单查询",
+            "forbiddenExposure": "供应商/其他买家/公开DTO不可见；不得返回供应价或内部支付配置",
+            "validation": "server-owned identifier; owner scope checked before not-found disclosure",
+            "historyRule": "只追加；数据库触发器禁止UPDATE/DELETE",
+            "p0Ids": [
+              "P0-026",
+              "P0-058",
+              "P0-096"
+            ]
+          },
+          {
+            "name": "refundTransactionId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "公司订单客服/财务/审计按独立职能和company scope；对应买家仅经后续白名单查询",
+            "forbiddenExposure": "供应商/其他买家/公开DTO不可见；不得返回供应价或内部支付配置",
+            "validation": "server-owned identifier; owner scope checked before not-found disclosure",
+            "historyRule": "只追加；数据库触发器禁止UPDATE/DELETE",
+            "p0Ids": [
+              "P0-026",
+              "P0-058",
+              "P0-096"
+            ]
+          },
+          {
+            "name": "fromStatus",
+            "type": "Enum<RefundTransactionEventfromStatus>",
+            "required": false,
+            "format": "nullable; CREATED|PROCESSING|PARTIAL_CHANNEL_DONE|SUCCEEDED|UNKNOWN|FAILED",
+            "sensitivity": "INTERNAL",
+            "visibility": "公司订单客服/财务/审计按独立职能和company scope；对应买家仅经后续白名单查询",
+            "forbiddenExposure": "供应商/其他买家/公开DTO不可见；不得返回供应价或内部支付配置",
+            "validation": "legal state transition, optimistic version and audit required",
+            "historyRule": "只追加；数据库触发器禁止UPDATE/DELETE",
+            "p0Ids": [
+              "P0-026",
+              "P0-058",
+              "P0-096"
+            ]
+          },
+          {
+            "name": "toStatus",
+            "type": "Enum<RefundTransactionEventtoStatus>",
+            "required": true,
+            "format": "CREATED|PROCESSING|PARTIAL_CHANNEL_DONE|SUCCEEDED|UNKNOWN|FAILED",
+            "sensitivity": "INTERNAL",
+            "visibility": "公司订单客服/财务/审计按独立职能和company scope；对应买家仅经后续白名单查询",
+            "forbiddenExposure": "供应商/其他买家/公开DTO不可见；不得返回供应价或内部支付配置",
+            "validation": "legal state transition, optimistic version and audit required",
+            "historyRule": "只追加；数据库触发器禁止UPDATE/DELETE",
+            "p0Ids": [
+              "P0-026",
+              "P0-058",
+              "P0-096"
+            ]
+          },
+          {
+            "name": "event",
+            "type": "String(64)",
+            "required": true,
+            "format": "UTF-8; max 64 chars",
+            "sensitivity": "INTERNAL",
+            "visibility": "公司订单客服/财务/审计按独立职能和company scope；对应买家仅经后续白名单查询",
+            "forbiddenExposure": "供应商/其他买家/公开DTO不可见；不得返回供应价或内部支付配置",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "只追加；数据库触发器禁止UPDATE/DELETE",
+            "p0Ids": [
+              "P0-026",
+              "P0-058",
+              "P0-096"
+            ]
+          },
+          {
+            "name": "version",
+            "type": "Int",
+            "required": true,
+            "format": "integer",
+            "sensitivity": "INTERNAL",
+            "visibility": "公司订单客服/财务/审计按独立职能和company scope；对应买家仅经后续白名单查询",
+            "forbiddenExposure": "供应商/其他买家/公开DTO不可见；不得返回供应价或内部支付配置",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "只追加；数据库触发器禁止UPDATE/DELETE",
+            "p0Ids": [
+              "P0-026",
+              "P0-058",
+              "P0-096"
+            ]
+          },
+          {
+            "name": "snapshot",
+            "type": "Json",
+            "required": true,
+            "format": "canonical schema-versioned JSON",
+            "sensitivity": "SENSITIVE",
+            "visibility": "公司订单客服/财务/审计按独立职能和company scope；对应买家仅经后续白名单查询",
+            "forbiddenExposure": "供应商/其他买家/公开DTO不可见；不得返回供应价或内部支付配置",
+            "validation": "immutable schema-versioned snapshot; never overwritten",
+            "historyRule": "只追加；数据库触发器禁止UPDATE/DELETE",
+            "p0Ids": [
+              "P0-026",
+              "P0-058",
+              "P0-096"
+            ]
+          },
+          {
+            "name": "actorType",
+            "type": "String(64)",
+            "required": true,
+            "format": "UTF-8; max 64 chars",
+            "sensitivity": "SENSITIVE",
+            "visibility": "公司订单客服/财务/审计按独立职能和company scope；对应买家仅经后续白名单查询",
+            "forbiddenExposure": "供应商/其他买家/公开DTO不可见；不得返回供应价或内部支付配置",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "只追加；数据库触发器禁止UPDATE/DELETE",
+            "p0Ids": [
+              "P0-026",
+              "P0-058",
+              "P0-096"
+            ]
+          },
+          {
+            "name": "actorId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "SENSITIVE",
+            "visibility": "公司订单客服/财务/审计按独立职能和company scope；对应买家仅经后续白名单查询",
+            "forbiddenExposure": "供应商/其他买家/公开DTO不可见；不得返回供应价或内部支付配置",
+            "validation": "server-owned identifier; owner scope checked before not-found disclosure",
+            "historyRule": "只追加；数据库触发器禁止UPDATE/DELETE",
+            "p0Ids": [
+              "P0-026",
+              "P0-058",
+              "P0-096"
+            ]
+          },
+          {
+            "name": "requestId",
+            "type": "String(128)",
+            "required": true,
+            "format": "UTF-8; max 128 chars",
+            "sensitivity": "SENSITIVE",
+            "visibility": "公司订单客服/财务/审计按独立职能和company scope；对应买家仅经后续白名单查询",
+            "forbiddenExposure": "供应商/其他买家/公开DTO不可见；不得返回供应价或内部支付配置",
+            "validation": "server-owned identifier; owner scope checked before not-found disclosure",
+            "historyRule": "只追加；数据库触发器禁止UPDATE/DELETE",
+            "p0Ids": [
+              "P0-026",
+              "P0-058",
+              "P0-096"
+            ]
+          },
+          {
+            "name": "occurredAt",
+            "type": "DateTime(3)",
+            "required": true,
+            "format": "UTC ISO-8601",
+            "sensitivity": "INTERNAL",
+            "visibility": "公司订单客服/财务/审计按独立职能和company scope；对应买家仅经后续白名单查询",
+            "forbiddenExposure": "供应商/其他买家/公开DTO不可见；不得返回供应价或内部支付配置",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "只追加；数据库触发器禁止UPDATE/DELETE",
+            "p0Ids": [
+              "P0-026",
+              "P0-058",
+              "P0-096"
+            ]
+          }
+        ]
+      },
+      {
+        "entity": "RefundImpactRecord",
+        "fields": [
+          {
+            "name": "id",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "公司订单客服/财务/审计按独立职能和company scope；对应买家仅经后续白名单查询",
+            "forbiddenExposure": "供应商/其他买家/公开DTO不可见；不得返回供应价或内部支付配置",
+            "validation": "server-owned identifier; owner scope checked before not-found disclosure",
+            "historyRule": "只追加；数据库触发器禁止UPDATE/DELETE",
+            "p0Ids": [
+              "P0-026",
+              "P0-058",
+              "P0-096"
+            ]
+          },
+          {
+            "name": "refundTransactionId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "公司订单客服/财务/审计按独立职能和company scope；对应买家仅经后续白名单查询",
+            "forbiddenExposure": "供应商/其他买家/公开DTO不可见；不得返回供应价或内部支付配置",
+            "validation": "server-owned identifier; owner scope checked before not-found disclosure",
+            "historyRule": "只追加；数据库触发器禁止UPDATE/DELETE",
+            "p0Ids": [
+              "P0-026",
+              "P0-058",
+              "P0-096"
+            ]
+          },
+          {
+            "name": "impactType",
+            "type": "Enum<RefundImpactRecordimpactType>",
+            "required": true,
+            "format": "FINANCIAL|INVENTORY|RECONCILIATION",
+            "sensitivity": "FINANCIAL",
+            "visibility": "公司订单客服/财务/审计按独立职能和company scope；对应买家仅经后续白名单查询",
+            "forbiddenExposure": "供应商/其他买家/公开DTO不可见；不得返回供应价或内部支付配置",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "只追加；数据库触发器禁止UPDATE/DELETE",
+            "p0Ids": [
+              "P0-026",
+              "P0-058",
+              "P0-096"
+            ]
+          },
+          {
+            "name": "status",
+            "type": "Enum<RefundImpactRecordstatus>",
+            "required": true,
+            "format": "PENDING|APPLIED",
+            "sensitivity": "FINANCIAL",
+            "visibility": "公司订单客服/财务/审计按独立职能和company scope；对应买家仅经后续白名单查询",
+            "forbiddenExposure": "供应商/其他买家/公开DTO不可见；不得返回供应价或内部支付配置",
+            "validation": "legal state transition, optimistic version and audit required",
+            "historyRule": "只追加；数据库触发器禁止UPDATE/DELETE",
+            "p0Ids": [
+              "P0-026",
+              "P0-058",
+              "P0-096"
+            ]
+          },
+          {
+            "name": "payload",
+            "type": "Json",
+            "required": true,
+            "format": "canonical schema-versioned JSON",
+            "sensitivity": "SENSITIVE",
+            "visibility": "公司订单客服/财务/审计按独立职能和company scope；对应买家仅经后续白名单查询",
+            "forbiddenExposure": "供应商/其他买家/公开DTO不可见；不得返回供应价或内部支付配置",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "只追加；数据库触发器禁止UPDATE/DELETE",
+            "p0Ids": [
+              "P0-026",
+              "P0-058",
+              "P0-096"
+            ]
+          },
+          {
+            "name": "createdAt",
+            "type": "DateTime(3)",
+            "required": true,
+            "format": "UTC ISO-8601",
+            "sensitivity": "INTERNAL",
+            "visibility": "公司订单客服/财务/审计按独立职能和company scope；对应买家仅经后续白名单查询",
+            "forbiddenExposure": "供应商/其他买家/公开DTO不可见；不得返回供应价或内部支付配置",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "只追加；数据库触发器禁止UPDATE/DELETE",
+            "p0Ids": [
+              "P0-026",
+              "P0-058",
+              "P0-096"
+            ]
+          },
+          {
+            "name": "appliedAt",
+            "type": "DateTime(3)?",
+            "required": false,
+            "format": "nullable; UTC ISO-8601",
+            "sensitivity": "INTERNAL",
+            "visibility": "公司订单客服/财务/审计按独立职能和company scope；对应买家仅经后续白名单查询",
+            "forbiddenExposure": "供应商/其他买家/公开DTO不可见；不得返回供应价或内部支付配置",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "只追加；数据库触发器禁止UPDATE/DELETE",
+            "p0Ids": [
+              "P0-026",
+              "P0-058",
+              "P0-096"
+            ]
+          }
+        ]
+      },
+      {
+        "entity": "WelfareCardPaymentCommand",
+        "fields": [
+          {
+            "name": "id",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "FINANCIAL",
+            "visibility": "公司财务与必要业务职能；消费者仅接收响应白名单",
+            "forbiddenExposure": "不得返回owner/hash/request内部字段或供应价",
+            "validation": "server-owned identifier; owner scope checked before not-found disclosure",
+            "historyRule": "追加不可变；禁止更新删除",
+            "p0Ids": [
+              "P0-055"
+            ]
+          },
+          {
+            "name": "companyId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "FINANCIAL",
+            "visibility": "公司财务与必要业务职能；消费者仅接收响应白名单",
+            "forbiddenExposure": "不得返回owner/hash/request内部字段或供应价",
+            "validation": "derived from verified server session or owned aggregate; client owner input rejected",
+            "historyRule": "追加不可变；禁止更新删除",
+            "p0Ids": [
+              "P0-055"
+            ]
+          },
+          {
+            "name": "consumerUserId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "FINANCIAL",
+            "visibility": "公司财务与必要业务职能；消费者仅接收响应白名单",
+            "forbiddenExposure": "不得返回owner/hash/request内部字段或供应价",
+            "validation": "derived from verified server session or owned aggregate; client owner input rejected",
+            "historyRule": "追加不可变；禁止更新删除",
+            "p0Ids": [
+              "P0-055"
+            ]
+          },
+          {
+            "name": "orderId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "FINANCIAL",
+            "visibility": "公司财务与必要业务职能；消费者仅接收响应白名单",
+            "forbiddenExposure": "不得返回owner/hash/request内部字段或供应价",
+            "validation": "server-owned identifier; owner scope checked before not-found disclosure",
+            "historyRule": "追加不可变；禁止更新删除",
+            "p0Ids": [
+              "P0-055"
+            ]
+          },
+          {
+            "name": "accountId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "FINANCIAL",
+            "visibility": "公司财务与必要业务职能；消费者仅接收响应白名单",
+            "forbiddenExposure": "不得返回owner/hash/request内部字段或供应价",
+            "validation": "server-owned identifier; owner scope checked before not-found disclosure",
+            "historyRule": "追加不可变；禁止更新删除",
+            "p0Ids": [
+              "P0-055"
+            ]
+          },
+          {
+            "name": "idempotencyKey",
+            "type": "String(128)",
+            "required": true,
+            "format": "UTF-8; max 128 chars",
+            "sensitivity": "FINANCIAL",
+            "visibility": "公司财务与必要业务职能；消费者仅接收响应白名单",
+            "forbiddenExposure": "不得返回owner/hash/request内部字段或供应价",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "追加不可变；禁止更新删除",
+            "p0Ids": [
+              "P0-055"
+            ]
+          },
+          {
+            "name": "requestHash",
+            "type": "String(64)",
+            "required": true,
+            "format": "UTF-8; max 64 chars",
+            "sensitivity": "FINANCIAL",
+            "visibility": "公司财务与必要业务职能；消费者仅接收响应白名单",
+            "forbiddenExposure": "不得返回owner/hash/request内部字段或供应价",
+            "validation": "encrypted or one-way hashed; masked DTO; never logged in plaintext",
+            "historyRule": "追加不可变；禁止更新删除",
+            "p0Ids": [
+              "P0-055"
+            ]
+          },
+          {
+            "name": "requestId",
+            "type": "String(128)",
+            "required": true,
+            "format": "UTF-8; max 128 chars",
+            "sensitivity": "FINANCIAL",
+            "visibility": "公司财务与必要业务职能；消费者仅接收响应白名单",
+            "forbiddenExposure": "不得返回owner/hash/request内部字段或供应价",
+            "validation": "server-owned identifier; owner scope checked before not-found disclosure",
+            "historyRule": "追加不可变；禁止更新删除",
+            "p0Ids": [
+              "P0-055"
+            ]
+          },
+          {
+            "name": "responseSnapshot",
+            "type": "Json",
+            "required": true,
+            "format": "canonical schema-versioned JSON",
+            "sensitivity": "FINANCIAL",
+            "visibility": "公司财务与必要业务职能；消费者仅接收响应白名单",
+            "forbiddenExposure": "不得返回owner/hash/request内部字段或供应价",
+            "validation": "immutable schema-versioned snapshot; never overwritten",
+            "historyRule": "追加不可变；禁止更新删除",
+            "p0Ids": [
+              "P0-055"
+            ]
+          },
+          {
+            "name": "createdAt",
+            "type": "DateTime",
+            "required": true,
+            "format": "UTC ISO-8601",
+            "sensitivity": "FINANCIAL",
+            "visibility": "公司财务与必要业务职能；消费者仅接收响应白名单",
+            "forbiddenExposure": "不得返回owner/hash/request内部字段或供应价",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "追加不可变；禁止更新删除",
+            "p0Ids": [
+              "P0-055"
+            ]
+          }
+        ]
       }
     ]
   },
@@ -4269,14 +5400,11 @@
         "event": "BIND",
         "nextState": "ACTIVE",
         "allowedActor": "CONSUMER_USER",
-        "guard": "卡号/密文校验、未绑定、计划有效",
-        "sideEffect": "创建账户并追加CLAIM账本",
-        "idempotency": "cardCodeHash+consumerUserId",
+        "guard": "卡号/兑换码/扫码秘密摘要匹配；计划ACTIVE+APPROVED；批次ISSUED；卡码UNCLAIMED；协议版本一致；归属从会话派生",
+        "sideEffect": "原子领取卡码、创建唯一账户、追加CLAIM/CREDIT账本和不可变幂等命令",
+        "idempotency": "companyId+consumerUserId+Idempotency-Key；同键异体冲突",
         "p0Ids": [
-          "P0-052",
-          "P0-053",
-          "P0-055",
-          "P0-059"
+          "P0-052"
         ]
       },
       {
@@ -4438,6 +5566,74 @@
           "P0-064",
           "P0-065"
         ]
+      },
+      {
+        "stateMachine": "EnterpriseRemittance",
+        "currentState": "NONE",
+        "event": "SUBMIT",
+        "nextState": "PENDING_REVIEW",
+        "allowedActor": "ENTERPRISE_PURCHASER",
+        "guard": "本企业订单；PENDING_PAYMENT；整数分金额=公司应收；无微信支付交易；旧版本仅可为REJECTED",
+        "sideEffect": "追加提交版本；订单externalPaymentMethod=BANK_TRANSFER；追加订单事件",
+        "idempotency": "buyerOrderId+Idempotency-Key+requestHash",
+        "p0Ids": [
+          "P0-025",
+          "P0-029"
+        ]
+      },
+      {
+        "stateMachine": "EnterpriseRemittance",
+        "currentState": "PENDING_REVIEW",
+        "event": "CONFIRM",
+        "nextState": "CONFIRMED",
+        "allowedActor": "COMPANY_FINANCE",
+        "guard": "公司财务workspace；company scope；精确金额/版本；订单待支付；库存预扣完整；无在线支付交易",
+        "sideEffect": "追加审核；订单PAID；库存reserved转sold；履约激活；事件与BUYER_ORDER_PAID_V1 outbox",
+        "idempotency": "submissionId+Idempotency-Key+requestHash",
+        "p0Ids": [
+          "P0-025",
+          "P0-029"
+        ]
+      },
+      {
+        "stateMachine": "EnterpriseRemittance",
+        "currentState": "PENDING_REVIEW",
+        "event": "REJECT",
+        "nextState": "REJECTED",
+        "allowedActor": "COMPANY_FINANCE",
+        "guard": "公司财务workspace；company scope；精确金额/版本；理由必填",
+        "sideEffect": "追加审核与订单事件；订单保持待支付，允许后续新提交版本",
+        "idempotency": "submissionId+Idempotency-Key+requestHash",
+        "p0Ids": [
+          "P0-025",
+          "P0-029"
+        ]
+      },
+      {
+        "stateMachine": "WelfareCardProgram",
+        "currentState": "NONE",
+        "event": "CREATE_DRAFT",
+        "nextState": "DRAFT",
+        "allowedActor": "COMPANY_WELFARE_CARD",
+        "guard": "三类资金来源白名单；服务端归属；适用范围schema有效",
+        "sideEffect": "创建计划并追加PROGRAM_CREATED历史",
+        "idempotency": "companyId+Idempotency-Key",
+        "p0Ids": [
+          "P0-051"
+        ]
+      },
+      {
+        "stateMachine": "WelfareCardBatch",
+        "currentState": "NONE",
+        "event": "CREATE_DRAFT",
+        "nextState": "DRAFT",
+        "allowedActor": "COMPANY_WELFARE_CARD",
+        "guard": "计划归属当前公司；资金来源与领取方式匹配；unitAmount*issueCount=totalAmount",
+        "sideEffect": "创建批次并追加BATCH_CREATED历史",
+        "idempotency": "companyId+Idempotency-Key",
+        "p0Ids": [
+          "P0-051"
+        ]
       }
     ],
     "illegalTransition": {
@@ -4451,20 +5647,6 @@
     "defaultDecision": "DENY",
     "sessionActiveFunctionalAccountLimit": 1,
     "roles": [
-      {
-        "roleCode": "COMPANY_ORDER_SERVICE",
-        "ownerType": "COMPANY",
-        "entryRoute": "/company-admin/workspaces/order-service",
-        "dataScope": "唯一公司全订单；敏感字段按工单",
-        "supplyPriceVisibility": "HIDDEN",
-        "forbiddenActions": "不得登记付款、改供应价或越权解密",
-        "p0Ids": [
-          "P0-025",
-          "P0-038",
-          "P0-067",
-          "P0-068"
-        ]
-      },
       {
         "roleCode": "COMPANY_WELFARE_CARD",
         "ownerType": "COMPANY",
@@ -4511,8 +5693,9 @@
         "entryRoute": "/enterprise/procurement",
         "dataScope": "enterpriseCustomerId=当前企业",
         "supplyPriceVisibility": "HIDDEN",
-        "forbiddenActions": "不得访问供应价、个人福利卡或跑腿大厅",
+        "forbiddenActions": "不得访问供应价、个人福利卡、跑腿大厅、公司财务审核或其他企业订单",
         "p0Ids": [
+          "P0-025",
           "P0-029",
           "P0-062",
           "P0-078",
@@ -4523,13 +5706,18 @@
         "roleCode": "CONSUMER_USER",
         "ownerType": "CONSUMER",
         "entryRoute": "/pages/home/index",
-        "dataScope": "consumerUserId=当前用户",
+        "dataScope": "companyId与consumerUserId从会话派生；订单金额/商品范围/余额/分摊/库存均服务端校验",
         "supplyPriceVisibility": "HIDDEN",
-        "forbiddenActions": "不得访问供应价、企业价未授权视图或他人数据",
+        "forbiddenActions": "不得提交归属、价格、配送费、抵扣/现金金额、范围规则；不得访问完整卡号、供应价、他人账户；不得个人充值；P055不得触发微信",
         "p0Ids": [
           "P0-020",
           "P0-021",
+          "P0-052",
+          "P0-053",
+          "P0-054",
+          "P0-055",
           "P0-083",
+          "P0-092",
           "P0-098"
         ]
       }
@@ -4541,6 +5729,7 @@
         "pageId": "PAGE-007",
         "route": "/company-admin/workspaces/order-service",
         "p0Ids": [
+          "P0-026",
           "P0-038",
           "P0-067",
           "P0-068"
@@ -4556,7 +5745,7 @@
           "P0-067",
           "P0-068"
         ],
-        "implementationStatus": "IMPLEMENTED_M3_P051_PROGRAMS_BATCHES"
+        "implementationStatus": "NOT_IMPLEMENTED"
       },
       {
         "pageId": "PAGE-020",
@@ -4565,7 +5754,7 @@
           "P0-031",
           "P0-070"
         ],
-        "implementationStatus": "IMPLEMENTED_M3_P031"
+        "implementationStatus": "NOT_IMPLEMENTED"
       },
       {
         "pageId": "PAGE-025",
@@ -4739,7 +5928,7 @@
           "P0-021",
           "P0-088"
         ],
-        "implementationStatus": "IMPLEMENTED_M3_P054_SCOPE_PARTIAL"
+        "implementationStatus": "NOT_IMPLEMENTED"
       },
       {
         "pageId": "PAGE-054",
@@ -4757,7 +5946,7 @@
           "P0-022",
           "P0-090"
         ],
-        "implementationStatus": "IMPLEMENTED_M3_P054_SCOPE_PARTIAL"
+        "implementationStatus": "NOT_IMPLEMENTED"
       },
       {
         "pageId": "PAGE-056",
@@ -4766,7 +5955,7 @@
           "P0-091",
           "P0-092"
         ],
-        "implementationStatus": "IMPLEMENTED_M3_P054_SCOPE_PARTIAL"
+        "implementationStatus": "IMPLEMENTED_M3_P055_FULL_WELFARE_PAYMENT_PARTIAL"
       },
       {
         "pageId": "PAGE-057",
@@ -4817,7 +6006,7 @@
           "P0-053",
           "P0-097"
         ],
-        "implementationStatus": "IMPLEMENTED_M3_P052_BINDING_ENTRY_PARTIAL"
+        "implementationStatus": "NOT_IMPLEMENTED"
       },
       {
         "pageId": "PAGE-063",
@@ -4836,7 +6025,7 @@
           "P0-052",
           "P0-097"
         ],
-        "implementationStatus": "IMPLEMENTED_M3_P052"
+        "implementationStatus": "NOT_IMPLEMENTED"
       },
       {
         "pageId": "PAGE-065",
@@ -4897,9 +6086,9 @@
         "contractId": "API-029",
         "method": "GET",
         "path": "/v1/catalog/products",
-        "requestDto": "CatalogQuery",
-        "responseDto": "PublicProductPageResponse",
-        "errorCodes": "REGION_UNAVAILABLE",
+        "requestDto": "ConsumerCatalogQueryDto",
+        "responseDto": "ConsumerCatalogPageResponseDto",
+        "errorCodes": "REGION_UNAVAILABLE|VALIDATION_FAILED|PRODUCT_NOT_SALEABLE|SENSITIVE_FIELD_LEAK",
         "p0Ids": [
           "P0-020",
           "P0-078",
@@ -4995,9 +6184,9 @@
         "contractId": "API-036",
         "method": "POST",
         "path": "/v1/consumer/orders",
-        "requestDto": "ConsumerOrderCreateRequest",
-        "responseDto": "OrderCreateResponse",
-        "errorCodes": "IDEMPOTENCY_CONFLICT|PRICE_CHANGED|INVENTORY_INSUFFICIENT",
+        "requestDto": "CreateOrderRequestDto",
+        "responseDto": "CreateBuyerOrderResponseDto",
+        "errorCodes": "AUTHENTICATION_REQUIRED|ACCESS_DENIED|FIELD_FORBIDDEN|VALIDATION_FAILED|PRODUCT_NOT_SALEABLE|IDEMPOTENCY_KEY_REQUIRED|IDEMPOTENCY_CONFLICT|INVENTORY_INSUFFICIENT|INVENTORY_RESERVATION_CONFLICT",
         "p0Ids": [
           "P0-022",
           "P0-023",
@@ -5023,27 +6212,27 @@
         "contractId": "API-038",
         "method": "POST",
         "path": "/v1/consumer/welfare-card-accounts/bind",
-        "requestDto": "WelfareCardBindRequest",
-        "responseDto": "WelfareCardAccountResponse",
-        "errorCodes": "CARD_CODE_INVALID|CARD_ALREADY_CLAIMED",
+        "requestDto": "WelfareCardBindRequestDto",
+        "responseDto": "WelfareCardAccountResponseDto",
+        "errorCodes": "AUTHENTICATION_REQUIRED|ACCOUNT_SUSPENDED|FIELD_FORBIDDEN|VALIDATION_FAILED|CARD_CODE_INVALID|CARD_ALREADY_CLAIMED|CARD_RECIPIENT_MISMATCH|IDEMPOTENCY_KEY_REQUIRED|IDEMPOTENCY_CONFLICT",
         "p0Ids": [
           "P0-052"
         ],
-        "implementationStatus": "IMPLEMENTED_M3_P052"
+        "implementationStatus": "NOT_IMPLEMENTED"
       },
       {
         "contractId": "API-039",
         "method": "GET",
         "path": "/v1/consumer/welfare-card-accounts/eligible",
-        "requestDto": "EligibilityQuery",
-        "responseDto": "EligibleWelfareAccountsResponse",
-        "errorCodes": "COMMON_AUTH_VALIDATION_ERRORS",
+        "requestDto": "WelfareCardEligibilityQueryDto",
+        "responseDto": "EligibleWelfareAccountsResponseDto",
+        "errorCodes": "AUTHENTICATION_REQUIRED|ACCOUNT_SUSPENDED|FIELD_FORBIDDEN|VALIDATION_FAILED|PRODUCT_NOT_SALEABLE",
         "p0Ids": [
           "P0-053",
           "P0-054",
           "P0-092"
         ],
-        "implementationStatus": "IMPLEMENTED_M3_P054"
+        "implementationStatus": "NOT_IMPLEMENTED"
       },
       {
         "contractId": "API-040",
@@ -5064,7 +6253,7 @@
         "path": "/v1/orders/{orderId}/wechat-prepay",
         "requestDto": "WechatPrepayRequest",
         "responseDto": "WechatPrepayResponse",
-        "errorCodes": "PAYMENT_AMOUNT_MISMATCH|PAYMENT_STATE_INVALID",
+        "errorCodes": "AUTHENTICATION_REQUIRED|ACCESS_DENIED|ORDER_NOT_FOUND|FIELD_FORBIDDEN|VALIDATION_FAILED|IDEMPOTENCY_KEY_REQUIRED|PAYMENT_IDEMPOTENCY_CONFLICT|PAYMENT_STATE_INVALID|PAYMENT_CONCURRENT_CONFLICT|EXTERNAL_SERVICE_UNAVAILABLE",
         "p0Ids": [
           "P0-024",
           "P0-056",
@@ -5078,7 +6267,7 @@
         "path": "/v1/payment-notifications/wechat",
         "requestDto": "RawWechatNotification",
         "responseDto": "CallbackAckResponse",
-        "errorCodes": "SIGNATURE_INVALID|AMOUNT_MISMATCH",
+        "errorCodes": "EXTERNAL_SERVICE_UNAVAILABLE|PAYMENT_NOTIFICATION_INVALID|PAYMENT_IDENTITY_MISMATCH|PAYMENT_TRANSACTION_NOT_FOUND|PAYMENT_AMOUNT_MISMATCH|PAYMENT_STATE_INVALID|PAYMENT_TRANSACTION_CONFLICT|PAYMENT_CONCURRENT_CONFLICT",
         "p0Ids": [
           "P0-024",
           "P0-056"
@@ -5089,9 +6278,9 @@
         "contractId": "API-043",
         "method": "POST",
         "path": "/v1/aftersales/{afterSaleId}/refund",
-        "requestDto": "RefundCreateRequest",
-        "responseDto": "RefundResponse",
-        "errorCodes": "REFUND_ALLOCATION_INVALID|REFUND_DUPLICATE|SAME_NATURAL_PERSON_REVIEW_FORBIDDEN",
+        "requestDto": "RefundCreateRequestDto",
+        "responseDto": "RefundResponseDto",
+        "errorCodes": "AUTHENTICATION_REQUIRED|ACCESS_DENIED|FIELD_FORBIDDEN|VALIDATION_FAILED|IDEMPOTENCY_KEY_REQUIRED|REFUND_AUTHORIZATION_NOT_FOUND|REFUND_ALLOCATION_INVALID|REFUND_DUPLICATE|REFUND_OVERPAID|REFUND_STATE_CONFLICT|REFUND_CHANNEL_REJECTED|SAME_NATURAL_PERSON_REVIEW_FORBIDDEN",
         "p0Ids": [
           "P0-026",
           "P0-058",
@@ -5103,9 +6292,9 @@
         "contractId": "API-044",
         "method": "POST",
         "path": "/v1/enterprise/registrations",
-        "requestDto": "EnterpriseRegistrationRequest",
-        "responseDto": "EnterpriseRegistrationResponse",
-        "errorCodes": "CREDIT_CODE_DUPLICATE",
+        "requestDto": "EnterpriseRegistrationRequestDto",
+        "responseDto": "EnterpriseRegistrationCreatedResponseDto",
+        "errorCodes": "VALIDATION_FAILED|FIELD_FORBIDDEN|IDEMPOTENCY_KEY_REQUIRED|IDEMPOTENCY_CONFLICT|CREDIT_CODE_DUPLICATE|SERVICE_UNAVAILABLE",
         "p0Ids": [
           "P0-028",
           "P0-077"
@@ -5128,9 +6317,9 @@
         "contractId": "API-046",
         "method": "POST",
         "path": "/v1/company/enterprise-registrations/{enterpriseId}/review",
-        "requestDto": "EnterpriseReviewRequest",
-        "responseDto": "EnterpriseRegistrationResponse",
-        "errorCodes": "APPROVAL_VERSION_CONFLICT|SELF_APPROVAL_FORBIDDEN",
+        "requestDto": "EnterpriseReviewRequestDto",
+        "responseDto": "EnterpriseRegistrationResponseDto",
+        "errorCodes": "AUTHENTICATION_REQUIRED|ACCESS_DENIED|ENTERPRISE_NOT_FOUND|STATE_TRANSITION_INVALID|APPROVAL_VERSION_CONFLICT|SELF_APPROVAL_FORBIDDEN|IDEMPOTENCY_CONFLICT",
         "p0Ids": [
           "P0-028",
           "P0-077"
@@ -5155,9 +6344,9 @@
         "contractId": "API-048",
         "method": "POST",
         "path": "/v1/enterprise/orders",
-        "requestDto": "EnterpriseOrderCreateRequest",
-        "responseDto": "EnterpriseOrderCreateResponse",
-        "errorCodes": "IDEMPOTENCY_CONFLICT|INVENTORY_INSUFFICIENT",
+        "requestDto": "CreateEnterpriseOrderRequestDto",
+        "responseDto": "CreateEnterpriseOrderResponseDto",
+        "errorCodes": "AUTHENTICATION_REQUIRED|ACCESS_DENIED|FIELD_FORBIDDEN|VALIDATION_FAILED|PRODUCT_NOT_SALEABLE|IDEMPOTENCY_KEY_REQUIRED|IDEMPOTENCY_CONFLICT|INVENTORY_INSUFFICIENT|INVENTORY_RESERVATION_CONFLICT|ENTERPRISE_NOT_ACTIVE|ENTERPRISE_SCOPE_FORBIDDEN|ENTERPRISE_PROFILE_INCOMPLETE",
         "p0Ids": [
           "P0-029",
           "P0-062",
@@ -5183,9 +6372,9 @@
         "contractId": "API-050",
         "method": "POST",
         "path": "/v1/enterprise/orders/{orderId}/remittance-proof",
-        "requestDto": "EnterpriseRemittanceProofRequest",
-        "responseDto": "EnterpriseOrderDetailResponse",
-        "errorCodes": "PAYMENT_METHOD_INVALID|REMITTANCE_ALREADY_SUBMITTED",
+        "requestDto": "EnterpriseRemittanceProofRequestDto",
+        "responseDto": "EnterpriseRemittanceResponseDto",
+        "errorCodes": "AUTHENTICATION_REQUIRED|ACCESS_DENIED|ORDER_NOT_FOUND|FIELD_FORBIDDEN|VALIDATION_FAILED|IDEMPOTENCY_KEY_REQUIRED|AMOUNT_MISMATCH|PAYMENT_METHOD_INVALID|REMITTANCE_ALREADY_SUBMITTED|PAYMENT_STATE_INVALID|IDEMPOTENCY_CONFLICT|APPROVAL_VERSION_CONFLICT",
         "p0Ids": [
           "P0-025",
           "P0-029",
@@ -5197,9 +6386,9 @@
         "contractId": "API-051",
         "method": "POST",
         "path": "/v1/company/enterprise-orders/{orderId}/remittance-review",
-        "requestDto": "EnterpriseRemittanceReviewRequest",
-        "responseDto": "EnterpriseOrderDetailResponse",
-        "errorCodes": "AMOUNT_MISMATCH|APPROVAL_VERSION_CONFLICT",
+        "requestDto": "EnterpriseRemittanceReviewRequestDto",
+        "responseDto": "EnterpriseRemittanceResponseDto",
+        "errorCodes": "AUTHENTICATION_REQUIRED|ACCESS_DENIED|ORDER_NOT_FOUND|FIELD_FORBIDDEN|VALIDATION_FAILED|IDEMPOTENCY_KEY_REQUIRED|AMOUNT_MISMATCH|PAYMENT_STATE_INVALID|IDEMPOTENCY_CONFLICT|APPROVAL_VERSION_CONFLICT",
         "p0Ids": [
           "P0-025",
           "P0-029"
@@ -5216,7 +6405,7 @@
         "p0Ids": [
           "P0-031"
         ],
-        "implementationStatus": "IMPLEMENTED_M3_P031"
+        "implementationStatus": "NOT_IMPLEMENTED"
       },
       {
         "contractId": "API-053",
@@ -5228,7 +6417,57 @@
         "p0Ids": [
           "P0-031"
         ],
-        "implementationStatus": "IMPLEMENTED_M3_P031"
+        "implementationStatus": "NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-101",
+        "method": "GET",
+        "path": "/v1/company/welfare-card/programs",
+        "requestDto": "None",
+        "responseDto": "WelfareProgramPageResponseDto",
+        "errorCodes": "AUTHENTICATION_REQUIRED|WORKSPACE_FORBIDDEN",
+        "p0Ids": [
+          "P0-051"
+        ],
+        "implementationStatus": "NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-102",
+        "method": "POST",
+        "path": "/v1/company/welfare-card/programs",
+        "requestDto": "CreateWelfareProgramRequestDto",
+        "responseDto": "WelfareProgramResponseDto",
+        "errorCodes": "FIELD_FORBIDDEN|PERSONAL_RECHARGE_FORBIDDEN|WELFARE_FUNDING_SOURCE_INVALID|IDEMPOTENCY_KEY_REQUIRED|IDEMPOTENCY_CONFLICT|DUPLICATE_OR_STATE_CONFLICT",
+        "p0Ids": [
+          "P0-051"
+        ],
+        "implementationStatus": "NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-103",
+        "method": "POST",
+        "path": "/v1/company/welfare-card/programs/{programId}/batches",
+        "requestDto": "CreateWelfareBatchRequestDto",
+        "responseDto": "WelfareBatchResponseDto",
+        "errorCodes": "WELFARE_PROGRAM_NOT_FOUND|WELFARE_BATCH_AMOUNT_MISMATCH|WELFARE_CLAIM_MODE_INVALID|IDEMPOTENCY_KEY_REQUIRED|IDEMPOTENCY_CONFLICT|DUPLICATE_OR_STATE_CONFLICT",
+        "p0Ids": [
+          "P0-051"
+        ],
+        "implementationStatus": "NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-104",
+        "method": "POST",
+        "path": "/v1/consumer/orders/{orderId}/welfare-card-full-payment",
+        "requestDto": "WelfareCardFullPaymentRequestDto",
+        "responseDto": "WelfareCardFullPaymentResponseDto",
+        "errorCodes": "AUTHENTICATION_REQUIRED|ACCOUNT_SUSPENDED|FIELD_FORBIDDEN|VALIDATION_FAILED|IDEMPOTENCY_KEY_REQUIRED|ORDER_NOT_FOUND|ACCESS_DENIED|WELFARE_CARD_NOT_ELIGIBLE|WELFARE_CARD_INSUFFICIENT_BALANCE|PAYMENT_IDEMPOTENCY_CONFLICT|PAYMENT_STATE_INVALID|PAYMENT_CONCURRENT_CONFLICT",
+        "p0Ids": [
+          "P0-055",
+          "P0-059",
+          "P0-092"
+        ],
+        "implementationStatus": "NOT_IMPLEMENTED"
       }
     ]
   },
@@ -5245,22 +6484,42 @@
     },
     {
       "migrationId": "MIG-012",
-      "purpose": "跨供应商订单",
+      "purpose": "跨供应商统一主订单与按supplierId履约拆分",
       "status": "PLANNED_NOT_CREATED"
     },
     {
       "migrationId": "MIG-013",
-      "purpose": "支付退款",
+      "purpose": "消费已批准退款快照，按原福利卡/微信支付结构退款并追加资金、库存、对账影响",
       "status": "PLANNED_NOT_CREATED"
     },
     {
       "migrationId": "MIG-014",
-      "purpose": "福利卡",
+      "purpose": "福利卡计划与DRAFT批次；账户/卡码/账本由后续切片新增迁移",
       "status": "PLANNED_NOT_CREATED"
     },
     {
       "migrationId": "MIG-015",
-      "purpose": "企业采购",
+      "purpose": "允许严格FREEZE/CAPTURE账本形状并保存每订单唯一、按消费者幂等域的不可变全额支付命令",
+      "status": "PLANNED_NOT_CREATED"
+    },
+    {
+      "migrationId": "MIG-012A",
+      "purpose": "微信预支付与回调幂等；支付成功原子确认订单、履约、共享库存与稳定outbox",
+      "status": "PLANNED_NOT_CREATED"
+    },
+    {
+      "migrationId": "MIG-012B",
+      "purpose": "企业对公转账凭证版本化；公司财务追加审核；确认公司应收并原子推进订单、库存、履约与outbox",
+      "status": "PLANNED_NOT_CREATED"
+    },
+    {
+      "migrationId": "MIG-015A",
+      "purpose": "供应商备货与渠道隔离移交",
+      "status": "PLANNED_NOT_CREATED"
+    },
+    {
+      "migrationId": "MIG-014A",
+      "purpose": "个人福利卡安全绑定、唯一账户、初始CLAIM账本与未知结果幂等恢复",
       "status": "PLANNED_NOT_CREATED"
     }
   ],
@@ -5719,7 +6978,7 @@
       "p0Id": "P0-055",
       "category": "INVALID_INPUT",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "LOCAL_PASS"
     },
     {
       "id": "NEG-M3-P055-02",
@@ -5727,7 +6986,7 @@
       "p0Id": "P0-055",
       "category": "UNAUTHORIZED_OR_WRONG_OWNER",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "LOCAL_PASS"
     },
     {
       "id": "NEG-M3-P055-03",
@@ -5735,7 +6994,7 @@
       "p0Id": "P0-055",
       "category": "DUPLICATE_OR_STATE_CONFLICT",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "LOCAL_PASS"
     },
     {
       "id": "NEG-M3-P056-01",
@@ -6575,7 +7834,30 @@
           "Order.externalPaymentMethod",
           "Order.paymentStatus",
           "Order.orderStatus",
-          "Order.idempotencyKey"
+          "Order.idempotencyKey",
+          "EnterpriseRemittanceSubmission.id",
+          "EnterpriseRemittanceSubmission.buyerOrderId",
+          "EnterpriseRemittanceSubmission.submissionVersion",
+          "EnterpriseRemittanceSubmission.amount",
+          "EnterpriseRemittanceSubmission.proofObjectKey",
+          "EnterpriseRemittanceSubmission.submittedByEnterpriseUserId",
+          "EnterpriseRemittanceSubmission.idempotencyKey",
+          "EnterpriseRemittanceSubmission.requestHash",
+          "EnterpriseRemittanceSubmission.status",
+          "EnterpriseRemittanceSubmission.version",
+          "EnterpriseRemittanceSubmission.submittedAt",
+          "EnterpriseRemittanceSubmission.reviewedAt",
+          "EnterpriseRemittanceReview.id",
+          "EnterpriseRemittanceReview.submissionId",
+          "EnterpriseRemittanceReview.decision",
+          "EnterpriseRemittanceReview.reviewedAmount",
+          "EnterpriseRemittanceReview.reason",
+          "EnterpriseRemittanceReview.reviewerFunctionalAccountId",
+          "EnterpriseRemittanceReview.reviewerIdentityId",
+          "EnterpriseRemittanceReview.idempotencyKey",
+          "EnterpriseRemittanceReview.requestHash",
+          "EnterpriseRemittanceReview.submissionVersion",
+          "EnterpriseRemittanceReview.createdAt"
         ],
         "pages": [],
         "apis": [
@@ -6612,9 +7894,48 @@
           "RefundTransaction.wechatRefundNo",
           "RefundTransaction.status",
           "RefundTransaction.notifyVerifiedAt",
-          "RefundTransaction.idempotencyKey"
+          "RefundTransaction.idempotencyKey",
+          "RefundAuthorization.id",
+          "RefundAuthorization.companyId",
+          "RefundAuthorization.orderId",
+          "RefundAuthorization.orderItemId",
+          "RefundAuthorization.approvedAmount",
+          "RefundAuthorization.approvedByIdentityType",
+          "RefundAuthorization.approvedByIdentityId",
+          "RefundAuthorization.status",
+          "RefundAuthorization.version",
+          "RefundAuthorization.approvedAt",
+          "RefundAuthorization.consumedAt",
+          "RefundAuthorization.createdAt",
+          "RefundTransaction.afterSaleId",
+          "RefundTransaction.requestHash",
+          "RefundTransaction.welfareChannelStatus",
+          "RefundTransaction.wechatChannelStatus",
+          "RefundTransaction.version",
+          "RefundTransaction.createdAt",
+          "RefundTransaction.updatedAt",
+          "RefundTransactionEvent.id",
+          "RefundTransactionEvent.refundTransactionId",
+          "RefundTransactionEvent.fromStatus",
+          "RefundTransactionEvent.toStatus",
+          "RefundTransactionEvent.event",
+          "RefundTransactionEvent.version",
+          "RefundTransactionEvent.snapshot",
+          "RefundTransactionEvent.actorType",
+          "RefundTransactionEvent.actorId",
+          "RefundTransactionEvent.requestId",
+          "RefundTransactionEvent.occurredAt",
+          "RefundImpactRecord.id",
+          "RefundImpactRecord.refundTransactionId",
+          "RefundImpactRecord.impactType",
+          "RefundImpactRecord.status",
+          "RefundImpactRecord.payload",
+          "RefundImpactRecord.createdAt",
+          "RefundImpactRecord.appliedAt"
         ],
-        "pages": [],
+        "pages": [
+          "PAGE-007"
+        ],
         "apis": [
           "API-043"
         ]
@@ -6725,7 +8046,19 @@
           "EnterpriseProcurementOrder.enterpriseAddressSnapshot",
           "EnterpriseProcurementOrder.paymentMethod",
           "EnterpriseProcurementOrder.remittanceReviewStatus",
-          "EnterpriseProcurementOrder.status"
+          "EnterpriseProcurementOrder.status",
+          "EnterpriseRemittanceSubmission.id",
+          "EnterpriseRemittanceSubmission.buyerOrderId",
+          "EnterpriseRemittanceSubmission.submissionVersion",
+          "EnterpriseRemittanceSubmission.amount",
+          "EnterpriseRemittanceSubmission.proofObjectKey",
+          "EnterpriseRemittanceSubmission.submittedByEnterpriseUserId",
+          "EnterpriseRemittanceSubmission.idempotencyKey",
+          "EnterpriseRemittanceSubmission.requestHash",
+          "EnterpriseRemittanceSubmission.status",
+          "EnterpriseRemittanceSubmission.version",
+          "EnterpriseRemittanceSubmission.submittedAt",
+          "EnterpriseRemittanceSubmission.reviewedAt"
         ],
         "pages": [],
         "apis": [
@@ -6786,7 +8119,8 @@
         "NEG-M3-P031-01",
         "NEG-M3-P031-02",
         "NEG-M3-P031-03"
-      ]
+      ],
+      "executionStatus": "CI_PASS"
     },
     {
       "taskId": "M3-P051",
@@ -6829,13 +8163,18 @@
         "pages": [
           "PAGE-008"
         ],
-        "apis": []
+        "apis": [
+          "API-101",
+          "API-102",
+          "API-103"
+        ]
       },
       "negativeTestIds": [
         "NEG-M3-P051-01",
         "NEG-M3-P051-02",
         "NEG-M3-P051-03"
-      ]
+      ],
+      "executionStatus": "CI_PASS"
     },
     {
       "taskId": "M3-P052",
@@ -6857,7 +8196,20 @@
           "WelfareCardAccount.balanceAmount",
           "WelfareCardAccount.frozenAmount",
           "WelfareCardAccount.status",
-          "WelfareCardAccount.version"
+          "WelfareCardAccount.version",
+          "WelfareCardLedger.id",
+          "WelfareCardLedger.accountId",
+          "WelfareCardLedger.orderId",
+          "WelfareCardLedger.refundId",
+          "WelfareCardLedger.businessType",
+          "WelfareCardLedger.direction",
+          "WelfareCardLedger.amount",
+          "WelfareCardLedger.beforeBalance",
+          "WelfareCardLedger.afterBalance",
+          "WelfareCardLedger.beforeFrozen",
+          "WelfareCardLedger.afterFrozen",
+          "WelfareCardLedger.idempotencyKey",
+          "WelfareCardLedger.occurredAt"
         ],
         "pages": [
           "PAGE-062",
@@ -6871,7 +8223,8 @@
         "NEG-M3-P052-01",
         "NEG-M3-P052-02",
         "NEG-M3-P052-03"
-      ]
+      ],
+      "executionStatus": "LOCAL_PASS"
     },
     {
       "taskId": "M3-P053",
@@ -6900,7 +8253,8 @@
         "NEG-M3-P053-01",
         "NEG-M3-P053-02",
         "NEG-M3-P053-03"
-      ]
+      ],
+      "executionStatus": "LOCAL_PASS"
     },
     {
       "taskId": "M3-P054",
@@ -6929,7 +8283,8 @@
         "NEG-M3-P054-01",
         "NEG-M3-P054-02",
         "NEG-M3-P054-03"
-      ]
+      ],
+      "executionStatus": "CI_PASS"
     },
     {
       "taskId": "M3-P055",
@@ -6955,16 +8310,29 @@
           "OrderPaymentAllocation.welfareCardAmount",
           "OrderPaymentAllocation.cashAmount",
           "OrderPaymentAllocation.allocationRuleVersion",
-          "OrderPaymentAllocation.createdAt"
+          "OrderPaymentAllocation.createdAt",
+          "WelfareCardPaymentCommand.id",
+          "WelfareCardPaymentCommand.companyId",
+          "WelfareCardPaymentCommand.consumerUserId",
+          "WelfareCardPaymentCommand.orderId",
+          "WelfareCardPaymentCommand.accountId",
+          "WelfareCardPaymentCommand.idempotencyKey",
+          "WelfareCardPaymentCommand.requestHash",
+          "WelfareCardPaymentCommand.requestId",
+          "WelfareCardPaymentCommand.responseSnapshot",
+          "WelfareCardPaymentCommand.createdAt"
         ],
         "pages": [],
-        "apis": []
+        "apis": [
+          "API-104"
+        ]
       },
       "negativeTestIds": [
         "NEG-M3-P055-01",
         "NEG-M3-P055-02",
         "NEG-M3-P055-03"
-      ]
+      ],
+      "executionStatus": "LOCAL_PASS"
     },
     {
       "taskId": "M3-P056",
@@ -7078,7 +8446,44 @@
           "RefundTransaction.wechatRefundNo",
           "RefundTransaction.status",
           "RefundTransaction.notifyVerifiedAt",
-          "RefundTransaction.idempotencyKey"
+          "RefundTransaction.idempotencyKey",
+          "RefundAuthorization.id",
+          "RefundAuthorization.companyId",
+          "RefundAuthorization.orderId",
+          "RefundAuthorization.orderItemId",
+          "RefundAuthorization.approvedAmount",
+          "RefundAuthorization.approvedByIdentityType",
+          "RefundAuthorization.approvedByIdentityId",
+          "RefundAuthorization.status",
+          "RefundAuthorization.version",
+          "RefundAuthorization.approvedAt",
+          "RefundAuthorization.consumedAt",
+          "RefundAuthorization.createdAt",
+          "RefundTransaction.afterSaleId",
+          "RefundTransaction.requestHash",
+          "RefundTransaction.welfareChannelStatus",
+          "RefundTransaction.wechatChannelStatus",
+          "RefundTransaction.version",
+          "RefundTransaction.createdAt",
+          "RefundTransaction.updatedAt",
+          "RefundTransactionEvent.id",
+          "RefundTransactionEvent.refundTransactionId",
+          "RefundTransactionEvent.fromStatus",
+          "RefundTransactionEvent.toStatus",
+          "RefundTransactionEvent.event",
+          "RefundTransactionEvent.version",
+          "RefundTransactionEvent.snapshot",
+          "RefundTransactionEvent.actorType",
+          "RefundTransactionEvent.actorId",
+          "RefundTransactionEvent.requestId",
+          "RefundTransactionEvent.occurredAt",
+          "RefundImpactRecord.id",
+          "RefundImpactRecord.refundTransactionId",
+          "RefundImpactRecord.impactType",
+          "RefundImpactRecord.status",
+          "RefundImpactRecord.payload",
+          "RefundImpactRecord.createdAt",
+          "RefundImpactRecord.appliedAt"
         ],
         "pages": [],
         "apis": [
@@ -7132,7 +8537,8 @@
           "PAGE-063"
         ],
         "apis": [
-          "API-040"
+          "API-040",
+          "API-104"
         ]
       },
       "negativeTestIds": [
@@ -7633,7 +9039,8 @@
         ],
         "apis": [
           "API-035",
-          "API-039"
+          "API-039",
+          "API-104"
         ]
       },
       "negativeTestIds": [
@@ -7726,7 +9133,44 @@
           "RefundTransaction.wechatRefundNo",
           "RefundTransaction.status",
           "RefundTransaction.notifyVerifiedAt",
-          "RefundTransaction.idempotencyKey"
+          "RefundTransaction.idempotencyKey",
+          "RefundAuthorization.id",
+          "RefundAuthorization.companyId",
+          "RefundAuthorization.orderId",
+          "RefundAuthorization.orderItemId",
+          "RefundAuthorization.approvedAmount",
+          "RefundAuthorization.approvedByIdentityType",
+          "RefundAuthorization.approvedByIdentityId",
+          "RefundAuthorization.status",
+          "RefundAuthorization.version",
+          "RefundAuthorization.approvedAt",
+          "RefundAuthorization.consumedAt",
+          "RefundAuthorization.createdAt",
+          "RefundTransaction.afterSaleId",
+          "RefundTransaction.requestHash",
+          "RefundTransaction.welfareChannelStatus",
+          "RefundTransaction.wechatChannelStatus",
+          "RefundTransaction.version",
+          "RefundTransaction.createdAt",
+          "RefundTransaction.updatedAt",
+          "RefundTransactionEvent.id",
+          "RefundTransactionEvent.refundTransactionId",
+          "RefundTransactionEvent.fromStatus",
+          "RefundTransactionEvent.toStatus",
+          "RefundTransactionEvent.event",
+          "RefundTransactionEvent.version",
+          "RefundTransactionEvent.snapshot",
+          "RefundTransactionEvent.actorType",
+          "RefundTransactionEvent.actorId",
+          "RefundTransactionEvent.requestId",
+          "RefundTransactionEvent.occurredAt",
+          "RefundImpactRecord.id",
+          "RefundImpactRecord.refundTransactionId",
+          "RefundImpactRecord.impactType",
+          "RefundImpactRecord.status",
+          "RefundImpactRecord.payload",
+          "RefundImpactRecord.createdAt",
+          "RefundImpactRecord.appliedAt"
         ],
         "pages": [
           "PAGE-060",

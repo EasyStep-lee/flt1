@@ -50,7 +50,7 @@ test('M3 money, order, inventory and privacy invariants are codeable and closed'
   assert.equal(freeze.dto.databaseEntityReturnedDirectly, false);
   assert.equal(freeze.dto.supplyPriceInBuyerResponses, false);
   const fields = freeze.fieldContract.entities.flatMap(({ entity, fields: rows }) => rows.map((field) => ({ entity, ...field })));
-  assert.equal(fields.length, 232);
+  assert.equal(fields.length, 302);
   assert.equal(fields.some((field) => /待M阶段冻结|待切片细化|String\/UUID|Enum\/String/u.test(`${field.type}|${field.format}|${field.p0Ids.join(',')}`)), false);
   const fieldByKey = new Map(fields.map((field) => [`${field.entity}.${field.name}`, field]));
   assert.equal(fieldByKey.get('ConsumerAddress.lat').type, 'Decimal(10,7)');
@@ -72,7 +72,7 @@ test('M3 client boundaries and negative behavior plans are explicit', async () =
   for (const required of ['PERSONAL_RECHARGE', 'NON_WECHAT_CONSUMER_CASH', 'DUPLICATE_CALLBACK', 'OUT_OF_ORDER_CALLBACK', 'REFUND_OVERPAID', 'CROSS_OWNER_ACCESS', 'SUPPLY_PRICE_LEAK', 'DIRECT_WX_REQUEST', 'PRIVATE_PUBLIC_CACHE', 'M3_DELIVERY_CREATION']) {
     assert.ok(categories.has(required), `missing negative category ${required}`);
   }
-  const implementedSlices = new Set(['M3-P031', 'M3-P051', 'M3-P052', 'M3-P053', 'M3-P054']);
+  const implementedSlices = new Set(['M3-P031', 'M3-P051', 'M3-P052', 'M3-P053', 'M3-P054', 'M3-P055']);
   const currentSlice = freeze.negativeTests.filter(({ taskId }) => implementedSlices.has(taskId));
   const deferred = freeze.negativeTests.filter(({ taskId }) => !implementedSlices.has(taskId));
   assert.equal(currentSlice.every(({ executionStatus }) => ['LOCAL_PASS', 'CI_PASS'].includes(executionStatus)), true);

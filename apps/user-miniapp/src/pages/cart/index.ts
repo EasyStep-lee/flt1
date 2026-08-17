@@ -48,6 +48,7 @@ interface UserMiniappApplication {
 
 const CART_STORAGE_KEY = 'fulishe.pendingCartItems';
 const COMMAND_STORAGE_KEY = 'fulishe.pendingOrderCommand';
+const PENDING_ORDER_STORAGE_KEY = 'fulishe.pendingBuyerOrder';
 const cents = (value: number): string => `¥${(value / 100).toFixed(2)}`;
 
 const normalizeItems = (value: unknown): readonly StoredCartItem[] => {
@@ -181,6 +182,7 @@ const pageDefinition = {
         body: { items: items.map(({ skuId, quantity }) => ({ skuId, quantity })) },
       });
       wx.removeStorageSync(COMMAND_STORAGE_KEY);
+      wx.setStorageSync(PENDING_ORDER_STORAGE_KEY, { orderId: response.orderId, totalAmount: response.totalAmount });
       this.setData({ state: 'success', orderNo: response.orderNo, message: '订单已由公司统一创建' });
     } catch {
       this.setData({
