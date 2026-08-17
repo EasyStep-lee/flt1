@@ -92,7 +92,7 @@ await upsertCsv('05-字段字典初始版.csv', ['Entity', 'Field'], [
   ...[
     ['id','String(36)','UUID v4'], ['companyId','String(36)','session-derived company'], ['consumerUserId','String(36)','session-derived consumer'],
     ['orderId','String(36)','owned consumer order UUID'], ['accountId','String(36)','selected owned account UUID'], ['idempotencyKey','String(128)','Idempotency-Key'],
-    ['requestHash','String(64)','SHA-256'], ['requestId','String(128)','request correlation id'], ['responseSnapshot','JSON','private DTO snapshot'], ['createdAt','DateTime','UTC ISO-8601'],
+    ['requestHash','String(64)','SHA-256'], ['requestId','String(128)','request correlation id'], ['responseSnapshot','Json','private DTO snapshot'], ['createdAt','DateTime','UTC ISO-8601'],
   ].map(([Field, SuggestedType, UnitOrFormat], index) => ({
     Entity: 'WelfareCardPaymentCommand', Field, RawDefinition: Field, Position: String(index + 1), SuggestedType, Required: 'YES', UnitOrFormat,
     Sensitivity: 'FINANCIAL', Visibility: '公司财务与必要业务职能；消费者仅接收响应白名单', ForbiddenExposure: '不得返回owner/hash/request内部字段或供应价',
@@ -149,11 +149,19 @@ await upsertCsv(path.join('data', '阶段门禁.csv'), ['Stage'], [{
 
 const freezePath = path.join(root, 'artifacts', 'verification', 'M3-000', 'm3-contract-freeze.json');
 const freeze = JSON.parse(await readFile(freezePath, 'utf8'));
+const completedNegativeEvidence = new Map([
+  ['M3-P031', 'CI_PASS'],
+  ['M3-P051', 'CI_PASS'],
+  ['M3-P052', 'LOCAL_PASS'],
+  ['M3-P053', 'LOCAL_PASS'],
+  ['M3-P054', 'CI_PASS'],
+  ['M3-P055', evidenceStatus],
+]);
 const visit = (value) => {
   if (Array.isArray(value)) for (const item of value) visit(item);
   else if (value && typeof value === 'object') {
     if (value.pageId === 'PAGE-056') value.implementationStatus = 'IMPLEMENTED_M3_P055_FULL_WELFARE_PAYMENT_PARTIAL';
-    if (String(value.id ?? '').startsWith('NEG-M3-P055-')) value.executionStatus = evidenceStatus;
+    if (completedNegativeEvidence.has(value.taskId)) value.executionStatus = completedNegativeEvidence.get(value.taskId);
     for (const child of Object.values(value)) visit(child);
   }
 };
@@ -169,7 +177,7 @@ status.github = { ...status.github,
   lastVerifiedPullRequestHead: ciRun ? commit : null,
   pullRequestCi: ciRun ? { status: 'CI_PASS', runId: Number(ciRun), jobId: Number(ciJob), runUrl: ciUrl, headSha: commit, completedAt: updatedAt } : { status: 'NOT_EXECUTED', runId: null, jobId: null, runUrl: null, headSha: null, completedAt: null },
   currentTaskDelivery: { taskId: 'M3-P055', issue: 107, issueUrl: 'https://github.com/EasyStep-lee/flt1/issues/107', branch: 'codex/m3-welfare-card-full-payment', baseCommit: p054Merge, verifiedHead: commit, status: ciRun ? 'CI_PASS_PENDING_HUMAN_MERGE' : 'LOCAL_PASS_PENDING_DRAFT_PR', localRedTest: 'API_4_OF_4_404;MINIAPP_2_PAYMENT_ACTION_MISSING', localFocusedTest: 'LOCAL_PASS_REPOSITORY_5_API_4_MINIAPP_6_MIGRATION_1_OPENAPI_1_P0_1', localFullVerify: fullVerify, pullRequest: pullRequest ? Number(pullRequest) : null, pullRequestState: pullRequest ? 'DRAFT' : 'NOT_CREATED', exactHeadCi: ciRun ? `CI_PASS_RUN_${ciRun}_JOB_${ciJob}` : 'NOT_EXECUTED', review: 'NOT_EXECUTED', merge: 'NOT_EXECUTED', mainPostMergeCi: 'NOT_EXECUTED', blockingExternalItem: 'REAL_WELFARE_PROGRAM_FUNDS_AND_DEVICE', nextTaskUnlocked: false },
-  previousTaskDelivery: { taskId: 'M3-P054', pullRequest: 106, pullRequestUrl: 'https://github.com/EasyStep-lee/flt1/pull/106', mergeCommit: p054Merge, mainPostMergeCiRun: Number(p054MainRun), mainPostMergeCiJob: Number(p054MainJob), status: 'CI_PASS' },
+  previousTaskDelivery: { taskId: 'M3-P054', pullRequest: 106, pullRequestUrl: 'https://github.com/EasyStep-lee/flt1/pull/106', exactHead: '0b6e9c63a474a39092d5151aac268acd3b478714', mergeCommit: p054Merge, mainPostMergeCiRun: Number(p054MainRun), mainPostMergeCiJob: Number(p054MainJob), status: 'CI_PASS' },
   note: `M3-P055福利卡全额支付${ciRun ? ' Draft PR精确head CI_PASS' : ' LOCAL_PASS'}；真实资金/真机/staging/device/production未执行；M3-P056锁定。`,
 };
 status.evidence = { local: fullVerify === 'PASS_17_OF_17' ? 'LOCAL_PASS_M3_P055_FULL_VERIFY' : 'LOCAL_FOCUSED_PASS_FULL_VERIFY_NOT_EXECUTED', ci: ciRun ? `CI_PASS_M3_P055_HEAD_${commit.slice(0, 7)}` : 'NOT_EXECUTED', staging: 'NOT_EXECUTED', device: 'NOT_EXECUTED', production: 'NOT_EXECUTED' };

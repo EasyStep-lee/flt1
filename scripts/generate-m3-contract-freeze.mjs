@@ -132,7 +132,7 @@ const m3Fields = fields
   if (!mappedP0?.length) throw new Error(`M3_FIELD_P0_MISSING:${row.Entity}.${row.Field}`);
   return { entity: row.Entity, name: row.Field, type, required: row.Required === 'YES', format: resolveFormat(row, type), sensitivity: row.Sensitivity, visibility: row.Visibility, forbiddenExposure: row.ForbiddenExposure, validation: resolveValidation(row), historyRule: row.HistoryRule, p0Ids: mappedP0 };
 });
-if (m3Fields.length !== 292) throw new Error(`M3_FIELD_COUNT:${m3Fields.length}`);
+if (m3Fields.length !== 302) throw new Error(`M3_FIELD_COUNT:${m3Fields.length}`);
 const groupedFields = [...new Set(m3Fields.map(({ entity }) => entity))].map((entity) => ({
   entity,
   fields: m3Fields
