@@ -4,7 +4,7 @@
 
 - 阶段：M3；任务：M3-P055；主验收：P0-055，关联 P0-023、P0-024、P0-025、P0-059、P0-092。
 - 唯一目标：消费者为本人待支付订单选择一个本人福利卡账户；当该账户对订单全部商品适用且可用余额覆盖订单总额时，在一个可重放事务内完成福利卡冻结、实扣、订单支付确认、分摊、共享库存确认、供应商履约激活和稳定支付 outbox。
-- API：API-092 `POST /v1/consumer/orders/{orderId}/welfare-card-full-payment`；页面：PAGE-056 确认订单。
+- API：API-104 `POST /v1/consumer/orders/{orderId}/welfare-card-full-payment`；页面：PAGE-056 确认订单。
 - 非目标：微信预支付、福利卡加微信混合支付、支付取消或超时解冻、退款、个人充值、企业福利卡支付、配送任务和 M4。
 
 ## 请求、身份与金额

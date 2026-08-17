@@ -4,7 +4,7 @@ import test from 'node:test';
 
 const document = JSON.parse(readFileSync(new URL('../../packages/contracts/openapi.json', import.meta.url), 'utf8'));
 
-test('API-092 freezes one owner-derived account-only welfare full-payment command with a zero external payable response', () => {
+test('API-104 freezes one owner-derived account-only welfare full-payment command with a zero external payable response', () => {
   const operation = document.paths['/v1/consumer/orders/{orderId}/welfare-card-full-payment'].post;
   assert.equal(operation.operationId, 'consumerWelfareCard.payFullOrder');
   assert.equal(operation.parameters.find(({ in: location, name }) => location === 'header' && name === 'Idempotency-Key')?.required, true);
