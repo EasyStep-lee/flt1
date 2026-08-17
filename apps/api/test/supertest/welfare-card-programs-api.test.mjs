@@ -166,4 +166,33 @@ describe('M3-P051 welfare-card program and batch API', () => {
     expect(repository.snapshot().batches).toHaveLength(1);
     expect(JSON.stringify(first.body)).not.toMatch(/companyId|enterpriseCustomerId|identityId|functionalAccountId|supplier/iu);
   });
+
+  it('accepts the versioned composite scope and rejects malformed lists before any repository write', async () => {
+    const { app, repository } = await fixture();
+    const compositeRules = {
+      schemaVersion: 2,
+      categoryIncludedIds: ['10000000-0000-4000-8000-000000000001'],
+      productIncludedIds: [],
+      skuIncludedIds: [],
+      categoryExcludedIds: [],
+      productExcludedIds: ['20000000-0000-4000-8000-000000000001'],
+      skuExcludedIds: [],
+    };
+    const composite = { ...planBody, name: '组合适用范围计划', scopeType: 'COMPOSITE', scopeRules: compositeRules };
+    const created = await request(app.getHttpServer()).post('/v1/company/welfare-card/programs')
+      .set('Idempotency-Key', 'composite-scope-valid').send(composite).expect(201);
+    expect(created.body).toMatchObject({ scopeType: 'COMPOSITE', scopeRules: compositeRules });
+
+    const duplicate = { ...compositeRules, productExcludedIds: [compositeRules.productExcludedIds[0], compositeRules.productExcludedIds[0]] };
+    await request(app.getHttpServer()).post('/v1/company/welfare-card/programs')
+      .set('Idempotency-Key', 'composite-scope-duplicate').send({ ...composite, name: '重复规则计划', scopeRules: duplicate })
+      .expect(422).expect(({ body }) => expect(body.code).toBe('VALIDATION_FAILED'));
+    await request(app.getHttpServer()).post('/v1/company/welfare-card/programs')
+      .set('Idempotency-Key', 'composite-scope-unknown').send({
+        ...composite,
+        name: '未知字段计划',
+        scopeRules: { ...compositeRules, clientOwnedRule: true },
+      }).expect(422).expect(({ body }) => expect(body.code).toBe('VALIDATION_FAILED'));
+    expect(repository.snapshot().programs).toHaveLength(1);
+  });
 });

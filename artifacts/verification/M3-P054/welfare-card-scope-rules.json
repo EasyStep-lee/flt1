@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "taskId": "M3-P054",
+  "p0": [
+    "P0-054",
+    "P0-092_PARTIAL"
+  ],
+  "status": "LOCAL_PASS",
+  "commit": "236285071ec6601b175cadaca341b0e46950d73d",
+  "updatedAt": "2026-08-17T00:24:36.414Z",
+  "baselineSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+  "scope": "server-owned composite welfare-card scope evaluation and three-page consistent presentation",
+  "red": [
+    "API_COMPOSITE_ACCOUNT_MISSING",
+    "MINIAPP_PRODUCT_DETAIL_SCOPE_UNDEFINED",
+    "MINIAPP_CART_SCOPE_UNDEFINED",
+    "MINIAPP_CHECKOUT_SCOPE_UNDEFINED"
+  ],
+  "focused": [
+    "API_8_OF_8",
+    "OPENAPI_2_OF_2",
+    "MINIAPP_26_OF_26",
+    "P0_CHROMIUM_1_OF_1"
+  ],
+  "fullVerify": "NOT_EXECUTED",
+  "migrations": "NOT_REQUIRED_JSON_SCHEMA_V2_BACKWARD_COMPATIBLE",
+  "boundaries": {
+    "moneyMutation": false,
+    "ledgerWrite": false,
+    "payment": false,
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_EXECUTED",
+    "production": "NOT_EXECUTED"
+  },
+  "github": {
+    "issue": 105,
+    "pullRequest": null,
+    "ciRun": null
+  }
+}

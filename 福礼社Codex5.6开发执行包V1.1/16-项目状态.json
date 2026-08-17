@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-16T13:17:32.292Z",
+  "updatedAt": "2026-08-17T00:24:36.414Z",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -14,15 +14,15 @@
   "execution": {
     "status": "M3_IN_PROGRESS",
     "currentStage": "M3",
-    "currentTask": "M3-P053",
-    "nextAllowedTask": "M3-P053",
+    "currentTask": "M3-P054",
+    "nextAllowedTask": "M3-P054",
     "activeTaskCount": 1,
-    "lastCompletedTask": "M3-P052",
-    "lastCompletedCommit": "b186f6b680727318ddeb4d6573bcfa4090d2ad8b",
+    "lastCompletedTask": "M3-P053",
+    "lastCompletedCommit": "236285071ec6601b175cadaca341b0e46950d73d",
     "lastPassedGate": "M2-GATE",
     "prohibitedUntilGate": [
-      "M3-P053 Draft PR精确head CI成功、人工合并且post-merge main CI成功前不得开始M3-P054",
-      "真实福利卡资金/真机/staging/production未完成；M4及后续保持锁定"
+      "M3-P054 Draft PR精确head CI成功、人工合并且post-merge main CI成功前不得开始M3-P055",
+      "真实福利卡计划/商品/真机/staging/production未完成；M4及后续保持锁定"
     ],
     "persistentRestrictions": [
       "M3-GATE通过前M4及以后阶段保持LOCKED/NOT_EXECUTED",
@@ -80,39 +80,39 @@
       "completedAt": "2026-08-16T02:47:35.508Z"
     },
     "currentTaskDelivery": {
-      "taskId": "M3-P053",
-      "issue": 103,
-      "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/103",
-      "branch": "codex/m3-welfare-card-account-selection",
-      "baseCommit": "b186f6b680727318ddeb4d6573bcfa4090d2ad8b",
-      "verifiedHead": "e1df027d53f2980e418e118bed22d15aa0832601",
+      "taskId": "M3-P054",
+      "issue": 105,
+      "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/105",
+      "branch": "codex/m3-welfare-card-scope-rules",
+      "baseCommit": "236285071ec6601b175cadaca341b0e46950d73d",
+      "verifiedHead": "236285071ec6601b175cadaca341b0e46950d73d",
       "status": "LOCAL_PASS_PENDING_DRAFT_PR",
-      "localRedTest": "API_3_OF_3_HTTP_404;OPENAPI_PATH_MISSING;MINIAPP_3_OF_3_PAGE_MISSING",
-      "localFocusedTest": "LOCAL_PASS_API_3_PRISMA_1_OPENAPI_1_MINIAPP_3_P0_1",
-      "localFullVerify": "PASS_17_OF_17",
+      "localRedTest": "API_COMPOSITE_ACCOUNT_MISSING;MINIAPP_3_SCOPE_HINTS_UNDEFINED",
+      "localFocusedTest": "LOCAL_PASS_API_8_OPENAPI_2_MINIAPP_26_P0_1",
+      "localFullVerify": "NOT_EXECUTED",
       "pullRequest": null,
       "pullRequestState": "NOT_CREATED",
       "exactHeadCi": "NOT_EXECUTED",
       "review": "NOT_EXECUTED",
       "merge": "NOT_EXECUTED",
       "mainPostMergeCi": "NOT_EXECUTED",
-      "blockingExternalItem": "EXT-012_REAL_CARD_ISSUANCE_AND_DEVICE_SCAN",
+      "blockingExternalItem": "REAL_WELFARE_PROGRAM_PRODUCT_AND_DEVICE_DATA",
       "nextTaskUnlocked": false
     },
     "previousTaskDelivery": {
-      "taskId": "M3-P052",
-      "pullRequest": 102,
-      "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/102",
-      "exactHead": "d1143daac1658aa0876642525cc481b30437eed7",
-      "mergeCommit": "b186f6b680727318ddeb4d6573bcfa4090d2ad8b",
-      "mainPostMergeCiRun": 31946062202,
-      "mainPostMergeCiJob": 95162089803,
+      "taskId": "M3-P053",
+      "pullRequest": 104,
+      "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/104",
+      "exactHead": "24f1a03be05820970503a6af4a9b5492e252d3da",
+      "mergeCommit": "236285071ec6601b175cadaca341b0e46950d73d",
+      "mainPostMergeCiRun": 31980331613,
+      "mainPostMergeCiJob": 95245932370,
       "status": "CI_PASS"
     },
-    "note": "M3-P053福利卡账户选择 LOCAL_PASS；实际资金、真机、staging/device/production未执行；M3-P054锁定。"
+    "note": "M3-P054福利卡适用范围 LOCAL_PASS；真实计划/商品、真机、staging/device/production未执行；M3-P055锁定。"
   },
   "evidence": {
-    "local": "LOCAL_PASS_M3_P053_FULL_VERIFY",
+    "local": "LOCAL_FOCUSED_PASS_FULL_VERIFY_NOT_EXECUTED",
     "ci": "NOT_EXECUTED",
     "staging": "NOT_EXECUTED",
     "device": "NOT_EXECUTED",

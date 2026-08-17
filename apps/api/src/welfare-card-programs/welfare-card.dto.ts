@@ -1,15 +1,21 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class WelfareScopeRulesDto {
-  @ApiProperty({ enum: [1], type: Number }) readonly schemaVersion!: 1;
-  @ApiProperty({ items: { format: 'uuid', type: 'string' }, type: 'array' }) readonly includedIds!: readonly string[];
-  @ApiProperty({ items: { format: 'uuid', type: 'string' }, type: 'array' }) readonly excludedIds!: readonly string[];
+  @ApiProperty({ enum: [1, 2], type: Number }) readonly schemaVersion!: 1 | 2;
+  @ApiPropertyOptional({ items: { format: 'uuid', type: 'string' }, type: 'array' }) readonly includedIds?: readonly string[];
+  @ApiPropertyOptional({ items: { format: 'uuid', type: 'string' }, type: 'array' }) readonly excludedIds?: readonly string[];
+  @ApiPropertyOptional({ items: { format: 'uuid', type: 'string' }, type: 'array' }) readonly categoryIncludedIds?: readonly string[];
+  @ApiPropertyOptional({ items: { format: 'uuid', type: 'string' }, type: 'array' }) readonly productIncludedIds?: readonly string[];
+  @ApiPropertyOptional({ items: { format: 'uuid', type: 'string' }, type: 'array' }) readonly skuIncludedIds?: readonly string[];
+  @ApiPropertyOptional({ items: { format: 'uuid', type: 'string' }, type: 'array' }) readonly categoryExcludedIds?: readonly string[];
+  @ApiPropertyOptional({ items: { format: 'uuid', type: 'string' }, type: 'array' }) readonly productExcludedIds?: readonly string[];
+  @ApiPropertyOptional({ items: { format: 'uuid', type: 'string' }, type: 'array' }) readonly skuExcludedIds?: readonly string[];
 }
 
 export class CreateWelfareProgramRequestDto {
   @ApiProperty({ maxLength: 191, minLength: 2, type: String }) readonly name!: string;
   @ApiProperty({ enum: ['ENTERPRISE_GRANT', 'COMPANY_GIFT', 'PHYSICAL_CARD_OR_CODE'], type: String }) readonly fundingType!: string;
-  @ApiProperty({ enum: ['ALL_PRODUCTS', 'CATEGORY', 'PRODUCT', 'SKU'], type: String }) readonly scopeType!: string;
+  @ApiProperty({ enum: ['ALL_PRODUCTS', 'CATEGORY', 'PRODUCT', 'SKU', 'COMPOSITE'], type: String }) readonly scopeType!: string;
   @ApiProperty({ type: WelfareScopeRulesDto }) readonly scopeRules!: WelfareScopeRulesDto;
   @ApiProperty({ type: Boolean }) readonly canPayDeliveryFee!: boolean;
   @ApiProperty({ maxLength: 500, minLength: 2, type: String }) readonly refundPolicy!: string;
@@ -50,7 +56,7 @@ export class WelfareProgramResponseDto {
   @ApiProperty({ type: String }) readonly name!: string;
   @ApiProperty({ enum: ['ENTERPRISE_GRANT', 'COMPANY_GIFT', 'PHYSICAL_CARD_OR_CODE'], type: String }) readonly fundingType!: string;
   @ApiProperty({ enum: ['COMPANY'], type: String }) readonly issuerType!: 'COMPANY';
-  @ApiProperty({ enum: ['ALL_PRODUCTS', 'CATEGORY', 'PRODUCT', 'SKU'], type: String }) readonly scopeType!: string;
+  @ApiProperty({ enum: ['ALL_PRODUCTS', 'CATEGORY', 'PRODUCT', 'SKU', 'COMPOSITE'], type: String }) readonly scopeType!: string;
   @ApiProperty({ type: WelfareScopeRulesDto }) readonly scopeRules!: WelfareScopeRulesDto;
   @ApiProperty({ type: Boolean }) readonly canPayDeliveryFee!: boolean;
   @ApiProperty({ type: String }) readonly refundPolicy!: string;
@@ -96,6 +102,21 @@ export class WelfareCardEligibilityQueryDto {
   readonly quantity!: readonly number[];
 }
 
+export class WelfareItemApplicabilityResponseDto {
+  @ApiProperty({ format: 'uuid', type: String }) readonly skuId!: string;
+  @ApiProperty({ type: Boolean }) readonly eligible!: boolean;
+  @ApiProperty({ description: 'Server-priced eligible line amount in integer cents', minimum: 0, type: Number }) readonly eligibleAmount!: number;
+  @ApiProperty({
+    enum: ['ALL_PRODUCTS', 'DEFAULT_INCLUDED', 'CATEGORY_INCLUDED', 'PRODUCT_INCLUDED', 'SKU_INCLUDED', 'CATEGORY_EXCLUDED', 'PRODUCT_EXCLUDED', 'SKU_EXCLUDED', 'OUTSIDE_WHITELIST'],
+    type: String,
+  }) readonly reason!: string;
+}
+
+export class WelfareDeliveryFeeApplicabilityResponseDto {
+  @ApiProperty({ type: Boolean }) readonly eligible!: boolean;
+  @ApiProperty({ description: 'Server-owned eligible delivery fee in integer cents', minimum: 0, type: Number }) readonly eligibleAmount!: number;
+}
+
 export class EligibleWelfareAccountResponseDto {
   @ApiProperty({ format: 'uuid', type: String }) readonly id!: string;
   @ApiProperty({ type: String }) readonly programName!: string;
@@ -105,8 +126,10 @@ export class EligibleWelfareAccountResponseDto {
   @ApiProperty({ description: 'Integer cents', minimum: 0, type: Number }) readonly availableAmount!: number;
   @ApiProperty({ enum: ['ACTIVE'], type: String }) readonly status!: 'ACTIVE';
   @ApiProperty({ minimum: 0, type: Number }) readonly version!: number;
-  @ApiProperty({ enum: ['ALL_PRODUCTS', 'CATEGORY', 'PRODUCT', 'SKU'], type: String }) readonly scopeType!: string;
+  @ApiProperty({ enum: ['ALL_PRODUCTS', 'CATEGORY', 'PRODUCT', 'SKU', 'COMPOSITE'], type: String }) readonly scopeType!: string;
   @ApiProperty({ type: String }) readonly scopeDescription!: string;
+  @ApiProperty({ type: () => [WelfareItemApplicabilityResponseDto] }) readonly itemApplicability!: readonly WelfareItemApplicabilityResponseDto[];
+  @ApiProperty({ type: () => WelfareDeliveryFeeApplicabilityResponseDto }) readonly deliveryFeeApplicability!: WelfareDeliveryFeeApplicabilityResponseDto;
   @ApiProperty({ description: 'Server-priced eligible amount in integer cents', minimum: 0, type: Number }) readonly eligibleAmount!: number;
   @ApiProperty({ description: 'min(availableAmount, eligibleAmount) in integer cents', minimum: 0, type: Number }) readonly maximumDeductibleAmount!: number;
 }

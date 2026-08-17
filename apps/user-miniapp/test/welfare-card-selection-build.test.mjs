@@ -18,6 +18,11 @@ const response = {
     balanceAmount: 8_000, frozenAmount: 1_000, availableAmount: 7_000, status: 'ACTIVE', version: 0,
     scopeType: 'ALL_PRODUCTS', scopeDescription: '全部商品可用，不含配送费', eligibleAmount: 7_000,
     maximumDeductibleAmount: 7_000,
+    itemApplicability: [
+      { skuId: cartItems[0].skuId, eligible: true, eligibleAmount: 4_000, reason: 'ALL_PRODUCTS' },
+      { skuId: cartItems[1].skuId, eligible: false, eligibleAmount: 0, reason: 'PRODUCT_EXCLUDED' },
+    ],
+    deliveryFeeApplicability: { eligible: false, eligibleAmount: 0 },
   }],
 };
 
@@ -71,6 +76,17 @@ test('P0-053 checkout selects exactly one account or none and never accepts a ma
   const template = readFileSync(path.join(packageRoot, 'dist', 'pages', 'checkout', 'index.wxml'), 'utf8');
   assert.doesNotMatch(template, /<input[^>]*(?:amount|抵扣)/iu);
   assert.match(template, /不使用福利卡/u);
+});
+
+test('P0-054 checkout renders the same server line reasons and delivery-fee rule without client rule fields', async () => {
+  const runtime = loadPage();
+  await runtime.definition.onLoad.call(runtime.definition);
+  assert.equal(runtime.definition.data.accounts[0].itemApplicability[0].eligibilityLabel, '福利卡可用');
+  assert.equal(runtime.definition.data.accounts[0].itemApplicability[1].eligibilityLabel, '商品黑名单不可用');
+  assert.equal(runtime.definition.data.accounts[0].deliveryFeeApplicability.label, '配送费不可用福利卡');
+  const template = readFileSync(path.join(packageRoot, 'dist', 'pages', 'checkout', 'index.wxml'), 'utf8');
+  assert.match(template, /itemApplicability|deliveryFeeApplicability/iu);
+  assert.doesNotMatch(JSON.stringify(runtime.definition.data), /scopeRules|categoryIncludedIds|productExcludedIds/iu);
 });
 
 test('PAGE-056 exposes loading, empty, error, permission, offline and success states without payment claims', async () => {

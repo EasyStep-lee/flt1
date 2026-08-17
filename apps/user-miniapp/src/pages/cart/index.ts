@@ -1,3 +1,5 @@
+import { MiniappTransportError } from '@fulishe/miniapp-kit';
+
 import { requestAdapter } from '../../request-adapter.js';
 
 type CartState = 'empty' | 'error' | 'loading' | 'ready' | 'submitting' | 'success' | 'unknown';
@@ -11,10 +13,16 @@ interface StoredCartItem {
   readonly retailSalePrice: number;
 }
 
+interface CartDisplayItem extends StoredCartItem {
+  readonly priceLabel: string;
+  readonly lineAmountLabel: string;
+  readonly welfareEligibilityLabel: string;
+}
+
 interface CartGroup {
   readonly supplierId: string;
   readonly supplierLabel: string;
-  readonly items: readonly (StoredCartItem & { readonly priceLabel: string; readonly lineAmountLabel: string })[];
+  readonly items: readonly CartDisplayItem[];
 }
 
 interface CartPageData {
@@ -29,7 +37,8 @@ interface CartPageData {
 interface CartPageInstance {
   readonly data: CartPageData;
   setData(patch: Partial<CartPageData>): void;
-  loadCart(): void;
+  loadCart(): Promise<void>;
+  loadWelfareEligibility(items: readonly StoredCartItem[]): Promise<void>;
   submitOrder(): Promise<void>;
 }
 
@@ -77,6 +86,9 @@ const idempotencyKey = (items: readonly StoredCartItem[]): string => {
   wx.setStorageSync(COMMAND_STORAGE_KEY, { key, signature: currentSignature });
   return key;
 };
+const eligibilityQuery = (items: readonly StoredCartItem[]): string => items
+  .flatMap(({ skuId, quantity }) => [`skuId=${encodeURIComponent(skuId)}`, `quantity=${quantity}`])
+  .join('&');
 
 const pageDefinition = {
   data: {
@@ -88,11 +100,11 @@ const pageDefinition = {
     orderNo: '',
   },
 
-  onLoad(this: CartPageInstance): void {
-    this.loadCart();
+  async onLoad(this: CartPageInstance): Promise<void> {
+    await this.loadCart();
   },
 
-  loadCart(this: CartPageInstance): void {
+  async loadCart(this: CartPageInstance): Promise<void> {
     const items = normalizeItems(wx.getStorageSync<unknown>(CART_STORAGE_KEY));
     if (items.length === 0) {
       this.setData({ state: 'empty', groups: [], totalAmountLabel: cents(0), message: '购物车暂无商品' });
@@ -104,6 +116,7 @@ const pageDefinition = {
         ...item,
         priceLabel: cents(item.retailSalePrice),
         lineAmountLabel: cents(item.retailSalePrice * item.quantity),
+        welfareEligibilityLabel: '正在判断福利卡适用范围…',
       };
       const group = grouped.get(item.supplierId);
       grouped.set(item.supplierId, {
@@ -114,13 +127,46 @@ const pageDefinition = {
     }
     const total = items.reduce((sum, item) => sum + item.retailSalePrice * item.quantity, 0);
     this.setData({ state: 'ready', groups: [...grouped.values()], totalAmountLabel: cents(total), message: '' });
+    await this.loadWelfareEligibility(items);
+  },
+
+  async loadWelfareEligibility(this: CartPageInstance, items: readonly StoredCartItem[]): Promise<void> {
+    try {
+      const application = getApp<UserMiniappApplication>();
+      const baseUrl = application.globalData.apiBaseUrl.replace(/\/$/u, '');
+      const response = await requestAdapter.execute('consumerWelfareCard.listEligibleAccounts', {
+        method: 'GET',
+        url: `${baseUrl}/v1/consumer/welfare-card-accounts/eligible?${eligibilityQuery(items)}`,
+      });
+      const eligibleSkuIds = new Set(response.accounts.flatMap((account) => account.itemApplicability)
+        .filter(({ eligible }) => eligible)
+        .map(({ skuId }) => skuId));
+      this.setData({
+        groups: this.data.groups.map((group) => ({
+          ...group,
+          items: group.items.map((item) => ({
+            ...item,
+            welfareEligibilityLabel: eligibleSkuIds.has(item.skuId) ? '福利卡可用' : '当前福利卡账户不可用',
+          })),
+        })),
+      });
+    } catch (error) {
+      const permission = error instanceof MiniappTransportError && (error.statusCode === 401 || error.statusCode === 403);
+      const label = permission ? '登录后查看福利卡适用范围' : '福利卡适用范围暂时无法判断';
+      this.setData({
+        groups: this.data.groups.map((group) => ({
+          ...group,
+          items: group.items.map((item) => ({ ...item, welfareEligibilityLabel: label })),
+        })),
+      });
+    }
   },
 
   async submitOrder(this: CartPageInstance): Promise<void> {
     if (this.data.state !== 'ready' && this.data.state !== 'unknown') return;
     const items = normalizeItems(wx.getStorageSync<unknown>(CART_STORAGE_KEY));
     if (items.length === 0) {
-      this.loadCart();
+      await this.loadCart();
       return;
     }
     this.setData({ state: 'submitting', message: '正在由公司统一创建订单，请勿重复提交' });

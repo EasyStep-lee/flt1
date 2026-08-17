@@ -14,6 +14,7 @@
         <view class="product-main">
           <view class="product-name">{{product.productName}}</view>
           <view class="product-price">{{product.priceLabel}} × {{product.quantity}}</view>
+          <view class="product-welfare">{{product.welfareEligibilityLabel}}</view>
         </view>
         <view class="line-amount">{{product.lineAmountLabel}}</view>
       </view>

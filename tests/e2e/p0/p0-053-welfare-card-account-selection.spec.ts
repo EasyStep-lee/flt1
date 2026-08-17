@@ -38,6 +38,11 @@ test('P0-053 built checkout selects one server-qualified welfare account or none
             status: 'ACTIVE', version: 0, scopeType: 'ALL_PRODUCTS',
             scopeDescription: '全部商品可用，不含配送费', eligibleAmount: 7_000,
             maximumDeductibleAmount: 7_000,
+            itemApplicability: [
+              { skuId: '40000000-0000-4000-8000-000000000001', eligible: true, eligibleAmount: 4_000, reason: 'ALL_PRODUCTS' },
+              { skuId: '40000000-0000-4000-8000-000000000002', eligible: false, eligibleAmount: 0, reason: 'PRODUCT_EXCLUDED' },
+            ],
+            deliveryFeeApplicability: { eligible: false, eligibleAmount: 0 },
           }],
         } });
       },
@@ -52,6 +57,11 @@ test('P0-053 built checkout selects one server-qualified welfare account or none
   expect(page.data).toMatchObject({ state: 'success', goodsAmountLabel: '¥70.00', totalAmountLabel: '¥70.00' });
   expect(page.data.accounts[0]).toMatchObject({
     maskedCardNo: '****0001', availableLabel: '¥70.00', eligibleLabel: '¥70.00', maximumDeductibleLabel: '¥70.00',
+    itemApplicability: [
+      expect.objectContaining({ eligibilityLabel: '福利卡可用' }),
+      expect.objectContaining({ eligibilityLabel: '商品黑名单不可用' }),
+    ],
+    deliveryFeeApplicability: expect.objectContaining({ label: '配送费不可用福利卡' }),
   });
   expect(requests).toHaveLength(1);
   expect(requests[0]?.method).toBe('GET');

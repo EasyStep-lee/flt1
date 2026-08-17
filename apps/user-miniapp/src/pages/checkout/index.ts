@@ -19,13 +19,24 @@ interface EligibleAccount {
   readonly scopeDescription: string;
   readonly eligibleAmount: number;
   readonly maximumDeductibleAmount: number;
+  readonly itemApplicability: readonly {
+    readonly skuId: string;
+    readonly eligible: boolean;
+    readonly eligibleAmount: number;
+    readonly reason: WelfareReason;
+  }[];
+  readonly deliveryFeeApplicability: { readonly eligible: boolean; readonly eligibleAmount: number };
 }
 
-interface DisplayAccount extends EligibleAccount {
+type WelfareReason = 'ALL_PRODUCTS' | 'DEFAULT_INCLUDED' | 'CATEGORY_INCLUDED' | 'PRODUCT_INCLUDED' | 'SKU_INCLUDED' | 'CATEGORY_EXCLUDED' | 'PRODUCT_EXCLUDED' | 'SKU_EXCLUDED' | 'OUTSIDE_WHITELIST';
+
+interface DisplayAccount extends Omit<EligibleAccount, 'deliveryFeeApplicability' | 'itemApplicability'> {
   readonly balanceLabel: string;
   readonly availableLabel: string;
   readonly eligibleLabel: string;
   readonly maximumDeductibleLabel: string;
+  readonly itemApplicability: readonly (EligibleAccount['itemApplicability'][number] & { readonly eligibilityLabel: string })[];
+  readonly deliveryFeeApplicability: EligibleAccount['deliveryFeeApplicability'] & { readonly label: string };
 }
 
 interface CheckoutData {
@@ -68,12 +79,35 @@ const cartItems = (): readonly StoredCartItem[] => {
 const eligibilityQuery = (items: readonly StoredCartItem[]): string => items
   .flatMap(({ skuId, quantity }) => [`skuId=${encodeURIComponent(skuId)}`, `quantity=${quantity}`])
   .join('&');
+const reasonLabel = (reason: WelfareReason, eligible: boolean): string => {
+  if (eligible) return '福利卡可用';
+  const labels: Record<WelfareReason, string> = {
+    ALL_PRODUCTS: '福利卡可用',
+    DEFAULT_INCLUDED: '福利卡可用',
+    CATEGORY_INCLUDED: '福利卡可用',
+    PRODUCT_INCLUDED: '福利卡可用',
+    SKU_INCLUDED: '福利卡可用',
+    CATEGORY_EXCLUDED: '分类黑名单不可用',
+    PRODUCT_EXCLUDED: '商品黑名单不可用',
+    SKU_EXCLUDED: '规格黑名单不可用',
+    OUTSIDE_WHITELIST: '不在适用白名单',
+  };
+  return labels[reason];
+};
 const displayAccount = (account: EligibleAccount): DisplayAccount => ({
   ...account,
   balanceLabel: cents(account.balanceAmount),
   availableLabel: cents(account.availableAmount),
   eligibleLabel: cents(account.eligibleAmount),
   maximumDeductibleLabel: cents(account.maximumDeductibleAmount),
+  itemApplicability: account.itemApplicability.map((item) => ({
+    ...item,
+    eligibilityLabel: reasonLabel(item.reason, item.eligible),
+  })),
+  deliveryFeeApplicability: {
+    ...account.deliveryFeeApplicability,
+    label: account.deliveryFeeApplicability.eligible ? '配送费可用福利卡' : '配送费不可用福利卡',
+  },
 });
 
 const pageDefinition = {

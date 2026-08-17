@@ -1815,7 +1815,8 @@
               "ALL_PRODUCTS",
               "CATEGORY",
               "PRODUCT",
-              "SKU"
+              "SKU",
+              "COMPOSITE"
             ],
             "type": "string"
           }
@@ -1874,6 +1875,9 @@
             "minimum": 0,
             "type": "number"
           },
+          "deliveryFeeApplicability": {
+            "$ref": "#/components/schemas/WelfareDeliveryFeeApplicabilityResponseDto"
+          },
           "eligibleAmount": {
             "description": "Server-priced eligible amount in integer cents",
             "minimum": 0,
@@ -1887,6 +1891,12 @@
           "id": {
             "format": "uuid",
             "type": "string"
+          },
+          "itemApplicability": {
+            "items": {
+              "$ref": "#/components/schemas/WelfareItemApplicabilityResponseDto"
+            },
+            "type": "array"
           },
           "maskedCardNo": {
             "description": "Only the last four card characters are visible",
@@ -1908,7 +1918,8 @@
               "ALL_PRODUCTS",
               "CATEGORY",
               "PRODUCT",
-              "SKU"
+              "SKU",
+              "COMPOSITE"
             ],
             "type": "string"
           },
@@ -1934,6 +1945,8 @@
           "version",
           "scopeType",
           "scopeDescription",
+          "itemApplicability",
+          "deliveryFeeApplicability",
           "eligibleAmount",
           "maximumDeductibleAmount"
         ],
@@ -7539,6 +7552,23 @@
         ],
         "type": "object"
       },
+      "WelfareDeliveryFeeApplicabilityResponseDto": {
+        "properties": {
+          "eligible": {
+            "type": "boolean"
+          },
+          "eligibleAmount": {
+            "description": "Server-owned eligible delivery fee in integer cents",
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "eligible",
+          "eligibleAmount"
+        ],
+        "type": "object"
+      },
       "WelfareHistoryResponseDto": {
         "properties": {
           "event": {
@@ -7561,6 +7591,43 @@
           "event",
           "resultingVersion",
           "occurredAt"
+        ],
+        "type": "object"
+      },
+      "WelfareItemApplicabilityResponseDto": {
+        "properties": {
+          "eligible": {
+            "type": "boolean"
+          },
+          "eligibleAmount": {
+            "description": "Server-priced eligible line amount in integer cents",
+            "minimum": 0,
+            "type": "number"
+          },
+          "reason": {
+            "enum": [
+              "ALL_PRODUCTS",
+              "DEFAULT_INCLUDED",
+              "CATEGORY_INCLUDED",
+              "PRODUCT_INCLUDED",
+              "SKU_INCLUDED",
+              "CATEGORY_EXCLUDED",
+              "PRODUCT_EXCLUDED",
+              "SKU_EXCLUDED",
+              "OUTSIDE_WHITELIST"
+            ],
+            "type": "string"
+          },
+          "skuId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "skuId",
+          "eligible",
+          "eligibleAmount",
+          "reason"
         ],
         "type": "object"
       },
@@ -7642,7 +7709,8 @@
               "ALL_PRODUCTS",
               "CATEGORY",
               "PRODUCT",
-              "SKU"
+              "SKU",
+              "COMPOSITE"
             ],
             "type": "string"
           },
@@ -7682,6 +7750,20 @@
       },
       "WelfareScopeRulesDto": {
         "properties": {
+          "categoryExcludedIds": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "categoryIncludedIds": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array"
+          },
           "excludedIds": {
             "items": {
               "format": "uuid",
@@ -7696,17 +7778,44 @@
             },
             "type": "array"
           },
+          "productExcludedIds": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "productIncludedIds": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array"
+          },
           "schemaVersion": {
             "enum": [
-              1
+              1,
+              2
             ],
             "type": "number"
+          },
+          "skuExcludedIds": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "skuIncludedIds": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array"
           }
         },
         "required": [
-          "schemaVersion",
-          "includedIds",
-          "excludedIds"
+          "schemaVersion"
         ],
         "type": "object"
       },

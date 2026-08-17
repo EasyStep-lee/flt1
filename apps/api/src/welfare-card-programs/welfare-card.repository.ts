@@ -1,5 +1,6 @@
-export const WELFARE_CARD_REPOSITORY = Symbol('WELFARE_CARD_REPOSITORY');
+import type { WelfareScopeRules, WelfareScopeType } from './welfare-card-scope.policy.js';
 
+export const WELFARE_CARD_REPOSITORY = Symbol('WELFARE_CARD_REPOSITORY');
 export type WelfareFundingType = 'ENTERPRISE_GRANT' | 'COMPANY_GIFT' | 'PHYSICAL_CARD_OR_CODE';
 export type WelfareClaimMode = 'ENTERPRISE_ASSIGNED' | 'COMPANY_ASSIGNED' | 'PHYSICAL_CARD_OR_CODE';
 
@@ -32,8 +33,8 @@ export interface WelfareProgramRecord {
   readonly name: string;
   readonly fundingType: WelfareFundingType;
   readonly issuerType: 'COMPANY';
-  readonly scopeType: 'ALL_PRODUCTS' | 'CATEGORY' | 'PRODUCT' | 'SKU';
-  readonly scopeRules: Readonly<{ schemaVersion: 1; includedIds: readonly string[]; excludedIds: readonly string[] }>;
+  readonly scopeType: WelfareScopeType;
+  readonly scopeRules: WelfareScopeRules;
   readonly canPayDeliveryFee: boolean;
   readonly refundPolicy: string;
   readonly complianceStatus: 'DRAFT';
