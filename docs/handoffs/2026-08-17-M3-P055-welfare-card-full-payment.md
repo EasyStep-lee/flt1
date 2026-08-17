@@ -7,7 +7,7 @@
 - 方案 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`，基线校验通过。
 - 基线：`origin/main@b7cfd38383bedab10f6b4c894278d2cfc9b37715`（M3-P054 PR #106 合并后 main CI run `31987603994` / job `95265195156` 成功）。
 - 分支：`codex/m3-welfare-card-full-payment`；Issue：[#107](https://github.com/EasyStep-lee/flt1/issues/107)。
-- 本地实现提交：待本交接与本切片文件原子提交后回填。
+- 本地提交链：`02f4d31`（最小实现）、`5d45263`（契约登记）、`0fc4080`（交接期望推进）、`c3585dece3e0ef2ae89e7d2294a090853e2be9ad`（契约/证据收敛，首个 17/17 全量通过 head）。
 - Draft PR / PR CI / 审查评论 / 合并：`NOT_EXECUTED`。
 
 ## 唯一目标与非目标
@@ -42,13 +42,24 @@
 | Prisma validate | PASS |
 | 迁移演练 | `empty=2 / upgrade=2 / restore=2 / product=34 / cleanup=PASS` |
 | `pnpm typecheck` | PASS |
+| 契约回归 | `test:m1-contract` 90/90 PASS |
+| 全量门禁 | `pnpm verify` 17/17 PASS；报告提交 `c3585dece3e0ef2ae89e7d2294a090853e2be9ad`，2026-08-17T03:45:30Z–04:03:20Z |
+| 独立 API 全集 | 46 files / 235 tests PASS |
+| P0 E2E 全集 | Chromium 77/77 PASS |
+| secrets | 1024 tracked files PASS |
 | 工作簿 | 12 表导入/更新/全表渲染通过，公式错误 0 |
 
-`pnpm verify` 首次在第 3 项 `openapi-diff` 退出 1：新增契约尚未提交，而该门禁要求生成文件与当前 `HEAD` 字节一致。此运行如实保留为 `FAIL_OPENAPI_DIFF_UNCOMMITTED`；原子提交后必须从头重跑 17 项，未通过前不提升证据等级。
+全量门禁的失败/恢复序列如实保留：
+
+1. 首次在 `openapi-diff` 退出 1：新增生成契约尚未提交，记为 `FAIL_OPENAPI_DIFF_UNCOMMITTED`。
+2. 提交实现后，OpenAPI 路径登记仍缺 API-104，回归退出 1，记为 `FAIL_OPENAPI_REGISTRY_EXPECTATION`。
+3. 登记 API-104 后，历史交接断言与工作簿 manifest 哈希仍停在 P054/P053，回归退出 1，记为 `FAIL_HANDOFF_MANIFEST_EXPECTATIONS`。
+4. 推进交接后，合同组仍有旧任务/Issue/外部门禁断言，且 M3 冻结生成器发现新增 10 字段后的精确计数变化；修复并重新生成后 `test:m1-contract` 90/90 PASS。
+5. 提交 `c3585de` 后从头重跑，`pnpm verify` 17/17 PASS；没有删除测试、降低断言或跳过门禁。
 
 ## P0 与环境边界
 
-- P0-055：当前 `LOCAL_PASS`，覆盖零外部应付、原子性、幂等/并发、失败回滚、归属/范围/余额、DTO 隔离和永久无个人充值边界。
+- P0-055：当前 `LOCAL_PASS`，覆盖零外部应付、原子性、幂等/并发、失败回滚、归属/范围/余额、DTO 隔离和永久无个人充值边界；当前尚无 PR head CI，因此不是 `CI_PASS`。
 - P0-059：仅形成 `FREEZE/CAPTURE` 追加账本局部证据，完整账本任务未完成。
 - P0-092：仅形成确认订单页全额福利卡操作局部证据，完整页面与真机未验收。
 - 本地环境：Windows，Node `22.23.1`，pnpm `10.12.1`，Prisma `6.19.2`，MySQL 8 迁移演练，Playwright Chromium。
@@ -58,6 +69,7 @@
 
 - 财务迁移一旦在共享环境应用，禁止修改旧迁移或删除账本/命令；需以向前修复迁移恢复。
 - 尚未实现混合支付的微信未知结果、取消解冻和原结构退款；这些不得由 P055 证据推断。
+- Vite 对公司/供应商后台报告现有大 chunk 警告；不影响本切片通过，但属于后续性能治理风险，不能视为已优化。
 - 未发布时：回退本切片应用提交并重建本地开发库。已应用迁移时：回退应用版本并新建向前修复迁移，不执行破坏性 down migration。
 
 ## 下一门禁

@@ -21,13 +21,13 @@
   },
   "workbook": {
     "status": "VERIFIED",
-    "sha256": "68CBEC67261DE3757CD180308E2AF18768639DD30BD39FF6780C1E6379085BDA",
+    "sha256": "0B9D556A9B810AC00022B92487F5FE64C1CE609596598A11C570941F2FD3CC77",
     "currentTaskMirror": {
       "taskId": "M3-P055",
       "status": "LOCAL_PASS_PENDING_DRAFT_PR",
       "sourceLedgers": "CSV_JSON_AND_WORKBOOK_UPDATED",
       "reason": "Artifact-tool updated the M3-P055 task, P0, fields, state machine, permission, page, evidence, migration, API and stage-gate rows; exact-head Draft PR CI, human merge authorization and post-merge main CI are tracked separately.",
-      "checkedAt": "2026-08-17T03:44:09Z"
+      "checkedAt": "2026-08-17T04:03:43Z"
     }
   },
   "sourceOfTruth": [

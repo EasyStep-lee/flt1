@@ -7,8 +7,8 @@
     "P0-092_PARTIAL"
   ],
   "status": "LOCAL_PASS",
-  "commit": "0fc4080",
-  "updatedAt": "2026-08-17T03:44:09Z",
+  "commit": "c3585dece3e0ef2ae89e7d2294a090853e2be9ad",
+  "updatedAt": "2026-08-17T04:03:43Z",
   "baselineSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
   "scope": "atomic idempotent full welfare-card payment with zero external payable",
   "red": [
@@ -23,7 +23,7 @@
     "OPENAPI_1_OF_1",
     "P0_CHROMIUM_1_OF_1"
   ],
-  "fullVerify": "FAIL_REGRESSION_CONTRACT_EXPECTATIONS",
+  "fullVerify": "PASS_17_OF_17",
   "migrationRehearsal": "empty=2;upgrade=2;restore=2;product=34;cleanup=PASS",
   "invariants": {
     "cashAmount": 0,
