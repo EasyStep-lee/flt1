@@ -182,6 +182,7 @@ describe('M3-P051 welfare-card program and batch API', () => {
     const created = await request(app.getHttpServer()).post('/v1/company/welfare-card/programs')
       .set('Idempotency-Key', 'composite-scope-valid').send(composite).expect(201);
     expect(created.body).toMatchObject({ scopeType: 'COMPOSITE', scopeRules: compositeRules });
+    expect(created.body.scopeRules).toMatchObject({ includedIds: [], excludedIds: [] });
 
     const duplicate = { ...compositeRules, productExcludedIds: [compositeRules.productExcludedIds[0], compositeRules.productExcludedIds[0]] };
     await request(app.getHttpServer()).post('/v1/company/welfare-card/programs')

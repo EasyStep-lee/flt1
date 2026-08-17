@@ -1728,7 +1728,7 @@ export interface components {
             fundingType: "ENTERPRISE_GRANT" | "COMPANY_GIFT" | "PHYSICAL_CARD_OR_CODE";
             name: string;
             refundPolicy: string;
-            scopeRules: components["schemas"]["WelfareScopeRulesDto"];
+            scopeRules: components["schemas"]["WelfareScopeRulesRequestDto"];
             /** @enum {string} */
             scopeType: "ALL_PRODUCTS" | "CATEGORY" | "PRODUCT" | "SKU" | "COMPOSITE";
         };
@@ -3250,6 +3250,18 @@ export interface components {
             version: number;
         };
         WelfareScopeRulesDto: {
+            categoryExcludedIds?: string[];
+            categoryIncludedIds?: string[];
+            excludedIds: string[];
+            includedIds: string[];
+            productExcludedIds?: string[];
+            productIncludedIds?: string[];
+            /** @enum {number} */
+            schemaVersion: 1 | 2;
+            skuExcludedIds?: string[];
+            skuIncludedIds?: string[];
+        };
+        WelfareScopeRulesRequestDto: {
             categoryExcludedIds?: string[];
             categoryIncludedIds?: string[];
             excludedIds?: string[];

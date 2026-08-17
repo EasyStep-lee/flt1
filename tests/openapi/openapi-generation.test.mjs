@@ -571,6 +571,7 @@ test('generated contract exposes foundation, identity, onboarding and catalog AP
       'WelfareProgramPageResponseDto',
       'WelfareProgramResponseDto',
       'WelfareScopeRulesDto',
+      'WelfareScopeRulesRequestDto',
       'WorkspaceChoiceDto',
       'WorkspaceChoiceResponseDto',
     ],

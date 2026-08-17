@@ -17,6 +17,10 @@ export interface WelfareScopeRulesV2 {
 }
 
 export type WelfareScopeRules = Readonly<WelfareScopeRulesV1 | WelfareScopeRulesV2>;
+export type WelfareScopeRulesResponse = Readonly<WelfareScopeRules & {
+  readonly includedIds: readonly string[];
+  readonly excludedIds: readonly string[];
+}>;
 export type WelfareLineEligibilityReason =
   | 'ALL_PRODUCTS'
   | 'DEFAULT_INCLUDED'
@@ -108,10 +112,12 @@ export const evaluateWelfareScope = (
   return hasWhitelist ? { eligible: false, reason: 'OUTSIDE_WHITELIST' } : { eligible: true, reason: 'DEFAULT_INCLUDED' };
 };
 
-export const cloneWelfareScopeRules = (rules: WelfareScopeRules): WelfareScopeRules => rules.schemaVersion === 1
+export const cloneWelfareScopeRules = (rules: WelfareScopeRules): WelfareScopeRulesResponse => rules.schemaVersion === 1
   ? { schemaVersion: 1, includedIds: [...rules.includedIds], excludedIds: [...rules.excludedIds] }
   : {
       schemaVersion: 2,
+      includedIds: [],
+      excludedIds: [],
       categoryIncludedIds: [...rules.categoryIncludedIds],
       productIncludedIds: [...rules.productIncludedIds],
       skuIncludedIds: [...rules.skuIncludedIds],

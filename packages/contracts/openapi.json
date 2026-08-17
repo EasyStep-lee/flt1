@@ -1808,7 +1808,7 @@
             "type": "string"
           },
           "scopeRules": {
-            "$ref": "#/components/schemas/WelfareScopeRulesDto"
+            "$ref": "#/components/schemas/WelfareScopeRulesRequestDto"
           },
           "scopeType": {
             "enum": [
@@ -7749,6 +7749,79 @@
         "type": "object"
       },
       "WelfareScopeRulesDto": {
+        "properties": {
+          "categoryExcludedIds": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "categoryIncludedIds": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "excludedIds": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "includedIds": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "productExcludedIds": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "productIncludedIds": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "schemaVersion": {
+            "enum": [
+              1,
+              2
+            ],
+            "type": "number"
+          },
+          "skuExcludedIds": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "skuIncludedIds": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "schemaVersion",
+          "includedIds",
+          "excludedIds"
+        ],
+        "type": "object"
+      },
+      "WelfareScopeRulesRequestDto": {
         "properties": {
           "categoryExcludedIds": {
             "items": {

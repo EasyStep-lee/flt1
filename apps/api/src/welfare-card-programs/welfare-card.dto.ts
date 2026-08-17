@@ -2,6 +2,18 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class WelfareScopeRulesDto {
   @ApiProperty({ enum: [1, 2], type: Number }) readonly schemaVersion!: 1 | 2;
+  @ApiProperty({ items: { format: 'uuid', type: 'string' }, type: 'array' }) readonly includedIds!: readonly string[];
+  @ApiProperty({ items: { format: 'uuid', type: 'string' }, type: 'array' }) readonly excludedIds!: readonly string[];
+  @ApiPropertyOptional({ items: { format: 'uuid', type: 'string' }, type: 'array' }) readonly categoryIncludedIds?: readonly string[];
+  @ApiPropertyOptional({ items: { format: 'uuid', type: 'string' }, type: 'array' }) readonly productIncludedIds?: readonly string[];
+  @ApiPropertyOptional({ items: { format: 'uuid', type: 'string' }, type: 'array' }) readonly skuIncludedIds?: readonly string[];
+  @ApiPropertyOptional({ items: { format: 'uuid', type: 'string' }, type: 'array' }) readonly categoryExcludedIds?: readonly string[];
+  @ApiPropertyOptional({ items: { format: 'uuid', type: 'string' }, type: 'array' }) readonly productExcludedIds?: readonly string[];
+  @ApiPropertyOptional({ items: { format: 'uuid', type: 'string' }, type: 'array' }) readonly skuExcludedIds?: readonly string[];
+}
+
+export class WelfareScopeRulesRequestDto {
+  @ApiProperty({ enum: [1, 2], type: Number }) readonly schemaVersion!: 1 | 2;
   @ApiPropertyOptional({ items: { format: 'uuid', type: 'string' }, type: 'array' }) readonly includedIds?: readonly string[];
   @ApiPropertyOptional({ items: { format: 'uuid', type: 'string' }, type: 'array' }) readonly excludedIds?: readonly string[];
   @ApiPropertyOptional({ items: { format: 'uuid', type: 'string' }, type: 'array' }) readonly categoryIncludedIds?: readonly string[];
@@ -16,7 +28,7 @@ export class CreateWelfareProgramRequestDto {
   @ApiProperty({ maxLength: 191, minLength: 2, type: String }) readonly name!: string;
   @ApiProperty({ enum: ['ENTERPRISE_GRANT', 'COMPANY_GIFT', 'PHYSICAL_CARD_OR_CODE'], type: String }) readonly fundingType!: string;
   @ApiProperty({ enum: ['ALL_PRODUCTS', 'CATEGORY', 'PRODUCT', 'SKU', 'COMPOSITE'], type: String }) readonly scopeType!: string;
-  @ApiProperty({ type: WelfareScopeRulesDto }) readonly scopeRules!: WelfareScopeRulesDto;
+  @ApiProperty({ type: WelfareScopeRulesRequestDto }) readonly scopeRules!: WelfareScopeRulesRequestDto;
   @ApiProperty({ type: Boolean }) readonly canPayDeliveryFee!: boolean;
   @ApiProperty({ maxLength: 500, minLength: 2, type: String }) readonly refundPolicy!: string;
 }
