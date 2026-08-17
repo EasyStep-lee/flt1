@@ -25,6 +25,20 @@ export class WechatPrepayResponseDto {
   @ApiProperty({ type: MiniappPaymentPayloadDto }) readonly clientPayment!: MiniappPaymentPayloadDto;
 }
 
+export class WelfareCardWechatPaymentRequestDto {
+  @ApiProperty({ format: 'uuid', type: String }) readonly accountId!: string;
+}
+
+export class WelfareCardWechatPaymentResponseDto extends WechatPrepayResponseDto {
+  @ApiProperty({ enum: ['WELFARE_CARD_WECHAT'] }) readonly paymentMode!: 'WELFARE_CARD_WECHAT';
+  @ApiProperty({ description: 'Frozen welfare-card amount in integer cents', minimum: 1, type: Number })
+  readonly welfareCardAmount!: number;
+  @ApiProperty({ description: 'WeChat difference in integer cents', minimum: 1, type: Number })
+  readonly cashAmount!: number;
+  @ApiProperty({ description: 'Server-owned order total in integer cents', minimum: 2, type: Number })
+  readonly totalAmount!: number;
+}
+
 export class WechatPaymentNotificationDto {
   @ApiProperty({ additionalProperties: true, type: Object }) readonly resource!: Readonly<Record<string, unknown>>;
   @ApiProperty({ type: String }) readonly id!: string;

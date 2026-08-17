@@ -34,8 +34,8 @@
       <view class="deduction">本单可适用 {{item.eligibleLabel}} · 自动最大抵扣 {{item.maximumDeductibleLabel}}</view>
     </button>
     <button class="no-card {{selectedAccountId === '' ? 'selected' : ''}}" bindtap="useNoWelfareCard">不使用福利卡</button>
-    <button class="pay-button" disabled="{{!canPayFully || state === 'paying'}}" bindtap="submitFullWelfarePayment">{{paymentButtonLabel}}</button>
+    <button class="pay-button" disabled="{{(!canPayFully && !canPayMixed) || state === 'paying'}}" bindtap="submitSelectedPayment">{{paymentButtonLabel}}</button>
     <view wx:if="{{state === 'unknown'}}" class="unknown-state">{{message}}</view>
-    <view class="notice">仅当所选福利卡可覆盖本单全部金额时执行；本入口不会调用微信支付，也不接受手工抵扣金额。</view>
+    <view class="notice">抵扣额由服务端自动取最大值，不接受手工输入；不足部分仅使用公司微信支付。</view>
   </block>
 </view>

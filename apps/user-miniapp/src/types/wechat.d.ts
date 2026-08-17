@@ -11,6 +11,15 @@ declare global {
       readonly scanType?: readonly ['qrCode', 'barCode'];
       readonly success: (result: { readonly result: string }) => void;
     }): void;
+    requestPayment(options: {
+      readonly timeStamp: string;
+      readonly nonceStr: string;
+      readonly package: string;
+      readonly signType: 'RSA';
+      readonly paySign: string;
+      readonly success: (result: { readonly errMsg?: string }) => void;
+      readonly fail: (error: { readonly errMsg?: string }) => void;
+    }): void;
   };
   const __FULISHE_API_BASE_URL__: string;
   function App<TDefinition extends Record<string, unknown>>(definition: TDefinition): void;

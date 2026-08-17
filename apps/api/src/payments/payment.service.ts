@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
 
 import { SafeApiError } from '../http/api-error.js';
-import type { PaymentActor, PaymentRecord, PaymentRepository } from './payment.repository.js';
+import type { PaymentActor, PaymentRecord, PaymentRepository, WelfareCardWechatPaymentRecord } from './payment.repository.js';
 import { PAYMENT_REPOSITORY } from './payment.repository.js';
 import {
   WECHAT_PAYMENT_ADAPTER,
@@ -37,6 +37,20 @@ const requireEmptyBody = (value: unknown): void => {
   }
 };
 
+const requireAccountId = (value: unknown): string => {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new SafeApiError(422, 'VALIDATION_FAILED', 'Payment body must be an object');
+  }
+  const body = value as Record<string, unknown>;
+  if (Object.keys(body).some((key) => key !== 'accountId')) {
+    throw new SafeApiError(422, 'FIELD_FORBIDDEN', 'Buyer ownership and payment amounts are server-owned');
+  }
+  if (typeof body.accountId !== 'string' || !UUID.test(body.accountId)) {
+    throw new SafeApiError(422, 'VALIDATION_FAILED', 'accountId must be a UUID');
+  }
+  return body.accountId;
+};
+
 const toResponse = (payment: PaymentRecord & { readonly response: NonNullable<PaymentRecord['response']> }) => ({
   paymentTransactionId: payment.paymentTransactionId,
   orderId: payment.orderId,
@@ -48,6 +62,16 @@ const toResponse = (payment: PaymentRecord & { readonly response: NonNullable<Pa
   outTradeNo: payment.outTradeNo,
   prepayId: payment.response.prepayId,
   clientPayment: payment.response.clientPayment,
+});
+
+const toMixedResponse = (
+  payment: WelfareCardWechatPaymentRecord & { readonly response: NonNullable<PaymentRecord['response']> },
+) => ({
+  ...toResponse(payment),
+  paymentMode: 'WELFARE_CARD_WECHAT' as const,
+  welfareCardAmount: payment.welfareCardAmount,
+  cashAmount: payment.cashAmount,
+  totalAmount: payment.totalAmount,
 });
 
 const mapAdapterError = (error: unknown): never => {
@@ -113,6 +137,61 @@ export class PaymentService {
     if (completed.kind === 'STATE_CONFLICT') throw new SafeApiError(409, 'PAYMENT_STATE_INVALID', 'Payment state changed before prepay completed');
     if (completed.kind === 'IDEMPOTENCY_CONFLICT') throw new SafeApiError(409, 'PAYMENT_IDEMPOTENCY_CONFLICT', 'Payment completion conflicts with the original request');
     return { body: toResponse(completed.payment), replayed: completed.kind === 'REPLAY' };
+  }
+
+  async createWelfareCardWechatPrepay(
+    actor: Extract<PaymentActor, { readonly kind: 'CONSUMER' }>,
+    orderIdValue: unknown,
+    bodyValue: unknown,
+    idempotencyKeyValue: unknown,
+    requestId: string,
+  ) {
+    const orderId = requireOrderId(orderIdValue);
+    const accountId = requireAccountId(bodyValue);
+    const idempotencyKey = requireIdempotencyKey(idempotencyKeyValue);
+    const requestHash = createHash('sha256')
+      .update(JSON.stringify({ actorKind: actor.kind, consumerUserId: actor.consumerUserId, orderId, accountId, mode: 'WELFARE_CARD_WECHAT' }))
+      .digest('hex');
+    const begin = await this.repository.beginWelfareCardWechatPrepay({ orderId, accountId, actor, idempotencyKey, requestHash, requestId });
+    if (begin.kind === 'NOT_FOUND') throw new SafeApiError(404, 'ORDER_NOT_FOUND', 'Order was not found');
+    if (begin.kind === 'ACCESS_DENIED') throw new SafeApiError(403, 'ACCESS_DENIED', 'Order or welfare account does not belong to this buyer');
+    if (begin.kind === 'ACCOUNT_NOT_ELIGIBLE') throw new SafeApiError(409, 'WELFARE_CARD_NOT_ELIGIBLE', 'Welfare account is not eligible for this order');
+    if (begin.kind === 'NOT_APPLICABLE') throw new SafeApiError(409, 'WELFARE_CARD_MIXED_PAYMENT_NOT_APPLICABLE', 'Order must have both a welfare deduction and a WeChat difference');
+    if (begin.kind === 'STATE_CONFLICT') throw new SafeApiError(409, 'PAYMENT_STATE_INVALID', 'Order cannot create a mixed payment');
+    if (begin.kind === 'IDEMPOTENCY_CONFLICT') throw new SafeApiError(409, 'PAYMENT_IDEMPOTENCY_CONFLICT', 'Idempotency-Key conflicts with the original payment');
+    if (begin.kind === 'CONCURRENT_CONFLICT') throw new SafeApiError(409, 'PAYMENT_CONCURRENT_CONFLICT', 'Payment changed concurrently; retry safely');
+    if (begin.kind === 'REPLAY') return { body: toMixedResponse(begin.payment), replayed: true };
+
+    let external;
+    try {
+      external = await this.adapter.createPrepay({
+        outTradeNo: begin.payment.outTradeNo,
+        amount: begin.payment.cashAmount,
+        description: '福礼团订单',
+        payerReference: actor.consumerUserId,
+        merchantConfigRef: begin.payment.merchantConfigRef,
+        collectorLegalName: begin.payment.collectorName,
+      });
+    } catch (error) {
+      return mapAdapterError(error);
+    }
+    const completed = await this.repository.completeWechatPrepay({
+      paymentTransactionId: begin.payment.paymentTransactionId,
+      idempotencyKey,
+      requestHash,
+      response: external,
+    });
+    if (completed.kind === 'STATE_CONFLICT') throw new SafeApiError(409, 'PAYMENT_STATE_INVALID', 'Payment state changed before prepay completed');
+    if (completed.kind === 'IDEMPOTENCY_CONFLICT') throw new SafeApiError(409, 'PAYMENT_IDEMPOTENCY_CONFLICT', 'Payment completion conflicts with the original request');
+    return {
+      body: toMixedResponse({
+        ...completed.payment,
+        welfareCardAmount: begin.payment.welfareCardAmount,
+        cashAmount: begin.payment.cashAmount,
+        totalAmount: begin.payment.totalAmount,
+      }),
+      replayed: completed.kind === 'REPLAY',
+    };
   }
 
   async confirmWechatNotification(

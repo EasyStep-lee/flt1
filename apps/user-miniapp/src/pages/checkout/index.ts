@@ -49,6 +49,7 @@ interface CheckoutData {
   readonly accounts: readonly DisplayAccount[];
   readonly selectedAccountId: string;
   readonly canPayFully: boolean;
+  readonly canPayMixed: boolean;
   readonly paymentButtonLabel: string;
 }
 
@@ -57,6 +58,7 @@ interface CheckoutInstance {
   setData(patch: Partial<CheckoutData>): void;
   loadEligibility(): Promise<void>;
   submitFullWelfarePayment(): Promise<void>;
+  submitSelectedPayment(): Promise<void>;
 }
 
 interface UserMiniappApplication {
@@ -79,14 +81,14 @@ const pendingOrder = (): PendingOrder | null => {
     ? { orderId: order.orderId, totalAmount: Number(order.totalAmount) }
     : null;
 };
-const paymentKey = (orderId: string, accountId: string): string => {
-  const signature = `${orderId}:${accountId}`;
+const paymentKey = (orderId: string, accountId: string, mode: 'full' | 'mixed'): string => {
+  const signature = `${mode}:${orderId}:${accountId}`;
   const current = wx.getStorageSync<unknown>(PAYMENT_COMMAND_STORAGE_KEY);
   if (current && typeof current === 'object' && !Array.isArray(current)) {
     const stored = current as { readonly key?: unknown; readonly signature?: unknown };
     if (stored.signature === signature && typeof stored.key === 'string') return stored.key;
   }
-  const key = `welfare-full-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+  const key = `welfare-${mode === 'full' ? 'full' : 'wechat'}-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
   wx.setStorageSync(PAYMENT_COMMAND_STORAGE_KEY, { key, signature });
   return key;
 };
@@ -149,6 +151,7 @@ const pageDefinition = {
     accounts: [] as readonly DisplayAccount[],
     selectedAccountId: '',
     canPayFully: false,
+    canPayMixed: false,
     paymentButtonLabel: '请选择可全额支付的福利卡',
   },
 
@@ -184,6 +187,7 @@ const pageDefinition = {
         accounts,
         selectedAccountId,
         canPayFully: Boolean(selectedAccountId && accounts.some(({ id, maximumDeductibleAmount }) => id === selectedAccountId && maximumDeductibleAmount === response.totalAmount)),
+        canPayMixed: Boolean(selectedAccountId && accounts.some(({ id, maximumDeductibleAmount }) => id === selectedAccountId && maximumDeductibleAmount > 0 && maximumDeductibleAmount < response.totalAmount)),
         paymentButtonLabel: selectedAccountId && accounts.some(({ id, maximumDeductibleAmount }) => id === selectedAccountId && maximumDeductibleAmount === response.totalAmount)
           ? '福利卡全额支付'
           : '请选择可全额支付的福利卡',
@@ -207,17 +211,66 @@ const pageDefinition = {
     wx.setStorageSync(SELECTION_STORAGE_KEY, accountId);
     const selected = this.data.accounts.find(({ id }) => id === accountId);
     const canPayFully = selected?.maximumDeductibleAmount === this.data.totalAmount;
+    const canPayMixed = Boolean(selected && selected.maximumDeductibleAmount > 0 && selected.maximumDeductibleAmount < this.data.totalAmount);
     this.setData({
       selectedAccountId: accountId,
       canPayFully,
-      message: canPayFully ? '本单可由所选福利卡全额支付' : '所选福利卡无法全额支付；混合支付将在后续切片提供',
-      paymentButtonLabel: canPayFully ? '福利卡全额支付' : '当前福利卡不可全额支付',
+      canPayMixed,
+      message: canPayFully ? '本单可由所选福利卡全额支付' : canPayMixed ? '将自动最大抵扣福利卡，剩余金额使用微信支付' : '所选福利卡本单不可抵扣',
+      paymentButtonLabel: canPayFully ? '福利卡全额支付' : canPayMixed ? `福利卡抵扣 ${selected?.maximumDeductibleLabel ?? ''} · 微信支付差额` : '当前福利卡不可支付',
     });
   },
 
   useNoWelfareCard(this: CheckoutInstance): void {
     wx.removeStorageSync(SELECTION_STORAGE_KEY);
-    this.setData({ selectedAccountId: '', canPayFully: false, paymentButtonLabel: '请选择可全额支付的福利卡' });
+    this.setData({ selectedAccountId: '', canPayFully: false, canPayMixed: false, paymentButtonLabel: '请选择福利卡' });
+  },
+
+  async submitSelectedPayment(this: CheckoutInstance): Promise<void> {
+    if (this.data.canPayFully) return this.submitFullWelfarePayment();
+    if (!this.data.canPayMixed || (this.data.state !== 'success' && this.data.state !== 'unknown')) return;
+    const order = pendingOrder();
+    const account = this.data.accounts.find(({ id }) => id === this.data.selectedAccountId);
+    if (!order || !account || order.totalAmount !== this.data.totalAmount) {
+      this.setData({ message: '请先在购物车创建与当前金额一致的待支付订单' });
+      return;
+    }
+    this.setData({ state: 'paying', message: '正在冻结福利卡并创建微信差额支付…', paymentButtonLabel: '支付处理中…' });
+    try {
+      const application = getApp<UserMiniappApplication>();
+      const baseUrl = application.globalData.apiBaseUrl.replace(/\/$/u, '');
+      if (!/^https?:\/\//u.test(baseUrl)) throw new Error('API_BASE_URL_INVALID');
+      const response = await requestAdapter.execute('payments.createWelfareCardWechatPayment', {
+        method: 'POST',
+        url: `${baseUrl}/v1/consumer/orders/${order.orderId}/welfare-card-wechat-payment`,
+        headers: { 'Idempotency-Key': paymentKey(order.orderId, account.id, 'mixed') },
+        body: { accountId: account.id },
+      });
+      if (
+        response.paymentMode !== 'WELFARE_CARD_WECHAT'
+        || response.welfareCardAmount !== account.maximumDeductibleAmount
+        || response.cashAmount <= 0
+        || response.welfareCardAmount + response.cashAmount !== response.totalAmount
+        || response.totalAmount !== order.totalAmount
+        || response.amount !== response.cashAmount
+      ) throw new Error('WELFARE_WECHAT_PAYMENT_RESPONSE_INVALID');
+      await new Promise<void>((resolve, reject) => wx.requestPayment({
+        ...response.clientPayment,
+        success: () => resolve(),
+        fail: (error) => reject(error),
+      }));
+      this.setData({
+        state: 'unknown',
+        message: '微信已返回，支付结果待确认。订单将在服务端收到合法回调后完成。',
+        paymentButtonLabel: '确认支付结果',
+      });
+    } catch {
+      this.setData({
+        state: 'unknown',
+        message: '支付结果待确认。请勿重复更换账户或金额，稍后从订单结果恢复。',
+        paymentButtonLabel: '确认支付结果',
+      });
+    }
   },
 
   async submitFullWelfarePayment(this: CheckoutInstance): Promise<void> {
@@ -240,7 +293,7 @@ const pageDefinition = {
       const response = await requestAdapter.execute('consumerWelfareCard.payFullOrder', {
         method: 'POST',
         url: `${baseUrl}/v1/consumer/orders/${order.orderId}/welfare-card-full-payment`,
-        headers: { 'Idempotency-Key': paymentKey(order.orderId, account.id) },
+        headers: { 'Idempotency-Key': paymentKey(order.orderId, account.id, 'full') },
         body: { accountId: account.id },
       });
       if (response.paymentStatus !== 'PAID' || response.orderStatus !== 'PAID' || response.cashAmount !== 0) {

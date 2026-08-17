@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "taskId": "M3-P056",
+  "p0": [
+    "P0-056",
+    "P0-024_PARTIAL",
+    "P0-092_PARTIAL",
+    "P0-093_PARTIAL"
+  ],
+  "status": "LOCAL_PASS",
+  "commit": "904bb529e765dc0bfc83d8a8ec33f733182ee9a0",
+  "updatedAt": "2026-08-17T06:50:32Z",
+  "baselineSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+  "red": [
+    "API_3_OF_3_ROUTE_404",
+    "MINIAPP_MIXED_ACTION_MISSING"
+  ],
+  "focused": [
+    "BEGIN_REPOSITORY_1_OF_1",
+    "CALLBACK_REPOSITORY_6_OF_6",
+    "API_3_OF_3",
+    "MINIAPP_7_OF_7",
+    "OPENAPI_1_OF_1",
+    "P0_CHROMIUM_1_OF_1"
+  ],
+  "fullVerify": "PASS_17_OF_17",
+  "invariants": {
+    "automaticMaximumDeduction": true,
+    "amountConservation": true,
+    "onePaymentTransactionPerOrder": true,
+    "freezeBeforePrepay": true,
+    "captureOnlyAfterVerifiedCallback": true,
+    "duplicateCallbackSideEffectFree": true,
+    "lateFailureAtomicRollback": true
+  },
+  "boundaries": {
+    "realWechat": "NOT_EXECUTED",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_EXECUTED",
+    "production": "NOT_EXECUTED",
+    "cancellationRelease": "OUT_OF_SCOPE_M3_P057",
+    "refund": "OUT_OF_SCOPE_M3_P058"
+  },
+  "github": {
+    "issue": 109,
+    "pullRequest": null,
+    "ciRun": null
+  }
+}

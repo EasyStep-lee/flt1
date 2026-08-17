@@ -33,6 +33,7 @@ import {
   EnterpriseOrderController,
 } from '../orders/order.controller.js';
 import {
+  ConsumerWelfareCardWechatPaymentController,
   WechatPaymentNotificationController,
   WechatPrepayController,
 } from '../payments/payment.controller.js';
@@ -78,6 +79,7 @@ export const OPENAPI_CONTROLLERS = Object.freeze([
   EnterpriseRemittanceController,
   CompanyEnterpriseRemittanceController,
   WechatPrepayController,
+  ConsumerWelfareCardWechatPaymentController,
   WechatPaymentNotificationController,
   RefundController,
   EnterpriseRegistrationController,

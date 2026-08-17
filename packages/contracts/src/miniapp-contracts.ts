@@ -75,4 +75,8 @@ export type FoundationMiniappContracts = {
     readonly requestBody: JsonRequestBody<OperationById<'consumerWelfareCard.payFullOrder'>>;
     readonly responseBody: CreatedJsonResponse<OperationById<'consumerWelfareCard.payFullOrder'>>;
   };
+  readonly 'payments.createWelfareCardWechatPayment': {
+    readonly requestBody: JsonRequestBody<OperationById<'payments.createWelfareCardWechatPayment'>>;
+    readonly responseBody: CreatedJsonResponse<OperationById<'payments.createWelfareCardWechatPayment'>>;
+  };
 };

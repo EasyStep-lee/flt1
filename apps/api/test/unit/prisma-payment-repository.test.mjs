@@ -16,13 +16,13 @@ const notification = (overrides = {}) => ({
   ...overrides,
 });
 
-const fixture = ({ enterprise = false, paymentMethod = 'WECHAT_PAY' } = {}) => {
+const fixture = ({ enterprise = false, paymentMethod = 'WECHAT_PAY', mixed = false, failAtOutbox = false } = {}) => {
   let tail = Promise.resolve();
   const state = {
     payment: {
       id: '71000000-0000-4000-8000-000000000001',
       orderId: '70000000-0000-4000-8000-000000000001',
-      channel: 'WECHAT_PAY', amount: 5800, outTradeNo: 'WP2026081400000000000000000001',
+      channel: 'WECHAT_PAY', amount: mixed ? 4000 : 5800, outTradeNo: 'WP2026081400000000000000000001',
       wechatTransactionId: null, status: 'PREPAY_CREATED', version: 1,
     },
     order: {
@@ -30,7 +30,8 @@ const fixture = ({ enterprise = false, paymentMethod = 'WECHAT_PAY' } = {}) => {
       companyId: '10000000-0000-4000-8000-000000000001',
       consumerUserId: enterprise ? null : '10000000-0000-4000-8000-000000000002',
       enterpriseCustomerId: enterprise ? '10000000-0000-4000-8000-000000000029' : null,
-      orderType: enterprise ? 'ENTERPRISE' : 'CONSUMER', cashAmount: 5800, totalAmount: 5800, welfareCardAmount: 0,
+      orderType: enterprise ? 'ENTERPRISE' : 'CONSUMER', cashAmount: mixed ? 4000 : 5800, totalAmount: 5800, welfareCardAmount: mixed ? 1800 : 0,
+      welfareCardAccountId: mixed ? '60000000-0000-4000-8000-000000000001' : null,
       paymentStatus: 'PENDING', orderStatus: 'PENDING_PAYMENT', version: 0,
       enterpriseProcurementOrder: enterprise
         ? { buyerOrderId: '70000000-0000-4000-8000-000000000001', paymentMethod, remittanceReviewStatus: 'NOT_SUBMITTED', status: 'PENDING_PAYMENT', version: 0 }
@@ -52,7 +53,8 @@ const fixture = ({ enterprise = false, paymentMethod = 'WECHAT_PAY' } = {}) => {
       { id: 'reserve-1', skuId: '30000000-0000-4000-8000-000000000001', referenceType: 'ORDER_RESERVATION', referenceId: '70000000-0000-4000-8000-000000000001' },
       { id: 'reserve-2', skuId: '30000000-0000-4000-8000-000000000002', referenceType: 'ORDER_RESERVATION', referenceId: '70000000-0000-4000-8000-000000000001' },
     ],
-    notifications: new Map(), inventoryCommands: [], events: [], outboxes: [],
+    account: mixed ? { id: '60000000-0000-4000-8000-000000000001', status: 'ACTIVE', balanceAmount: 3000, frozenAmount: 2000, version: 1 } : null,
+    ledgers: [], notifications: new Map(), inventoryCommands: [], events: [], outboxes: [],
   };
   const findPayment = (where, includeOrder = false) => {
     const matches = where.id === state.payment.id || where.outTradeNo === state.payment.outTradeNo ||
@@ -108,6 +110,17 @@ const fixture = ({ enterprise = false, paymentMethod = 'WECHAT_PAY' } = {}) => {
         return { count: 1 };
       },
     },
+    welfareCardAccount: {
+      findUnique: async ({ where }) => state.account && where.id === state.account.id ? clone(state.account) : null,
+      updateMany: async ({ where, data }) => {
+        if (!state.account || where.id !== state.account.id || where.version !== state.account.version || where.balanceAmount !== state.account.balanceAmount || where.frozenAmount !== state.account.frozenAmount) return { count: 0 };
+        state.account.balanceAmount -= data.balanceAmount.decrement;
+        state.account.frozenAmount -= data.frozenAmount.decrement;
+        state.account.version += data.version.increment;
+        return { count: 1 };
+      },
+    },
+    welfareCardLedger: { create: async ({ data }) => { state.ledgers.push(clone(data)); return clone(data); } },
     enterpriseProcurementOrder: {
       updateMany: async ({ where, data }) => {
         const procurement = state.order.enterpriseProcurementOrder;
@@ -125,7 +138,7 @@ const fixture = ({ enterprise = false, paymentMethod = 'WECHAT_PAY' } = {}) => {
     },
     inventoryCommand: { create: async ({ data }) => { state.inventoryCommands.push(clone(data)); return clone(data); } },
     buyerOrderEvent: { create: async ({ data }) => { state.events.push(clone(data)); return clone(data); } },
-    paymentOutbox: { create: async ({ data }) => { state.outboxes.push(clone(data)); return clone(data); } },
+    paymentOutbox: { create: async ({ data }) => { if (failAtOutbox) throw new Error('SIMULATED_MIXED_OUTBOX_FAILURE'); state.outboxes.push(clone(data)); return clone(data); } },
   };
   const prisma = {
     $transaction: async (callback) => {
@@ -135,12 +148,13 @@ const fixture = ({ enterprise = false, paymentMethod = 'WECHAT_PAY' } = {}) => {
       await beforeTurn;
       const before = clone({
         payment: state.payment, order: state.order, balances: [...state.balances], logs: state.logs,
-        notifications: [...state.notifications], inventoryCommands: state.inventoryCommands, events: state.events, outboxes: state.outboxes,
+        account: state.account, ledgers: state.ledgers, notifications: [...state.notifications], inventoryCommands: state.inventoryCommands, events: state.events, outboxes: state.outboxes,
       });
       try { return await callback(tx); }
       catch (error) {
         Object.assign(state.payment, before.payment); Object.assign(state.order, before.order);
         state.balances = new Map(before.balances); state.logs = before.logs;
+        state.account = before.account; state.ledgers = before.ledgers;
         state.notifications = new Map(before.notifications); state.inventoryCommands = before.inventoryCommands;
         state.events = before.events; state.outboxes = before.outboxes;
         throw error;
@@ -222,4 +236,32 @@ test('M3-P029 enterprise WeChat callback follows the frozen payment route and ad
   );
   assert.equal(rejected.state.order.enterpriseProcurementOrder.status, 'PENDING_PAYMENT');
   assert.equal(rejected.state.logs.filter(({ referenceType }) => referenceType === 'ORDER_CONFIRM').length, 0);
+});
+
+test('M3-P056 mixed callback captures the frozen welfare amount exactly once after the WeChat difference succeeds', async () => {
+  const { prisma, state } = fixture({ mixed: true });
+  const repository = new PrismaPaymentRepository(prisma);
+  const result = await repository.confirmWechatPayment({ notification: notification({ amount: 4000 }), requestId: 'mixed-paid' });
+  assert.equal(result.kind, 'PAID');
+  assert.deepEqual({ balance: state.account.balanceAmount, frozen: state.account.frozenAmount, version: state.account.version }, { balance: 1200, frozen: 200, version: 2 });
+  assert.deepEqual(state.ledgers.map(({ businessType, amount, beforeBalance, afterBalance, beforeFrozen, afterFrozen }) => ({ businessType, amount, beforeBalance, afterBalance, beforeFrozen, afterFrozen })), [
+    { businessType: 'CAPTURE', amount: 1800, beforeBalance: 3000, afterBalance: 1200, beforeFrozen: 2000, afterFrozen: 200 },
+  ]);
+  const replay = await repository.confirmWechatPayment({ notification: notification({ amount: 4000, notificationId: 'wechat-notification-repository-0002' }), requestId: 'mixed-replay' });
+  assert.equal(replay.kind, 'REPLAY');
+  assert.equal(state.ledgers.length, 1); assert.equal(state.outboxes.length, 1);
+});
+
+test('M3-P056 mixed callback rolls back welfare capture, order, inventory and outbox when a late write fails', async () => {
+  const { prisma, state } = fixture({ mixed: true, failAtOutbox: true });
+  const repository = new PrismaPaymentRepository(prisma);
+  await assert.rejects(
+    repository.confirmWechatPayment({ notification: notification({ amount: 4000 }), requestId: 'mixed-late-failure' }),
+    /SIMULATED_MIXED_OUTBOX_FAILURE/u,
+  );
+  assert.deepEqual({ balance: state.account.balanceAmount, frozen: state.account.frozenAmount, version: state.account.version }, { balance: 3000, frozen: 2000, version: 1 });
+  assert.equal(state.ledgers.length, 0);
+  assert.equal(state.order.paymentStatus, 'PENDING'); assert.equal(state.payment.status, 'PREPAY_CREATED');
+  assert.equal(state.logs.filter(({ referenceType }) => referenceType === 'ORDER_CONFIRM').length, 0);
+  assert.equal(state.outboxes.length, 0);
 });
