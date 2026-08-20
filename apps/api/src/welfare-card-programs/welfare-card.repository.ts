@@ -89,7 +89,7 @@ export interface WelfareCardAccountRecord {
   readonly cardNo: string;
   readonly balanceAmount: number;
   readonly frozenAmount: number;
-  readonly status: 'ACTIVE';
+  readonly status: 'ACTIVE' | 'SUSPENDED' | 'EXPIRED' | 'CLOSED';
   readonly version: number;
   readonly claimedAt: string;
 }
@@ -99,6 +99,89 @@ export interface WelfareCardEligibilityAccountRecord extends WelfareCardAccountR
   readonly scopeRules: WelfareProgramRecord['scopeRules'];
   readonly canPayDeliveryFee: boolean;
 }
+
+export type WelfareCardLedgerBusinessType =
+  | 'CLAIM' | 'GRANT' | 'GIFT' | 'FREEZE' | 'RELEASE' | 'CAPTURE'
+  | 'REFUND' | 'REVERSAL' | 'ADJUSTMENT';
+
+export interface WelfareCardLedgerRecord {
+  readonly id: string;
+  readonly accountId: string;
+  readonly sequence: number;
+  readonly businessType: WelfareCardLedgerBusinessType;
+  readonly direction: 'CREDIT' | 'DEBIT';
+  readonly amount: number;
+  readonly beforeBalance: number;
+  readonly afterBalance: number;
+  readonly beforeFrozen: number;
+  readonly afterFrozen: number;
+  readonly orderId: string | null;
+  readonly refundId: string | null;
+  readonly adjustmentId: string | null;
+  readonly occurredAt: string;
+}
+
+export interface WelfareCardLedgerView {
+  readonly account: WelfareCardAccountRecord;
+  readonly items: readonly WelfareCardLedgerRecord[];
+}
+
+export interface WelfareCardAdjustmentRecord {
+  readonly id: string;
+  readonly accountId: string;
+  readonly businessType: 'ADJUSTMENT' | 'REVERSAL';
+  readonly direction: 'CREDIT' | 'DEBIT';
+  readonly amount: number;
+  readonly reversalOfLedgerId: string | null;
+  readonly reason: string;
+  readonly status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  readonly version: number;
+  readonly applicantIdentityId: string;
+  readonly applicantFunctionalAccountId: string;
+  readonly reviewerIdentityId: string | null;
+  readonly reviewerFunctionalAccountId: string | null;
+  readonly reviewOpinion: string | null;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+}
+
+export interface CreateWelfareCardAdjustmentCommand {
+  readonly companyId: string;
+  readonly accountId: string;
+  readonly businessType: 'ADJUSTMENT' | 'REVERSAL';
+  readonly direction: 'CREDIT' | 'DEBIT' | null;
+  readonly amount: number | null;
+  readonly reversalOfLedgerId: string | null;
+  readonly reason: string;
+  readonly actorIdentityId: string;
+  readonly functionalAccountId: string;
+  readonly idempotencyKey: string;
+  readonly requestHash: string;
+  readonly requestId: string;
+  readonly ip: string | null;
+}
+
+export interface DecideWelfareCardAdjustmentCommand {
+  readonly companyId: string;
+  readonly adjustmentId: string;
+  readonly reviewerIdentityId: string;
+  readonly functionalAccountId: string;
+  readonly expectedVersion: number;
+  readonly decision: 'APPROVE' | 'REJECT';
+  readonly opinion: string;
+  readonly idempotencyKey: string;
+  readonly requestHash: string;
+  readonly requestId: string;
+  readonly ip: string | null;
+}
+
+export type WelfareCardLedgerLookupResult =
+  | { readonly kind: 'OK'; readonly value: WelfareCardLedgerView }
+  | { readonly kind: 'NOT_FOUND' | 'INCONSISTENT' };
+
+export type WelfareCardAdjustmentMutationResult =
+  | { readonly kind: 'OK'; readonly value: WelfareCardAdjustmentRecord; readonly replayed: boolean }
+  | { readonly kind: 'IDEMPOTENCY_CONFLICT' | 'NOT_FOUND' | 'REVERSAL_INVALID' | 'SAME_NATURAL_PERSON' | 'STATE_INVALID' | 'VERSION_CONFLICT' | 'INSUFFICIENT_BALANCE' };
 
 export interface BindWelfareCardCommand {
   readonly companyId: string;
@@ -129,4 +212,10 @@ export interface WelfareCardRepository {
   createBatch(command: CreateWelfareBatchCommand): Promise<WelfareMutationResult<WelfareBatchRecord>>;
   bindCard(command: BindWelfareCardCommand): Promise<WelfareCardBindingResult>;
   listEligibilityAccounts(companyId: string, consumerUserId: string): Promise<readonly WelfareCardEligibilityAccountRecord[]>;
+  getConsumerLedger(companyId: string, consumerUserId: string, accountId: string): Promise<WelfareCardLedgerLookupResult>;
+  listCompanyAccounts(companyId: string): Promise<readonly WelfareCardAccountRecord[]>;
+  getCompanyLedger(companyId: string, accountId: string): Promise<WelfareCardLedgerLookupResult>;
+  listAdjustments(companyId: string): Promise<readonly WelfareCardAdjustmentRecord[]>;
+  createAdjustment(command: CreateWelfareCardAdjustmentCommand): Promise<WelfareCardAdjustmentMutationResult>;
+  decideAdjustment(command: DecideWelfareCardAdjustmentCommand): Promise<WelfareCardAdjustmentMutationResult>;
 }

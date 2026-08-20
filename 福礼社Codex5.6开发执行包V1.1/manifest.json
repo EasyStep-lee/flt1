@@ -10,24 +10,24 @@
   "counts": {
     "tasks": 149,
     "p0": 119,
-    "fields": 768,
-    "stateTransitions": 115,
+    "fields": 788,
+    "stateTransitions": 119,
     "permissions": 22,
     "pages": 80,
     "externalDependencies": 28,
-    "migrations": 29,
-    "apiContracts": 106,
+    "migrations": 30,
+    "apiContracts": 111,
     "githubIssues": 149
   },
   "workbook": {
     "status": "VERIFIED",
-    "sha256": "AB508404877FF4B1BD93C23478CCF4D1F23811225F1B74EA53EEEA04B6ED551F",
+    "sha256": "BBB2DE8B52A574231CC792F5080E28858AC442FEE564EA9077552F3CB1EFE034",
     "currentTaskMirror": {
-      "taskId": "M3-P058",
+      "taskId": "M3-P059",
       "status": "LOCAL_PASS_PENDING_DRAFT_PR",
       "sourceLedgers": "CSV_JSON_AND_WORKBOOK_UPDATED",
-      "reason": "Artifact-tool synchronized M3-P058 task, P0, field, state, permission, page, evidence, migration, API and stage-gate rows; real WeChat and welfare funds, staging, device, production, exact-head CI and human merge remain separate gates.",
-      "checkedAt": "2026-08-20T05:58:49.9861524Z"
+      "reason": "Artifact-tool synchronized M3-P059 task, P0, field, state, permission, page, evidence, migration, API and stage rows; P062 remains locked and external evidence remains separate.",
+      "checkedAt": "2026-08-20T07:45:17.620Z"
     }
   },
   "sourceOfTruth": [

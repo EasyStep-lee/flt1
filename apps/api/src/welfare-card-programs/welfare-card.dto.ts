@@ -152,3 +152,73 @@ export class EligibleWelfareAccountsResponseDto {
   @ApiProperty({ description: 'Server-priced total in integer cents', minimum: 0, type: Number }) readonly totalAmount!: number;
   @ApiProperty({ type: () => [EligibleWelfareAccountResponseDto] }) readonly accounts!: readonly EligibleWelfareAccountResponseDto[];
 }
+
+export class WelfareCardLedgerItemResponseDto {
+  @ApiProperty({ minimum: 1, type: Number }) readonly sequence!: number;
+  @ApiProperty({ enum: ['CLAIM', 'GRANT', 'GIFT', 'FREEZE', 'RELEASE', 'CAPTURE', 'REFUND', 'REVERSAL', 'ADJUSTMENT'], type: String })
+  readonly businessType!: string;
+  @ApiProperty({ enum: ['CREDIT', 'DEBIT'], type: String }) readonly direction!: string;
+  @ApiProperty({ description: 'Integer cents', minimum: 1, type: Number }) readonly amount!: number;
+  @ApiProperty({ description: 'Integer cents', minimum: 0, type: Number }) readonly beforeBalance!: number;
+  @ApiProperty({ description: 'Integer cents', minimum: 0, type: Number }) readonly afterBalance!: number;
+  @ApiProperty({ description: 'Integer cents', minimum: 0, type: Number }) readonly beforeFrozen!: number;
+  @ApiProperty({ description: 'Integer cents', minimum: 0, type: Number }) readonly afterFrozen!: number;
+  @ApiProperty({ format: 'date-time', type: String }) readonly occurredAt!: string;
+}
+
+export class WelfareCardLedgerAccountResponseDto {
+  @ApiProperty({ format: 'uuid', type: String }) readonly id!: string;
+  @ApiProperty({ type: String }) readonly programName!: string;
+  @ApiProperty({ type: String }) readonly batchNo!: string;
+  @ApiProperty({ description: 'Only the last four card characters are visible', type: String }) readonly maskedCardNo!: string;
+  @ApiProperty({ description: 'Integer cents', minimum: 0, type: Number }) readonly balanceAmount!: number;
+  @ApiProperty({ description: 'Integer cents', minimum: 0, type: Number }) readonly frozenAmount!: number;
+  @ApiProperty({ description: 'Integer cents', minimum: 0, type: Number }) readonly availableAmount!: number;
+  @ApiProperty({ enum: ['ACTIVE', 'SUSPENDED', 'EXPIRED', 'CLOSED'], type: String }) readonly status!: string;
+  @ApiProperty({ minimum: 0, type: Number }) readonly version!: number;
+}
+
+export class ConsumerWelfareLedgerResponseDto {
+  @ApiProperty({ type: () => WelfareCardLedgerAccountResponseDto }) readonly account!: WelfareCardLedgerAccountResponseDto;
+  @ApiProperty({ type: () => [WelfareCardLedgerItemResponseDto] }) readonly items!: readonly WelfareCardLedgerItemResponseDto[];
+}
+
+export class CompanyWelfareAccountPageResponseDto {
+  @ApiProperty({ type: () => [WelfareCardLedgerAccountResponseDto] }) readonly items!: readonly WelfareCardLedgerAccountResponseDto[];
+  @ApiProperty({ minimum: 0, type: Number }) readonly total!: number;
+}
+
+export class CreateWelfareCardAdjustmentRequestDto {
+  @ApiProperty({ enum: ['ADJUSTMENT', 'REVERSAL'], type: String }) readonly businessType!: string;
+  @ApiPropertyOptional({ enum: ['CREDIT', 'DEBIT'], type: String }) readonly direction?: string;
+  @ApiPropertyOptional({ description: 'Required only for ADJUSTMENT; integer cents', minimum: 1, type: Number }) readonly amount?: number;
+  @ApiPropertyOptional({ description: 'Required only for REVERSAL; server-owned ledger id', format: 'uuid', type: String }) readonly reversalOfLedgerId?: string;
+  @ApiProperty({ maxLength: 500, minLength: 2, type: String }) readonly reason!: string;
+}
+
+export class DecideWelfareCardAdjustmentRequestDto {
+  @ApiProperty({ enum: ['APPROVE', 'REJECT'], type: String }) readonly decision!: string;
+  @ApiProperty({ maxLength: 1000, minLength: 2, type: String }) readonly opinion!: string;
+  @ApiProperty({ description: 'Never persisted or returned', maxLength: 64, minLength: 4, type: String }) readonly secondVerificationCode!: string;
+  @ApiProperty({ minimum: 0, type: Number }) readonly version!: number;
+}
+
+export class WelfareCardAdjustmentResponseDto {
+  @ApiProperty({ format: 'uuid', type: String }) readonly id!: string;
+  @ApiProperty({ format: 'uuid', type: String }) readonly accountId!: string;
+  @ApiProperty({ enum: ['ADJUSTMENT', 'REVERSAL'], type: String }) readonly businessType!: string;
+  @ApiProperty({ enum: ['CREDIT', 'DEBIT'], type: String }) readonly direction!: string;
+  @ApiProperty({ description: 'Integer cents', minimum: 1, type: Number }) readonly amount!: number;
+  @ApiPropertyOptional({ format: 'uuid', nullable: true, type: String }) readonly reversalOfLedgerId!: string | null;
+  @ApiProperty({ type: String }) readonly reason!: string;
+  @ApiProperty({ enum: ['PENDING', 'APPROVED', 'REJECTED'], type: String }) readonly status!: string;
+  @ApiProperty({ minimum: 0, type: Number }) readonly version!: number;
+  @ApiPropertyOptional({ nullable: true, type: String }) readonly reviewOpinion!: string | null;
+  @ApiProperty({ format: 'date-time', type: String }) readonly createdAt!: string;
+  @ApiProperty({ format: 'date-time', type: String }) readonly updatedAt!: string;
+}
+
+export class WelfareCardAdjustmentPageResponseDto {
+  @ApiProperty({ type: () => [WelfareCardAdjustmentResponseDto] }) readonly items!: readonly WelfareCardAdjustmentResponseDto[];
+  @ApiProperty({ minimum: 0, type: Number }) readonly total!: number;
+}

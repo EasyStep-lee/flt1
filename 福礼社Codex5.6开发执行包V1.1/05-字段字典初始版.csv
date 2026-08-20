@@ -767,3 +767,23 @@ WelfareCardPaymentCommand,requestHash,requestHash,7,String(64),YES,SHA-256,FINAN
 WelfareCardPaymentCommand,requestId,requestId,8,String(128),YES,request correlation id,FINANCIAL,公司财务与必要业务职能；消费者仅接收响应白名单,不得返回owner/hash/request内部字段或供应价,server-owned identity; immutable idempotent command,追加不可变；禁止更新删除,M3,P0-055,综合方案§9订单福利卡支付,IMPLEMENTED_M3_P055
 WelfareCardPaymentCommand,responseSnapshot,responseSnapshot,9,Json,YES,private DTO snapshot,FINANCIAL,公司财务与必要业务职能；消费者仅接收响应白名单,不得返回owner/hash/request内部字段或供应价,server-owned identity; immutable idempotent command,追加不可变；禁止更新删除,M3,P0-055,综合方案§9订单福利卡支付,IMPLEMENTED_M3_P055
 WelfareCardPaymentCommand,createdAt,createdAt,10,DateTime,YES,UTC ISO-8601,FINANCIAL,公司财务与必要业务职能；消费者仅接收响应白名单,不得返回owner/hash/request内部字段或供应价,server-owned identity; immutable idempotent command,追加不可变；禁止更新删除,M3,P0-055,综合方案§9订单福利卡支付,IMPLEMENTED_M3_P055
+WelfareCardAccount,ledgerSequence,,,Int,YES,,INTERNAL,,,非负；与本账户最大账本sequence一致；事务内递增,不单独人工修改；随资金事务原子更新,M3,P0-059,综合方案§9.7/§9.8/§13；M3-P059契约,IMPLEMENTED_M3_P059
+WelfareCardLedger,sequence,,,Int,YES,,INTERNAL,,,从1连续；accountId+sequence唯一,只追加；禁止更新删除,M3,P0-059,综合方案§9.7/§9.8/§13；M3-P059契约,IMPLEMENTED_M3_P059
+WelfareCardLedger,adjustmentId,,,UUID?,YES,,INTERNAL,,,调整/冲正批准记录一对一；唯一FK,只追加；禁止更新删除,M3,P0-059,综合方案§9.7/§9.8/§13；M3-P059契约,IMPLEMENTED_M3_P059
+WelfareCardAdjustment,id,,,UUID,YES,,INTERNAL,,,主键,状态和决定通过独立History追加；批准后不可改写,M3,P0-059,综合方案§9.7/§9.8/§13；M3-P059契约,IMPLEMENTED_M3_P059
+WelfareCardAdjustment,companyId,,,UUID,YES,,INTERNAL,,,必须来自固定公司会话,状态和决定通过独立History追加；批准后不可改写,M3,P0-059,综合方案§9.7/§9.8/§13；M3-P059契约,IMPLEMENTED_M3_P059
+WelfareCardAdjustment,accountId,,,UUID,YES,,INTERNAL,,,必须属于固定公司,状态和决定通过独立History追加；批准后不可改写,M3,P0-059,综合方案§9.7/§9.8/§13；M3-P059契约,IMPLEMENTED_M3_P059
+WelfareCardAdjustment,businessType,,,enum,YES,,INTERNAL,,,ADJUSTMENT|REVERSAL,状态和决定通过独立History追加；批准后不可改写,M3,P0-059,综合方案§9.7/§9.8/§13；M3-P059契约,IMPLEMENTED_M3_P059
+WelfareCardAdjustment,direction,,,enum,YES,,INTERNAL,,,CREDIT|DEBIT；冲正由原流水派生,状态和决定通过独立History追加；批准后不可改写,M3,P0-059,综合方案§9.7/§9.8/§13；M3-P059契约,IMPLEMENTED_M3_P059
+WelfareCardAdjustment,amount,,,Int,YES,,INTERNAL,,,正整数分；冲正由原流水派生,状态和决定通过独立History追加；批准后不可改写,M3,P0-059,综合方案§9.7/§9.8/§13；M3-P059契约,IMPLEMENTED_M3_P059
+WelfareCardAdjustment,reversalOfLedgerId,,,UUID?,YES,,INTERNAL,,,仅REVERSAL；引用同账户已批准ADJUSTMENT流水且唯一,状态和决定通过独立History追加；批准后不可改写,M3,P0-059,综合方案§9.7/§9.8/§13；M3-P059契约,IMPLEMENTED_M3_P059
+WelfareCardAdjustment,reason,,,String,YES,,INTERNAL,,,2..500,状态和决定通过独立History追加；批准后不可改写,M3,P0-059,综合方案§9.7/§9.8/§13；M3-P059契约,IMPLEMENTED_M3_P059
+WelfareCardAdjustment,status,,,enum,YES,,INTERNAL,,,PENDING|APPROVED|REJECTED,状态和决定通过独立History追加；批准后不可改写,M3,P0-059,综合方案§9.7/§9.8/§13；M3-P059契约,IMPLEMENTED_M3_P059
+WelfareCardAdjustment,version,,,Int,YES,,INTERNAL,,,非负CAS版本,状态和决定通过独立History追加；批准后不可改写,M3,P0-059,综合方案§9.7/§9.8/§13；M3-P059契约,IMPLEMENTED_M3_P059
+WelfareCardAdjustment,applicantIdentityId,,,UUID,YES,,RESTRICTED_INTERNAL,,,自然人申请者；服务端派生,状态和决定通过独立History追加；批准后不可改写,M3,P0-059,综合方案§9.7/§9.8/§13；M3-P059契约,IMPLEMENTED_M3_P059
+WelfareCardAdjustment,applicantFunctionalAccountId,,,UUID,YES,,INTERNAL,,,公司财务职能；服务端派生,状态和决定通过独立History追加；批准后不可改写,M3,P0-059,综合方案§9.7/§9.8/§13；M3-P059契约,IMPLEMENTED_M3_P059
+WelfareCardAdjustment,reviewerIdentityId,,,UUID?,YES,,RESTRICTED_INTERNAL,,,必须与申请者不同自然人,状态和决定通过独立History追加；批准后不可改写,M3,P0-059,综合方案§9.7/§9.8/§13；M3-P059契约,IMPLEMENTED_M3_P059
+WelfareCardAdjustment,reviewerFunctionalAccountId,,,UUID?,YES,,INTERNAL,,,公司财务职能；服务端派生,状态和决定通过独立History追加；批准后不可改写,M3,P0-059,综合方案§9.7/§9.8/§13；M3-P059契约,IMPLEMENTED_M3_P059
+WelfareCardAdjustment,reviewOpinion,,,String?,YES,,INTERNAL,,,2..1000,状态和决定通过独立History追加；批准后不可改写,M3,P0-059,综合方案§9.7/§9.8/§13；M3-P059契约,IMPLEMENTED_M3_P059
+WelfareCardAdjustment,createdAt,,,DateTime(3),YES,,INTERNAL,,,服务端时间,状态和决定通过独立History追加；批准后不可改写,M3,P0-059,综合方案§9.7/§9.8/§13；M3-P059契约,IMPLEMENTED_M3_P059
+WelfareCardAdjustment,updatedAt,,,DateTime(3),YES,,INTERNAL,,,服务端时间,状态和决定通过独立History追加；批准后不可改写,M3,P0-059,综合方案§9.7/§9.8/§13；M3-P059契约,IMPLEMENTED_M3_P059

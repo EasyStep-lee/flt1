@@ -34,6 +34,7 @@ import {
 import { CompanyRefundInitiationPage } from './company-refund-initiation-page.js';
 import { EnterpriseCertificationReviewPanel } from './enterprise-certification-review-panel.js';
 import { WelfareCardProgramsPage } from './welfare-card-programs-page.js';
+import { WelfareCardAdjustmentsPage } from './welfare-card-adjustments-page.js';
 
 type SupplierRow = components['schemas']['SupplierResponseDto'];
 type SupplierStatus = SupplierRow['status'];
@@ -762,6 +763,8 @@ export function CompanyAdminShell() {
             (workspace) => <CompanyRefundInitiationPage workspace={workspace} />
           ) : currentPath === '/company-admin/workspaces/welfare-card' ? (
             (workspace) => <WelfareCardProgramsPage workspace={workspace} />
+          ) : currentPath === '/company-admin/workspaces/finance' ? (
+            (workspace) => <WelfareCardAdjustmentsPage workspace={workspace} />
           ) : undefined
         }
         route={currentPath}

@@ -1,11 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { SafeApiError } from '../http/api-error.js';
+import { COMPANY_SECOND_VERIFIER, type CompanySecondVerifier } from '../company-auth/company-auth.security.js';
+import type { CompanyFinanceActor } from '../enterprise-remittances/enterprise-remittance.actor.js';
 import type { ConsumerOrderActor } from '../orders/order.actor.js';
 import { ORDER_REPOSITORY, type OrderRepository } from '../orders/order.repository.js';
+import { assertWelfareLedgerChain, normalizeWelfareAdjustmentRequest, welfareLedgerRequestHash } from '../welfare-card-ledger/welfare-card-ledger.policy.js';
 import type { WelfareCardActor } from './welfare-card.actor.js';
 import { normalizeBatch, normalizeProgram, normalizeWelfareCardBinding, requireWelfareId, requireWelfareIdempotencyKey, welfareRequestHash } from './welfare-card.policy.js';
-import { WELFARE_CARD_REPOSITORY, type WelfareBatchRecord, type WelfareCardAccountRecord, type WelfareCardEligibilityAccountRecord, type WelfareCardRepository, type WelfareMutationResult, type WelfareProgramRecord } from './welfare-card.repository.js';
+import { WELFARE_CARD_REPOSITORY, type WelfareBatchRecord, type WelfareCardAccountRecord, type WelfareCardAdjustmentMutationResult, type WelfareCardAdjustmentRecord, type WelfareCardEligibilityAccountRecord, type WelfareCardLedgerView, type WelfareCardRepository, type WelfareMutationResult, type WelfareProgramRecord } from './welfare-card.repository.js';
 import { cloneWelfareScopeRules, evaluateWelfareScope, parseWelfareScopeRules } from './welfare-card-scope.policy.js';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu;
@@ -73,10 +76,87 @@ const accountDto = (record: WelfareCardAccountRecord) => ({
   balanceAmount: record.balanceAmount,
   frozenAmount: record.frozenAmount,
   availableAmount: record.balanceAmount - record.frozenAmount,
-  status: record.status,
+  status: 'ACTIVE' as const,
   version: record.version,
   claimedAt: record.claimedAt,
 });
+const ledgerAccountDto = (record: WelfareCardAccountRecord) => ({
+  id: record.id,
+  programName: record.programName,
+  batchNo: record.batchNo,
+  maskedCardNo: maskCardNo(record.cardNo),
+  balanceAmount: record.balanceAmount,
+  frozenAmount: record.frozenAmount,
+  availableAmount: Math.max(0, record.balanceAmount - record.frozenAmount),
+  status: record.status,
+  version: record.version,
+});
+const ledgerDto = (view: WelfareCardLedgerView) => {
+  assertWelfareLedgerChain(view.account, view.items);
+  return {
+    account: ledgerAccountDto(view.account),
+    items: view.items.map((item) => ({
+      sequence: item.sequence,
+      businessType: item.businessType,
+      direction: item.direction,
+      amount: item.amount,
+      beforeBalance: item.beforeBalance,
+      afterBalance: item.afterBalance,
+      beforeFrozen: item.beforeFrozen,
+      afterFrozen: item.afterFrozen,
+      occurredAt: item.occurredAt,
+    })),
+  };
+};
+const adjustmentDto = (record: WelfareCardAdjustmentRecord) => ({
+  id: record.id,
+  accountId: record.accountId,
+  businessType: record.businessType,
+  direction: record.direction,
+  amount: record.amount,
+  reversalOfLedgerId: record.reversalOfLedgerId,
+  reason: record.reason,
+  status: record.status,
+  version: record.version,
+  reviewOpinion: record.reviewOpinion,
+  createdAt: record.createdAt,
+  updatedAt: record.updatedAt,
+});
+const adjustmentResult = (result: WelfareCardAdjustmentMutationResult) => {
+  if (result.kind === 'OK') return { body: adjustmentDto(result.value), replayed: result.replayed };
+  if (result.kind === 'IDEMPOTENCY_CONFLICT') throw new SafeApiError(409, 'IDEMPOTENCY_CONFLICT', 'Idempotency-Key 与首次请求冲突');
+  if (result.kind === 'NOT_FOUND') throw new SafeApiError(404, 'WELFARE_ADJUSTMENT_NOT_FOUND', '福利卡账户或调整申请不存在');
+  if (result.kind === 'REVERSAL_INVALID') throw new SafeApiError(409, 'WELFARE_REVERSAL_INVALID', '原调整流水不可冲正或已被冲正');
+  if (result.kind === 'SAME_NATURAL_PERSON') throw new SafeApiError(403, 'SAME_NATURAL_PERSON_REVIEW', '申请人不能切换职能账号自审');
+  if (result.kind === 'VERSION_CONFLICT') throw new SafeApiError(409, 'WELFARE_ADJUSTMENT_VERSION_CONFLICT', '调整申请版本已变化');
+  if (result.kind === 'INSUFFICIENT_BALANCE') throw new SafeApiError(409, 'WELFARE_CARD_INSUFFICIENT_BALANCE', '调整后余额不得小于冻结金额');
+  throw new SafeApiError(409, 'WELFARE_ADJUSTMENT_STATE_INVALID', '调整申请状态不允许当前操作');
+};
+const adjustmentDecision = (value: unknown) => {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new SafeApiError(422, 'VALIDATION_FAILED', '复核请求无效');
+  const body = value as Record<string, unknown>;
+  const allowed = new Set(['decision', 'opinion', 'secondVerificationCode', 'version']);
+  for (const key of Object.keys(body)) {
+    if (['companyId', 'reviewerIdentityId', 'functionalAccountId', 'accountId'].includes(key)) {
+      throw new SafeApiError(403, 'FIELD_FORBIDDEN', '复核归属由会话派生');
+    }
+    if (!allowed.has(key)) throw new SafeApiError(422, 'VALIDATION_FAILED', '复核请求包含未允许字段');
+  }
+  if (body.decision !== 'APPROVE' && body.decision !== 'REJECT') throw new SafeApiError(422, 'VALIDATION_FAILED', '复核决定无效');
+  if (typeof body.opinion !== 'string' || body.opinion.trim().length < 2 || body.opinion.trim().length > 1000) {
+    throw new SafeApiError(422, 'VALIDATION_FAILED', '复核意见无效');
+  }
+  if (typeof body.secondVerificationCode !== 'string' || body.secondVerificationCode.trim().length < 4 || body.secondVerificationCode.trim().length > 64) {
+    throw new SafeApiError(422, 'VALIDATION_FAILED', '二次验证码无效');
+  }
+  if (!Number.isSafeInteger(body.version) || Number(body.version) < 0) throw new SafeApiError(422, 'VALIDATION_FAILED', '复核版本无效');
+  return {
+    decision: body.decision,
+    opinion: body.opinion.trim(),
+    secondVerificationCode: body.secondVerificationCode.trim(),
+    version: Number(body.version),
+  } as const;
+};
 const mutationValue = <T extends WelfareProgramRecord | WelfareBatchRecord>(result: WelfareMutationResult<T>): { value: T; replayed: boolean } => {
   if (result.kind === 'IDEMPOTENCY_CONFLICT') throw new SafeApiError(409, 'IDEMPOTENCY_CONFLICT', 'Idempotency-Key 与首次请求冲突');
   if (result.kind === 'NOT_FOUND') throw new SafeApiError(404, 'WELFARE_PROGRAM_NOT_FOUND', '福利卡计划不存在于当前公司');
@@ -91,6 +171,7 @@ export class WelfareCardService {
   constructor(
     @Inject(WELFARE_CARD_REPOSITORY) private readonly repository: WelfareCardRepository,
     @Inject(ORDER_REPOSITORY) private readonly orderRepository: OrderRepository,
+    @Inject(COMPANY_SECOND_VERIFIER) private readonly secondVerifier: CompanySecondVerifier,
   ) {}
 
   async list(actor: WelfareCardActor, query: Record<string, unknown> = {}) {
@@ -215,5 +296,74 @@ export class WelfareCardService {
       })
       .sort((left, right) => right.maximumDeductibleAmount - left.maximumDeductibleAmount || left.id.localeCompare(right.id));
     return { goodsAmount, deliveryFee, totalAmount: goodsAmount + deliveryFee, accounts };
+  }
+
+  async getConsumerLedger(actor: ConsumerOrderActor, accountIdValue: unknown) {
+    if (actor.status !== 'ACTIVE') throw new SafeApiError(403, 'ACCOUNT_SUSPENDED', '当前个人账号不可查看福利卡');
+    const accountId = requireWelfareId(accountIdValue);
+    const result = await this.repository.getConsumerLedger(actor.companyId, actor.consumerUserId, accountId);
+    if (result.kind === 'NOT_FOUND') throw new SafeApiError(404, 'WELFARE_LEDGER_SCOPE_FORBIDDEN', '福利卡账户不存在或不属于当前用户');
+    if (result.kind === 'INCONSISTENT') throw new SafeApiError(503, 'WELFARE_LEDGER_INCONSISTENT', '福利卡账本与账户余额不一致');
+    if (result.kind !== 'OK') throw new SafeApiError(503, 'WELFARE_LEDGER_INCONSISTENT', '福利卡账本与账户余额不一致');
+    return ledgerDto(result.value);
+  }
+
+  async listCompanyAccounts(actor: WelfareCardActor) {
+    requireRole(actor);
+    const items = (await this.repository.listCompanyAccounts(actor.companyId)).map(ledgerAccountDto);
+    return { items, total: items.length };
+  }
+
+  async getCompanyLedger(actor: WelfareCardActor, accountIdValue: unknown) {
+    requireRole(actor);
+    const result = await this.repository.getCompanyLedger(actor.companyId, requireWelfareId(accountIdValue));
+    if (result.kind === 'NOT_FOUND') throw new SafeApiError(404, 'WELFARE_LEDGER_SCOPE_FORBIDDEN', '福利卡账户不存在于当前公司');
+    if (result.kind === 'INCONSISTENT') throw new SafeApiError(503, 'WELFARE_LEDGER_INCONSISTENT', '福利卡账本与账户余额不一致');
+    if (result.kind !== 'OK') throw new SafeApiError(503, 'WELFARE_LEDGER_INCONSISTENT', '福利卡账本与账户余额不一致');
+    return ledgerDto(result.value);
+  }
+
+  async listAdjustments(actor: CompanyFinanceActor) {
+    const items = (await this.repository.listAdjustments(actor.companyId)).map(adjustmentDto);
+    return { items, total: items.length };
+  }
+
+  async createAdjustment(actor: CompanyFinanceActor, accountIdValue: unknown, body: unknown, keyValue: unknown, requestId: string, ip: string | null) {
+    const accountId = requireWelfareId(accountIdValue);
+    const input = normalizeWelfareAdjustmentRequest(body);
+    const idempotencyKey = requireWelfareIdempotencyKey(keyValue);
+    return adjustmentResult(await this.repository.createAdjustment({
+      companyId: actor.companyId,
+      accountId,
+      ...input,
+      actorIdentityId: actor.identityId,
+      functionalAccountId: actor.functionalAccountId,
+      idempotencyKey,
+      requestHash: welfareLedgerRequestHash({ accountId, ...input }),
+      requestId,
+      ip,
+    }));
+  }
+
+  async decideAdjustment(actor: CompanyFinanceActor, adjustmentIdValue: unknown, body: unknown, keyValue: unknown, requestId: string, ip: string | null) {
+    const adjustmentId = requireWelfareId(adjustmentIdValue);
+    const input = adjustmentDecision(body);
+    if (!(await this.secondVerifier.verify({ code: input.secondVerificationCode, userId: actor.identityId }))) {
+      throw new SafeApiError(428, 'SECOND_VERIFICATION_REQUIRED', '调整复核需要有效二次验证');
+    }
+    const idempotencyKey = requireWelfareIdempotencyKey(keyValue);
+    return adjustmentResult(await this.repository.decideAdjustment({
+      companyId: actor.companyId,
+      adjustmentId,
+      reviewerIdentityId: actor.identityId,
+      functionalAccountId: actor.functionalAccountId,
+      expectedVersion: input.version,
+      decision: input.decision,
+      opinion: input.opinion,
+      idempotencyKey,
+      requestHash: welfareLedgerRequestHash({ adjustmentId, version: input.version, decision: input.decision, opinion: input.opinion }),
+      requestId,
+      ip,
+    }));
   }
 }

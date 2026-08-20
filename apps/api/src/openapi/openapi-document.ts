@@ -469,6 +469,12 @@ type JsonValue =
         createBatch: async () => ({ kind: 'NOT_FOUND' }),
         bindCard: async () => ({ kind: 'CARD_CODE_INVALID', reason: 'CREDENTIAL' }),
         listEligibilityAccounts: async () => [],
+        getConsumerLedger: async () => ({ kind: 'NOT_FOUND' }),
+        listCompanyAccounts: async () => [],
+        getCompanyLedger: async () => ({ kind: 'NOT_FOUND' }),
+        listAdjustments: async () => [],
+        createAdjustment: async () => ({ kind: 'NOT_FOUND' }),
+        decideAdjustment: async () => ({ kind: 'NOT_FOUND' }),
       } satisfies WelfareCardRepository,
     },
     {

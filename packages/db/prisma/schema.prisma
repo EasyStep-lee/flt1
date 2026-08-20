@@ -574,31 +574,32 @@ enum FieldAccessMode {
 }
 
 model Company {
-  id                        String                     @id @default(uuid()) @db.Char(36)
-  legalName                 String                     @unique @map("legal_name") @db.VarChar(128)
-  platformName              String                     @unique @map("platform_name") @db.VarChar(64)
-  wechatPayConfigRef        String                     @map("wechat_pay_config_ref") @db.VarChar(255)
-  status                    CompanyStatus              @default(ACTIVE)
-  createdAt                 DateTime                   @default(now()) @map("created_at") @db.DateTime(3)
-  updatedAt                 DateTime                   @updatedAt @map("updated_at") @db.DateTime(3)
-  suppliers                 Supplier[]
-  users                     CompanyUser[]
-  functionalAccounts        FunctionalAccount[]
-  products                  Product[]
-  categories                Category[]
-  categoryTemplates         CategoryTemplate[]
-  regulatedCategoryControls RegulatedCategoryControl[]
-  supplyPriceChangeRequests SupplyPriceChangeRequest[]
-  priceChangeLogs           PriceChangeLog[]
-  priceEffectOutboxes       PriceEffectOutbox[]
-  buyerOrders               BuyerOrder[]
-  refundAuthorizations      RefundAuthorization[]
-  enterpriseCustomers       EnterpriseCustomer[]
-  welfareCardPrograms       WelfareCardProgram[]
-  welfareCardBatches        WelfareCardBatch[]
-  welfareCardCommands       WelfareCardCommand[]
+  id                         String                      @id @default(uuid()) @db.Char(36)
+  legalName                  String                      @unique @map("legal_name") @db.VarChar(128)
+  platformName               String                      @unique @map("platform_name") @db.VarChar(64)
+  wechatPayConfigRef         String                      @map("wechat_pay_config_ref") @db.VarChar(255)
+  status                     CompanyStatus               @default(ACTIVE)
+  createdAt                  DateTime                    @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt                  DateTime                    @updatedAt @map("updated_at") @db.DateTime(3)
+  suppliers                  Supplier[]
+  users                      CompanyUser[]
+  functionalAccounts         FunctionalAccount[]
+  products                   Product[]
+  categories                 Category[]
+  categoryTemplates          CategoryTemplate[]
+  regulatedCategoryControls  RegulatedCategoryControl[]
+  supplyPriceChangeRequests  SupplyPriceChangeRequest[]
+  priceChangeLogs            PriceChangeLog[]
+  priceEffectOutboxes        PriceEffectOutbox[]
+  buyerOrders                BuyerOrder[]
+  refundAuthorizations       RefundAuthorization[]
+  enterpriseCustomers        EnterpriseCustomer[]
+  welfareCardPrograms        WelfareCardProgram[]
+  welfareCardBatches         WelfareCardBatch[]
+  welfareCardCommands        WelfareCardCommand[]
   welfareCardBindingCommands WelfareCardBindingCommand[]
   welfareCardPaymentCommands WelfareCardPaymentCommand[]
+  welfareCardAdjustments     WelfareCardAdjustment[]
 
   @@map("company")
 }
@@ -692,28 +693,28 @@ model SupplierUser {
 }
 
 model EnterpriseCustomer {
-  id                     String                       @id @default(uuid()) @db.Char(36)
-  companyId              String                       @map("company_id") @db.Char(36)
-  legalName              String                       @map("legal_name") @db.VarChar(191)
-  creditCode             String                       @unique @map("credit_code") @db.Char(18)
-  registeredAddress      String?                      @map("registered_address") @db.VarChar(500)
-  enterpriseType         String?                      @map("enterprise_type") @db.VarChar(64)
-  licenseObjectKey       String?                      @map("license_object_key") @db.VarChar(255)
-  licenseValidUntil      DateTime?                    @map("license_valid_until") @db.DateTime(3)
-  contactName            String                       @map("contact_name") @db.VarChar(128)
-  contactMobile          String                       @map("contact_mobile") @db.VarChar(16)
-  contactEmail           String?                      @map("contact_email") @db.VarChar(254)
-  contactTitle           String?                      @map("contact_title") @db.VarChar(128)
-  agreementVersion       String                       @map("agreement_version") @db.VarChar(64)
-  agreementStatus        EnterpriseAgreementStatus    @default(NOT_SIGNED) @map("agreement_status")
-  status                 EnterpriseCustomerStatus     @default(DRAFT)
-  correctionFields       Json                         @map("correction_fields")
-  reviewOpinion          String?                      @map("review_opinion") @db.VarChar(1000)
-  version                Int                          @default(0)
-  submittedAt            DateTime?                    @map("submitted_at") @db.DateTime(3)
-  createdAt              DateTime                     @default(now()) @map("created_at") @db.DateTime(3)
-  updatedAt              DateTime                     @updatedAt @map("updated_at") @db.DateTime(3)
-  company                Company                      @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  id                     String                            @id @default(uuid()) @db.Char(36)
+  companyId              String                            @map("company_id") @db.Char(36)
+  legalName              String                            @map("legal_name") @db.VarChar(191)
+  creditCode             String                            @unique @map("credit_code") @db.Char(18)
+  registeredAddress      String?                           @map("registered_address") @db.VarChar(500)
+  enterpriseType         String?                           @map("enterprise_type") @db.VarChar(64)
+  licenseObjectKey       String?                           @map("license_object_key") @db.VarChar(255)
+  licenseValidUntil      DateTime?                         @map("license_valid_until") @db.DateTime(3)
+  contactName            String                            @map("contact_name") @db.VarChar(128)
+  contactMobile          String                            @map("contact_mobile") @db.VarChar(16)
+  contactEmail           String?                           @map("contact_email") @db.VarChar(254)
+  contactTitle           String?                           @map("contact_title") @db.VarChar(128)
+  agreementVersion       String                            @map("agreement_version") @db.VarChar(64)
+  agreementStatus        EnterpriseAgreementStatus         @default(NOT_SIGNED) @map("agreement_status")
+  status                 EnterpriseCustomerStatus          @default(DRAFT)
+  correctionFields       Json                              @map("correction_fields")
+  reviewOpinion          String?                           @map("review_opinion") @db.VarChar(1000)
+  version                Int                               @default(0)
+  submittedAt            DateTime?                         @map("submitted_at") @db.DateTime(3)
+  createdAt              DateTime                          @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt              DateTime                          @updatedAt @map("updated_at") @db.DateTime(3)
+  company                Company                           @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   users                  EnterpriseUser[]
   addresses              EnterpriseAddress[]
   invoiceProfiles        EnterpriseInvoiceProfile[]
@@ -729,18 +730,18 @@ model EnterpriseCustomer {
 }
 
 model EnterpriseUser {
-  id                   String               @id @default(uuid()) @db.Char(36)
-  enterpriseCustomerId String               @map("enterprise_customer_id") @db.Char(36)
-  identityId           String               @map("identity_id") @db.Char(36)
-  role                 EnterpriseUserRole   @default(ENTERPRISE_ADMIN)
-  name                 String               @db.VarChar(128)
-  mobile               String               @db.VarChar(16)
-  email                String?              @db.VarChar(254)
-  title                String?              @db.VarChar(128)
-  status               EnterpriseUserStatus @default(INVITED)
-  createdAt            DateTime             @default(now()) @map("created_at") @db.DateTime(3)
-  updatedAt            DateTime             @updatedAt @map("updated_at") @db.DateTime(3)
-  enterpriseCustomer   EnterpriseCustomer   @relation(fields: [enterpriseCustomerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  id                   String                       @id @default(uuid()) @db.Char(36)
+  enterpriseCustomerId String                       @map("enterprise_customer_id") @db.Char(36)
+  identityId           String                       @map("identity_id") @db.Char(36)
+  role                 EnterpriseUserRole           @default(ENTERPRISE_ADMIN)
+  name                 String                       @db.VarChar(128)
+  mobile               String                       @db.VarChar(16)
+  email                String?                      @db.VarChar(254)
+  title                String?                      @db.VarChar(128)
+  status               EnterpriseUserStatus         @default(INVITED)
+  createdAt            DateTime                     @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt            DateTime                     @updatedAt @map("updated_at") @db.DateTime(3)
+  enterpriseCustomer   EnterpriseCustomer           @relation(fields: [enterpriseCustomerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   procurementOrders    EnterpriseProcurementOrder[]
 
   @@unique([enterpriseCustomerId, mobile], map: "enterprise_user_enterprise_mobile_key")
@@ -846,29 +847,32 @@ model EnterpriseOnboardingCommand {
 }
 
 model FunctionalAccount {
-  id                  String                           @id @default(uuid()) @db.Char(36)
-  identityType        FunctionalIdentityType           @map("identity_type")
-  identityId          String                           @map("identity_id") @db.Char(36)
-  ownerType           FunctionalOwnerType              @map("owner_type")
-  companyId           String?                          @map("company_id") @db.Char(36)
-  supplierId          String?                          @map("supplier_id") @db.Char(36)
-  accountTypeId       String                           @map("account_type_id") @db.Char(36)
-  displayName         String                           @map("display_name") @db.VarChar(128)
-  status              FunctionalAccountStatus          @default(PENDING_ACTIVATION)
-  expiresAt           DateTime?                        @map("expires_at") @db.DateTime(3)
-  version             Int                              @default(0)
-  createdAt           DateTime                         @default(now()) @map("created_at") @db.DateTime(3)
-  updatedAt           DateTime                         @updatedAt @map("updated_at") @db.DateTime(3)
-  supplier            Supplier?                        @relation(fields: [supplierId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  company             Company?                         @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  accountType         FunctionalAccountType            @relation(fields: [accountTypeId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  statusHistory       FunctionalAccountStatusHistory[]
-  permissions         FunctionalAccountPermission[]
-  dataScopePolicy     DataScopePolicy?
-  fieldAccessPolicies FieldAccessPolicy[]
-  authSessions        AuthSession[]
-  createdWelfareCardPrograms WelfareCardProgram[]
-  createdWelfareCardBatches  WelfareCardBatch[]
+  id                             String                           @id @default(uuid()) @db.Char(36)
+  identityType                   FunctionalIdentityType           @map("identity_type")
+  identityId                     String                           @map("identity_id") @db.Char(36)
+  ownerType                      FunctionalOwnerType              @map("owner_type")
+  companyId                      String?                          @map("company_id") @db.Char(36)
+  supplierId                     String?                          @map("supplier_id") @db.Char(36)
+  accountTypeId                  String                           @map("account_type_id") @db.Char(36)
+  displayName                    String                           @map("display_name") @db.VarChar(128)
+  status                         FunctionalAccountStatus          @default(PENDING_ACTIVATION)
+  expiresAt                      DateTime?                        @map("expires_at") @db.DateTime(3)
+  version                        Int                              @default(0)
+  createdAt                      DateTime                         @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt                      DateTime                         @updatedAt @map("updated_at") @db.DateTime(3)
+  supplier                       Supplier?                        @relation(fields: [supplierId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  company                        Company?                         @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  accountType                    FunctionalAccountType            @relation(fields: [accountTypeId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  statusHistory                  FunctionalAccountStatusHistory[]
+  permissions                    FunctionalAccountPermission[]
+  dataScopePolicy                DataScopePolicy?
+  fieldAccessPolicies            FieldAccessPolicy[]
+  authSessions                   AuthSession[]
+  createdWelfareCardPrograms     WelfareCardProgram[]
+  createdWelfareCardBatches      WelfareCardBatch[]
+  welfareCardAdjustmentsApplied  WelfareCardAdjustment[]          @relation("WelfareCardAdjustmentApplicant")
+  welfareCardAdjustmentsReviewed WelfareCardAdjustment[]          @relation("WelfareCardAdjustmentReviewer")
+  welfareCardAdjustmentHistory   WelfareCardAdjustmentHistory[]
 
   @@unique([supplierId, identityId, accountTypeId], map: "functional_account_supplier_identity_type_key")
   @@unique([companyId, identityId, accountTypeId], map: "functional_account_company_identity_type_key")
@@ -1446,40 +1450,40 @@ model Sku {
 }
 
 model BuyerOrder {
-  id                    String                           @id @default(uuid()) @db.Char(36)
-  orderNo               String                           @unique(map: "buyer_order_order_no_key") @map("order_no") @db.VarChar(32)
-  companyId             String                           @map("company_id") @db.Char(36)
-  consumerUserId        String?                          @map("consumer_user_id") @db.Char(36)
-  enterpriseCustomerId  String?                          @map("enterprise_customer_id") @db.Char(36)
-  orderType             BuyerOrderType                   @map("order_type")
-  goodsAmount           Int                              @map("goods_amount")
-  deliveryFee           Int                              @default(0) @map("delivery_fee")
-  discountAmount        Int                              @default(0) @map("discount_amount")
-  totalAmount           Int                              @map("total_amount")
-  welfareCardAmount     Int                              @default(0) @map("welfare_card_amount")
-  welfareCardAccountId  String?                          @map("welfare_card_account_id") @db.Char(36)
-  cashAmount            Int                              @map("cash_amount")
-  externalPaymentMethod BuyerOrderExternalPaymentMethod? @map("external_payment_method")
-  paymentStatus         BuyerOrderPaymentStatus          @default(PENDING) @map("payment_status")
-  orderStatus           BuyerOrderStatus                 @default(PENDING_PAYMENT) @map("order_status")
-  idempotencyScope      String                           @map("idempotency_scope") @db.VarChar(128)
-  idempotencyKey        String                           @map("idempotency_key") @db.VarChar(128)
-  requestHash           String                           @map("request_hash") @db.Char(64)
-  version               Int                              @default(0)
-  createdAt             DateTime                         @default(now()) @map("created_at") @db.DateTime(3)
-  updatedAt             DateTime                         @updatedAt @map("updated_at") @db.DateTime(3)
-  company               Company                          @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  items                 BuyerOrderItem[]
-  supplierFulfillments  SupplierFulfillmentOrder[]
-  events                BuyerOrderEvent[]
-  paymentTransactions   PaymentTransaction[]
-  paymentAllocations    OrderPaymentAllocation[]
-  paymentOutboxes       PaymentOutbox[]
-  enterpriseRemittances EnterpriseRemittanceSubmission[]
-  refundAuthorizations  RefundAuthorization[]
-  refundTransactions    RefundTransaction[]
+  id                         String                           @id @default(uuid()) @db.Char(36)
+  orderNo                    String                           @unique(map: "buyer_order_order_no_key") @map("order_no") @db.VarChar(32)
+  companyId                  String                           @map("company_id") @db.Char(36)
+  consumerUserId             String?                          @map("consumer_user_id") @db.Char(36)
+  enterpriseCustomerId       String?                          @map("enterprise_customer_id") @db.Char(36)
+  orderType                  BuyerOrderType                   @map("order_type")
+  goodsAmount                Int                              @map("goods_amount")
+  deliveryFee                Int                              @default(0) @map("delivery_fee")
+  discountAmount             Int                              @default(0) @map("discount_amount")
+  totalAmount                Int                              @map("total_amount")
+  welfareCardAmount          Int                              @default(0) @map("welfare_card_amount")
+  welfareCardAccountId       String?                          @map("welfare_card_account_id") @db.Char(36)
+  cashAmount                 Int                              @map("cash_amount")
+  externalPaymentMethod      BuyerOrderExternalPaymentMethod? @map("external_payment_method")
+  paymentStatus              BuyerOrderPaymentStatus          @default(PENDING) @map("payment_status")
+  orderStatus                BuyerOrderStatus                 @default(PENDING_PAYMENT) @map("order_status")
+  idempotencyScope           String                           @map("idempotency_scope") @db.VarChar(128)
+  idempotencyKey             String                           @map("idempotency_key") @db.VarChar(128)
+  requestHash                String                           @map("request_hash") @db.Char(64)
+  version                    Int                              @default(0)
+  createdAt                  DateTime                         @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt                  DateTime                         @updatedAt @map("updated_at") @db.DateTime(3)
+  company                    Company                          @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  items                      BuyerOrderItem[]
+  supplierFulfillments       SupplierFulfillmentOrder[]
+  events                     BuyerOrderEvent[]
+  paymentTransactions        PaymentTransaction[]
+  paymentAllocations         OrderPaymentAllocation[]
+  paymentOutboxes            PaymentOutbox[]
+  enterpriseRemittances      EnterpriseRemittanceSubmission[]
+  refundAuthorizations       RefundAuthorization[]
+  refundTransactions         RefundTransaction[]
   enterpriseProcurementOrder EnterpriseProcurementOrder?
-  welfareCardPaymentCommand WelfareCardPaymentCommand?
+  welfareCardPaymentCommand  WelfareCardPaymentCommand?
 
   @@unique([idempotencyScope, idempotencyKey], map: "buyer_order_idempotency_scope_key")
   @@index([companyId, orderType, createdAt], map: "buyer_order_company_type_time_idx")
@@ -1489,21 +1493,21 @@ model BuyerOrder {
 }
 
 model EnterpriseProcurementOrder {
-  id                       String                              @id @default(uuid()) @db.Char(36)
-  buyerOrderId             String                              @unique @map("buyer_order_id") @db.Char(36)
-  enterpriseCustomerId     String                              @map("enterprise_customer_id") @db.Char(36)
-  purchaserUserId          String                              @map("purchaser_user_id") @db.Char(36)
-  invoiceProfileSnapshot   Json                                @map("invoice_profile_snapshot")
+  id                        String                             @id @default(uuid()) @db.Char(36)
+  buyerOrderId              String                             @unique @map("buyer_order_id") @db.Char(36)
+  enterpriseCustomerId      String                             @map("enterprise_customer_id") @db.Char(36)
+  purchaserUserId           String                             @map("purchaser_user_id") @db.Char(36)
+  invoiceProfileSnapshot    Json                               @map("invoice_profile_snapshot")
   enterpriseAddressSnapshot Json                               @map("enterprise_address_snapshot")
-  paymentMethod            EnterpriseProcurementPaymentMethod @map("payment_method")
-  remittanceReviewStatus   EnterpriseRemittanceReviewStatus    @default(NOT_SUBMITTED) @map("remittance_review_status")
-  status                   EnterpriseProcurementOrderStatus    @default(PENDING_PAYMENT)
-  version                  Int                                 @default(0)
-  createdAt                DateTime                            @default(now()) @map("created_at") @db.DateTime(3)
-  updatedAt                DateTime                            @updatedAt @map("updated_at") @db.DateTime(3)
-  buyerOrder               BuyerOrder                          @relation(fields: [buyerOrderId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  enterpriseCustomer       EnterpriseCustomer                  @relation(fields: [enterpriseCustomerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  purchaserUser            EnterpriseUser                      @relation(fields: [purchaserUserId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  paymentMethod             EnterpriseProcurementPaymentMethod @map("payment_method")
+  remittanceReviewStatus    EnterpriseRemittanceReviewStatus   @default(NOT_SUBMITTED) @map("remittance_review_status")
+  status                    EnterpriseProcurementOrderStatus   @default(PENDING_PAYMENT)
+  version                   Int                                @default(0)
+  createdAt                 DateTime                           @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt                 DateTime                           @updatedAt @map("updated_at") @db.DateTime(3)
+  buyerOrder                BuyerOrder                         @relation(fields: [buyerOrderId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  enterpriseCustomer        EnterpriseCustomer                 @relation(fields: [enterpriseCustomerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  purchaserUser             EnterpriseUser                     @relation(fields: [purchaserUserId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   supplierFulfillmentOrders SupplierFulfillmentOrder[]
 
   @@index([enterpriseCustomerId, status, createdAt], map: "enterprise_procurement_order_customer_status_idx")
@@ -1512,26 +1516,26 @@ model EnterpriseProcurementOrder {
 }
 
 model SupplierFulfillmentOrder {
-  id                           String                              @id @default(uuid()) @db.Char(36)
-  buyerOrderId                 String                              @map("buyer_order_id") @db.Char(36)
-  enterpriseProcurementOrderId String?                             @map("enterprise_procurement_order_id") @db.Char(36)
-  supplierId                   String                              @map("supplier_id") @db.Char(36)
-  subOrderNo                   String                              @unique(map: "fulfillment_sub_order_no_key") @map("sub_order_no") @db.VarChar(64)
-  goodsAmount                  Int                                 @map("goods_amount")
-  supplyAmount                 Int                                 @map("supply_amount")
-  itemCount                    Int                                 @map("item_count")
-  channelType                  SupplierFulfillmentChannelType      @map("channel_type")
-  activationStatus             SupplierFulfillmentActivationStatus @default(PENDING_PAYMENT) @map("activation_status")
+  id                           String                               @id @default(uuid()) @db.Char(36)
+  buyerOrderId                 String                               @map("buyer_order_id") @db.Char(36)
+  enterpriseProcurementOrderId String?                              @map("enterprise_procurement_order_id") @db.Char(36)
+  supplierId                   String                               @map("supplier_id") @db.Char(36)
+  subOrderNo                   String                               @unique(map: "fulfillment_sub_order_no_key") @map("sub_order_no") @db.VarChar(64)
+  goodsAmount                  Int                                  @map("goods_amount")
+  supplyAmount                 Int                                  @map("supply_amount")
+  itemCount                    Int                                  @map("item_count")
+  channelType                  SupplierFulfillmentChannelType       @map("channel_type")
+  activationStatus             SupplierFulfillmentActivationStatus  @default(PENDING_PAYMENT) @map("activation_status")
   preparationStatus            SupplierFulfillmentPreparationStatus @default(PENDING) @map("preparation_status")
-  handoverStatus               SupplierFulfillmentHandoverStatus   @default(NOT_READY) @map("handover_status")
-  settlementStatus             SupplierFulfillmentSettlementStatus @default(NOT_RECONCILED) @map("settlement_status")
-  pickupPointSnapshot          Json                                @map("pickup_point_snapshot")
-  version                      Int                                 @default(0)
-  createdAt                    DateTime                            @default(now()) @map("created_at") @db.DateTime(3)
-  updatedAt                    DateTime                            @updatedAt @map("updated_at") @db.DateTime(3)
-  buyerOrder                   BuyerOrder                          @relation(fields: [buyerOrderId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  enterpriseProcurementOrder   EnterpriseProcurementOrder?         @relation(fields: [enterpriseProcurementOrderId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "fulfillment_enterprise_procurement_order_id_fkey")
-  supplier                     Supplier                            @relation(fields: [supplierId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  handoverStatus               SupplierFulfillmentHandoverStatus    @default(NOT_READY) @map("handover_status")
+  settlementStatus             SupplierFulfillmentSettlementStatus  @default(NOT_RECONCILED) @map("settlement_status")
+  pickupPointSnapshot          Json                                 @map("pickup_point_snapshot")
+  version                      Int                                  @default(0)
+  createdAt                    DateTime                             @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt                    DateTime                             @updatedAt @map("updated_at") @db.DateTime(3)
+  buyerOrder                   BuyerOrder                           @relation(fields: [buyerOrderId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  enterpriseProcurementOrder   EnterpriseProcurementOrder?          @relation(fields: [enterpriseProcurementOrderId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "fulfillment_enterprise_procurement_order_id_fkey")
+  supplier                     Supplier                             @relation(fields: [supplierId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   items                        BuyerOrderItem[]
   nodeLogs                     SupplierFulfillmentNodeLog[]
   readinessOutboxes            SupplierFulfillmentReadinessOutbox[]
@@ -1542,23 +1546,23 @@ model SupplierFulfillmentOrder {
 }
 
 model SupplierFulfillmentNodeLog {
-  id                  String                            @id @default(uuid()) @db.Char(36)
-  subOrderId          String                            @map("sub_order_id") @db.Char(36)
-  node                SupplierFulfillmentNodeType
+  id                    String                               @id @default(uuid()) @db.Char(36)
+  subOrderId            String                               @map("sub_order_id") @db.Char(36)
+  node                  SupplierFulfillmentNodeType
   fromPreparationStatus SupplierFulfillmentPreparationStatus @map("from_preparation_status")
-  toPreparationStatus SupplierFulfillmentPreparationStatus @map("to_preparation_status")
-  handoverParty       SupplierFulfillmentHandoverParty? @map("handover_party")
-  detailSnapshot      Json                              @map("detail_snapshot")
-  actorIdentityId     String                            @map("actor_identity_id") @db.Char(36)
-  functionalAccountId String                            @map("functional_account_id") @db.Char(36)
-  idempotencyKey      String                            @map("idempotency_key") @db.VarChar(128)
-  requestHash         String                            @map("request_hash") @db.Char(64)
-  responseSnapshot    Json                              @map("response_snapshot")
-  requestId           String                            @map("request_id") @db.VarChar(128)
-  ip                  String?                           @db.VarChar(64)
-  resultingVersion    Int                               @map("resulting_version")
-  occurredAt          DateTime                          @default(now()) @map("occurred_at") @db.DateTime(3)
-  subOrder            SupplierFulfillmentOrder          @relation(fields: [subOrderId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "fulfillment_node_sub_order_id_fkey")
+  toPreparationStatus   SupplierFulfillmentPreparationStatus @map("to_preparation_status")
+  handoverParty         SupplierFulfillmentHandoverParty?    @map("handover_party")
+  detailSnapshot        Json                                 @map("detail_snapshot")
+  actorIdentityId       String                               @map("actor_identity_id") @db.Char(36)
+  functionalAccountId   String                               @map("functional_account_id") @db.Char(36)
+  idempotencyKey        String                               @map("idempotency_key") @db.VarChar(128)
+  requestHash           String                               @map("request_hash") @db.Char(64)
+  responseSnapshot      Json                                 @map("response_snapshot")
+  requestId             String                               @map("request_id") @db.VarChar(128)
+  ip                    String?                              @db.VarChar(64)
+  resultingVersion      Int                                  @map("resulting_version")
+  occurredAt            DateTime                             @default(now()) @map("occurred_at") @db.DateTime(3)
+  subOrder              SupplierFulfillmentOrder             @relation(fields: [subOrderId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "fulfillment_node_sub_order_id_fkey")
 
   @@unique([subOrderId, idempotencyKey], map: "fulfillment_node_sub_order_idempotency_key")
   @@index([subOrderId, occurredAt], map: "fulfillment_node_sub_order_time_idx")
@@ -1743,28 +1747,28 @@ model RefundAuthorization {
 }
 
 model RefundTransaction {
-  id                           String                  @id @default(uuid()) @db.Char(36)
-  afterSaleId                  String                  @unique(map: "refund_transaction_after_sale_key") @map("after_sale_id") @db.Char(36)
-  orderId                      String                  @map("order_id") @db.Char(36)
-  orderItemId                  String                  @map("order_item_id") @db.Char(36)
-  refundNo                     String                  @unique(map: "refund_transaction_refund_no_key") @map("refund_no") @db.VarChar(32)
-  welfareCardRefundAmount      Int                     @map("welfare_card_refund_amount")
-  cashRefundAmount             Int                     @map("cash_refund_amount")
-  originalPaymentTransactionId String?                 @map("original_payment_transaction_id") @db.Char(36)
-  wechatRefundNo               String?                 @unique(map: "refund_transaction_wechat_refund_no_key") @map("wechat_refund_no") @db.VarChar(64)
-  status                       RefundTransactionStatus @default(CREATED)
-  welfareChannelStatus         RefundChannelStatus     @default(NOT_REQUIRED) @map("welfare_channel_status")
-  wechatChannelStatus          RefundChannelStatus     @default(NOT_REQUIRED) @map("wechat_channel_status")
-  notifyVerifiedAt             DateTime?               @map("notify_verified_at") @db.DateTime(3)
-  idempotencyKey               String                  @map("idempotency_key") @db.VarChar(128)
-  requestHash                  String                  @map("request_hash") @db.Char(64)
-  version                      Int                     @default(0)
-  createdAt                    DateTime                @default(now()) @map("created_at") @db.DateTime(3)
-  updatedAt                    DateTime                @updatedAt @map("updated_at") @db.DateTime(3)
-  authorization                RefundAuthorization     @relation(fields: [afterSaleId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "refund_transaction_authorization_fkey")
-  order                        BuyerOrder              @relation(fields: [orderId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "refund_transaction_order_fkey")
-  orderItem                    BuyerOrderItem          @relation(fields: [orderItemId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "refund_transaction_item_fkey")
-  originalPaymentTransaction   PaymentTransaction?     @relation(fields: [originalPaymentTransactionId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "refund_transaction_original_payment_fkey")
+  id                           String                   @id @default(uuid()) @db.Char(36)
+  afterSaleId                  String                   @unique(map: "refund_transaction_after_sale_key") @map("after_sale_id") @db.Char(36)
+  orderId                      String                   @map("order_id") @db.Char(36)
+  orderItemId                  String                   @map("order_item_id") @db.Char(36)
+  refundNo                     String                   @unique(map: "refund_transaction_refund_no_key") @map("refund_no") @db.VarChar(32)
+  welfareCardRefundAmount      Int                      @map("welfare_card_refund_amount")
+  cashRefundAmount             Int                      @map("cash_refund_amount")
+  originalPaymentTransactionId String?                  @map("original_payment_transaction_id") @db.Char(36)
+  wechatRefundNo               String?                  @unique(map: "refund_transaction_wechat_refund_no_key") @map("wechat_refund_no") @db.VarChar(64)
+  status                       RefundTransactionStatus  @default(CREATED)
+  welfareChannelStatus         RefundChannelStatus      @default(NOT_REQUIRED) @map("welfare_channel_status")
+  wechatChannelStatus          RefundChannelStatus      @default(NOT_REQUIRED) @map("wechat_channel_status")
+  notifyVerifiedAt             DateTime?                @map("notify_verified_at") @db.DateTime(3)
+  idempotencyKey               String                   @map("idempotency_key") @db.VarChar(128)
+  requestHash                  String                   @map("request_hash") @db.Char(64)
+  version                      Int                      @default(0)
+  createdAt                    DateTime                 @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt                    DateTime                 @updatedAt @map("updated_at") @db.DateTime(3)
+  authorization                RefundAuthorization      @relation(fields: [afterSaleId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "refund_transaction_authorization_fkey")
+  order                        BuyerOrder               @relation(fields: [orderId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "refund_transaction_order_fkey")
+  orderItem                    BuyerOrderItem           @relation(fields: [orderItemId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "refund_transaction_item_fkey")
+  originalPaymentTransaction   PaymentTransaction?      @relation(fields: [originalPaymentTransactionId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "refund_transaction_original_payment_fkey")
   events                       RefundTransactionEvent[]
   impacts                      RefundImpactRecord[]
   welfareCardLedgers           WelfareCardLedger[]
@@ -1775,18 +1779,18 @@ model RefundTransaction {
 }
 
 model RefundTransactionEvent {
-  id                  String                  @id @default(uuid()) @db.Char(36)
-  refundTransactionId String                  @map("refund_transaction_id") @db.Char(36)
+  id                  String                   @id @default(uuid()) @db.Char(36)
+  refundTransactionId String                   @map("refund_transaction_id") @db.Char(36)
   fromStatus          RefundTransactionStatus? @map("from_status")
-  toStatus            RefundTransactionStatus @map("to_status")
-  event               String                  @db.VarChar(64)
+  toStatus            RefundTransactionStatus  @map("to_status")
+  event               String                   @db.VarChar(64)
   version             Int
   snapshot            Json
-  actorType           String                  @map("actor_type") @db.VarChar(64)
-  actorId             String                  @map("actor_id") @db.Char(36)
-  requestId           String                  @map("request_id") @db.VarChar(128)
-  occurredAt          DateTime                @default(now()) @map("occurred_at") @db.DateTime(3)
-  refundTransaction   RefundTransaction       @relation(fields: [refundTransactionId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "refund_transaction_event_transaction_fkey")
+  actorType           String                   @map("actor_type") @db.VarChar(64)
+  actorId             String                   @map("actor_id") @db.Char(36)
+  requestId           String                   @map("request_id") @db.VarChar(128)
+  occurredAt          DateTime                 @default(now()) @map("occurred_at") @db.DateTime(3)
+  refundTransaction   RefundTransaction        @relation(fields: [refundTransactionId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "refund_transaction_event_transaction_fkey")
 
   @@unique([refundTransactionId, version], map: "refund_transaction_event_version_key")
   @@map("refund_transaction_event")
@@ -2063,27 +2067,27 @@ model AuditLog {
 }
 
 model WelfareCardProgram {
-  id                    String   @id @default(uuid()) @db.Char(36)
-  companyId             String   @map("company_id") @db.Char(36)
-  name                  String   @db.VarChar(191)
-  fundingType           String   @map("funding_type") @db.VarChar(32)
-  issuerType            String   @default("COMPANY") @map("issuer_type") @db.VarChar(16)
-  scopeType             String   @map("scope_type") @db.VarChar(32)
-  scopeRules            Json     @map("scope_rules")
-  canPayDeliveryFee     Boolean  @default(false) @map("can_pay_delivery_fee")
-  refundPolicy          String   @map("refund_policy") @db.VarChar(500)
-  complianceStatus      String   @default("DRAFT") @map("compliance_status") @db.VarChar(32)
-  status                String   @default("DRAFT") @db.VarChar(32)
-  version               Int      @default(0)
-  createdByIdentityId   String   @map("created_by_identity_id") @db.Char(36)
-  functionalAccountId   String   @map("functional_account_id") @db.Char(36)
-  createdAt             DateTime @default(now()) @map("created_at") @db.DateTime(3)
-  updatedAt             DateTime @updatedAt @map("updated_at") @db.DateTime(3)
-  company               Company @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  functionalAccount     FunctionalAccount @relation(fields: [functionalAccountId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  batches               WelfareCardBatch[]
-  accounts              WelfareCardAccount[]
-  history               WelfareCardProgramHistory[]
+  id                  String                      @id @default(uuid()) @db.Char(36)
+  companyId           String                      @map("company_id") @db.Char(36)
+  name                String                      @db.VarChar(191)
+  fundingType         String                      @map("funding_type") @db.VarChar(32)
+  issuerType          String                      @default("COMPANY") @map("issuer_type") @db.VarChar(16)
+  scopeType           String                      @map("scope_type") @db.VarChar(32)
+  scopeRules          Json                        @map("scope_rules")
+  canPayDeliveryFee   Boolean                     @default(false) @map("can_pay_delivery_fee")
+  refundPolicy        String                      @map("refund_policy") @db.VarChar(500)
+  complianceStatus    String                      @default("DRAFT") @map("compliance_status") @db.VarChar(32)
+  status              String                      @default("DRAFT") @db.VarChar(32)
+  version             Int                         @default(0)
+  createdByIdentityId String                      @map("created_by_identity_id") @db.Char(36)
+  functionalAccountId String                      @map("functional_account_id") @db.Char(36)
+  createdAt           DateTime                    @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt           DateTime                    @updatedAt @map("updated_at") @db.DateTime(3)
+  company             Company                     @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  functionalAccount   FunctionalAccount           @relation(fields: [functionalAccountId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  batches             WelfareCardBatch[]
+  accounts            WelfareCardAccount[]
+  history             WelfareCardProgramHistory[]
 
   @@unique([companyId, name], map: "welfare_card_program_company_name_key")
   @@index([companyId, status, createdAt], map: "welfare_card_program_company_status_time_idx")
@@ -2091,28 +2095,28 @@ model WelfareCardProgram {
 }
 
 model WelfareCardBatch {
-  id                    String    @id @default(uuid()) @db.Char(36)
-  companyId             String    @map("company_id") @db.Char(36)
-  programId             String    @map("program_id") @db.Char(36)
-  enterpriseCustomerId  String?   @map("enterprise_customer_id") @db.Char(36)
-  batchNo               String    @map("batch_no") @db.VarChar(64)
-  totalAmount           Int       @map("total_amount")
-  unitAmount            Int       @map("unit_amount")
-  issueCount            Int       @map("issue_count")
-  claimMode             String    @map("claim_mode") @db.VarChar(32)
-  agreementVersion      Int       @map("agreement_version")
-  status                String    @default("DRAFT") @db.VarChar(32)
-  version               Int       @default(0)
-  createdByIdentityId   String    @map("created_by_identity_id") @db.Char(36)
-  functionalAccountId   String    @map("functional_account_id") @db.Char(36)
-  createdAt             DateTime  @default(now()) @map("created_at") @db.DateTime(3)
-  company               Company @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  program               WelfareCardProgram @relation(fields: [programId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  enterpriseCustomer    EnterpriseCustomer? @relation(fields: [enterpriseCustomerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  functionalAccount     FunctionalAccount @relation(fields: [functionalAccountId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  history               WelfareCardBatchHistory[]
-  codes                 WelfareCardCode[]
-  accounts              WelfareCardAccount[]
+  id                   String                    @id @default(uuid()) @db.Char(36)
+  companyId            String                    @map("company_id") @db.Char(36)
+  programId            String                    @map("program_id") @db.Char(36)
+  enterpriseCustomerId String?                   @map("enterprise_customer_id") @db.Char(36)
+  batchNo              String                    @map("batch_no") @db.VarChar(64)
+  totalAmount          Int                       @map("total_amount")
+  unitAmount           Int                       @map("unit_amount")
+  issueCount           Int                       @map("issue_count")
+  claimMode            String                    @map("claim_mode") @db.VarChar(32)
+  agreementVersion     Int                       @map("agreement_version")
+  status               String                    @default("DRAFT") @db.VarChar(32)
+  version              Int                       @default(0)
+  createdByIdentityId  String                    @map("created_by_identity_id") @db.Char(36)
+  functionalAccountId  String                    @map("functional_account_id") @db.Char(36)
+  createdAt            DateTime                  @default(now()) @map("created_at") @db.DateTime(3)
+  company              Company                   @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  program              WelfareCardProgram        @relation(fields: [programId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  enterpriseCustomer   EnterpriseCustomer?       @relation(fields: [enterpriseCustomerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  functionalAccount    FunctionalAccount         @relation(fields: [functionalAccountId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  history              WelfareCardBatchHistory[]
+  codes                WelfareCardCode[]
+  accounts             WelfareCardAccount[]
 
   @@unique([companyId, batchNo], map: "welfare_card_batch_company_batch_no_key")
   @@index([programId, status, createdAt], map: "welfare_card_batch_program_status_time_idx")
@@ -2120,65 +2124,65 @@ model WelfareCardBatch {
 }
 
 model WelfareCardProgramHistory {
-  id                    String   @id @default(uuid()) @db.Char(36)
-  programId             String   @map("program_id") @db.Char(36)
-  event                 String   @db.VarChar(64)
-  snapshot              Json
-  resultingVersion      Int      @map("resulting_version")
-  actorIdentityId       String   @map("actor_identity_id") @db.Char(36)
-  functionalAccountId   String   @map("functional_account_id") @db.Char(36)
-  requestId             String   @map("request_id") @db.VarChar(64)
-  ip                    String?  @db.VarChar(64)
-  occurredAt            DateTime @default(now()) @map("occurred_at") @db.DateTime(3)
-  program               WelfareCardProgram @relation(fields: [programId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  id                  String             @id @default(uuid()) @db.Char(36)
+  programId           String             @map("program_id") @db.Char(36)
+  event               String             @db.VarChar(64)
+  snapshot            Json
+  resultingVersion    Int                @map("resulting_version")
+  actorIdentityId     String             @map("actor_identity_id") @db.Char(36)
+  functionalAccountId String             @map("functional_account_id") @db.Char(36)
+  requestId           String             @map("request_id") @db.VarChar(64)
+  ip                  String?            @db.VarChar(64)
+  occurredAt          DateTime           @default(now()) @map("occurred_at") @db.DateTime(3)
+  program             WelfareCardProgram @relation(fields: [programId], references: [id], onDelete: Restrict, onUpdate: Cascade)
 
   @@index([programId, occurredAt], map: "welfare_card_program_history_program_time_idx")
   @@map("welfare_card_program_history")
 }
 
 model WelfareCardBatchHistory {
-  id                    String   @id @default(uuid()) @db.Char(36)
-  batchId               String   @map("batch_id") @db.Char(36)
-  event                 String   @db.VarChar(64)
-  snapshot              Json
-  resultingVersion      Int      @map("resulting_version")
-  actorIdentityId       String   @map("actor_identity_id") @db.Char(36)
-  functionalAccountId   String   @map("functional_account_id") @db.Char(36)
-  requestId             String   @map("request_id") @db.VarChar(64)
-  ip                    String?  @db.VarChar(64)
-  occurredAt            DateTime @default(now()) @map("occurred_at") @db.DateTime(3)
-  batch                 WelfareCardBatch @relation(fields: [batchId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  id                  String           @id @default(uuid()) @db.Char(36)
+  batchId             String           @map("batch_id") @db.Char(36)
+  event               String           @db.VarChar(64)
+  snapshot            Json
+  resultingVersion    Int              @map("resulting_version")
+  actorIdentityId     String           @map("actor_identity_id") @db.Char(36)
+  functionalAccountId String           @map("functional_account_id") @db.Char(36)
+  requestId           String           @map("request_id") @db.VarChar(64)
+  ip                  String?          @db.VarChar(64)
+  occurredAt          DateTime         @default(now()) @map("occurred_at") @db.DateTime(3)
+  batch               WelfareCardBatch @relation(fields: [batchId], references: [id], onDelete: Restrict, onUpdate: Cascade)
 
   @@index([batchId, occurredAt], map: "welfare_card_batch_history_batch_time_idx")
   @@map("welfare_card_batch_history")
 }
 
 model WelfareCardCommand {
-  id                    String   @id @default(uuid()) @db.Char(36)
-  companyId             String   @map("company_id") @db.Char(36)
-  operation             String   @db.VarChar(32)
-  idempotencyKey        String   @map("idempotency_key") @db.VarChar(128)
-  requestHash           String   @map("request_hash") @db.Char(64)
-  responseSnapshot      Json     @map("response_snapshot")
-  createdAt             DateTime @default(now()) @map("created_at") @db.DateTime(3)
-  company               Company @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  id               String   @id @default(uuid()) @db.Char(36)
+  companyId        String   @map("company_id") @db.Char(36)
+  operation        String   @db.VarChar(32)
+  idempotencyKey   String   @map("idempotency_key") @db.VarChar(128)
+  requestHash      String   @map("request_hash") @db.Char(64)
+  responseSnapshot Json     @map("response_snapshot")
+  createdAt        DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  company          Company  @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
 
   @@unique([companyId, idempotencyKey], map: "welfare_card_command_company_key")
   @@map("welfare_card_command")
 }
 
 model WelfareCardCode {
-  id                      String    @id @default(uuid()) @db.Char(36)
-  batchId                 String    @map("batch_id") @db.Char(36)
-  cardNo                  String    @unique(map: "welfare_card_code_card_no_key") @map("card_no") @db.VarChar(191)
-  secretHash              String    @map("secret_hash") @db.VarChar(191)
+  id                      String              @id @default(uuid()) @db.Char(36)
+  batchId                 String              @map("batch_id") @db.Char(36)
+  cardNo                  String              @unique(map: "welfare_card_code_card_no_key") @map("card_no") @db.VarChar(191)
+  secretHash              String              @map("secret_hash") @db.VarChar(191)
   amount                  Int
-  status                  String    @default("UNCLAIMED") @db.VarChar(16)
-  claimedByConsumerUserId String?   @map("claimed_by_consumer_user_id") @db.Char(36)
-  claimedAt               DateTime? @map("claimed_at") @db.DateTime(3)
-  version                 Int       @default(0)
-  createdAt               DateTime  @default(now()) @map("created_at") @db.DateTime(3)
-  batch                   WelfareCardBatch @relation(fields: [batchId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  status                  String              @default("UNCLAIMED") @db.VarChar(16)
+  claimedByConsumerUserId String?             @map("claimed_by_consumer_user_id") @db.Char(36)
+  claimedAt               DateTime?           @map("claimed_at") @db.DateTime(3)
+  version                 Int                 @default(0)
+  createdAt               DateTime            @default(now()) @map("created_at") @db.DateTime(3)
+  batch                   WelfareCardBatch    @relation(fields: [batchId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   account                 WelfareCardAccount?
 
   @@index([batchId, status, createdAt], map: "welfare_card_code_batch_status_time_idx")
@@ -2186,22 +2190,24 @@ model WelfareCardCode {
 }
 
 model WelfareCardAccount {
-  id             String   @id @default(uuid()) @db.Char(36)
-  consumerUserId String   @map("consumer_user_id") @db.Char(36)
-  programId      String   @map("program_id") @db.Char(36)
-  batchId        String   @map("batch_id") @db.Char(36)
-  cardCodeId     String   @unique(map: "welfare_card_account_card_code_id_key") @map("card_code_id") @db.Char(36)
-  balanceAmount  Int      @map("balance_amount")
-  frozenAmount   Int      @default(0) @map("frozen_amount")
-  status         String   @default("ACTIVE") @db.VarChar(16)
-  version        Int      @default(0)
-  createdAt      DateTime @default(now()) @map("created_at") @db.DateTime(3)
-  updatedAt      DateTime @updatedAt @map("updated_at") @db.DateTime(3)
-  program        WelfareCardProgram @relation(fields: [programId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  batch          WelfareCardBatch @relation(fields: [batchId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  cardCode       WelfareCardCode @relation(fields: [cardCodeId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  ledger         WelfareCardLedger[]
+  id              String                      @id @default(uuid()) @db.Char(36)
+  consumerUserId  String                      @map("consumer_user_id") @db.Char(36)
+  programId       String                      @map("program_id") @db.Char(36)
+  batchId         String                      @map("batch_id") @db.Char(36)
+  cardCodeId      String                      @unique(map: "welfare_card_account_card_code_id_key") @map("card_code_id") @db.Char(36)
+  balanceAmount   Int                         @map("balance_amount")
+  frozenAmount    Int                         @default(0) @map("frozen_amount")
+  ledgerSequence  Int                         @default(0) @map("ledger_sequence")
+  status          String                      @default("ACTIVE") @db.VarChar(16)
+  version         Int                         @default(0)
+  createdAt       DateTime                    @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt       DateTime                    @updatedAt @map("updated_at") @db.DateTime(3)
+  program         WelfareCardProgram          @relation(fields: [programId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  batch           WelfareCardBatch            @relation(fields: [batchId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  cardCode        WelfareCardCode             @relation(fields: [cardCodeId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  ledger          WelfareCardLedger[]
   paymentCommands WelfareCardPaymentCommand[]
+  adjustments     WelfareCardAdjustment[]
 
   @@index([consumerUserId, status, createdAt], map: "welfare_card_account_consumer_status_time_idx")
   @@index([programId, status], map: "welfare_card_account_program_status_idx")
@@ -2210,38 +2216,105 @@ model WelfareCardAccount {
 }
 
 model WelfareCardLedger {
-  id             String   @id @default(uuid()) @db.Char(36)
-  accountId      String   @map("account_id") @db.Char(36)
-  orderId        String?  @map("order_id") @db.Char(36)
-  refundId       String?  @map("refund_id") @db.Char(36)
-  businessType   String   @map("business_type") @db.VarChar(32)
-  direction      String   @db.VarChar(16)
-  amount         Int
-  beforeBalance  Int      @map("before_balance")
-  afterBalance   Int      @map("after_balance")
-  beforeFrozen   Int      @map("before_frozen")
-  afterFrozen    Int      @map("after_frozen")
-  idempotencyKey String   @map("idempotency_key") @db.VarChar(128)
-  occurredAt     DateTime @default(now()) @map("occurred_at") @db.DateTime(3)
-  account        WelfareCardAccount @relation(fields: [accountId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  refund        RefundTransaction?  @relation(fields: [refundId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "welfare_card_ledger_refund_fkey")
+  id                   String                 @id @default(uuid()) @db.Char(36)
+  accountId            String                 @map("account_id") @db.Char(36)
+  sequence             Int
+  orderId              String?                @map("order_id") @db.Char(36)
+  refundId             String?                @map("refund_id") @db.Char(36)
+  adjustmentId         String?                @unique(map: "welfare_card_ledger_adjustment_key") @map("adjustment_id") @db.Char(36)
+  businessType         String                 @map("business_type") @db.VarChar(32)
+  direction            String                 @db.VarChar(16)
+  amount               Int
+  beforeBalance        Int                    @map("before_balance")
+  afterBalance         Int                    @map("after_balance")
+  beforeFrozen         Int                    @map("before_frozen")
+  afterFrozen          Int                    @map("after_frozen")
+  idempotencyKey       String                 @map("idempotency_key") @db.VarChar(128)
+  occurredAt           DateTime               @default(now()) @map("occurred_at") @db.DateTime(3)
+  account              WelfareCardAccount     @relation(fields: [accountId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  refund               RefundTransaction?     @relation(fields: [refundId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "welfare_card_ledger_refund_fkey")
+  approvedAdjustment   WelfareCardAdjustment? @relation("WelfareCardAdjustmentApprovedLedger", fields: [adjustmentId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "welfare_card_ledger_adjustment_fkey")
+  reversedByAdjustment WelfareCardAdjustment? @relation("WelfareCardAdjustmentReversal")
 
   @@unique([accountId, idempotencyKey], map: "welfare_card_ledger_account_key")
+  @@unique([accountId, sequence], map: "welfare_card_ledger_account_sequence_key")
   @@unique([refundId, businessType], map: "welfare_card_ledger_refund_business_key")
   @@index([accountId, occurredAt], map: "welfare_card_ledger_account_time_idx")
   @@map("welfare_card_ledger")
 }
 
+model WelfareCardAdjustment {
+  id                           String                         @id @default(uuid()) @db.Char(36)
+  companyId                    String                         @map("company_id") @db.Char(36)
+  accountId                    String                         @map("account_id") @db.Char(36)
+  businessType                 String                         @map("business_type") @db.VarChar(32)
+  direction                    String                         @db.VarChar(16)
+  amount                       Int
+  reversalOfLedgerId           String?                        @unique(map: "welfare_card_adjustment_reversal_ledger_key") @map("reversal_of_ledger_id") @db.Char(36)
+  reason                       String                         @db.VarChar(500)
+  status                       String                         @default("PENDING") @db.VarChar(16)
+  version                      Int                            @default(0)
+  applicantIdentityId          String                         @map("applicant_identity_id") @db.Char(36)
+  applicantFunctionalAccountId String                         @map("applicant_functional_account_id") @db.Char(36)
+  reviewerIdentityId           String?                        @map("reviewer_identity_id") @db.Char(36)
+  reviewerFunctionalAccountId  String?                        @map("reviewer_functional_account_id") @db.Char(36)
+  reviewOpinion                String?                        @map("review_opinion") @db.VarChar(1000)
+  createdAt                    DateTime                       @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt                    DateTime                       @updatedAt @map("updated_at") @db.DateTime(3)
+  company                      Company                        @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "welfare_card_adjustment_company_fkey")
+  account                      WelfareCardAccount             @relation(fields: [accountId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "welfare_card_adjustment_account_fkey")
+  reversalOfLedger             WelfareCardLedger?             @relation("WelfareCardAdjustmentReversal", fields: [reversalOfLedgerId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "welfare_card_adjustment_reversal_ledger_fkey")
+  approvedLedger               WelfareCardLedger?             @relation("WelfareCardAdjustmentApprovedLedger")
+  applicantFunctionalAccount   FunctionalAccount              @relation("WelfareCardAdjustmentApplicant", fields: [applicantFunctionalAccountId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "welfare_card_adjustment_applicant_account_fkey")
+  reviewerFunctionalAccount    FunctionalAccount?             @relation("WelfareCardAdjustmentReviewer", fields: [reviewerFunctionalAccountId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "welfare_card_adjustment_reviewer_account_fkey")
+  history                      WelfareCardAdjustmentHistory[]
+
+  @@index([companyId, status, createdAt], map: "welfare_card_adjustment_company_status_time_idx")
+  @@index([accountId, createdAt], map: "welfare_card_adjustment_account_time_idx")
+  @@map("welfare_card_adjustment")
+}
+
+model WelfareCardAdjustmentHistory {
+  id                  String                @id @default(uuid()) @db.Char(36)
+  adjustmentId        String                @map("adjustment_id") @db.Char(36)
+  fromStatus          String?               @map("from_status") @db.VarChar(16)
+  toStatus            String                @map("to_status") @db.VarChar(16)
+  event               String                @db.VarChar(16)
+  actorIdentityId     String                @map("actor_identity_id") @db.Char(36)
+  functionalAccountId String                @map("functional_account_id") @db.Char(36)
+  opinion             String?               @db.VarChar(1000)
+  version             Int
+  occurredAt          DateTime              @default(now()) @map("occurred_at") @db.DateTime(3)
+  adjustment          WelfareCardAdjustment @relation(fields: [adjustmentId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "welfare_card_adjustment_history_adjustment_fkey")
+  functionalAccount   FunctionalAccount     @relation(fields: [functionalAccountId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "welfare_card_adjustment_history_functional_account_fkey")
+
+  @@unique([adjustmentId, version], map: "welfare_card_adjustment_history_version_key")
+  @@index([adjustmentId, occurredAt], map: "welfare_card_adjustment_history_time_idx")
+  @@map("welfare_card_adjustment_history")
+}
+
+model WelfareCardAdjustmentCommand {
+  id               String   @id @default(uuid()) @db.Char(36)
+  scope            String   @db.VarChar(128)
+  idempotencyKey   String   @map("idempotency_key") @db.VarChar(128)
+  requestHash      String   @map("request_hash") @db.Char(64)
+  responseSnapshot Json     @map("response_snapshot")
+  createdAt        DateTime @default(now()) @map("created_at") @db.DateTime(3)
+
+  @@unique([scope, idempotencyKey], map: "welfare_card_adjustment_command_scope_key")
+  @@map("welfare_card_adjustment_command")
+}
+
 model WelfareCardBindingCommand {
-  id             String   @id @default(uuid()) @db.Char(36)
-  companyId      String   @map("company_id") @db.Char(36)
-  consumerUserId String   @map("consumer_user_id") @db.Char(36)
-  idempotencyKey String   @map("idempotency_key") @db.VarChar(128)
-  requestHash    String   @map("request_hash") @db.Char(64)
-  requestId      String   @map("request_id") @db.VarChar(64)
-  responseSnapshot Json   @map("response_snapshot")
-  createdAt      DateTime @default(now()) @map("created_at") @db.DateTime(3)
-  company        Company @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  id               String   @id @default(uuid()) @db.Char(36)
+  companyId        String   @map("company_id") @db.Char(36)
+  consumerUserId   String   @map("consumer_user_id") @db.Char(36)
+  idempotencyKey   String   @map("idempotency_key") @db.VarChar(128)
+  requestHash      String   @map("request_hash") @db.Char(64)
+  requestId        String   @map("request_id") @db.VarChar(64)
+  responseSnapshot Json     @map("response_snapshot")
+  createdAt        DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  company          Company  @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
 
   @@unique([companyId, consumerUserId, idempotencyKey], map: "welfare_card_binding_command_owner_key")
   @@index([requestId], map: "welfare_card_binding_command_request_idx")
@@ -2249,19 +2322,19 @@ model WelfareCardBindingCommand {
 }
 
 model WelfareCardPaymentCommand {
-  id             String   @id @default(uuid()) @db.Char(36)
-  companyId      String   @map("company_id") @db.Char(36)
-  consumerUserId String   @map("consumer_user_id") @db.Char(36)
-  orderId        String   @unique(map: "welfare_card_payment_command_order_key") @map("order_id") @db.Char(36)
-  accountId      String   @map("account_id") @db.Char(36)
-  idempotencyKey String   @map("idempotency_key") @db.VarChar(128)
-  requestHash    String   @map("request_hash") @db.Char(64)
-  requestId      String   @map("request_id") @db.VarChar(128)
-  responseSnapshot Json   @map("response_snapshot")
-  createdAt      DateTime @default(now()) @map("created_at") @db.DateTime(3)
-  company        Company  @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "welfare_card_payment_command_company_fkey")
-  order          BuyerOrder @relation(fields: [orderId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "welfare_card_payment_command_order_fkey")
-  account        WelfareCardAccount @relation(fields: [accountId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "welfare_card_payment_command_account_fkey")
+  id               String             @id @default(uuid()) @db.Char(36)
+  companyId        String             @map("company_id") @db.Char(36)
+  consumerUserId   String             @map("consumer_user_id") @db.Char(36)
+  orderId          String             @unique(map: "welfare_card_payment_command_order_key") @map("order_id") @db.Char(36)
+  accountId        String             @map("account_id") @db.Char(36)
+  idempotencyKey   String             @map("idempotency_key") @db.VarChar(128)
+  requestHash      String             @map("request_hash") @db.Char(64)
+  requestId        String             @map("request_id") @db.VarChar(128)
+  responseSnapshot Json               @map("response_snapshot")
+  createdAt        DateTime           @default(now()) @map("created_at") @db.DateTime(3)
+  company          Company            @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "welfare_card_payment_command_company_fkey")
+  order            BuyerOrder         @relation(fields: [orderId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "welfare_card_payment_command_order_fkey")
+  account          WelfareCardAccount @relation(fields: [accountId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "welfare_card_payment_command_account_fkey")
 
   @@unique([companyId, consumerUserId, idempotencyKey], map: "welfare_card_payment_command_owner_key")
   @@index([accountId, createdAt], map: "welfare_card_payment_command_account_time_idx")

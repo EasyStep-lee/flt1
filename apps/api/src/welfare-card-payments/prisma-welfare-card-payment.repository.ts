@@ -138,6 +138,7 @@ export class PrismaWelfareCardPaymentRepository implements WelfareCardPaymentRep
           ) {
             return { kind: 'INSUFFICIENT_BALANCE' };
           }
+          const ledgerSequence = Number.isSafeInteger(account.ledgerSequence) ? account.ledgerSequence : account.version + 1;
 
           for (const item of order.items) {
             const confirmed = await tx.inventoryChangeLog.findFirst({
@@ -159,12 +160,12 @@ export class PrismaWelfareCardPaymentRepository implements WelfareCardPaymentRep
               balanceAmount: account.balanceAmount,
               frozenAmount: account.frozenAmount,
             },
-            data: { frozenAmount: { increment: order.totalAmount }, version: { increment: 1 } },
+            data: { frozenAmount: { increment: order.totalAmount }, ledgerSequence: { increment: 1 }, version: { increment: 1 } },
           });
           if (frozen.count !== 1) throw new WelfarePaymentMutationFailure('CONCURRENT_CONFLICT');
           await tx.welfareCardLedger.create({
             data: {
-              id: randomUUID(), accountId: account.id, orderId: order.id, refundId: null,
+              id: randomUUID(), accountId: account.id, sequence: ledgerSequence + 1, orderId: order.id, refundId: null, adjustmentId: null,
               businessType: 'FREEZE', direction: 'DEBIT', amount: order.totalAmount,
               beforeBalance: account.balanceAmount, afterBalance: account.balanceAmount,
               beforeFrozen: account.frozenAmount, afterFrozen: account.frozenAmount + order.totalAmount,
@@ -182,13 +183,14 @@ export class PrismaWelfareCardPaymentRepository implements WelfareCardPaymentRep
             data: {
               balanceAmount: { decrement: order.totalAmount },
               frozenAmount: { decrement: order.totalAmount },
+              ledgerSequence: { increment: 1 },
               version: { increment: 1 },
             },
           });
           if (captured.count !== 1) throw new WelfarePaymentMutationFailure('CONCURRENT_CONFLICT');
           await tx.welfareCardLedger.create({
             data: {
-              id: randomUUID(), accountId: account.id, orderId: order.id, refundId: null,
+              id: randomUUID(), accountId: account.id, sequence: ledgerSequence + 2, orderId: order.id, refundId: null, adjustmentId: null,
               businessType: 'CAPTURE', direction: 'DEBIT', amount: order.totalAmount,
               beforeBalance: account.balanceAmount, afterBalance: account.balanceAmount - order.totalAmount,
               beforeFrozen: account.frozenAmount + order.totalAmount, afterFrozen: account.frozenAmount,

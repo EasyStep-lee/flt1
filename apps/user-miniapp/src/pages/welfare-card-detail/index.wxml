@@ -1,0 +1,27 @@
+<view class="page" data-page-id="{{pageId}}" data-page-state="{{state}}">
+  <view class="hero">
+    <view class="eyebrow">福礼团 · 本人福利资产</view>
+    <view class="title">福利卡详情</view>
+    <view class="subtitle">只展示本人账户白名单字段，资金流水只追加不覆盖</view>
+  </view>
+  <view wx:if="{{state === 'loading'}}" class="state-card">正在核对本人账户与账本…</view>
+  <view wx:elif="{{state === 'permission' || state === 'offline' || state === 'error'}}" class="state-card">
+    <view class="state-title">暂时无法查看</view><view class="state-message">{{message}}</view><button bindtap="retry">重试</button>
+  </view>
+  <view wx:else>
+    <view wx:if="{{programName}}" class="balance-card">
+      <view class="program">{{programName}} · {{maskedCardNo}}</view>
+      <view class="amount">{{availableLabel}}</view><view class="caption">当前可用</view>
+      <view class="balance-grid"><view><text>账户余额</text><strong>{{balanceLabel}}</strong></view><view><text>冻结金额</text><strong>{{frozenLabel}}</strong></view></view>
+    </view>
+    <view wx:if="{{state === 'empty'}}" class="state-card">{{message}}</view>
+    <view wx:else class="ledger-card">
+      <view class="section-title">资金流水</view>
+      <view wx:for="{{items}}" wx:key="sequence" class="ledger-row">
+        <view><view class="ledger-type">{{item.businessType}}</view><view class="ledger-time">{{item.occurredAt}} · 余额 {{item.balanceLabel}}</view></view>
+        <view class="ledger-amount {{item.direction === 'CREDIT' ? 'credit' : 'debit'}}">{{item.amountLabel}}</view>
+      </view>
+    </view>
+  </view>
+  <view class="safety">不支持个人现金充值 · 退款按原支付结构退回</view>
+</view>
