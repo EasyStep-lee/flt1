@@ -55,7 +55,7 @@ test('P0-059 PAGE-009 creates pending adjustment and requires an independent dec
   const bodies: unknown[] = [];
   let adjustment = {
     id: adjustmentId, accountId, businessType: 'ADJUSTMENT', direction: 'CREDIT', amount: 500,
-    reason: '客服补偿复核', status: 'PENDING', reviewOpinion: null, reversalOfLedgerId: null,
+    reason: '客服补偿复核', status: 'PENDING', reviewOpinion: null as string | null, reversalOfLedgerId: null,
     version: 0, createdAt: new Date(0).toISOString(), updatedAt: new Date(0).toISOString(),
   };
   await page.route('**/v1/company/welfare-card/adjustments', (route) => json(route, { items: [adjustment], total: 1 }));
