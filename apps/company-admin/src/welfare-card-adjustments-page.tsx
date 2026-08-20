@@ -12,6 +12,7 @@ type DecisionInput = components['schemas']['DecideWelfareCardAdjustmentRequestDt
 
 const api = createCompanyAdminApiClient(import.meta.env.VITE_API_BASE_URL ?? '');
 const money = (value: number) => `¥${(value / 100).toFixed(2)}`;
+const labelDecisionDialog = (node: HTMLDivElement | null) => node?.setAttribute('aria-label', '福利卡调整独立复核');
 const messageFrom = (value: unknown, fallback: string): string => {
   if (value && typeof value === 'object' && 'message' in value && typeof (value as { message?: unknown }).message === 'string') return (value as { message: string }).message;
   return fallback;
@@ -105,7 +106,7 @@ export function WelfareCardAdjustmentsPage({ workspace }: { readonly workspace: 
           </section>
         </section>
       </div>
-      <Modal confirmLoading={submitting} onCancel={() => setTarget(undefined)} onOk={() => void decide()} open={Boolean(target)} title="福利卡调整独立复核">
+      <Modal confirmLoading={submitting} onCancel={() => setTarget(undefined)} onOk={() => void decide()} open={Boolean(target)} panelRef={labelDecisionDialog} title="福利卡调整独立复核">
         <Alert description="同一自然人跨职能账号仍不能自审；二次验证码不会持久化或返回。" message="双人复核" showIcon type="warning" />
         <Form form={decisionForm} layout="vertical">
           <Form.Item label="复核决定" name="decision" rules={[{ required: true }]}><Select aria-label="复核决定" options={[{ value: 'APPROVE', label: '通过' }, { value: 'REJECT', label: '驳回' }]} /></Form.Item>

@@ -14,6 +14,7 @@ type WelfareLedger = components['schemas']['ConsumerWelfareLedgerResponseDto'];
 
 const labelProgramDialog = (node: HTMLDivElement | null) => node?.setAttribute('aria-label', '新建福利卡计划');
 const labelBatchDialog = (node: HTMLDivElement | null) => node?.setAttribute('aria-label', '新建发行批次');
+const labelLedgerDialog = (node: HTMLDivElement | null) => node?.setAttribute('aria-label', '福利卡追加式账本');
 type ProgramInput = components['schemas']['CreateWelfareProgramRequestDto'];
 type BatchInput = components['schemas']['CreateWelfareBatchRequestDto'];
 type ProgramRow = { readonly key: string; readonly program: Program; readonly batch?: Batch };
@@ -157,7 +158,7 @@ export function WelfareCardProgramsPage({ workspace }: { readonly workspace: Com
           <Form.Item label="协议版本" name="agreementVersion" rules={[{ required: true }]}><InputNumber min={1} precision={0} /></Form.Item>
         </Form>
       </Modal>
-      <Modal footer={null} onCancel={() => { setLedger(undefined); setLedgerError(undefined); }} open={Boolean(ledger) || (ledgerLoading && !ledgerError)} title="福利卡追加式账本" width={920}>
+      <Modal footer={null} onCancel={() => { setLedger(undefined); setLedgerError(undefined); }} open={Boolean(ledger) || (ledgerLoading && !ledgerError)} panelRef={labelLedgerDialog} title="福利卡追加式账本" width={920}>
         {ledgerLoading ? <Typography.Text>正在校验账本连续性…</Typography.Text> : ledger ? <Space direction="vertical" size="middle" style={{ width: '100%' }}>
           <Space wrap><Statistic title="账户余额" value={money(ledger.account.balanceAmount)} /><Statistic title="冻结金额" value={money(ledger.account.frozenAmount)} /><Statistic title="可用金额" value={money(ledger.account.availableAmount)} /></Space>
           <Table rowKey="sequence" dataSource={ledger.items} pagination={false} locale={{ emptyText: <Empty description="暂无流水" /> }} columns={[
