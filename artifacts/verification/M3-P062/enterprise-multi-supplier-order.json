@@ -14,6 +14,12 @@
       "exitCode": 1,
       "result": "FAIL_2_OF_2",
       "reason": "商品详情尚无加入企业采购车按钮，两条测试等待按钮超时"
+    },
+    {
+      "command": "pnpm exec playwright test tests/e2e/p0/p0-062-enterprise-multi-supplier-order.spec.ts --config playwright.p0.config.ts",
+      "exitCode": 1,
+      "result": "FAIL_1_OF_3",
+      "reason": "同一购物车未知结果正确复用原键，但购物车加入新SKU后仍复用旧键"
     }
   ],
   "focused": [
@@ -27,10 +33,20 @@
     },
     {
       "command": "pnpm exec playwright test tests/e2e/p0/p0-062-enterprise-multi-supplier-order.spec.ts --config playwright.p0.config.ts",
-      "result": "PASS_2_OF_2"
+      "result": "PASS_3_OF_3"
     }
   ],
   "fullVerify": "PASS_17_OF_17",
+  "reviewVerify": {
+    "status": "PASS_17_OF_17",
+    "startedAt": "2026-08-20T12:26:24.854Z",
+    "endedAt": "2026-08-20T12:41:17.222Z",
+    "api": "PASS_247_OF_247",
+    "foundationE2e": "PASS_3_OF_3",
+    "p0E2e": "PASS_85_OF_85",
+    "migrationRehearsal": "PASS_PRODUCT_37",
+    "secretScan": "PASS_1087_TRACKED_FILES"
+  },
   "invariants": {
     "oneBuyerOrder": true,
     "atLeastThreeSuppliers": true,
@@ -40,6 +56,7 @@
     "serverRepricesAndDerivesOwnership": true,
     "requestOnlySkuAndQuantity": true,
     "sameIdempotencyKeyOnUnknown": true,
+    "newIdempotencyKeyWhenCartSignatureChanges": true,
     "supplierPriceNeverReturned": true
   },
   "boundaries": {

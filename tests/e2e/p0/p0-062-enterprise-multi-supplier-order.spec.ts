@@ -57,3 +57,32 @@ test('P0-062 enterprise cart remains usable on a narrow viewport without leaking
   expect(await page.evaluate('document.documentElement.scrollWidth <= window.innerWidth')).toBe(true);
   expect(await page.content()).not.toMatch(/supplyPrice|grossMargin|payableAmount/iu);
 });
+
+test('P0-062 retries the same cart with one key and creates a new key after the cart changes', async ({ page }) => {
+  await page.request.post('http://127.0.0.1:4324/test-order-behavior', {
+    data: { statuses: [503, 503, 201] },
+    headers: { Cookie: '__Host-fulishe-enterprise-portal=p0-session' },
+  });
+  await page.goto(`/enterprise/procurement/products/${products[0][0]}`);
+  await page.getByRole('button', { name: '加入企业采购车' }).click();
+  await page.goto('/enterprise/procurement/checkout');
+
+  await page.getByRole('button', { name: '提交企业订单' }).click();
+  await expect(page.locator('p[role="alert"]')).toContainText('提交结果尚未确认');
+  await page.getByRole('button', { name: '提交企业订单' }).click();
+  await expect(page.locator('p[role="alert"]')).toContainText('提交结果尚未确认');
+
+  await page.goto(`/enterprise/procurement/products/${products[1][0]}`);
+  await page.getByRole('button', { name: '加入企业采购车' }).click();
+  await page.goto('/enterprise/procurement/checkout');
+  await page.getByRole('button', { name: '提交企业订单' }).click();
+  await expect(page.getByRole('heading', { name: '订单提交成功' })).toBeVisible();
+
+  const observations = await page.request.get('http://127.0.0.1:4324/test-observations', {
+    headers: { Cookie: '__Host-fulishe-enterprise-portal=p0-session' },
+  });
+  const evidence = await observations.json();
+  expect(evidence.orderRequests).toHaveLength(3);
+  expect(evidence.orderRequests[1].idempotencyKey).toBe(evidence.orderRequests[0].idempotencyKey);
+  expect(evidence.orderRequests[2].idempotencyKey).not.toBe(evidence.orderRequests[0].idempotencyKey);
+});

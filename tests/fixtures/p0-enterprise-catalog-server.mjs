@@ -29,6 +29,7 @@ const products = [
   },
 ];
 const observations = { orderRequests: [] };
+let orderResponseStatuses = [];
 
 const readJson = async (request) => {
   const chunks = [];
@@ -55,6 +56,13 @@ const server = createServer(async (request, response) => {
   }
   if (request.method === 'GET' && request.url === '/test-observations') {
     sendJson(response, 200, observations);
+    return;
+  }
+  if (request.method === 'POST' && request.url === '/test-order-behavior') {
+    const body = await readJson(request);
+    orderResponseStatuses = Array.isArray(body.statuses) ? [...body.statuses] : [];
+    observations.orderRequests.length = 0;
+    sendJson(response, 200, { accepted: true });
     return;
   }
   if (request.method === 'GET' && request.url === '/v1/enterprise/catalog/products?page=1&pageSize=20') {
@@ -104,6 +112,11 @@ const server = createServer(async (request, response) => {
   if (request.method === 'POST' && request.url === '/v1/enterprise/orders') {
     const body = await readJson(request);
     observations.orderRequests.push({ body, idempotencyKey: request.headers['idempotency-key'] ?? null });
+    const forcedStatus = orderResponseStatuses.shift();
+    if (forcedStatus === 503) {
+      sendJson(response, 503, { code: 'SERVICE_UNAVAILABLE' });
+      return;
+    }
     const items = body.items.map((item, index) => {
       const source = products.find(({ skuId }) => skuId === item.skuId);
       if (!source) return null;

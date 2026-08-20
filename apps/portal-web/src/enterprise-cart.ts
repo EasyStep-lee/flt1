@@ -1,6 +1,11 @@
 export const ENTERPRISE_CART_STORAGE_KEY = 'fulishe.enterprise.procurement.cart.v1';
 export const ENTERPRISE_ORDER_KEY_STORAGE_KEY = 'fulishe.enterprise.procurement.order-key.v1';
 
+export interface EnterpriseOrderCommand {
+  readonly key: string;
+  readonly signature: string;
+}
+
 export interface EnterpriseCartItem {
   readonly productId: string;
   readonly skuId: string;
@@ -52,3 +57,28 @@ export const addEnterpriseCartItem = (
 
 export const enterpriseCartTotal = (items: readonly EnterpriseCartItem[]): number =>
   items.reduce((total, item) => total + item.enterpriseSalePrice * item.quantity, 0);
+
+export const enterpriseOrderSignature = (
+  items: readonly Pick<EnterpriseCartItem, 'quantity' | 'skuId'>[],
+): string => JSON.stringify(
+  items
+    .map(({ skuId, quantity }) => ({ skuId, quantity }))
+    .sort((left, right) => left.skuId.localeCompare(right.skuId)),
+);
+
+export const parseEnterpriseOrderCommand = (raw: string | null): EnterpriseOrderCommand | undefined => {
+  if (!raw) return undefined;
+  try {
+    const value: unknown = JSON.parse(raw);
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined;
+    const command = value as Record<string, unknown>;
+    if (
+      typeof command.key !== 'string' ||
+      !/^ent-[a-z0-9-]{16,}$/u.test(command.key) ||
+      typeof command.signature !== 'string'
+    ) return undefined;
+    return { key: command.key, signature: command.signature };
+  } catch {
+    return undefined;
+  }
+};

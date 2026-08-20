@@ -59,7 +59,7 @@ await upsertCsv('03-任务台账.csv', ['TaskID'], [
   {
     TaskID: 'M3-P062', Status: 'IN_PROGRESS', EvidenceStatus: evidenceStatus, Owner: 'CODEX', GitHubIssue: 'https://github.com/EasyStep-lee/flt1/issues/116',
     Branch: 'codex/m3-enterprise-multi-supplier-order', CommitSHA: commit, PullRequest: pullRequestUrl, CI: pullRequestCi, UpdatedAt: updatedAt,
-    Notes: `复用MIG-012/MIG-015和API-048；新增企业采购车/结算私有页面，至少3个供应商商品仅提交skuId+quantity，服务端重新定价并返回1张主订单+3个履约组。${fullVerify === 'PASS_17_OF_17' ? 'pnpm verify 17/17通过。' : '完整门禁尚未通过。'}staging/device/production未执行。`,
+    Notes: `复用MIG-012/MIG-015和API-048；新增企业采购车/结算私有页面，至少3个供应商商品仅提交skuId+quantity，服务端重新定价并返回1张主订单+3个履约组；同体未知结果复用原键，购物车签名变化后换键。${fullVerify === 'PASS_17_OF_17' ? 'pnpm verify 17/17通过。' : '完整门禁尚未通过。'}staging/device/production未执行。`,
   },
   { TaskID: 'M3-P073', Status: 'NOT_STARTED', EvidenceStatus: 'NOT_EXECUTED', Owner: 'UNASSIGNED', Notes: 'M3-P062 Draft PR精确head CI、人工合并和post-merge main CI全部通过前保持锁定。' },
 ]);
@@ -82,7 +82,7 @@ await upsertCsv('04-P0-1至P0-119验收矩阵.csv', ['P0ID'], [
 
 await upsertCsv('08-页面路由接口P0映射.csv', ['PageID'], [
   { PageID: 'PAGE-036', ImplementationStatus: implemented ? 'IMPLEMENTED_M3_P062' : 'M3_P062_IN_PROGRESS', AcceptanceStatus: `P0-062_${evidenceStatus};P0-079_NOT_EXECUTED`, RouteTest: 'tests/e2e/p0/p0-062-enterprise-multi-supplier-order.spec.ts', Notes: '已验证企业会话private/no-store/noindex、三供应来源分组、整数分汇总、空态与移动端无横向溢出；P079完整收货/开票选择后续执行。' },
-  { PageID: 'PAGE-037', ImplementationStatus: implemented ? 'IMPLEMENTED_M3_P062' : 'M3_P062_IN_PROGRESS', AcceptanceStatus: `P0-062_${evidenceStatus};P0-079_NOT_EXECUTED`, RouteTest: 'tests/e2e/p0/p0-062-enterprise-multi-supplier-order.spec.ts', Notes: '企业会话private/no-store/noindex；仅向API-048提交skuId+quantity；幂等键在未知结果时保留，成功后才清购物车；响应仅显示公司主订单和供应商履约白名单。' },
+  { PageID: 'PAGE-037', ImplementationStatus: implemented ? 'IMPLEMENTED_M3_P062' : 'M3_P062_IN_PROGRESS', AcceptanceStatus: `P0-062_${evidenceStatus};P0-079_NOT_EXECUTED`, RouteTest: 'tests/e2e/p0/p0-062-enterprise-multi-supplier-order.spec.ts', Notes: '企业会话private/no-store/noindex；仅向API-048提交skuId+quantity；相同购物车未知结果复用原键，购物车签名变化后换键，成功后才清购物车；响应仅显示公司主订单和供应商履约白名单。' },
 ]);
 
 await upsertCsv('10-测试证据登记.csv', ['EvidenceID'], [{
@@ -92,9 +92,9 @@ await upsertCsv('10-测试证据登记.csv', ['EvidenceID'], [{
   Notes: `PR #115精确head ${p059.head} CI成功并合并；post-merge main run ${p059.mainRun}/job ${p059.mainJob}成功。`,
 }, {
   EvidenceID: 'EVD-062', P0ID: 'P0-062', Stage: 'M3', TaskID: 'M3-P062', EvidenceType: 'AUTOMATED_API_AND_PORTAL_MULTI_SUPPLIER_ORDER', RequiredLevel: 'CI_PASS', CurrentStatus: evidenceStatus,
-  CommandOrProcedure: 'RED Playwright；GREEN API 5 tests；portal lint/typecheck/build；P0-062 Chromium 2 tests；migration/OpenAPI/full pnpm verify',
+  CommandOrProcedure: 'RED Playwright；GREEN API 5 tests；portal lint/typecheck/build；P0-062 Chromium 3 tests；migration/OpenAPI/full pnpm verify',
   Expected: '至少3个供应商商品一次提交1张公司主订单；按supplierId准确拆组；商品与金额守恒',
-  Actual: implemented ? '三供应来源采购车、统一结算、服务端重定价、单主订单/三履约组、幂等/越权/字段隔离自动化通过。' : '实现中。',
+  Actual: implemented ? '三供应来源采购车、统一结算、服务端重定价、单主订单/三履约组、同体重试复用键/购物车变化换键、越权/字段隔离自动化通过。' : '实现中。',
   Environment: 'LOCAL_WINDOWS_NODE22_PLAYWRIGHT_CHROMIUM_DETERMINISTIC_API', AppOrBrowserVersion: 'Node 22.23.1; pnpm 10.12.1; Playwright Chromium', ExecutedAt: updatedAt, CommitSHA: commit,
   ArtifactOrScreenshot: 'docs/contracts/m3/M3-P062-enterprise-multi-supplier-order.md|artifacts/verification/M3-P062/enterprise-multi-supplier-order.json|artifacts/verification/M3-P062/enterprise-checkout-page.png|artifacts/verification/M3-P062/enterprise-order-result-page.png', Executor: 'CODEX', Freshness: 'FRESH_LOCAL_WORKTREE',
   FailureOrBlocker: 'Draft PR精确head CI尚未执行；staging/device/production未执行', RetestRequired: 'YES', Notes: '不宣称P079完整结算或P080工作台完成；不进入P073。',
@@ -144,7 +144,7 @@ status.execution = { ...status.execution, status: 'M3_IN_PROGRESS', currentStage
 status.github = { ...status.github, pullRequest: pullRequestNumber, pullRequestUrl: pullRequestUrl || null, pullRequestState, pullRequestMerged: false, mergeCommitSha: null, mergedAt: null, lastVerifiedPullRequestHead: null,
   pullRequestCi: { status: pullRequestCi, runId: null, jobId: null, runUrl: null, headSha: null, completedAt: null },
   latestCi: { scope: 'M3_P059_POST_MERGE_MAIN', status: 'CI_PASS', runId: p059.mainRun, jobId: p059.mainJob, runUrl: `https://github.com/EasyStep-lee/flt1/actions/runs/${p059.mainRun}`, headSha: p059.merge, event: 'push', completedAt: '2026-08-20T10:19:04Z' },
-  currentTaskDelivery: { taskId: 'M3-P062', issue: 116, issueUrl: 'https://github.com/EasyStep-lee/flt1/issues/116', branch: 'codex/m3-enterprise-multi-supplier-order', baseCommit: p059.merge, verifiedHead: commit, status: pullRequestNumber ? 'DRAFT_PR_CI_PENDING' : implemented ? 'LOCAL_PASS_PENDING_DRAFT_PR' : 'IN_PROGRESS', localRedTest: 'RECORDED_FAIL_2_OF_2_MISSING_ADD_TO_CART', localFocusedTest: implemented ? 'LOCAL_PASS_API_5_PORTAL_P0_2' : 'NOT_EXECUTED', localFullVerify: fullVerify, pullRequest: pullRequestNumber, pullRequestState, exactHeadCi: pullRequestCi, review: 'NOT_EXECUTED', merge: 'NOT_EXECUTED', mainPostMergeCi: 'NOT_EXECUTED', blockingExternalItem: 'STAGING_DEVICE_PRODUCTION_REAL_FUNDS', nextTaskUnlocked: false },
+  currentTaskDelivery: { taskId: 'M3-P062', issue: 116, issueUrl: 'https://github.com/EasyStep-lee/flt1/issues/116', branch: 'codex/m3-enterprise-multi-supplier-order', baseCommit: p059.merge, verifiedHead: commit, status: pullRequestNumber ? 'DRAFT_PR_CI_PENDING' : implemented ? 'LOCAL_PASS_PENDING_DRAFT_PR' : 'IN_PROGRESS', localRedTest: 'RECORDED_INITIAL_FAIL_2_OF_2_AND_REVIEW_FAIL_1_OF_3', localFocusedTest: implemented ? 'LOCAL_PASS_API_5_PORTAL_P0_3' : 'NOT_EXECUTED', localFullVerify: fullVerify, pullRequest: pullRequestNumber, pullRequestState, exactHeadCi: pullRequestCi, review: 'LOCAL_REVIEW_IDEMPOTENCY_SIGNATURE_FIX', merge: 'NOT_EXECUTED', mainPostMergeCi: 'NOT_EXECUTED', blockingExternalItem: 'STAGING_DEVICE_PRODUCTION_REAL_FUNDS', nextTaskUnlocked: false },
   previousTaskDelivery: { taskId: 'M3-P059', issue: 114, pullRequest: p059.pr, pullRequestUrl: `https://github.com/EasyStep-lee/flt1/pull/${p059.pr}`, exactHead: p059.head, mergeCommit: p059.merge, mainPostMergeCiRun: p059.mainRun, mainPostMergeCiJob: p059.mainJob, status: 'CI_PASS' },
   note: `M3-P059 merged-main CI_PASS；M3-P062多供应商企业主订单${evidenceStatus}；P073/M4以后锁定。` };
 status.evidence = { local: implemented ? 'LOCAL_PASS_M3_P062' : 'NOT_EXECUTED_M3_P062', ci: pullRequestCi === 'CI_PASS' ? 'CI_PASS' : 'NOT_EXECUTED', staging: 'NOT_EXECUTED', device: 'NOT_EXECUTED', production: 'NOT_EXECUTED' };
@@ -161,14 +161,17 @@ await mkdir(artifactDir, { recursive: true });
 await writeFile(path.join(artifactDir, 'enterprise-multi-supplier-order.json'), `${JSON.stringify({
   schemaVersion: 1, taskId: 'M3-P062', p0: ['P0-062'], status: evidenceStatus, commit, updatedAt,
   baselineSha256: '1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92',
-  red: [{ command: 'pnpm exec playwright test tests/e2e/p0/p0-062-enterprise-multi-supplier-order.spec.ts --config playwright.p0.config.ts', exitCode: 1, result: 'FAIL_2_OF_2', reason: '商品详情尚无加入企业采购车按钮，两条测试等待按钮超时' }],
+  red: [
+    { command: 'pnpm exec playwright test tests/e2e/p0/p0-062-enterprise-multi-supplier-order.spec.ts --config playwright.p0.config.ts', exitCode: 1, result: 'FAIL_2_OF_2', reason: '商品详情尚无加入企业采购车按钮，两条测试等待按钮超时' },
+    { command: 'pnpm exec playwright test tests/e2e/p0/p0-062-enterprise-multi-supplier-order.spec.ts --config playwright.p0.config.ts', exitCode: 1, result: 'FAIL_1_OF_3', reason: '同一购物车未知结果正确复用原键，但购物车加入新SKU后仍复用旧键' },
+  ],
   focused: implemented ? [
     { command: 'pnpm exec vitest run --config ./vitest.config.ts --project api-contract apps/api/test/supertest/unified-enterprise-procurement-api.test.mjs', result: 'PASS_5_OF_5' },
     { command: 'pnpm --filter @fulishe/portal-web typecheck && lint && build', result: 'PASS_DYNAMIC_CART_AND_CHECKOUT' },
-    { command: 'pnpm exec playwright test tests/e2e/p0/p0-062-enterprise-multi-supplier-order.spec.ts --config playwright.p0.config.ts', result: 'PASS_2_OF_2' },
+    { command: 'pnpm exec playwright test tests/e2e/p0/p0-062-enterprise-multi-supplier-order.spec.ts --config playwright.p0.config.ts', result: 'PASS_3_OF_3' },
   ] : [],
   fullVerify,
-  invariants: { oneBuyerOrder: true, atLeastThreeSuppliers: true, oneFulfillmentPerSupplier: true, integerCents: true, mainAmountEqualsItemAndFulfillmentSums: true, serverRepricesAndDerivesOwnership: true, requestOnlySkuAndQuantity: true, sameIdempotencyKeyOnUnknown: true, supplierPriceNeverReturned: true },
+  invariants: { oneBuyerOrder: true, atLeastThreeSuppliers: true, oneFulfillmentPerSupplier: true, integerCents: true, mainAmountEqualsItemAndFulfillmentSums: true, serverRepricesAndDerivesOwnership: true, requestOnlySkuAndQuantity: true, sameIdempotencyKeyOnUnknown: true, newIdempotencyKeyWhenCartSignatureChanges: true, supplierPriceNeverReturned: true },
   boundaries: { migration: 'REUSE_MIG_012_AND_MIG_015_NO_NEW_SQL', openapi: 'REUSE_API_048_NO_BREAKING_CHANGE', p079FullCheckoutProfiles: 'OUT_OF_SCOPE', p080WorkspaceOrders: 'OUT_OF_SCOPE', staging: 'NOT_EXECUTED', device: 'NOT_EXECUTED', production: 'NOT_EXECUTED' },
   github: { issue: 116, pullRequest: pullRequestNumber, pullRequestState, ciStatus: pullRequestCi },
 }, null, 2)}\n`, 'utf8');

@@ -7,8 +7,10 @@ import {
   ENTERPRISE_CART_STORAGE_KEY,
   ENTERPRISE_ORDER_KEY_STORAGE_KEY,
   enterpriseCartTotal,
+  enterpriseOrderSignature,
   type EnterpriseCartItem,
   parseEnterpriseCart,
+  parseEnterpriseOrderCommand,
 } from '../../../../enterprise-cart';
 import { createEnterpriseOrder, type EnterpriseOrderActionResult } from './checkout/actions';
 import styles from './order-workflow.module.css';
@@ -35,16 +37,19 @@ export function EnterpriseOrderWorkflow({ mode }: { readonly mode: 'cart' | 'che
 
   const submit = async () => {
     if (items.length === 0 || submitting) return;
-    let idempotencyKey = sessionStorage.getItem(ENTERPRISE_ORDER_KEY_STORAGE_KEY);
-    if (!idempotencyKey) {
-      idempotencyKey = `ent-${crypto.randomUUID()}`;
-      sessionStorage.setItem(ENTERPRISE_ORDER_KEY_STORAGE_KEY, idempotencyKey);
-    }
+    const signature = enterpriseOrderSignature(items);
+    const storedCommand = parseEnterpriseOrderCommand(
+      sessionStorage.getItem(ENTERPRISE_ORDER_KEY_STORAGE_KEY),
+    );
+    const command = storedCommand?.signature === signature
+      ? storedCommand
+      : { key: `ent-${crypto.randomUUID()}`, signature };
+    sessionStorage.setItem(ENTERPRISE_ORDER_KEY_STORAGE_KEY, JSON.stringify(command));
     setSubmitting(true);
     try {
       const response = await createEnterpriseOrder(
         items.map(({ skuId, quantity }) => ({ skuId, quantity })),
-        idempotencyKey,
+        command.key,
       );
       setResult(response);
       if (response.ok) {
