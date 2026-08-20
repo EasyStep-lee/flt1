@@ -135,6 +135,12 @@
               "WELFARE_CARD_INSUFFICIENT_BALANCE",
               "WELFARE_CARD_NOT_ELIGIBLE",
               "WELFARE_CARD_MIXED_PAYMENT_NOT_APPLICABLE",
+              "WELFARE_ADJUSTMENT_NOT_FOUND",
+              "WELFARE_ADJUSTMENT_STATE_INVALID",
+              "WELFARE_ADJUSTMENT_VERSION_CONFLICT",
+              "WELFARE_LEDGER_INCONSISTENT",
+              "WELFARE_LEDGER_SCOPE_FORBIDDEN",
+              "WELFARE_REVERSAL_INVALID",
               "WELFARE_PROGRAM_NOT_FOUND"
             ],
             "example": "RESOURCE_NOT_FOUND",
@@ -944,6 +950,25 @@
         ],
         "type": "object"
       },
+      "CompanyWelfareAccountPageResponseDto": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/WelfareCardLedgerAccountResponseDto"
+            },
+            "type": "array"
+          },
+          "total": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ],
+        "type": "object"
+      },
       "CompanyWorkspaceMenuItemDto": {
         "properties": {
           "key": {
@@ -1420,6 +1445,24 @@
         ],
         "type": "object"
       },
+      "ConsumerWelfareLedgerResponseDto": {
+        "properties": {
+          "account": {
+            "$ref": "#/components/schemas/WelfareCardLedgerAccountResponseDto"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/WelfareCardLedgerItemResponseDto"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "account",
+          "items"
+        ],
+        "type": "object"
+      },
       "CreateBuyerOrderResponseDto": {
         "properties": {
           "checkoutMode": {
@@ -1787,6 +1830,44 @@
         ],
         "type": "object"
       },
+      "CreateWelfareCardAdjustmentRequestDto": {
+        "properties": {
+          "amount": {
+            "description": "Required only for ADJUSTMENT; integer cents",
+            "minimum": 1,
+            "type": "number"
+          },
+          "businessType": {
+            "enum": [
+              "ADJUSTMENT",
+              "REVERSAL"
+            ],
+            "type": "string"
+          },
+          "direction": {
+            "enum": [
+              "CREDIT",
+              "DEBIT"
+            ],
+            "type": "string"
+          },
+          "reason": {
+            "maxLength": 500,
+            "minLength": 2,
+            "type": "string"
+          },
+          "reversalOfLedgerId": {
+            "description": "Required only for REVERSAL; server-owned ledger id",
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "businessType",
+          "reason"
+        ],
+        "type": "object"
+      },
       "CreateWelfareProgramRequestDto": {
         "properties": {
           "canPayDeliveryFee": {
@@ -1849,6 +1930,39 @@
             "type": "string"
           },
           "secondVerificationCode": {
+            "maxLength": 64,
+            "minLength": 4,
+            "type": "string"
+          },
+          "version": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "decision",
+          "opinion",
+          "secondVerificationCode",
+          "version"
+        ],
+        "type": "object"
+      },
+      "DecideWelfareCardAdjustmentRequestDto": {
+        "properties": {
+          "decision": {
+            "enum": [
+              "APPROVE",
+              "REJECT"
+            ],
+            "type": "string"
+          },
+          "opinion": {
+            "maxLength": 1000,
+            "minLength": 2,
+            "type": "string"
+          },
+          "secondVerificationCode": {
+            "description": "Never persisted or returned",
             "maxLength": 64,
             "minLength": 4,
             "type": "string"
@@ -7486,6 +7600,101 @@
         ],
         "type": "object"
       },
+      "WelfareCardAdjustmentPageResponseDto": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/WelfareCardAdjustmentResponseDto"
+            },
+            "type": "array"
+          },
+          "total": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ],
+        "type": "object"
+      },
+      "WelfareCardAdjustmentResponseDto": {
+        "properties": {
+          "accountId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "amount": {
+            "description": "Integer cents",
+            "minimum": 1,
+            "type": "number"
+          },
+          "businessType": {
+            "enum": [
+              "ADJUSTMENT",
+              "REVERSAL"
+            ],
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "direction": {
+            "enum": [
+              "CREDIT",
+              "DEBIT"
+            ],
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "reversalOfLedgerId": {
+            "format": "uuid",
+            "nullable": true,
+            "type": "string"
+          },
+          "reviewOpinion": {
+            "nullable": true,
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "PENDING",
+              "APPROVED",
+              "REJECTED"
+            ],
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "accountId",
+          "businessType",
+          "direction",
+          "amount",
+          "reason",
+          "status",
+          "version",
+          "createdAt",
+          "updatedAt"
+        ],
+        "type": "object"
+      },
       "WelfareCardBindRequestDto": {
         "properties": {
           "agreementAccepted": {
@@ -7631,6 +7840,134 @@
           "paidAt",
           "itemCount",
           "supplierFulfillmentCount"
+        ],
+        "type": "object"
+      },
+      "WelfareCardLedgerAccountResponseDto": {
+        "properties": {
+          "availableAmount": {
+            "description": "Integer cents",
+            "minimum": 0,
+            "type": "number"
+          },
+          "balanceAmount": {
+            "description": "Integer cents",
+            "minimum": 0,
+            "type": "number"
+          },
+          "batchNo": {
+            "type": "string"
+          },
+          "frozenAmount": {
+            "description": "Integer cents",
+            "minimum": 0,
+            "type": "number"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "maskedCardNo": {
+            "description": "Only the last four card characters are visible",
+            "type": "string"
+          },
+          "programName": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "ACTIVE",
+              "SUSPENDED",
+              "EXPIRED",
+              "CLOSED"
+            ],
+            "type": "string"
+          },
+          "version": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "programName",
+          "batchNo",
+          "maskedCardNo",
+          "balanceAmount",
+          "frozenAmount",
+          "availableAmount",
+          "status",
+          "version"
+        ],
+        "type": "object"
+      },
+      "WelfareCardLedgerItemResponseDto": {
+        "properties": {
+          "afterBalance": {
+            "description": "Integer cents",
+            "minimum": 0,
+            "type": "number"
+          },
+          "afterFrozen": {
+            "description": "Integer cents",
+            "minimum": 0,
+            "type": "number"
+          },
+          "amount": {
+            "description": "Integer cents",
+            "minimum": 1,
+            "type": "number"
+          },
+          "beforeBalance": {
+            "description": "Integer cents",
+            "minimum": 0,
+            "type": "number"
+          },
+          "beforeFrozen": {
+            "description": "Integer cents",
+            "minimum": 0,
+            "type": "number"
+          },
+          "businessType": {
+            "enum": [
+              "CLAIM",
+              "GRANT",
+              "GIFT",
+              "FREEZE",
+              "RELEASE",
+              "CAPTURE",
+              "REFUND",
+              "REVERSAL",
+              "ADJUSTMENT"
+            ],
+            "type": "string"
+          },
+          "direction": {
+            "enum": [
+              "CREDIT",
+              "DEBIT"
+            ],
+            "type": "string"
+          },
+          "occurredAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "sequence": {
+            "minimum": 1,
+            "type": "number"
+          }
+        },
+        "required": [
+          "sequence",
+          "businessType",
+          "direction",
+          "amount",
+          "beforeBalance",
+          "afterBalance",
+          "beforeFrozen",
+          "afterFrozen",
+          "occurredAt"
         ],
         "type": "object"
       },
@@ -11288,6 +11625,292 @@
         "x-fulishe-response-policy": "NEVER_RETURN_INTERNAL_PRICING"
       }
     },
+    "/v1/company/welfare-card/accounts": {
+      "get": {
+        "operationId": "companyWelfareCard.listAccounts",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanyWelfareAccountPageResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "List masked company welfare-card accounts without ownership identities",
+        "tags": [
+          "company-welfare-card"
+        ]
+      }
+    },
+    "/v1/company/welfare-card/accounts/{accountId}/adjustments": {
+      "post": {
+        "operationId": "companyWelfareCardFinance.createAdjustment",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "accountId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateWelfareCardAdjustmentRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WelfareCardAdjustmentResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Create a pending welfare-card adjustment without changing balance",
+        "tags": [
+          "company-welfare-card-finance"
+        ]
+      }
+    },
+    "/v1/company/welfare-card/accounts/{accountId}/ledger": {
+      "get": {
+        "operationId": "companyWelfareCard.getAccountLedger",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "accountId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsumerWelfareLedgerResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Read one company-scoped append-only welfare-card ledger",
+        "tags": [
+          "company-welfare-card"
+        ]
+      }
+    },
+    "/v1/company/welfare-card/adjustments": {
+      "get": {
+        "operationId": "companyWelfareCardFinance.listAdjustments",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WelfareCardAdjustmentPageResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "List company finance welfare-card adjustment approvals",
+        "tags": [
+          "company-welfare-card-finance"
+        ]
+      }
+    },
+    "/v1/company/welfare-card/adjustments/{adjustmentId}/decision": {
+      "post": {
+        "operationId": "companyWelfareCardFinance.decideAdjustment",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "adjustmentId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DecideWelfareCardAdjustmentRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WelfareCardAdjustmentResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "428": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Independently approve or reject a welfare-card adjustment",
+        "tags": [
+          "company-welfare-card-finance"
+        ]
+      }
+    },
     "/v1/company/welfare-card/programs": {
       "get": {
         "operationId": "companyWelfareCard.listPrograms",
@@ -11933,6 +12556,58 @@
           }
         },
         "summary": "List current consumer welfare-card accounts usable for the server-priced cart",
+        "tags": [
+          "consumer-welfare-card"
+        ]
+      }
+    },
+    "/v1/consumer/welfare-card-accounts/{accountId}/ledger": {
+      "get": {
+        "operationId": "consumerWelfareCard.getLedger",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "accountId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsumerWelfareLedgerResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Read the current consumer owned welfare-card ledger",
         "tags": [
           "consumer-welfare-card"
         ]

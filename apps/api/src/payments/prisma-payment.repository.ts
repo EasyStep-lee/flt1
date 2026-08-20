@@ -350,6 +350,7 @@ export class PrismaPaymentRepository implements PaymentRepository {
         const welfareCardAmount = Math.min(availableAmount, eligibleAmount, order.totalAmount);
         const cashAmount = order.totalAmount - welfareCardAmount;
         if (welfareCardAmount <= 0 || cashAmount <= 0) return { kind: 'NOT_APPLICABLE' };
+        const ledgerSequence = Number.isSafeInteger(account.ledgerSequence) ? account.ledgerSequence : account.version + 1;
 
         for (const { item } of eligibleItems) {
           const confirmed = await tx.inventoryChangeLog.findFirst({
@@ -366,12 +367,12 @@ export class PrismaPaymentRepository implements PaymentRepository {
             id: account.id, version: account.version, status: 'ACTIVE',
             balanceAmount: account.balanceAmount, frozenAmount: account.frozenAmount,
           },
-          data: { frozenAmount: { increment: welfareCardAmount }, version: { increment: 1 } },
+          data: { frozenAmount: { increment: welfareCardAmount }, ledgerSequence: { increment: 1 }, version: { increment: 1 } },
         });
         if (frozen.count !== 1) throw new PaymentMutationFailure('CONCURRENT_CONFLICT');
         await tx.welfareCardLedger.create({
           data: {
-            id: randomUUID(), accountId: account.id, orderId: order.id, refundId: null,
+            id: randomUUID(), accountId: account.id, sequence: ledgerSequence + 1, orderId: order.id, refundId: null, adjustmentId: null,
             businessType: 'FREEZE', direction: 'DEBIT', amount: welfareCardAmount,
             beforeBalance: account.balanceAmount, afterBalance: account.balanceAmount,
             beforeFrozen: account.frozenAmount, afterFrozen: account.frozenAmount + welfareCardAmount,
@@ -646,20 +647,21 @@ export class PrismaPaymentRepository implements PaymentRepository {
 
         const account = await tx.welfareCardAccount.findUnique({
           where: { id: order.welfareCardAccountId },
-          select: { id: true, balanceAmount: true, frozenAmount: true, version: true },
+            select: { id: true, balanceAmount: true, frozenAmount: true, ledgerSequence: true, version: true },
         });
         if (!account || account.frozenAmount < order.welfareCardAmount) throw new PaymentMutationFailure('STATE_CONFLICT');
+        const ledgerSequence = Number.isSafeInteger(account.ledgerSequence) ? account.ledgerSequence : account.version + 1;
         const releasedFunds = await tx.welfareCardAccount.updateMany({
           where: {
             id: account.id, version: account.version,
             balanceAmount: account.balanceAmount, frozenAmount: account.frozenAmount,
           },
-          data: { frozenAmount: { decrement: order.welfareCardAmount }, version: { increment: 1 } },
+          data: { frozenAmount: { decrement: order.welfareCardAmount }, ledgerSequence: { increment: 1 }, version: { increment: 1 } },
         });
         if (releasedFunds.count !== 1) throw new PaymentMutationFailure('CONCURRENT_CONFLICT');
         await tx.welfareCardLedger.create({
           data: {
-            id: randomUUID(), accountId: account.id, orderId: order.id, refundId: null,
+            id: randomUUID(), accountId: account.id, sequence: ledgerSequence + 1, orderId: order.id, refundId: null, adjustmentId: null,
             businessType: 'RELEASE', direction: 'CREDIT', amount: order.welfareCardAmount,
             beforeBalance: account.balanceAmount, afterBalance: account.balanceAmount,
             beforeFrozen: account.frozenAmount, afterFrozen: account.frozenAmount - order.welfareCardAmount,
@@ -902,13 +904,14 @@ export class PrismaPaymentRepository implements PaymentRepository {
         if (mixedWechat) {
           const account = await tx.welfareCardAccount.findUnique({
             where: { id: payment.order.welfareCardAccountId! },
-            select: { id: true, status: true, balanceAmount: true, frozenAmount: true, version: true },
+            select: { id: true, status: true, balanceAmount: true, frozenAmount: true, ledgerSequence: true, version: true },
           });
           if (
             !account || account.status !== 'ACTIVE'
             || account.balanceAmount < payment.order.welfareCardAmount
             || account.frozenAmount < payment.order.welfareCardAmount
           ) throw new PaymentMutationFailure('STATE_CONFLICT');
+          const ledgerSequence = Number.isSafeInteger(account.ledgerSequence) ? account.ledgerSequence : account.version + 1;
           const captured = await tx.welfareCardAccount.updateMany({
             where: {
               id: account.id, version: account.version, status: 'ACTIVE',
@@ -917,13 +920,14 @@ export class PrismaPaymentRepository implements PaymentRepository {
             data: {
               balanceAmount: { decrement: payment.order.welfareCardAmount },
               frozenAmount: { decrement: payment.order.welfareCardAmount },
+              ledgerSequence: { increment: 1 },
               version: { increment: 1 },
             },
           });
           if (captured.count !== 1) throw new PaymentMutationFailure('CONCURRENT_CONFLICT');
           await tx.welfareCardLedger.create({
             data: {
-              id: randomUUID(), accountId: account.id, orderId: payment.orderId, refundId: null,
+              id: randomUUID(), accountId: account.id, sequence: ledgerSequence + 1, orderId: payment.orderId, refundId: null, adjustmentId: null,
               businessType: 'CAPTURE', direction: 'DEBIT', amount: payment.order.welfareCardAmount,
               beforeBalance: account.balanceAmount, afterBalance: account.balanceAmount - payment.order.welfareCardAmount,
               beforeFrozen: account.frozenAmount, afterFrozen: account.frozenAmount - payment.order.welfareCardAmount,

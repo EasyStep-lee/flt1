@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "taskId": "M3-P059",
+  "p0": [
+    "P0-059"
+  ],
+  "status": "LOCAL_PASS",
+  "commit": "16919727b6f5a3bd79eb6e53721a1aac917adc18",
+  "updatedAt": "2026-08-20T08:43:44.112Z",
+  "baselineSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+  "red": [
+    {
+      "command": "pnpm --filter @fulishe/api build && node --test apps/api/test/unit/welfare-card-ledger-policy.test.mjs",
+      "exitCode": 1,
+      "result": "FAIL",
+      "reason": "ERR_MODULE_NOT_FOUND before policy implementation"
+    },
+    {
+      "command": "pnpm exec vitest run --project api-contract apps/api/test/supertest/welfare-card-ledger-api.test.mjs",
+      "exitCode": 1,
+      "result": "FAIL_3_OF_3",
+      "reason": "consumer/company ledger and finance routes returned 404 before controller implementation"
+    },
+    {
+      "command": "pnpm --filter @fulishe/user-miniapp build && node --test apps/user-miniapp/test/welfare-card-ledger-build.test.mjs",
+      "exitCode": 1,
+      "result": "FAIL_3_OF_3",
+      "reason": "PAGE-063 missing from build artifact before build manifest implementation"
+    }
+  ],
+  "focused": [
+    {
+      "command": "node --test welfare policy/binding/adjustment/miniapp/migration/openapi focused tests",
+      "result": "PASS"
+    },
+    {
+      "command": "vitest welfare ledger API and workspace API",
+      "result": "PASS_8_OF_8"
+    },
+    {
+      "command": "playwright P0-059 and company workspace focused",
+      "result": "PASS_4_OF_4"
+    },
+    {
+      "command": "pnpm prisma:migrate:dry-run",
+      "result": "PASS_EMPTY_2_UPGRADE_2_RESTORE_2_PRODUCT_37_CLEANUP"
+    }
+  ],
+  "fullVerify": "PASS_17_OF_17",
+  "invariants": {
+    "fundingSourcesExactlyThree": true,
+    "personalRechargeAbsent": true,
+    "integerCents": true,
+    "continuousPerAccountSequence": true,
+    "balanceAndFrozenNonNegative": true,
+    "appendOnlyLedger": true,
+    "ownerDerivedScope": true,
+    "makerCheckerNaturalPerson": true,
+    "superAdminBypassAbsent": true,
+    "adjustmentAtomicWithLedger": true,
+    "reversalExactlyOnce": true,
+    "casConflictRollsBack": true
+  },
+  "boundaries": {
+    "realFunds": "NOT_EXECUTED",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_EXECUTED",
+    "production": "NOT_EXECUTED",
+    "p062": "LOCKED",
+    "m4AndLater": "LOCKED"
+  },
+  "github": {
+    "issue": null,
+    "pullRequest": null,
+    "pullRequestState": "NOT_CREATED",
+    "ciStatus": "NOT_EXECUTED"
+  }
+}

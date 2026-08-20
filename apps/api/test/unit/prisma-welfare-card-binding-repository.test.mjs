@@ -23,7 +23,7 @@ const command = (overrides = {}) => ({
   ...overrides,
 });
 
-const fixture = () => {
+const fixture = (fundingType = 'PHYSICAL_CARD_OR_CODE') => {
   const state = {
     accounts: [],
     commands: [],
@@ -48,6 +48,7 @@ const fixture = () => {
         program: {
           id: '40000000-0000-4000-8000-000000000001',
           name: '仓储并发福利计划',
+          fundingType,
           status: 'ACTIVE',
           complianceStatus: 'APPROVED',
         },
@@ -149,6 +150,22 @@ test('M3-P052 concurrent distinct commands produce exactly one claimant and no d
   assert.deepEqual(results.map((entry) => entry.kind).sort(), ['CARD_ALREADY_CLAIMED', 'OK']);
   assert.equal(state.accounts.length, 1);
   assert.equal(state.ledgers.length, 1);
+});
+
+test('M3-P059 opening ledger type is derived only from the approved program funding source', async () => {
+  for (const [fundingType, businessType] of [
+    ['ENTERPRISE_GRANT', 'GRANT'],
+    ['COMPANY_GIFT', 'GIFT'],
+    ['PHYSICAL_CARD_OR_CODE', 'CLAIM'],
+  ]) {
+    const { repository, state } = fixture(fundingType);
+    const result = await repository.bindCard(command());
+    assert.equal(result.kind, 'OK');
+    assert.deepEqual(
+      { businessType: state.ledgers[0].businessType, sequence: state.ledgers[0].sequence },
+      { businessType, sequence: 1 },
+    );
+  }
 });
 
 test('M3-P052 wrong secret has no state, account, command or ledger side effect', async () => {

@@ -60,6 +60,8 @@ const enumFormats = {
   'WelfareCardBatch.claimMode': 'ENTERPRISE_ASSIGNED|COMPANY_ASSIGNED|PHYSICAL_CARD_OR_CODE', 'WelfareCardBatch.status': 'DRAFT|ISSUED|SUSPENDED|EXPIRED|CLOSED',
   'WelfareCardCode.status': 'UNCLAIMED|CLAIMED|DISABLED|EXPIRED', 'WelfareCardAccount.status': 'UNCLAIMED|ACTIVE|SUSPENDED|EXPIRED|CLOSED',
   'WelfareCardLedger.businessType': 'CLAIM|GRANT|GIFT|FREEZE|RELEASE|CAPTURE|REFUND|REVERSAL|ADJUSTMENT', 'WelfareCardLedger.direction': 'CREDIT|DEBIT',
+  'WelfareCardAdjustment.businessType': 'ADJUSTMENT|REVERSAL', 'WelfareCardAdjustment.direction': 'CREDIT|DEBIT',
+  'WelfareCardAdjustment.status': 'PENDING|APPROVED|REJECTED',
   'Order.orderType': 'CONSUMER|ENTERPRISE', 'Order.externalPaymentMethod': 'WECHAT_PAY',
   'Order.paymentStatus': 'NOT_REQUIRED|PENDING|PAID|FAILED|CLOSED|UNKNOWN', 'Order.orderStatus': 'DRAFT|PENDING_PAYMENT|PAID|FULFILLING|PARTIALLY_DELIVERED|COMPLETED|CANCELLED',
   'OrderItem.refundStatus': 'NONE|REQUESTED|PROCESSING|PARTIAL|REFUNDED|REJECTED', 'PaymentTransaction.status': 'CREATED|PREPAY_CREATED|PAID|CLOSED|UNKNOWN|FAILED',
@@ -85,7 +87,8 @@ const resolveType = (row) => {
   if (row.Field === 'lat' || row.Field === 'lng') return 'Decimal(10,7)';
   if (key === 'WelfareCardProgram.canPayDeliveryFee') return 'Boolean';
   if (row.SuggestedType === 'String/UUID') return 'String(36)';
-  if (row.SuggestedType === 'String') return 'String(191)';
+  if (row.SuggestedType === 'UUID' || row.SuggestedType === 'UUID?') return 'String(36)';
+  if (row.SuggestedType === 'String' || row.SuggestedType === 'String?') return 'String(191)';
   if (row.SuggestedType === 'Int(分)') return 'Int';
   if (/^String\(\d+\)$/u.test(row.SuggestedType)) return row.SuggestedType;
   if (/^Enum<[^>]+>\??$/u.test(row.SuggestedType)) return row.SuggestedType;
@@ -98,7 +101,7 @@ const resolveFormat = (row, type) => {
   const key = `${row.Entity}.${row.Field}`;
   if (enumFormats[key]) return enumFormats[key];
   if (type === 'String(36)') return `${row.Required === 'NO' ? 'nullable; ' : ''}UUID v4`;
-  if (type.startsWith('String(')) return `UTF-8; max ${type.slice(7, -1)} chars`;
+  if (type.startsWith('String(')) return `${row.Required === 'NO' ? 'nullable; ' : ''}UTF-8; max ${type.slice(7, -1)} chars`;
   if (type === 'Decimal(10,7)') return row.Field === 'lat' ? '-90..90; 7 decimal places' : '-180..180; 7 decimal places';
   if (type === 'DateTime' || /^DateTime\(\d+\)\??$/u.test(type)) return `${row.Required === 'NO' ? 'nullable; ' : ''}UTC ISO-8601`;
   if (type === 'Boolean') return 'true|false';
@@ -132,7 +135,7 @@ const m3Fields = fields
   if (!mappedP0?.length) throw new Error(`M3_FIELD_P0_MISSING:${row.Entity}.${row.Field}`);
   return { entity: row.Entity, name: row.Field, type, required: row.Required === 'YES', format: resolveFormat(row, type), sensitivity: row.Sensitivity, visibility: row.Visibility, forbiddenExposure: row.ForbiddenExposure, validation: resolveValidation(row), historyRule: row.HistoryRule, p0Ids: mappedP0 };
 });
-if (m3Fields.length !== 302) throw new Error(`M3_FIELD_COUNT:${m3Fields.length}`);
+if (m3Fields.length !== 322) throw new Error(`M3_FIELD_COUNT:${m3Fields.length}`);
 const groupedFields = [...new Set(m3Fields.map(({ entity }) => entity))].map((entity) => ({
   entity,
   fields: m3Fields

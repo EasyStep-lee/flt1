@@ -9,7 +9,8 @@
     "pages/product-detail/index",
     "pages/supplier-products/index",
     "pages/welfare-card/index",
-    "pages/welfare-card-bind/index"
+    "pages/welfare-card-bind/index",
+    "pages/welfare-card-detail/index"
   ],
   "sitemapLocation": "sitemap.json",
   "tabBar": {

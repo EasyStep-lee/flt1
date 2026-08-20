@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-20T05:58:49.9861524Z",
+  "updatedAt": "2026-08-20T08:43:44.112Z",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -14,15 +14,15 @@
   "execution": {
     "status": "M3_IN_PROGRESS",
     "currentStage": "M3",
-    "currentTask": "M3-P058",
-    "nextAllowedTask": "M3-P058",
+    "currentTask": "M3-P059",
+    "nextAllowedTask": "M3-P059",
     "activeTaskCount": 1,
-    "lastCompletedTask": "M3-P057",
-    "lastCompletedCommit": "11fcfb372e9f84bf2151bf1a52043658a6bb3b48",
+    "lastCompletedTask": "M3-P058",
+    "lastCompletedCommit": "a0fc8a6e785395f78362966c398a8fa1f1e37d98",
     "lastPassedGate": "M2-GATE",
     "prohibitedUntilGate": [
-      "M3-P058 Draft PR精确head CI成功、人工合并且post-merge main CI成功前不得开始M3-P059",
-      "真实微信/真实福利资金/staging/device/production未完成；M4及后续保持锁定"
+      "M3-P059 Draft PR精确head CI成功、人工合并且post-merge main CI成功前不得开始M3-P062",
+      "M3-GATE通过前M4及以后保持锁定；staging/device/production与真实资金未执行"
     ],
     "persistentRestrictions": [
       "M3-GATE通过前M4及以后阶段保持LOCKED/NOT_EXECUTED",
@@ -39,9 +39,9 @@
     "authenticationConfirmed": true,
     "writeAllowed": true,
     "connectorAccessConfirmed": true,
-    "pullRequest": 113,
-    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/113",
-    "pullRequestState": "DRAFT",
+    "pullRequest": null,
+    "pullRequestUrl": null,
+    "pullRequestState": "NOT_CREATED",
     "pullRequestMerged": false,
     "mergeCommitSha": null,
     "mergedAt": null,
@@ -70,49 +70,49 @@
       "completedAt": null
     },
     "latestCi": {
-      "scope": "M3_P057_POST_MERGE_MAIN",
+      "scope": "M3_P058_POST_MERGE_MAIN",
       "status": "CI_PASS",
-      "runId": 32331544944,
-      "jobId": 96313023603,
-      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/32331544944",
-      "headSha": "11fcfb372e9f84bf2151bf1a52043658a6bb3b48",
+      "runId": 32339750495,
+      "jobId": 96336282159,
+      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/32339750495",
+      "headSha": "a0fc8a6e785395f78362966c398a8fa1f1e37d98",
       "event": "push",
-      "completedAt": "2026-08-20T04:31:58Z"
+      "completedAt": null
     },
     "currentTaskDelivery": {
-      "taskId": "M3-P058",
+      "taskId": "M3-P059",
       "issue": null,
       "issueUrl": null,
-      "branch": "codex/m3-mixed-payment-split-refund",
-      "baseCommit": "11fcfb372e9f84bf2151bf1a52043658a6bb3b48",
-      "verifiedHead": "38e7581723a25d3cb09738948215d973318609ae",
-      "status": "DRAFT_PR_CI_PENDING",
-      "localRedTest": "PENDING_OR_RECORDED_IN_HANDOFF",
-      "localFocusedTest": "LOCAL_PASS_M3_P058_FOCUSED",
+      "branch": "codex/m3-welfare-card-ledger",
+      "baseCommit": "a0fc8a6e785395f78362966c398a8fa1f1e37d98",
+      "verifiedHead": "16919727b6f5a3bd79eb6e53721a1aac917adc18",
+      "status": "LOCAL_PASS_PENDING_DRAFT_PR",
+      "localRedTest": "RECORDED",
+      "localFocusedTest": "LOCAL_PASS_M3_P059_FOCUSED",
       "localFullVerify": "PASS_17_OF_17",
-      "pullRequest": 113,
-      "pullRequestState": "DRAFT",
+      "pullRequest": null,
+      "pullRequestState": "NOT_CREATED",
       "exactHeadCi": "NOT_EXECUTED",
       "review": "NOT_EXECUTED",
       "merge": "NOT_EXECUTED",
       "mainPostMergeCi": "NOT_EXECUTED",
-      "blockingExternalItem": "REAL_WECHAT_WELFARE_FUNDS_STAGING_DEVICE",
+      "blockingExternalItem": "STAGING_DEVICE_PRODUCTION_REAL_FUNDS",
       "nextTaskUnlocked": false
     },
     "previousTaskDelivery": {
-      "taskId": "M3-P057",
-      "pullRequest": 112,
-      "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/112",
-      "exactHead": "493be6e53dae068acdebdb725afbb48b7a1ac4c9",
-      "mergeCommit": "11fcfb372e9f84bf2151bf1a52043658a6bb3b48",
-      "mainPostMergeCiRun": 32331544944,
-      "mainPostMergeCiJob": 96313023603,
+      "taskId": "M3-P058",
+      "pullRequest": 113,
+      "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/113",
+      "exactHead": "4ba2b7e4844f2ae661ae1a0567dce055cd5984dc",
+      "mergeCommit": "a0fc8a6e785395f78362966c398a8fa1f1e37d98",
+      "mainPostMergeCiRun": 32339750495,
+      "mainPostMergeCiJob": 96336282159,
       "status": "CI_PASS"
     },
-    "note": "M3-P057 merged-main CI_PASS；M3-P058原支付结构拆分退款LOCAL_PASS；真实微信/福利资金/staging/device/production未执行。"
+    "note": "M3-P058 merged-main CI_PASS；M3-P059福利卡追加式账本LOCAL_PASS；P062/M4以后锁定。"
   },
   "evidence": {
-    "local": "LOCAL_PASS_M3_P058",
+    "local": "LOCAL_PASS_M3_P059",
     "ci": "NOT_EXECUTED",
     "staging": "NOT_EXECUTED",
     "device": "NOT_EXECUTED",
@@ -121,13 +121,13 @@
   "counts": {
     "tasks": 149,
     "p0": 119,
-    "fields": 758,
-    "stateTransitions": 115,
+    "fields": 788,
+    "stateTransitions": 119,
     "permissions": 22,
     "pages": 80,
     "externalDependencies": 28,
-    "migrations": 29,
-    "apiContracts": 106
+    "migrations": 30,
+    "apiContracts": 111
   },
   "resumeProtocol": [
     "读取AGENTS.md、综合方案、00/01/02、project-status和当前任务行",

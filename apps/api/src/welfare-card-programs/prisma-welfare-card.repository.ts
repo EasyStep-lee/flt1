@@ -4,14 +4,22 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Prisma } from '@fulishe/db';
 
 import { PrismaService } from '../infrastructure/prisma.service.js';
+import { assertAuditRequestId } from '../audit/audit-log.policy.js';
+import { fundingLedgerBusinessType } from '../welfare-card-ledger/welfare-card-ledger.policy.js';
 import type {
   BindWelfareCardCommand,
   CreateWelfareBatchCommand,
+  CreateWelfareCardAdjustmentCommand,
   CreateWelfareProgramCommand,
+  DecideWelfareCardAdjustmentCommand,
   WelfareBatchRecord,
   WelfareCardAccountRecord,
+  WelfareCardAdjustmentMutationResult,
+  WelfareCardAdjustmentRecord,
   WelfareCardEligibilityAccountRecord,
   WelfareCardBindingResult,
+  WelfareCardLedgerLookupResult,
+  WelfareCardLedgerRecord,
   WelfareCardRepository,
   WelfareMutationResult,
   WelfareProgramRecord,
@@ -19,6 +27,7 @@ import type {
 import { verifyWelfareCardSecret } from './welfare-card-secret.js';
 
 const json = (value: unknown): Prisma.InputJsonValue => value as Prisma.InputJsonValue;
+class WelfareAdjustmentTransactionConflict extends Error {}
 const history = (row: { event: string; resultingVersion: number; occurredAt: Date }) => ({
   event: row.event as 'PROGRAM_CREATED' | 'BATCH_CREATED',
   resultingVersion: row.resultingVersion,
@@ -61,9 +70,53 @@ const accountRecord = (row: {
   cardNo: source.cardNo,
   balanceAmount: row.balanceAmount,
   frozenAmount: row.frozenAmount,
-  status: row.status as 'ACTIVE',
+  status: row.status as WelfareCardAccountRecord['status'],
   version: row.version,
   claimedAt: source.claimedAt.toISOString(),
+});
+const ledgerRecord = (row: {
+  id: string; accountId: string; sequence: number; orderId: string | null; refundId: string | null;
+  adjustmentId: string | null; businessType: string; direction: string; amount: number;
+  beforeBalance: number; afterBalance: number; beforeFrozen: number; afterFrozen: number; occurredAt: Date;
+}): WelfareCardLedgerRecord => ({
+  id: row.id,
+  accountId: row.accountId,
+  sequence: row.sequence,
+  orderId: row.orderId,
+  refundId: row.refundId,
+  adjustmentId: row.adjustmentId,
+  businessType: row.businessType as WelfareCardLedgerRecord['businessType'],
+  direction: row.direction as WelfareCardLedgerRecord['direction'],
+  amount: row.amount,
+  beforeBalance: row.beforeBalance,
+  afterBalance: row.afterBalance,
+  beforeFrozen: row.beforeFrozen,
+  afterFrozen: row.afterFrozen,
+  occurredAt: row.occurredAt.toISOString(),
+});
+const adjustmentRecord = (row: {
+  id: string; accountId: string; businessType: string; direction: string; amount: number;
+  reversalOfLedgerId: string | null; reason: string; status: string; version: number;
+  applicantIdentityId: string; applicantFunctionalAccountId: string;
+  reviewerIdentityId: string | null; reviewerFunctionalAccountId: string | null;
+  reviewOpinion: string | null; createdAt: Date; updatedAt: Date;
+}): WelfareCardAdjustmentRecord => ({
+  id: row.id,
+  accountId: row.accountId,
+  businessType: row.businessType as WelfareCardAdjustmentRecord['businessType'],
+  direction: row.direction as WelfareCardAdjustmentRecord['direction'],
+  amount: row.amount,
+  reversalOfLedgerId: row.reversalOfLedgerId,
+  reason: row.reason,
+  status: row.status as WelfareCardAdjustmentRecord['status'],
+  version: row.version,
+  applicantIdentityId: row.applicantIdentityId,
+  applicantFunctionalAccountId: row.applicantFunctionalAccountId,
+  reviewerIdentityId: row.reviewerIdentityId,
+  reviewerFunctionalAccountId: row.reviewerFunctionalAccountId,
+  reviewOpinion: row.reviewOpinion,
+  createdAt: row.createdAt.toISOString(),
+  updatedAt: row.updatedAt.toISOString(),
 });
 
 @Injectable()
@@ -115,6 +168,213 @@ export class PrismaWelfareCardRepository implements WelfareCardRepository {
         canPayDeliveryFee: row.program.canPayDeliveryFee,
       }];
     });
+  }
+
+  private async loadLedger(companyId: string, accountId: string, consumerUserId?: string): Promise<WelfareCardLedgerLookupResult> {
+    const account = await this.prisma.welfareCardAccount.findFirst({
+      where: {
+        id: accountId,
+        ...(consumerUserId ? { consumerUserId } : {}),
+        program: { companyId },
+        batch: { companyId },
+      },
+      include: { program: true, batch: true, cardCode: true },
+    });
+    if (!account || !account.cardCode.claimedAt) return { kind: 'NOT_FOUND' };
+    const items = await this.prisma.welfareCardLedger.findMany({ where: { accountId }, orderBy: { sequence: 'asc' } });
+    if (items.length < 1) return { kind: 'INCONSISTENT' };
+    return {
+      kind: 'OK',
+      value: {
+        account: accountRecord(account, {
+          companyId,
+          programName: account.program.name,
+          batchNo: account.batch.batchNo,
+          cardNo: account.cardCode.cardNo,
+          claimedAt: account.cardCode.claimedAt,
+        }),
+        items: items.map(ledgerRecord),
+      },
+    };
+  }
+
+  getConsumerLedger(companyId: string, consumerUserId: string, accountId: string): Promise<WelfareCardLedgerLookupResult> {
+    return this.loadLedger(companyId, accountId, consumerUserId);
+  }
+
+  getCompanyLedger(companyId: string, accountId: string): Promise<WelfareCardLedgerLookupResult> {
+    return this.loadLedger(companyId, accountId);
+  }
+
+  async listCompanyAccounts(companyId: string): Promise<readonly WelfareCardAccountRecord[]> {
+    const rows = await this.prisma.welfareCardAccount.findMany({
+      where: { program: { companyId }, batch: { companyId } },
+      include: { program: true, batch: true, cardCode: true },
+      orderBy: [{ updatedAt: 'desc' }, { id: 'asc' }],
+    });
+    return rows.flatMap((row) => row.cardCode.claimedAt ? [accountRecord(row, {
+      companyId,
+      programName: row.program.name,
+      batchNo: row.batch.batchNo,
+      cardNo: row.cardCode.cardNo,
+      claimedAt: row.cardCode.claimedAt,
+    })] : []);
+  }
+
+  async listAdjustments(companyId: string): Promise<readonly WelfareCardAdjustmentRecord[]> {
+    const rows = await this.prisma.welfareCardAdjustment.findMany({
+      where: { companyId },
+      orderBy: [{ createdAt: 'desc' }, { id: 'asc' }],
+    });
+    return rows.map(adjustmentRecord);
+  }
+
+  private async replayAdjustment(scope: string, key: string, hash: string): Promise<WelfareCardAdjustmentMutationResult | undefined> {
+    const previous = await this.prisma.welfareCardAdjustmentCommand.findUnique({
+      where: { scope_idempotencyKey: { scope, idempotencyKey: key } },
+    });
+    if (!previous) return undefined;
+    if (previous.requestHash !== hash) return { kind: 'IDEMPOTENCY_CONFLICT' };
+    return { kind: 'OK', replayed: true, value: previous.responseSnapshot as unknown as WelfareCardAdjustmentRecord };
+  }
+
+  async createAdjustment(command: CreateWelfareCardAdjustmentCommand): Promise<WelfareCardAdjustmentMutationResult> {
+    const scope = `create:${command.companyId}:${command.actorIdentityId}`;
+    const replay = await this.replayAdjustment(scope, command.idempotencyKey, command.requestHash);
+    if (replay) return replay;
+    try {
+      return await this.prisma.$transaction(async (tx): Promise<WelfareCardAdjustmentMutationResult> => {
+        const account = await tx.welfareCardAccount.findFirst({
+          where: { id: command.accountId, program: { companyId: command.companyId }, batch: { companyId: command.companyId } },
+          select: { id: true },
+        });
+        if (!account) return { kind: 'NOT_FOUND' };
+        let direction = command.direction;
+        let amount = command.amount;
+        if (command.businessType === 'REVERSAL') {
+          const original = command.reversalOfLedgerId ? await tx.welfareCardLedger.findFirst({
+            where: { id: command.reversalOfLedgerId, accountId: command.accountId, businessType: 'ADJUSTMENT', adjustmentId: { not: null } },
+          }) : null;
+          const existing = command.reversalOfLedgerId ? await tx.welfareCardAdjustment.findUnique({ where: { reversalOfLedgerId: command.reversalOfLedgerId } }) : null;
+          if (!original || existing) return { kind: 'REVERSAL_INVALID' };
+          direction = original.direction === 'CREDIT' ? 'DEBIT' : 'CREDIT';
+          amount = original.amount;
+        }
+        if ((direction !== 'CREDIT' && direction !== 'DEBIT') || !Number.isSafeInteger(amount) || Number(amount) <= 0) {
+          return { kind: 'STATE_INVALID' };
+        }
+        const row = await tx.welfareCardAdjustment.create({ data: {
+          id: randomUUID(), companyId: command.companyId, accountId: command.accountId,
+          businessType: command.businessType, direction, amount: Number(amount),
+          reversalOfLedgerId: command.reversalOfLedgerId, reason: command.reason,
+          status: 'PENDING', version: 0, applicantIdentityId: command.actorIdentityId,
+          applicantFunctionalAccountId: command.functionalAccountId,
+        } });
+        await tx.welfareCardAdjustmentHistory.create({ data: {
+          id: randomUUID(), adjustmentId: row.id, fromStatus: null, toStatus: 'PENDING', event: 'CREATE',
+          actorIdentityId: command.actorIdentityId, functionalAccountId: command.functionalAccountId,
+          opinion: command.reason, version: 0,
+        } });
+        const value = adjustmentRecord(row);
+        await tx.auditLog.create({ data: {
+          id: randomUUID(), actorType: 'COMPANY_USER', actorId: command.actorIdentityId, supplierId: null,
+          functionalAccountId: command.functionalAccountId, action: 'welfare_card.adjustment.create',
+          objectType: 'welfare_card_adjustment', objectId: row.id, beforeSnapshot: json({}),
+          afterSnapshot: json({ accountId: row.accountId, businessType: row.businessType, direction: row.direction, amount: row.amount, status: row.status, version: row.version }),
+          requestId: assertAuditRequestId(command.requestId), ip: command.ip,
+        } });
+        await tx.welfareCardAdjustmentCommand.create({ data: {
+          id: randomUUID(), scope, idempotencyKey: command.idempotencyKey, requestHash: command.requestHash,
+          responseSnapshot: json(value),
+        } });
+        return { kind: 'OK', replayed: false, value };
+      }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+    } catch (error) {
+      if (!(error instanceof Prisma.PrismaClientKnownRequestError) || (error.code !== 'P2002' && error.code !== 'P2034')) throw error;
+      const after = await this.replayAdjustment(scope, command.idempotencyKey, command.requestHash);
+      return after ?? (command.businessType === 'REVERSAL' ? { kind: 'REVERSAL_INVALID' } : { kind: 'STATE_INVALID' });
+    }
+  }
+
+  async decideAdjustment(command: DecideWelfareCardAdjustmentCommand): Promise<WelfareCardAdjustmentMutationResult> {
+    const scope = `decide:${command.adjustmentId}:${command.reviewerIdentityId}`;
+    const replay = await this.replayAdjustment(scope, command.idempotencyKey, command.requestHash);
+    if (replay) return replay;
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      try {
+        return await this.prisma.$transaction(async (tx): Promise<WelfareCardAdjustmentMutationResult> => {
+          const row = await tx.welfareCardAdjustment.findFirst({ where: { id: command.adjustmentId, companyId: command.companyId } });
+          if (!row) return { kind: 'NOT_FOUND' };
+          if (row.applicantIdentityId === command.reviewerIdentityId) return { kind: 'SAME_NATURAL_PERSON' };
+          if (row.status !== 'PENDING') return { kind: 'STATE_INVALID' };
+          if (row.version !== command.expectedVersion) return { kind: 'VERSION_CONFLICT' };
+
+          let account: Awaited<ReturnType<typeof tx.welfareCardAccount.findFirst>> | null = null;
+          let afterBalance: number | null = null;
+          if (command.decision === 'APPROVE') {
+            account = await tx.welfareCardAccount.findFirst({
+              where: { id: row.accountId, program: { companyId: command.companyId }, batch: { companyId: command.companyId } },
+            });
+            if (!account) return { kind: 'NOT_FOUND' };
+            afterBalance = account.balanceAmount + (row.direction === 'CREDIT' ? row.amount : -row.amount);
+            if (!Number.isSafeInteger(afterBalance) || afterBalance < account.frozenAmount) return { kind: 'INSUFFICIENT_BALANCE' };
+          }
+
+          const status = command.decision === 'APPROVE' ? 'APPROVED' : 'REJECTED';
+          const adjustmentChanged = await tx.welfareCardAdjustment.updateMany({
+            where: { id: row.id, status: 'PENDING', version: row.version },
+            data: {
+              status, version: { increment: 1 }, reviewerIdentityId: command.reviewerIdentityId,
+              reviewerFunctionalAccountId: command.functionalAccountId, reviewOpinion: command.opinion,
+            },
+          });
+          if (adjustmentChanged.count !== 1) return { kind: 'VERSION_CONFLICT' };
+
+          if (command.decision === 'APPROVE' && account && afterBalance !== null) {
+            const changed = await tx.welfareCardAccount.updateMany({
+              where: { id: account.id, version: account.version, balanceAmount: account.balanceAmount, frozenAmount: account.frozenAmount },
+              data: { balanceAmount: afterBalance, ledgerSequence: { increment: 1 }, version: { increment: 1 } },
+            });
+            if (changed.count !== 1) throw new WelfareAdjustmentTransactionConflict();
+            await tx.welfareCardLedger.create({ data: {
+              id: randomUUID(), accountId: account.id, sequence: account.ledgerSequence + 1, orderId: null, refundId: null,
+              adjustmentId: row.id, businessType: row.businessType, direction: row.direction, amount: row.amount,
+              beforeBalance: account.balanceAmount, afterBalance, beforeFrozen: account.frozenAmount,
+              afterFrozen: account.frozenAmount, idempotencyKey: `ADJUSTMENT:${row.id}`,
+            } });
+          }
+          await tx.welfareCardAdjustmentHistory.create({ data: {
+            id: randomUUID(), adjustmentId: row.id, fromStatus: 'PENDING', toStatus: status,
+            event: command.decision === 'APPROVE' ? 'APPROVE' : 'REJECT',
+            actorIdentityId: command.reviewerIdentityId, functionalAccountId: command.functionalAccountId,
+            opinion: command.opinion, version: row.version + 1,
+          } });
+          const current = await tx.welfareCardAdjustment.findUniqueOrThrow({ where: { id: row.id } });
+          const value = adjustmentRecord(current);
+          await tx.auditLog.create({ data: {
+            id: randomUUID(), actorType: 'COMPANY_USER', actorId: command.reviewerIdentityId, supplierId: null,
+            functionalAccountId: command.functionalAccountId, action: `welfare_card.adjustment.${command.decision.toLowerCase()}`,
+            objectType: 'welfare_card_adjustment', objectId: row.id,
+            beforeSnapshot: json({ status: row.status, version: row.version }),
+            afterSnapshot: json({ status: current.status, version: current.version, accountId: current.accountId, businessType: current.businessType, direction: current.direction, amount: current.amount }),
+            requestId: assertAuditRequestId(command.requestId), ip: command.ip,
+          } });
+          await tx.welfareCardAdjustmentCommand.create({ data: {
+            id: randomUUID(), scope, idempotencyKey: command.idempotencyKey, requestHash: command.requestHash,
+            responseSnapshot: json(value),
+          } });
+          return { kind: 'OK', replayed: false, value };
+        }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+      } catch (error) {
+        if (error instanceof WelfareAdjustmentTransactionConflict) return { kind: 'VERSION_CONFLICT' };
+        if (!(error instanceof Prisma.PrismaClientKnownRequestError) || (error.code !== 'P2002' && error.code !== 'P2034')) throw error;
+        const after = await this.replayAdjustment(scope, command.idempotencyKey, command.requestHash);
+        if (after) return after;
+        if (error.code === 'P2034' && attempt < 2) continue;
+        return { kind: 'VERSION_CONFLICT' };
+      }
+    }
+    return { kind: 'VERSION_CONFLICT' };
   }
 
   private async replay<T extends WelfareProgramRecord | WelfareBatchRecord>(companyId: string, operation: string, key: string, hash: string): Promise<WelfareMutationResult<T> | undefined> {
@@ -285,6 +545,7 @@ export class PrismaWelfareCardRepository implements WelfareCardRepository {
               cardCodeId: card.id,
               balanceAmount: card.amount,
               frozenAmount: 0,
+              ledgerSequence: 1,
               status: 'ACTIVE',
               version: 0,
             },
@@ -293,9 +554,11 @@ export class PrismaWelfareCardRepository implements WelfareCardRepository {
             data: {
               id: randomUUID(),
               accountId: account.id,
+              sequence: 1,
               orderId: null,
               refundId: null,
-              businessType: 'CLAIM',
+              adjustmentId: null,
+              businessType: fundingLedgerBusinessType(card.batch.program.fundingType),
               direction: 'CREDIT',
               amount: card.amount,
               beforeBalance: 0,

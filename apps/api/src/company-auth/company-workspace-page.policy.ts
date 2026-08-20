@@ -196,12 +196,21 @@ export const COMPANY_WORKSPACE_PAGE_MODULES = Object.freeze({
       label: '账户与追加式账本',
       description: '账户选择、余额与只追加账本在 M3 实现。',
       deliveryStage: 'M3',
-      availability: 'DEFERRED',
-      dataBoundary: '不返回账户余额或账本业务记录，禁止直接改余额。',
+      availability: 'AVAILABLE',
+      dataBoundary: '仅返回福利卡职能白名单账户摘要与连续账本，不返回账户归属自然人标识，禁止直接改余额。',
       sections: ['账户列表', '账本详情', '冲正时间线'],
     }),
   ]),
   COMPANY_FINANCE: Object.freeze([
+    module({
+      moduleKey: 'welfare-card-adjustments',
+      label: '福利卡调整与冲正',
+      description: '提交待复核调整或引用原调整流水冲正；不同自然人复核通过后才追加账本。',
+      deliveryStage: 'M3',
+      availability: 'AVAILABLE',
+      dataBoundary: '仅返回调整业务白名单；账户归属、申请人和复核人自然人标识及二次验证码永不返回。',
+      sections: ['调整申请', '独立复核', '冲正与审计时间线'],
+    }),
     module({
       moduleKey: 'payment-reconciliation',
       label: '收款对账',

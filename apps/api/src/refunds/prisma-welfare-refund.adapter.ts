@@ -68,11 +68,13 @@ export class PrismaWelfareRefundAdapter implements WelfareRefundAdapter {
         if (!Number.isSafeInteger(afterBalance)) {
           return reject('Welfare-card balance would exceed the safe integer range');
         }
+        const ledgerSequence = Number.isSafeInteger(account.ledgerSequence) ? account.ledgerSequence : account.version + 1;
 
         const accountChanged = await tx.welfareCardAccount.updateMany({
           where: { id: account.id, version: account.version },
           data: {
             balanceAmount: { increment: command.refundAmount },
+            ledgerSequence: { increment: 1 },
             version: { increment: 1 },
           },
         });
@@ -83,8 +85,10 @@ export class PrismaWelfareRefundAdapter implements WelfareRefundAdapter {
         await tx.welfareCardLedger.create({
           data: {
             accountId: account.id,
+            sequence: ledgerSequence + 1,
             orderId: refund.orderId,
             refundId: refund.id,
+            adjustmentId: null,
             businessType: 'REFUND',
             direction: 'CREDIT',
             amount: command.refundAmount,

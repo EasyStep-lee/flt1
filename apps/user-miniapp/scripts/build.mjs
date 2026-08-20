@@ -34,6 +34,7 @@ await build({
     path.join(sourceRoot, 'pages/supplier-products/index.ts'),
     path.join(sourceRoot, 'pages/welfare-card/index.ts'),
     path.join(sourceRoot, 'pages/welfare-card-bind/index.ts'),
+    path.join(sourceRoot, 'pages/welfare-card-detail/index.ts'),
   ],
   format: 'iife',
   logLevel: 'info',
@@ -77,6 +78,9 @@ for (const relativePath of [
   'pages/welfare-card-bind/index.json',
   'pages/welfare-card-bind/index.wxml',
   'pages/welfare-card-bind/index.wxss',
+  'pages/welfare-card-detail/index.json',
+  'pages/welfare-card-detail/index.wxml',
+  'pages/welfare-card-detail/index.wxss',
 ]) {
   const destination = path.join(outputRoot, relativePath);
   await mkdir(path.dirname(destination), { recursive: true });
