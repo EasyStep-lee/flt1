@@ -5,8 +5,8 @@
     "P0-062"
   ],
   "status": "LOCAL_PASS",
-  "commit": "WORKTREE",
-  "updatedAt": "2026-08-20T11:24:58Z",
+  "commit": "4da752fb583cf66e08547f5194087fa568a07341",
+  "updatedAt": "2026-08-20T11:44:50Z",
   "baselineSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
   "red": [
     {
@@ -53,8 +53,8 @@
   },
   "github": {
     "issue": 116,
-    "pullRequest": null,
-    "pullRequestState": "NOT_CREATED",
+    "pullRequest": 117,
+    "pullRequestState": "DRAFT",
     "ciStatus": "NOT_EXECUTED"
   }
 }

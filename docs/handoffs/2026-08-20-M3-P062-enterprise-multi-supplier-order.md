@@ -6,7 +6,7 @@
 - 当前证据：`LOCAL_PASS`。本地完整 `pnpm verify` 17/17 通过；P0-062 只有 Draft PR 最新精确 head Actions 成功后才能升级为 `CI_PASS`。
 - 方案 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`；执行包自检通过，任务 149、P0 119、字段 788、页面 80、权限 22。
 - 基线：`origin/main@ed1b37061761a057556a80b659e8317dc59b9164`，即 M3-P059 PR #115 合并提交；post-merge main CI run `32357516455` / job `96389796027` 成功。
-- 分支：`codex/m3-enterprise-multi-supplier-order`；Issue #116。Draft PR、精确 head CI、评论和合并状态在推送后补录。
+- 分支：`codex/m3-enterprise-multi-supplier-order`；Issue #116；Draft PR #117。精确 head CI、评论和合并状态在最终证据提交推送后补录。
 - 用户已有的 M3-P031、M3-P051、M3-P059 截图改动及其他无关未跟踪文件未覆盖、未纳入本切片。
 
 ## 唯一目标与非目标
@@ -43,7 +43,7 @@
 | 全量 API | 49 files / 247 tests PASS |
 | 全量 P0 Chromium | 84/84 PASS；基础 E2E 3/3 PASS |
 | 秘密扫描 | 1073 个已跟踪文件 PASS |
-| 执行包/工作簿 | 执行包自检 PASS；12 sheets 同步；公式错误扫描 0；SHA-256 `905570BE4AB4D3ECFA4C11635758F607F17A926279D66F6CFF704F452820434B` |
+| 执行包/工作簿 | 执行包自检 PASS；12 sheets 同步；公式错误扫描 0；SHA-256 `E6E0FDB07304B2162ABD0C3EC119E8008D1E537AC9D2811570FF7D8C9C49F667` |
 
 失败证据未通过删测试、降断言或跳过门禁处理。
 
@@ -63,7 +63,7 @@
 
 ## GitHub 与下一门禁
 
-- 仓库：`EasyStep-lee/flt1`；基线分支：`main`；开发分支：`codex/m3-enterprise-multi-supplier-order`；Issue #116。
+- 仓库：`EasyStep-lee/flt1`；基线分支：`main`；开发分支：`codex/m3-enterprise-multi-supplier-order`；Issue #116；Draft PR #117。
 - PR #115 已按授权精确 head `1a04f48fab630e78800b57596c5c4aa43b897e01` 合并为 `ed1b37061761a057556a80b659e8317dc59b9164`；合并后 main CI 成功。
-- 本切片提交、Draft PR、Actions、评论与精确 head 将在推送后补录；在此之前不得声明 `CI_PASS`。
+- 实现提交 `4da752fb583cf66e08547f5194087fa568a07341` 已完成本地 `pnpm verify` 17/17；PR #117 为 Draft，Actions、评论与最终精确 head 在证据提交推送后补录；在此之前不得声明 `CI_PASS`。
 - `M3-P073` 保持锁定。只有 P062 Draft PR 最新精确 head 必需 Actions 全部成功、用户对该 head 明确授权 Ready/合并、合并完成且合并后 `main` 最新 CI 成功，才允许进入 P073。M4 及以后继续锁定。

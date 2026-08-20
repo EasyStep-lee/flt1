@@ -21,13 +21,13 @@
   },
   "workbook": {
     "status": "VERIFIED",
-    "sha256": "905570BE4AB4D3ECFA4C11635758F607F17A926279D66F6CFF704F452820434B",
+    "sha256": "E6E0FDB07304B2162ABD0C3EC119E8008D1E537AC9D2811570FF7D8C9C49F667",
     "currentTaskMirror": {
       "taskId": "M3-P062",
-      "status": "LOCAL_PASS_PENDING_DRAFT_PR",
+      "status": "DRAFT_PR_CI_PENDING",
       "sourceLedgers": "CSV_JSON_AND_WORKBOOK_UPDATED",
-      "reason": "Artifact-tool synchronized P059 merged-main evidence and M3-P062 task, P0, page, evidence, migration, API and stage rows; P073 remains locked and external evidence remains separate.",
-      "checkedAt": "2026-08-20T11:24:58Z"
+      "reason": "Artifact-tool synchronized P059 merged-main evidence and M3-P062 Draft PR #117 task, P0, page, evidence, migration, API and stage rows; P073 remains locked and external evidence remains separate.",
+      "checkedAt": "2026-08-20T11:44:50Z"
     }
   },
   "sourceOfTruth": [
