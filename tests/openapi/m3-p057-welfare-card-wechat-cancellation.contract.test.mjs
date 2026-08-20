@@ -27,3 +27,13 @@ test('API-106 is registered in the generated-contract miniapp transport map', ()
   assert.match(source, /readonly 'payments\.cancelWelfareCardWechatPayment'/u);
   assert.match(source, /SuccessJsonResponse<OperationById<'payments\.cancelWelfareCardWechatPayment'>>/u);
 });
+
+test('API-106 execution-pack row carries the required task-local contract refinement marker', () => {
+  const ledger = readFileSync(
+    new URL('../../福礼社Codex5.6开发执行包V1.1/12-OpenAPI-DTO-错误码台账.csv', import.meta.url),
+    'utf8',
+  );
+  const row = ledger.split(/\r?\n/u).find((line) => line.startsWith('API-106,'));
+  assert.ok(row);
+  assert.match(row, /任务内契约细化/u);
+});

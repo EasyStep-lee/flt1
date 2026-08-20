@@ -38,7 +38,7 @@
 | API focused | 5/5 PASS |
 | repository focused | 3/3 PASS：正常、重复 SKU 聚合、晚期失败全回滚 |
 | 小程序 focused | 8/8 PASS |
-| OpenAPI focused | 2/2 PASS |
+| OpenAPI focused | 3/3 PASS（含 API-106 执行包“任务内契约细化”回归断言） |
 | P0-057 Chromium focused | 1/1 PASS |
 | OpenAPI 全集 | 25/25 PASS；生成产物字节一致 |
 | 迁移契约 | 52/52 PASS；已发布迁移 `35/35` 完整 |
@@ -49,7 +49,7 @@
 | 迁移演练 | `empty=2 / upgrade=2 / restore=2 / product=35 / cleanup=PASS` |
 | `pnpm verify` | 17/17 PASS，`base=HEAD`，`2026-08-17T09:44:01Z` 至 `2026-08-17T09:58:16Z` |
 | secrets | 1042 tracked files PASS |
-| 工作簿 | 12 表同步并渲染；公式错误 0；SHA-256 `471A0C00F017FE5CC64D1E105094F87E8BBEC102FAE64F710ED30F2F26E03FDE` |
+| 工作簿 | 12 表同步并渲染、逐页目检；公式错误 0；SHA-256 `3A93CC962C1C967019743779C093B098420F054173305E383BEAE06BA30D8E95` |
 
 全量门禁的失败与恢复如实保留：
 
@@ -77,3 +77,10 @@
 ## 下一门禁
 
 `M3-P058` 保持 `LOCKED`。只有本切片 Draft PR 最新精确 head 的必需 Actions 全部成功、用户对该 head 明确授权 Ready/合并、人工合并完成，且合并后 `main` 最新 CI 成功，才允许进入 P058。M4 及以后继续锁定。
+
+## 2026-08-19 合并前基线自检补充
+
+- 新鲜执行 `scripts/verify-product-baseline.ps1` 时，方案与提示词基线仍正确，但执行包自检因 API-106 Notes 缺少固定的“任务内契约细化”标识而失败。
+- API-106 的 P0 映射、确定性 OpenAPI、DTO、错误码和运行测试均已存在；本补充只修复执行包可机读说明及工作簿镜像，并新增回归断言，不改变支付、资金、库存或权限行为。
+- 修复后执行包自检、产品基线校验、OpenAPI focused `3/3`、交接测试 `29/29`、契约测试 `91/91` 均新鲜通过；产品方案 SHA-256 仍为锁定值，执行包目录变化仅来自允许追加的任务状态与证据。
+- PR #112 的旧 head `778381fd5465dae3ab983ef6465b41ebe2298d53` CI 已成功；本补充提交推送后必须以新的精确 head CI 为准，旧 head 不再作为最终合并证据。

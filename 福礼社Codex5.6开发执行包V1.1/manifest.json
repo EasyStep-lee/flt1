@@ -21,10 +21,10 @@
   },
   "workbook": {
     "status": "VERIFIED",
-    "sha256": "471A0C00F017FE5CC64D1E105094F87E8BBEC102FAE64F710ED30F2F26E03FDE",
+    "sha256": "3A93CC962C1C967019743779C093B098420F054173305E383BEAE06BA30D8E95",
     "currentTaskMirror": {
       "taskId": "M3-P057",
-      "status": "LOCAL_PASS_PENDING_DRAFT_PR",
+      "status": "DRAFT_PR_CI_PENDING",
       "sourceLedgers": "CSV_JSON_AND_WORKBOOK_UPDATED",
       "reason": "Artifact-tool updated the M3-P057 task, P0, state machine, permission, page, evidence, migration, API and stage-gate rows; exact-head Draft PR CI, human merge authorization and post-merge main CI remain separate gates.",
       "checkedAt": "2026-08-17T10:07:11Z"

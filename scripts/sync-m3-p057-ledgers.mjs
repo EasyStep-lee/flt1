@@ -124,7 +124,7 @@ await upsertCsv('12-OpenAPI-DTO-错误码台账.csv', ['ContractID'], [{
   ErrorCodes: 'AUTHENTICATION_REQUIRED|ACCOUNT_SUSPENDED|FIELD_FORBIDDEN|VALIDATION_FAILED|IDEMPOTENCY_KEY_REQUIRED|ORDER_NOT_FOUND|ACCESS_DENIED|PAYMENT_IDEMPOTENCY_CONFLICT|PAYMENT_STATE_INVALID|PAYMENT_CONCURRENT_CONFLICT|PAYMENT_AMOUNT_MISMATCH',
   Idempotency: 'Idempotency-Key plus PaymentAttempt(transaction,key)；未知可同key重复查询；终态重放不重复释放', SensitiveFieldPolicy: 'NEVER_RETURN accountId/balance/owner/config/supplyPrice/secret；SESSION_OWNER_DERIVED；request only reason；no public cache',
   MoneyRule: 'integer cents；UNKNOWN零释放；明确未支付且关单成功后只减冻结不减余额并释放全部SKU预留；PAID复用原确认链', P0: 'P0-024,P0-057,P0-059,P0-093', OpenAPIStatus: 'GENERATED', DTOStatus: 'IMPLEMENTED', ErrorCodeStatus: 'IMPLEMENTED',
-  ContractTest: 'apps/api/test/supertest/welfare-card-wechat-cancel-api.test.mjs|tests/openapi/m3-p057-welfare-card-wechat-cancellation.contract.test.mjs|packages/contracts/openapi.json', Owner: 'CODEX', Notes: '真实微信查询/关单适配器配置与staging/真机证据仍为外部门禁。',
+  ContractTest: 'apps/api/test/supertest/welfare-card-wechat-cancel-api.test.mjs|tests/openapi/m3-p057-welfare-card-wechat-cancellation.contract.test.mjs|packages/contracts/openapi.json', Owner: 'CODEX', Notes: '任务内契约细化：真实微信查询/关单适配器配置与staging/真机证据仍为外部门禁。',
 }]);
 
 await upsertCsv(path.join('data', '阶段门禁.csv'), ['Stage'], [{
