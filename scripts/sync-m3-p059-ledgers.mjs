@@ -82,7 +82,7 @@ await upsertCsv('04-P0-1至P0-119验收矩阵.csv', ['P0ID'], [
 ]);
 
 const field = (Entity, Field, SuggestedType, Validation, HistoryRule, Sensitivity = 'INTERNAL') => ({
-  Entity, Field, SuggestedType, Required: 'YES', Sensitivity, Validation, HistoryRule, Stage: 'M3', P0: 'P0-059',
+  Entity, Field, SuggestedType, Required: SuggestedType.endsWith('?') ? 'NO' : 'YES', Sensitivity, Validation, HistoryRule, Stage: 'M3', P0: 'P0-059',
   Source: '综合方案§9.7/§9.8/§13；M3-P059契约', Status: implemented ? 'IMPLEMENTED_M3_P059' : 'DESIGNED_M3_P059',
 });
 await upsertCsv('05-字段字典初始版.csv', ['Entity', 'Field'], [
@@ -162,11 +162,16 @@ await upsertCsv(path.join('data', '阶段门禁.csv'), ['Stage'], [{
 
 const freezePath = path.join(root, 'artifacts', 'verification', 'M3-000', 'm3-contract-freeze.json');
 const freeze = JSON.parse(await readFile(freezePath, 'utf8'));
+const completedSliceStatuses = new Map([
+  ['M3-P031', 'CI_PASS'], ['M3-P051', 'CI_PASS'], ['M3-P052', 'LOCAL_PASS'],
+  ['M3-P053', 'LOCAL_PASS'], ['M3-P054', 'CI_PASS'], ['M3-P055', 'CI_PASS'],
+  ['M3-P056', 'CI_PASS'], ['M3-P057', 'CI_PASS'], ['M3-P058', 'CI_PASS'],
+  ['M3-P059', evidenceStatus],
+]);
 const visit = (value) => {
   if (Array.isArray(value)) for (const item of value) visit(item);
   else if (value && typeof value === 'object') {
-    if (value.taskId === 'M3-P058') value.executionStatus = 'CI_PASS';
-    if (value.taskId === 'M3-P059') value.executionStatus = evidenceStatus;
+    if (completedSliceStatuses.has(value.taskId)) value.executionStatus = completedSliceStatuses.get(value.taskId);
     for (const child of Object.values(value)) visit(child);
   }
 };

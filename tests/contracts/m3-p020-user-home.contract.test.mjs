@@ -12,8 +12,8 @@ test('M3-P020 ledgers and generated contract preserve the personal-only home bou
   const p0Ledger = read('福礼社Codex5.6开发执行包V1.1/04-P0-1至P0-119验收矩阵.csv');
   const apiLedger = read('福礼社Codex5.6开发执行包V1.1/12-OpenAPI-DTO-错误码台账.csv');
 
-  assert.equal(state.execution.currentTask, 'M3-P058');
-  assert.equal(state.execution.nextAllowedTask, 'M3-P058');
+  assert.equal(state.execution.currentTask, 'M3-P059');
+  assert.equal(state.execution.nextAllowedTask, 'M3-P059');
   assert.match(taskLedger, /M3-P020[^\r\n]+DONE,CI_PASS/u);
   assert.match(taskLedger, /M3-P022[^\r\n]+DONE,CI_PASS/u);
   assert.match(taskLedger, /M3-P023[^\r\n]+DONE,CI_PASS/u);

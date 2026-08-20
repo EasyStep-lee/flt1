@@ -114,7 +114,7 @@
     ]
   },
   "fieldContract": {
-    "count": 302,
+    "count": 322,
     "entities": [
       {
         "entity": "ConsumerUser",
@@ -157,7 +157,7 @@
             "name": "mobileEncrypted",
             "type": "String(191)",
             "required": false,
-            "format": "UTF-8; max 191 chars",
+            "format": "nullable; UTF-8; max 191 chars",
             "sensitivity": "PERSONAL_OR_SENSITIVE",
             "visibility": "按角色、对象归属及配送阶段脱敏/解密",
             "forbiddenExposure": "禁止跨供应商、越阶段或批量无审批导出",
@@ -174,7 +174,7 @@
             "name": "nickname",
             "type": "String(191)",
             "required": false,
-            "format": "UTF-8; max 191 chars",
+            "format": "nullable; UTF-8; max 191 chars",
             "sensitivity": "INTERNAL",
             "visibility": "按资源权限与数据域访问；公开DTO另行白名单",
             "forbiddenExposure": "数据库实体不得直接序列化为响应",
@@ -328,7 +328,7 @@
             "name": "unionIdHash",
             "type": "String(191)",
             "required": false,
-            "format": "UTF-8; max 191 chars",
+            "format": "nullable; UTF-8; max 191 chars",
             "sensitivity": "SECRET_OR_CREDENTIAL",
             "visibility": "仅后端最小权限读取，响应永不返回",
             "forbiddenExposure": "禁止提交、日志、快照和前端下发",
@@ -651,7 +651,7 @@
             "name": "tag",
             "type": "String(191)",
             "required": false,
-            "format": "UTF-8; max 191 chars",
+            "format": "nullable; UTF-8; max 191 chars",
             "sensitivity": "PERSONAL_OR_SENSITIVE",
             "visibility": "按角色、对象归属及配送阶段脱敏/解密",
             "forbiddenExposure": "禁止跨供应商、越阶段或批量无审批导出",
@@ -752,7 +752,7 @@
             "name": "taxNoEncrypted",
             "type": "String(191)",
             "required": false,
-            "format": "UTF-8; max 191 chars",
+            "format": "nullable; UTF-8; max 191 chars",
             "sensitivity": "PERSONAL_OR_SENSITIVE",
             "visibility": "按角色、对象归属及配送阶段脱敏/解密",
             "forbiddenExposure": "禁止跨供应商、越阶段或批量无审批导出",
@@ -768,7 +768,7 @@
             "name": "receiveEmailEncrypted",
             "type": "String(191)",
             "required": false,
-            "format": "UTF-8; max 191 chars",
+            "format": "nullable; UTF-8; max 191 chars",
             "sensitivity": "PERSONAL_OR_SENSITIVE",
             "visibility": "按角色、对象归属及配送阶段脱敏/解密",
             "forbiddenExposure": "禁止跨供应商、越阶段或批量无审批导出",
@@ -2297,6 +2297,20 @@
               "P0-052",
               "P0-053"
             ]
+          },
+          {
+            "name": "ledgerSequence",
+            "type": "Int",
+            "required": true,
+            "format": "integer",
+            "sensitivity": "INTERNAL",
+            "visibility": "",
+            "forbiddenExposure": "",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "不单独人工修改；随资金事务原子更新",
+            "p0Ids": [
+              "P0-059"
+            ]
           }
         ]
       },
@@ -2369,7 +2383,7 @@
             "visibility": "公司财务与必要业务职能；供应商仅本供应商结算视图",
             "forbiddenExposure": "消费者响应仅返回自身交易白名单字段",
             "validation": "server-owned identifier; owner scope checked before not-found disclosure",
-            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "historyRule": "只追加；REFUND流水禁止更新删除",
             "p0Ids": [
               "P0-052",
               "P0-055",
@@ -2388,7 +2402,7 @@
             "visibility": "公司财务与必要业务职能；供应商仅本供应商结算视图",
             "forbiddenExposure": "消费者响应仅返回自身交易白名单字段",
             "validation": "DTO whitelist; required/type/range/ownership validation",
-            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "historyRule": "只追加；数据库约束退款语义",
             "p0Ids": [
               "P0-052",
               "P0-055",
@@ -2407,7 +2421,7 @@
             "visibility": "公司财务与必要业务职能；供应商仅本供应商结算视图",
             "forbiddenExposure": "消费者响应仅返回自身交易白名单字段",
             "validation": "DTO whitelist; required/type/range/ownership validation",
-            "historyRule": "追加/版本/快照，不覆盖已生效历史",
+            "historyRule": "只追加；数据库约束退款语义",
             "p0Ids": [
               "P0-052",
               "P0-055",
@@ -2547,6 +2561,34 @@
               "P0-056",
               "P0-057",
               "P0-058",
+              "P0-059"
+            ]
+          },
+          {
+            "name": "sequence",
+            "type": "Int",
+            "required": true,
+            "format": "integer",
+            "sensitivity": "INTERNAL",
+            "visibility": "",
+            "forbiddenExposure": "",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "只追加；禁止更新删除",
+            "p0Ids": [
+              "P0-059"
+            ]
+          },
+          {
+            "name": "adjustmentId",
+            "type": "String(36)",
+            "required": false,
+            "format": "nullable; UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "",
+            "forbiddenExposure": "",
+            "validation": "server-owned identifier; owner scope checked before not-found disclosure",
+            "historyRule": "只追加；禁止更新删除",
+            "p0Ids": [
               "P0-059"
             ]
           }
@@ -3442,7 +3484,7 @@
             "name": "wechatRefundNo",
             "type": "String(191)",
             "required": false,
-            "format": "UTF-8; max 191 chars",
+            "format": "nullable; UTF-8; max 191 chars",
             "sensitivity": "FINANCIAL",
             "visibility": "公司财务与必要业务职能；供应商仅本供应商结算视图",
             "forbiddenExposure": "消费者响应仅返回自身交易白名单字段",
@@ -5031,6 +5073,249 @@
             ]
           }
         ]
+      },
+      {
+        "entity": "WelfareCardAdjustment",
+        "fields": [
+          {
+            "name": "id",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "",
+            "forbiddenExposure": "",
+            "validation": "server-owned identifier; owner scope checked before not-found disclosure",
+            "historyRule": "状态和决定通过独立History追加；批准后不可改写",
+            "p0Ids": [
+              "P0-059"
+            ]
+          },
+          {
+            "name": "companyId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "",
+            "forbiddenExposure": "",
+            "validation": "derived from verified server session or owned aggregate; client owner input rejected",
+            "historyRule": "状态和决定通过独立History追加；批准后不可改写",
+            "p0Ids": [
+              "P0-059"
+            ]
+          },
+          {
+            "name": "accountId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "",
+            "forbiddenExposure": "",
+            "validation": "server-owned identifier; owner scope checked before not-found disclosure",
+            "historyRule": "状态和决定通过独立History追加；批准后不可改写",
+            "p0Ids": [
+              "P0-059"
+            ]
+          },
+          {
+            "name": "businessType",
+            "type": "Enum<WelfareCardAdjustmentbusinessType>",
+            "required": true,
+            "format": "ADJUSTMENT|REVERSAL",
+            "sensitivity": "INTERNAL",
+            "visibility": "",
+            "forbiddenExposure": "",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "状态和决定通过独立History追加；批准后不可改写",
+            "p0Ids": [
+              "P0-059"
+            ]
+          },
+          {
+            "name": "direction",
+            "type": "Enum<WelfareCardAdjustmentdirection>",
+            "required": true,
+            "format": "CREDIT|DEBIT",
+            "sensitivity": "INTERNAL",
+            "visibility": "",
+            "forbiddenExposure": "",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "状态和决定通过独立History追加；批准后不可改写",
+            "p0Ids": [
+              "P0-059"
+            ]
+          },
+          {
+            "name": "amount",
+            "type": "Int",
+            "required": true,
+            "format": "integer cents; >=0",
+            "sensitivity": "INTERNAL",
+            "visibility": "",
+            "forbiddenExposure": "",
+            "validation": "integer cents; arithmetic and cumulative limits checked transactionally",
+            "historyRule": "状态和决定通过独立History追加；批准后不可改写",
+            "p0Ids": [
+              "P0-059"
+            ]
+          },
+          {
+            "name": "reversalOfLedgerId",
+            "type": "String(36)",
+            "required": false,
+            "format": "nullable; UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "",
+            "forbiddenExposure": "",
+            "validation": "server-owned identifier; owner scope checked before not-found disclosure",
+            "historyRule": "状态和决定通过独立History追加；批准后不可改写",
+            "p0Ids": [
+              "P0-059"
+            ]
+          },
+          {
+            "name": "reason",
+            "type": "String(191)",
+            "required": true,
+            "format": "UTF-8; max 191 chars",
+            "sensitivity": "INTERNAL",
+            "visibility": "",
+            "forbiddenExposure": "",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "状态和决定通过独立History追加；批准后不可改写",
+            "p0Ids": [
+              "P0-059"
+            ]
+          },
+          {
+            "name": "status",
+            "type": "Enum<WelfareCardAdjustmentstatus>",
+            "required": true,
+            "format": "PENDING|APPROVED|REJECTED",
+            "sensitivity": "INTERNAL",
+            "visibility": "",
+            "forbiddenExposure": "",
+            "validation": "legal state transition, optimistic version and audit required",
+            "historyRule": "状态和决定通过独立History追加；批准后不可改写",
+            "p0Ids": [
+              "P0-059"
+            ]
+          },
+          {
+            "name": "version",
+            "type": "Int",
+            "required": true,
+            "format": "integer",
+            "sensitivity": "INTERNAL",
+            "visibility": "",
+            "forbiddenExposure": "",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "状态和决定通过独立History追加；批准后不可改写",
+            "p0Ids": [
+              "P0-059"
+            ]
+          },
+          {
+            "name": "applicantIdentityId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "RESTRICTED_INTERNAL",
+            "visibility": "",
+            "forbiddenExposure": "",
+            "validation": "server-owned identifier; owner scope checked before not-found disclosure",
+            "historyRule": "状态和决定通过独立History追加；批准后不可改写",
+            "p0Ids": [
+              "P0-059"
+            ]
+          },
+          {
+            "name": "applicantFunctionalAccountId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "",
+            "forbiddenExposure": "",
+            "validation": "server-owned identifier; owner scope checked before not-found disclosure",
+            "historyRule": "状态和决定通过独立History追加；批准后不可改写",
+            "p0Ids": [
+              "P0-059"
+            ]
+          },
+          {
+            "name": "reviewerIdentityId",
+            "type": "String(36)",
+            "required": false,
+            "format": "nullable; UUID v4",
+            "sensitivity": "RESTRICTED_INTERNAL",
+            "visibility": "",
+            "forbiddenExposure": "",
+            "validation": "server-owned identifier; owner scope checked before not-found disclosure",
+            "historyRule": "状态和决定通过独立History追加；批准后不可改写",
+            "p0Ids": [
+              "P0-059"
+            ]
+          },
+          {
+            "name": "reviewerFunctionalAccountId",
+            "type": "String(36)",
+            "required": false,
+            "format": "nullable; UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "",
+            "forbiddenExposure": "",
+            "validation": "server-owned identifier; owner scope checked before not-found disclosure",
+            "historyRule": "状态和决定通过独立History追加；批准后不可改写",
+            "p0Ids": [
+              "P0-059"
+            ]
+          },
+          {
+            "name": "reviewOpinion",
+            "type": "String(191)",
+            "required": false,
+            "format": "nullable; UTF-8; max 191 chars",
+            "sensitivity": "INTERNAL",
+            "visibility": "",
+            "forbiddenExposure": "",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "状态和决定通过独立History追加；批准后不可改写",
+            "p0Ids": [
+              "P0-059"
+            ]
+          },
+          {
+            "name": "createdAt",
+            "type": "DateTime(3)",
+            "required": true,
+            "format": "UTC ISO-8601",
+            "sensitivity": "INTERNAL",
+            "visibility": "",
+            "forbiddenExposure": "",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "状态和决定通过独立History追加；批准后不可改写",
+            "p0Ids": [
+              "P0-059"
+            ]
+          },
+          {
+            "name": "updatedAt",
+            "type": "DateTime(3)",
+            "required": true,
+            "format": "UTC ISO-8601",
+            "sensitivity": "INTERNAL",
+            "visibility": "",
+            "forbiddenExposure": "",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "状态和决定通过独立History追加；批准后不可改写",
+            "p0Ids": [
+              "P0-059"
+            ]
+          }
+        ]
       }
     ]
   },
@@ -5262,14 +5547,11 @@
         "event": "QUERY_UNKNOWN",
         "nextState": "UNKNOWN",
         "allowedActor": "SYSTEM",
-        "guard": "网络结果不确定",
+        "guard": "微信查询为USERPAYING/未知/超时；不得释放福利卡或库存",
         "sideEffect": "保持订单不可重复支付；轮询查询",
         "idempotency": "outTradeNo+queryAttempt",
         "p0Ids": [
-          "P0-024",
-          "P0-056",
-          "P0-057",
-          "P0-093"
+          "P0-057"
         ]
       },
       {
@@ -5278,14 +5560,11 @@
         "event": "QUERY_PAID",
         "nextState": "PAID",
         "allowedActor": "SYSTEM",
-        "guard": "查询返回已支付且金额匹配",
+        "guard": "主动查询返回可信SUCCESS且金额/商户/订单匹配",
         "sideEffect": "同回调成功路径",
         "idempotency": "wechatTransactionId",
         "p0Ids": [
-          "P0-024",
-          "P0-056",
-          "P0-057",
-          "P0-093"
+          "P0-057"
         ]
       },
       {
@@ -5294,14 +5573,11 @@
         "event": "QUERY_CLOSED",
         "nextState": "CLOSED",
         "allowedActor": "SYSTEM",
-        "guard": "外部确认未支付/已关闭",
+        "guard": "微信明确CLOSED/PAYERROR或NOTPAY后关单成功",
         "sideEffect": "执行福利卡补偿",
         "idempotency": "outTradeNo+finalQuery",
         "p0Ids": [
-          "P0-024",
-          "P0-056",
-          "P0-057",
-          "P0-093"
+          "P0-057"
         ]
       },
       {
@@ -5325,12 +5601,13 @@
         "event": "WELFARE_REFUND_APPLIED",
         "nextState": "PARTIAL_CHANNEL_DONE",
         "allowedActor": "SYSTEM",
-        "guard": "福利卡账本追加成功",
+        "guard": "原OrderPaymentAllocation福利卡分配>0；原账户匹配；REFUND业务键唯一",
         "sideEffect": "等待/执行微信退款",
         "idempotency": "refundNo+welfare",
         "p0Ids": [
           "P0-026",
           "P0-058",
+          "P0-059",
           "P0-096"
         ]
       },
@@ -5445,13 +5722,11 @@
         "event": "RELEASE_ORDER_AMOUNT",
         "nextState": "ACTIVE",
         "allowedActor": "SYSTEM",
-        "guard": "取消/支付失败且冻结尚未捕获",
+        "guard": "微信明确未支付并已关单；冻结额充足；幂等键唯一",
         "sideEffect": "追加解冻账本",
         "idempotency": "orderId+accountId+release",
         "p0Ids": [
-          "P0-052",
-          "P0-053",
-          "P0-055",
+          "P0-057",
           "P0-059"
         ]
       },
@@ -5461,13 +5736,11 @@
         "event": "REFUND",
         "nextState": "ACTIVE",
         "allowedActor": "SYSTEM",
-        "guard": "原福利卡分配可退额充足",
+        "guard": "原福利卡账户；累计退款不超原分配；refundId业务键唯一",
         "sideEffect": "追加退款账本",
         "idempotency": "refundId+accountId",
         "p0Ids": [
-          "P0-052",
-          "P0-053",
-          "P0-055",
+          "P0-058",
           "P0-059"
         ]
       },
@@ -5634,6 +5907,64 @@
         "p0Ids": [
           "P0-051"
         ]
+      },
+      {
+        "stateMachine": "WelfareCardAdjustment",
+        "currentState": "NONE",
+        "event": "CREATE",
+        "nextState": "PENDING",
+        "allowedActor": "COMPANY_FINANCE",
+        "guard": "固定公司/账户；调整金额方向合法或冲正引用原ADJUSTMENT流水；业务键幂等",
+        "sideEffect": "仅追加申请/历史/审计，不改余额",
+        "idempotency": "scope+Idempotency-Key+requestHash",
+        "p0Ids": [
+          "P0-045",
+          "P0-059",
+          "P0-072"
+        ]
+      },
+      {
+        "stateMachine": "WelfareCardAdjustment",
+        "currentState": "PENDING",
+        "event": "APPROVE",
+        "nextState": "APPROVED",
+        "allowedActor": "COMPANY_FINANCE",
+        "guard": "不同identityId；二次验证；version CAS；余额不低于冻结额",
+        "sideEffect": "原子更新账户并追加ADJUSTMENT或REVERSAL账本、历史和审计",
+        "idempotency": "adjustmentId+reviewerIdentityId+Idempotency-Key",
+        "p0Ids": [
+          "P0-045",
+          "P0-059",
+          "P0-072"
+        ]
+      },
+      {
+        "stateMachine": "WelfareCardAdjustment",
+        "currentState": "PENDING",
+        "event": "REJECT",
+        "nextState": "REJECTED",
+        "allowedActor": "COMPANY_FINANCE",
+        "guard": "不同identityId；二次验证；version CAS",
+        "sideEffect": "追加驳回历史和审计；零账本写入",
+        "idempotency": "adjustmentId+reviewerIdentityId+Idempotency-Key",
+        "p0Ids": [
+          "P0-045",
+          "P0-059",
+          "P0-072"
+        ]
+      },
+      {
+        "stateMachine": "WelfareCardAccount",
+        "currentState": "ACTIVE",
+        "event": "ADJUSTMENT_OR_REVERSAL",
+        "nextState": "ACTIVE",
+        "allowedActor": "COMPANY_FINANCE_CHECKER",
+        "guard": "已批准调整；连续sequence；余额/冻结非负；冲正仅一次",
+        "sideEffect": "余额与ledgerSequence原子更新；追加账本",
+        "idempotency": "adjustmentId唯一",
+        "p0Ids": [
+          "P0-059"
+        ]
       }
     ],
     "illegalTransition": {
@@ -5651,9 +5982,9 @@
         "roleCode": "COMPANY_WELFARE_CARD",
         "ownerType": "COMPANY",
         "entryRoute": "/company-admin/workspaces/welfare-card",
-        "dataScope": "唯一公司福利卡域",
+        "dataScope": "唯一公司福利卡域；账户归属自然人不进入DTO",
         "supplyPriceVisibility": "HIDDEN",
-        "forbiddenActions": "不得改写账本或直接改余额",
+        "forbiddenActions": "不得改写账本、直接改余额、个人充值、查看自然人内部标识或用超级管理员绕过复核",
         "p0Ids": [
           "P0-051",
           "P0-052",
@@ -5706,18 +6037,15 @@
         "roleCode": "CONSUMER_USER",
         "ownerType": "CONSUMER",
         "entryRoute": "/pages/home/index",
-        "dataScope": "companyId与consumerUserId从会话派生；订单金额/商品范围/余额/分摊/库存均服务端校验",
+        "dataScope": "companyId与consumerUserId从会话派生；微信商户配置、金额、归属、福利余额和库存均服务端派生",
         "supplyPriceVisibility": "HIDDEN",
-        "forbiddenActions": "不得提交归属、价格、配送费、抵扣/现金金额、范围规则；不得访问完整卡号、供应价、他人账户；不得个人充值；P055不得触发微信",
+        "forbiddenActions": "不得提交归属/金额/账户/商户配置；不得在未知状态重复预支付；不得客户端直接释放；不得访问供应价或他人订单",
         "p0Ids": [
-          "P0-020",
-          "P0-021",
-          "P0-052",
-          "P0-053",
-          "P0-054",
-          "P0-055",
-          "P0-083",
-          "P0-092",
+          "P0-024",
+          "P0-056",
+          "P0-057",
+          "P0-059",
+          "P0-093",
           "P0-098"
         ]
       }
@@ -5731,6 +6059,7 @@
         "p0Ids": [
           "P0-026",
           "P0-038",
+          "P0-058",
           "P0-067",
           "P0-068"
         ],
@@ -5955,7 +6284,7 @@
           "P0-091",
           "P0-092"
         ],
-        "implementationStatus": "IMPLEMENTED_M3_P057_MIXED_PAYMENT_CANCEL_RECOVERY_PARTIAL"
+        "implementationStatus": "NOT_IMPLEMENTED"
       },
       {
         "pageId": "PAGE-057",
@@ -6238,9 +6567,9 @@
         "contractId": "API-040",
         "method": "GET",
         "path": "/v1/consumer/welfare-card-accounts/{accountId}/ledger",
-        "requestDto": "LedgerQuery",
-        "responseDto": "ConsumerWelfareLedgerResponse",
-        "errorCodes": "ACCOUNT_SCOPE_FORBIDDEN",
+        "requestDto": "Path(accountId)",
+        "responseDto": "ConsumerWelfareLedgerResponseDto",
+        "errorCodes": "WELFARE_LEDGER_SCOPE_FORBIDDEN,WELFARE_LEDGER_INCONSISTENT",
         "p0Ids": [
           "P0-059",
           "P0-097"
@@ -6468,6 +6797,103 @@
           "P0-092"
         ],
         "implementationStatus": "NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-105",
+        "method": "POST",
+        "path": "/v1/consumer/orders/{orderId}/welfare-card-wechat-payment",
+        "requestDto": "WelfareCardWechatPaymentRequestDto",
+        "responseDto": "WelfareCardWechatPaymentResponseDto",
+        "errorCodes": "AUTHENTICATION_REQUIRED|ACCOUNT_SUSPENDED|FIELD_FORBIDDEN|VALIDATION_FAILED|IDEMPOTENCY_KEY_REQUIRED|ORDER_NOT_FOUND|ACCESS_DENIED|WELFARE_CARD_NOT_ELIGIBLE|WELFARE_CARD_MIXED_PAYMENT_NOT_APPLICABLE|PAYMENT_IDEMPOTENCY_CONFLICT|PAYMENT_STATE_INVALID|PAYMENT_CONCURRENT_CONFLICT|EXTERNAL_SERVICE_UNAVAILABLE",
+        "p0Ids": [
+          "P0-024",
+          "P0-056",
+          "P0-092",
+          "P0-093"
+        ],
+        "implementationStatus": "NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-106",
+        "method": "POST",
+        "path": "/v1/consumer/orders/{orderId}/welfare-card-wechat-payment/cancel",
+        "requestDto": "WelfareCardWechatCancellationRequestDto",
+        "responseDto": "WelfareCardWechatCancellationResponseDto",
+        "errorCodes": "AUTHENTICATION_REQUIRED|ACCOUNT_SUSPENDED|FIELD_FORBIDDEN|VALIDATION_FAILED|IDEMPOTENCY_KEY_REQUIRED|ORDER_NOT_FOUND|ACCESS_DENIED|PAYMENT_IDEMPOTENCY_CONFLICT|PAYMENT_STATE_INVALID|PAYMENT_CONCURRENT_CONFLICT|PAYMENT_AMOUNT_MISMATCH",
+        "p0Ids": [
+          "P0-024",
+          "P0-057",
+          "P0-059",
+          "P0-093"
+        ],
+        "implementationStatus": "NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-107",
+        "method": "GET",
+        "path": "/v1/company/welfare-card/accounts",
+        "requestDto": "None",
+        "responseDto": "CompanyWelfareAccountPageResponseDto",
+        "errorCodes": "AUTHENTICATION_REQUIRED,WORKSPACE_FORBIDDEN",
+        "p0Ids": [
+          "P0-059",
+          "P0-067",
+          "P0-068"
+        ],
+        "implementationStatus": "NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-108",
+        "method": "GET",
+        "path": "/v1/company/welfare-card/accounts/{accountId}/ledger",
+        "requestDto": "Path(accountId)",
+        "responseDto": "ConsumerWelfareLedgerResponseDto",
+        "errorCodes": "WELFARE_LEDGER_SCOPE_FORBIDDEN,WELFARE_LEDGER_INCONSISTENT",
+        "p0Ids": [
+          "P0-059"
+        ],
+        "implementationStatus": "NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-109",
+        "method": "POST",
+        "path": "/v1/company/welfare-card/accounts/{accountId}/adjustments",
+        "requestDto": "CreateWelfareCardAdjustmentRequestDto",
+        "responseDto": "WelfareCardAdjustmentResponseDto",
+        "errorCodes": "FIELD_FORBIDDEN,PERSONAL_RECHARGE_FORBIDDEN,WELFARE_REVERSAL_INVALID,IDEMPOTENCY_CONFLICT",
+        "p0Ids": [
+          "P0-045",
+          "P0-059",
+          "P0-072"
+        ],
+        "implementationStatus": "NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-110",
+        "method": "GET",
+        "path": "/v1/company/welfare-card/adjustments",
+        "requestDto": "None",
+        "responseDto": "WelfareCardAdjustmentPageResponseDto",
+        "errorCodes": "AUTHENTICATION_REQUIRED,WORKSPACE_FORBIDDEN",
+        "p0Ids": [
+          "P0-059",
+          "P0-072"
+        ],
+        "implementationStatus": "NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-111",
+        "method": "POST",
+        "path": "/v1/company/welfare-card/adjustments/{adjustmentId}/decision",
+        "requestDto": "DecideWelfareCardAdjustmentRequestDto",
+        "responseDto": "WelfareCardAdjustmentResponseDto",
+        "errorCodes": "SAME_NATURAL_PERSON_REVIEW,SECOND_VERIFICATION_REQUIRED,WELFARE_ADJUSTMENT_VERSION_CONFLICT,WELFARE_ADJUSTMENT_STATE_INVALID",
+        "p0Ids": [
+          "P0-045",
+          "P0-059",
+          "P0-072"
+        ],
+        "implementationStatus": "NOT_IMPLEMENTED"
       }
     ]
   },
@@ -6520,6 +6946,21 @@
     {
       "migrationId": "MIG-014A",
       "purpose": "个人福利卡安全绑定、唯一账户、初始CLAIM账本与未知结果幂等恢复",
+      "status": "PLANNED_NOT_CREATED"
+    },
+    {
+      "migrationId": "MIG-012C",
+      "purpose": "支付未知与混合支付取消的追加审计事件",
+      "status": "PLANNED_NOT_CREATED"
+    },
+    {
+      "migrationId": "MIG-013A",
+      "purpose": "把福利卡退款流水约束到原退款交易，防重复且固定REFUND/CREDIT语义",
+      "status": "PLANNED_NOT_CREATED"
+    },
+    {
+      "migrationId": "MIG-014B",
+      "purpose": "增加每账户连续账本序号、完整业务类型约束、财务调整/冲正双人复核与不可变历史/命令",
       "status": "PLANNED_NOT_CREATED"
     }
   ],
@@ -7804,7 +8245,9 @@
         "pages": [],
         "apis": [
           "API-041",
-          "API-042"
+          "API-042",
+          "API-105",
+          "API-106"
         ]
       },
       "negativeTestIds": [
@@ -8374,7 +8817,8 @@
         "pages": [],
         "apis": [
           "API-041",
-          "API-042"
+          "API-042",
+          "API-105"
         ]
       },
       "negativeTestIds": [
@@ -8404,7 +8848,9 @@
           "WelfareCardLedger.occurredAt"
         ],
         "pages": [],
-        "apis": []
+        "apis": [
+          "API-106"
+        ]
       },
       "negativeTestIds": [
         "NEG-M3-P057-01",
@@ -8487,7 +8933,9 @@
           "RefundImpactRecord.createdAt",
           "RefundImpactRecord.appliedAt"
         ],
-        "pages": [],
+        "pages": [
+          "PAGE-007"
+        ],
         "apis": [
           "API-043"
         ]
@@ -8533,7 +8981,27 @@
           "WelfareCardLedger.beforeFrozen",
           "WelfareCardLedger.afterFrozen",
           "WelfareCardLedger.idempotencyKey",
-          "WelfareCardLedger.occurredAt"
+          "WelfareCardLedger.occurredAt",
+          "WelfareCardAccount.ledgerSequence",
+          "WelfareCardLedger.sequence",
+          "WelfareCardLedger.adjustmentId",
+          "WelfareCardAdjustment.id",
+          "WelfareCardAdjustment.companyId",
+          "WelfareCardAdjustment.accountId",
+          "WelfareCardAdjustment.businessType",
+          "WelfareCardAdjustment.direction",
+          "WelfareCardAdjustment.amount",
+          "WelfareCardAdjustment.reversalOfLedgerId",
+          "WelfareCardAdjustment.reason",
+          "WelfareCardAdjustment.status",
+          "WelfareCardAdjustment.version",
+          "WelfareCardAdjustment.applicantIdentityId",
+          "WelfareCardAdjustment.applicantFunctionalAccountId",
+          "WelfareCardAdjustment.reviewerIdentityId",
+          "WelfareCardAdjustment.reviewerFunctionalAccountId",
+          "WelfareCardAdjustment.reviewOpinion",
+          "WelfareCardAdjustment.createdAt",
+          "WelfareCardAdjustment.updatedAt"
         ],
         "pages": [
           "PAGE-008",
@@ -8541,7 +9009,13 @@
         ],
         "apis": [
           "API-040",
-          "API-104"
+          "API-104",
+          "API-106",
+          "API-107",
+          "API-108",
+          "API-109",
+          "API-110",
+          "API-111"
         ]
       },
       "negativeTestIds": [
@@ -9044,7 +9518,8 @@
         "apis": [
           "API-035",
           "API-039",
-          "API-104"
+          "API-104",
+          "API-105"
         ]
       },
       "negativeTestIds": [
@@ -9083,7 +9558,9 @@
           "PAGE-057"
         ],
         "apis": [
-          "API-041"
+          "API-041",
+          "API-105",
+          "API-106"
         ]
       },
       "negativeTestIds": [

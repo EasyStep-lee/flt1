@@ -509,14 +509,14 @@ test('machine control preserves the M2 freeze while later slices advance one gat
 
   assert.equal(projectStatus.execution.status, 'M3_IN_PROGRESS');
   assert.equal(projectStatus.execution.currentStage, 'M3');
-  assert.equal(projectStatus.execution.currentTask, 'M3-P058');
-  assert.equal(projectStatus.execution.nextAllowedTask, 'M3-P058');
+  assert.equal(projectStatus.execution.currentTask, 'M3-P059');
+  assert.equal(projectStatus.execution.nextAllowedTask, 'M3-P059');
   assert.equal(projectStatus.execution.activeTaskCount, 1);
-  assert.equal(projectStatus.execution.lastCompletedTask, 'M3-P057');
+  assert.equal(projectStatus.execution.lastCompletedTask, 'M3-P058');
   assert.equal(projectStatus.execution.lastPassedGate, 'M2-GATE');
   assert.match(
     projectStatus.evidence.local,
-    /^(?:LOCAL_FOCUSED_PASS_FULL_VERIFY_NOT_EXECUTED|LOCAL_PASS_M3_P030_FULL_VERIFY|LOCAL_PASS_M3_P031_FULL_VERIFY|LOCAL_PASS_M3_P051_FULL_VERIFY|LOCAL_PASS_M3_P052_FULL_VERIFY|LOCAL_PASS_M3_P053_FULL_VERIFY|LOCAL_PASS_M3_P054_FULL_VERIFY|LOCAL_PASS_M3_P055_FULL_VERIFY|LOCAL_PASS_M3_P056_FULL_VERIFY|LOCAL_PASS_M3_P057_FULL_VERIFY|LOCAL_PASS_M3_P058)$/u,
+    /^(?:LOCAL_FOCUSED_PASS_FULL_VERIFY_NOT_EXECUTED|LOCAL_PASS_M3_P030_FULL_VERIFY|LOCAL_PASS_M3_P031_FULL_VERIFY|LOCAL_PASS_M3_P051_FULL_VERIFY|LOCAL_PASS_M3_P052_FULL_VERIFY|LOCAL_PASS_M3_P053_FULL_VERIFY|LOCAL_PASS_M3_P054_FULL_VERIFY|LOCAL_PASS_M3_P055_FULL_VERIFY|LOCAL_PASS_M3_P056_FULL_VERIFY|LOCAL_PASS_M3_P057_FULL_VERIFY|LOCAL_PASS_M3_P058|LOCAL_PASS_M3_P059)$/u,
   );
   assert.match(projectStatus.evidence.ci, /^(?:NOT_EXECUTED|CI_PASS_M3_(?:P03[01]|P05[134])_HEAD_[0-9a-f]{7})$/u);
 });
