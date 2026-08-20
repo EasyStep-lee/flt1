@@ -39,3 +39,12 @@ test('company welfare-card and finance operations remain separate and adjustment
   assert.equal(document.paths['/v1/consumer/welfare-card-accounts/recharge'], undefined);
   assert.equal(document.paths['/v1/company/welfare-card/accounts/{accountId}/recharge'], undefined);
 });
+
+test('native miniapp contract exposes the generated consumer ledger operation', () => {
+  const source = readFileSync(
+    new URL('../../packages/contracts/src/miniapp-contracts.ts', import.meta.url),
+    'utf8',
+  );
+  assert.match(source, /'consumerWelfareCard\.getLedger'/u);
+  assert.match(source, /SuccessJsonResponse<OperationById<'consumerWelfareCard\.getLedger'>>/u);
+});

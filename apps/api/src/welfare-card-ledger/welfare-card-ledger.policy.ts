@@ -43,7 +43,6 @@ const ownerFields = new Set([
 const inconsistent = (): never => {
   throw new SafeApiError(503, 'WELFARE_LEDGER_INCONSISTENT', '福利卡账本与账户余额不一致');
 };
-
 const money = (value: unknown): number => {
   if (!Number.isSafeInteger(value) || Number(value) <= 0) {
     throw new SafeApiError(422, 'VALIDATION_FAILED', '调整金额必须为正整数分');
@@ -172,4 +171,3 @@ export const assertWelfareLedgerChain = (
   }
   if (previousBalance !== account.balanceAmount || previousFrozen !== account.frozenAmount) inconsistent();
 };
-
