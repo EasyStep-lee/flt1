@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "taskId": "M3-P058",
+  "p0": [
+    "P0-058",
+    "P0-026_PARTIAL",
+    "P0-059_PARTIAL",
+    "P0-096_PARTIAL"
+  ],
+  "status": "LOCAL_PASS",
+  "commit": "WORKTREE",
+  "updatedAt": "2026-08-20T05:45:22.4871090Z",
+  "baselineSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+  "red": [
+    {
+      "command": "pnpm --filter @fulishe/api build && node --test apps/api/test/unit/prisma-mixed-payment-refund.test.mjs",
+      "exitCode": 1,
+      "result": "FAIL_4_OF_4",
+      "reason": "ERR_MODULE_NOT_FOUND prisma-welfare-refund.adapter.js before implementation"
+    }
+  ],
+  "focused": [
+    {
+      "command": "node --test apps/api/test/unit/prisma-mixed-payment-refund.test.mjs apps/api/test/unit/refund-allocation-policy.test.mjs",
+      "result": "PASS_6_OF_6"
+    },
+    {
+      "command": "pnpm exec vitest run --config ./vitest.config.ts --project api-contract apps/api/test/supertest/original-structure-refund-api.test.mjs",
+      "result": "PASS_6_OF_6"
+    },
+    {
+      "command": "node --test tests/migrations/m3-p058-mixed-payment-split-refund-migration.contract.test.mjs tests/openapi/m3-p058-mixed-payment-split-refund.contract.test.mjs",
+      "result": "PASS_3_OF_3"
+    },
+    {
+      "command": "pnpm exec playwright test tests/e2e/p0/p0-058-mixed-payment-split-refund.spec.ts --config ./playwright.p0.config.ts",
+      "result": "PASS_1_OF_1"
+    },
+    {
+      "command": "pnpm prisma:migrate:dry-run",
+      "result": "PASS_EMPTY_2_UPGRADE_2_RESTORE_2_PRODUCT_36_CLEANUP"
+    }
+  ],
+  "fullVerify": "PASS_17_OF_17",
+  "invariants": {
+    "originalOrderItemAllocationOnly": true,
+    "integerCents": true,
+    "cumulativeNeverExceedsPaid": true,
+    "finalRemainderClosesOriginalSplit": true,
+    "originalWelfareAccountOnly": true,
+    "originalWechatTransactionOnly": true,
+    "welfareRefundLedgerAtomic": true,
+    "duplicateAndConcurrentSideEffectFree": true
+  },
+  "boundaries": {
+    "realWechatRefund": "NOT_EXECUTED",
+    "realWelfareFunds": "NOT_EXECUTED",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_EXECUTED",
+    "production": "NOT_EXECUTED",
+    "afterSaleApproval": "OUT_OF_SCOPE_M5",
+    "inventoryRestock": "OUT_OF_SCOPE_M5",
+    "fullLedgerAcceptance": "OUT_OF_SCOPE_M3_P059"
+  },
+  "github": {
+    "issue": null,
+    "pullRequest": null,
+    "pullRequestState": "NOT_CREATED",
+    "ciStatus": "NOT_EXECUTED"
+  }
+}

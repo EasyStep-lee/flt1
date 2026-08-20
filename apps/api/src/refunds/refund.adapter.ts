@@ -8,6 +8,7 @@ export interface WelfareRefundCommand {
   readonly refundNo: string;
   readonly refundAmount: number;
   readonly originalWelfareCardAccountId: string;
+  readonly requestId: string;
 }
 
 export interface WechatRefundCommand {

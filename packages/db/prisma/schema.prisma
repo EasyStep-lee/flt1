@@ -1767,6 +1767,7 @@ model RefundTransaction {
   originalPaymentTransaction   PaymentTransaction?     @relation(fields: [originalPaymentTransactionId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "refund_transaction_original_payment_fkey")
   events                       RefundTransactionEvent[]
   impacts                      RefundImpactRecord[]
+  welfareCardLedgers           WelfareCardLedger[]
 
   @@unique([orderId, idempotencyKey], map: "refund_transaction_order_idempotency_key")
   @@index([orderItemId, status, createdAt], map: "refund_transaction_item_status_idx")
@@ -2223,8 +2224,10 @@ model WelfareCardLedger {
   idempotencyKey String   @map("idempotency_key") @db.VarChar(128)
   occurredAt     DateTime @default(now()) @map("occurred_at") @db.DateTime(3)
   account        WelfareCardAccount @relation(fields: [accountId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  refund        RefundTransaction?  @relation(fields: [refundId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "welfare_card_ledger_refund_fkey")
 
   @@unique([accountId, idempotencyKey], map: "welfare_card_ledger_account_key")
+  @@unique([refundId, businessType], map: "welfare_card_ledger_refund_business_key")
   @@index([accountId, occurredAt], map: "welfare_card_ledger_account_time_idx")
   @@map("welfare_card_ledger")
 }

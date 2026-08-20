@@ -178,6 +178,7 @@ import {
   type WelfareRefundAdapter,
 } from './refunds/refund.adapter.js';
 import { PrismaRefundRepository } from './refunds/prisma-refund.repository.js';
+import { PrismaWelfareRefundAdapter } from './refunds/prisma-welfare-refund.adapter.js';
 import {
   REFUND_REPOSITORY,
   type RefundRepository,
@@ -417,6 +418,7 @@ export class AppModule {
       PrismaPaymentRepository,
       UnavailableWechatPaymentAdapter,
       PrismaRefundRepository,
+      PrismaWelfareRefundAdapter,
       DenyRefundActorResolver,
       CompanyOrderServiceSessionActorResolver,
       UnavailableWelfareRefundAdapter,
@@ -488,7 +490,7 @@ export class AppModule {
         : { provide: REFUND_ACTOR_RESOLVER, useExisting: CompanyOrderServiceSessionActorResolver },
       options.welfareRefundAdapter
         ? { provide: WELFARE_REFUND_ADAPTER, useValue: options.welfareRefundAdapter }
-        : { provide: WELFARE_REFUND_ADAPTER, useExisting: UnavailableWelfareRefundAdapter },
+        : { provide: WELFARE_REFUND_ADAPTER, useExisting: PrismaWelfareRefundAdapter },
       options.wechatRefundAdapter
         ? { provide: WECHAT_REFUND_ADAPTER, useValue: options.wechatRefundAdapter }
         : { provide: WECHAT_REFUND_ADAPTER, useExisting: UnavailableWechatRefundAdapter },
