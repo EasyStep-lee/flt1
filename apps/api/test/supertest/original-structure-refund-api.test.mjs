@@ -3,7 +3,10 @@ import request from 'supertest';
 
 import { createApplication } from '../../dist/bootstrap.js';
 import { loadRuntimeConfig } from '../../dist/config/runtime-config.js';
-import { RefundAdapterError } from '../../dist/refunds/refund.adapter.js';
+import {
+  RefundAdapterError,
+  UnavailableWelfareRefundAdapter,
+} from '../../dist/refunds/refund.adapter.js';
 
 const afterSaleId = '86000000-0000-4000-8000-000000000001';
 const orderId = '87000000-0000-4000-8000-000000000001';
@@ -237,6 +240,7 @@ describe('P0-026 original payment structure refund', () => {
     const app = await createApplication({
       config: config(), probes: probes(), logger: false,
       refundRepository, refundActorResolver: actorResolver,
+      welfareRefundAdapter: new UnavailableWelfareRefundAdapter(),
     });
     await app.init();
     try {

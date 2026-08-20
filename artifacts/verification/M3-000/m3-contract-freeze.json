@@ -7026,7 +7026,7 @@
       "p0Id": "P0-057",
       "category": "OUT_OF_ORDER_CALLBACK",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "LOCAL_PASS"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P057-02",
@@ -7034,7 +7034,7 @@
       "p0Id": "P0-057",
       "category": "UNAUTHORIZED_OR_WRONG_OWNER",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "LOCAL_PASS"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P057-03",
@@ -7042,7 +7042,7 @@
       "p0Id": "P0-057",
       "category": "DUPLICATE_OR_STATE_CONFLICT",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "LOCAL_PASS"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P058-01",
@@ -7050,7 +7050,7 @@
       "p0Id": "P0-058",
       "category": "INVALID_INPUT",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "LOCAL_PASS"
     },
     {
       "id": "NEG-M3-P058-02",
@@ -7058,7 +7058,7 @@
       "p0Id": "P0-058",
       "category": "UNAUTHORIZED_OR_WRONG_OWNER",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "LOCAL_PASS"
     },
     {
       "id": "NEG-M3-P058-03",
@@ -7066,7 +7066,7 @@
       "p0Id": "P0-058",
       "category": "DUPLICATE_OR_STATE_CONFLICT",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "LOCAL_PASS"
     },
     {
       "id": "NEG-M3-P059-01",
@@ -8411,7 +8411,7 @@
         "NEG-M3-P057-02",
         "NEG-M3-P057-03"
       ],
-      "executionStatus": "LOCAL_PASS"
+      "executionStatus": "CI_PASS"
     },
     {
       "taskId": "M3-P058",
@@ -8496,7 +8496,8 @@
         "NEG-M3-P058-01",
         "NEG-M3-P058-02",
         "NEG-M3-P058-03"
-      ]
+      ],
+      "executionStatus": "LOCAL_PASS"
     },
     {
       "taskId": "M3-P059",

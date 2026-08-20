@@ -139,6 +139,7 @@ export class RefundService {
           refundNo: current.refundNo,
           refundAmount: current.welfareCardRefundAmount,
           originalWelfareCardAccountId,
+          requestId,
         });
         current = await this.repository.recordWelfareResult(
           current.refundId,
