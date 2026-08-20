@@ -6,7 +6,8 @@
 - 当前证据：`LOCAL_PASS`；P0-058 RequiredEvidenceLevel 仍为 `STAGING_PASS`。
 - 方案 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`；产品基线与执行包自检均通过。
 - 基线：`origin/main@11fcfb372e9f84bf2151bf1a52043658a6bb3b48`，即 M3-P057 PR #112 合并提交；post-merge main CI run `32331544944` / job `96313023603` 成功。
-- 分支：`codex/m3-mixed-payment-split-refund`；本任务未重复创建 Issue；提交与 Draft PR 尚待本交接后的原子交付。
+- 分支：`codex/m3-mixed-payment-split-refund`；本任务未重复创建 Issue；实现与本地证据提交：`38e7581723a25d3cb09738948215d973318609ae`。
+- Draft PR：[#113](https://github.com/EasyStep-lee/flt1/pull/113)；当前保持 Draft，第二个证据提交推送后必须以新的精确 head 重新读取 Actions；评论、Ready、合并与 post-merge main CI 均为 `NOT_EXECUTED`。
 - 工作区中用户已有 `artifacts/verification/M3-P031/supplier-fulfillment-page.png` 与 `artifacts/verification/M3-P051/welfare-card-programs-batches-page.png` 改动未纳入本切片。
 
 ## 唯一目标与非目标
@@ -46,7 +47,7 @@
 | 迁移演练 | `empty=2 / upgrade=2 / restore=2 / product=36 / cleanup=PASS` |
 | `pnpm verify` | 17/17 PASS，`base=HEAD`，`2026-08-20T05:25:23.042Z` 至 `2026-08-20T05:40:13.746Z` |
 | secrets | 1043 tracked files PASS |
-| 工作簿 | 12 表同步并渲染、重点页目检；公式错误 0；SHA-256 `6A7D34D79E233D2961128C70E1BCBAA01989236DE170A919C5FE46C932199721` |
+| 工作簿 | 12 表同步并渲染、重点页目检；公式错误 0；SHA-256 `AB508404877FF4B1BD93C23478CCF4D1F23811225F1B74EA53EEEA04B6ED551F` |
 
 失败与恢复如实保留：
 
@@ -73,5 +74,5 @@
 ## GitHub 与下一门禁
 
 - 仓库：`EasyStep-lee/flt1`；基线分支：`main`；开发分支：`codex/m3-mixed-payment-split-refund`。
-- 当前本地 head 仍为基线 `11fcfb372e9f84bf2151bf1a52043658a6bb3b48`；本任务提交、push、Draft PR、精确 head Actions、评论与合并均待执行。
+- 实现与本地证据提交 `38e7581723a25d3cb09738948215d973318609ae` 已推送；Draft PR #113 已创建。本交接/PR 元数据将形成第二个提交，精确 head Actions、评论、Ready、合并与 post-merge main CI 均待读取或执行。
 - `M3-P059` 保持 `LOCKED`。只有 P058 Draft PR 最新精确 head 必需 Actions 全部成功、用户对该 head 明确授权 Ready/合并、人工合并完成，且合并后 `main` 最新 CI 成功，才允许进入 P059。M4 及以后继续锁定。

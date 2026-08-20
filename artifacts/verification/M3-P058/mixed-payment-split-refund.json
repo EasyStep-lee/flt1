@@ -8,8 +8,8 @@
     "P0-096_PARTIAL"
   ],
   "status": "LOCAL_PASS",
-  "commit": "WORKTREE",
-  "updatedAt": "2026-08-20T05:45:22.4871090Z",
+  "commit": "38e7581723a25d3cb09738948215d973318609ae",
+  "updatedAt": "2026-08-20T05:58:49.9861524Z",
   "baselineSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
   "red": [
     {
@@ -64,8 +64,8 @@
   },
   "github": {
     "issue": null,
-    "pullRequest": null,
-    "pullRequestState": "NOT_CREATED",
+    "pullRequest": 113,
+    "pullRequestState": "DRAFT",
     "ciStatus": "NOT_EXECUTED"
   }
 }
