@@ -21,13 +21,13 @@
   },
   "workbook": {
     "status": "VERIFIED",
-    "sha256": "BBB2DE8B52A574231CC792F5080E28858AC442FEE564EA9077552F3CB1EFE034",
+    "sha256": "9BBA806134708DA31F4275EEEC421B5FAB1FEDBE20F4534A2E1A35DC994B8BA2",
     "currentTaskMirror": {
       "taskId": "M3-P059",
       "status": "LOCAL_PASS_PENDING_DRAFT_PR",
       "sourceLedgers": "CSV_JSON_AND_WORKBOOK_UPDATED",
       "reason": "Artifact-tool synchronized M3-P059 task, P0, field, state, permission, page, evidence, migration, API and stage rows; P062 remains locked and external evidence remains separate.",
-      "checkedAt": "2026-08-20T07:45:17.620Z"
+      "checkedAt": "2026-08-20T08:43:44.112Z"
     }
   },
   "sourceOfTruth": [

@@ -5,8 +5,8 @@
     "P0-059"
   ],
   "status": "LOCAL_PASS",
-  "commit": "WORKTREE",
-  "updatedAt": "2026-08-20T08:24:23.324Z",
+  "commit": "16919727b6f5a3bd79eb6e53721a1aac917adc18",
+  "updatedAt": "2026-08-20T08:43:44.112Z",
   "baselineSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
   "red": [
     {
@@ -46,7 +46,7 @@
       "result": "PASS_EMPTY_2_UPGRADE_2_RESTORE_2_PRODUCT_37_CLEANUP"
     }
   ],
-  "fullVerify": "NOT_EXECUTED",
+  "fullVerify": "PASS_17_OF_17",
   "invariants": {
     "fundingSourcesExactlyThree": true,
     "personalRechargeAbsent": true,

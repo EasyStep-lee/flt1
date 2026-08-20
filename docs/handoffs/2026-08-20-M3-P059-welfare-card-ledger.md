@@ -3,7 +3,7 @@
 ## 结论
 
 - 阶段：`M3_IN_PROGRESS`；本切片：`M3-P059`；阶段不因本切片自动 PASS。
-- 当前证据：实现提交前为 `LOCAL_PASS`；P0-059 RequiredEvidenceLevel 为 `CI_PASS`，只有 Draft PR 精确 head Actions 成功后才能升级。
+- 当前证据：`LOCAL_PASS`；实现与契约提交 `16919727b6f5a3bd79eb6e53721a1aac917adc18` 已通过本地完整 `pnpm verify` 17/17。P0-059 RequiredEvidenceLevel 为 `CI_PASS`，只有 Draft PR 最新精确 head Actions 成功后才能升级。
 - 方案 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`；产品基线与执行包自检通过，执行包目录仅因允许追加的任务证据发生快照变化。
 - 基线：`origin/main@a0fc8a6e785395f78362966c398a8fa1f1e37d98`，即 M3-P058 PR #113 合并提交；post-merge main CI run `32339750495` / job `96336282159` 成功。
 - 分支：`codex/m3-welfare-card-ledger`；Issue、Draft PR、精确 head CI、评论和合并状态在推送后补录。
@@ -37,19 +37,23 @@
 | API focused | 8/8 PASS；P059 专项 4/4 PASS |
 | 用户小程序 focused | 3/3 PASS |
 | 迁移与小程序契约 | 6/6 PASS |
-| OpenAPI 契约 | 2/2 PASS；生成产物字节一致 |
+| OpenAPI 契约 | 3/3 PASS；生成产物字节一致 |
 | P0-059 + workspace Chromium | 4/4 PASS |
 | Prisma validate | PASS |
 | 迁移演练 | `empty=2 / upgrade=2 / restore=2 / product=37 / cleanup=PASS` |
 | 首次 `pnpm verify` | FAIL：lint 发现测试直接调用未声明的 `structuredClone`；改为 `globalThis.structuredClone` |
 | 第二次 `pnpm verify` | lint PASS，按设计停在 `openapi-diff`：实现尚未提交，生成契约相对 HEAD 有预期差异 |
-| 提交后 `pnpm verify` | `NOT_EXECUTED`，实现提交后运行并补录 |
+| 提交后 `pnpm verify` | `PASS 17/17`；报告 `artifacts/test-results/verification/pnpm-verify.json`，开始于 `2026-08-20T08:25:07.938Z`，退出码 0 |
+| 全量 API | 49 files / 247 tests PASS |
+| 全量 P0 Chromium | 82/82 PASS；基础 E2E 3/3 PASS |
+| 秘密扫描 | 1073 个已跟踪文件 PASS |
+| 执行包/工作簿 | 执行包自检 PASS；12 sheets 同步；公式错误扫描 0 |
 
-失败证据未通过删测试、降断言或跳过门禁处理。公司 PAGE-009 首次全量 P0 E2E 因独立页面缺少固定 `财务结算` 一级标题而 81/82；补齐独立 workspace 标题后 focused 4/4 通过。
+失败证据未通过删测试、降断言或跳过门禁处理。公司 PAGE-009 首次全量 P0 E2E 因独立页面缺少固定 `财务结算` 一级标题而 81/82；补齐独立 workspace 标题后 focused 4/4 通过。后续完整门禁还依次发现并修复：小程序生成契约缺 API-040、E2E 复核意见 fixture 被推断为仅 `null`、应用壳未登记 PAGE-063、OpenAPI 精确路径/Schema 快照未推进、交接与阶段契约仍指向 P058/P057、冻结生成器不识别 P059 的 UUID 可空字段/枚举且字段总数仍为 302。每一处均先保留真实失败，再以最小契约同步修到通过；最终 M3 契约 91/91。
 
 ## P0、环境与外部边界
 
-- P0-059：当前 `LOCAL_PASS`，覆盖只追加、连续链、来源映射、三类合法入账、永久无个人充值、越权、同人自审、二次验证、重复/并发、冲正、CAS 回滚、页面和 DTO 白名单。尚无本任务 PR head CI，不能写成 `CI_PASS`。
+- P0-059：当前 `LOCAL_PASS`，覆盖只追加、连续链、来源映射、三类合法入账、永久无个人充值、越权、同人自审、二次验证、重复/并发、冲正、CAS 回滚、页面和 DTO 白名单；本地完整门禁 17/17。尚无本任务 PR head CI，不能写成 `CI_PASS`。
 - P0-045/P0-067/P0-068/P0-072/P0-097：只形成审计、独立职能页面、maker-checker 和用户个人中心的局部证据，不替代各自完整验收。
 - 本地环境：Windows，Node `22.23.1`，pnpm `10.12.1`，Prisma `6.19.2`，Docker MySQL 真实迁移演练，Playwright Chromium，确定性测试适配器。
 - 真实福利资金、真实财务复核、staging、device、production：`NOT_EXECUTED`；本地容器、浏览器或 Mock 不升级为外部证据。
@@ -64,5 +68,5 @@
 ## GitHub 与下一门禁
 
 - 仓库：`EasyStep-lee/flt1`；基线分支：`main`；开发分支：`codex/m3-welfare-card-ledger`。
-- 本交接先随实现形成原子提交；提交上必须重新运行完整 `pnpm verify`，再同步最终提交、Issue、Draft PR、Actions、评论和证据状态。
+- 实现、契约与门禁修复提交链为 `df1f31b`、`6763954`、`d301f3b`、`938b7be`、`9efc569`、`4ac1964`、`1691972`；其中 `16919727b6f5a3bd79eb6e53721a1aac917adc18` 已取得本地完整 `pnpm verify` 17/17。最终证据提交还需再次运行完整门禁，再同步 Issue、Draft PR、Actions、评论和证据状态。
 - `M3-P062` 保持 `LOCKED`。只有 P059 Draft PR 最新精确 head 必需 Actions 全部成功、用户对该 head 明确授权 Ready/合并、合并完成且合并后 `main` 最新 CI 成功，才允许进入 P062。M4 及以后继续锁定。
