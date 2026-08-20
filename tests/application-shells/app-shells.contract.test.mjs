@@ -137,6 +137,7 @@ test('native mini-programs keep separate roots and independent phase-appropriate
     'pages/supplier-products/index',
     'pages/welfare-card/index',
     'pages/welfare-card-bind/index',
+    'pages/welfare-card-detail/index',
   ]);
   assert.deepEqual(runnerApp.pages, ['pages/shell/index']);
   for (const extension of ['ts', 'json', 'wxml', 'wxss']) {
