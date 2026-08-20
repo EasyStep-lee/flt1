@@ -2,6 +2,7 @@ import { createWebApiClient } from '@fulishe/web-api-client';
 import { cookies } from 'next/headers';
 
 import { SESSION_COOKIE_NAME } from '../../../../../../session-boundary';
+import { EnterpriseAddToCartButton } from '../../enterprise-add-to-cart-button';
 
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
@@ -59,9 +60,19 @@ export default async function EnterpriseProductDetailPage({
         <ul>
           {data.skus.map((sku) => (
             <li key={sku.skuId}>
-              {sku.specifications.map(({ label, value }) => `${label}：${value}`).join(' / ') || '默认规格'}
-              {' · '}
-              {money(sku.enterpriseSalePrice)}
+              <div>
+                {sku.specifications.map(({ label, value }) => `${label}：${value}`).join(' / ') || '默认规格'}
+                {' · '}
+                {money(sku.enterpriseSalePrice)}
+              </div>
+              <EnterpriseAddToCartButton item={{
+                productId: data.productId,
+                skuId: sku.skuId,
+                supplierId: data.supplierId,
+                productName: data.name,
+                enterpriseSalePrice: sku.enterpriseSalePrice,
+                quantity: 1,
+              }} />
             </li>
           ))}
         </ul>

@@ -97,11 +97,11 @@ await upsertCsv('10-测试证据登记.csv', ['EvidenceID'], [{
   Actual: '自动最大抵扣、逐行分摊、归属/幂等/重复回调、晚期失败回滚、DTO隔离和单次小程序用户手势均有自动化证据。',
   Environment: 'LOCAL_WINDOWS_MYSQL8_CHROMIUM_DETERMINISTIC_WECHAT_ADAPTER', AppOrBrowserVersion: 'Node 22.23.1; pnpm 10.12.1; MySQL 8; Playwright Chromium', ExecutedAt: updatedAt, CommitSHA: commit,
   ArtifactOrScreenshot: 'docs/contracts/m3/M3-P056-welfare-card-wechat-payment.md|artifacts/verification/M3-P056/welfare-card-wechat-payment.json|artifacts/test-results/verification/pnpm-verify.json',
-  Executor: 'CODEX', Freshness: 'FRESH_LOCAL_WORKTREE', FailureOrBlocker: '真实微信商户/证书/APIv3、staging、真机支付和真实资金未执行；取消释放属于P057；退款属于P058', RetestRequired: 'YES', Notes: '无新迁移；复用MIG-012A支付唯一键与MIG-015 FREEZE/CAPTURE账本约束。',
+  Executor: 'CODEX', Freshness: 'FRESH_LOCAL_WORKTREE', FailureOrBlocker: '真实微信商户/证书/APIv3、staging、真机支付和真实资金未执行；取消释放属于P057；退款属于P058', RetestRequired: 'YES', Notes: '无新迁移；复用MIG-012A支付唯一键与MIG-015B FREEZE/CAPTURE账本约束。',
 }]);
 await upsertCsv('11-数据库迁移台账.csv', ['MigrationID'], [{
-  MigrationID: 'MIG-015', Status: 'REUSED_LOCAL_REHEARSED_M3_P056', CommitSHA: commit,
-  Notes: 'P056无新表/字段；复用MIG-015账本FREEZE/CAPTURE约束与MIG-012A每订单唯一PaymentTransaction；需通过全量迁移演练确认无漂移。',
+  MigrationID: 'MIG-015B', Status: 'REUSED_LOCAL_REHEARSED_M3_P056', CommitSHA: commit,
+  Notes: 'P056无新表/字段；复用MIG-015B账本FREEZE/CAPTURE约束与MIG-012A每订单唯一PaymentTransaction；需通过全量迁移演练确认无漂移。',
 }]);
 await upsertCsv('12-OpenAPI-DTO-错误码台账.csv', ['ContractID'], [{
   ContractID: 'API-105', Stage: 'M3', Domain: 'welfare-card-payment', Method: 'POST', Path: '/v1/consumer/orders/{orderId}/welfare-card-wechat-payment', Actor: 'CONSUMER', RequestDTO: 'WelfareCardWechatPaymentRequestDto', ResponseDTO: 'WelfareCardWechatPaymentResponseDto', CommonResponse: '显式白名单DTO；private/no-store；noindex',

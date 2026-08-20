@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-20T08:43:44.112Z",
+  "updatedAt": "2026-08-20T11:24:58Z",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -14,15 +14,15 @@
   "execution": {
     "status": "M3_IN_PROGRESS",
     "currentStage": "M3",
-    "currentTask": "M3-P059",
-    "nextAllowedTask": "M3-P059",
+    "currentTask": "M3-P062",
+    "nextAllowedTask": "M3-P062",
     "activeTaskCount": 1,
-    "lastCompletedTask": "M3-P058",
-    "lastCompletedCommit": "a0fc8a6e785395f78362966c398a8fa1f1e37d98",
+    "lastCompletedTask": "M3-P059",
+    "lastCompletedCommit": "ed1b37061761a057556a80b659e8317dc59b9164",
     "lastPassedGate": "M2-GATE",
     "prohibitedUntilGate": [
-      "M3-P059 Draft PR精确head CI成功、人工合并且post-merge main CI成功前不得开始M3-P062",
-      "M3-GATE通过前M4及以后保持锁定；staging/device/production与真实资金未执行"
+      "M3-P062 Draft PR精确head CI成功、人工合并且post-merge main CI成功前不得开始M3-P073",
+      "M3-GATE通过前M4及以后保持锁定；staging/device/production未执行"
     ],
     "persistentRestrictions": [
       "M3-GATE通过前M4及以后阶段保持LOCKED/NOT_EXECUTED",
@@ -70,25 +70,25 @@
       "completedAt": null
     },
     "latestCi": {
-      "scope": "M3_P058_POST_MERGE_MAIN",
+      "scope": "M3_P059_POST_MERGE_MAIN",
       "status": "CI_PASS",
-      "runId": 32339750495,
-      "jobId": 96336282159,
-      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/32339750495",
-      "headSha": "a0fc8a6e785395f78362966c398a8fa1f1e37d98",
+      "runId": 32357516455,
+      "jobId": 96389796027,
+      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/32357516455",
+      "headSha": "ed1b37061761a057556a80b659e8317dc59b9164",
       "event": "push",
-      "completedAt": null
+      "completedAt": "2026-08-20T10:19:04Z"
     },
     "currentTaskDelivery": {
-      "taskId": "M3-P059",
-      "issue": null,
-      "issueUrl": null,
-      "branch": "codex/m3-welfare-card-ledger",
-      "baseCommit": "a0fc8a6e785395f78362966c398a8fa1f1e37d98",
-      "verifiedHead": "16919727b6f5a3bd79eb6e53721a1aac917adc18",
+      "taskId": "M3-P062",
+      "issue": 116,
+      "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/116",
+      "branch": "codex/m3-enterprise-multi-supplier-order",
+      "baseCommit": "ed1b37061761a057556a80b659e8317dc59b9164",
+      "verifiedHead": "WORKTREE",
       "status": "LOCAL_PASS_PENDING_DRAFT_PR",
-      "localRedTest": "RECORDED",
-      "localFocusedTest": "LOCAL_PASS_M3_P059_FOCUSED",
+      "localRedTest": "RECORDED_FAIL_2_OF_2_MISSING_ADD_TO_CART",
+      "localFocusedTest": "LOCAL_PASS_API_5_PORTAL_P0_2",
       "localFullVerify": "PASS_17_OF_17",
       "pullRequest": null,
       "pullRequestState": "NOT_CREATED",
@@ -100,19 +100,20 @@
       "nextTaskUnlocked": false
     },
     "previousTaskDelivery": {
-      "taskId": "M3-P058",
-      "pullRequest": 113,
-      "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/113",
-      "exactHead": "4ba2b7e4844f2ae661ae1a0567dce055cd5984dc",
-      "mergeCommit": "a0fc8a6e785395f78362966c398a8fa1f1e37d98",
-      "mainPostMergeCiRun": 32339750495,
-      "mainPostMergeCiJob": 96336282159,
+      "taskId": "M3-P059",
+      "issue": 114,
+      "pullRequest": 115,
+      "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/115",
+      "exactHead": "1a04f48fab630e78800b57596c5c4aa43b897e01",
+      "mergeCommit": "ed1b37061761a057556a80b659e8317dc59b9164",
+      "mainPostMergeCiRun": 32357516455,
+      "mainPostMergeCiJob": 96389796027,
       "status": "CI_PASS"
     },
-    "note": "M3-P058 merged-main CI_PASS；M3-P059福利卡追加式账本LOCAL_PASS；P062/M4以后锁定。"
+    "note": "M3-P059 merged-main CI_PASS；M3-P062多供应商企业主订单LOCAL_PASS；P073/M4以后锁定。"
   },
   "evidence": {
-    "local": "LOCAL_PASS_M3_P059",
+    "local": "LOCAL_PASS_M3_P062",
     "ci": "NOT_EXECUTED",
     "staging": "NOT_EXECUTED",
     "device": "NOT_EXECUTED",
@@ -126,7 +127,7 @@
     "permissions": 22,
     "pages": 80,
     "externalDependencies": 28,
-    "migrations": 30,
+    "migrations": 31,
     "apiContracts": 111
   },
   "resumeProtocol": [

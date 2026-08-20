@@ -15,19 +15,19 @@
     "permissions": 22,
     "pages": 80,
     "externalDependencies": 28,
-    "migrations": 30,
+    "migrations": 31,
     "apiContracts": 111,
     "githubIssues": 149
   },
   "workbook": {
     "status": "VERIFIED",
-    "sha256": "9BBA806134708DA31F4275EEEC421B5FAB1FEDBE20F4534A2E1A35DC994B8BA2",
+    "sha256": "905570BE4AB4D3ECFA4C11635758F607F17A926279D66F6CFF704F452820434B",
     "currentTaskMirror": {
-      "taskId": "M3-P059",
+      "taskId": "M3-P062",
       "status": "LOCAL_PASS_PENDING_DRAFT_PR",
       "sourceLedgers": "CSV_JSON_AND_WORKBOOK_UPDATED",
-      "reason": "Artifact-tool synchronized M3-P059 task, P0, field, state, permission, page, evidence, migration, API and stage rows; P062 remains locked and external evidence remains separate.",
-      "checkedAt": "2026-08-20T08:43:44.112Z"
+      "reason": "Artifact-tool synchronized P059 merged-main evidence and M3-P062 task, P0, page, evidence, migration, API and stage rows; P073 remains locked and external evidence remains separate.",
+      "checkedAt": "2026-08-20T11:24:58Z"
     }
   },
   "sourceOfTruth": [

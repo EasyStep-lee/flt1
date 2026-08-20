@@ -125,11 +125,11 @@ await upsertCsv('10-测试证据登记.csv', ['EvidenceID'], [{
   Actual: '正常、越权、范围、余额、幂等改参、并发重放、未知结果、晚期失败回滚、DTO隔离和永久无个人充值边界均有自动化行为证据。',
   Environment: 'LOCAL_WINDOWS_MYSQL8_CHROMIUM', AppOrBrowserVersion: 'Node 22.23.1; pnpm 10.12.1; MySQL 8; Playwright Chromium', ExecutedAt: updatedAt, CommitSHA: commit, CIRunURL: ciUrl,
   ArtifactOrScreenshot: 'docs/contracts/m3/M3-P055-welfare-card-full-payment.md|artifacts/verification/M3-P055/welfare-card-full-payment.json|artifacts/test-results/verification/pnpm-verify.json',
-  Executor: ciRun ? 'GITHUB_ACTIONS+CODEX' : 'CODEX', Freshness: ciRun ? 'FRESH_PR_HEAD' : 'FRESH_LOCAL_WORKTREE', FailureOrBlocker: '真实福利计划/资金、真机、staging/device/production未执行；混合支付属于M3-P056', RetestRequired: ciRun ? 'NO_FOR_CURRENT_PR_HEAD' : 'YES', Notes: 'MIG-015向前迁移；回滚应用版本并以向前修复迁移处理已发布环境。',
+  Executor: ciRun ? 'GITHUB_ACTIONS+CODEX' : 'CODEX', Freshness: ciRun ? 'FRESH_PR_HEAD' : 'FRESH_LOCAL_WORKTREE', FailureOrBlocker: '真实福利计划/资金、真机、staging/device/production未执行；混合支付属于M3-P056', RetestRequired: ciRun ? 'NO_FOR_CURRENT_PR_HEAD' : 'YES', Notes: 'MIG-015B向前迁移；回滚应用版本并以向前修复迁移处理已发布环境。',
 }]);
 
 await upsertCsv('11-数据库迁移台账.csv', ['MigrationID'], [{
-  MigrationID: 'MIG-015', Stage: 'M3', PlannedName: '20260817030000_m3_welfare_card_full_payment', DependsOn: 'MIG-014', Objects: 'WelfareCardLedger constraint/guard; WelfareCardPaymentCommand',
+  MigrationID: 'MIG-015B', Stage: 'M3', PlannedName: '20260817030000_m3_welfare_card_full_payment', DependsOn: 'MIG-014A', Objects: 'WelfareCardLedger constraint/guard; WelfareCardPaymentCommand',
   Purpose: '允许严格FREEZE/CAPTURE账本形状并保存每订单唯一、按消费者幂等域的不可变全额支付命令', ForwardSteps: '扩展账本check/余额触发器；新增支付命令表、唯一键、外键与不可变触发器；不创建PaymentTransaction',
   BackwardOrRecovery: '未发布时回退提交并重建开发库；已发布后回退应用版本并使用向前修复迁移，不删除财务账本/命令', DataBackfill: 'NONE_NEW_COMMANDS_ONLY',
   Verification: 'Prisma validate；empty/upgrade/restore/product drift dry-run；账本check/命令不可变；仓储并发与失败回滚测试', BackupRequired: 'YES', Status: 'CREATED_LOCAL_REHEARSED_M3_P055', AppliedLocalAt: updatedAt, CommitSHA: commit,
