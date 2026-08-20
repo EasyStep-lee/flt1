@@ -39,6 +39,20 @@ export class WelfareCardWechatPaymentResponseDto extends WechatPrepayResponseDto
   readonly totalAmount!: number;
 }
 
+export class WelfareCardWechatCancellationRequestDto {
+  @ApiProperty({ enum: ['USER_CANCELLED', 'PAYMENT_TIMEOUT', 'PAYMENT_FAILED'] })
+  readonly reason!: 'USER_CANCELLED' | 'PAYMENT_TIMEOUT' | 'PAYMENT_FAILED';
+}
+
+export class WelfareCardWechatCancellationResponseDto {
+  @ApiProperty({ enum: ['CANCELLED', 'PAID', 'UNKNOWN'] })
+  readonly resolution!: 'CANCELLED' | 'PAID' | 'UNKNOWN';
+  @ApiProperty({ format: 'uuid', type: String }) readonly orderId!: string;
+  @ApiProperty({ enum: ['CLOSED', 'PAID', 'UNKNOWN'] }) readonly paymentStatus!: 'CLOSED' | 'PAID' | 'UNKNOWN';
+  @ApiProperty({ enum: ['CANCELLED', 'PAID', 'PENDING_PAYMENT'] }) readonly orderStatus!: 'CANCELLED' | 'PAID' | 'PENDING_PAYMENT';
+  @ApiProperty({ type: Boolean }) readonly retriable!: boolean;
+}
+
 export class WechatPaymentNotificationDto {
   @ApiProperty({ additionalProperties: true, type: Object }) readonly resource!: Readonly<Record<string, unknown>>;
   @ApiProperty({ type: String }) readonly id!: string;

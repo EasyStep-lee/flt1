@@ -581,6 +581,9 @@ type JsonValue =
         beginWelfareCardWechatPrepay: async () => ({ kind: 'NOT_FOUND' }),
         completeWechatPrepay: async () => ({ kind: 'STATE_CONFLICT' }),
         confirmWechatPayment: async () => ({ kind: 'NOT_FOUND' }),
+        beginWelfareCardWechatCancellation: async () => ({ kind: 'NOT_FOUND' }),
+        cancelWelfareCardWechatPayment: async () => ({ kind: 'STATE_CONFLICT' }),
+        markWelfareCardWechatPaymentUnknown: async () => ({ kind: 'STATE_CONFLICT' }),
       } satisfies PaymentRepository,
     },
     {

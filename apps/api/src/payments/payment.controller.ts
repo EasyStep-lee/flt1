@@ -24,6 +24,8 @@ import {
   WechatPrepayResponseDto,
   WelfareCardWechatPaymentRequestDto,
   WelfareCardWechatPaymentResponseDto,
+  WelfareCardWechatCancellationRequestDto,
+  WelfareCardWechatCancellationResponseDto,
 } from './payment.dto.js';
 import { PaymentService } from './payment.service.js';
 
@@ -84,7 +86,13 @@ export class WechatPrepayController {
 }
 
 @ApiTags('payments')
-@ApiExtraModels(ApiErrorResponseDto, WelfareCardWechatPaymentRequestDto, WelfareCardWechatPaymentResponseDto)
+@ApiExtraModels(
+  ApiErrorResponseDto,
+  WelfareCardWechatPaymentRequestDto,
+  WelfareCardWechatPaymentResponseDto,
+  WelfareCardWechatCancellationRequestDto,
+  WelfareCardWechatCancellationResponseDto,
+)
 @Controller('v1/consumer/orders')
 export class ConsumerWelfareCardWechatPaymentController {
   constructor(
@@ -123,6 +131,36 @@ export class ConsumerWelfareCardWechatPaymentController {
     );
     if (result.replayed) response.status(200);
     return result.body;
+  }
+
+  @Post(':orderId/welfare-card-wechat-payment/cancel')
+  @HttpCode(200)
+  @ApiOperation({ operationId: 'payments.cancelWelfareCardWechatPayment', summary: 'Query WeChat before safely resolving a mixed-payment cancellation' })
+  @ApiHeader({ name: 'Idempotency-Key', required: true })
+  @ApiBody({ type: WelfareCardWechatCancellationRequestDto })
+  @ApiOkResponse({ type: WelfareCardWechatCancellationResponseDto })
+  @ApiUnauthorizedResponse({ type: ApiErrorResponseDto })
+  @ApiConflictResponse({ type: ApiErrorResponseDto })
+  @ApiUnprocessableEntityResponse({ type: ApiErrorResponseDto })
+  async cancel(
+    @Req() request: RequestContext,
+    @Res({ passthrough: true }) response: Response,
+    @Param('orderId') orderId: string,
+    @Headers('idempotency-key') idempotencyKey: string | undefined,
+    @Body() body: WelfareCardWechatCancellationRequestDto,
+  ): Promise<WelfareCardWechatCancellationResponseDto> {
+    response.setHeader('Cache-Control', 'private, no-store');
+    response.setHeader('X-Robots-Tag', 'noindex, nofollow');
+    const actor = await this.actors.resolveConsumer(cookieHeader(request));
+    if (!actor) throw new SafeApiError(401, 'AUTHENTICATION_REQUIRED', 'Consumer session is required');
+    if (actor.status !== 'ACTIVE') throw new SafeApiError(403, 'ACCOUNT_SUSPENDED', 'Consumer account is not active');
+    return this.service.cancelWelfareCardWechatPayment(
+      actor,
+      orderId,
+      body,
+      idempotencyKey,
+      request.requestId ?? 'request-id-unavailable',
+    );
   }
 }
 

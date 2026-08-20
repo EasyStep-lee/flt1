@@ -684,6 +684,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/consumer/orders/{orderId}/welfare-card-wechat-payment/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Query WeChat before safely resolving a mixed-payment cancellation */
+        post: operations["payments.cancelWelfareCardWechatPayment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/consumer/welfare-card-accounts/bind": {
         parameters: {
             query?: never;
@@ -3259,6 +3276,21 @@ export interface components {
             /** @description Captured welfare-card amount in integer cents */
             welfareCardAmount: number;
         };
+        WelfareCardWechatCancellationRequestDto: {
+            /** @enum {string} */
+            reason: "USER_CANCELLED" | "PAYMENT_TIMEOUT" | "PAYMENT_FAILED";
+        };
+        WelfareCardWechatCancellationResponseDto: {
+            /** Format: uuid */
+            orderId: string;
+            /** @enum {string} */
+            orderStatus: "CANCELLED" | "PAID" | "PENDING_PAYMENT";
+            /** @enum {string} */
+            paymentStatus: "CLOSED" | "PAID" | "UNKNOWN";
+            /** @enum {string} */
+            resolution: "CANCELLED" | "PAID" | "UNKNOWN";
+            retriable: boolean;
+        };
         WelfareCardWechatPaymentRequestDto: {
             /** Format: uuid */
             accountId: string;
@@ -5667,6 +5699,55 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["WelfareCardWechatPaymentResponseDto"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
+    "payments.cancelWelfareCardWechatPayment": {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WelfareCardWechatCancellationRequestDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WelfareCardWechatCancellationResponseDto"];
                 };
             };
             401: {

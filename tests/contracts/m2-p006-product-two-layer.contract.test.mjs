@@ -136,9 +136,9 @@ test('M2-P006 and M2-P007 retain merged-main evidence after M2-P008 starts local
   assert.equal(m2.EvidenceStatus, 'CI_PASS');
 
   assert.equal(projectStatus.execution.status, 'M3_IN_PROGRESS');
-  assert.equal(projectStatus.execution.currentTask, 'M3-P056');
+  assert.equal(projectStatus.execution.currentTask, 'M3-P057');
   assert.equal(projectStatus.execution.nextAllowedTask, projectStatus.execution.currentTask);
-  assert.equal(projectStatus.execution.lastCompletedTask, 'M3-P055');
+  assert.equal(projectStatus.execution.lastCompletedTask, 'M3-P056');
   assert.equal(projectStatus.execution.activeTaskCount, 1);
   assert.equal(
     projectStatus.github.currentTaskDelivery.taskId,
@@ -153,13 +153,14 @@ test('M2-P006 and M2-P007 retain merged-main evidence after M2-P008 starts local
   );
   assert.ok(
     projectStatus.github.currentTaskDelivery.exactHeadCi === 'NOT_EXECUTED' ||
+      projectStatus.github.currentTaskDelivery.exactHeadCi === 'IN_PROGRESS' ||
       projectStatus.github.currentTaskDelivery.exactHeadCi.startsWith('CI_PASS_RUN_'),
   );
   assert.equal(projectStatus.github.currentTaskDelivery.merge, 'NOT_EXECUTED');
   assert.equal(projectStatus.github.currentTaskDelivery.mainPostMergeCi, 'NOT_EXECUTED');
   assert.equal(
     projectStatus.github.currentTaskDelivery.blockingExternalItem,
-    'REAL_WECHAT_STAGING_DEVICE',
+    'REAL_WECHAT_QUERY_CLOSE_STAGING_DEVICE',
   );
   assert.equal(projectStatus.github.currentTaskDelivery.nextTaskUnlocked, false);
   assert.match(projectStatus.evidence.ci, /^(?:NOT_EXECUTED|CI_PASS_M3_(?:P03[01]|P05[134])_HEAD_[0-9a-f]{7})$/u);

@@ -15,19 +15,19 @@
     "permissions": 22,
     "pages": 80,
     "externalDependencies": 28,
-    "migrations": 27,
-    "apiContracts": 105,
+    "migrations": 28,
+    "apiContracts": 106,
     "githubIssues": 149
   },
   "workbook": {
     "status": "VERIFIED",
-    "sha256": "C431D636C3B9DD7189CA36F2B89C000808CBBF22B33DDB817445C2417C8CA10A",
+    "sha256": "3A93CC962C1C967019743779C093B098420F054173305E383BEAE06BA30D8E95",
     "currentTaskMirror": {
-      "taskId": "M3-P056",
-      "status": "LOCAL_PASS_PENDING_DRAFT_PR",
+      "taskId": "M3-P057",
+      "status": "DRAFT_PR_CI_PENDING",
       "sourceLedgers": "CSV_JSON_AND_WORKBOOK_UPDATED",
-      "reason": "P056 CSV/JSON ledgers and the artifact-tool workbook mirror were synchronized and visually inspected across all 12 sheets.",
-      "checkedAt": "2026-08-17T06:50:32Z"
+      "reason": "Artifact-tool updated the M3-P057 task, P0, state machine, permission, page, evidence, migration, API and stage-gate rows; exact-head Draft PR CI, human merge authorization and post-merge main CI remain separate gates.",
+      "checkedAt": "2026-08-17T10:07:11Z"
     }
   },
   "sourceOfTruth": [

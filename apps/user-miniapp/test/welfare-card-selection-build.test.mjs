@@ -41,6 +41,10 @@ const mixedResponse = {
   prepayId: 'mixed-prepay-1', clientPayment: { timeStamp: '1786666666', nonceStr: 'nonce', package: 'prepay_id=mixed-prepay-1', signType: 'RSA', paySign: 'test-signature' },
 };
 
+const mixedUnknownResponse = {
+  resolution: 'UNKNOWN', orderId: paidResponse.orderId, paymentStatus: 'UNKNOWN', orderStatus: 'PENDING_PAYMENT', retriable: true,
+};
+
 const loadPage = ({ fail = false, failPayment = false, responseBody = response, requestPaymentResult = 'success' } = {}) => {
   let definition;
   const requests = [];
@@ -61,8 +65,9 @@ const loadPage = ({ fail = false, failPayment = false, responseBody = response, 
         requests.push({ data: options.data, header: options.header, method: options.method, url: options.url });
         if (fail || (failPayment && options.url.includes('/welfare-card-full-payment'))) return options.fail({ errMsg: 'request:fail timeout' });
         const fullPayment = options.url.includes('/welfare-card-full-payment');
-        const mixedPayment = options.url.includes('/welfare-card-wechat-payment');
-        return options.success({ data: structuredClone(fullPayment ? paidResponse : mixedPayment ? mixedResponse : responseBody), statusCode: fullPayment || mixedPayment ? 201 : 200 });
+        const mixedCancellation = options.url.endsWith('/welfare-card-wechat-payment/cancel');
+        const mixedPayment = options.url.endsWith('/welfare-card-wechat-payment');
+        return options.success({ data: structuredClone(fullPayment ? paidResponse : mixedCancellation ? mixedUnknownResponse : mixedPayment ? mixedResponse : responseBody), statusCode: fullPayment || mixedPayment ? 201 : 200 });
       },
       requestPayment: (options) => {
         requestPayments.push({ ...options });
@@ -181,4 +186,27 @@ test('P0-056 checkout starts mixed payment from one user gesture with server amo
   assert.equal(runtime.definition.data.state, 'unknown');
   assert.match(runtime.definition.data.message, /结果待确认/u);
   assert.doesNotMatch(JSON.stringify(request), /companyId|consumerUserId|buyerId|supplierId|price|amount/iu);
+});
+
+test('P0-057 unknown mixed payment actively queries cancellation resolution without creating another prepay or wx.requestPayment', async () => {
+  const runtime = loadPage({ responseBody: {
+    ...response,
+    accounts: [{ ...response.accounts[0], availableAmount: 4_000, maximumDeductibleAmount: 4_000 }],
+  } });
+  await runtime.definition.onLoad.call(runtime.definition);
+  runtime.definition.selectAccount.call(runtime.definition, { currentTarget: { dataset: { accountId: response.accounts[0].id } } });
+  await runtime.definition.submitSelectedPayment.call(runtime.definition);
+  assert.equal(runtime.definition.data.state, 'unknown');
+  assert.equal(runtime.requestPayments.length, 1);
+
+  await runtime.definition.submitSelectedPayment.call(runtime.definition);
+  const cancellationRequests = runtime.requests.filter(({ url }) => url.endsWith('/welfare-card-wechat-payment/cancel'));
+  const prepayRequests = runtime.requests.filter(({ url }) => url.endsWith('/welfare-card-wechat-payment'));
+  assert.equal(cancellationRequests.length, 1);
+  assert.deepEqual({ ...cancellationRequests[0].data }, { reason: 'PAYMENT_TIMEOUT' });
+  assert.match(cancellationRequests[0].header['Idempotency-Key'], /^welfare-wechat-cancel-/u);
+  assert.equal(prepayRequests.length, 1);
+  assert.equal(runtime.requestPayments.length, 1);
+  assert.equal(runtime.definition.data.state, 'unknown');
+  assert.match(runtime.definition.data.message, /未释放|待确认/u);
 });

@@ -289,10 +289,10 @@ test('project status records M1 gate success while historical blocked handoff st
 
   assert.equal(projectStatus.execution.currentStage, 'M3');
   assert.equal(projectStatus.execution.nextAllowedTask, projectStatus.execution.currentTask);
-  assert.equal(projectStatus.execution.lastCompletedTask, 'M3-P055');
+  assert.equal(projectStatus.execution.lastCompletedTask, 'M3-P056');
   assert.equal(projectStatus.execution.lastPassedGate, 'M2-GATE');
   assert.equal(
-    projectStatus.execution.prohibitedUntilGate.some((item) => /M3-P056.*M3-P057/u.test(item)),
+    projectStatus.execution.prohibitedUntilGate.some((item) => /M3-P057.*M3-P058/u.test(item)),
     true,
   );
   assert.equal(
@@ -302,25 +302,25 @@ test('project status records M1 gate success while historical blocked handoff st
   assert.equal(['NOT_CREATED', 'DRAFT'].includes(projectStatus.github.pullRequestState), true);
   assert.equal(projectStatus.github.pullRequestMerged, false);
   assert.equal(projectStatus.github.mergeCommitSha, null);
-  assert.equal(['NOT_EXECUTED', 'CI_PASS'].includes(projectStatus.github.pullRequestCi.status), true);
+  assert.equal(['NOT_EXECUTED', 'IN_PROGRESS', 'CI_PASS'].includes(projectStatus.github.pullRequestCi.status), true);
   assert.equal(projectStatus.github.latestCi.status, 'CI_PASS');
   assert.equal(
     projectStatus.github.currentTaskDelivery.taskId,
     projectStatus.execution.currentTask,
   );
   assert.equal(projectStatus.execution.status, 'M3_IN_PROGRESS');
-  assert.equal(projectStatus.execution.currentTask, 'M3-P056');
+  assert.equal(projectStatus.execution.currentTask, 'M3-P057');
   assert.equal(projectStatus.execution.activeTaskCount, 1);
   assert.match(
     projectStatus.github.currentTaskDelivery.status,
-    /^(?:LOCAL_PASS_PENDING_DRAFT_PR|CI_PASS_PENDING_HUMAN_MERGE)$/u,
+    /^(?:LOCAL_PASS_PENDING_DRAFT_PR|DRAFT_PR_CI_PENDING|CI_PASS_PENDING_HUMAN_MERGE)$/u,
   );
   assert.equal(projectStatus.github.currentTaskDelivery.merge, 'NOT_EXECUTED');
   assert.equal(projectStatus.github.currentTaskDelivery.mainPostMergeCi, 'NOT_EXECUTED');
   assert.equal(projectStatus.github.previousTaskDelivery.status, 'CI_PASS');
   assert.match(
     projectStatus.evidence.local,
-    /^(?:LOCAL_FOCUSED_PASS_FULL_VERIFY_NOT_EXECUTED|LOCAL_PASS_M3_P030_FULL_VERIFY|LOCAL_PASS_M3_P031_FULL_VERIFY|LOCAL_PASS_M3_P051_FULL_VERIFY|LOCAL_PASS_M3_P052_FULL_VERIFY|LOCAL_PASS_M3_P053_FULL_VERIFY|LOCAL_PASS_M3_P054_FULL_VERIFY|LOCAL_PASS_M3_P055_FULL_VERIFY|LOCAL_PASS_M3_P056_FULL_VERIFY)$/u,
+    /^(?:LOCAL_FOCUSED_PASS_FULL_VERIFY_NOT_EXECUTED|LOCAL_PASS_M3_P030_FULL_VERIFY|LOCAL_PASS_M3_P031_FULL_VERIFY|LOCAL_PASS_M3_P051_FULL_VERIFY|LOCAL_PASS_M3_P052_FULL_VERIFY|LOCAL_PASS_M3_P053_FULL_VERIFY|LOCAL_PASS_M3_P054_FULL_VERIFY|LOCAL_PASS_M3_P055_FULL_VERIFY|LOCAL_PASS_M3_P056_FULL_VERIFY|LOCAL_PASS_M3_P057_FULL_VERIFY)$/u,
   );
   assert.match(projectStatus.evidence.ci, /^(?:NOT_EXECUTED|CI_PASS_M3_P(?:03[01]|05[1-5])_HEAD_[0-9a-f]{7})$/u);
   assert.equal(projectStatus.evidence.staging, 'NOT_EXECUTED');

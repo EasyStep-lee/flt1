@@ -5955,7 +5955,7 @@
           "P0-091",
           "P0-092"
         ],
-        "implementationStatus": "IMPLEMENTED_M3_P056_WELFARE_WECHAT_SUCCESS_PARTIAL"
+        "implementationStatus": "IMPLEMENTED_M3_P057_MIXED_PAYMENT_CANCEL_RECOVERY_PARTIAL"
       },
       {
         "pageId": "PAGE-057",
@@ -7002,7 +7002,7 @@
       "p0Id": "P0-056",
       "category": "NON_WECHAT_CONSUMER_CASH",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "LOCAL_PASS"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P056-02",
@@ -7010,7 +7010,7 @@
       "p0Id": "P0-056",
       "category": "UNAUTHORIZED_OR_WRONG_OWNER",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "LOCAL_PASS"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P056-03",
@@ -7018,7 +7018,7 @@
       "p0Id": "P0-056",
       "category": "DUPLICATE_OR_STATE_CONFLICT",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "LOCAL_PASS"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P057-01",
@@ -7026,7 +7026,7 @@
       "p0Id": "P0-057",
       "category": "OUT_OF_ORDER_CALLBACK",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "LOCAL_PASS"
     },
     {
       "id": "NEG-M3-P057-02",
@@ -7034,7 +7034,7 @@
       "p0Id": "P0-057",
       "category": "UNAUTHORIZED_OR_WRONG_OWNER",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "LOCAL_PASS"
     },
     {
       "id": "NEG-M3-P057-03",
@@ -7042,7 +7042,7 @@
       "p0Id": "P0-057",
       "category": "DUPLICATE_OR_STATE_CONFLICT",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "LOCAL_PASS"
     },
     {
       "id": "NEG-M3-P058-01",
@@ -8382,7 +8382,7 @@
         "NEG-M3-P056-02",
         "NEG-M3-P056-03"
       ],
-      "executionStatus": "LOCAL_PASS"
+      "executionStatus": "CI_PASS"
     },
     {
       "taskId": "M3-P057",
@@ -8410,7 +8410,8 @@
         "NEG-M3-P057-01",
         "NEG-M3-P057-02",
         "NEG-M3-P057-03"
-      ]
+      ],
+      "executionStatus": "LOCAL_PASS"
     },
     {
       "taskId": "M3-P058",
