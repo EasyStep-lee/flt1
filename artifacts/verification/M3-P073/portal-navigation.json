@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "taskId": "M3-P073",
+  "p0": [
+    "P0-073"
+  ],
+  "status": "LOCAL_PASS",
+  "commit": "4ae566cc2cb2f5ebba751ca32386331a07906fec",
+  "updatedAt": "2026-08-21T03:30:06Z",
+  "baselineSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+  "red": [
+    {
+      "command": "pnpm exec playwright test --config playwright.p0.config.ts tests/e2e/p0/p0-073-portal-navigation.spec.ts",
+      "exitCode": 1,
+      "result": "FAIL_2_OF_2",
+      "reason": "公开导航缺福利卡入口；私有企业布局缺货架/采购车/工作台导航"
+    }
+  ],
+  "focused": [
+    {
+      "command": "pnpm --filter @fulishe/portal-web lint && pnpm --filter @fulishe/portal-web typecheck && pnpm --filter @fulishe/portal-web build",
+      "result": "PASS"
+    },
+    {
+      "command": "pnpm exec playwright test --config playwright.p0.config.ts tests/e2e/p0/p0-073-portal-navigation.spec.ts",
+      "result": "PASS_2_OF_2"
+    }
+  ],
+  "fullVerify": "PASS_17_OF_17",
+  "invariants": {
+    "publicNavigationHasEightEntries": true,
+    "publicHasRegisterAndLoginOnly": true,
+    "privateHasShelfCartWorkspace": true,
+    "publicDoesNotExposePrivateDestinations": true,
+    "privateNoindexAndNoStore": true,
+    "companySubjectAndMaskedMobileInFooter": true,
+    "legalEntriesRouteSuccessfully": true,
+    "legalApprovalNotFabricated": true
+  },
+  "boundaries": {
+    "migration": "NONE",
+    "openapi": "NONE",
+    "actualEnterpriseLogin": "OUT_OF_SCOPE_P077",
+    "homeClosure": "OUT_OF_SCOPE_P074",
+    "legalTextApproval": "NOT_EXECUTED",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_EXECUTED",
+    "production": "NOT_EXECUTED"
+  },
+  "github": {
+    "issue": 118,
+    "pullRequest": null,
+    "pullRequestState": "NOT_CREATED",
+    "ciStatus": "NOT_EXECUTED"
+  }
+}
