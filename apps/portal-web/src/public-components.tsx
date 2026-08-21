@@ -134,11 +134,15 @@ export function ClosingCta({
   description,
   primaryHref,
   primaryLabel,
+  secondaryHref = '/contact',
+  secondaryLabel = '联系我们',
   title,
 }: {
   readonly description: string;
   readonly primaryHref: string;
   readonly primaryLabel: string;
+  readonly secondaryHref?: string;
+  readonly secondaryLabel?: string;
   readonly title: string;
 }) {
   const primaryAction = primaryHref.startsWith('/supplier/') ? (
@@ -160,8 +164,8 @@ export function ClosingCta({
       </div>
       <div className="button-row">
         {primaryAction}
-        <Link className="button button--ghost" href="/contact">
-          联系我们
+        <Link className="button button--ghost" href={secondaryHref}>
+          {secondaryLabel}
         </Link>
       </div>
     </section>

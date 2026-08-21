@@ -27,6 +27,15 @@ export const siteOrigin = resolveSiteOrigin();
 export const PUBLIC_CUSTOMER_SERVICE = '189****9999' as const;
 export const CONTENT_EFFECTIVE_DATE = '2026-08-02' as const;
 
+export const publicHomeCategories = [
+  '食品',
+  '家居日用',
+  '个护',
+  '纸品',
+  '家庭清洁',
+  '文体办公',
+] as const;
+
 export const publicNavigation = [
   { href: '/', label: '首页' },
   { href: '/about', label: '关于福礼团' },
@@ -80,6 +89,18 @@ export const publicScenarios = [
     title: '企业福利采购服务路径',
   },
 ] as const satisfies readonly PublicScenario[];
+
+export interface PublicAuthorizedCase {
+  readonly authorizedAt: string;
+  readonly customerDisplayName: string;
+  readonly serviceType: string;
+  readonly slug: string;
+  readonly summary: string;
+}
+
+// Customer names, logos, images, metrics and endorsements must not be published
+// until their explicit public-use authorization has been recorded.
+export const publicAuthorizedCases = [] as const satisfies readonly PublicAuthorizedCase[];
 
 export interface PublicAnnouncement {
   readonly applicableTo: string;
