@@ -7563,7 +7563,7 @@
       "p0Id": "P0-073",
       "category": "INVALID_INPUT",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "LOCAL_PASS"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P073-02",
@@ -7571,7 +7571,7 @@
       "p0Id": "P0-073",
       "category": "UNAUTHORIZED_OR_WRONG_OWNER",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "LOCAL_PASS"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P073-03",
@@ -7579,7 +7579,7 @@
       "p0Id": "P0-073",
       "category": "DUPLICATE_OR_STATE_CONFLICT",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "LOCAL_PASS"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P074-01",
@@ -7587,7 +7587,7 @@
       "p0Id": "P0-074",
       "category": "INVALID_INPUT",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "LOCAL_PASS"
     },
     {
       "id": "NEG-M3-P074-02",
@@ -7595,7 +7595,7 @@
       "p0Id": "P0-074",
       "category": "UNAUTHORIZED_OR_WRONG_OWNER",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "LOCAL_PASS"
     },
     {
       "id": "NEG-M3-P074-03",
@@ -7603,7 +7603,7 @@
       "p0Id": "P0-074",
       "category": "DUPLICATE_OR_STATE_CONFLICT",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "LOCAL_PASS"
     },
     {
       "id": "NEG-M3-P075-01",

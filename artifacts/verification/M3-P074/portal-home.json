@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "taskId": "M3-P074",
+  "p0": [
+    "P0-074"
+  ],
+  "status": "LOCAL_PASS",
+  "commit": "666326b38fe75014ee43974683c8be90df7e187b",
+  "updatedAt": "2026-08-21T07:41:50Z",
+  "baselineSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+  "red": [
+    {
+      "command": "pnpm exec playwright test --config playwright.p0.config.ts tests/e2e/p0/p0-074-portal-home.spec.ts",
+      "exitCode": 1,
+      "result": "FAIL_2_OF_2",
+      "reason": "首页缺少九段行为标记与完整模块顺序；移动端无法定位目标模块"
+    }
+  ],
+  "focused": [
+    {
+      "command": "pnpm --filter @fulishe/portal-web lint && pnpm --filter @fulishe/portal-web typecheck && pnpm --filter @fulishe/portal-web build",
+      "result": "PASS"
+    },
+    {
+      "command": "pnpm exec playwright test --config playwright.p0.config.ts tests/e2e/p0/p0-074-portal-home.spec.ts",
+      "result": "PASS_2_OF_2"
+    },
+    {
+      "command": "pnpm --filter @fulishe/portal-web test",
+      "result": "PASS_4_OF_4"
+    },
+    {
+      "command": "related P0-001/009/027/030/073/074 Chromium",
+      "result": "PASS_18_OF_18"
+    }
+  ],
+  "fullVerify": "PASS_17_OF_17",
+  "invariants": {
+    "nineSectionsInRequiredOrder": true,
+    "publicStaticIsr": true,
+    "approvedCategoriesOnly": true,
+    "noPublicPricesOrExactInventory": true,
+    "authorizedCasesFailClosed": true,
+    "anonymousScenarioNotPresentedAsCustomerCase": true,
+    "noInventedSalesMetricsOrCountdown": true,
+    "singleMerchantBoundaryPreserved": true,
+    "noSupplierStorefront": true,
+    "desktopAndMobileResponsive": true
+  },
+  "boundaries": {
+    "migration": "NONE",
+    "openapi": "NONE",
+    "actualEnterpriseLogin": "OUT_OF_SCOPE_P077",
+    "publicitySubpages": "OUT_OF_SCOPE_P075",
+    "supplierAndWelfareForms": "OUT_OF_SCOPE_P076",
+    "authorizedCustomerCases": "NOT_EXECUTED",
+    "cms": "OUT_OF_SCOPE_M5",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_EXECUTED",
+    "production": "NOT_EXECUTED"
+  },
+  "github": {
+    "issue": 120,
+    "pullRequest": null,
+    "pullRequestState": "NOT_CREATED",
+    "ciStatus": "NOT_EXECUTED"
+  }
+}
