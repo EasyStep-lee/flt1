@@ -6,7 +6,7 @@
   ],
   "status": "LOCAL_PASS",
   "commit": "4ae566cc2cb2f5ebba751ca32386331a07906fec",
-  "updatedAt": "2026-08-21T03:30:06Z",
+  "updatedAt": "2026-08-21T03:34:20Z",
   "baselineSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
   "red": [
     {
@@ -49,8 +49,8 @@
   },
   "github": {
     "issue": 118,
-    "pullRequest": null,
-    "pullRequestState": "NOT_CREATED",
+    "pullRequest": 119,
+    "pullRequestState": "DRAFT",
     "ciStatus": "NOT_EXECUTED"
   }
 }

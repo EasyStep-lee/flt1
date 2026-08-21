@@ -3,10 +3,10 @@
 ## 结论
 
 - 阶段：`M3_IN_PROGRESS`；本切片：`M3-P073 / P0-073`；阶段不因本切片自动 PASS。
-- 当前证据：`LOCAL_PASS`，等待本分支完整门禁、Draft PR 精确 head CI、人工合并和 post-merge `main` CI。
+- 当前证据：`LOCAL_PASS`；Draft PR #119 已创建，等待其精确 head CI、人工合并和 post-merge `main` CI。
 - 方案 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`。
 - 基线：`origin/main@ae8545de7eb8502a56fa827b95092f472a8153a0`；PR #117 已按授权精确 head `da5dae7dbee7add9cfe6b86747dbd623c56cac03` 合并，post-merge main run `32434122906` / job `96631713342` 成功。
-- 分支：`codex/m3-portal-navigation`；Issue #118；Draft PR 尚未创建。
+- 分支：`codex/m3-portal-navigation`；Issue #118；Draft PR #119。
 - 用户已有 M3-P031、M3-P051、M3-P059 截图改动及其他无关未跟踪文件保持原样，未纳入本切片。
 
 ## 实际变更
@@ -46,5 +46,5 @@
 ## GitHub 与下一门禁
 
 - 仓库：`EasyStep-lee/flt1`；基线分支：`main`；开发分支：`codex/m3-portal-navigation`；Issue #118。
-- Draft PR 创建后必须以最新精确 head 通过 Actions；未经用户对该 head 明确授权，不得转 Ready 或合并。
+- Draft PR #119 必须以最新精确 head 通过 Actions；未经用户对该 head 明确授权，不得转 Ready 或合并。
 - `M3-P074` 保持锁定。只有 P073 PR 合并且合并后 `main` CI 成功，才允许进入 P074；M4 及以后继续锁定。
