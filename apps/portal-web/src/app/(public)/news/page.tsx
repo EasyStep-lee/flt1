@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-import { JsonLd, PageHero, SectionHeading } from '../../../public-components';
+import { ClosingCta, JsonLd, PageHero, SectionHeading } from '../../../public-components';
 import { buildMetadata, buildWebPageJsonLd, publicAnnouncements } from '../../../public-content';
 
 export const dynamic = 'force-static';
@@ -41,6 +41,12 @@ export default function NewsPage() {
           </article>
         </div>
       </section>
+      <ClosingCta
+        description="先了解平台如何组织商品、库存、订单和配送，再按企业需求联系公司。"
+        primaryHref="/capabilities"
+        primaryLabel="了解平台能力"
+        title="从规则公告继续了解企业服务"
+      />
     </main>
   );
 }

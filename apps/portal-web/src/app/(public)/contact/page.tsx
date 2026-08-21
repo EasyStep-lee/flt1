@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-import { JsonLd, PageHero, SectionHeading } from '../../../public-components';
+import { ClosingCta, JsonLd, PageHero, SectionHeading } from '../../../public-components';
 import {
   buildMetadata,
   buildWebPageJsonLd,
@@ -61,6 +61,14 @@ export default function ContactPage() {
         </div>
         <Link className="text-link" href="/supplier-cooperation">供应商可先查看合作条件与独立注册入口 →</Link>
       </section>
+      <ClosingCta
+        description="企业采购从企业注册开始；供应商供货协作请先核对准入条件与独立入口。"
+        primaryHref="/enterprise/register"
+        primaryLabel="注册企业"
+        secondaryHref="/supplier-cooperation"
+        secondaryLabel="查看供应商合作"
+        title="选择与身份对应的下一步"
+      />
     </main>
   );
 }
