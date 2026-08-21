@@ -32,6 +32,7 @@ export const publicNavigation = [
   { href: '/about', label: '关于福礼团' },
   { href: '/capabilities', label: '供应链能力' },
   { href: '/enterprise-procurement', label: '社区集采' },
+  { href: '/contact#enterprise-welfare', label: '福利卡' },
   { href: '/cases', label: '服务场景' },
   { href: '/supplier-cooperation', label: '供应商合作' },
   { href: '/news', label: '新闻公告' },
@@ -49,6 +50,8 @@ export const publicRoutes = [
   '/news',
   '/news/community-procurement-boundary',
   '/contact',
+  '/legal/privacy-policy',
+  '/legal/service-agreement',
 ] as const;
 
 export interface PublicScenario {

@@ -47,7 +47,7 @@ export default function ContactPage() {
           <div><dt>服务时间</dt><dd>请通过客服渠道确认，以公司正式公示为准</dd></div>
         </dl>
       </section>
-      <section className="section-block section-block--tint">
+      <section className="section-block section-block--tint" id="enterprise-welfare">
         <SectionHeading eyebrow="诉求分流" title="联系前请选择对应事项" />
         <div className="card-grid card-grid--two">
           {contactPurposes.map(([title, copy]) => <article className="plain-card" key={title}><h2>{title}</h2><p>{copy}</p></article>)}

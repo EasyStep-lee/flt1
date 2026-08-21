@@ -32,9 +32,14 @@ export function PublicSiteFrame({ children }: { readonly children: ReactNode }) 
               </Link>
             ))}
           </nav>
-          <Link className="button button--small button--outline" href="/enterprise/login">
-            企业登录
-          </Link>
+          <div className="public-enterprise-actions" data-testid="public-enterprise-actions">
+            <Link className="text-link" href="/enterprise/register">
+              企业注册
+            </Link>
+            <Link className="button button--small button--outline" href="/enterprise/login">
+              企业登录
+            </Link>
+          </div>
         </div>
       </header>
       {children}
@@ -62,6 +67,12 @@ export function PublicSiteFrame({ children }: { readonly children: ReactNode }) 
             <Link href="/contact">联系我们</Link>
             <Link href="/news">新闻公告</Link>
             <span>客服：{PUBLIC_CUSTOMER_SERVICE}</span>
+          </div>
+          <div>
+            <strong>法律入口</strong>
+            <Link href="/legal/service-agreement">平台服务协议</Link>
+            <Link href="/legal/privacy-policy">隐私政策</Link>
+            <span>正式文本以公司授权发布版本为准</span>
           </div>
         </div>
         <div className="site-footer__legal">
