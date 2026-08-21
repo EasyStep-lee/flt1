@@ -1,6 +1,6 @@
 # M3-P075 企业宣传页面契约
 
-状态：`IN_PROGRESS / LOCAL_PASS / DRAFT_PR_PENDING`。本切片对应综合方案 §8、§19.5 与 P0-075，只补齐公开宣传页面的内容完整性、授权展示和下一步入口，不提前实现 M5 CMS。
+状态：`IN_PROGRESS / CI_PASS / HUMAN_MERGE_PENDING`。本切片对应综合方案 §8、§19.5 与 P0-075，只补齐公开宣传页面的内容完整性、授权展示和下一步入口，不提前实现 M5 CMS。
 
 ## 目标与完成定义
 

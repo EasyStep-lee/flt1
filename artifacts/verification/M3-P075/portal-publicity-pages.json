@@ -4,9 +4,9 @@
   "p0": [
     "P0-075"
   ],
-  "status": "LOCAL_PASS",
-  "commit": "4c033c6",
-  "updatedAt": "2026-08-21T11:59:06Z",
+  "status": "CI_PASS",
+  "commit": "52987315967bacc6c53144d268dd0e9a09a1c7a9",
+  "updatedAt": "2026-08-21T12:13:27Z",
   "baselineSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
   "red": [
     {
@@ -52,8 +52,12 @@
   },
   "github": {
     "issue": 122,
-    "pullRequest": null,
-    "pullRequestState": "NOT_CREATED",
-    "ciStatus": "NOT_EXECUTED"
+    "pullRequest": 123,
+    "pullRequestState": "DRAFT",
+    "ciStatus": "CI_PASS",
+    "runId": 32479902305,
+    "jobId": 96763808733,
+    "headSha": "52987315967bacc6c53144d268dd0e9a09a1c7a9",
+    "completedAt": "2026-08-21T12:13:27Z"
   }
 }

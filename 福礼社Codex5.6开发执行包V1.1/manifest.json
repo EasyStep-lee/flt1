@@ -21,13 +21,13 @@
   },
   "workbook": {
     "status": "VERIFIED",
-    "sha256": "06A9DBDE54043E980A0987B9DEF428AF16525F35AA032525C2E2CCCF671E2C4A",
+    "sha256": "D46444C8119C613AAAB6F0BE8F5884AC77D05C231800586F413273CECB7785BE",
     "currentTaskMirror": {
       "taskId": "M3-P075",
-      "status": "LOCAL_PASS_PENDING_DRAFT_PR",
+      "status": "CI_PASS_PENDING_HUMAN_MERGE",
       "sourceLedgers": "CSV_JSON_AND_WORKBOOK_UPDATED",
       "reason": "Artifact-tool synchronized P074 merged-main evidence and M3-P075 task, P0, page, evidence and stage rows; P076 remains locked and formal customer/qualification, staging, device and production evidence remains separate.",
-      "checkedAt": "2026-08-21T11:59:06Z"
+      "checkedAt": "2026-08-21T12:13:27Z"
     }
   },
   "sourceOfTruth": [

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
   "project": "福礼社单商户供应链平台",
-  "updatedAt": "2026-08-21T11:59:06Z",
+  "updatedAt": "2026-08-21T12:13:27Z",
   "baseline": {
     "schemePath": "C:\\Users\\lichuanjun\\Documents\\flt1\\福礼社单商户供应链平台V1.1综合方案.html",
     "schemeSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
@@ -39,9 +39,9 @@
     "authenticationConfirmed": true,
     "writeAllowed": true,
     "connectorAccessConfirmed": true,
-    "pullRequest": null,
-    "pullRequestUrl": null,
-    "pullRequestState": "NOT_CREATED",
+    "pullRequest": 123,
+    "pullRequestUrl": "https://github.com/EasyStep-lee/flt1/pull/123",
+    "pullRequestState": "DRAFT",
     "pullRequestMerged": false,
     "mergeCommitSha": null,
     "mergedAt": null,
@@ -60,14 +60,14 @@
       "currentHeadReviewRequired": true,
       "authorizationExactHead": false
     },
-    "lastVerifiedPullRequestHead": null,
+    "lastVerifiedPullRequestHead": "52987315967bacc6c53144d268dd0e9a09a1c7a9",
     "pullRequestCi": {
-      "status": "NOT_EXECUTED",
-      "runId": null,
-      "jobId": null,
-      "runUrl": null,
-      "headSha": null,
-      "completedAt": null
+      "status": "CI_PASS",
+      "runId": 32479902305,
+      "jobId": 96763808733,
+      "runUrl": "https://github.com/EasyStep-lee/flt1/actions/runs/32479902305",
+      "headSha": "52987315967bacc6c53144d268dd0e9a09a1c7a9",
+      "completedAt": "2026-08-21T12:13:27Z"
     },
     "latestCi": {
       "scope": "M3_P074_POST_MERGE_MAIN",
@@ -85,14 +85,14 @@
       "issueUrl": "https://github.com/EasyStep-lee/flt1/issues/122",
       "branch": "codex/m3-portal-publicity-pages",
       "baseCommit": "ea1c72976cfa068cb38f3b5cc93172252c688a1e",
-      "verifiedHead": "4c033c6",
-      "status": "LOCAL_PASS_PENDING_DRAFT_PR",
+      "verifiedHead": "52987315967bacc6c53144d268dd0e9a09a1c7a9",
+      "status": "CI_PASS_PENDING_HUMAN_MERGE",
       "localRedTest": "RECORDED_FAIL_2_OF_3_MISSING_NEWS_AND_CONTACT_NEXT_ACTIONS",
       "localFocusedTest": "LOCAL_PASS_P075_3_OF_3",
       "localFullVerify": "PASS_17_OF_17",
-      "pullRequest": null,
-      "pullRequestState": "NOT_CREATED",
-      "exactHeadCi": "NOT_EXECUTED",
+      "pullRequest": 123,
+      "pullRequestState": "DRAFT",
+      "exactHeadCi": "CI_PASS",
       "review": "NOT_EXECUTED",
       "merge": "NOT_EXECUTED",
       "mainPostMergeCi": "NOT_EXECUTED",
@@ -110,11 +110,11 @@
       "mainPostMergeCiJob": 96723873849,
       "status": "CI_PASS"
     },
-    "note": "M3-P074 merged-main CI_PASS；M3-P075企业宣传页面LOCAL_PASS；P076/M4以后锁定。"
+    "note": "M3-P074 merged-main CI_PASS；M3-P075企业宣传页面CI_PASS（PR #123 run 32479902305）；P076/M4以后锁定。"
   },
   "evidence": {
     "local": "LOCAL_PASS_M3_P075",
-    "ci": "NOT_EXECUTED",
+    "ci": "CI_PASS",
     "staging": "NOT_EXECUTED",
     "device": "NOT_EXECUTED",
     "production": "NOT_EXECUTED"

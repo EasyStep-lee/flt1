@@ -15,8 +15,15 @@ const pullRequest = Number(args['pull-request'] || 0) || null;
 const pullRequestUrl = pullRequest ? `https://github.com/EasyStep-lee/flt1/pull/${pullRequest}` : '';
 const pullRequestState = pullRequest ? 'DRAFT' : 'NOT_CREATED';
 const pullRequestCi = args['pr-ci'] || 'NOT_EXECUTED';
+const pullRequestCiRun = Number(args['pr-run'] || 0) || null;
+const pullRequestCiJob = Number(args['pr-job'] || 0) || null;
+const pullRequestCiHead = args['pr-head'] || null;
+const pullRequestCiCompletedAt = args['pr-completed-at'] || null;
 const workbookSync = args['workbook-sync'] || 'PENDING';
 const implemented = ['LOCAL_PASS', 'CI_PASS'].includes(evidenceStatus);
+if (pullRequestCi === 'CI_PASS' && (!pullRequest || !pullRequestCiRun || !pullRequestCiJob || !pullRequestCiHead || !pullRequestCiCompletedAt)) {
+  throw new Error('CI_PASS_REQUIRES_PR_RUN_JOB_HEAD_AND_COMPLETED_AT');
+}
 
 const p074 = {
   issue: 120,
@@ -86,7 +93,7 @@ await upsertCsv('03-任务台账.csv', ['TaskID'], [
     TaskID: 'M3-P075', Status: 'IN_PROGRESS', EvidenceStatus: evidenceStatus, Owner: 'CODEX',
     GitHubIssue: 'https://github.com/EasyStep-lee/flt1/issues/122', Branch: 'codex/m3-portal-publicity-pages',
     CommitSHA: commit, PullRequest: pullRequestUrl, CI: pullRequestCi, UpdatedAt: updatedAt,
-    Notes: `关于、能力、案例、新闻、公告详情和联系页内容完整；授权资质/案例默认拒绝；公告保留版本与生效日期；每页有明确下一步。${fullVerify === 'PASS_17_OF_17' ? 'pnpm verify 17/17通过。' : '完整门禁尚未通过。'}M5 CMS、授权客户材料、staging/device/production未执行。`,
+    Notes: `关于、能力、案例、新闻、公告详情和联系页内容完整；授权资质/案例默认拒绝；公告保留版本与生效日期；每页有明确下一步。${fullVerify === 'PASS_17_OF_17' ? 'pnpm verify 17/17通过。' : '完整门禁尚未通过。'}${pullRequestCi === 'CI_PASS' ? `PR #${pullRequest} head ${pullRequestCiHead} run ${pullRequestCiRun}/job ${pullRequestCiJob}通过。` : ''}M5 CMS、授权客户材料、staging/device/production未执行。`,
   },
 ]);
 
@@ -134,10 +141,15 @@ await upsertCsv('10-测试证据登记.csv', ['EvidenceID'], [
     CommandOrProcedure: 'RED P0-075 Chromium 1/3；最小补齐新闻/公告详情/联系CTA；portal lint/typecheck/build；GREEN P0-075 Chromium 3/3；related portal tests；pnpm verify',
     Actual: implemented ? '宣传页内容、明确CTA、授权默认拒绝、公告版本日期、未知slug 404、公开缓存与敏感字段边界通过。' : '实现中。',
     Environment: 'LOCAL_WINDOWS_NODE22_NEXT_ISR_PLAYWRIGHT_CHROMIUM', AppOrBrowserVersion: 'Node 22.23.1; pnpm 10.12.1; Next.js 16.2.12; Playwright Chromium',
-    ExecutedAt: updatedAt, CommitSHA: commit, CIRunURL: pullRequestCi === 'CI_PASS' && pullRequest ? `https://github.com/EasyStep-lee/flt1/pull/${pullRequest}/checks` : '',
+    ExecutedAt: updatedAt, CommitSHA: commit,
+    CIRunURL: pullRequestCi === 'CI_PASS' && pullRequestCiRun ? `https://github.com/EasyStep-lee/flt1/actions/runs/${pullRequestCiRun}` : '',
     ArtifactOrScreenshot: 'docs/contracts/m3/M3-P075-portal-publicity-pages.md|artifacts/verification/M3-P075/portal-publicity-pages.json|artifacts/verification/M3-P075/portal-publicity-desktop.png|artifacts/verification/M3-P075/portal-publicity-mobile.png',
-    Executor: 'CODEX', Freshness: 'FRESH_LOCAL_WORKTREE',
-    FailureOrBlocker: '客户/资质正式公开授权、Draft PR精确head CI、staging/device/production未执行', RetestRequired: 'YES',
+    Executor: pullRequestCi === 'CI_PASS' ? 'GITHUB_ACTIONS+CODEX' : 'CODEX',
+    Freshness: pullRequestCi === 'CI_PASS' ? 'FRESH_PR_HEAD' : 'FRESH_LOCAL_WORKTREE',
+    FailureOrBlocker: pullRequestCi === 'CI_PASS'
+      ? '人工合并、post-merge main CI、客户/资质正式公开授权、staging/device/production未执行'
+      : '客户/资质正式公开授权、Draft PR精确head CI、staging/device/production未执行',
+    RetestRequired: 'YES',
     Notes: '不宣称P076咨询表单、P077真实认证、M5 CMS或正式内容发布完成；不进入P076。',
   },
 ]);
@@ -170,8 +182,16 @@ status.execution = {
 status.github = {
   ...status.github,
   pullRequest, pullRequestUrl: pullRequestUrl || null, pullRequestState,
-  pullRequestMerged: false, mergeCommitSha: null, mergedAt: null, lastVerifiedPullRequestHead: null,
-  pullRequestCi: { status: pullRequestCi, runId: null, jobId: null, runUrl: null, headSha: null, completedAt: null },
+  pullRequestMerged: false, mergeCommitSha: null, mergedAt: null,
+  lastVerifiedPullRequestHead: pullRequestCi === 'CI_PASS' ? pullRequestCiHead : null,
+  pullRequestCi: {
+    status: pullRequestCi,
+    runId: pullRequestCiRun,
+    jobId: pullRequestCiJob,
+    runUrl: pullRequestCiRun ? `https://github.com/EasyStep-lee/flt1/actions/runs/${pullRequestCiRun}` : null,
+    headSha: pullRequestCiHead,
+    completedAt: pullRequestCiCompletedAt,
+  },
   latestCi: {
     scope: 'M3_P074_POST_MERGE_MAIN', status: 'CI_PASS', runId: p074.mainRun, jobId: p074.mainJob,
     runUrl: `https://github.com/EasyStep-lee/flt1/actions/runs/${p074.mainRun}`, headSha: p074.merge,
@@ -179,8 +199,11 @@ status.github = {
   },
   currentTaskDelivery: {
     taskId: 'M3-P075', issue: 122, issueUrl: 'https://github.com/EasyStep-lee/flt1/issues/122',
-    branch: 'codex/m3-portal-publicity-pages', baseCommit: p074.merge, verifiedHead: commit,
-    status: pullRequest ? 'DRAFT_PR_CI_PENDING' : implemented ? 'LOCAL_PASS_PENDING_DRAFT_PR' : 'IN_PROGRESS',
+    branch: 'codex/m3-portal-publicity-pages', baseCommit: p074.merge,
+    verifiedHead: pullRequestCi === 'CI_PASS' ? pullRequestCiHead : commit,
+    status: pullRequestCi === 'CI_PASS'
+      ? 'CI_PASS_PENDING_HUMAN_MERGE'
+      : pullRequest ? 'DRAFT_PR_CI_PENDING' : implemented ? 'LOCAL_PASS_PENDING_DRAFT_PR' : 'IN_PROGRESS',
     localRedTest: 'RECORDED_FAIL_2_OF_3_MISSING_NEWS_AND_CONTACT_NEXT_ACTIONS',
     localFocusedTest: implemented ? 'LOCAL_PASS_P075_3_OF_3' : 'NOT_EXECUTED', localFullVerify: fullVerify,
     pullRequest, pullRequestState, exactHeadCi: pullRequestCi, review: 'NOT_EXECUTED', merge: 'NOT_EXECUTED',
@@ -191,7 +214,7 @@ status.github = {
     pullRequestUrl: `https://github.com/EasyStep-lee/flt1/pull/${p074.pr}`, exactHead: p074.head,
     mergeCommit: p074.merge, mainPostMergeCiRun: p074.mainRun, mainPostMergeCiJob: p074.mainJob, status: 'CI_PASS',
   },
-  note: `M3-P074 merged-main CI_PASS；M3-P075企业宣传页面${evidenceStatus}；P076/M4以后锁定。`,
+  note: `M3-P074 merged-main CI_PASS；M3-P075企业宣传页面${evidenceStatus}${pullRequestCi === 'CI_PASS' ? `（PR #${pullRequest} run ${pullRequestCiRun}）` : ''}；P076/M4以后锁定。`,
 };
 status.evidence = {
   local: implemented ? 'LOCAL_PASS_M3_P075' : 'NOT_EXECUTED_M3_P075',
@@ -237,7 +260,11 @@ await writeFile(path.join(artifactDir, 'portal-publicity-pages.json'), `${JSON.s
     authorizedCustomerCases: 'NOT_EXECUTED', qualificationPublicMaterials: 'NOT_EXECUTED',
     cms: 'OUT_OF_SCOPE_M5', staging: 'NOT_EXECUTED', device: 'NOT_EXECUTED', production: 'NOT_EXECUTED',
   },
-  github: { issue: 122, pullRequest, pullRequestState, ciStatus: pullRequestCi },
+  github: {
+    issue: 122, pullRequest, pullRequestState, ciStatus: pullRequestCi,
+    runId: pullRequestCiRun, jobId: pullRequestCiJob, headSha: pullRequestCiHead,
+    completedAt: pullRequestCiCompletedAt,
+  },
 }, null, 2)}\n`, 'utf8');
 
 process.stdout.write(`M3_P075_LEDGERS_SYNCED:${commit}:${evidenceStatus}:${workbookSync}\n`);
