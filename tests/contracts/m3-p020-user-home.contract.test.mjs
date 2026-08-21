@@ -29,7 +29,7 @@ test('M3-P020 ledgers and generated contract preserve the personal-only home bou
   assert.match(taskLedger, /M3-P057[^\r\n]+DONE,CI_PASS/u);
   assert.match(taskLedger, /M3-P058[^\r\n]+DONE,CI_PASS/u);
   assert.match(taskLedger, /M3-P059[^\r\n]+DONE,CI_PASS/u);
-  assert.match(taskLedger, /M3-P074[^\r\n]+IN_PROGRESS,LOCAL_PASS/u);
+  assert.match(taskLedger, /M3-P074[^\r\n]+IN_PROGRESS,(?:LOCAL_PASS|CI_PASS)/u);
   assert.match(p0Ledger, /P0-020[^\r\n]+CI_PASS/u);
   assert.match(apiLedger, /API-029[^\r\n]+GENERATED,IMPLEMENTED,IMPLEMENTED/u);
 

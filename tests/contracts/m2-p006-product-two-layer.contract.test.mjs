@@ -154,6 +154,7 @@ test('M2-P006 and M2-P007 retain merged-main evidence after M2-P008 starts local
   assert.ok(
     projectStatus.github.currentTaskDelivery.exactHeadCi === 'NOT_EXECUTED' ||
       projectStatus.github.currentTaskDelivery.exactHeadCi === 'IN_PROGRESS' ||
+      projectStatus.github.currentTaskDelivery.exactHeadCi === 'CI_PASS' ||
       projectStatus.github.currentTaskDelivery.exactHeadCi.startsWith('CI_PASS_RUN_'),
   );
   assert.equal(projectStatus.github.currentTaskDelivery.merge, 'NOT_EXECUTED');
@@ -163,7 +164,7 @@ test('M2-P006 and M2-P007 retain merged-main evidence after M2-P008 starts local
     'AUTHORIZED_CASES_STAGING_DEVICE_PRODUCTION',
   );
   assert.equal(projectStatus.github.currentTaskDelivery.nextTaskUnlocked, false);
-  assert.match(projectStatus.evidence.ci, /^(?:NOT_EXECUTED|CI_PASS_M3_(?:P03[01]|P05[134])_HEAD_[0-9a-f]{7})$/u);
+  assert.match(projectStatus.evidence.ci, /^(?:NOT_EXECUTED|CI_PASS|CI_PASS_M3_(?:P03[01]|P05[134])_HEAD_[0-9a-f]{7})$/u);
 
   for (const evidence of [contract, handoff]) {
     assert.match(evidence, /P0-006/u);

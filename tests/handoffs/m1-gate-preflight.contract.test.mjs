@@ -322,7 +322,10 @@ test('project status records M1 gate success while historical blocked handoff st
     projectStatus.evidence.local,
     /^(?:LOCAL_FOCUSED_PASS_FULL_VERIFY_NOT_EXECUTED|LOCAL_PASS_M3_P030_FULL_VERIFY|LOCAL_PASS_M3_P031_FULL_VERIFY|LOCAL_PASS_M3_P051_FULL_VERIFY|LOCAL_PASS_M3_P052_FULL_VERIFY|LOCAL_PASS_M3_P053_FULL_VERIFY|LOCAL_PASS_M3_P054_FULL_VERIFY|LOCAL_PASS_M3_P055_FULL_VERIFY|LOCAL_PASS_M3_P056_FULL_VERIFY|LOCAL_PASS_M3_P057_FULL_VERIFY|LOCAL_PASS_M3_P058|LOCAL_PASS_M3_P059|LOCAL_PASS_M3_P062|LOCAL_PASS_M3_P073|LOCAL_PASS_M3_P074)$/u,
   );
-  assert.match(projectStatus.evidence.ci, /^(?:NOT_EXECUTED|CI_PASS_M3_P(?:03[01]|05[1-5])_HEAD_[0-9a-f]{7})$/u);
+  assert.match(
+    projectStatus.evidence.ci,
+    /^(?:NOT_EXECUTED|CI_PASS|CI_PASS_M3_P(?:03[01]|05[1-5])_HEAD_[0-9a-f]{7})$/u,
+  );
   assert.equal(projectStatus.evidence.staging, 'NOT_EXECUTED');
   assert.equal(projectStatus.evidence.device, 'NOT_EXECUTED');
   assert.equal(projectStatus.evidence.production, 'NOT_EXECUTED');

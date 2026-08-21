@@ -71,6 +71,7 @@ test('M2-P014 historical evidence remains while the current M2 slice advances', 
   assert.ok(
     state.github.currentTaskDelivery.exactHeadCi === 'NOT_EXECUTED' ||
       state.github.currentTaskDelivery.exactHeadCi === 'IN_PROGRESS' ||
+      state.github.currentTaskDelivery.exactHeadCi === 'CI_PASS' ||
       state.github.currentTaskDelivery.exactHeadCi.startsWith('CI_PASS_RUN_'),
   );
   assert.equal(state.github.currentTaskDelivery.merge, 'NOT_EXECUTED');

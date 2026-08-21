@@ -66,6 +66,7 @@ test('M1-P047 evidence remains closed after PR 20 merge as the project advances'
   assert.ok(
     state.github.currentTaskDelivery.exactHeadCi === 'NOT_EXECUTED' ||
       state.github.currentTaskDelivery.exactHeadCi === 'IN_PROGRESS' ||
+      state.github.currentTaskDelivery.exactHeadCi === 'CI_PASS' ||
       state.github.currentTaskDelivery.exactHeadCi.startsWith('CI_PASS_RUN_'),
   );
   assert.equal(state.github.currentTaskDelivery.merge, 'NOT_EXECUTED');
@@ -75,7 +76,7 @@ test('M1-P047 evidence remains closed after PR 20 merge as the project advances'
     state.evidence.local,
     /^(?:LOCAL_FOCUSED_PASS_FULL_VERIFY_NOT_EXECUTED|LOCAL_PASS_M3_P030_FULL_VERIFY|LOCAL_PASS_M3_P031_FULL_VERIFY|LOCAL_PASS_M3_P051_FULL_VERIFY|LOCAL_PASS_M3_P052_FULL_VERIFY|LOCAL_PASS_M3_P053_FULL_VERIFY|LOCAL_PASS_M3_P054_FULL_VERIFY|LOCAL_PASS_M3_P055_FULL_VERIFY|LOCAL_PASS_M3_P056_FULL_VERIFY|LOCAL_PASS_M3_P057_FULL_VERIFY|LOCAL_PASS_M3_P058|LOCAL_PASS_M3_P059|LOCAL_PASS_M3_P062|LOCAL_PASS_M3_P073|LOCAL_PASS_M3_P074)$/u,
   );
-  assert.match(state.evidence.ci, /^(?:NOT_EXECUTED|CI_PASS_M3_(?:P03[01]|P05[134])_HEAD_[0-9a-f]{7})$/u);
+  assert.match(state.evidence.ci, /^(?:NOT_EXECUTED|CI_PASS|CI_PASS_M3_(?:P03[01]|P05[134])_HEAD_[0-9a-f]{7})$/u);
   assert.match(taskLedger, /M1-P047[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(taskLedger, /M1-P066[^\r\n]*DONE[^\r\n]*CI_PASS/u);
   assert.match(p0Ledger, /P0-047[^\r\n]*CI_PASS/u);

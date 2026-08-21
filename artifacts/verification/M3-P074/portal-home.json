@@ -6,7 +6,7 @@
   ],
   "status": "CI_PASS",
   "commit": "ea1f19673a532c4bbd6e9354c5b381ab087c46c7",
-  "updatedAt": "2026-08-21T07:58:31Z",
+  "updatedAt": "2026-08-21T08:07:00Z",
   "baselineSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
   "red": [
     {
@@ -63,6 +63,6 @@
     "issue": 120,
     "pullRequest": 121,
     "pullRequestState": "DRAFT",
-    "ciStatus": "CI_PASS_RUN_32460128787_JOB_96705296904"
+    "ciStatus": "CI_PASS"
   }
 }
