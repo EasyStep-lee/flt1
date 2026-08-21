@@ -3,7 +3,10 @@ import { expect, test } from '@playwright/test';
 test.describe('P0-076 supplier cooperation and enterprise welfare service', () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => {
-      window.fulisheBusinessInquirySecurity = {
+      const browserGlobal = globalThis as typeof globalThis & {
+        fulisheBusinessInquirySecurity?: { getCaptchaToken(): Promise<string> };
+      };
+      browserGlobal.fulisheBusinessInquirySecurity = {
         getCaptchaToken: async () => 'p0-captcha-token',
       };
     });
@@ -75,7 +78,10 @@ test.describe('P0-076 supplier cooperation and enterprise welfare service', () =
     await expect(page.getByText('请填写联系人', { exact: true })).toBeVisible();
 
     await page.evaluate(() => {
-      delete window.fulisheBusinessInquirySecurity;
+      const browserGlobal = globalThis as typeof globalThis & {
+        fulisheBusinessInquirySecurity?: { getCaptchaToken(): Promise<string> };
+      };
+      delete browserGlobal.fulisheBusinessInquirySecurity;
     });
     await page.getByLabel('联系人').fill('李经理');
     await page.getByLabel('企业名称').fill('南京示例企业有限公司');
@@ -88,20 +94,12 @@ test.describe('P0-076 supplier cooperation and enterprise welfare service', () =
     await page.setViewportSize({ width: 390, height: 844 });
     await page.reload();
     expect(await page.locator('html').evaluate((element) => element.scrollWidth)).toBeLessThanOrEqual(390);
-    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.evaluate(() => (
+      globalThis as unknown as { scrollTo(x: number, y: number): void }
+    ).scrollTo(0, 0));
     await page.screenshot({
       path: 'artifacts/verification/M3-P076/welfare-service-mobile.png',
       fullPage: true,
     });
   });
 });
-
-declare global {
-  interface Window {
-    fulisheBusinessInquirySecurity?: {
-      getCaptchaToken(): Promise<string>;
-    };
-  }
-}
-
-export {};
