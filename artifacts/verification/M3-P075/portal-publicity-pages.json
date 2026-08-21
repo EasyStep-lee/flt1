@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "taskId": "M3-P075",
+  "p0": [
+    "P0-075"
+  ],
+  "status": "CI_PASS",
+  "commit": "52987315967bacc6c53144d268dd0e9a09a1c7a9",
+  "updatedAt": "2026-08-21T12:13:27Z",
+  "baselineSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+  "red": [
+    {
+      "command": "pnpm exec playwright test --config playwright.p0.config.ts tests/e2e/p0/p0-075-portal-publicity-pages.spec.ts --project=chromium",
+      "exitCode": 1,
+      "result": "FAIL_2_OF_3",
+      "reason": "新闻列表、规则公告详情和联系页缺少统一明确下一步入口"
+    }
+  ],
+  "focused": [
+    {
+      "command": "pnpm --filter @fulishe/portal-web lint && pnpm --filter @fulishe/portal-web typecheck && pnpm --filter @fulishe/portal-web build",
+      "result": "PASS"
+    },
+    {
+      "command": "pnpm exec playwright test --config playwright.p0.config.ts tests/e2e/p0/p0-075-portal-publicity-pages.spec.ts --project=chromium",
+      "result": "PASS_3_OF_3"
+    }
+  ],
+  "fullVerify": "PASS_17_OF_17",
+  "invariants": {
+    "completePublicityContent": true,
+    "explicitNextActionOnListAndDetailPages": true,
+    "qualificationsFailClosedWithoutPublicAuthorization": true,
+    "customerCasesFailClosed": true,
+    "anonymousScenarioNotCustomerEndorsement": true,
+    "announcementVersionAndEffectiveDatePreserved": true,
+    "unknownSlugReturns404": true,
+    "publicStaticIsr": true,
+    "noSensitiveOrInternalPriceFields": true,
+    "desktopAndMobileResponsive": true
+  },
+  "boundaries": {
+    "migration": "NONE",
+    "openapi": "NONE",
+    "businessInquiryForm": "OUT_OF_SCOPE_P076_M5",
+    "authorizedCustomerCases": "NOT_EXECUTED",
+    "qualificationPublicMaterials": "NOT_EXECUTED",
+    "cms": "OUT_OF_SCOPE_M5",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_EXECUTED",
+    "production": "NOT_EXECUTED"
+  },
+  "github": {
+    "issue": 122,
+    "pullRequest": 123,
+    "pullRequestState": "DRAFT",
+    "ciStatus": "CI_PASS",
+    "runId": 32479902305,
+    "jobId": 96763808733,
+    "headSha": "52987315967bacc6c53144d268dd0e9a09a1c7a9",
+    "completedAt": "2026-08-21T12:13:27Z"
+  }
+}

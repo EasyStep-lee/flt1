@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
-import { JsonLd, PageHero, SectionHeading } from '../../../../public-components';
+import { ClosingCta, JsonLd, PageHero, SectionHeading } from '../../../../public-components';
 import {
   buildMetadata,
   buildWebPageJsonLd,
@@ -49,6 +49,12 @@ export default async function NewsDetailPage({ params }: { readonly params: Prom
           <div className="notice-panel"><p>本公告依据福礼社单商户供应链平台 V1.1 已确认业务边界整理。后续版本如有变化，将以新的版本和生效日期另行发布。</p></div>
         </section>
       </article>
+      <ClosingCta
+        description="企业完成注册认证后，可持续浏览企业采购商品并向平台公司统一下单。"
+        primaryHref="/enterprise-procurement"
+        primaryLabel="进入社区集采"
+        title="按已公示边界进入企业采购"
+      />
     </main>
   );
 }

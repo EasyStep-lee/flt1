@@ -21,13 +21,13 @@
   },
   "workbook": {
     "status": "VERIFIED",
-    "sha256": "10DA9C3A3EBE2D348B6EF9AADEF0D90AE9E1684F3571E887A7BA3C0D1350B97E",
+    "sha256": "D46444C8119C613AAAB6F0BE8F5884AC77D05C231800586F413273CECB7785BE",
     "currentTaskMirror": {
-      "taskId": "M3-P074",
-      "status": "LOCAL_PASS_PENDING_DRAFT_PR",
+      "taskId": "M3-P075",
+      "status": "CI_PASS_PENDING_HUMAN_MERGE",
       "sourceLedgers": "CSV_JSON_AND_WORKBOOK_UPDATED",
-      "reason": "Artifact-tool synchronized P073 merged-main evidence and M3-P074 task, P0, page, evidence and stage rows; P075 remains locked and authorized-case/staging/device/production evidence remains separate.",
-      "checkedAt": "2026-08-21T08:07:00Z"
+      "reason": "Artifact-tool synchronized P074 merged-main evidence and M3-P075 task, P0, page, evidence and stage rows; P076 remains locked and formal customer/qualification, staging, device and production evidence remains separate.",
+      "checkedAt": "2026-08-21T12:13:27Z"
     }
   },
   "sourceOfTruth": [

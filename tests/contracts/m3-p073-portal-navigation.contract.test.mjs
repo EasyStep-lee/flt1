@@ -45,7 +45,7 @@ test('M3-P073 freezes public and private portal navigation without inventing log
   assert.doesNotMatch(`${serviceAgreement}\n${privacyPolicy}`, /已通过法务审核|正式生效/u);
 });
 
-test('M3-P073 historical evidence remains valid while P074 is current', async () => {
+test('M3-P073 historical evidence remains valid while P075 is current', async () => {
   const [stateSource, freezeSource, artifactSource] = await Promise.all([
     read('福礼社Codex5.6开发执行包V1.1/16-项目状态.json'),
     read('artifacts/verification/M3-000/m3-contract-freeze.json'),
@@ -55,11 +55,11 @@ test('M3-P073 historical evidence remains valid while P074 is current', async ()
   const freeze = JSON.parse(freezeSource);
   const artifact = JSON.parse(artifactSource);
 
-  assert.equal(state.execution.currentTask, 'M3-P074');
-  assert.equal(state.execution.nextAllowedTask, 'M3-P074');
-  assert.equal(state.execution.lastCompletedTask, 'M3-P073');
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M3-P074');
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M3-P074.*M3-P075/u);
+  assert.equal(state.execution.currentTask, 'M3-P075');
+  assert.equal(state.execution.nextAllowedTask, 'M3-P075');
+  assert.equal(state.execution.lastCompletedTask, 'M3-P074');
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M3-P075');
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M3-P075.*M3-P076/u);
   assert.equal(artifact.taskId, 'M3-P073');
   assert.equal(artifact.boundaries.migration, 'NONE');
   assert.equal(artifact.boundaries.openapi, 'NONE');
