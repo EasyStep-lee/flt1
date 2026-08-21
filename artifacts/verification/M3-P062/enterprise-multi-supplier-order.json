@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "taskId": "M3-P062",
+  "p0": [
+    "P0-062"
+  ],
+  "status": "LOCAL_PASS",
+  "commit": "4da752fb583cf66e08547f5194087fa568a07341",
+  "updatedAt": "2026-08-20T11:44:50Z",
+  "baselineSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
+  "red": [
+    {
+      "command": "pnpm exec playwright test tests/e2e/p0/p0-062-enterprise-multi-supplier-order.spec.ts --config playwright.p0.config.ts",
+      "exitCode": 1,
+      "result": "FAIL_2_OF_2",
+      "reason": "商品详情尚无加入企业采购车按钮，两条测试等待按钮超时"
+    },
+    {
+      "command": "pnpm exec playwright test tests/e2e/p0/p0-062-enterprise-multi-supplier-order.spec.ts --config playwright.p0.config.ts",
+      "exitCode": 1,
+      "result": "FAIL_1_OF_3",
+      "reason": "同一购物车未知结果正确复用原键，但购物车加入新SKU后仍复用旧键"
+    }
+  ],
+  "focused": [
+    {
+      "command": "pnpm exec vitest run --config ./vitest.config.ts --project api-contract apps/api/test/supertest/unified-enterprise-procurement-api.test.mjs",
+      "result": "PASS_5_OF_5"
+    },
+    {
+      "command": "pnpm --filter @fulishe/portal-web typecheck && lint && build",
+      "result": "PASS_DYNAMIC_CART_AND_CHECKOUT"
+    },
+    {
+      "command": "pnpm exec playwright test tests/e2e/p0/p0-062-enterprise-multi-supplier-order.spec.ts --config playwright.p0.config.ts",
+      "result": "PASS_3_OF_3"
+    }
+  ],
+  "fullVerify": "PASS_17_OF_17",
+  "reviewVerify": {
+    "status": "PASS_17_OF_17",
+    "startedAt": "2026-08-20T12:26:24.854Z",
+    "endedAt": "2026-08-20T12:41:17.222Z",
+    "api": "PASS_247_OF_247",
+    "foundationE2e": "PASS_3_OF_3",
+    "p0E2e": "PASS_85_OF_85",
+    "migrationRehearsal": "PASS_PRODUCT_37",
+    "secretScan": "PASS_1087_TRACKED_FILES"
+  },
+  "invariants": {
+    "oneBuyerOrder": true,
+    "atLeastThreeSuppliers": true,
+    "oneFulfillmentPerSupplier": true,
+    "integerCents": true,
+    "mainAmountEqualsItemAndFulfillmentSums": true,
+    "serverRepricesAndDerivesOwnership": true,
+    "requestOnlySkuAndQuantity": true,
+    "sameIdempotencyKeyOnUnknown": true,
+    "newIdempotencyKeyWhenCartSignatureChanges": true,
+    "supplierPriceNeverReturned": true
+  },
+  "boundaries": {
+    "migration": "REUSE_MIG_012_AND_MIG_015_NO_NEW_SQL",
+    "openapi": "REUSE_API_048_NO_BREAKING_CHANGE",
+    "p079FullCheckoutProfiles": "OUT_OF_SCOPE",
+    "p080WorkspaceOrders": "OUT_OF_SCOPE",
+    "staging": "NOT_EXECUTED",
+    "device": "NOT_EXECUTED",
+    "production": "NOT_EXECUTED"
+  },
+  "github": {
+    "issue": 116,
+    "pullRequest": 117,
+    "pullRequestState": "DRAFT",
+    "ciStatus": "NOT_EXECUTED"
+  }
+}
