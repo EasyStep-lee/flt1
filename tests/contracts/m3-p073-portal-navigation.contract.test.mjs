@@ -45,7 +45,7 @@ test('M3-P073 freezes public and private portal navigation without inventing log
   assert.doesNotMatch(`${serviceAgreement}\n${privacyPolicy}`, /已通过法务审核|正式生效/u);
 });
 
-test('M3-P073 evidence advances only this task and keeps P074 locked', async () => {
+test('M3-P073 historical evidence remains valid while P074 is current', async () => {
   const [stateSource, freezeSource, artifactSource] = await Promise.all([
     read('福礼社Codex5.6开发执行包V1.1/16-项目状态.json'),
     read('artifacts/verification/M3-000/m3-contract-freeze.json'),
@@ -55,11 +55,11 @@ test('M3-P073 evidence advances only this task and keeps P074 locked', async () 
   const freeze = JSON.parse(freezeSource);
   const artifact = JSON.parse(artifactSource);
 
-  assert.equal(state.execution.currentTask, 'M3-P073');
-  assert.equal(state.execution.nextAllowedTask, 'M3-P073');
-  assert.equal(state.execution.lastCompletedTask, 'M3-P062');
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M3-P073');
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M3-P073.*M3-P074/u);
+  assert.equal(state.execution.currentTask, 'M3-P074');
+  assert.equal(state.execution.nextAllowedTask, 'M3-P074');
+  assert.equal(state.execution.lastCompletedTask, 'M3-P073');
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M3-P074');
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M3-P074.*M3-P075/u);
   assert.equal(artifact.taskId, 'M3-P073');
   assert.equal(artifact.boundaries.migration, 'NONE');
   assert.equal(artifact.boundaries.openapi, 'NONE');
@@ -70,5 +70,5 @@ test('M3-P073 evidence advances only this task and keeps P074 locked', async () 
   const p074 = freeze.negativeTests.filter(({ taskId }) => taskId === 'M3-P074');
   assert.equal(p062.every(({ executionStatus }) => executionStatus === 'CI_PASS'), true);
   assert.equal(p073.every(({ executionStatus }) => ['LOCAL_PASS', 'CI_PASS'].includes(executionStatus)), true);
-  assert.equal(p074.every(({ executionStatus }) => executionStatus === 'NOT_EXECUTED'), true);
+  assert.equal(p074.every(({ executionStatus }) => ['LOCAL_PASS', 'CI_PASS'].includes(executionStatus)), true);
 });

@@ -289,10 +289,10 @@ test('project status records M1 gate success while historical blocked handoff st
 
   assert.equal(projectStatus.execution.currentStage, 'M3');
   assert.equal(projectStatus.execution.nextAllowedTask, projectStatus.execution.currentTask);
-  assert.equal(projectStatus.execution.lastCompletedTask, 'M3-P062');
+  assert.equal(projectStatus.execution.lastCompletedTask, 'M3-P073');
   assert.equal(projectStatus.execution.lastPassedGate, 'M2-GATE');
   assert.equal(
-    projectStatus.execution.prohibitedUntilGate.some((item) => /M3-P073.*M3-P074/u.test(item)),
+    projectStatus.execution.prohibitedUntilGate.some((item) => /M3-P074.*M3-P075/u.test(item)),
     true,
   );
   assert.equal(
@@ -309,7 +309,7 @@ test('project status records M1 gate success while historical blocked handoff st
     projectStatus.execution.currentTask,
   );
   assert.equal(projectStatus.execution.status, 'M3_IN_PROGRESS');
-  assert.equal(projectStatus.execution.currentTask, 'M3-P073');
+  assert.equal(projectStatus.execution.currentTask, 'M3-P074');
   assert.equal(projectStatus.execution.activeTaskCount, 1);
   assert.match(
     projectStatus.github.currentTaskDelivery.status,
@@ -320,9 +320,12 @@ test('project status records M1 gate success while historical blocked handoff st
   assert.equal(projectStatus.github.previousTaskDelivery.status, 'CI_PASS');
   assert.match(
     projectStatus.evidence.local,
-    /^(?:LOCAL_FOCUSED_PASS_FULL_VERIFY_NOT_EXECUTED|LOCAL_PASS_M3_P030_FULL_VERIFY|LOCAL_PASS_M3_P031_FULL_VERIFY|LOCAL_PASS_M3_P051_FULL_VERIFY|LOCAL_PASS_M3_P052_FULL_VERIFY|LOCAL_PASS_M3_P053_FULL_VERIFY|LOCAL_PASS_M3_P054_FULL_VERIFY|LOCAL_PASS_M3_P055_FULL_VERIFY|LOCAL_PASS_M3_P056_FULL_VERIFY|LOCAL_PASS_M3_P057_FULL_VERIFY|LOCAL_PASS_M3_P058|LOCAL_PASS_M3_P059|LOCAL_PASS_M3_P062|LOCAL_PASS_M3_P073)$/u,
+    /^(?:LOCAL_FOCUSED_PASS_FULL_VERIFY_NOT_EXECUTED|LOCAL_PASS_M3_P030_FULL_VERIFY|LOCAL_PASS_M3_P031_FULL_VERIFY|LOCAL_PASS_M3_P051_FULL_VERIFY|LOCAL_PASS_M3_P052_FULL_VERIFY|LOCAL_PASS_M3_P053_FULL_VERIFY|LOCAL_PASS_M3_P054_FULL_VERIFY|LOCAL_PASS_M3_P055_FULL_VERIFY|LOCAL_PASS_M3_P056_FULL_VERIFY|LOCAL_PASS_M3_P057_FULL_VERIFY|LOCAL_PASS_M3_P058|LOCAL_PASS_M3_P059|LOCAL_PASS_M3_P062|LOCAL_PASS_M3_P073|LOCAL_PASS_M3_P074)$/u,
   );
-  assert.match(projectStatus.evidence.ci, /^(?:NOT_EXECUTED|CI_PASS_M3_P(?:03[01]|05[1-5])_HEAD_[0-9a-f]{7})$/u);
+  assert.match(
+    projectStatus.evidence.ci,
+    /^(?:NOT_EXECUTED|CI_PASS|CI_PASS_M3_P(?:03[01]|05[1-5])_HEAD_[0-9a-f]{7})$/u,
+  );
   assert.equal(projectStatus.evidence.staging, 'NOT_EXECUTED');
   assert.equal(projectStatus.evidence.device, 'NOT_EXECUTED');
   assert.equal(projectStatus.evidence.production, 'NOT_EXECUTED');
