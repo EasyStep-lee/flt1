@@ -6,6 +6,7 @@
 - 当前证据：`LOCAL_PASS`；Draft PR 和精确 head CI 尚未建立，P076 继续锁定。
 - 方案章节：综合方案 §8 门户全站；方案 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`。
 - 基线：`origin/main@ea1c72976cfa068cb38f3b5cc93172252c688a1e`。P074 PR #121 的授权 head `a0603c8cc4d64b66f5fd0fb9ca6e82ed9ae5b6a2` 已合并为 `ea1c72976cfa068cb38f3b5cc93172252c688a1e`；post-merge main run `32466425921` / job `96723873849` 成功。
+- 实现提交：`4c033c6`；后续证据提交只写回实际提交、Draft PR 和 CI 状态，不扩展业务范围。
 - 分支：`codex/m3-portal-publicity-pages`；Issue #122；本交接生成时尚无 PR。
 
 ## 唯一目标与非目标
