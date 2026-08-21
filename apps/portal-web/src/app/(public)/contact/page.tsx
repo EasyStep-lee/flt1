@@ -57,7 +57,7 @@ export default function ContactPage() {
         <SectionHeading eyebrow="隐私说明" title="按事项进入最小化咨询入口" />
         <div className="notice-panel">
           <p>企业福利咨询只收集联系人、企业名称、手机、需求摘要和明确同意，并经过来源校验、人机验证、限流和幂等保护。</p>
-          <p>请勿提交营业执照原件、身份证、银行账号、密码或与咨询无关的个人资料；提交咨询不会直接创建福利卡账户或资金。</p>
+          <p>请勿提交营业执照原件、身份证、银行结算资料、密码或与咨询无关的个人资料；提交咨询不会直接创建福利卡账户或资金。</p>
         </div>
         <Link className="text-link" href="/welfare-card-service#enterprise-welfare-inquiry">进入企业福利咨询 →</Link>
       </section>

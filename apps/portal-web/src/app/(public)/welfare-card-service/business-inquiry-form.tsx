@@ -160,7 +160,7 @@ export function BusinessInquiryForm() {
         <label className="inquiry-form__wide">
           <span>需求摘要 *</span>
           <textarea maxLength={500} onChange={(event) => update('demandSummary', event.target.value)} rows={4} value={values.demandSummary} />
-          <small>请说明人数范围、使用场景和希望了解的事项；不要上传证照、身份证、银行账号或密码。</small>
+          <small>请说明人数范围、使用场景和希望了解的事项；不要上传证照、身份证、银行结算资料或密码。</small>
         </label>
       </div>
       <label className="inquiry-form__consent">
