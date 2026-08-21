@@ -12,6 +12,19 @@ import {
   AUDIT_ACTOR_RESOLVER,
   DenyAuditActorResolver,
 } from '../audit/audit-log.actor.js';
+import { BusinessInquiryService } from '../business-inquiries/business-inquiry.service.js';
+import {
+  BUSINESS_INQUIRY_REPOSITORY,
+  type BusinessInquiryRepository,
+} from '../business-inquiries/business-inquiry.repository.js';
+import {
+  BUSINESS_INQUIRY_CAPTCHA_VERIFIER,
+  BUSINESS_INQUIRY_DATA_PROTECTOR,
+  BusinessInquirySecurityService,
+  UnavailableBusinessInquiryCaptchaVerifier,
+  UnavailableBusinessInquiryDataProtector,
+} from '../business-inquiries/business-inquiry.security.js';
+import { RUNTIME_CONFIG } from '../config/runtime-config.js';
 import { CompanyAuthService } from '../company-auth/company-auth.service.js';
 import {
   COMPANY_PRODUCT_APPROVAL_ACTOR_RESOLVER,
@@ -255,6 +268,28 @@ type JsonValue =
   controllers: [...OPENAPI_CONTROLLERS],
   providers: [
     HealthService,
+    BusinessInquiryService,
+    BusinessInquirySecurityService,
+    UnavailableBusinessInquiryCaptchaVerifier,
+    UnavailableBusinessInquiryDataProtector,
+    {
+      provide: RUNTIME_CONFIG,
+      useValue: { portalPublicOrigin: 'https://fulishe.example.invalid' },
+    },
+    {
+      provide: BUSINESS_INQUIRY_REPOSITORY,
+      useValue: {
+        submit: async () => ({ kind: 'SINGLE_MERCHANT_VIOLATION' }),
+      } satisfies BusinessInquiryRepository,
+    },
+    {
+      provide: BUSINESS_INQUIRY_CAPTCHA_VERIFIER,
+      useExisting: UnavailableBusinessInquiryCaptchaVerifier,
+    },
+    {
+      provide: BUSINESS_INQUIRY_DATA_PROTECTOR,
+      useExisting: UnavailableBusinessInquiryDataProtector,
+    },
     AuditLogService,
     SensitiveApprovalService,
     CompanyAuthService,

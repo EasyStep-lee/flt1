@@ -600,8 +600,35 @@ model Company {
   welfareCardBindingCommands WelfareCardBindingCommand[]
   welfareCardPaymentCommands WelfareCardPaymentCommand[]
   welfareCardAdjustments     WelfareCardAdjustment[]
+  businessInquiries          BusinessInquiry[]
 
   @@map("company")
+}
+
+model BusinessInquiry {
+  id                String   @id @default(uuid()) @db.Char(36)
+  companyId         String   @map("company_id") @db.Char(36)
+  leadNumber        String   @unique(map: "business_inquiry_lead_number_key") @map("lead_number") @db.VarChar(32)
+  inquiryType       String   @map("inquiry_type") @db.VarChar(32)
+  contactName       String   @map("contact_name") @db.VarChar(64)
+  enterpriseName    String   @map("enterprise_name") @db.VarChar(191)
+  contactMobileEncrypted String @map("contact_mobile_encrypted") @db.VarChar(500)
+  demandSummary     String   @map("demand_summary") @db.VarChar(500)
+  sourcePage        String   @map("source_page") @db.VarChar(255)
+  consentVersion    Int      @map("consent_version")
+  consentedAt       DateTime @map("consented_at") @db.DateTime(3)
+  status            String   @default("SUBMITTED") @db.VarChar(16)
+  idempotencyKey    String   @map("idempotency_key") @db.VarChar(128)
+  requestHash       String   @map("request_hash") @db.Char(64)
+  requestId         String   @map("request_id") @db.VarChar(128)
+  sourceFingerprint String   @map("source_fingerprint") @db.Char(64)
+  createdAt         DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  company           Company  @relation(fields: [companyId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "business_inquiry_company_fkey")
+
+  @@unique([companyId, idempotencyKey], map: "business_inquiry_company_idempotency_key")
+  @@index([companyId, status, createdAt], map: "business_inquiry_company_status_time_idx")
+  @@index([requestId], map: "business_inquiry_request_id_idx")
+  @@map("business_inquiry")
 }
 
 model CompanyUser {

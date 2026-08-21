@@ -1,4 +1,5 @@
 import { AuditLogController } from '../audit/audit-log.controller.js';
+import { BusinessInquiryController } from '../business-inquiries/business-inquiry.controller.js';
 import { PublicCatalogController } from '../catalog/public-catalog.controller.js';
 import { EnterpriseCatalogController } from '../catalog/enterprise-catalog.controller.js';
 import { CategoryController } from '../categories/category.controller.js';
@@ -51,6 +52,7 @@ import { WelfareCardPaymentController } from '../welfare-card-payments/welfare-c
 
 export const OPENAPI_CONTROLLERS = Object.freeze([
   AuditLogController,
+  BusinessInquiryController,
   PublicCatalogController,
   EnterpriseCatalogController,
   RegulatedCategoryController,

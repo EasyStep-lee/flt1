@@ -28,8 +28,9 @@ const products = [
     media: [{ url: 'https://cdn.example.test/catalog/tissue.webp', alt: '企业采购测试纸品' }],
   },
 ];
-const observations = { orderRequests: [] };
+const observations = { businessInquiryRequests: [], orderRequests: [] };
 let orderResponseStatuses = [];
+let businessInquiryResponseStatuses = [];
 
 const readJson = async (request) => {
   const chunks = [];
@@ -50,6 +51,28 @@ const server = createServer(async (request, response) => {
   }
   response.setHeader('Cache-Control', 'private, no-store');
   response.setHeader('Content-Type', 'application/json; charset=utf-8');
+  if (request.method === 'POST' && request.url === '/v1/public/business-inquiries') {
+    const body = await readJson(request);
+    observations.businessInquiryRequests.push({
+      body,
+      captchaToken: request.headers['x-captcha-token'] ?? null,
+      idempotencyKey: request.headers['idempotency-key'] ?? null,
+    });
+    const forcedStatus = businessInquiryResponseStatuses.shift();
+    if (forcedStatus === 503) {
+      sendJson(response, 503, { code: 'SERVICE_UNAVAILABLE' });
+      return;
+    }
+    sendJson(response, 201, {
+      leadNumber: 'FLX20260821P076TEST',
+      status: 'SUBMITTED',
+      submittedAt: '2026-08-21T13:00:00.000Z',
+      useNotice: '资料仅用于本次企业福利咨询与后续联系，不会直接创建福利卡资金账户。',
+      contactExpectation: '公司将在完成内部受理后联系；具体时间以实际沟通为准。',
+      modificationOrWithdrawalChannel: '189****9999',
+    });
+    return;
+  }
   if (request.headers.cookie !== '__Host-fulishe-enterprise-portal=p0-session') {
     sendJson(response, 401, { code: 'AUTHENTICATION_REQUIRED' });
     return;
@@ -62,6 +85,13 @@ const server = createServer(async (request, response) => {
     const body = await readJson(request);
     orderResponseStatuses = Array.isArray(body.statuses) ? [...body.statuses] : [];
     observations.orderRequests.length = 0;
+    sendJson(response, 200, { accepted: true });
+    return;
+  }
+  if (request.method === 'POST' && request.url === '/test-business-inquiry-behavior') {
+    const body = await readJson(request);
+    businessInquiryResponseStatuses = Array.isArray(body.statuses) ? [...body.statuses] : [];
+    observations.businessInquiryRequests.length = 0;
     sendJson(response, 200, { accepted: true });
     return;
   }

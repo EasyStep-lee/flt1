@@ -991,6 +991,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/public/business-inquiries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit a minimum enterprise welfare inquiry to the single merchant */
+        post: operations["publicBusinessInquiry.submit"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/public/merchant-profile": {
         parameters: {
             query?: never;
@@ -1489,6 +1506,24 @@ export interface components {
             page: number;
             /** @default 20 */
             pageSize: number;
+        };
+        BusinessInquiryRequestDto: {
+            /** @enum {boolean} */
+            consentToUse: true;
+            contactName: string;
+            demandSummary: string;
+            enterpriseName: string;
+            mobile: string;
+        };
+        BusinessInquiryResponseDto: {
+            contactExpectation: string;
+            leadNumber: string;
+            modificationOrWithdrawalChannel: string;
+            /** @enum {string} */
+            status: "SUBMITTED";
+            /** Format: date-time */
+            submittedAt: string;
+            useNotice: string;
         };
         BuyerOrderItemResponseDto: {
             /** Format: uuid */
@@ -6856,6 +6891,74 @@ export interface operations {
                 };
             };
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+        };
+    };
+    "publicBusinessInquiry.submit": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Captcha-Token": string;
+                "Sec-Fetch-Site": string;
+                Origin: string;
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BusinessInquiryRequestDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BusinessInquiryResponseDto"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorResponseDto"];
+                };
+            };
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -5,7 +5,7 @@ const publicNavigation = [
   ['关于福礼团', '/about'],
   ['供应链能力', '/capabilities'],
   ['社区集采', '/enterprise-procurement'],
-  ['福利卡', '/contact#enterprise-welfare'],
+  ['福利卡', '/welfare-card-service'],
   ['供应商合作', '/supplier-cooperation'],
   ['新闻公告', '/news'],
   ['联系我们', '/contact'],

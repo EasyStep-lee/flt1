@@ -4,6 +4,9 @@ import type { INestApplication, LoggerService } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 
 import type { AuditActorResolver } from './audit/audit-log.actor.js';
+import type { BusinessInquiryRepository } from './business-inquiries/business-inquiry.repository.js';
+import type { BusinessInquiryCaptchaVerifier } from './business-inquiries/business-inquiry.security.js';
+import type { BusinessInquiryDataProtector } from './business-inquiries/business-inquiry.security.js';
 import type { AuditLogRepository } from './audit/audit-log.repository.js';
 import type { CompanyAuthRepository } from './company-auth/company-auth.repository.js';
 import type {
@@ -88,6 +91,9 @@ export interface CreateApplicationOptions {
   readonly enterpriseOnboardingRepository?: EnterpriseOnboardingRepository;
   readonly enterpriseOnboardingActorResolver?: EnterpriseOnboardingActorResolver;
   readonly enterpriseRegistrationVerifier?: EnterpriseRegistrationVerifier;
+  readonly businessInquiryRepository?: BusinessInquiryRepository;
+  readonly businessInquiryCaptchaVerifier?: BusinessInquiryCaptchaVerifier;
+  readonly businessInquiryDataProtector?: BusinessInquiryDataProtector;
   readonly functionalAccountRepository?: SupplierFunctionalAccountRepository;
   readonly functionalAccountActorResolver?: FunctionalAccountActorResolver;
   readonly functionalAccountSecondVerifier?: FunctionalAccountSecondVerifier;
@@ -171,6 +177,15 @@ export const createApplication = async (
       : {}),
     ...(options.enterpriseRegistrationVerifier
       ? { enterpriseRegistrationVerifier: options.enterpriseRegistrationVerifier }
+      : {}),
+    ...(options.businessInquiryRepository
+      ? { businessInquiryRepository: options.businessInquiryRepository }
+      : {}),
+    ...(options.businessInquiryCaptchaVerifier
+      ? { businessInquiryCaptchaVerifier: options.businessInquiryCaptchaVerifier }
+      : {}),
+    ...(options.businessInquiryDataProtector
+      ? { businessInquiryDataProtector: options.businessInquiryDataProtector }
       : {}),
     ...(options.functionalAccountRepository
       ? { functionalAccountRepository: options.functionalAccountRepository }
