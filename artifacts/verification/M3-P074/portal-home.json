@@ -5,8 +5,8 @@
     "P0-074"
   ],
   "status": "LOCAL_PASS",
-  "commit": "666326b38fe75014ee43974683c8be90df7e187b",
-  "updatedAt": "2026-08-21T07:41:50Z",
+  "commit": "dff183b3bb4444a8edda291346af17b722bdc5e8",
+  "updatedAt": "2026-08-21T07:44:57Z",
   "baselineSha256": "1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92",
   "red": [
     {
@@ -61,8 +61,8 @@
   },
   "github": {
     "issue": 120,
-    "pullRequest": null,
-    "pullRequestState": "NOT_CREATED",
+    "pullRequest": 121,
+    "pullRequestState": "DRAFT",
     "ciStatus": "NOT_EXECUTED"
   }
 }
