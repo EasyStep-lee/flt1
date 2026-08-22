@@ -10,24 +10,24 @@
   "counts": {
     "tasks": 149,
     "p0": 119,
-    "fields": 788,
-    "stateTransitions": 119,
-    "permissions": 22,
+    "fields": 795,
+    "stateTransitions": 120,
+    "permissions": 23,
     "pages": 80,
     "externalDependencies": 28,
     "migrations": 31,
-    "apiContracts": 111,
+    "apiContracts": 112,
     "githubIssues": 149
   },
   "workbook": {
     "status": "VERIFIED",
-    "sha256": "D46444C8119C613AAAB6F0BE8F5884AC77D05C231800586F413273CECB7785BE",
+    "sha256": "C04485FD68B2D023DA20131DFBD810FB0E906B97D3B5ECD80AAC2B51DD12849E",
     "currentTaskMirror": {
-      "taskId": "M3-P075",
-      "status": "CI_PASS_PENDING_HUMAN_MERGE",
+      "taskId": "M3-P076",
+      "status": "LOCAL_PASS_PENDING_DRAFT_PR",
       "sourceLedgers": "CSV_JSON_AND_WORKBOOK_UPDATED",
-      "reason": "Artifact-tool synchronized P074 merged-main evidence and M3-P075 task, P0, page, evidence and stage rows; P076 remains locked and formal customer/qualification, staging, device and production evidence remains separate.",
-      "checkedAt": "2026-08-21T12:13:27Z"
+      "reason": "P075 merged-main evidence closed；P076 public pages and minimum protected inquiry evidence current；P077 remains locked.",
+      "checkedAt": "2026-08-22T02:08:04.3684144Z"
     }
   },
   "sourceOfTruth": [
