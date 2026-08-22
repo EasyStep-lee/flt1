@@ -114,8 +114,251 @@
     ]
   },
   "fieldContract": {
-    "count": 322,
+    "count": 339,
     "entities": [
+      {
+        "entity": "BusinessInquiry",
+        "fields": [
+          {
+            "name": "id",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "公开提交最小DTO；公开响应严格白名单；后续后台读取不在本切片",
+            "forbiddenExposure": "数据库内部主键，不进入公开响应",
+            "validation": "server-owned identifier; owner scope checked before not-found disclosure",
+            "historyRule": "创建后数据库触发器禁止UPDATE/DELETE；命令与审计追加保存",
+            "p0Ids": [
+              "P0-076"
+            ]
+          },
+          {
+            "name": "inquiryType",
+            "type": "Enum<BusinessInquiryinquiryType>",
+            "required": true,
+            "format": "ENTERPRISE_WELFARE",
+            "sensitivity": "INTERNAL",
+            "visibility": "公开提交最小DTO；公开响应严格白名单；后续后台读取不在本切片",
+            "forbiddenExposure": "服务端固定",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "创建后数据库触发器禁止UPDATE/DELETE；命令与审计追加保存",
+            "p0Ids": [
+              "P0-076"
+            ]
+          },
+          {
+            "name": "enterpriseName",
+            "type": "String(191)",
+            "required": true,
+            "format": "UTF-8; max 191 chars",
+            "sensitivity": "INTERNAL",
+            "visibility": "公开提交最小DTO；公开响应严格白名单；后续后台读取不在本切片",
+            "forbiddenExposure": "仅本次提交；响应不回显",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "创建后数据库触发器禁止UPDATE/DELETE；命令与审计追加保存",
+            "p0Ids": [
+              "P0-076"
+            ]
+          },
+          {
+            "name": "contactName",
+            "type": "String(191)",
+            "required": true,
+            "format": "UTF-8; max 191 chars",
+            "sensitivity": "PERSONAL_OR_SENSITIVE",
+            "visibility": "公开提交最小DTO；公开响应严格白名单；后续后台读取不在本切片",
+            "forbiddenExposure": "仅本次提交；响应不回显",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "创建后数据库触发器禁止UPDATE/DELETE；命令与审计追加保存",
+            "p0Ids": [
+              "P0-076"
+            ]
+          },
+          {
+            "name": "contactMobileEncrypted",
+            "type": "String(191)",
+            "required": true,
+            "format": "UTF-8; max 191 chars",
+            "sensitivity": "PERSONAL_OR_SENSITIVE",
+            "visibility": "公开提交最小DTO；公开响应严格白名单；后续后台读取不在本切片",
+            "forbiddenExposure": "明文不得落库/日志/公开响应",
+            "validation": "encrypted or one-way hashed; masked DTO; never logged in plaintext",
+            "historyRule": "创建后数据库触发器禁止UPDATE/DELETE；命令与审计追加保存",
+            "p0Ids": [
+              "P0-076"
+            ]
+          },
+          {
+            "name": "demandSummary",
+            "type": "String(191)",
+            "required": true,
+            "format": "UTF-8; max 191 chars",
+            "sensitivity": "INTERNAL",
+            "visibility": "公开提交最小DTO；公开响应严格白名单；后续后台读取不在本切片",
+            "forbiddenExposure": "响应不回显；禁止凭证/密码",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "创建后数据库触发器禁止UPDATE/DELETE；命令与审计追加保存",
+            "p0Ids": [
+              "P0-076"
+            ]
+          },
+          {
+            "name": "sourcePage",
+            "type": "String(191)",
+            "required": true,
+            "format": "UTF-8; max 191 chars",
+            "sensitivity": "INTERNAL",
+            "visibility": "公开提交最小DTO；公开响应严格白名单；后续后台读取不在本切片",
+            "forbiddenExposure": "服务端固定",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "创建后数据库触发器禁止UPDATE/DELETE；命令与审计追加保存",
+            "p0Ids": [
+              "P0-076"
+            ]
+          },
+          {
+            "name": "consentVersion",
+            "type": "Int",
+            "required": true,
+            "format": "integer",
+            "sensitivity": "INTERNAL",
+            "visibility": "公开提交最小DTO；公开响应严格白名单；后续后台读取不在本切片",
+            "forbiddenExposure": "服务端固定",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "创建后数据库触发器禁止UPDATE/DELETE；命令与审计追加保存",
+            "p0Ids": [
+              "P0-076"
+            ]
+          },
+          {
+            "name": "status",
+            "type": "String(191)",
+            "required": true,
+            "format": "UTF-8; max 191 chars",
+            "sensitivity": "PUBLIC_RESULT",
+            "visibility": "公开提交最小DTO；公开响应严格白名单；后续后台读取不在本切片",
+            "forbiddenExposure": "本切片仅创建SUBMITTED",
+            "validation": "legal state transition, optimistic version and audit required",
+            "historyRule": "创建后数据库触发器禁止UPDATE/DELETE；命令与审计追加保存",
+            "p0Ids": [
+              "P0-076"
+            ]
+          },
+          {
+            "name": "createdAt",
+            "type": "DateTime",
+            "required": true,
+            "format": "UTC ISO-8601",
+            "sensitivity": "PUBLIC_RESULT",
+            "visibility": "公开提交最小DTO；公开响应严格白名单；后续后台读取不在本切片",
+            "forbiddenExposure": "白名单映射为submittedAt",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "创建后数据库触发器禁止UPDATE/DELETE；命令与审计追加保存",
+            "p0Ids": [
+              "P0-076"
+            ]
+          },
+          {
+            "name": "companyId",
+            "type": "String(36)",
+            "required": true,
+            "format": "UUID v4",
+            "sensitivity": "INTERNAL",
+            "visibility": "公开提交最小DTO；公开响应严格白名单；后续后台读取不在本切片",
+            "forbiddenExposure": "客户端禁止提交；公开响应禁止返回",
+            "validation": "derived from verified server session or owned aggregate; client owner input rejected",
+            "historyRule": "创建后数据库触发器禁止UPDATE/DELETE；命令与审计追加保存",
+            "p0Ids": [
+              "P0-076"
+            ]
+          },
+          {
+            "name": "leadNumber",
+            "type": "String(191)",
+            "required": true,
+            "format": "UTF-8; max 191 chars",
+            "sensitivity": "PUBLIC_RESULT",
+            "visibility": "公开提交最小DTO；公开响应严格白名单；后续后台读取不在本切片",
+            "forbiddenExposure": "仅成功响应返回",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "创建后数据库触发器禁止UPDATE/DELETE；命令与审计追加保存",
+            "p0Ids": [
+              "P0-076"
+            ]
+          },
+          {
+            "name": "consentedAt",
+            "type": "DateTime",
+            "required": true,
+            "format": "UTC ISO-8601",
+            "sensitivity": "INTERNAL",
+            "visibility": "公开提交最小DTO；公开响应严格白名单；后续后台读取不在本切片",
+            "forbiddenExposure": "仅追加",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "创建后数据库触发器禁止UPDATE/DELETE；命令与审计追加保存",
+            "p0Ids": [
+              "P0-076"
+            ]
+          },
+          {
+            "name": "idempotencyKey",
+            "type": "String(191)",
+            "required": true,
+            "format": "UTF-8; max 191 chars",
+            "sensitivity": "INTERNAL",
+            "visibility": "公开提交最小DTO；公开响应严格白名单；后续后台读取不在本切片",
+            "forbiddenExposure": "禁止公开返回",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "创建后数据库触发器禁止UPDATE/DELETE；命令与审计追加保存",
+            "p0Ids": [
+              "P0-076"
+            ]
+          },
+          {
+            "name": "requestHash",
+            "type": "String(191)",
+            "required": true,
+            "format": "UTF-8; max 191 chars",
+            "sensitivity": "INTERNAL",
+            "visibility": "公开提交最小DTO；公开响应严格白名单；后续后台读取不在本切片",
+            "forbiddenExposure": "禁止公开返回",
+            "validation": "encrypted or one-way hashed; masked DTO; never logged in plaintext",
+            "historyRule": "创建后数据库触发器禁止UPDATE/DELETE；命令与审计追加保存",
+            "p0Ids": [
+              "P0-076"
+            ]
+          },
+          {
+            "name": "requestId",
+            "type": "String(191)",
+            "required": true,
+            "format": "UTF-8; max 191 chars",
+            "sensitivity": "INTERNAL",
+            "visibility": "公开提交最小DTO；公开响应严格白名单；后续后台读取不在本切片",
+            "forbiddenExposure": "只用于审计关联",
+            "validation": "server-owned identifier; owner scope checked before not-found disclosure",
+            "historyRule": "创建后数据库触发器禁止UPDATE/DELETE；命令与审计追加保存",
+            "p0Ids": [
+              "P0-076"
+            ]
+          },
+          {
+            "name": "sourceFingerprint",
+            "type": "String(191)",
+            "required": true,
+            "format": "UTF-8; max 191 chars",
+            "sensitivity": "PERSONAL_OR_SENSITIVE",
+            "visibility": "公开提交最小DTO；公开响应严格白名单；后续后台读取不在本切片",
+            "forbiddenExposure": "不保存原始IP；禁止公开返回",
+            "validation": "DTO whitelist; required/type/range/ownership validation",
+            "historyRule": "创建后数据库触发器禁止UPDATE/DELETE；命令与审计追加保存",
+            "p0Ids": [
+              "P0-076"
+            ]
+          }
+        ]
+      },
       {
         "entity": "ConsumerUser",
         "fields": [
@@ -5965,6 +6208,19 @@
         "p0Ids": [
           "P0-059"
         ]
+      },
+      {
+        "stateMachine": "BusinessInquiry",
+        "currentState": "NONE",
+        "event": "SUBMIT_PUBLIC_INQUIRY",
+        "nextState": "SUBMITTED",
+        "allowedActor": "PUBLIC_VISITOR",
+        "guard": "same-origin/site+captcha+rate limit+minimal DTO+unique active company",
+        "sideEffect": "同事务追加BusinessInquiry与AuditLog；不创建企业客户、福利卡账户或资金",
+        "idempotency": "companyId+Idempotency-Key+requestHash；同体回放，同键异体409",
+        "p0Ids": [
+          "P0-076"
+        ]
       }
     ],
     "illegalTransition": {
@@ -6047,6 +6303,17 @@
           "P0-059",
           "P0-093",
           "P0-098"
+        ]
+      },
+      {
+        "roleCode": "PUBLIC_BUSINESS_INQUIRY",
+        "ownerType": "PUBLIC",
+        "entryRoute": "/welfare-card-service",
+        "dataScope": "companyId由服务端唯一ACTIVE公司派生",
+        "supplyPriceVisibility": "NEVER",
+        "forbiddenActions": "提交归属/资金/审批/状态字段；读取内部UUID、明文手机号、企业存在性、供应价；更新或删除咨询",
+        "p0Ids": [
+          "P0-076"
         ]
       }
     ]
@@ -6200,6 +6467,25 @@
         "p0Ids": [
           "P0-038",
           "P0-080"
+        ],
+        "implementationStatus": "NOT_IMPLEMENTED"
+      },
+      {
+        "pageId": "PAGE-042",
+        "route": "/welfare-card-service",
+        "p0Ids": [
+          "P0-051",
+          "P0-076"
+        ],
+        "implementationStatus": "NOT_IMPLEMENTED"
+      },
+      {
+        "pageId": "PAGE-043",
+        "route": "/supplier-cooperation",
+        "p0Ids": [
+          "P0-003",
+          "P0-076",
+          "P0-027"
         ],
         "implementationStatus": "NOT_IMPLEMENTED"
       },
@@ -6894,6 +7180,18 @@
           "P0-072"
         ],
         "implementationStatus": "NOT_IMPLEMENTED"
+      },
+      {
+        "contractId": "API-112",
+        "method": "POST",
+        "path": "/v1/public/business-inquiries",
+        "requestDto": "BusinessInquiryRequestDto",
+        "responseDto": "BusinessInquiryResponseDto",
+        "errorCodes": "VALIDATION_FAILED,FIELD_FORBIDDEN,ACCESS_DENIED,SERVICE_UNAVAILABLE,RATE_LIMITED,IDEMPOTENCY_CONFLICT",
+        "p0Ids": [
+          "P0-076"
+        ],
+        "implementationStatus": "NOT_IMPLEMENTED"
       }
     ]
   },
@@ -6925,7 +7223,12 @@
     },
     {
       "migrationId": "MIG-015",
-      "purpose": "允许严格FREEZE/CAPTURE账本形状并保存每订单唯一、按消费者幂等域的不可变全额支付命令",
+      "purpose": "企业主订单与地址/发票/付款路由不可变快照",
+      "status": "PLANNED_NOT_CREATED"
+    },
+    {
+      "migrationId": "MIG-016",
+      "purpose": "最小公开企业福利咨询、加密联系字段、幂等命令证据与不可变历史",
       "status": "PLANNED_NOT_CREATED"
     },
     {
@@ -6961,6 +7264,11 @@
     {
       "migrationId": "MIG-014B",
       "purpose": "增加每账户连续账本序号、完整业务类型约束、财务调整/冲正双人复核与不可变历史/命令",
+      "status": "PLANNED_NOT_CREATED"
+    },
+    {
+      "migrationId": "MIG-015B",
+      "purpose": "福利卡全额支付FREEZE/CAPTURE约束与幂等命令",
       "status": "PLANNED_NOT_CREATED"
     }
   ],
@@ -7059,7 +7367,7 @@
       "p0Id": "P0-020",
       "category": "SUPPLY_PRICE_LEAK",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P020-02",
@@ -7067,7 +7375,7 @@
       "p0Id": "P0-020",
       "category": "UNAUTHORIZED_OR_WRONG_OWNER",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P020-03",
@@ -7075,7 +7383,7 @@
       "p0Id": "P0-020",
       "category": "DUPLICATE_OR_STATE_CONFLICT",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P022-01",
@@ -7083,7 +7391,7 @@
       "p0Id": "P0-022",
       "category": "CROSS_OWNER_ACCESS",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P022-02",
@@ -7091,7 +7399,7 @@
       "p0Id": "P0-022",
       "category": "UNAUTHORIZED_OR_WRONG_OWNER",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P022-03",
@@ -7099,7 +7407,7 @@
       "p0Id": "P0-022",
       "category": "DUPLICATE_OR_STATE_CONFLICT",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P023-01",
@@ -7107,7 +7415,7 @@
       "p0Id": "P0-023",
       "category": "INVALID_INPUT",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P023-02",
@@ -7115,7 +7423,7 @@
       "p0Id": "P0-023",
       "category": "UNAUTHORIZED_OR_WRONG_OWNER",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P023-03",
@@ -7123,7 +7431,7 @@
       "p0Id": "P0-023",
       "category": "DUPLICATE_OR_STATE_CONFLICT",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P024-01",
@@ -7131,7 +7439,7 @@
       "p0Id": "P0-024",
       "category": "DUPLICATE_CALLBACK",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P024-02",
@@ -7139,7 +7447,7 @@
       "p0Id": "P0-024",
       "category": "UNAUTHORIZED_OR_WRONG_OWNER",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P024-03",
@@ -7147,7 +7455,7 @@
       "p0Id": "P0-024",
       "category": "DUPLICATE_OR_STATE_CONFLICT",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P025-01",
@@ -7155,7 +7463,7 @@
       "p0Id": "P0-025",
       "category": "INVALID_INPUT",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P025-02",
@@ -7163,7 +7471,7 @@
       "p0Id": "P0-025",
       "category": "UNAUTHORIZED_OR_WRONG_OWNER",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P025-03",
@@ -7171,7 +7479,7 @@
       "p0Id": "P0-025",
       "category": "DUPLICATE_OR_STATE_CONFLICT",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P026-01",
@@ -7179,7 +7487,7 @@
       "p0Id": "P0-026",
       "category": "REFUND_OVERPAID",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P026-02",
@@ -7187,7 +7495,7 @@
       "p0Id": "P0-026",
       "category": "UNAUTHORIZED_OR_WRONG_OWNER",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P026-03",
@@ -7195,7 +7503,7 @@
       "p0Id": "P0-026",
       "category": "DUPLICATE_OR_STATE_CONFLICT",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P027-01",
@@ -7203,7 +7511,7 @@
       "p0Id": "P0-027",
       "category": "INVALID_INPUT",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P027-02",
@@ -7211,7 +7519,7 @@
       "p0Id": "P0-027",
       "category": "UNAUTHORIZED_OR_WRONG_OWNER",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P027-03",
@@ -7219,7 +7527,7 @@
       "p0Id": "P0-027",
       "category": "DUPLICATE_OR_STATE_CONFLICT",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P028-01",
@@ -7227,7 +7535,7 @@
       "p0Id": "P0-028",
       "category": "INVALID_INPUT",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P028-02",
@@ -7235,7 +7543,7 @@
       "p0Id": "P0-028",
       "category": "UNAUTHORIZED_OR_WRONG_OWNER",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P028-03",
@@ -7243,7 +7551,7 @@
       "p0Id": "P0-028",
       "category": "DUPLICATE_OR_STATE_CONFLICT",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P029-01",
@@ -7251,7 +7559,7 @@
       "p0Id": "P0-029",
       "category": "INVALID_INPUT",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P029-02",
@@ -7259,7 +7567,7 @@
       "p0Id": "P0-029",
       "category": "UNAUTHORIZED_OR_WRONG_OWNER",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P029-03",
@@ -7267,7 +7575,7 @@
       "p0Id": "P0-029",
       "category": "DUPLICATE_OR_STATE_CONFLICT",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P030-01",
@@ -7275,7 +7583,7 @@
       "p0Id": "P0-030",
       "category": "INVALID_INPUT",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P030-02",
@@ -7283,7 +7591,7 @@
       "p0Id": "P0-030",
       "category": "UNAUTHORIZED_OR_WRONG_OWNER",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P030-03",
@@ -7291,7 +7599,7 @@
       "p0Id": "P0-030",
       "category": "DUPLICATE_OR_STATE_CONFLICT",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "NOT_EXECUTED"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P031-01",
@@ -7347,7 +7655,7 @@
       "p0Id": "P0-052",
       "category": "INVALID_INPUT",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "LOCAL_PASS"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P052-02",
@@ -7355,7 +7663,7 @@
       "p0Id": "P0-052",
       "category": "UNAUTHORIZED_OR_WRONG_OWNER",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "LOCAL_PASS"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P052-03",
@@ -7363,7 +7671,7 @@
       "p0Id": "P0-052",
       "category": "DUPLICATE_OR_STATE_CONFLICT",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "LOCAL_PASS"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P053-01",
@@ -7371,7 +7679,7 @@
       "p0Id": "P0-053",
       "category": "INVALID_INPUT",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "LOCAL_PASS"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P053-02",
@@ -7379,7 +7687,7 @@
       "p0Id": "P0-053",
       "category": "UNAUTHORIZED_OR_WRONG_OWNER",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "LOCAL_PASS"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P053-03",
@@ -7387,7 +7695,7 @@
       "p0Id": "P0-053",
       "category": "DUPLICATE_OR_STATE_CONFLICT",
       "expected": "reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption",
-      "executionStatus": "LOCAL_PASS"
+      "executionStatus": "CI_PASS"
     },
     {
       "id": "NEG-M3-P054-01",
@@ -8395,7 +8703,8 @@
       "contractRefs": {
         "fields": [],
         "pages": [
-          "PAGE-025"
+          "PAGE-025",
+          "PAGE-043"
         ],
         "apis": []
       },
@@ -8562,8 +8871,7 @@
         "NEG-M3-P031-01",
         "NEG-M3-P031-02",
         "NEG-M3-P031-03"
-      ],
-      "executionStatus": "CI_PASS"
+      ]
     },
     {
       "taskId": "M3-P051",
@@ -8604,7 +8912,8 @@
           "WelfareCardBatch.createdAt"
         ],
         "pages": [
-          "PAGE-008"
+          "PAGE-008",
+          "PAGE-042"
         ],
         "apis": [
           "API-101",
@@ -8616,8 +8925,7 @@
         "NEG-M3-P051-01",
         "NEG-M3-P051-02",
         "NEG-M3-P051-03"
-      ],
-      "executionStatus": "CI_PASS"
+      ]
     },
     {
       "taskId": "M3-P052",
@@ -8666,8 +8974,7 @@
         "NEG-M3-P052-01",
         "NEG-M3-P052-02",
         "NEG-M3-P052-03"
-      ],
-      "executionStatus": "LOCAL_PASS"
+      ]
     },
     {
       "taskId": "M3-P053",
@@ -8696,8 +9003,7 @@
         "NEG-M3-P053-01",
         "NEG-M3-P053-02",
         "NEG-M3-P053-03"
-      ],
-      "executionStatus": "LOCAL_PASS"
+      ]
     },
     {
       "taskId": "M3-P054",
@@ -8726,8 +9032,7 @@
         "NEG-M3-P054-01",
         "NEG-M3-P054-02",
         "NEG-M3-P054-03"
-      ],
-      "executionStatus": "CI_PASS"
+      ]
     },
     {
       "taskId": "M3-P055",
@@ -8774,8 +9079,7 @@
         "NEG-M3-P055-01",
         "NEG-M3-P055-02",
         "NEG-M3-P055-03"
-      ],
-      "executionStatus": "CI_PASS"
+      ]
     },
     {
       "taskId": "M3-P056",
@@ -8825,8 +9129,7 @@
         "NEG-M3-P056-01",
         "NEG-M3-P056-02",
         "NEG-M3-P056-03"
-      ],
-      "executionStatus": "CI_PASS"
+      ]
     },
     {
       "taskId": "M3-P057",
@@ -8856,8 +9159,7 @@
         "NEG-M3-P057-01",
         "NEG-M3-P057-02",
         "NEG-M3-P057-03"
-      ],
-      "executionStatus": "CI_PASS"
+      ]
     },
     {
       "taskId": "M3-P058",
@@ -8944,8 +9246,7 @@
         "NEG-M3-P058-01",
         "NEG-M3-P058-02",
         "NEG-M3-P058-03"
-      ],
-      "executionStatus": "CI_PASS"
+      ]
     },
     {
       "taskId": "M3-P059",
@@ -9022,8 +9323,7 @@
         "NEG-M3-P059-01",
         "NEG-M3-P059-02",
         "NEG-M3-P059-03"
-      ],
-      "executionStatus": "CI_PASS"
+      ]
     },
     {
       "taskId": "M3-P062",
@@ -9069,8 +9369,7 @@
         "NEG-M3-P062-01",
         "NEG-M3-P062-02",
         "NEG-M3-P062-03"
-      ],
-      "executionStatus": "LOCAL_PASS"
+      ]
     },
     {
       "taskId": "M3-P073",
@@ -9123,9 +9422,32 @@
       "taskId": "M3-P076",
       "p0Id": "P0-076",
       "contractRefs": {
-        "fields": [],
-        "pages": [],
-        "apis": []
+        "fields": [
+          "BusinessInquiry.id",
+          "BusinessInquiry.inquiryType",
+          "BusinessInquiry.enterpriseName",
+          "BusinessInquiry.contactName",
+          "BusinessInquiry.contactMobileEncrypted",
+          "BusinessInquiry.demandSummary",
+          "BusinessInquiry.sourcePage",
+          "BusinessInquiry.consentVersion",
+          "BusinessInquiry.status",
+          "BusinessInquiry.createdAt",
+          "BusinessInquiry.companyId",
+          "BusinessInquiry.leadNumber",
+          "BusinessInquiry.consentedAt",
+          "BusinessInquiry.idempotencyKey",
+          "BusinessInquiry.requestHash",
+          "BusinessInquiry.requestId",
+          "BusinessInquiry.sourceFingerprint"
+        ],
+        "pages": [
+          "PAGE-042",
+          "PAGE-043"
+        ],
+        "apis": [
+          "API-112"
+        ]
       },
       "negativeTestIds": [
         "NEG-M3-P076-01",

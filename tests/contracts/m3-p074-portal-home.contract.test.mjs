@@ -45,11 +45,11 @@ test('M3-P074 merged-main evidence remains closed while P075 is current', async 
   const freeze = JSON.parse(freezeSource);
   const artifact = JSON.parse(artifactSource);
 
-  assert.equal(state.execution.currentTask, 'M3-P075');
-  assert.equal(state.execution.nextAllowedTask, 'M3-P075');
-  assert.equal(state.execution.lastCompletedTask, 'M3-P074');
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M3-P075');
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M3-P075.*M3-P076/u);
+  assert.equal(state.execution.currentTask, 'M3-P076');
+  assert.equal(state.execution.nextAllowedTask, 'M3-P076');
+  assert.equal(state.execution.lastCompletedTask, 'M3-P075');
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M3-P076');
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M3-P076.*M3-P077/u);
   assert.equal(artifact.taskId, 'M3-P074');
   assert.equal(artifact.boundaries.migration, 'NONE');
   assert.equal(artifact.boundaries.openapi, 'NONE');

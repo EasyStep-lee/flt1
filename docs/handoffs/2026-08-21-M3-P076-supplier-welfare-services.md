@@ -5,8 +5,8 @@
 - 阶段：`M3_IN_PROGRESS`；本切片：`M3-P076 / P0-076`；本地结论 `LOCAL_PASS`，M3 不因本切片自动 PASS。
 - 方案章节：综合方案 §8 门户全站、§13 安全与隐私边界；方案 SHA-256：`1153157234D2DCCDF38F0C5E468BD5D93889140153F1C21F7FEBB8FA5316EF92`。
 - 基线：`origin/main@3d82a41f916d9348aac9a6d490cf6702950a1fe1`；P075 PR #123 head `a45037ac77e0d26585e0a8642c4b964d2a534323` 已合并，post-merge main run `32482552107` / job `96771882721` 成功。
-- 开发分支：`codex/m3-portal-supplier-welfare-services`；Issue #124；Draft PR 待创建。
-- 实现与稳定性提交：`d342b26`、`c9c877e`、`caf0d0b`、`7059ce7`、`5b78aca`、`2b43d78`；证据提交待形成最终 head。
+- 开发分支：`codex/m3-portal-supplier-welfare-services`；Issue #124；Draft PR #125。
+- 实现与稳定性提交：`d342b26`、`c9c877e`、`caf0d0b`、`7059ce7`、`5b78aca`、`2b43d78`、`c482b91`；本交接所在后续提交修复首轮 CI 发现的证据契约漂移。
 
 ## 唯一目标与非目标
 
@@ -40,7 +40,9 @@
 | P075 + P076 联合回归 | `PASS 6/6` |
 | P0-063 稳定性复测 | 先在全量负载下失败（下拉竞态保留默认 INCREASE）；改为只点击当前可见选项后 `PASS 3/3`，最终两轮全量 P0 均通过 |
 | 迁移演练 | 中途因 Docker Engine 停止失败；恢复环境后 focused 及最终连续门禁均 `PASS empty=2 / upgrade=2 / restore=2 / product=38 / cleanup=PASS` |
-| 完整 `pnpm verify` | `PASS 17/17`；API `251/251`，P0 E2E `95/95`，foundation E2E `3/3`，13 个 workspace build，1131 个跟踪文件秘密扫描 |
+| 首轮 PR CI | run `32546100165` 在 regression 失败：23 个历史契约仍固定到 P074/P075，且 M3 冻结生成器无法解析新增 `BusinessInquiry.inquiryType`；未误报 CI_PASS |
+| CI 根因修复 | 历史契约推进到 P076/P075 边界；冻结生成器从任务台账确定性派生证据状态，覆盖 339 个 M3 字段；契约套件 `97/97` |
+| 完整 `pnpm verify` | 首次重跑因 Windows 写 P073 截图瞬时失败，定向复跑 `2/2`；随后连续完整重跑 `PASS 17/17`，API `251/251`、P0 E2E `95/95`、foundation E2E `3/3`、13 个 workspace build、1133 个跟踪文件秘密扫描 |
 | OpenAPI | generate/check 字节稳定，oasdiff `1.17.0` 无 breaking 变化 |
 | 工作簿 | artifact-tool 导入/更新/导出，12 张预览，公式错误 0，二次导入验证 `PASS` |
 
@@ -69,6 +71,6 @@
 
 ## GitHub 与下一门禁
 
-- 仓库：`EasyStep-lee/flt1`；基线分支：`main`；开发分支：`codex/m3-portal-supplier-welfare-services`；Issue #124；Draft PR 待创建。
+- 仓库：`EasyStep-lee/flt1`；基线分支：`main`；开发分支：`codex/m3-portal-supplier-welfare-services`；Issue #124；Draft PR #125。
 - 只允许创建/更新 Draft PR 并修复本切片 CI。未经用户对最终 head 明确授权，不得转 Ready 或合并。
 - `M3-P077` 保持锁定。只有 P076 Draft PR 最终 head CI 成功、人工授权合并且 post-merge `main` CI 成功后，才允许进入 P077；M4 及以后继续锁定。
