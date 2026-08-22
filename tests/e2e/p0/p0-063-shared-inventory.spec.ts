@@ -69,7 +69,9 @@ test('P0-063 supplier inventory page adjusts the single shared SKU balance witho
 
   await panel.getByRole('button', { name: '调整库存' }).click();
   await page.getByLabel('调整类型').click();
-  await page.getByTitle('出库减少').click();
+  await page.locator('.ant-select-dropdown:visible .ant-select-item-option')
+    .filter({ hasText: '出库减少' })
+    .click();
   await page.getByLabel('调整数量（减少填写负数）').fill('-4');
   await page.getByLabel('调整原因').fill('仓库实物出库修正');
   await page.getByRole('button', { name: '确认调整' }).click();
