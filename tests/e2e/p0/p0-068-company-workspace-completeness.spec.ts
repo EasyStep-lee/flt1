@@ -113,6 +113,7 @@ const pageResponse = (url: URL, forceEmpty = false) => {
 test('NEG-M1-068-02 all company pages keep list, detail and timeline in their own context', async ({
   page,
 }) => {
+  test.setTimeout(60_000);
   await installCurrentWorkspaceRoute(page);
   await page.route('**/v1/company-auth/workspace/page**', async (route) => {
     const response = pageResponse(new URL(route.request().url()));

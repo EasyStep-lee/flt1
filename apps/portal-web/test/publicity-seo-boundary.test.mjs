@@ -18,6 +18,7 @@ const publicPages = [
   ['/cases', '服务场景'],
   ['/cases/enterprise-welfare-service', '企业福利采购服务路径'],
   ['/supplier-cooperation', '成为福礼团合作供应商'],
+  ['/welfare-card-service', '企业福利卡服务'],
   ['/news', '新闻与公告'],
   ['/news/community-procurement-boundary', '社区集采服务边界说明'],
   ['/contact', '联系我们'],

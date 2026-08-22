@@ -37,14 +37,14 @@ test('M3-P075 evidence advances only this slice after P074 merged-main CI', asyn
   const freeze = JSON.parse(freezeSource);
   const artifact = JSON.parse(artifactSource);
 
-  assert.equal(state.execution.currentTask, 'M3-P075');
-  assert.equal(state.execution.nextAllowedTask, 'M3-P075');
-  assert.equal(state.execution.lastCompletedTask, 'M3-P074');
-  assert.equal(state.execution.lastCompletedCommit, 'ea1c72976cfa068cb38f3b5cc93172252c688a1e');
-  assert.equal(state.github.latestCi.headSha, 'ea1c72976cfa068cb38f3b5cc93172252c688a1e');
-  assert.equal(state.github.latestCi.runId, 32466425921);
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M3-P075');
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M3-P075.*M3-P076/u);
+  assert.equal(state.execution.currentTask, 'M3-P076');
+  assert.equal(state.execution.nextAllowedTask, 'M3-P076');
+  assert.equal(state.execution.lastCompletedTask, 'M3-P075');
+  assert.equal(state.execution.lastCompletedCommit, '3d82a41f916d9348aac9a6d490cf6702950a1fe1');
+  assert.equal(state.github.latestCi.headSha, '3d82a41f916d9348aac9a6d490cf6702950a1fe1');
+  assert.equal(state.github.latestCi.runId, 32482552107);
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M3-P076');
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M3-P076.*M3-P077/u);
   assert.equal(artifact.taskId, 'M3-P075');
   assert.equal(artifact.boundaries.migration, 'NONE');
   assert.equal(artifact.boundaries.openapi, 'NONE');
@@ -55,5 +55,5 @@ test('M3-P075 evidence advances only this slice after P074 merged-main CI', asyn
   const p076 = freeze.negativeTests.filter(({ taskId }) => taskId === 'M3-P076');
   assert.equal(p074.every(({ executionStatus }) => executionStatus === 'CI_PASS'), true);
   assert.equal(p075.every(({ executionStatus }) => ['LOCAL_PASS', 'CI_PASS'].includes(executionStatus)), true);
-  assert.equal(p076.every(({ executionStatus }) => executionStatus === 'NOT_EXECUTED'), true);
+  assert.equal(p076.every(({ executionStatus }) => executionStatus === 'LOCAL_PASS'), true);
 });

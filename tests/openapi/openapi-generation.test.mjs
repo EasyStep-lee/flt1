@@ -178,6 +178,7 @@ test('generated contract exposes foundation, identity, onboarding and catalog AP
     '/v1/enterprise/registrations/me/submit-review',
     '/v1/orders/{orderId}/wechat-prepay',
     '/v1/payment-notifications/wechat',
+    '/v1/public/business-inquiries',
     '/v1/public/merchant-profile',
     '/v1/supplier-auth/login',
     '/v1/supplier-auth/workspace/current',
@@ -257,6 +258,29 @@ test('generated contract exposes foundation, identity, onboarding and catalog AP
   assert.equal(
     spec.paths['/v1/public/merchant-profile'].get.operationId,
     'publicMerchant.getProfile',
+  );
+  assert.equal(
+    spec.paths['/v1/public/business-inquiries'].post.operationId,
+    'publicBusinessInquiry.submit',
+  );
+  assert.deepEqual(
+    spec.components.schemas.BusinessInquiryRequestDto.required,
+    ['contactName', 'enterpriseName', 'mobile', 'demandSummary', 'consentToUse'],
+  );
+  assert.deepEqual(
+    Object.keys(spec.components.schemas.BusinessInquiryResponseDto.properties),
+    [
+      'contactExpectation',
+      'leadNumber',
+      'modificationOrWithdrawalChannel',
+      'status',
+      'submittedAt',
+      'useNotice',
+    ],
+  );
+  assert.equal(
+    JSON.stringify(spec.components.schemas.BusinessInquiryResponseDto).includes('mobile'),
+    false,
   );
   assert.equal(
     spec.paths['/v1/catalog/products/{productId}'].get.operationId,
@@ -390,6 +414,8 @@ test('generated contract exposes foundation, identity, onboarding and catalog AP
       'AuditEventPageResponseDto',
       'AuditEventResponseDto',
       'AuditQueryDto',
+      'BusinessInquiryRequestDto',
+      'BusinessInquiryResponseDto',
       'BuyerOrderItemResponseDto',
       'CatalogMediaResponseDto',
       'CategoryCreateRequestDto',

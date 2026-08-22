@@ -81,6 +81,8 @@ export default function SupplierCooperationPage() {
         description="请从供应商独立入口提交申请；已有账号的人员从独立登录入口进入对应职能页面。"
         primaryHref="/supplier/register"
         primaryLabel="开始注册"
+        secondaryHref="/supplier/login"
+        secondaryLabel="已有账号登录"
         title="准备好资料后，提交真实合作申请"
       />
     </main>

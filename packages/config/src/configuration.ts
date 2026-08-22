@@ -28,6 +28,7 @@ export const API_RUNTIME_SCHEMA = Object.freeze({
   APP_ENV: field(false, false, 'Deployment environment layer'),
   API_HOST: field(false, false, 'API bind host'),
   API_PORT: field(false, false, 'API bind port'),
+  PORTAL_PUBLIC_ORIGIN: field(false, false, 'Allowed public portal origin'),
   DATABASE_URL: field(true, true, 'MySQL connection URL'),
   REDIS_URL: field(true, true, 'Redis connection URL'),
   [supplierSessionCredentialField]: field(
@@ -67,6 +68,7 @@ export interface ApiRuntimeConfig {
   readonly deploymentEnvironment: DeploymentEnvironment;
   readonly apiHost: string;
   readonly apiPort: number;
+  readonly portalPublicOrigin: string;
   readonly databaseUrl: string;
   readonly redisUrl: string;
   readonly supplierAuthSessionSigningKey: string;
@@ -83,6 +85,7 @@ type Environment = Readonly<Record<string, string | undefined>>;
 const DEFAULTS = Object.freeze({
   apiHost: '127.0.0.1',
   apiPort: 3_000,
+  portalPublicOrigin: 'https://fulishe.example.invalid',
   queuePrefix: 'fulishe',
   connectTimeoutMs: 3_000,
   healthProbeTimeoutMs: 1_500,
@@ -319,6 +322,26 @@ export const loadApiRuntimeConfig = (
     return throwInvalid('API_HOST', 'must not contain whitespace');
   }
 
+  const portalPublicOrigin = environment.PORTAL_PUBLIC_ORIGIN?.trim() || DEFAULTS.portalPublicOrigin;
+  let parsedPortalOrigin: URL;
+  try {
+    parsedPortalOrigin = new URL(portalPublicOrigin);
+  } catch {
+    return throwInvalid('PORTAL_PUBLIC_ORIGIN', 'must be a valid origin URL');
+  }
+  const localPortalOrigin =
+    parsedPortalOrigin.protocol === 'http:' && isLoopbackHostname(parsedPortalOrigin.hostname);
+  if (
+    (parsedPortalOrigin.protocol !== 'https:' && !localPortalOrigin) ||
+    parsedPortalOrigin.username ||
+    parsedPortalOrigin.password ||
+    parsedPortalOrigin.pathname !== '/' ||
+    parsedPortalOrigin.search ||
+    parsedPortalOrigin.hash
+  ) {
+    return throwInvalid('PORTAL_PUBLIC_ORIGIN', 'must be an HTTPS origin without path or credentials');
+  }
+
   const database = parseUrl(environment, 'DATABASE_URL', ['mysql:']);
   const redis = parseUrl(environment, 'REDIS_URL', ['redis:', 'rediss:']);
   const supplierAuthSessionSigningKey = parseSupplierSessionCredential(
@@ -353,6 +376,7 @@ export const loadApiRuntimeConfig = (
       1,
       65_535,
     ),
+    portalPublicOrigin: parsedPortalOrigin.origin,
     databaseUrl: database.raw,
     redisUrl: redis.raw,
     supplierAuthSessionSigningKey,

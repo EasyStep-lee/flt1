@@ -54,12 +54,12 @@ export default function ContactPage() {
         </div>
       </section>
       <section className="section-block">
-        <SectionHeading eyebrow="隐私说明" title="不在公开页面收集业务线索" />
+        <SectionHeading eyebrow="隐私说明" title="按事项进入最小化咨询入口" />
         <div className="notice-panel">
-          <p>本切片不提供姓名、企业、手机号、地址或凭证上传表单，不会在浏览器本地保存咨询草稿。</p>
-          <p>商务咨询的最小收集、同意、幂等、限流和审计由后续 M5 业务咨询接口实现；当前不可用的能力不以静态表单冒充。</p>
+          <p>企业福利咨询只收集联系人、企业名称、手机、需求摘要和明确同意，并经过来源校验、人机验证、限流和幂等保护。</p>
+          <p>请勿提交营业执照原件、身份证、银行结算资料、密码或与咨询无关的个人资料；提交咨询不会直接创建福利卡账户或资金。</p>
         </div>
-        <Link className="text-link" href="/supplier-cooperation">供应商可先查看合作条件与独立注册入口 →</Link>
+        <Link className="text-link" href="/welfare-card-service#enterprise-welfare-inquiry">进入企业福利咨询 →</Link>
       </section>
       <ClosingCta
         description="企业采购从企业注册开始；供应商供货协作请先核对准入条件与独立入口。"

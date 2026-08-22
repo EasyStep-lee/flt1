@@ -79,6 +79,7 @@ const enumFormats = {
   'EnterpriseRemittanceSubmission.status': 'PENDING_REVIEW|CONFIRMED|REJECTED', 'EnterpriseRemittanceReview.decision': 'CONFIRM|REJECT',
   'SupplierFulfillmentSubOrder.channelType': 'CONSUMER|ENTERPRISE', 'SupplierFulfillmentSubOrder.preparationStatus': 'PENDING|ACCEPTED|PREPARING|READY_FOR_HANDOVER|HANDED_OVER|COMPLETED|CANCELLED',
   'SupplierFulfillmentSubOrder.handoverStatus': 'NOT_READY|READY|HANDED_OVER', 'SupplierFulfillmentSubOrder.settlementStatus': 'NOT_RECONCILED|PENDING_STATEMENT|IN_STATEMENT|ADJUSTED',
+  'BusinessInquiry.inquiryType': 'ENTERPRISE_WELFARE',
 };
 const enumType = (key) => `Enum<${key.replace('.', '')}>`;
 const resolveType = (row) => {
@@ -123,9 +124,10 @@ const resolveValidation = (row) => {
   return 'DTO whitelist; required/type/range/ownership validation';
 };
 
-const [fields, states, permissions, pages, apis, migrations] = await Promise.all([
+const [fields, states, permissions, pages, apis, migrations, tasks] = await Promise.all([
   readCsv('05-字段字典初始版.csv'), readCsv('06-状态机总表.csv'), readCsv('07-权限与数据可见矩阵.csv'),
   readCsv('08-页面路由接口P0映射.csv'), readCsv('12-OpenAPI-DTO-错误码台账.csv'), readCsv('11-数据库迁移台账.csv'),
+  readCsv('03-任务台账.csv'),
 ]);
 const m3Fields = fields
   .filter(({ Stage, Source }) => Stage === 'M3' && !String(Source).startsWith('M3-P052技术'))
@@ -135,7 +137,7 @@ const m3Fields = fields
   if (!mappedP0?.length) throw new Error(`M3_FIELD_P0_MISSING:${row.Entity}.${row.Field}`);
   return { entity: row.Entity, name: row.Field, type, required: row.Required === 'YES', format: resolveFormat(row, type), sensitivity: row.Sensitivity, visibility: row.Visibility, forbiddenExposure: row.ForbiddenExposure, validation: resolveValidation(row), historyRule: row.HistoryRule, p0Ids: mappedP0 };
 });
-if (m3Fields.length !== 322) throw new Error(`M3_FIELD_COUNT:${m3Fields.length}`);
+if (m3Fields.length !== 339) throw new Error(`M3_FIELD_COUNT:${m3Fields.length}`);
 const groupedFields = [...new Set(m3Fields.map(({ entity }) => entity))].map((entity) => ({
   entity,
   fields: m3Fields
@@ -148,10 +150,13 @@ const specialCategories = new Map([
   ['P0-057', 'OUT_OF_ORDER_CALLBACK'], ['P0-026', 'REFUND_OVERPAID'], ['P0-022', 'CROSS_OWNER_ACCESS'],
   ['P0-020', 'SUPPLY_PRICE_LEAK'], ['P0-098', 'DIRECT_WX_REQUEST'], ['P0-081', 'PRIVATE_PUBLIC_CACHE'], ['P0-031', 'M3_DELIVERY_CREATION'],
 ]);
+const taskEvidenceById = new Map(tasks.map((row) => [row.TaskID, row.EvidenceStatus]));
 const negativeTests = p0Ids.flatMap((p0Id) => {
   const taskId = `M3-P${p0Id.slice(3)}`;
   const categories = [specialCategories.get(p0Id) ?? 'INVALID_INPUT', 'UNAUTHORIZED_OR_WRONG_OWNER', 'DUPLICATE_OR_STATE_CONFLICT'];
-  return categories.map((category, index) => ({ id: `NEG-${taskId}-${String(index + 1).padStart(2, '0')}`, taskId, p0Id, category, expected: 'reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption', executionStatus: 'NOT_EXECUTED' }));
+  const taskEvidence = taskEvidenceById.get(taskId);
+  const executionStatus = ['LOCAL_PASS', 'CI_PASS'].includes(taskEvidence) ? taskEvidence : 'NOT_EXECUTED';
+  return categories.map((category, index) => ({ id: `NEG-${taskId}-${String(index + 1).padStart(2, '0')}`, taskId, p0Id, category, expected: 'reject with stable error; no state, money, inventory, ledger, cache or audit invariant corruption', executionStatus }));
 });
 const slices = p0Ids.map((p0Id) => ({ taskId: `M3-P${p0Id.slice(3)}`, p0Id, contractRefs: { fields: m3Fields.filter((field) => field.p0Ids.includes(p0Id)).map((field) => `${field.entity}.${field.name}`), pages: pages.filter((row) => row.Stage === 'M3' && list(row.P0).includes(p0Id)).map((row) => row.PageID), apis: apis.filter((row) => row.Stage === 'M3' && list(row.P0).includes(p0Id)).map((row) => row.ContractID) }, negativeTestIds: negativeTests.filter((row) => row.p0Id === p0Id).map((row) => row.id) }));
 

@@ -1,5 +1,21 @@
 import { Module, type DynamicModule, type Provider } from '@nestjs/common';
 
+import { PrismaBusinessInquiryRepository } from './business-inquiries/prisma-business-inquiry.repository.js';
+import {
+  BUSINESS_INQUIRY_REPOSITORY,
+  type BusinessInquiryRepository,
+} from './business-inquiries/business-inquiry.repository.js';
+import {
+  BUSINESS_INQUIRY_CAPTCHA_VERIFIER,
+  BUSINESS_INQUIRY_DATA_PROTECTOR,
+  BusinessInquirySecurityService,
+  UnavailableBusinessInquiryCaptchaVerifier,
+  UnavailableBusinessInquiryDataProtector,
+  type BusinessInquiryCaptchaVerifier,
+  type BusinessInquiryDataProtector,
+} from './business-inquiries/business-inquiry.security.js';
+import { BusinessInquiryService } from './business-inquiries/business-inquiry.service.js';
+
 import {
   AUDIT_ACTOR_RESOLVER,
   DenyAuditActorResolver,
@@ -308,6 +324,9 @@ export interface AppModuleOptions {
   readonly enterpriseOnboardingRepository?: EnterpriseOnboardingRepository;
   readonly enterpriseOnboardingActorResolver?: EnterpriseOnboardingActorResolver;
   readonly enterpriseRegistrationVerifier?: EnterpriseRegistrationVerifier;
+  readonly businessInquiryRepository?: BusinessInquiryRepository;
+  readonly businessInquiryCaptchaVerifier?: BusinessInquiryCaptchaVerifier;
+  readonly businessInquiryDataProtector?: BusinessInquiryDataProtector;
   readonly functionalAccountRepository?: SupplierFunctionalAccountRepository;
   readonly functionalAccountActorResolver?: FunctionalAccountActorResolver;
   readonly functionalAccountSecondVerifier?: FunctionalAccountSecondVerifier;
@@ -378,6 +397,11 @@ export class AppModule {
       UnavailableEnterpriseRegistrationVerifier,
       EnterpriseRegistrationTokenService,
       EnterpriseOnboardingService,
+      PrismaBusinessInquiryRepository,
+      UnavailableBusinessInquiryCaptchaVerifier,
+      UnavailableBusinessInquiryDataProtector,
+      BusinessInquirySecurityService,
+      BusinessInquiryService,
       PrismaSupplierFunctionalAccountRepository,
       DenyFunctionalAccountActorResolver,
       UnavailableFunctionalAccountSecondVerifier,
@@ -578,6 +602,33 @@ export class AppModule {
         : {
             provide: ENTERPRISE_REGISTRATION_VERIFIER,
             useExisting: UnavailableEnterpriseRegistrationVerifier,
+          },
+      options.businessInquiryRepository
+        ? {
+            provide: BUSINESS_INQUIRY_REPOSITORY,
+            useValue: options.businessInquiryRepository,
+          }
+        : {
+            provide: BUSINESS_INQUIRY_REPOSITORY,
+            useExisting: PrismaBusinessInquiryRepository,
+          },
+      options.businessInquiryCaptchaVerifier
+        ? {
+            provide: BUSINESS_INQUIRY_CAPTCHA_VERIFIER,
+            useValue: options.businessInquiryCaptchaVerifier,
+          }
+        : {
+            provide: BUSINESS_INQUIRY_CAPTCHA_VERIFIER,
+            useExisting: UnavailableBusinessInquiryCaptchaVerifier,
+          },
+      options.businessInquiryDataProtector
+        ? {
+            provide: BUSINESS_INQUIRY_DATA_PROTECTOR,
+            useValue: options.businessInquiryDataProtector,
+          }
+        : {
+            provide: BUSINESS_INQUIRY_DATA_PROTECTOR,
+            useExisting: UnavailableBusinessInquiryDataProtector,
           },
       options.functionalAccountRepository
         ? {

@@ -350,6 +350,80 @@
         },
         "type": "object"
       },
+      "BusinessInquiryRequestDto": {
+        "properties": {
+          "consentToUse": {
+            "enum": [
+              true
+            ],
+            "type": "boolean"
+          },
+          "contactName": {
+            "maxLength": 64,
+            "minLength": 2,
+            "type": "string"
+          },
+          "demandSummary": {
+            "maxLength": 500,
+            "minLength": 10,
+            "type": "string"
+          },
+          "enterpriseName": {
+            "maxLength": 191,
+            "minLength": 2,
+            "type": "string"
+          },
+          "mobile": {
+            "maxLength": 16,
+            "minLength": 8,
+            "type": "string"
+          }
+        },
+        "required": [
+          "contactName",
+          "enterpriseName",
+          "mobile",
+          "demandSummary",
+          "consentToUse"
+        ],
+        "type": "object"
+      },
+      "BusinessInquiryResponseDto": {
+        "properties": {
+          "contactExpectation": {
+            "type": "string"
+          },
+          "leadNumber": {
+            "pattern": "^FLX\\d{8}[A-Z0-9]{8}$",
+            "type": "string"
+          },
+          "modificationOrWithdrawalChannel": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "SUBMITTED"
+            ],
+            "type": "string"
+          },
+          "submittedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "useNotice": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "leadNumber",
+          "status",
+          "submittedAt",
+          "useNotice",
+          "contactExpectation",
+          "modificationOrWithdrawalChannel"
+        ],
+        "type": "object"
+      },
       "BuyerOrderItemResponseDto": {
         "properties": {
           "orderItemId": {
@@ -13388,6 +13462,121 @@
         "summary": "Verify and idempotently process a WeChat Pay notification",
         "tags": [
           "payment-notifications"
+        ]
+      }
+    },
+    "/v1/public/business-inquiries": {
+      "post": {
+        "operationId": "publicBusinessInquiry.submit",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Captcha-Token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Sec-Fetch-Site",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Origin",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BusinessInquiryRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessInquiryResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Submit a minimum enterprise welfare inquiry to the single merchant",
+        "tags": [
+          "public-business-inquiries"
         ]
       }
     },

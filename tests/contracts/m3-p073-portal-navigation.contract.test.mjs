@@ -20,7 +20,7 @@ test('M3-P073 freezes public and private portal navigation without inventing log
     ['关于福礼团', '/about'],
     ['供应链能力', '/capabilities'],
     ['社区集采', '/enterprise-procurement'],
-    ['福利卡', '/contact#enterprise-welfare'],
+    ['福利卡', '/welfare-card-service'],
     ['供应商合作', '/supplier-cooperation'],
     ['新闻公告', '/news'],
     ['联系我们', '/contact'],
@@ -55,11 +55,11 @@ test('M3-P073 historical evidence remains valid while P075 is current', async ()
   const freeze = JSON.parse(freezeSource);
   const artifact = JSON.parse(artifactSource);
 
-  assert.equal(state.execution.currentTask, 'M3-P075');
-  assert.equal(state.execution.nextAllowedTask, 'M3-P075');
-  assert.equal(state.execution.lastCompletedTask, 'M3-P074');
-  assert.equal(state.github.currentTaskDelivery.taskId, 'M3-P075');
-  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M3-P075.*M3-P076/u);
+  assert.equal(state.execution.currentTask, 'M3-P076');
+  assert.equal(state.execution.nextAllowedTask, 'M3-P076');
+  assert.equal(state.execution.lastCompletedTask, 'M3-P075');
+  assert.equal(state.github.currentTaskDelivery.taskId, 'M3-P076');
+  assert.match(state.execution.prohibitedUntilGate.join('\n'), /M3-P076.*M3-P077/u);
   assert.equal(artifact.taskId, 'M3-P073');
   assert.equal(artifact.boundaries.migration, 'NONE');
   assert.equal(artifact.boundaries.openapi, 'NONE');
